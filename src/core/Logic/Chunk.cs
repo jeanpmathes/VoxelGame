@@ -606,9 +606,9 @@ public partial class Chunk : IDisposable
 
         Vector3i center = (1, 1, 1);
 
-        Array3D<bool> available = FindAvailableNeighbors();
+        Neighborhood<bool> available = FindAvailableNeighbors();
 
-        var needed = new Array3D<bool>(length: 3);
+        var needed = new Neighborhood<bool>();
 
         bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
 
@@ -619,9 +619,9 @@ public partial class Chunk : IDisposable
             return null;
         }
 
-        var neighbors = new Array3D<(Chunk, Guard)?>(length: 3);
+        var neighbors = new Neighborhood<(Chunk, Guard)?>();
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+        foreach ((int x, int y, int z) in Neighborhood.Indices)
         {
             if ((x, y, z) == center || !needed[x, y, z]) continue;
 
@@ -669,20 +669,20 @@ public partial class Chunk : IDisposable
         return isAnyDecorationPossible;
     }
 
-    private Array3D<bool> FindAvailableNeighbors()
+    private Neighborhood<bool> FindAvailableNeighbors()
     {
         Vector3i center = (1, 1, 1);
 
-        var available = new Array3D<bool>(length: 3);
+        var available = new Neighborhood<bool>();
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+        foreach ((int x, int y, int z) in Neighborhood.Indices)
             available[x, y, z] = (x, y, z) == center
                                  || (World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
 
         return available;
     }
 
-    private void Decorate(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    private void Decorate(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -708,10 +708,8 @@ public partial class Chunk : IDisposable
     /// <param name="generator">The world generator.</param>
     /// <param name="neighbors">The neighbors of this chunk.</param>
     /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync(IWorldGenerator generator, Array3D<Chunk?> neighbors)
+    public Task DecorateAsync(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
-        Debug.Assert(neighbors.Length == 3);
-
         return Task.Run(() => Decorate(generator, neighbors));
     }
 
@@ -726,7 +724,7 @@ public partial class Chunk : IDisposable
         void SetNeighbors(int x, int y, int z)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
         }
 
         void DecorateSection(int x, int y, int z)
@@ -754,7 +752,9 @@ public partial class Chunk : IDisposable
         };
     }
 
-    private static void DecorateCorner(IWorldGenerator generator, Array3D<Chunk?> chunks, int x, int y, int z)
+    #pragma warning disable S3242 // Type carries semantic meaning.
+    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, int x, int y, int z)
+    #pragma warning restore S3242
     {
         Vector3i center = (1, 1, 1);
 
@@ -783,12 +783,12 @@ public partial class Chunk : IDisposable
             return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
         }
 
-        var neighbors = new Array3D<Section>(length: 3);
+        var neighbors = new Neighborhood<Section>();
 
         void SetNeighbors(SectionPosition sectionPosition)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 3, y: 3, z: 3)) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
+            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
         }
 
         void DecorateSection(SectionPosition sectionPosition)

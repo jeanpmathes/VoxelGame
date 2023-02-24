@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -194,8 +193,8 @@ public partial class Chunk
     /// </summary>
     public class Decorating : ChunkState
     {
-        private readonly Array3D<Chunk?> chunks;
-        private readonly Array3D<(Chunk, Guard)?> neighbors;
+        private readonly Neighborhood<Chunk?> chunks;
+        private readonly Neighborhood<(Chunk, Guard)?> neighbors;
         private (Task task, Guard guard)? activity;
 
         /// <summary>
@@ -203,15 +202,13 @@ public partial class Chunk
         /// </summary>
         /// <param name="self">The guard for the core write access to the chunk itself.</param>
         /// <param name="neighbors">The neighbors of this chunk, with write access guards.</param>
-        public Decorating(Guard self, Array3D<(Chunk, Guard)?> neighbors) : base(self, extended: null)
+        public Decorating(Guard self, Neighborhood<(Chunk, Guard)?> neighbors) : base(self, extended: null)
         {
-            Debug.Assert(neighbors.Length == 3);
-
             this.neighbors = neighbors;
 
-            chunks = new Array3D<Chunk?>(length: 3);
+            chunks = new Neighborhood<Chunk?>();
 
-            foreach ((int x, int y, int z) in VMath.Range3(x: 3, y: 3, z: 3))
+            foreach ((int x, int y, int z) in Neighborhood.Indices)
             {
                 (Chunk chunk, Guard)? neighbor = neighbors[x, y, z];
 
@@ -430,3 +427,5 @@ public partial class Chunk
         }
     }
 }
+
+
