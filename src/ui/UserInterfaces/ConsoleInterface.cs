@@ -173,8 +173,8 @@ public class ConsoleInterface
         void SetText(int column, string text)
         {
             row.SetCellText(column, text);
-            ((Label) row.GetCellContents(column)).Font = font;
-            row.SetTextColor(color);
+            row.SetCellFont(column, font);
+            row.NormalTextOverride = color;
         }
 
         SetText(column: 0, DefaultMarker);
@@ -282,4 +282,3 @@ public class ConsoleInterface
     }
 }
      #pragma warning restore CA1001
-

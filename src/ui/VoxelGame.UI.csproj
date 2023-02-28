@@ -79,8 +79,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net" Version="0.2.2"/>
-        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.3"/>
+        <PackageReference Include="Gwen.Net" Version="0.2.3"/>
+        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.4"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
