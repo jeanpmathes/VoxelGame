@@ -194,7 +194,7 @@ internal class WorldSelection : StandardMenu
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Resizing = Resizing.None
+            Resizing = Resizing.Both
         };
 
         createNewWorldButton.Disable();
@@ -257,4 +257,3 @@ internal class WorldSelection : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
-
