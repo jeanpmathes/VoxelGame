@@ -174,7 +174,7 @@ public class ConsoleInterface
         {
             row.SetCellText(column, text);
             row.SetCellFont(column, font);
-            row.NormalTextOverride = color;
+            row.NormalTextOverrideColor = color;
         }
 
         SetText(column: 0, DefaultMarker);
