@@ -16,7 +16,7 @@ using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
-     #pragma warning disable CA1001
+#pragma warning disable CA1001
 /// <summary>
 ///     Allows accessing the ui game console.
 /// </summary>
