@@ -121,6 +121,8 @@ public class UIResources
         ReportSkinLoading(skinLoadingError, skin, loadingContext);
         ReportTextureLoading(textures, textureLoadingErrors, loadingContext);
 
+        Modals.SetupLanguage();
+
         Fonts = new FontHolder(GUI.Root.Skin);
     }
 

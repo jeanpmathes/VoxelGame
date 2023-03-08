@@ -79,7 +79,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net" Version="0.2.6"/>
+        <PackageReference Include="Gwen.Net" Version="0.2.7"/>
         <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.4"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>

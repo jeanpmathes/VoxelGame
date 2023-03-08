@@ -76,7 +76,7 @@ public class ConsoleInterface
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
         consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-        content = new EmptyControl(consoleWindow);
+        content = new Empty(consoleWindow);
 
         GridLayout layout = new(content)
         {
