@@ -43,9 +43,8 @@ public class StartUserInterface : UserInterface
     }
 
     /// <inheritdoc />
-    public override void CreateControl()
+    protected override void CreateNewControl()
     {
-        control?.Dispose();
         control = new StartUI(this, worldProvider, settingsProviders);
     }
 
@@ -74,4 +73,3 @@ public class StartUserInterface : UserInterface
         if (isCriticalMissing) control.DisableWorldSelection();
     }
 }
-

@@ -89,14 +89,13 @@ public class GameUserInterface : UserInterface
 
 
     /// <inheritdoc />
-    public override void CreateControl()
+    protected override void CreateNewControl()
     {
         Debug.Assert(settingsProviders != null);
         Debug.Assert(consoleProvider != null);
         Debug.Assert(playerDataProvider != null);
         Debug.Assert(performanceProvider != null);
 
-        control?.Dispose();
         control = new GameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
     }
 
@@ -178,4 +177,3 @@ public class GameUserInterface : UserInterface
         AnyOverlayClosed(this, EventArgs.Empty);
     }
 }
-
