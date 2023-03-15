@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using OpenTK.Windowing.Common;
@@ -21,6 +22,7 @@ using VoxelGame.Logging;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
+[assembly: SupportedOSPlatform("windows")]
 
 namespace VoxelGame.Client;
 
@@ -136,5 +138,4 @@ internal static class Program
         internal bool logDebug;
     }
 }
-
 

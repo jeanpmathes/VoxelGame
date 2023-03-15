@@ -131,6 +131,8 @@ public sealed class Shaders
         Overlay.Delete();
         Selection.Delete();
         ScreenElement.Delete();
+
+        loaded = false;
     }
 
     private void LoadAll()

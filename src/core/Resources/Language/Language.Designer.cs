@@ -60,6 +60,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Abort.
+        /// </summary>
+        public static string Abort {
+            get {
+                return ResourceManager.GetString("Abort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Air.
         /// </summary>
         public static string Air {
@@ -164,6 +173,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Cactus {
             get {
                 return ResourceManager.GetString("Cactus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
         
@@ -564,6 +582,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ignore.
+        /// </summary>
+        public static string Ignore {
+            get {
+                return ResourceManager.GetString("Ignore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input not valid!.
         /// </summary>
         public static string InputNotValid {
@@ -933,6 +960,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        public static string No {
+            get {
+                return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Fluid.
         /// </summary>
         public static string NoFluid {
@@ -947,6 +983,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Obsidian {
             get {
                 return ResourceManager.GetString("Obsidian", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ok.
+        /// </summary>
+        public static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
             }
         }
         
@@ -1091,6 +1136,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Resume {
             get {
                 return ResourceManager.GetString("Resume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retry.
+        /// </summary>
+        public static string Retry {
+            get {
+                return ResourceManager.GetString("Retry", resourceCulture);
             }
         }
         
@@ -1415,6 +1469,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Worlds {
             get {
                 return ResourceManager.GetString("Worlds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string Yes {
+            get {
+                return ResourceManager.GetString("Yes", resourceCulture);
             }
         }
     }

@@ -561,13 +561,34 @@
   <data name="Ice" xml:space="preserve">
     <value>Eis</value>
   </data>
-  <data name="Error" xml:space="preserve">
+    <data name="Error" xml:space="preserve">
     <value>Fehler</value>
   </data>
-  <data name="Roots" xml:space="preserve">
+    <data name="Roots" xml:space="preserve">
     <value>Wurzeln</value>
   </data>
-  <data name="MissingResources" xml:space="preserve">
+    <data name="MissingResources" xml:space="preserve">
     <value>Fehlende Anwendungsressourcen</value>
+  </data>
+    <data name="Abort" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+    <data name="Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+    <data name="Ignore" xml:space="preserve">
+    <value>Ignorieren</value>
+  </data>
+    <data name="Yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+    <data name="No" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+    <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+    <data name="Retry" xml:space="preserve">
+    <value>Wiederholen</value>
   </data>
 </root>

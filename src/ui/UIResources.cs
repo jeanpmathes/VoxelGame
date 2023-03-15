@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,17 +23,33 @@ namespace VoxelGame.UI;
 /// </summary>
 public class UIResources
 {
+    private static readonly List<string> iconNames = new();
+    private static readonly List<string> imageNames = new();
     private readonly List<Attribution> attributions = new();
 
-    internal string ResetIcon { get; } = GetIconName("reset");
-    internal string LoadIcon { get; } = GetIconName("load");
-    internal string DeleteIcon { get; } = GetIconName("delete");
+    internal string ResetIcon { get; } = GetIcon("reset");
+    internal string LoadIcon { get; } = GetIcon("load");
+    internal string DeleteIcon { get; } = GetIcon("delete");
 
-    internal string StartImage { get; } = GetImageName("start");
+    internal string StartImage { get; } = GetImage("start");
 
     internal IGwenGui GUI { get; private set; } = null!;
 
     internal FontHolder Fonts { get; private set; } = null!;
+
+    private static string GetIcon(string name)
+    {
+        iconNames.Add(name);
+
+        return name;
+    }
+
+    private static string GetImage(string name)
+    {
+        imageNames.Add(name);
+
+        return name;
+    }
 
     private void LoadAttributions(LoadingContext loadingContext)
     {
@@ -67,23 +84,67 @@ public class UIResources
         }
     }
 
+    private static Dictionary<string, TexturePreload> GetTexturePreloads()
+    {
+        Dictionary<string, TexturePreload> textures = new();
+
+        foreach (string name in iconNames) textures[name] = new TexturePreload(GetIconName(name), name);
+
+        foreach (string name in imageNames) textures[name] = new TexturePreload(GetImageName(name), name);
+
+        return textures;
+    }
+
     private void LoadGUI(GameWindow window, LoadingContext loadingContext)
     {
         FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
+
+        Exception? skinLoadingError = null;
+
+        Dictionary<string, TexturePreload> textures = GetTexturePreloads();
+        Dictionary<string, Exception?> textureLoadingErrors = new();
 
         GUI = GwenGuiFactory.CreateFromGame(
             window,
             GwenGuiSettings.Default.From(
                 settings =>
                 {
-                    settings.SkinFile = new FileInfo(skin.Name);
+                    settings.SkinFile = skin;
+                    settings.SkinLoadingErrorCallback = exception => skinLoadingError = exception;
+
+                    settings.TexturePreloads = textures.Values.ToList();
+                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture?.Name ?? ""] = exception;
                 }));
 
         GUI.Load();
 
-        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), skin);
+        ReportSkinLoading(skinLoadingError, skin, loadingContext);
+        ReportTextureLoading(textures, textureLoadingErrors, loadingContext);
+
+        Modals.SetupLanguage();
 
         Fonts = new FontHolder(GUI.Root.Skin);
+    }
+
+    private static void ReportSkinLoading(Exception? skinLoadingError, FileSystemInfo skinFile, LoadingContext loadingContext)
+    {
+        if (skinLoadingError != null)
+            loadingContext.ReportWarning(Events.ResourceLoad, nameof(GUI), skinFile, skinLoadingError);
+        else
+            loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), skinFile);
+    }
+
+    private static void ReportTextureLoading(Dictionary<string, TexturePreload> textures, IReadOnlyDictionary<string, Exception?> textureLoadingErrors, LoadingContext loadingContext)
+    {
+        foreach ((string name, TexturePreload texture) in textures)
+        {
+            Exception? error = textureLoadingErrors.GetValueOrDefault(name);
+
+            if (error != null)
+                loadingContext.ReportWarning(Events.ResourceLoad, nameof(GUI), texture.File, error);
+            else
+                loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), texture.File);
+        }
     }
 
     /// <summary>
@@ -126,14 +187,14 @@ public class UIResources
         return attributions.Select(attribution => CreateAttribution(attribution, context));
     }
 
-    private static string GetImageName(string name)
+    private static FileInfo GetImageName(string name)
     {
-        return FileSystem.GetResourceDirectory("GUI").GetFile($"{name}.png").FullName;
+        return FileSystem.GetResourceDirectory("GUI", "Images").GetFile($"{name}.png");
     }
 
-    private static string GetIconName(string name)
+    private static FileInfo GetIconName(string name)
     {
-        return FileSystem.GetResourceDirectory("GUI", "Icons").GetFile($"{name}.png").FullName;
+        return FileSystem.GetResourceDirectory("GUI", "Icons").GetFile($"{name}.png");
     }
 
     private sealed record Attribution(string Name, string Text);

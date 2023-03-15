@@ -16,7 +16,7 @@ using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
-     #pragma warning disable CA1001
+#pragma warning disable CA1001
 /// <summary>
 ///     Allows accessing the ui game console.
 /// </summary>
@@ -76,7 +76,7 @@ public class ConsoleInterface
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
         consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
 
-        content = new EmptyControl(consoleWindow);
+        content = new Empty(consoleWindow);
 
         GridLayout layout = new(content)
         {
@@ -173,8 +173,8 @@ public class ConsoleInterface
         void SetText(int column, string text)
         {
             row.SetCellText(column, text);
-            ((Label) row.GetCellContents(column)).Font = font;
-            row.SetTextColor(color);
+            row.SetCellFont(column, font);
+            row.NormalTextOverrideColor = color;
         }
 
         SetText(column: 0, DefaultMarker);
@@ -282,4 +282,3 @@ public class ConsoleInterface
     }
 }
      #pragma warning restore CA1001
-

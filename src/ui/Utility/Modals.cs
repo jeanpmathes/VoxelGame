@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
+using VoxelGame.Core.Resources.Language;
 
 namespace VoxelGame.UI.Utility;
 
@@ -21,14 +22,32 @@ internal static class Modals
     private static readonly Color background = new(a: 100, r: 0, g: 0, b: 0);
 
     /// <summary>
+    ///     Set up the language (text) for the modals.
+    /// </summary>
+    internal static void SetupLanguage()
+    {
+        MessageBoxButtonTexts.Shared = new MessageBoxButtonTexts
+        {
+            Abort = Language.Abort,
+            Cancel = Language.Cancel,
+            Ignore = Language.Ignore,
+            No = Language.No,
+            Ok = Language.Ok,
+            Retry = Language.Retry,
+            Yes = Language.Yes
+        };
+    }
+
+    /// <summary>
     ///     Opens a modal window with the options yes/no.
     /// </summary>
     internal static void OpenBooleanModal(ControlBase parent, string query, Action yes, Action no)
     {
-        MessageBox messageBox = new(parent, query, buttons: MessageBoxButtons.YesNo)
+        MessageBox messageBox = new(parent, query, "", MessageBoxButtonTexts.Shared, MessageBoxButtons.YesNo)
         {
             Resizing = Resizing.None,
-            IsDraggingEnabled = false
+            IsDraggingEnabled = false,
+            IsClosable = false
         };
 
         messageBox.MakeModal(dim: true, background);
@@ -64,4 +83,3 @@ internal static class Modals
         return new CloseHandel(modal);
     }
 }
-

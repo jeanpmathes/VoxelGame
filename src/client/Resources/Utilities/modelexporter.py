@@ -1,11 +1,11 @@
 # Exports a selected object from blender into the file format that is used by the BlockModel class.
+# Current supported Blender version: 2.83.5
 
 # Currently only quads are supported.
 
-import os
 import bpy
-import math
 import json
+import os
 from json import JSONEncoder
 
 PATH = os.path.expanduser("~\Desktop\\")
