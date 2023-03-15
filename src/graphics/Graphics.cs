@@ -6,6 +6,8 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
+[assembly: SupportedOSPlatform("windows")]
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
