@@ -49,7 +49,7 @@ public interface IFillable : IBlockBase
     void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         // Method intentionally left empty.
-        // Fillable blocks do not have to react when the fluid amount changes.
+        // Fillable blocks do not have to react when the fluid changes.
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ public class FluidContactManager
 
         map.AddCombination(
             fluids.Lava,
-            ContactAction.LavaCooling,
+            ContactAction.CoolLava,
             fluids.FreshWater,
             fluids.SeaWater,
             fluids.Milk,
@@ -38,16 +38,18 @@ public class FluidContactManager
             fluids.Wine,
             fluids.Honey);
 
-        map.AddCombination(fluids.Lava, ContactAction.LavaBurn, fluids.CrudeOil, fluids.NaturalGas, fluids.Petrol);
+        map.AddCombination(fluids.Lava, ContactAction.BurnWithLava, fluids.CrudeOil, fluids.NaturalGas, fluids.Petrol);
 
         map.AddCombination(
             fluids.Concrete,
-            ContactAction.ConcreteDissolve,
+            ContactAction.DissolveConcrete,
             fluids.FreshWater,
             fluids.SeaWater,
             fluids.Milk,
             fluids.Beer,
             fluids.Wine);
+
+        map.AddCombination(fluids.SeaWater, ContactAction.MixWater, fluids.FreshWater);
     }
 
     /// <summary>
@@ -69,10 +71,11 @@ public class FluidContactManager
 
         return map.Resolve(a.fluid, b.fluid) switch
         {
-            ContactAction.Default => DensitySwap(world, a, b),
-            ContactAction.LavaCooling => LavaCooling(world, a, b),
-            ContactAction.LavaBurn => LavaBurn(world, a, b),
-            ContactAction.ConcreteDissolve => ConcreteDissolve(world, a, b),
+            ContactAction.Default => SwapByDensity(world, a, b),
+            ContactAction.CoolLava => CoolLava(world, a, b),
+            ContactAction.BurnWithLava => BurnWithLava(world, a, b),
+            ContactAction.DissolveConcrete => DissolveConcrete(world, a, b),
+            ContactAction.MixWater => MixWater(world, a, b),
             _ => throw new NotSupportedException()
         };
     }
@@ -80,7 +83,7 @@ public class FluidContactManager
     /// <summary>
     ///     Cool lava, turning it into pumice and the coolant into steam.
     /// </summary>
-    private static bool LavaCooling(World world, ContactInformation a, ContactInformation b)
+    private static bool CoolLava(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
@@ -97,7 +100,7 @@ public class FluidContactManager
     /// <summary>
     ///     Let lava burn the other fluid.
     /// </summary>
-    private static bool LavaBurn(World world, ContactInformation a, ContactInformation b)
+    private static bool BurnWithLava(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation burned);
 
@@ -112,7 +115,7 @@ public class FluidContactManager
     /// <summary>
     ///     Swap the fluids if they are of different densities.
     /// </summary>
-    private static bool DensitySwap(World world, ContactInformation a, ContactInformation b)
+    private static bool SwapByDensity(World world, ContactInformation a, ContactInformation b)
     {
         if (VMath.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
 
@@ -157,13 +160,27 @@ public class FluidContactManager
 
     }
 
-    private static bool ConcreteDissolve(World world, ContactInformation a, ContactInformation b)
+    /// <summary>
+    ///     Dissolve concrete into fresh water.
+    /// </summary>
+    private static bool DissolveConcrete(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Concrete, out ContactInformation concrete, out ContactInformation other);
 
         other.fluid.TickSoon(world, other.position, other.isStatic);
 
         SetFluid(world, concrete.position, Fluids.Instance.FreshWater, concrete.level);
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Mixes fresh water with sea water, turning the fresh water into sea water.
+    /// </summary>
+    private static bool MixWater(World world, ContactInformation a, ContactInformation b)
+    {
+        Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out _);
+        SetFluid(world, fresh.position, Fluids.Instance.SeaWater, fresh.level);
 
         return true;
     }
@@ -195,9 +212,10 @@ public class FluidContactManager
     private enum ContactAction
     {
         Default,
-        LavaCooling,
-        LavaBurn,
-        ConcreteDissolve
+        CoolLava,
+        BurnWithLava,
+        DissolveConcrete,
+        MixWater
     }
 
     private readonly struct ContactInformation : IEquatable<ContactInformation>
@@ -243,5 +261,3 @@ public class FluidContactManager
         }
     }
 }
-
-
