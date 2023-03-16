@@ -452,9 +452,23 @@ public static class VMath
     /// <summary>
     ///     Get a tuple with the minimum value first and the maximum value second.
     /// </summary>
-    public static (T, T) MinMax<T>(T a, T b) where T : IComparable<T>
+    public static (T min, T max) MinMax<T>(T a, T b) where T : IComparable<T>
     {
         return a.CompareTo(b) < 0 ? (a, b) : (b, a);
+    }
+
+    /// <summary>
+    ///     Get a tuple with the minimum argument first and the maximum argument second.
+    /// </summary>
+    /// <param name="first">The first value-argument pair.</param>
+    /// <param name="second">The second value-argument pair.</param>
+    /// <typeparam name="TV">The type of the value. It will be used to compare the values.</typeparam>
+    /// <typeparam name="TA">The type of the argument.</typeparam>
+    /// <returns>A tuple with the minimum argument first and the maximum argument second.</returns>
+    public static (TA min, TA max) ArgMinMax<TV, TA>((TV value, TA argument) first, (TV value, TA argument) second)
+        where TV : IComparable<TV>
+    {
+        return first.value.CompareTo(second.value) < 0 ? (first.argument, second.argument) : (second.argument, first.argument);
     }
 
     /// <summary>

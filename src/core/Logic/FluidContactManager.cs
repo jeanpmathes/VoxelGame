@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
 
@@ -74,6 +75,9 @@ public class FluidContactManager
         };
     }
 
+    /// <summary>
+    ///     Cool lava, turning it into pumice and the coolant into steam.
+    /// </summary>
     private static bool LavaCooling(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
@@ -83,15 +87,14 @@ public class FluidContactManager
         if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
             world.SetContent(new Content(Blocks.Instance.Pumice), lava.position);
 
-        world.SetFluid(
-            Fluids.Instance.Steam.AsInstance(coolant.level, isStatic: false),
-            coolant.position);
-
-        Fluids.Instance.Steam.TickSoon(world, coolant.position, isStatic: true);
+        SetFluid(world, coolant.position, Fluids.Instance.Steam, coolant.level);
 
         return true;
     }
 
+    /// <summary>
+    ///     Let lava burn the other fluid.
+    /// </summary>
     private static bool LavaBurn(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation burned);
@@ -104,37 +107,30 @@ public class FluidContactManager
         return true;
     }
 
+    /// <summary>
+    ///     Swap the fluids if they are of different densities.
+    /// </summary>
     private static bool DensitySwap(World world, ContactInformation a, ContactInformation b)
     {
+        if (VMath.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
+
         if (a.position.Y == b.position.Y) return DensityLift(world, a, b);
 
         if ((a.position.Y <= b.position.Y || a.fluid.Density <= b.fluid.Density) &&
             (a.position.Y >= b.position.Y || a.fluid.Density >= b.fluid.Density)) return false;
 
-        world.SetFluid(a.fluid.AsInstance(a.level, isStatic: false), b.position);
-        a.fluid.TickSoon(world, b.position, isStatic: true);
-
-        world.SetFluid(b.fluid.AsInstance(b.level, isStatic: false), a.position);
-        b.fluid.TickSoon(world, a.position, isStatic: true);
+        SetFluid(world, b.position, a.fluid, a.level);
+        SetFluid(world, a.position, b.fluid, b.level);
 
         return true;
     }
 
+    /// <summary>
+    ///     Lift the fluid with the lower density, and move the heavier fluid to the old position of the lighter fluid.
+    /// </summary>
     private static bool DensityLift(World world, ContactInformation a, ContactInformation b)
     {
-        ContactInformation dense;
-        ContactInformation light;
-
-        if (a.fluid.Density > b.fluid.Density)
-        {
-            dense = a;
-            light = b;
-        }
-        else
-        {
-            dense = b;
-            light = a;
-        }
+        (ContactInformation light, ContactInformation dense) = VMath.ArgMinMax((a.fluid.Density, a), (b.fluid.Density, b));
 
         if (dense.level == FluidLevel.One) return false;
 
@@ -143,7 +139,7 @@ public class FluidContactManager
         Content? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
 
-        if (content is not ({Block: IFillable fillable}, {} aboveLightFluid)) return false;
+        if (content is not ({Block: IFillable fillable}, var aboveLightFluid)) return false;
 
         if (!fillable.AllowInflow(
                 world,
@@ -151,26 +147,9 @@ public class FluidContactManager
                 light.fluid.Direction.EntrySide().Opposite(),
                 light.fluid) || aboveLightFluid.Fluid != Fluids.Instance.None) return false;
 
-        world.SetFluid(
-            light.fluid.AsInstance(light.level),
-            aboveLightPosition);
-
-        light.fluid.TickSoon(
-            world,
-            aboveLightPosition,
-            isStatic: true);
-
-        world.SetFluid(
-            dense.fluid.AsInstance(FluidLevel.One),
-            light.position);
-
-        dense.fluid.TickSoon(world, light.position, isStatic: true);
-
-        world.SetFluid(
-            dense.fluid.AsInstance(dense.level - 1),
-            dense.position);
-
-        dense.fluid.TickSoon(world, dense.position, isStatic: true);
+        SetFluid(world, aboveLightPosition, light.fluid, light.level);
+        SetFluid(world, light.position, dense.fluid, FluidLevel.One);
+        SetFluid(world, dense.position, dense.fluid, dense.level - 1);
 
         return true;
 
@@ -182,11 +161,7 @@ public class FluidContactManager
 
         other.fluid.TickSoon(world, other.position, other.isStatic);
 
-        world.SetFluid(
-            Fluids.Instance.Water.AsInstance(concrete.level),
-            concrete.position);
-
-        Fluids.Instance.Water.TickSoon(world, concrete.position, isStatic: true);
+        SetFluid(world, concrete.position, Fluids.Instance.Water, concrete.level);
 
         return true;
     }
@@ -204,6 +179,15 @@ public class FluidContactManager
             selected = b;
             other = a;
         }
+    }
+
+    private static void SetFluid(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    {
+        world.SetFluid(
+            fluid.AsInstance(level),
+            position);
+
+        fluid.TickSoon(world, position, isStatic: true);
     }
 
     private enum ContactAction

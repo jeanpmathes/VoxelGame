@@ -385,7 +385,7 @@ public abstract class World : IDisposable, IGrid
 
     /// <summary>
     ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
-    ///     the changed block.
+    ///     the changed block. The fluid at the position is preserved.
     /// </summary>
     /// <param name="block">The block which should be set at the position.</param>
     /// <param name="position">The block position.</param>
@@ -401,7 +401,7 @@ public abstract class World : IDisposable, IGrid
 
     /// <summary>
     ///     Sets a fluid in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of the
-    ///     changed block.
+    ///     changed block. The block at the position is preserved.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
@@ -705,5 +705,4 @@ public abstract class World : IDisposable, IGrid
 
     #endregion IDisposable Support
 }
-
 
