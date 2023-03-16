@@ -40,7 +40,8 @@ public class Fluids
         List<Fluid> allFluids = new()
         {
             None,
-            Water,
+            FreshWater,
+            SeaWater,
             Milk,
             Steam,
             Lava,
@@ -83,14 +84,27 @@ public class Fluids
     /// <summary>
     ///     Water is a basic fluid, that allows the player to swim relatively easily.
     /// </summary>
-    public Fluid Water { get; } = new BasicFluid(
-        Language.Water,
-        nameof(Water),
+    public Fluid FreshWater { get; } = new BasicFluid(
+        Language.FreshWater,
+        nameof(FreshWater),
         density: 997f,
         1 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("water_moving_side", "water_moving"),
-        TextureLayout.Fluid("water_static_side", "water_static"),
+        TextureLayout.Fluid("fresh_water_moving_side", "fresh_water_moving"),
+        TextureLayout.Fluid("fresh_water_static_side", "fresh_water_static"),
+        RenderType.Transparent);
+
+    /// <summary>
+    ///     Water is a basic fluid, that allows the player to swim relatively easily.
+    /// </summary>
+    public Fluid SeaWater { get; } = new BasicFluid(
+        Language.SeaWater,
+        nameof(SeaWater),
+        density: 1023f,
+        1 * mPas,
+        hasNeutralTint: true,
+        TextureLayout.Fluid("sea_water_moving_side", "sea_water_moving"),
+        TextureLayout.Fluid("sea_water_static_side", "sea_water_static"),
         RenderType.Transparent);
 
     /// <summary>

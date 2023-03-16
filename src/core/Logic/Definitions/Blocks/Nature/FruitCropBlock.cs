@@ -140,7 +140,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
             case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
                 world,
                 position.Below(),
-                Logic.Fluids.Instance.Water,
+                Logic.Fluids.Instance.FreshWater,
                 FluidLevel.Two):
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(position))
@@ -179,4 +179,5 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         Dead
     }
 }
+
 

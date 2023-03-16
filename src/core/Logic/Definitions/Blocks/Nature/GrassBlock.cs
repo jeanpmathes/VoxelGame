@@ -40,7 +40,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
     {
         FluidInstance? fluid = world.GetFluid(position);
 
-        if (fluid?.Fluid == Logic.Fluids.Instance.Water && fluid.Value.Level == FluidLevel.Eight)
+        if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
             world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
 
         for (int yOffset = -1; yOffset <= 1; yOffset++)
@@ -53,4 +53,5 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
             }
     }
 }
+
 

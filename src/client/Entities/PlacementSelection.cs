@@ -29,8 +29,9 @@ internal class PlacementSelection
         this.input = input;
         this.getTargetBlock = getTargetBlock;
 
+        // The initially selected block and fluid have to be set as block 0 and fluid 0 are not valid in this context.
         ActiveBlock = Blocks.Instance.Grass;
-        ActiveFluid = Fluids.Instance.Water;
+        ActiveFluid = Fluids.Instance.FreshWater;
     }
 
     /// <summary>
@@ -114,3 +115,5 @@ internal class PlacementSelection
         return true;
     }
 }
+
+

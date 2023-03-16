@@ -155,7 +155,7 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
             {
                 if (!plantable.SupportsFullGrowth) return;
 
-                if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.Water, FluidLevel.One))
+                if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One))
                 {
                     world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
 
@@ -179,4 +179,5 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         Dead
     }
 }
+
 

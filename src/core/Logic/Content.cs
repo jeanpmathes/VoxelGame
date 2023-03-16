@@ -43,6 +43,11 @@ public record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
     ///     Get the default fluid instance.
     /// </summary>
     public static FluidInstance Default => new(Fluids.Instance.None, FluidLevel.Eight, IsStatic: true);
+
+    /// <summary>
+    ///     Get whether the fluid is either fresh water or sea water.
+    /// </summary>
+    public bool IsAnyWater => Fluid == Fluids.Instance.FreshWater || Fluid == Fluids.Instance.SeaWater;
 }
 
 /// <summary>
@@ -99,4 +104,5 @@ public static class ContentExtensions
     }
     #pragma warning restore S4226
 }
+
 

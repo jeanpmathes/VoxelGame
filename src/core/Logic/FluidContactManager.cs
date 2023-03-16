@@ -30,7 +30,8 @@ public class FluidContactManager
         map.AddCombination(
             fluids.Lava,
             ContactAction.LavaCooling,
-            fluids.Water,
+            fluids.FreshWater,
+            fluids.SeaWater,
             fluids.Milk,
             fluids.Concrete,
             fluids.Beer,
@@ -42,7 +43,8 @@ public class FluidContactManager
         map.AddCombination(
             fluids.Concrete,
             ContactAction.ConcreteDissolve,
-            fluids.Water,
+            fluids.FreshWater,
+            fluids.SeaWater,
             fluids.Milk,
             fluids.Beer,
             fluids.Wine);
@@ -161,7 +163,7 @@ public class FluidContactManager
 
         other.fluid.TickSoon(world, other.position, other.isStatic);
 
-        SetFluid(world, concrete.position, Fluids.Instance.Water, concrete.level);
+        SetFluid(world, concrete.position, Fluids.Instance.FreshWater, concrete.level);
 
         return true;
     }
@@ -241,4 +243,5 @@ public class FluidContactManager
         }
     }
 }
+
 

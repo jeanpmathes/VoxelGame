@@ -429,6 +429,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fresh Water.
+        /// </summary>
+        public static string FreshWater {
+            get {
+                return ResourceManager.GetString("FreshWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
         public static string General {
@@ -1194,6 +1203,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sea Water.
+        /// </summary>
+        public static string SeaWater {
+            get {
+                return ResourceManager.GetString("SeaWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select.
         /// </summary>
         public static string Select {
@@ -1370,15 +1388,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string VoxelGame {
             get {
                 return ResourceManager.GetString("VoxelGame", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Water.
-        /// </summary>
-        public static string Water {
-            get {
-                return ResourceManager.GetString("Water", resourceCulture);
             }
         }
         

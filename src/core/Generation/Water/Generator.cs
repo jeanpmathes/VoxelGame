@@ -19,7 +19,7 @@ public class Generator : IWorldGenerator
 {
     private readonly Content core = new(Blocks.Instance.Core);
     private readonly Content empty = Content.Default;
-    private readonly Content water = new(fluid: Fluids.Instance.Water);
+    private readonly Content water = new(fluid: Fluids.Instance.SeaWater);
 
     private readonly int waterLevel;
 

@@ -17,12 +17,12 @@ public class Palette
     private readonly Content granite = new(Blocks.Instance.Granite);
 
     private readonly Content gravel = new(Blocks.Instance.Gravel);
-    private readonly Content gravelGroundwater = new(Blocks.Instance.Gravel, Fluids.Instance.Water);
+    private readonly Content gravelGroundwater = new(Blocks.Instance.Gravel, Fluids.Instance.FreshWater);
     private readonly Content limestone = new(Blocks.Instance.Limestone);
     private readonly Content marble = new(Blocks.Instance.Marble);
 
     private readonly Content sand = new(Blocks.Instance.Sand);
-    private readonly Content sandGroundwater = new(Blocks.Instance.Sand, Fluids.Instance.Water);
+    private readonly Content sandGroundwater = new(Blocks.Instance.Sand, Fluids.Instance.FreshWater);
     private readonly Content sandstone = new(Blocks.Instance.Sandstone);
 
     internal Content GetStone(Map.StoneType type)
@@ -47,4 +47,5 @@ public class Palette
         return type == Map.StoneType.Sandstone ? sandGroundwater : gravelGroundwater;
     }
 }
+
 
