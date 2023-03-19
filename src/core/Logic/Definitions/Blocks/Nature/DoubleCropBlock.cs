@@ -184,22 +184,24 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     private void GrowBothParts(World world, Vector3i position, IPlantable plantable, uint lowered,
         GrowthStage stage)
     {
-        BlockInstance? above = world.GetBlock(position.Above());
-
-        if (plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One) &&
-            ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
-        {
-            world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
-
-            world.SetBlock(
-                this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
-                position.Above());
-        }
-        else
+        if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
         {
             world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
             if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
+
+            return;
         }
+
+        BlockInstance? above = world.GetBlock(position.Above());
+        bool growthPossible = above?.Block.IsReplaceable == true || above?.Block == this;
+
+        if (!growthPossible || !plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
+
+        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+
+        world.SetBlock(
+            this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
+            position.Above());
     }
 
     private enum GrowthStage
@@ -239,5 +241,3 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
-
-

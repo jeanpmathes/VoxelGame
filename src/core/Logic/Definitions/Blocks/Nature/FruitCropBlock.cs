@@ -137,6 +137,12 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
                 world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
 
                 break;
+
+            case GrowthStage.Ready when ground.SupportsFullGrowth && world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater:
+                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
+
+                break;
+
             case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
                 world,
                 position.Below(),
@@ -154,12 +160,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
 
                 break;
             }
-            case GrowthStage.Ready when ground.SupportsFullGrowth:
-                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
-
-                break;
-
-                #pragma warning disable
+                #pragma warning disable // Suppress that the default is redundant. It is needed so that all cases are covered.
             default:
                 // Ground does not support full growth.
                 break;
@@ -179,5 +180,3 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         Dead
     }
 }
-
-
