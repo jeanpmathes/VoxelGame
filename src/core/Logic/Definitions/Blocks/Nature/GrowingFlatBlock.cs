@@ -30,7 +30,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
             slidingVelocity) {}
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid && level > FluidLevel.Two) ScheduleDestroy(world, position);
     }
@@ -68,4 +68,5 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
             world.SetBlock(this.AsInstance((uint) orientation), position.Below());
     }
 }
+
 

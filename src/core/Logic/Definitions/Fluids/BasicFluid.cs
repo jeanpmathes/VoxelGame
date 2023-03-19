@@ -136,12 +136,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             position + flow.Direction());
 
         if (content is not ({Block: IFillable verticalFillable}, var fluidVertical)
-            || !verticalFillable.AllowInflow(
+            || !verticalFillable.IsInflowAllowed(
                 world,
                 position + flow.Direction(),
                 flow.EntrySide(),
                 this)
-            || !(currentFillable?.AllowOutflow(world, position, flow.ExitSide()) ?? true))
+            || !(currentFillable?.IsOutflowAllowed(world, position, flow.ExitSide()) ?? true))
         {
             remaining = (int) level;
 
@@ -230,7 +230,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         foreach (Orientation orientation in Orientations.All)
         {
-            if (!currentFillable.AllowOutflow(world, position, orientation.ToBlockSide())) continue;
+            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide())) continue;
 
             Vector3i neighborPosition = orientation.Offset(position);
 
@@ -264,7 +264,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             bool canFlowWithoutCapacity = fluidBelowIsNone && lowerFluid.Fluid != this;
 
-            return fillable.AllowInflow(
+            return fillable.IsInflowAllowed(
                        world,
                        lowerPosition,
                        Direction.EntrySide(),
@@ -283,7 +283,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         if (Orientations.ShuffledStart(position)
             .Any(
                 orientation => CheckNeighbor(
-                    currentFillable.AllowOutflow(world, position, orientation.ToBlockSide()),
+                    currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide()),
                     orientation.Offset(position),
                     orientation.Opposite().ToBlockSide()))) return true;
 
@@ -313,7 +313,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             if (!outflowAllowed ||
                 neighborContent is not ({Block: IFillable neighborFillable}, var fluidNeighbor) ||
-                !neighborFillable.AllowInflow(world, neighborPosition, side, this)) return false;
+                !neighborFillable.IsInflowAllowed(world, neighborPosition, side, this)) return false;
 
             bool isStatic = fluidNeighbor.IsStatic;
 
@@ -327,12 +327,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                 if (belowNeighborContent is ({Block: IFillable belowNeighborFillable}, var belowNeighborFluid)
                     && belowNeighborFluid.Fluid == Logic.Fluids.Instance.None
-                    && belowNeighborFillable.AllowInflow(
+                    && belowNeighborFillable.IsInflowAllowed(
                         world,
                         belowNeighborPosition,
                         Direction.EntrySide(),
                         this)
-                    && neighborFillable.AllowOutflow(
+                    && neighborFillable.IsOutflowAllowed(
                         world,
                         neighborPosition,
                         Direction.ExitSide()))
@@ -440,7 +440,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         Content? neighborContent = world.GetContent(neighborPosition);
 
         if (neighborContent is not ({Block: IFillable neighborFillable}, var neighborFluid) ||
-            !neighborFillable.AllowInflow(world, neighborPosition, side.Opposite(), this)) return;
+            !neighborFillable.IsInflowAllowed(world, neighborPosition, side.Opposite(), this)) return;
 
         bool isStatic = neighborFluid.IsStatic;
 
@@ -490,12 +490,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private bool AllowsFlowTrough(IFillable fillable, World world, Vector3i position, BlockSide incomingSide,
         BlockSide outgoingSide)
     {
-        return fillable.AllowInflow(
+        return fillable.IsInflowAllowed(
                    world,
                    position,
                    incomingSide,
                    this)
-               && fillable.AllowOutflow(
+               && fillable.IsOutflowAllowed(
                    world,
                    position,
                    outgoingSide);

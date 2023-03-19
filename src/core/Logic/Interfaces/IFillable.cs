@@ -16,7 +16,7 @@ public interface IFillable : IBlockBase
     /// <summary>
     ///     Whether the fluid filling this block should be rendered.
     /// </summary>
-    bool RenderFluid => !IsSolidAndFull();
+    bool IsFluidRendered => !IsSolidAndFull();
 
     /// <summary>
     ///     Check whether a given block at a given location allows inflow trough a certain side.
@@ -26,7 +26,7 @@ public interface IFillable : IBlockBase
     /// <param name="side">The side through which water would flow in.</param>
     /// <param name="fluid">The fluid that flows in.</param>
     /// <returns>Whether the fluid is allowed to flow in.</returns>
-    bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return true;
     }
@@ -38,7 +38,7 @@ public interface IFillable : IBlockBase
     /// <param name="position">The block position.</param>
     /// <param name="side">The side through which the fluid wants to flow.</param>
     /// <returns>true if outflow is allowed.</returns>
-    bool AllowOutflow(World world, Vector3i position, BlockSide side)
+    bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return true;
     }
@@ -46,7 +46,7 @@ public interface IFillable : IBlockBase
     /// <summary>
     ///     Called when new fluid flows into or out of this block.
     /// </summary>
-    void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         // Method intentionally left empty.
         // Fillable blocks do not have to react when the fluid changes.
@@ -66,7 +66,6 @@ public interface IFillable : IBlockBase
         (BlockInstance block, FluidInstance fluid) = content.Value;
 
         if (fluid.Fluid != Fluids.Instance.None && block.Block is IFillable fillable)
-            fillable.FluidChange(world, position, fluid.Fluid, fluid.Level);
+            fillable.OnFluidChange(world, position, fluid.Fluid, fluid.Level);
     }
 }
-

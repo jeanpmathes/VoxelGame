@@ -33,7 +33,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         if (fluid.IsGas) return true;
 
@@ -67,4 +67,5 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         return mesh;
     }
 }
+
 

@@ -54,7 +54,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid && level > FluidLevel.Four) Destroy(world, position);
     }
@@ -84,4 +84,5 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
             Destroy(world, position);
     }
 }
+
 

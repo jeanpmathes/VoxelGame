@@ -57,7 +57,7 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
@@ -179,3 +179,4 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         Dead
     }
 }
+

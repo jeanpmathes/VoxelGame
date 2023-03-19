@@ -30,7 +30,7 @@ public class MudBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 200;
     }
@@ -41,4 +41,5 @@ public class MudBlock : BasicBlock, IFillable
         entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
     }
 }
+
 

@@ -146,7 +146,7 @@ public class FluidContactManager
 
         if (content is not ({Block: IFillable fillable}, var aboveLightFluid)) return false;
 
-        if (!fillable.AllowInflow(
+        if (!fillable.IsInflowAllowed(
                 world,
                 aboveLightPosition,
                 light.fluid.Direction.EntrySide().Opposite(),

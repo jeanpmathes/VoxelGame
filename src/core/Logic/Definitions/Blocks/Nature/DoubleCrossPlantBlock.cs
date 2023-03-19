@@ -55,7 +55,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid && level > FluidLevel.Five) ScheduleDestroy(world, position);
     }
@@ -102,4 +102,5 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
             (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }
+
 

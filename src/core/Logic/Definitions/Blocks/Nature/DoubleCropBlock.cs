@@ -72,7 +72,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid && level > FluidLevel.Four) ScheduleDestroy(world, position);
     }
@@ -241,3 +241,4 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
+

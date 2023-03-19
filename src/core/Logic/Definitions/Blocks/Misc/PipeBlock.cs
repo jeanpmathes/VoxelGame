@@ -84,16 +84,16 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    public bool RenderFluid => false;
+    public bool IsFluidRendered => false;
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return IsSideOpen(world, position, side);
     }
@@ -181,4 +181,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         return side.IsSet((BlockSides) block.Data);
     }
 }
+
+
+
 

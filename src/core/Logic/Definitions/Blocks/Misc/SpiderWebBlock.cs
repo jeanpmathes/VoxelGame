@@ -39,7 +39,7 @@ public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
         if (fluid.IsFluid) ScheduleDestroy(world, position);
     }
@@ -50,4 +50,5 @@ public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
         entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
     }
 }
+
 
