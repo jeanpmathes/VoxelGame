@@ -612,6 +612,11 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("roots")));
 
+            Salt = Register(new GroundedModifiableHeightBlock(
+                Language.Salt,
+                nameof(Salt),
+                TextureLayout.Uniform("salt")));
+
             #endregion NEW BLOCKS
 
             if (allBlocks.Count > BlockLimit) Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
@@ -696,6 +701,7 @@ public class Blocks
             Ice = (ModifiableHeightBlock) blocks.Ice;
             Log = (RotatedBlock) blocks.Log;
             Vines = (FlatBlock) blocks.Vines;
+            Salt = (GroundedModifiableHeightBlock) blocks.Salt;
         }
 
         public ConcreteBlock Concrete { get; }
@@ -703,6 +709,7 @@ public class Blocks
         public ModifiableHeightBlock Ice { get; }
         public RotatedBlock Log { get; }
         public FlatBlock Vines { get; }
+        public GroundedModifiableHeightBlock Salt { get; }
     }
 
     #region NATURAL BLOCKS
@@ -1166,7 +1173,10 @@ public class Blocks
     /// </summary>
     public Block Roots { get; }
 
+    /// <summary>
+    ///     Salt is contained in sea water, it becomes usable after the water evaporates.
+    /// </summary>
+    public Block Salt { get; }
+
     #endregion NEW BLOCKS
 }
-
-

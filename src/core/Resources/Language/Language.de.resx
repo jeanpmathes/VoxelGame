@@ -585,13 +585,16 @@
   <data name="Ok" xml:space="preserve">
     <value>OK</value>
   </data>
-  <data name="Retry" xml:space="preserve">
+    <data name="Retry" xml:space="preserve">
     <value>Wiederholen</value>
   </data>
-  <data name="SeaWater" xml:space="preserve">
+    <data name="SeaWater" xml:space="preserve">
     <value>Salzwasser</value>
   </data>
-  <data name="FreshWater" xml:space="preserve">
+    <data name="FreshWater" xml:space="preserve">
     <value>Süßwasser</value>
+  </data>
+    <data name="Salt" xml:space="preserve">
+    <value>Salz</value>
   </data>
 </root>

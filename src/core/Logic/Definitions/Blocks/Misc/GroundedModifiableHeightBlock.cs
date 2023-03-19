@@ -29,13 +29,12 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
     /// <inheritdoc />
     public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position))
-        {
-            if (GetHeight(data) == IHeightVariable.MaximumHeight)
-                ScheduleDestroy(world, position);
-            else
-                Destroy(world, position);
-        }
+        if (side != BlockSide.Bottom || world.HasFullAndSolidGround(position)) return;
+
+        if (GetHeight(data) == IHeightVariable.MaximumHeight)
+            ScheduleDestroy(world, position);
+        else
+            Destroy(world, position);
     }
 }
 

@@ -58,15 +58,13 @@ public class Fluids
             TextureLayout.Fluid("fresh_water_static_side", "fresh_water_static"),
             RenderType.Transparent));
 
-        SeaWater = Register(new BasicFluid(
+        SeaWater = Register(new SaltWaterFluid(
             Language.SeaWater,
             nameof(SeaWater),
             density: 1023f,
             1 * mPas,
-            hasNeutralTint: true,
             TextureLayout.Fluid("sea_water_moving_side", "sea_water_moving"),
-            TextureLayout.Fluid("sea_water_static_side", "sea_water_static"),
-            RenderType.Transparent));
+            TextureLayout.Fluid("sea_water_static_side", "sea_water_static")));
 
         Milk = Register(new BasicFluid(
             Language.Milk,

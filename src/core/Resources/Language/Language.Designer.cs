@@ -1185,6 +1185,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Salt.
+        /// </summary>
+        public static string Salt {
+            get {
+                return ResourceManager.GetString("Salt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sand.
         /// </summary>
         public static string Sand {
