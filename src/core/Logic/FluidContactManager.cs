@@ -53,7 +53,7 @@ public class FluidContactManager
     }
 
     /// <summary>
-    ///     Handle the contact between two fluids.
+    ///     Handle the contact between two fluids. Flow from position A to position B must be allowed.
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="fluidA">The fluid that caused the contact.</param>
@@ -124,6 +124,8 @@ public class FluidContactManager
         if ((a.position.Y <= b.position.Y || a.fluid.Density <= b.fluid.Density) &&
             (a.position.Y >= b.position.Y || a.fluid.Density >= b.fluid.Density)) return false;
 
+        if (!IsFlowAllowed(world, b.position, a.position)) return false;
+
         SetFluid(world, b.position, a.fluid, a.level);
         SetFluid(world, a.position, b.fluid, b.level);
 
@@ -144,13 +146,8 @@ public class FluidContactManager
         Content? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
 
-        if (content is not ({Block: IFillable fillable}, var aboveLightFluid)) return false;
-
-        if (!fillable.IsInflowAllowed(
-                world,
-                aboveLightPosition,
-                light.fluid.Direction.EntrySide().Opposite(),
-                light.fluid) || aboveLightFluid.Fluid != Fluids.Instance.None) return false;
+        if (content is not ({Block: IFillable}, var aboveLightFluid)) return false;
+        if (!IsFlowAllowed(world, light.position, aboveLightPosition) || aboveLightFluid.Fluid != Fluids.Instance.None) return false;
 
         SetFluid(world, aboveLightPosition, light.fluid, light.level);
         SetFluid(world, light.position, dense.fluid, FluidLevel.One);
@@ -207,6 +204,19 @@ public class FluidContactManager
             position);
 
         fluid.TickSoon(world, position, isStatic: true);
+    }
+
+    private static bool IsFlowAllowed(World world, Vector3i from, Vector3i to)
+    {
+        Content? fromContent = world.GetContent(from);
+        Content? toContent = world.GetContent(to);
+
+        if (fromContent is not {Block.Block: IFillable source, Fluid.Fluid: {} fluid}) return false;
+        if (toContent is not {Block.Block: IFillable target}) return false;
+
+        var side = (to - from).ToBlockSide();
+
+        return source.IsOutflowAllowed(world, from, side) && target.IsInflowAllowed(world, to, side.Opposite(), fluid);
     }
 
     private enum ContactAction

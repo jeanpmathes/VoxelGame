@@ -248,6 +248,20 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Get the side corresponding to the given direction.
+    /// </summary>
+    /// <param name="direction">The direction.</param>
+    /// <returns>The side, or <c>BlockSide.All</c> if the direction is not a valid side direction.</returns>
+    public static BlockSide ToBlockSide(this Vector3i direction)
+    {
+        for (var i = 0; i < directions.Length; i++)
+            if (directions[i] == direction)
+                return (BlockSide) (i - 1);
+
+        return BlockSide.All;
+    }
+
+    /// <summary>
     ///     Offset a vector by the direction of this side.
     /// </summary>
     public static Vector3i Offset(this BlockSide side, Vector3i v)
@@ -363,4 +377,3 @@ public static class BlockSideExtensions
         }
     }
 }
-
