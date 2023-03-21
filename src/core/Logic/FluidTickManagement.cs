@@ -40,11 +40,11 @@ public partial class Fluid
     /// <summary>
     ///     Will tick a fluid as soon as possible, meaning now.
     /// </summary>
-    internal void TickNow(World world, Vector3i position, FluidLevel level, bool isStatic)
+    internal void TickNow(World world, Vector3i position, FluidInstance instance)
     {
         if (this == Fluids.Instance.None) return;
 
-        ScheduledUpdate(world, position, level, isStatic);
+        ScheduledUpdate(world, position, instance);
     }
 
     [Serializable]
@@ -72,7 +72,7 @@ public partial class Fluid
             if (potentialFluid is not {} fluid) return;
 
             if (fluid.Fluid.ID == target)
-                fluid.Fluid.ScheduledUpdate(world, (x, y, z), fluid.Level, fluid.IsStatic);
+                fluid.Fluid.ScheduledUpdate(world, (x, y, z), fluid);
         }
 
         public bool Equals(FluidTick other)

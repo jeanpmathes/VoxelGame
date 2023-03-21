@@ -433,7 +433,8 @@ public abstract class World : IDisposable, IGrid
 
         chunk.GetSection(position).SetContent(position, val);
 
-        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid.Level, content.Fluid.IsStatic);
+        content.Block.Block.ContentUpdate(this, position, content);
+        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -446,7 +447,7 @@ public abstract class World : IDisposable, IGrid
             (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
-            blockNeighbor.Block.BlockUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
+            blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
             fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 

@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // o: orientation
 // a: age
-public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
+public class GrowingFlatBlock : FlatBlock, ICombustible
 {
     internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,
         float slidingVelocity) :
@@ -30,9 +30,9 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
             slidingVelocity) {}
 
     /// <inheritdoc />
-    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Two) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Two) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -42,7 +42,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         var orientation = (Orientation) (data & 0b00_0011);
 
@@ -68,5 +68,3 @@ public class GrowingFlatBlock : FlatBlock, ICombustible, IFillable
             world.SetBlock(this.AsInstance((uint) orientation), position.Below());
     }
 }
-
-

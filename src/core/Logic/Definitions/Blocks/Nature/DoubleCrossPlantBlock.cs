@@ -55,9 +55,9 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Five) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Five) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -95,12 +95,11 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
             (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }
-
 

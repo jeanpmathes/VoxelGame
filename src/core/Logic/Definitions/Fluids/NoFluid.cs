@@ -36,6 +36,7 @@ public class NoFluid : Fluid
     }
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic) {}
+    protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance) {}
 }
+
 

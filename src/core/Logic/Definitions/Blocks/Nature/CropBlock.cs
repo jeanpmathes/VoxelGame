@@ -57,9 +57,9 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -136,7 +136,7 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
             Destroy(world, position);

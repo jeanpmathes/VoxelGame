@@ -42,30 +42,5 @@ public interface IFillable : IBlockBase
     {
         return true;
     }
-
-    /// <summary>
-    ///     Called when new fluid flows into or out of this block.
-    /// </summary>
-    void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
-    {
-        // Method intentionally left empty.
-        // Fillable blocks do not have to react when the fluid changes.
-    }
-
-    /// <summary>
-    ///     Call this after placement, to dispatch correct fluid change events.
-    /// </summary>
-    /// <param name="world">The world this block is in.</param>
-    /// <param name="position">The block position.</param>
-    public static void OnPlace(World world, Vector3i position)
-    {
-        Content? content = world.GetContent(position);
-
-        if (content == null) return;
-
-        (BlockInstance block, FluidInstance fluid) = content.Value;
-
-        if (fluid.Fluid != Fluids.Instance.None && block.Block is IFillable fillable)
-            fillable.OnFluidChange(world, position, fluid.Fluid, fluid.Level);
-    }
 }
+

@@ -44,7 +44,7 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         uint newData = data;
 
@@ -63,4 +63,5 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
         }
     }
 }
+
 

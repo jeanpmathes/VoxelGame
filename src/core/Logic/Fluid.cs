@@ -321,7 +321,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                 int filled = (int) target.Level + (int) level + 1;
                 filled = filled > 7 ? 7 : filled;
 
-                SetFluid(world, this, (FluidLevel) filled, isStatic: false, fillable, position);
+                world.SetFluid(this.AsInstance((FluidLevel) filled, isStatic: false), position);
                 if (target.IsStatic) ScheduleTick(world, position);
 
                 remaining = (int) level - (filled - (int) target.Level);
@@ -331,7 +331,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             if (target.Fluid == Fluids.Instance.None)
             {
-                SetFluid(world, this, level, isStatic: false, fillable, position);
+                world.SetFluid(this.AsInstance(level, isStatic: false), position);
                 ScheduleTick(world, position);
 
                 remaining = -1;
@@ -352,21 +352,15 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     {
         Content? content = world.GetContent(position);
 
-        if (content is not var (block, fluid) || fluid.Fluid != this || this == Fluids.Instance.None) return false;
+        if (content is not var (_, fluid) || fluid.Fluid != this || this == Fluids.Instance.None) return false;
 
         if (level >= fluid.Level)
         {
-            SetFluid(world, Fluids.Instance.None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            world.SetFluid(Fluids.Instance.None.AsInstance(), position);
         }
         else
         {
-            SetFluid(
-                world,
-                this,
-                (FluidLevel) ((int) fluid.Level - (int) level - 1),
-                isStatic: false,
-                block.Block as IFillable,
-                position);
+            world.SetFluid(this.AsInstance((FluidLevel) ((int) fluid.Level - (int) level - 1), isStatic: false), position);
 
             if (fluid.IsStatic) ScheduleTick(world, position);
         }
@@ -385,22 +379,16 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     {
         Content? content = world.GetContent(position);
 
-        if (content is not var (block, fluid) || fluid.Fluid != this || this == Fluids.Instance.None ||
+        if (content is not var (_, fluid) || fluid.Fluid != this || this == Fluids.Instance.None ||
             level > fluid.Level) return false;
 
         if (level == fluid.Level)
         {
-            SetFluid(world, Fluids.Instance.None, FluidLevel.Eight, isStatic: true, block.Block as IFillable, position);
+            world.SetFluid(Fluids.Instance.None.AsInstance(), position);
         }
         else
         {
-            SetFluid(
-                world,
-                this,
-                (FluidLevel) ((int) fluid.Level - (int) level - 1),
-                isStatic: false,
-                block.Block as IFillable,
-                position);
+            world.SetFluid(this.AsInstance((FluidLevel) ((int) fluid.Level - (int) level - 1), isStatic: false), position);
 
             if (fluid.IsStatic) ScheduleTick(world, position);
         }
@@ -412,17 +400,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     Override for scheduled update handling.
     /// </summary>
-    protected abstract void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic);
-
-    /// <summary>
-    ///     Sets the fluid at the position and calls the necessary methods on the <see cref="IFillable" />.
-    /// </summary>
-    protected static void SetFluid(World world, Fluid fluid, FluidLevel level, bool isStatic,
-        IFillable? fillable, Vector3i position)
-    {
-        world.SetFluid(fluid.AsInstance(level, isStatic), position);
-        fillable?.OnFluidChange(world, position, fluid, level);
-    }
+    protected abstract void ScheduledUpdate(World world, Vector3i position, FluidInstance instance);
 
     /// <summary>
     ///     Check if a fluid has a neighbor of the same fluid and this neighbor has a specified level. If the specified level
@@ -628,6 +606,4 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
-
-
 

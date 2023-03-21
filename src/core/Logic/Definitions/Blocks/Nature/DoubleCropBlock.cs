@@ -72,9 +72,9 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void OnFluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Four) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Four) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -157,7 +157,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&

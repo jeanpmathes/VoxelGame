@@ -27,7 +27,7 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side != BlockSide.Bottom || world.HasFullAndSolidGround(position)) return;
 
@@ -37,4 +37,5 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
             Destroy(world, position);
     }
 }
+
 

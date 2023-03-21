@@ -139,7 +139,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         uint updatedData = GetConnectionData(world, position);
         OpenOpposingSide(ref updatedData);
@@ -181,6 +181,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         return side.IsSet((BlockSides) block.Data);
     }
 }
+
 
 
 
