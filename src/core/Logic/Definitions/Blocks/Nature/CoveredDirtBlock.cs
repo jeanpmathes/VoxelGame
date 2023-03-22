@@ -48,7 +48,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public virtual bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public virtual bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
@@ -89,9 +89,11 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
+
+
 

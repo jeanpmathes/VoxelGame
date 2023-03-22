@@ -351,9 +351,6 @@
   <data name="VoxelGame" xml:space="preserve">
     <value>VoxelGame</value>
   </data>
-  <data name="Water" xml:space="preserve">
-    <value>Water</value>
-  </data>
   <data name="Wheat" xml:space="preserve">
     <value>Wheat</value>
   </data>
@@ -582,13 +579,22 @@
     <data name="No" xml:space="preserve">
     <value>No</value>
   </data>
-    <data name="Yes" xml:space="preserve">
+  <data name="Yes" xml:space="preserve">
     <value>Yes</value>
   </data>
-    <data name="Ok" xml:space="preserve">
+  <data name="Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
-    <data name="Retry" xml:space="preserve">
+  <data name="Retry" xml:space="preserve">
     <value>Retry</value>
+  </data>
+  <data name="SeaWater" xml:space="preserve">
+    <value>Sea Water</value>
+  </data>
+  <data name="FreshWater" xml:space="preserve">
+    <value>Fresh Water</value>
+  </data>
+  <data name="Salt" xml:space="preserve">
+    <value>Salt</value>
   </data>
 </root>

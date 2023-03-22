@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     A block that slows down entities that collide with it.
 ///     Data bit usage: <c>------</c>
 /// </summary>
-public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
+public class SpiderWebBlock : CrossBlock, ICombustible
 {
     private readonly float maxVelocity;
 
@@ -39,9 +39,9 @@ public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -50,4 +50,3 @@ public class SpiderWebBlock : CrossBlock, ICombustible, IFillable
         entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
     }
 }
-

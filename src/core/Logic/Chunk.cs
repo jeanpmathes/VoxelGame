@@ -333,7 +333,7 @@ public partial class Chunk : IDisposable
         {
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
-            logger.LogDebug(e, "Failed to load chunk for position: {Position}", position);
+            logger.LogDebug("Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, e.Message);
 
             return new FileError();
         }
@@ -947,3 +947,5 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
+
+

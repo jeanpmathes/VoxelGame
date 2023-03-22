@@ -8,7 +8,6 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -107,8 +106,6 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         if (!canPlace) return canPlace;
 
         DoPlace(world, position, entity);
-
-        IFillable.OnPlace(world, position);
 
         return canPlace;
     }
@@ -270,13 +267,23 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     protected virtual void EntityInteract(PhysicsEntity entity, Vector3i position, uint data) {}
 
     /// <summary>
+    ///     Called when the content at a position changes. This is called on the new block at that position.
+    ///     While not very useful to react to block data changes the block caused itself,
+    ///     it can be used to react to fluid changes at the position.
+    /// </summary>
+    /// <param name="world">The containing world.</param>
+    /// <param name="position">The block position.</param>
+    /// <param name="content">The new content at the position.</param>
+    public virtual void ContentUpdate(World world, Vector3i position, Content content) {}
+
+    /// <summary>
     ///     This method is called on blocks next to a position that was changed.
     /// </summary>
     /// <param name="world">The containing world.</param>
     /// <param name="position">The block position.</param>
     /// <param name="data">The data of the block next to the changed position.</param>
     /// <param name="side">The side of the block where the change happened.</param>
-    public virtual void BlockUpdate(World world, Vector3i position, uint data, BlockSide side) {}
+    public virtual void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side) {}
 
     /// <summary>
     ///     This method is called randomly on some blocks every update.

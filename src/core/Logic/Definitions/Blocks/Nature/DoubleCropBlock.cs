@@ -72,9 +72,9 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Four) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Four) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -157,7 +157,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
@@ -184,22 +184,24 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     private void GrowBothParts(World world, Vector3i position, IPlantable plantable, uint lowered,
         GrowthStage stage)
     {
-        BlockInstance? above = world.GetBlock(position.Above());
-
-        if (plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.Water, FluidLevel.One) &&
-            ((above?.Block.IsReplaceable ?? false) || above?.Block == this))
-        {
-            world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
-
-            world.SetBlock(
-                this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
-                position.Above());
-        }
-        else
+        if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
         {
             world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
             if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
+
+            return;
         }
+
+        BlockInstance? above = world.GetBlock(position.Above());
+        bool growthPossible = above?.Block.IsReplaceable == true || above?.Block == this;
+
+        if (!growthPossible || !plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
+
+        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+
+        world.SetBlock(
+            this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
+            position.Above());
     }
 
     private enum GrowthStage

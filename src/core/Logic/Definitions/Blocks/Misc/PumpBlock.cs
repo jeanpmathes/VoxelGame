@@ -29,12 +29,12 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         this.pumpDistance = pumpDistance;
     }
 
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return side != BlockSide.Top;
     }
 
-    public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return side == BlockSide.Top;
     }
@@ -44,4 +44,5 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         Fluid.Elevate(entity.World, position, pumpDistance);
     }
 }
+
 

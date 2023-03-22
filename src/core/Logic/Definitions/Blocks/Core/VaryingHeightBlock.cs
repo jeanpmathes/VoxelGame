@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -69,6 +70,18 @@ public class VaryingHeightBlock : Block, IVaryingHeight
         return this.AsInstance((uint) height);
     }
 
+    /// <summary>
+    ///     Place a block of this type at the given position, with the height according to the fluid level.
+    /// </summary>
+    /// <param name="world">The world to place the block in.</param>
+    /// <param name="level">The fluid level.</param>
+    /// <param name="position">The position to place the block at.</param>
+    public void Place(World world, FluidLevel level, Vector3i position)
+    {
+        if (base.Place(world, position))
+            world.SetBlock(GetInstance(level.GetBlockHeight()), position);
+    }
+
     private void CreateVolumes()
     {
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(BoundingVolume.BlockWithHeight(GetHeight(data)));
@@ -86,4 +99,3 @@ public class VaryingHeightBlock : Block, IVaryingHeight
         return volumes[(int) data & 0b00_1111];
     }
 }
-

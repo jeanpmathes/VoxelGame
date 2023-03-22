@@ -58,16 +58,16 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     }
 
     /// <inheritdoc />
-    public bool RenderFluid => false;
+    public bool IsFluidRendered => false;
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool AllowOutflow(World world, Vector3i position, BlockSide side)
+    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return IsSideOpen(world, position, side);
     }
@@ -104,4 +104,7 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
         return side.Axis() == (Axis) (block.Data & 0b00_0011);
     }
 }
+
+
+
 

@@ -103,7 +103,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     /// <param name="position">The position where the block will be placed.</param>
     public void Place(World world, FluidLevel level, Vector3i position)
     {
-        if (base.Place(world, position))
+        if (Place(world, position))
             world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);
     }
 
@@ -130,4 +130,3 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         height = (int) (data & 0b00_0111) * 2 + 1;
     }
 }
-

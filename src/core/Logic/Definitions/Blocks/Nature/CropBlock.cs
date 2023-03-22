@@ -57,9 +57,9 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -136,7 +136,7 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
             Destroy(world, position);
@@ -148,23 +148,23 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         var stage = (GrowthStage) (data & 0b00_0111);
         uint lowered = data & 0b00_1000;
 
-        if (stage != GrowthStage.Final && stage != GrowthStage.Dead &&
-            world.GetBlock(position.Below())?.Block is IPlantable plantable)
+        if (stage is GrowthStage.Final or GrowthStage.Dead ||
+            world.GetBlock(position.Below())?.Block is not IPlantable plantable) return;
+
+        if ((int) stage > 2)
         {
-            if ((int) stage > 2)
+            if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
             {
-                if (!plantable.SupportsFullGrowth) return;
+                world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
 
-                if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.Water, FluidLevel.One))
-                {
-                    world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
-
-                    return;
-                }
+                return;
             }
 
-            world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+            if (!plantable.SupportsFullGrowth) return;
+            if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
         }
+
+        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
     }
 
     private enum GrowthStage

@@ -59,12 +59,6 @@ public class FireBlock : Block, IFillable, IComplex
         return mesh.GetMeshData(isAnimated: true);
     }
 
-    /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
-    {
-        if (fluid != Logic.Fluids.Instance.None) Destroy(world, position);
-    }
-
     private void PrepareMeshes(BlockModel complete, BlockModel side, BlockModel top)
     {
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
@@ -174,7 +168,13 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
+    {
+        if (content.Fluid.Fluid.IsFluid) Destroy(world, position);
+    }
+
+    /// <inheritdoc />
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom)
         {

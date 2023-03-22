@@ -25,7 +25,7 @@ public class PermeableBlock : BasicBlock, IFillable
             layout) {}
 
     /// <inheritdoc />
-    public bool AllowInflow(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
@@ -36,4 +36,5 @@ public class PermeableBlock : BasicBlock, IFillable
         return base.GetMeshData(info) with {Tint = info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None};
     }
 }
+
 

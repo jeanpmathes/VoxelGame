@@ -333,10 +333,10 @@ public class Generator : IWorldGenerator
 
     private static Content FillContent(Content content)
     {
-        if (content.Fluid.Fluid != Fluids.Instance.None) return content;
+        if (!content.Fluid.IsEmpty) return content;
         if (content.Block.Block is not IFillable) return content;
 
-        return content with {Fluid = Fluids.Instance.Water.AsInstance()};
+        return content with {Fluid = Fluids.Instance.SeaWater.AsInstance()};
     }
 
     private readonly record struct Context

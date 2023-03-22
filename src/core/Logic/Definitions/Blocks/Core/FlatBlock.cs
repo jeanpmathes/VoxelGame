@@ -169,7 +169,7 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
     }
@@ -195,4 +195,5 @@ public class FlatBlock : Block, IFillable, IComplex
         return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 }
+
 

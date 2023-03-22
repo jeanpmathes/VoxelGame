@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     A <see cref="CoveredDirtBlock" /> on that grass can spread. It models a dirt block with something on it that can be
 ///     washed away.
 /// </summary>
-public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable, IFillable
+public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable
 {
     internal CoveredGrassSpreadableBlock(string name, string namedId, TextureLayout normal, bool hasNeutralTint) :
         base(
@@ -26,9 +26,8 @@ public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable, I
             supportsFullGrowth: false) {}
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid) world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
+        if (content.Fluid.Fluid.IsFluid) world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }
-

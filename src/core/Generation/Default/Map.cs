@@ -104,8 +104,8 @@ public partial class Map : IMap
     private static readonly Color blockTintMoist = Color.LawnGreen;
     private static readonly Color blockTintDry = Color.Olive;
 
-    private static readonly Color fluidTintWarm = Color.LightBlue;
-    private static readonly Color fluidTintCold = Color.DarkBlue;
+    private static readonly Color fluidTintWarm = Color.LightSeaGreen;
+    private static readonly Color fluidTintCold = Color.MediumBlue;
 
     private static readonly Polyline mountainStrengthFunction = new()
     {
@@ -805,5 +805,3 @@ public partial class Map : IMap
 
     #endregion BIOME CHANGE FUNCTION
 }
-
-

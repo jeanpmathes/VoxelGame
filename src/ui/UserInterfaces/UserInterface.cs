@@ -58,7 +58,16 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Create the user interface controls.
     /// </summary>
-    public abstract void CreateControl();
+    public void CreateControl()
+    {
+        Root.DeleteAllChildren();
+        CreateNewControl();
+    }
+
+    /// <summary>
+    ///     Create the new control.
+    /// </summary>
+    protected abstract void CreateNewControl();
 
     /// <summary>
     ///     Render the user interface.

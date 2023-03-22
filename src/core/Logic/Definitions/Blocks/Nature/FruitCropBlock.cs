@@ -67,9 +67,9 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public void FluidChange(World world, Vector3i position, Fluid fluid, FluidLevel level)
+    public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (fluid.IsFluid && level > FluidLevel.Three) ScheduleDestroy(world, position);
+        if (content.Fluid.Fluid.IsFluid && content.Fluid.Level > FluidLevel.Three) ScheduleDestroy(world, position);
     }
 
     /// <inheritdoc />
@@ -117,7 +117,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
             Destroy(world, position);
@@ -137,10 +137,16 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
                 world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
 
                 break;
+
+            case GrowthStage.Ready when ground.SupportsFullGrowth && world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater:
+                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
+
+                break;
+
             case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
                 world,
                 position.Below(),
-                Logic.Fluids.Instance.Water,
+                Logic.Fluids.Instance.FreshWater,
                 FluidLevel.Two):
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(position))
@@ -154,12 +160,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
 
                 break;
             }
-            case GrowthStage.Ready when ground.SupportsFullGrowth:
-                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
-
-                break;
-
-                #pragma warning disable
+                #pragma warning disable // Suppress that the default is redundant. It is needed so that all cases are covered.
             default:
                 // Ground does not support full growth.
                 break;

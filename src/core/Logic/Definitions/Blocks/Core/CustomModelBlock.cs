@@ -53,7 +53,7 @@ public class CustomModelBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }
@@ -66,4 +66,5 @@ public class CustomModelBlock : Block, IFillable, IComplex
         return mesh.GetMeshData();
     }
 }
+
 

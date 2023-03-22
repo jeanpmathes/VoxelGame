@@ -32,13 +32,13 @@ public class HotFluid : BasicFluid
             renderType) {}
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
+    protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
         if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Logic.Blocks.Instance.Fire);
 
         BurnAround(world, position);
 
-        base.ScheduledUpdate(world, position, level, isStatic);
+        base.ScheduledUpdate(world, position, instance);
     }
 
     /// <inheritdoc />
@@ -60,6 +60,4 @@ public class HotFluid : BasicFluid
         }
     }
 }
-
-
 

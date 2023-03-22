@@ -429,6 +429,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fresh Water.
+        /// </summary>
+        public static string FreshWater {
+            get {
+                return ResourceManager.GetString("FreshWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to General.
         /// </summary>
         public static string General {
@@ -1176,6 +1185,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Salt.
+        /// </summary>
+        public static string Salt {
+            get {
+                return ResourceManager.GetString("Salt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sand.
         /// </summary>
         public static string Sand {
@@ -1190,6 +1208,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Sandstone {
             get {
                 return ResourceManager.GetString("Sandstone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sea Water.
+        /// </summary>
+        public static string SeaWater {
+            get {
+                return ResourceManager.GetString("SeaWater", resourceCulture);
             }
         }
         
@@ -1370,15 +1397,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string VoxelGame {
             get {
                 return ResourceManager.GetString("VoxelGame", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Water.
-        /// </summary>
-        public static string Water {
-            get {
-                return ResourceManager.GetString("Water", resourceCulture);
             }
         }
         

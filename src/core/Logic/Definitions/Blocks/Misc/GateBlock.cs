@@ -279,7 +279,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    public override void BlockUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
         var blockOrientation = (Orientation) (data & 0b00_0011);
 
@@ -292,4 +292,5 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         if (!valid) Destroy(world, position);
     }
 }
+
 

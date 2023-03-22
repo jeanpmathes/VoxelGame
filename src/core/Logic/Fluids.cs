@@ -37,21 +37,129 @@ public class Fluids
 
     private Fluids(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
     {
-        List<Fluid> allFluids = new()
+        List<Fluid> allFluids = new();
+
+        Fluid Register(Fluid fluid)
         {
-            None,
-            Water,
-            Milk,
-            Steam,
-            Lava,
-            CrudeOil,
-            NaturalGas,
-            Concrete,
-            Honey,
-            Petrol,
-            Wine,
-            Beer
-        };
+            allFluids.Add(fluid);
+
+            return fluid;
+        }
+
+        None = Register(new NoFluid(Language.NoFluid, nameof(None)));
+
+        FreshWater = Register(new BasicFluid(
+            Language.FreshWater,
+            nameof(FreshWater),
+            density: 997f,
+            1 * mPas,
+            hasNeutralTint: false,
+            TextureLayout.Fluid("fresh_water_moving_side", "fresh_water_moving"),
+            TextureLayout.Fluid("fresh_water_static_side", "fresh_water_static"),
+            RenderType.Transparent));
+
+        SeaWater = Register(new SaltWaterFluid(
+            Language.SeaWater,
+            nameof(SeaWater),
+            density: 1023f,
+            1 * mPas,
+            TextureLayout.Fluid("sea_water_moving_side", "sea_water_moving"),
+            TextureLayout.Fluid("sea_water_static_side", "sea_water_static")));
+
+        Milk = Register(new BasicFluid(
+            Language.Milk,
+            nameof(Milk),
+            density: 1033f,
+            2 * mPas,
+            hasNeutralTint: false,
+            TextureLayout.Fluid("milk_moving_side", "milk_moving"),
+            TextureLayout.Fluid("milk_static_side", "milk_static")));
+
+        Steam = Register(new BasicFluid(
+            Language.Steam,
+            nameof(Steam),
+            density: 0.5f,
+            (int) (0.25 * mPas),
+            hasNeutralTint: false,
+            TextureLayout.Fluid("steam_moving_side", "steam_moving"),
+            TextureLayout.Fluid("steam_static_side", "steam_static"),
+            RenderType.Transparent));
+
+        Lava = Register(new HotFluid(
+            Language.Lava,
+            nameof(Lava),
+            density: 3100f,
+            15 * mPas,
+            hasNeutralTint: false,
+            TextureLayout.Fluid("lava_moving_side", "lava_moving"),
+            TextureLayout.Fluid("lava_static_side", "lava_static")));
+
+        CrudeOil = Register(new BasicFluid(
+            Language.CrudeOil,
+            nameof(CrudeOil),
+            density: 870f,
+            8 * mPas,
+            hasNeutralTint: false,
+            TextureLayout.Fluid("oil_moving_side", "oil_moving"),
+            TextureLayout.Fluid("oil_static_side", "oil_static")));
+
+        NaturalGas = Register(new BasicFluid(
+            Language.NaturalGas,
+            nameof(NaturalGas),
+            density: 0.8f,
+            (int) (0.5 * mPas),
+            hasNeutralTint: false,
+            TextureLayout.Fluid("gas_moving_side", "gas_moving"),
+            TextureLayout.Fluid("gas_static_side", "gas_static"),
+            RenderType.Transparent));
+
+        Concrete = Register(new ConcreteFluid(
+            Language.Concrete,
+            nameof(Concrete),
+            density: 2400f,
+            10 * mPas,
+            TextureLayout.Fluid("concrete_moving_side", "concrete_moving"),
+            TextureLayout.Fluid("concrete_static_side", "concrete_static")));
+
+        Honey = Register(new BasicFluid(
+            Language.Honey,
+            nameof(Honey),
+            density: 1450f,
+            20 * mPas,
+            hasNeutralTint: false,
+            TextureLayout.Fluid("honey_moving_side", "honey_moving"),
+            TextureLayout.Fluid("honey_static_side", "honey_static"),
+            RenderType.Transparent));
+
+        Petrol = Register(new BasicFluid(
+            Language.Petrol,
+            nameof(Petrol),
+            density: 740f,
+            (int) (0.9 * mPas),
+            hasNeutralTint: false,
+            TextureLayout.Fluid("petrol_moving_side", "petrol_moving"),
+            TextureLayout.Fluid("petrol_static_side", "petrol_static"),
+            RenderType.Transparent));
+
+        Wine = Register(new BasicFluid(
+            Language.Wine,
+            nameof(Wine),
+            density: 1090f,
+            (int) (1.4 * mPas),
+            hasNeutralTint: false,
+            TextureLayout.Fluid("wine_moving_side", "wine_moving"),
+            TextureLayout.Fluid("wine_static_side", "wine_static"),
+            RenderType.Transparent));
+
+        Beer = Register(new BasicFluid(
+            Language.Beer,
+            nameof(Beer),
+            density: 1030f,
+            (int) (1.5 * mPas),
+            hasNeutralTint: false,
+            TextureLayout.Fluid("beer_moving_side", "beer_moving"),
+            TextureLayout.Fluid("beer_static_side", "beer_static"),
+            RenderType.Transparent));
 
         if (allFluids.Count > FluidLimit) Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
 
@@ -78,145 +186,67 @@ public class Fluids
     /// <summary>
     ///     The absence of a fluid.
     /// </summary>
-    public Fluid None { get; } = new NoFluid(Language.NoFluid, nameof(None));
+    public Fluid None { get; }
 
     /// <summary>
     ///     Water is a basic fluid, that allows the player to swim relatively easily.
     /// </summary>
-    public Fluid Water { get; } = new BasicFluid(
-        Language.Water,
-        nameof(Water),
-        density: 997f,
-        1 * mPas,
-        hasNeutralTint: false,
-        TextureLayout.Fluid("water_moving_side", "water_moving"),
-        TextureLayout.Fluid("water_static_side", "water_static"),
-        RenderType.Transparent);
+    public Fluid FreshWater { get; }
+
+    /// <summary>
+    ///     Water is a basic fluid, that allows the player to swim relatively easily.
+    /// </summary>
+    public Fluid SeaWater { get; }
 
     /// <summary>
     ///     Milk is a white fluid that is obtained from animals.
     /// </summary>
-    public Fluid Milk { get; } = new BasicFluid(
-        Language.Milk,
-        nameof(Milk),
-        density: 1033f,
-        2 * mPas,
-        hasNeutralTint: false,
-        TextureLayout.Fluid("milk_moving_side", "milk_moving"),
-        TextureLayout.Fluid("milk_static_side", "milk_static"));
+    public Fluid Milk { get; }
 
     /// <summary>
     ///     Steam is a gas created when water is heated.
     /// </summary>
-    public Fluid Steam { get; } = new BasicFluid(
-        Language.Steam,
-        nameof(Steam),
-        density: 0.5f,
-        (int) (0.25 * mPas),
-        hasNeutralTint: false,
-        TextureLayout.Fluid("steam_moving_side", "steam_moving"),
-        TextureLayout.Fluid("steam_static_side", "steam_static"),
-        RenderType.Transparent);
+    public Fluid Steam { get; }
 
     /// <summary>
     ///     Lava is a hot fluid, made out of molten stone. It burns flammable objects.
     /// </summary>
-    public Fluid Lava { get; } = new HotFluid(
-        Language.Lava,
-        nameof(Lava),
-        density: 3100f,
-        15 * mPas,
-        hasNeutralTint: false,
-        TextureLayout.Fluid("lava_moving_side", "lava_moving"),
-        TextureLayout.Fluid("lava_static_side", "lava_static"));
+    public Fluid Lava { get; }
 
     /// <summary>
     ///     Crude oil is a flammable fluid with a high viscosity. It is lighter than water.
     /// </summary>
-    public Fluid CrudeOil { get; } = new BasicFluid(
-        Language.CrudeOil,
-        nameof(CrudeOil),
-        density: 870f,
-        8 * mPas,
-        hasNeutralTint: false,
-        TextureLayout.Fluid("oil_moving_side", "oil_moving"),
-        TextureLayout.Fluid("oil_static_side", "oil_static"));
+    public Fluid CrudeOil { get; }
 
     /// <summary>
     ///     Natural gas is a flammable gas.
     /// </summary>
-    public Fluid NaturalGas { get; } = new BasicFluid(
-        Language.NaturalGas,
-        nameof(NaturalGas),
-        density: 0.8f,
-        (int) (0.5 * mPas),
-        hasNeutralTint: false,
-        TextureLayout.Fluid("gas_moving_side", "gas_moving"),
-        TextureLayout.Fluid("gas_static_side", "gas_static"),
-        RenderType.Transparent);
+    public Fluid NaturalGas { get; }
 
     /// <summary>
     ///     Concrete is a fluid that hardens when staying still for some time, forming concrete blocks.
     /// </summary>
-    public Fluid Concrete { get; } = new ConcreteFluid(
-        Language.Concrete,
-        nameof(Concrete),
-        density: 2400f,
-        10 * mPas,
-        TextureLayout.Fluid("concrete_moving_side", "concrete_moving"),
-        TextureLayout.Fluid("concrete_static_side", "concrete_static"));
+    public Fluid Concrete { get; }
 
     /// <summary>
     ///     Honey is a thick fluid.
     /// </summary>
-    public Fluid Honey { get; } = new BasicFluid(
-        Language.Honey,
-        nameof(Honey),
-        density: 1450f,
-        20 * mPas,
-        hasNeutralTint: false,
-        TextureLayout.Fluid("honey_moving_side", "honey_moving"),
-        TextureLayout.Fluid("honey_static_side", "honey_static"),
-        RenderType.Transparent);
+    public Fluid Honey { get; }
 
     /// <summary>
     ///     Petrol is a flammable fluid.
     /// </summary>
-    public Fluid Petrol { get; } = new BasicFluid(
-        Language.Petrol,
-        nameof(Petrol),
-        density: 740f,
-        (int) (0.9 * mPas),
-        hasNeutralTint: false,
-        TextureLayout.Fluid("petrol_moving_side", "petrol_moving"),
-        TextureLayout.Fluid("petrol_static_side", "petrol_static"),
-        RenderType.Transparent);
+    public Fluid Petrol { get; }
 
     /// <summary>
     ///     Wine is a reddish fluid.
     /// </summary>
-    public Fluid Wine { get; } = new BasicFluid(
-        Language.Wine,
-        nameof(Wine),
-        density: 1090f,
-        (int) (1.4 * mPas),
-        hasNeutralTint: false,
-        TextureLayout.Fluid("wine_moving_side", "wine_moving"),
-        TextureLayout.Fluid("wine_static_side", "wine_static"),
-        RenderType.Transparent);
+    public Fluid Wine { get; }
 
     /// <summary>
     ///     Beer is a brown fluid.
     /// </summary>
-    public Fluid Beer { get; } = new BasicFluid(
-        Language.Beer,
-        nameof(Beer),
-        density: 1030f,
-        (int) (1.5 * mPas),
-        hasNeutralTint: false,
-        TextureLayout.Fluid("beer_moving_side", "beer_moving"),
-        TextureLayout.Fluid("beer_static_side", "beer_static"),
-        RenderType.Transparent);
+    public Fluid Beer { get; }
 
     /// <summary>
     ///     The contact manager instance.
