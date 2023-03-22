@@ -119,8 +119,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     /// <inheritdoc />
     public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
-            Destroy(world, position);
+        PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
 
     /// <inheritdoc />
@@ -180,4 +179,3 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         Dead
     }
 }
-

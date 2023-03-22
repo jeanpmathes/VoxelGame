@@ -8,7 +8,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -80,7 +79,6 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     /// <inheritdoc />
     public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
-            Destroy(world, position);
+        PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
 }
