@@ -37,7 +37,7 @@ public readonly record struct BlockInstance(Block Block, uint Data)
 /// <param name="Fluid">The fluid.</param>
 /// <param name="Level">The level of the fluid.</param>
 /// <param name="IsStatic">Whether the fluid is static.</param>
-public record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
+public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
 {
     /// <summary>
     ///     Get the default fluid instance.
@@ -48,6 +48,11 @@ public record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
     ///     Get whether the fluid is either fresh water or sea water.
     /// </summary>
     public bool IsAnyWater => Fluid == Fluids.Instance.FreshWater || Fluid == Fluids.Instance.SeaWater;
+
+    /// <summary>
+    ///     Whether the fluid is empty.
+    /// </summary>
+    public bool IsEmpty => Fluid == Fluids.Instance.None;
 }
 
 /// <summary>
@@ -75,9 +80,10 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     public bool IsEmpty => this == Default;
 
     /// <summary>
-    ///     Whether the block is replaceable and the fluid is empty.
+    ///     Whether the block is replaceable and the fluid is empty,
+    ///     allowing to set the block to a new value without any problems.
     /// </summary>
-    public bool IsReplaceable => Block.Block.IsReplaceable && Fluid.Fluid == Fluids.Instance.None;
+    public bool IsSettable => Block.Block.IsReplaceable && Fluid.IsEmpty;
 }
 
 /// <summary>

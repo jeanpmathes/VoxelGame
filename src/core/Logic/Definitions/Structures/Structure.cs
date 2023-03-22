@@ -93,7 +93,7 @@ public abstract class Structure
 
         Vector3i targetPosition = position + orientedOffset;
 
-        if (!overwrite && grid.GetContent(targetPosition)?.IsReplaceable != true) return;
+        if (!overwrite && grid.GetContent(targetPosition)?.IsSettable != true) return;
 
         grid.SetContent(content, targetPosition);
     }
@@ -136,4 +136,6 @@ public abstract class Structure
         return isInExtents;
     }
 }
+
+
 

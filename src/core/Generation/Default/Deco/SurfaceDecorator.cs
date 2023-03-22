@@ -48,7 +48,7 @@ public class SurfaceDecorator : Decorator
             {
                 Content current = grid.GetContent(position + (x, y, z)) ?? Content.Default;
 
-                if (!current.IsReplaceable) return false;
+                if (!current.IsSettable) return false;
             }
         }
 
@@ -57,4 +57,6 @@ public class SurfaceDecorator : Decorator
         return below.Block.IsSolidAndFull;
     }
 }
+
+
 

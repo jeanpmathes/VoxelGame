@@ -159,7 +159,7 @@ public static class Raycast
         if (potentialFluid is not {} fluid) return false;
 
         // Check if the ray intersects the bounding box of the fluid.
-        return fluid.Fluid != Fluids.Instance.None &&
+        return !fluid.IsEmpty &&
                Fluid.GetCollider(position, fluid.Level).Intersects(ray);
     }
 
@@ -195,3 +195,5 @@ public static class Raycast
         return positions;
     }
 }
+
+

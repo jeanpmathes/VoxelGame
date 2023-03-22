@@ -18,6 +18,11 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     public static int MaximumHeight => 15;
 
+    /// <summary>
+    ///     The half height. A block with this height fills half of a position.
+    /// </summary>
+    public static int HalfHeight => MaximumHeight / 2;
+
     /// <inheritdoc />
     bool IBlockBase.IsSideFull(BlockSide side, uint data)
     {
@@ -35,4 +40,5 @@ public interface IHeightVariable : IBlockBase
     /// <returns>The block height.</returns>
     int GetHeight(uint data);
 }
+
 

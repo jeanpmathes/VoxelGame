@@ -450,16 +450,16 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             if (content is not var (neighborBlock, neighborFluid)) continue;
 
-            if (neighborFluid.Fluid == Fluids.Instance.None && neighborBlock.Block is IFillable neighborFillable
-                                                            && neighborFillable.IsInflowAllowed(
-                                                                world,
-                                                                neighborPosition,
-                                                                orientation.Opposite().ToBlockSide(),
-                                                                this)
-                                                            && currentFillable.IsOutflowAllowed(
-                                                                world,
-                                                                position,
-                                                                orientation.ToBlockSide()))
+            if (neighborFluid.IsEmpty && neighborBlock.Block is IFillable neighborFillable
+                                      && neighborFillable.IsInflowAllowed(
+                                          world,
+                                          neighborPosition,
+                                          orientation.Opposite().ToBlockSide(),
+                                          this)
+                                      && currentFillable.IsOutflowAllowed(
+                                          world,
+                                          position,
+                                          orientation.ToBlockSide()))
                 return true;
         }
 
@@ -606,4 +606,5 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
+
 

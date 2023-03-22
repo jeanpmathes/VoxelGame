@@ -147,7 +147,7 @@ public class FluidContactManager
             light.position - light.fluid.FlowDirection);
 
         if (content is not ({Block: IFillable}, var aboveLightFluid)) return false;
-        if (!IsFlowAllowed(world, light.position, aboveLightPosition) || aboveLightFluid.Fluid != Fluids.Instance.None) return false;
+        if (!IsFlowAllowed(world, light.position, aboveLightPosition) || !aboveLightFluid.IsEmpty) return false;
 
         SetFluid(world, aboveLightPosition, light.fluid, light.level);
         SetFluid(world, light.position, dense.fluid, FluidLevel.One);
@@ -271,3 +271,5 @@ public class FluidContactManager
         }
     }
 }
+
+

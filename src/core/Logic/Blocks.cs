@@ -131,7 +131,7 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("obsidian")));
 
-            Snow = Register(new GroundedModifiableHeightBlock(
+            Snow = Register(new SnowBlock(
                 Language.Snow,
                 nameof(Snow),
                 TextureLayout.Uniform("snow")));
@@ -697,7 +697,7 @@ public class Blocks
         public SpecialBlocks(Blocks blocks)
         {
             Concrete = (ConcreteBlock) blocks.Concrete;
-            Snow = (GroundedModifiableHeightBlock) blocks.Snow;
+            Snow = (SnowBlock) blocks.Snow;
             Ice = (ModifiableHeightBlock) blocks.Ice;
             Log = (RotatedBlock) blocks.Log;
             Vines = (FlatBlock) blocks.Vines;
@@ -705,7 +705,7 @@ public class Blocks
         }
 
         public ConcreteBlock Concrete { get; }
-        public GroundedModifiableHeightBlock Snow { get; }
+        public SnowBlock Snow { get; }
         public ModifiableHeightBlock Ice { get; }
         public RotatedBlock Log { get; }
         public FlatBlock Vines { get; }
