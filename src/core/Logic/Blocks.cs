@@ -612,7 +612,7 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("roots")));
 
-            Salt = Register(new GroundedModifiableHeightBlock(
+            Salt = Register(new SaltBlock(
                 Language.Salt,
                 nameof(Salt),
                 TextureLayout.Uniform("salt")));
@@ -701,7 +701,7 @@ public class Blocks
             Ice = (ModifiableHeightBlock) blocks.Ice;
             Log = (RotatedBlock) blocks.Log;
             Vines = (FlatBlock) blocks.Vines;
-            Salt = (GroundedModifiableHeightBlock) blocks.Salt;
+            Salt = (SaltBlock) blocks.Salt;
         }
 
         public ConcreteBlock Concrete { get; }
@@ -709,7 +709,7 @@ public class Blocks
         public ModifiableHeightBlock Ice { get; }
         public RotatedBlock Log { get; }
         public FlatBlock Vines { get; }
-        public GroundedModifiableHeightBlock Salt { get; }
+        public SaltBlock Salt { get; }
     }
 
     #region NATURAL BLOCKS

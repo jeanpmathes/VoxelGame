@@ -19,7 +19,7 @@ public class SnowBlock : GroundedModifiableHeightBlock, IFillable
     /// <summary>
     ///     Creates a new instance of the <see cref="SnowBlock" /> class.
     /// </summary>
-    public SnowBlock(string name, string namedId, TextureLayout layout) : base(name, namedId, layout) {}
+    internal SnowBlock(string name, string namedId, TextureLayout layout) : base(name, namedId, layout) {}
 
     /// <inheritdoc />
     public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
@@ -37,3 +37,5 @@ public class SnowBlock : GroundedModifiableHeightBlock, IFillable
         if (!content.Fluid.IsEmpty) ScheduleDestroy(world, position);
     }
 }
+
+
