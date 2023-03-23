@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Core.Resources.Language;
@@ -57,7 +58,10 @@ internal class KeybindManager : ISettingsProvider
     /// </summary>
     internal IEnumerable<Keybind> Binds => keybinds.Keys;
 
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.Keybinds;
+
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Description => Language.KeybindsSettingsDescription;
 
     public IEnumerable<Setting> Settings => settings;
@@ -254,4 +258,5 @@ internal class KeybindManager : ISettingsProvider
 
     #endregion KEYBINDS
 }
+
 

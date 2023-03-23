@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>net6.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -15,46 +14,19 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <WarningsAsErrors>;NU1605;nullable</WarningsAsErrors>
-        <DocumentationFile>bin\Debug\D3D12HelloWorld.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\VoxelGame.Support.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <WarningsAsErrors>;NU1605;nullable</WarningsAsErrors>
-        <DocumentationFile>bin\Release\D3D12HelloWorld.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\VoxelGame.Support.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="Shaders\Post.hlsl">
-            <Message>Performing Custom Build Tools</Message>
-            <LinkObjects>true</LinkObjects>
-            <TreatOutputAsContent>true</TreatOutputAsContent>
-            <TrackerLogDirectory>obj\x64\Debug\D3D12Hel.5018F6A3.tlog\</TrackerLogDirectory>
-            <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-            <BuildInParallel>false</BuildInParallel>
-            <MaxProcesses>0</MaxProcesses>
-            <MaxItemsInBatch>0</MaxItemsInBatch>
-            <VerifyInputsAndOutputsExist>true</VerifyInputsAndOutputsExist>
-            <Command>copy scene.hlsl "bin\x64\Debug\" &gt; NUL</Command>
-            <Outputs>bin\x64\Debug\\scene.hlsl</Outputs>
-            <FileType>Document</FileType>
-            <DeploymentContent>true</DeploymentContent>
+        <None Include="obj\native\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Shaders\Space.hlsl">
-            <Message>Performing Custom Build Tools</Message>
-            <LinkObjects>true</LinkObjects>
-            <TreatOutputAsContent>true</TreatOutputAsContent>
-            <TrackerLogDirectory>obj\x64\Debug\D3D12Hel.5018F6A3.tlog\</TrackerLogDirectory>
-            <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-            <BuildInParallel>false</BuildInParallel>
-            <MaxProcesses>0</MaxProcesses>
-            <MaxItemsInBatch>0</MaxItemsInBatch>
-            <VerifyInputsAndOutputsExist>true</VerifyInputsAndOutputsExist>
-            <Command>copy scene.hlsl "bin\x64\Debug\" &gt; NUL</Command>
-            <Outputs>bin\x64\Debug\\scene.hlsl</Outputs>
-            <FileType>Document</FileType>
-            <DeploymentContent>true</DeploymentContent>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
         </None>
     </ItemGroup>
 
@@ -71,10 +43,13 @@
         <None Include="Shaders\RayGen.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
         <None Include="Shaders\Shadow.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="Shaders\Space.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="Shaders\Post.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

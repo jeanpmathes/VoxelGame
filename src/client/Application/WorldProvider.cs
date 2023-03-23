@@ -97,6 +97,7 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public bool IsWorldNameValid(string name)
     {
         if (name.Length == 0) return false;
@@ -116,6 +117,7 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public void DeleteWorld(DirectoryInfo path)
     {
         try
@@ -133,4 +135,5 @@ public class WorldProvider : IWorldProvider
     /// </summary>
     public event EventHandler<World> WorldActivation = null!;
 }
+
 

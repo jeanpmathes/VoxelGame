@@ -22,7 +22,7 @@ using VoxelGame.Logging;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
-[assembly: SupportedOSPlatform("windows")]
+[assembly: SupportedOSPlatform("windows11.0")]
 
 namespace VoxelGame.Client;
 
@@ -31,12 +31,12 @@ internal static class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    internal static string Version { get; private set; } = null!;
+    private static string Version { get; set; } = null!;
 
     /// <summary>
     ///     Get the app data directory.
     /// </summary>
-    internal static DirectoryInfo AppDataDirectory { get; private set; } = null!;
+    private static DirectoryInfo AppDataDirectory { get; set; } = null!;
 
     /// <summary>
     ///     Get the screenshot directory.
@@ -63,11 +63,8 @@ internal static class Program
     private static void Main(string[] args)
     {
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
-
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
-
         StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");
-
         WorldsDirectory = FileSystem.CreateSubdirectory(AppDataDirectory, "Worlds");
 
         Arguments arguments = new()
@@ -138,4 +135,5 @@ internal static class Program
         internal bool logDebug;
     }
 }
+
 

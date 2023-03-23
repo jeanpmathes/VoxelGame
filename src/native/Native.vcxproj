@@ -94,7 +94,7 @@
       <Message>Copy dxcompiler.dll and dxil.dll to target folder.</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)D3D12HelloWorld\bin\$(Platform)\$(ConfigurationName)\net6.0-windows" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+      <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
       <Message>Copy all dependecies to C# project.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -136,7 +136,7 @@
       <Message>Copy dxcompiler.dll and dxil.dll to target folder.</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)D3D12HelloWorld\bin\$(Platform)\$(ConfigurationName)\net6.0-windows" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+      <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
       <Message>Copy all dependecies to C# project.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>

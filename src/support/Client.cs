@@ -38,8 +38,6 @@ public class Client : IDisposable
         {
             Time += delta;
 
-            Console.WriteLine($"Time: {Time}");
-
             mousePosition = Support.Native.GetMousePosition(Native);
 
             OnUpdate(delta);
@@ -228,4 +226,5 @@ public class Client : IDisposable
 
     #endregion
 }
+
 

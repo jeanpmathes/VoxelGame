@@ -8,6 +8,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-[assembly: SupportedOSPlatform("windows")]
+[assembly: SupportedOSPlatform("windows11.0")]
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]

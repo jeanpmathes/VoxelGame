@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -43,6 +44,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// </summary>
     public new World World => base.World.Cast();
 
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     private Section GetSection(int index)
     {
         return GetSectionByIndex(index).Cast();
@@ -213,3 +215,5 @@ public partial class Chunk : Core.Logic.Chunk
         }
     }
 }
+
+

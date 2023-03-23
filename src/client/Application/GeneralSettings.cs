@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using Properties;
 using VoxelGame.Core.Resources.Language;
@@ -105,9 +106,11 @@ public class GeneralSettings : ISettingsProvider
     }
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.General;
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Description => Language.GeneralSettingsDescription;
 
     /// <inheritdoc />
@@ -128,4 +131,5 @@ public class GeneralSettings : ISettingsProvider
     /// </summary>
     public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged = delegate {};
 }
+
 

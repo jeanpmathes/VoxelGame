@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Properties;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Resources.Language;
@@ -134,12 +135,15 @@ public class GraphicsSettings : ISettingsProvider
     }
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.Graphics;
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Description => Language.GraphicsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
 }
+
 
