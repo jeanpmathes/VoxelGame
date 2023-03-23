@@ -1,0 +1,167 @@
+//  <copyright file="native.cpp" company="VoxelGame">
+//      MIT License
+// 	 For full license see the repository.
+//  </copyright>
+//  <author>jeanpmathes</author>
+
+#include "stdafx.h"
+
+NativeErrorFunc onError;
+NativeErrorMessageFunc onErrorMessage;
+
+NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErrorFunc errorCallback,
+                                     const NativeErrorMessageFunc errorMessageCallback)
+{
+    onError = errorCallback;
+    onErrorMessage = errorMessageCallback;
+
+    TRY
+    {
+        return new NativeClient(1280, 720, L"D3D12 Native Client", config);
+    }
+    CATCH();
+}
+
+NATIVE void NativeFinalize(const NativeClient* client)
+{
+    TRY
+    {
+        delete client;
+
+#ifdef _DEBUG
+        IDXGIDebug1* pDebug = nullptr;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
+        {
+            pDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+            pDebug->Release();
+        }
+#endif
+    }
+    CATCH();
+}
+
+NATIVE int NativeRun(NativeClient* client, const int nCmdShow)
+{
+    TRY
+    {
+        return Win32Application::Run(client, GetModuleHandle(nullptr), nCmdShow);
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetResolution(NativeClient* client, const UINT width, const UINT height)
+{
+    TRY
+    {
+        client->SetResolution(width, height);
+    }
+    CATCH();
+}
+
+NATIVE void NativeToggleFullscreen(const NativeClient* client)
+{
+    TRY
+    {
+        client->ToggleFullscreen();
+    }
+    CATCH();
+}
+
+NATIVE void NativeGetMousePosition(const NativeClient* client, PLONG x, PLONG y)
+{
+    TRY
+    {
+        const POINT position = client->GetMousePosition();
+
+        *x = position.x;
+        *y = position.y;
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetMousePosition(const NativeClient* client, const LONG x, const LONG y)
+{
+    TRY
+    {
+        const POINT position = {x, y};
+
+        client->SetMousePosition(position);
+    }
+    CATCH();
+}
+
+NATIVE Camera* NativeGetCamera(NativeClient* client)
+{
+    TRY
+    {
+        return client->GetSpace()->GetCamera();
+    }
+    CATCH();
+}
+
+NATIVE Light* NativeGetLight(NativeClient* client)
+{
+    TRY
+    {
+        return client->GetSpace()->GetLight();
+    }
+    CATCH();
+}
+
+NATIVE void NativeUpdateCameraData(Camera* camera, const CameraData data)
+{
+    TRY
+    {
+        camera->SetPosition(data.position);
+    }
+    CATCH();
+}
+
+NATIVE void NativeUpdateSpatialObjectData(SpatialObject* object, const SpatialObjectData data)
+{
+    TRY
+    {
+        object->SetPosition(data.position);
+        object->SetRotation(data.rotation);
+    }
+    CATCH();
+}
+
+NATIVE SequencedMeshObject* NativeCreateSequencedMeshObject(NativeClient* client)
+{
+    TRY
+    {
+        return &client->GetSpace()->CreateSequencedMeshObject();
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetSequencedMeshObjectMesh(SequencedMeshObject* object,
+                                             const SpatialVertex* vertexData, const UINT vertexCount)
+{
+    TRY
+    {
+        object->SetNewMesh(vertexData, vertexCount);
+    }
+    CATCH();
+}
+
+NATIVE IndexedMeshObject* NativeCreateIndexedMeshObject(NativeClient* client)
+{
+    TRY
+    {
+        return &client->GetSpace()->CreateIndexedMeshObject();
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetIndexedMeshObjectMesh(IndexedMeshObject* object,
+                                           const SpatialVertex* vertexData, const UINT vertexCount,
+                                           const UINT* indexData, const UINT indexCount)
+{
+    TRY
+    {
+        object->SetNewMesh(vertexData, vertexCount, indexData, indexCount);
+    }
+    CATCH();
+}
