@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Input.Devices;
+using VoxelGame.Support.Input.Devices;
 
 namespace VoxelGame.Client.Application;
 
@@ -43,4 +43,5 @@ public class LookInput
         sensitivity = newSensitivity;
     }
 }
+
 

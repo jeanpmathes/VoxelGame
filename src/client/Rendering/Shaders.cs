@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Objects;
-using VoxelGame.Graphics.Utility;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Objects;
+using VoxelGame.Support.Graphics.Utility;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -36,6 +36,8 @@ public sealed class Shaders
 
     private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
+        // todo: integrate the new HLSL shaders into the current loading system, then delete the old GLSL shaders
+
         loader = new ShaderLoader(
             directory,
             loadingContext,
@@ -208,3 +210,4 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
+

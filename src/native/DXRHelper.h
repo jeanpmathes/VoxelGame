@@ -117,7 +117,9 @@ namespace nv_helpers_dx12
             errorMsg.append(infoLog.data());
 
             MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
-            throw std::logic_error("Failed compile shader");
+            throw std::logic_error("Failed to compile shader");
+
+            // todo: pass compile error out to C#, do not throw exception
         }
 
         ComPtr<IDxcBlob> pBlob;

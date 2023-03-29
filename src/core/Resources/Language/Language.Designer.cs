@@ -519,15 +519,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Max FPS.
-        /// </summary>
-        public static string GraphicsMaxFPS {
-            get {
-                return ResourceManager.GetString("GraphicsMaxFPS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Sample Count (MSAA).
         /// </summary>
         public static string GraphicsSampleCount {
@@ -542,15 +533,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string GraphicsSettingsDescription {
             get {
                 return ResourceManager.GetString("GraphicsSettingsDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Use borderless (windowed) fullscreen.
-        /// </summary>
-        public static string GraphicsUseFullscreenBorderless {
-            get {
-                return ResourceManager.GetString("GraphicsUseFullscreenBorderless", resourceCulture);
             }
         }
         

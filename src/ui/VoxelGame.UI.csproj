@@ -14,6 +14,7 @@
       <AssemblyVersion>1.3.0.0</AssemblyVersion>
       <FileVersion>1.3.0.0</FileVersion>
       <Authors>jeanpmathes</Authors>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
     <PropertyGroup>
@@ -80,21 +81,24 @@
 
     <ItemGroup>
         <PackageReference Include="Gwen.Net" Version="0.2.8"/>
-        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.5"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-        <PackageReference Include="OpenTK" Version="4.7.1"/>
         <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
         <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+        <PackageReference Include="TextCopy" Version="6.2.1"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
-        <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
+        <ProjectReference Include="..\support\VoxelGame.Support.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Platform\Shaders"/>
     </ItemGroup>
 </Project>

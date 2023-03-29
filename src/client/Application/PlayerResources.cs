@@ -4,10 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Objects;
 
 namespace VoxelGame.Client.Application;
 
@@ -28,10 +27,13 @@ public class PlayerResources
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "Player"))
         {
+            // todo: load crosshair here
+            /*
             Crosshair = new Texture(loadingContext,
                 FileSystem.GetResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
                 TextureUnit.Texture10,
                 fallbackResolution: 32);
+            */
         }
     }
 

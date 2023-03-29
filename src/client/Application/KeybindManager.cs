@@ -9,13 +9,12 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Input;
-using VoxelGame.Input.Actions;
-using VoxelGame.Input.Collections;
-using VoxelGame.Input.Internal;
 using VoxelGame.Logging;
+using VoxelGame.Support.Definition;
+using VoxelGame.Support.Input;
+using VoxelGame.Support.Input.Actions;
+using VoxelGame.Support.Input.Collections;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -95,15 +94,17 @@ internal class KeybindManager : ISettingsProvider
 
     private void InitializeStorage()
     {
+        // todo: check that the keybind saving, resetting etc. still works as intended
+
         foreach (KeyValuePair<Keybind, Button> pair in keybinds)
         {
             string key = PropertyName(pair.Key);
 
             SettingsProperty property = new(key)
             {
-                PropertyType = typeof(KeyButtonPair),
+                PropertyType = typeof(OptionalKey),
                 IsReadOnly = false,
-                DefaultValue = KeyButtonPair.DefaultValue,
+                DefaultValue = OptionalKey.DefaultValue,
                 Provider = Properties.Settings.Default.Providers["LocalFileSettingsProvider"],
                 SerializeAs = SettingsSerializeAs.Xml
             };
@@ -118,9 +119,9 @@ internal class KeybindManager : ISettingsProvider
         foreach ((Keybind keybind, Button button) in keybinds)
         {
             string key = PropertyName(keybind);
-            var state = (KeyButtonPair) Properties.Settings.Default[key];
+            var state = (OptionalKey) Properties.Settings.Default[key];
 
-            if (!state.Default) button.SetBinding(new KeyOrButton(state));
+            if (!state.Default) button.SetBinding(state.Key);
         }
 
         Properties.Settings.Default.Save();
@@ -130,7 +131,7 @@ internal class KeybindManager : ISettingsProvider
 
     private void InitializeUsages()
     {
-        foreach (KeyValuePair<Keybind, Button> pair in keybinds) UpdateAddedBind(pair.Value.KeyOrButton);
+        foreach (KeyValuePair<Keybind, Button> pair in keybinds) UpdateAddedBind(pair.Value.Key);
     }
 
     internal ToggleButton GetToggle(Keybind bind)
@@ -154,20 +155,20 @@ internal class KeybindManager : ISettingsProvider
         return pushButtons[bind];
     }
 
-    private void Rebind(Keybind bind, KeyOrButton keyOrButton, bool isDefault)
+    private void Rebind(Keybind bind, VirtualKeys key, bool isDefault)
     {
         Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
-        usageMap.RemoveBinding(keybinds[bind].KeyOrButton);
-        keybinds[bind].SetBinding(keyOrButton);
-        Input.AddPullDown(keyOrButton);
+        usageMap.RemoveBinding(keybinds[bind].Key);
+        keybinds[bind].SetBinding(key);
+        Input.AddPullDown(key);
 
-        Properties.Settings.Default[PropertyName(bind)] = keyOrButton.GetSettings(isDefault);
+        Properties.Settings.Default[PropertyName(bind)] = key.GetSettings(isDefault);
         Properties.Settings.Default.Save();
 
-        logger.LogInformation(Events.SetKeyBind, "Rebind '{Bind}' to: {Key}", bind, keyOrButton);
+        logger.LogInformation(Events.SetKeyBind, "Rebind '{Bind}' to: {Key}", bind, key);
 
-        UpdateAddedBind(keyOrButton);
+        UpdateAddedBind(key);
     }
 
     private static string PropertyName(Keybind bind)
@@ -175,19 +176,19 @@ internal class KeybindManager : ISettingsProvider
         return $"Input_{bind}";
     }
 
-    internal KeyOrButton GetCurrentBind(Keybind bind)
+    internal VirtualKeys GetCurrentBind(Keybind bind)
     {
         Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
-        return keybinds[bind].KeyOrButton;
+        return keybinds[bind].Key;
     }
 
-    private void UpdateAddedBind(KeyOrButton keyOrButton)
+    private void UpdateAddedBind(VirtualKeys key)
     {
-        bool unused = usageMap.AddBinding(keyOrButton);
+        bool unused = usageMap.AddBinding(key);
 
         if (!unused)
-            logger.LogWarning(Events.SetKeyBind, "Key '{KeyOrButton}' is used by multiple bindings", keyOrButton);
+            logger.LogWarning(Events.SetKeyBind, "Key '{Key}' is used by multiple bindings", key);
     }
 
     private void InitializeSettings()
@@ -208,55 +209,54 @@ internal class KeybindManager : ISettingsProvider
 
     #region KEYBINDS
 
-    internal Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, Keys.F11);
+    internal Keybind Fullscreen { get; } = Keybind.RegisterToggle("fullscreen", Language.KeyFullscreen, VirtualKeys.F11);
 
-    internal Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, Keys.F10);
+    internal Keybind UI { get; } = Keybind.RegisterToggle("ui", Language.KeyToggleUI, VirtualKeys.F10);
 
     internal Keybind Screenshot { get; } =
-        Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, Keys.F12);
+        Keybind.RegisterPushButton("screenshot", Language.KeyScreenshot, VirtualKeys.F12);
 
-    internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, Keys.F1);
-    internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, Keys.F2);
-    internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, Keys.Escape);
+    internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, VirtualKeys.F1);
+    internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, VirtualKeys.F2);
+    internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, VirtualKeys.Escape);
 
-    internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, Keys.W);
-    internal Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, Keys.S);
-    internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, Keys.D);
-    internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, Keys.A);
+    internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, VirtualKeys.W);
+    internal Keybind Backwards { get; } = Keybind.RegisterButton("backwards", Language.KeyBackwards, VirtualKeys.S);
+    internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, VirtualKeys.D);
+    internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, VirtualKeys.A);
 
-    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, Keys.LeftShift);
-    internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, Keys.Space);
-    internal Keybind Crouch { get; } = Keybind.RegisterButton("crouch", Language.KeyCrouch, Keys.C);
+    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, VirtualKeys.LeftShift);
+    internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, VirtualKeys.Space);
+    internal Keybind Crouch { get; } = Keybind.RegisterButton("crouch", Language.KeyCrouch, VirtualKeys.C);
 
     internal Keybind InteractOrPlace { get; } = Keybind.RegisterButton(
         "interact_or_place",
         Language.KeyInteractOrPlace,
-        MouseButton.Right);
+        VirtualKeys.RightButton);
 
-    internal Keybind Destroy { get; } = Keybind.RegisterButton("destroy", Language.KeyDestroy, MouseButton.Left);
+    internal Keybind Destroy { get; } = Keybind.RegisterButton("destroy", Language.KeyDestroy, VirtualKeys.LeftButton);
 
     internal Keybind BlockInteract { get; } = Keybind.RegisterButton(
         "block_interact",
         Language.KeyForceInteract,
-        Keys.LeftControl);
+        VirtualKeys.LeftControl);
 
     internal Keybind PlacementMode { get; } =
-        Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, Keys.R);
+        Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, VirtualKeys.R);
 
     internal Keybind NextPlacement { get; } = Keybind.RegisterPushButton(
         "select_next_placement",
         Language.KeyNextPlacement,
-        Keys.KeyPadAdd);
+        VirtualKeys.Add);
 
     internal Keybind PreviousPlacement { get; } =
-        Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, Keys.KeyPadSubtract);
+        Keybind.RegisterPushButton("select_previous_placement", Language.KeyPreviousPlacement, VirtualKeys.Subtract);
 
     internal Keybind SelectTargeted { get; } = Keybind.RegisterPushButton(
         "select_targeted",
         Language.KeySelectTargeted,
-        MouseButton.Button3);
+        VirtualKeys.MiddleButton);
 
     #endregion KEYBINDS
 }
-
 

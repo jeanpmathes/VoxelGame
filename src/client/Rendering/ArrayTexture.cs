@@ -11,12 +11,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
-using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -38,7 +35,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     private int[] handles = null!;
 
     private LoadingContext? loadingContext;
-    private TextureUnit[] textureUnits = null!;
 
     /// <summary>
     ///     Create a new array texture. It will be filled with all textures found in the given directory.
@@ -51,11 +47,11 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     ///     one. The custom algorithm is better for textures with complete transparency.
     /// </param>
     /// <param name="parameters">Optional texture parameters.</param>
-    /// <param name="textureUnits">The texture units to bind the array to.</param>
-    public ArrayTexture(LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters,
-        params TextureUnit[] textureUnits)
+    public ArrayTexture(LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters)
     {
-        Initialize(loadingContext, textureDirectory, resolution, useCustomMipmapGeneration, parameters, textureUnits);
+        // todo: port to DirectX 
+
+        Initialize(loadingContext, textureDirectory, resolution, useCustomMipmapGeneration, parameters);
     }
 
     /// <summary>
@@ -109,25 +105,26 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// </summary>
     public void Use()
     {
-        for (var i = 0; i < arrayCount; i++) GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
+        // for (var i = 0; i < arrayCount; i++) GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
     }
 
-    internal void SetWrapMode(TextureWrapMode mode)
+    internal void SetWrapMode()
     {
-        for (var i = 0; i < arrayCount; i++)
-        {
-            GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
-
-            GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int) mode);
-            GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int) mode);
-        }
+        // for (var i = 0; i < arrayCount; i++)
+        // {
+        //     GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
+        //
+        //     GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int) mode);
+        //     GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int) mode);
+        // }
     }
 
     private void Initialize(LoadingContext initialLoadingContext,
-        DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters, params TextureUnit[] units)
+        DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
+        /*
         arrayCount = units.Length;
 
         textureUnits = units;
@@ -198,6 +195,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         foreach (Bitmap bitmap in textures) bitmap.Dispose();
 
         initialLoadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
+        */
     }
 
     private static void PreprocessBitmaps(List<Bitmap> textures)
@@ -244,9 +242,10 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     private void GetHandles(int[] arr)
     {
-        GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
+        // GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
     }
 
+    /*
     private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution,
         IReadOnlyList<Bitmap> textures,
         int startIndex, int length, bool useCustomMipmapGeneration)
@@ -303,6 +302,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
         GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
     }
+    */
 
     /// <summary>
     ///     Loads all bitmaps specified by the paths into the list. The bitmaps are split into smaller parts that are all sized
@@ -386,12 +386,14 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     private static void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
     {
+        // todo: maybe this is a good point where upload to DirectX could be added
+
         BitmapData data = bitmap.LockBits(
             new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height),
             ImageLockMode.ReadOnly,
             PixelFormat.Format32bppArgb);
 
-        GL.TextureSubImage3D(
+        /*GL.TextureSubImage3D(
             handle,
             lod,
             xoffset: 0,
@@ -402,7 +404,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             length,
             OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
             PixelType.UnsignedByte,
-            data.Scan0);
+            data.Scan0);*/
 
         bitmap.UnlockBits(data);
     }
@@ -464,7 +466,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
         if (disposing)
             for (var i = 0; i < arrayCount; i++)
-                GL.DeleteTexture(handles[i]);
+                ; //GL.DeleteTexture(handles[i]); todo: freeing still important
         else
             logger.LogWarning(
                 Events.UndeletedTexture,
@@ -492,5 +494,4 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     #endregion IDisposable Support
 }
-
 

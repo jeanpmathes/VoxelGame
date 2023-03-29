@@ -6,13 +6,12 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Groups;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Groups;
+using VoxelGame.Support.Graphics.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -50,6 +49,8 @@ public sealed class SectionRenderer : IDisposable
     /// </summary>
     public SectionRenderer()
     {
+        // todo: port to DirectX
+
         simpleDrawGroup = ArrayIDataDrawGroup.Create(size: 2);
 
         crossPlantDrawGroup = ElementInstancedIDataDrawGroup.Create(
@@ -265,60 +266,59 @@ public sealed class SectionRenderer : IDisposable
 
     private static void PrepareSimpleBuffer()
     {
-        Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-        GL.Enable(EnableCap.DepthClamp);
-
-        Shaders.SimpleSection.Use();
+        // Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+        //
+        // GL.Enable(EnableCap.DepthClamp);
+        //
+        // Shaders.SimpleSection.Use();
     }
 
     private static void PrepareCrossPlantBuffer()
     {
-        Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
-
-        GL.Disable(EnableCap.CullFace);
-
-        Shaders.CrossPlantSection.Use();
+        // Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+        //
+        // GL.Disable(EnableCap.CullFace);
+        //
+        // Shaders.CrossPlantSection.Use();
     }
 
     private static void PrepareCropPlantBuffer()
     {
-        Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
-
-        GL.Disable(EnableCap.CullFace);
-
-        Shaders.CropPlantSection.Use();
+        // Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+        //
+        // GL.Disable(EnableCap.CullFace);
+        //
+        // Shaders.CropPlantSection.Use();
     }
 
     private static void PrepareComplexBuffer()
     {
-        Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
-
-        GL.Enable(EnableCap.DepthClamp);
-
-        Shaders.ComplexSection.Use();
+        // Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.ClampToEdge);
+        //
+        // GL.Enable(EnableCap.DepthClamp);
+        //
+        // Shaders.ComplexSection.Use();
     }
 
     private static void PrepareVaryingHeightBuffer()
     {
-        Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-        GL.Enable(EnableCap.DepthClamp);
-
-        Shaders.VaryingHeightSection.Use();
+        // Application.Client.Instance.Resources.BlockTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+        //
+        // GL.Enable(EnableCap.DepthClamp);
+        //
+        // Shaders.VaryingHeightSection.Use();
     }
 
     private static void PrepareOpaqueFluidBuffer()
     {
-        Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
-
-        Shaders.OpaqueFluidSection.Use();
-
+        // Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
+        //
+        // Shaders.OpaqueFluidSection.Use();
     }
 
     private static void PrepareTransparentFluidBufferAccumulate()
     {
-        Screen.FillDepthTexture();
+        /*Screen.FillDepthTexture();
 
         Application.Client.Instance.Resources.FluidTextureArray.SetWrapMode(TextureWrapMode.Repeat);
 
@@ -329,7 +329,7 @@ public sealed class SectionRenderer : IDisposable
         GL.BlendFunc(buf: 0, BlendingFactorSrc.One, BlendingFactorDest.One);
         GL.BlendFunc(buf: 1, BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor);
 
-        Shaders.TransparentFluidSectionAccumulate.Use();
+        Shaders.TransparentFluidSectionAccumulate.Use();*/
     }
 
     /// <summary>
@@ -396,7 +396,7 @@ public sealed class SectionRenderer : IDisposable
     /// <param name="stage">The stage to finish.</param>
     public static void FinishStage(int stage)
     {
-        GL.Disable(EnableCap.DepthClamp);
+        /*GL.Disable(EnableCap.DepthClamp);
 
         switch (stage)
         {
@@ -417,25 +417,25 @@ public sealed class SectionRenderer : IDisposable
                 if (stage < 0 || stage >= DrawStageCount) throw new InvalidOperationException();
 
                 break;
-        }
+        }*/
     }
 
     private static void FinishSolidBuffer()
     {
-        GL.Disable(EnableCap.DepthClamp);
+        // GL.Disable(EnableCap.DepthClamp);
     }
 
     private static void FinishPlantBuffer()
     {
-        GL.Enable(EnableCap.CullFace);
+        // GL.Enable(EnableCap.CullFace);
     }
 
     private static void FinishTransparentFluidBuffer()
     {
-        Screen.DrawToPrimaryTarget();
-
-        GL.Disable(EnableCap.Blend);
-        GL.DepthMask(flag: true);
+        // Screen.DrawToPrimaryTarget();
+        //
+        // GL.Disable(EnableCap.Blend);
+        // GL.DepthMask(flag: true);
     }
 
     /// <summary>
@@ -448,17 +448,17 @@ public sealed class SectionRenderer : IDisposable
 
     private static void DrawTransparencyPass()
     {
-        GL.DepthMask(flag: false);
-        GL.DepthFunc(DepthFunction.Always);
-        GL.Enable(EnableCap.Blend);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
-        Shaders.TransparentFluidSectionDraw.Use();
-        Screen.DrawFullScreenPass();
-
-        GL.Disable(EnableCap.Blend);
-        GL.DepthFunc(DepthFunction.Less);
-        GL.DepthMask(flag: true);
+        // GL.DepthMask(flag: false);
+        // GL.DepthFunc(DepthFunction.Always);
+        // GL.Enable(EnableCap.Blend);
+        // GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        //
+        // Shaders.TransparentFluidSectionDraw.Use();
+        // Screen.DrawFullScreenPass();
+        //
+        // GL.Disable(EnableCap.Blend);
+        // GL.DepthFunc(DepthFunction.Less);
+        // GL.DepthMask(flag: true);
     }
 
     #region IDisposable Support
@@ -509,3 +509,4 @@ public sealed class SectionRenderer : IDisposable
 
     #endregion IDisposable Support
 }
+

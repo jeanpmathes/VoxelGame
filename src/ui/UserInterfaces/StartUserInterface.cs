@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
@@ -73,3 +73,4 @@ public class StartUserInterface : UserInterface
         if (isCriticalMissing) control.DisableWorldSelection();
     }
 }
+

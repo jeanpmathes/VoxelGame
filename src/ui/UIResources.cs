@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Gwen.Net.OpenTk;
 using Gwen.Net.RichText;
-using OpenTK.Windowing.Desktop;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support;
+using VoxelGame.UI.Platform;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -95,7 +95,7 @@ public class UIResources
         return textures;
     }
 
-    private void LoadGUI(GameWindow window, LoadingContext loadingContext)
+    private void LoadGUI(Client window, LoadingContext loadingContext)
     {
         FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
 
@@ -104,7 +104,7 @@ public class UIResources
         Dictionary<string, TexturePreload> textures = GetTexturePreloads();
         Dictionary<string, Exception?> textureLoadingErrors = new();
 
-        GUI = GwenGuiFactory.CreateFromGame(
+        GUI = GwenGuiFactory.CreateFromClient(
             window,
             GwenGuiSettings.Default.From(
                 settings =>
@@ -112,8 +112,9 @@ public class UIResources
                     settings.SkinFile = skin;
                     settings.SkinLoadingErrorCallback = exception => skinLoadingError = exception;
 
-                    settings.TexturePreloads = textures.Values.ToList();
-                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture?.Name ?? ""] = exception;
+                    foreach ((string _, TexturePreload texture) in textures) settings.TexturePreloads.Add(texture);
+
+                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name ?? ""] = exception;
                 }));
 
         GUI.Load();
@@ -150,7 +151,7 @@ public class UIResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(GameWindow window, LoadingContext loadingContext)
+    public void Load(Client window, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
         {
@@ -199,3 +200,4 @@ public class UIResources
 
     private sealed record Attribution(string Name, string Text);
 }
+

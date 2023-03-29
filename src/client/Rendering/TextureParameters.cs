@@ -4,10 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
-using VoxelGame.Graphics;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering;
@@ -30,18 +27,11 @@ public class TextureParameters
     /// <returns>The created texture parameters.</returns>
     internal static TextureParameters CreateForWorld(Application.Client client)
     {
-        float maxAnisotropy = Context.MaxAnisotropy;
-        float anisotropy = Math.Clamp(client.Graphics.Anisotropy, min: 1, maxAnisotropy);
-
-        logger.LogDebug(
-            Events.VisualQuality,
-            "Set anisotropic filtering level to {Anisotropy}x, with a maximum of {MaxAnisotropy}x",
-            anisotropy,
-            maxAnisotropy);
+        // todo: remove this class
 
         return new TextureParameters
         {
-            Anisotropy = anisotropy
+            Anisotropy = 0
         };
     }
 
@@ -51,7 +41,7 @@ public class TextureParameters
     /// <param name="texture">The texture to set the parameters for.</param>
     public void SetTextureParameters(int texture)
     {
-        GL.TextureParameter(texture, (TextureParameterName) All.TextureMaxAnisotropy, Anisotropy);
+        //GL.TextureParameter(texture, (TextureParameterName) All.TextureMaxAnisotropy, Anisotropy);
     }
 }
 

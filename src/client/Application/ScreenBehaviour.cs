@@ -7,7 +7,7 @@
 using System;
 using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
-using VoxelGame.Input.Actions;
+using VoxelGame.Support.Input.Actions;
 
 namespace VoxelGame.Client.Application;
 
@@ -45,25 +45,16 @@ internal sealed class ScreenBehaviour : IDisposable
     internal double UPS => 1.0 / updateDeltaBuffer.Average;
 
     /// <summary>
-    ///     Clear the screen.
-    /// </summary>
-    internal void Clear()
-    {
-        screen.Clear();
-    }
-
-    /// <summary>
-    ///     Draw the screen.
+    ///     Call when drawing the screen.
     /// </summary>
     /// <param name="time">The time since the last draw operation.</param>
     internal void Draw(double time)
     {
-        screen.Draw();
         renderDeltaBuffer.Write(time);
     }
 
     /// <summary>
-    ///     Update the screen.
+    ///     Call when updating.
     /// </summary>
     /// <param name="time">The time since the last update operation.</param>
     internal void Update(double time)

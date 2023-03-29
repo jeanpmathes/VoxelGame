@@ -15,8 +15,8 @@ using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Physics;
-using VoxelGame.Input.Actions;
 using VoxelGame.Logging;
+using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -211,5 +211,6 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
+
 
 

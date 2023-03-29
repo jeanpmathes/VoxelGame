@@ -21,6 +21,8 @@ namespace VoxelGame.Support.Definition;
 public enum VirtualKeys
     : byte
 {
+    Undefined = 0x00,
+
     LeftButton = 0x01,
     RightButton = 0x02,
     Cancel = 0x03,

@@ -6,11 +6,10 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Groups;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -40,6 +39,8 @@ public sealed class OverlayRenderer : IDisposable
     /// </summary>
     public OverlayRenderer()
     {
+        // todo: port to DirectX
+
         (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
 
         drawGroup = ElementDrawGroup.Create();
@@ -99,8 +100,8 @@ public sealed class OverlayRenderer : IDisposable
     {
         if (disposed) return;
 
-        GL.Enable(EnableCap.Blend);
-        GL.Disable(EnableCap.DepthTest);
+        // GL.Enable(EnableCap.Blend);
+        // GL.Disable(EnableCap.DepthTest);
 
         drawGroup.BindVertexArray();
 
@@ -116,14 +117,13 @@ public sealed class OverlayRenderer : IDisposable
         Shaders.Overlay.SetColor4("tint", tint);
         Shaders.Overlay.SetInt("isAnimated", isAnimated.ToInt());
 
-        drawGroup.DrawElements(PrimitiveType.Triangles);
-
-
-        GL.BindVertexArray(array: 0);
-        GL.UseProgram(program: 0);
-
-        GL.Enable(EnableCap.DepthTest);
-        GL.Disable(EnableCap.Blend);
+        // drawGroup.DrawElements(PrimitiveType.Triangles);
+        //
+        // GL.BindVertexArray(array: 0);
+        // GL.UseProgram(program: 0);
+        //
+        // GL.Enable(EnableCap.DepthTest);
+        // GL.Disable(EnableCap.Blend);
     }
 
     /// <summary>
@@ -174,3 +174,4 @@ public sealed class OverlayRenderer : IDisposable
 
     #endregion IDisposable Support
 }
+

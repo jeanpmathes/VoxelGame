@@ -6,6 +6,9 @@
 
 #include "stdafx.h"
 
+#include <filesystem>
+#include <iostream>
+
 using namespace Microsoft::WRL;
 
 DXApp::DXApp(const UINT width, const UINT height, const std::wstring name, const Configuration configuration) :
@@ -17,10 +20,9 @@ DXApp::DXApp(const UINT width, const UINT height, const std::wstring name, const
     m_title(name),
     m_configuration(configuration)
 {
-    WCHAR assetsPath[512];
-    GetAssetsPath(assetsPath, _countof(assetsPath));
-    m_assetsPath = assetsPath;
-    m_assetsPath += L"Shaders\\";
+    const auto path = std::filesystem::current_path() / "Resources" / "Shaders";
+    m_assetsPath = path.wstring();
+    m_assetsPath += std::filesystem::path::preferred_separator;
 
     UpdateForSizeChange(width, height);
     CheckTearingSupport();

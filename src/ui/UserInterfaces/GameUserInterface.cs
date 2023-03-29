@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
@@ -177,3 +177,4 @@ public class GameUserInterface : UserInterface
         AnyOverlayClosed(this, EventArgs.Empty);
     }
 }
+

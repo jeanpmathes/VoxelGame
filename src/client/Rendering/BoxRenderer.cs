@@ -6,12 +6,11 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Groups;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Groups;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -32,6 +31,8 @@ public sealed class BoxRenderer : IDisposable
     /// </summary>
     public BoxRenderer()
     {
+        // todo: port to DirectX
+
         drawGroup = ElementDrawGroup.Create();
 
         Shaders.Selection.Use();
@@ -160,12 +161,12 @@ public sealed class BoxRenderer : IDisposable
         Matrix4d mvp = model * view * projection;
         Shaders.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
 
-        GL.Disable(EnableCap.DepthTest);
-        drawGroup.DrawElements(PrimitiveType.Lines);
-        GL.Enable(EnableCap.DepthTest);
-
-        GL.BindVertexArray(array: 0);
-        GL.UseProgram(program: 0);
+        // GL.Disable(EnableCap.DepthTest);
+        // drawGroup.DrawElements(PrimitiveType.Lines);
+        // GL.Enable(EnableCap.DepthTest);
+        //
+        // GL.BindVertexArray(array: 0);
+        // GL.UseProgram(program: 0);
     }
 
     #region IDisposable Support

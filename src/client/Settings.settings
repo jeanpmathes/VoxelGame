@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
               GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
     <Profiles/>
@@ -18,9 +18,6 @@
         <Setting Name="SampleCount" Type="System.Int32" Scope="User">
             <Value Profile="(Default)">8</Value>
         </Setting>
-        <Setting Name="MaxFPS" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">60</Value>
-        </Setting>
         <Setting Name="MaxMeshingTasks" Type="System.Int32" Scope="User">
             <Value Profile="(Default)">16</Value>
         </Setting>
@@ -29,12 +26,6 @@
         </Setting>
         <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
             <Value Profile="(Default)">Medium</Value>
-        </Setting>
-        <Setting Name="UseFullscreenBorderless" Type="System.Boolean" Scope="User">
-            <Value Profile="(Default)">False</Value>
-        </Setting>
-        <Setting Name="AnisotropicFiltering" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">1</Value>
         </Setting>
     </Settings>
 </SettingsFile>

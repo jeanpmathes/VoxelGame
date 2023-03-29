@@ -26,16 +26,24 @@ public class KeyState
     ///     Gets a value indicating whether any key is currently down.
     /// </summary>
     /// <value><c>true</c> if any key is down; otherwise, <c>false</c>.</value>
-    public bool IsAnyKeyDown
-    {
-        get
-        {
-            for (var i = 0; i < keys.Length; ++i)
-                if (keys[i])
-                    return true;
+    public bool IsAnyKeyDown => GetAnyKeyDown() != null;
 
-            return false;
+    /// <summary>
+    ///     Get the first key that is down.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No key is down.</exception>
+    public VirtualKeys Any => GetAnyKeyDown() ?? throw new InvalidOperationException("No key is down.");
+
+    private VirtualKeys? GetAnyKeyDown()
+    {
+        foreach (VirtualKeys key in (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys)))
+        {
+            if (key == VirtualKeys.Undefined) continue;
+
+            if (IsKeyDown(key)) return key;
         }
+
+        return null;
     }
 
     /// <summary>
@@ -84,6 +92,16 @@ public class KeyState
     }
 
     /// <summary>
+    ///     Gets a <see cref="bool" /> indicating whether this key is currently up.
+    /// </summary>
+    /// <param name="key">The <see cref="VirtualKeys" /> to check.</param>
+    /// <returns><c>true</c> if <paramref name="key" /> is in the up state; otherwise, <c>false</c>.</returns>
+    public bool IsKeyUp(VirtualKeys key)
+    {
+        return !keys[(int) key];
+    }
+
+    /// <summary>
     ///     Gets a <see cref="bool" /> indicating whether this key was down in the previous frame.
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys" /> to check.</param>
@@ -100,7 +118,7 @@ public class KeyState
     /// <returns>True if the key is pressed in this frame, but not the last frame.</returns>
     public bool IsKeyPressed(VirtualKeys key)
     {
-        return keys[(int) key] && !keysPrevious[(int) key];
+        return IsKeyDown(key) && !keysPrevious[(int) key];
     }
 
     /// <summary>
@@ -110,7 +128,7 @@ public class KeyState
     /// <returns>True if the key is released in this frame, but pressed the last frame.</returns>
     public bool IsKeyReleased(VirtualKeys key)
     {
-        return !keys[(int) key] && keysPrevious[(int) key];
+        return !IsKeyDown(key) && keysPrevious[(int) key];
     }
 }
 

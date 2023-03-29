@@ -7,13 +7,12 @@
 using System;
 using System.Drawing;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Groups;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics.Groups;
+using VoxelGame.Support.Graphics.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -60,7 +59,7 @@ public sealed class ScreenElementRenderer : IDisposable
     {
         if (disposed) return;
 
-        texUnit = texture.TextureUnit - TextureUnit.Texture0;
+        // todo: implement texture setting in DirectX (probably texture class on C++ side should pass the GPU address to the constant buffer)
     }
 
     /// <summary>
@@ -97,12 +96,14 @@ public sealed class ScreenElementRenderer : IDisposable
         Shaders.ScreenElement.SetVector3("color", color);
         Shaders.ScreenElement.SetInt("tex", texUnit);
 
-        GL.Disable(EnableCap.DepthTest);
-        drawGroup.DrawElements(PrimitiveType.Triangles);
-        GL.Enable(EnableCap.DepthTest);
+        // todo: port to DirectX
 
-        GL.BindVertexArray(array: 0);
-        GL.UseProgram(program: 0);
+        // GL.Disable(EnableCap.DepthTest);
+        // drawGroup.DrawElements(PrimitiveType.Triangles);
+        // GL.Enable(EnableCap.DepthTest);
+        //
+        // GL.BindVertexArray(array: 0);
+        // GL.UseProgram(program: 0);
     }
 
     #region IDisposable Support

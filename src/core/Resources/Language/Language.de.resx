@@ -474,9 +474,6 @@
     <data name="GraphicsSampleCount" xml:space="preserve">
     <value>Abtastzahl (MSAA)</value>
   </data>
-  <data name="GraphicsMaxFPS" xml:space="preserve">
-    <value>Maximale BpS</value>
-  </data>
   <data name="GraphicsSettingsDescription" xml:space="preserve">
     <value>Wähle verschiedene Grafikeinstellungen, welche Auswirkungen auf die Grafikqualität des Spiels haben. Manche Einstellungen sind erst nach einem Neustart aktiv.</value>
   </data>
@@ -524,9 +521,6 @@
   </data>
     <data name="KeySelectTargeted" xml:space="preserve">
     <value>Wähle Angezieltes</value>
-  </data>
-  <data name="GraphicsUseFullscreenBorderless" xml:space="preserve">
-    <value>Randloses vollbild (im Fenster) nutzen</value>
   </data>
   <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
     <value>Anisotropes Filtern</value>

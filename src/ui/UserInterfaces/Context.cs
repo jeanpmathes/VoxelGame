@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
 using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -26,3 +26,4 @@ internal sealed class Context
 
     internal UIResources Resources { get; }
 }
+

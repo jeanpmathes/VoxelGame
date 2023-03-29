@@ -82,26 +82,6 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string message)
     }
 }
 
-inline void GetAssetsPath(_Out_writes_(pathSize) WCHAR* path, const UINT pathSize)
-{
-    if (path == nullptr)
-    {
-        throw std::exception();
-    }
-
-    const DWORD size = GetModuleFileName(nullptr, path, pathSize);
-    if (size == 0 || size == pathSize)
-    {
-        throw std::exception();
-    }
-
-    WCHAR* lastSlash = wcsrchr(path, L'\\');
-    if (lastSlash)
-    {
-        *(lastSlash + 1) = L'\0';
-    }
-}
-
 inline HRESULT ReadDataFromFile(const LPCWSTR filename, byte** data, UINT* size)
 {
     using namespace Microsoft::WRL;

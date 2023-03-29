@@ -4,17 +4,16 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.ComponentModel;
+using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input;
-using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.Support;
+using VoxelGame.Support.Input;
+using VoxelGame.Support.Input.Devices;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -22,7 +21,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal class Client : GameWindow, IPerformanceProvider
+internal class Client : Support.Client, IPerformanceProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
@@ -36,11 +35,9 @@ internal class Client : GameWindow, IPerformanceProvider
     /// <summary>
     ///     Create a new game instance.
     /// </summary>
-    /// <param name="gameWindowSettings">The game window settings.</param>
-    /// <param name="nativeWindowSettings">The native window settings.</param>
+    /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
-    internal Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
-        GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings) : base(windowSettings)
     {
         Instance = this;
 
@@ -51,13 +48,6 @@ internal class Client : GameWindow, IPerformanceProvider
 
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);
-
-        Load += OnLoad;
-
-        RenderFrame += OnRenderFrame;
-        UpdateFrame += OnUpdateFrame;
-
-        Closing += OnClosing;
 
         input = new InputManager(this);
         Keybinds = new KeybindManager(input);
@@ -99,12 +89,10 @@ internal class Client : GameWindow, IPerformanceProvider
     double IPerformanceProvider.FPS => FPS;
     double IPerformanceProvider.UPS => UPS;
 
-    private new void OnLoad()
+    protected override void OnInit()
     {
         using (logger.BeginScope("Client OnLoad"))
         {
-            Resources.Prepare();
-
             screenBehaviour = new ScreenBehaviour(this);
 
             LoadingContext loadingContext = new();
@@ -120,38 +108,33 @@ internal class Client : GameWindow, IPerformanceProvider
         }
     }
 
-    private new void OnRenderFrame(FrameEventArgs e)
+    protected override void OnRender(double delta)
     {
         using (logger.BeginScope("RenderFrame"))
         {
-            Time += e.Time;
+            Time += delta;
 
-            Resources.Shaders.SetTime((float) Time);
+            // Resources.Shaders.SetTime((float) Time); todo: check whether this is still needed
+            sceneManager.Render((float) delta);
 
-            screenBehaviour.Clear();
-
-            sceneManager.Render((float) e.Time);
-
-            screenBehaviour.Draw(e.Time);
-
-            SwapBuffers();
+            screenBehaviour.Draw(delta);
         }
     }
 
-    private new void OnUpdateFrame(FrameEventArgs e)
+    protected override void OnUpdate(double delta)
     {
         using (logger.BeginScope("UpdateFrame"))
         {
-            double deltaTime = MathHelper.Clamp(e.Time, min: 0f, max: 1f);
+            double deltaTime = MathHelper.Clamp(delta, min: 0f, max: 1f);
 
-            input.UpdateState(KeyboardState, MouseState);
+            input.UpdateState(KeyState);
 
             sceneManager.Update(deltaTime);
-            screenBehaviour.Update(e.Time);
+            screenBehaviour.Update(delta);
         }
     }
 
-    private new void OnClosing(CancelEventArgs e)
+    protected override void OnDestroy()
     {
         logger.LogInformation(Events.WindowState, "Closing window");
 
@@ -182,10 +165,14 @@ internal class Client : GameWindow, IPerformanceProvider
         CurrentGame = null;
     }
 
+    /// <summary>
+    ///     Called when the window is resized.
+    /// </summary>
+    public event EventHandler<Vector2i> Resized = delegate {}; // todo: call this (requires new callback in configuration), then it will call the OnResize method
+
     internal void OnResize(Vector2i size)
     {
         sceneManager.OnResize(size);
     }
 }
-
 

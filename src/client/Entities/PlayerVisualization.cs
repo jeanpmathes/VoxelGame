@@ -13,7 +13,7 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
-using VoxelGame.Input.Actions;
+using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Entities;
@@ -204,4 +204,5 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
+
 

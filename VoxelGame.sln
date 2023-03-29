@@ -18,10 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI", "src\ui\Voxe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\logging\VoxelGame.Logging.csproj", "{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Graphics", "src\graphics\VoxelGame.Graphics.csproj", "{5179D32D-B43C-4E51-9319-1BF238103887}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Input", "src\input\VoxelGame.Input.csproj", "{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Manual", "src\manual\VoxelGame.Manual.csproj", "{A89A633A-E461-4F61-BFF7-09318009E74F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Core.Tests", "tests\VoxelGame.Core.Tests\VoxelGame.Core.Tests.csproj", "{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}"
@@ -78,22 +74,6 @@ Global
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Manual|x64.Build.0 = Debug|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.ActiveCfg = Release|x64
 		{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}.Release|x64.Build.0 = Release|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.ActiveCfg = Debug|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Debug|x64.Build.0 = Debug|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Installer|x64.ActiveCfg = Release|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Installer|x64.Build.0 = Release|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Manual|x64.ActiveCfg = Debug|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Manual|x64.Build.0 = Debug|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.ActiveCfg = Release|x64
-		{5179D32D-B43C-4E51-9319-1BF238103887}.Release|x64.Build.0 = Release|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|x64.ActiveCfg = Debug|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Debug|x64.Build.0 = Debug|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Installer|x64.ActiveCfg = Release|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Installer|x64.Build.0 = Release|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Manual|x64.ActiveCfg = Debug|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Manual|x64.Build.0 = Debug|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.ActiveCfg = Release|x64
-		{F1E0587B-1D5E-4AC2-849A-B2611CADA9D4}.Release|x64.Build.0 = Release|x64
 		{A89A633A-E461-4F61-BFF7-09318009E74F}.Debug|x64.ActiveCfg = Debug|x64
 		{A89A633A-E461-4F61-BFF7-09318009E74F}.Debug|x64.Build.0 = Debug|x64
 		{A89A633A-E461-4F61-BFF7-09318009E74F}.Installer|x64.ActiveCfg = Release|x64

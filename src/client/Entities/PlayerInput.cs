@@ -8,8 +8,8 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input.Actions;
-using VoxelGame.Input.Composite;
+using VoxelGame.Support.Input.Actions;
+using VoxelGame.Support.Input.Composite;
 
 namespace VoxelGame.Client.Entities;
 
@@ -129,5 +129,6 @@ internal sealed class PlayerInput
         return movement;
     }
 }
+
 
 

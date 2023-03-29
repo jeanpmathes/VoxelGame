@@ -6,7 +6,7 @@
 
 #include "stdafx.h"
 
-constexpr float NativeClient::CLEAR_COLOR[4] = {0.0f, 0.2f, 0.4f, 1.0f};
+constexpr float NativeClient::CLEAR_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
 NativeClient::NativeClient(const UINT width, const UINT height, const std::wstring name,
@@ -216,6 +216,10 @@ void NativeClient::LoadPipeline()
         UINT compileFlags = 0;
 #endif
 
+        // todo: use custom Pipeline class for PSO and shaders, maybe use enum for different input layout descriptions
+        // todo: get compile error out of blob, see DXRHelper.h
+        // todo: shader compile error should not cause crash, except UI shader which could throw a OperationNotSupported at C# side
+        
         TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Space.hlsl").c_str(),
             nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &sceneVertexShader, &error));
         TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Space.hlsl").c_str(),

@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Properties;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
@@ -34,32 +33,14 @@ public class GraphicsSettings : ISettingsProvider
                 Language.GraphicsSampleCount,
                 () => SampleCount,
                 i => SampleCount = i,
-                min: 1));
-
-        settings.Add(
-            Setting.CreateIntegerSetting(
-                this,
-                Language.GraphicsAnisotropicFiltering,
-                () => Anisotropy,
-                i => Anisotropy = i,
-                min: 1));
-
-        settings.Add(
-            Setting.CreateIntegerSetting(this, Language.GraphicsMaxFPS, () => MaxFPS, i => MaxFPS = i, min: 0));
+                min: 1)); // todo: use this, maybe in ray gen (and adapt description accordingly)
 
         settings.Add(
             Setting.CreateQualitySetting(
                 this,
                 Language.GraphicsFoliageQuality,
                 () => FoliageQuality,
-                quality => FoliageQuality = quality));
-
-        settings.Add(
-            Setting.CreateBooleanSetting(
-                this,
-                Language.GraphicsUseFullscreenBorderless,
-                () => UseFullscreenBorderless,
-                b => UseFullscreenBorderless = b));
+                quality => FoliageQuality = quality)); // todo: use this, maybe in the intersect shader
     }
 
     /// <summary>
@@ -72,34 +53,6 @@ public class GraphicsSettings : ISettingsProvider
         private set
         {
             clientSettings.SampleCount = value;
-            clientSettings.Save();
-        }
-    }
-
-    /// <summary>
-    ///     Get or set the anisotropic filtering value.
-    /// </summary>
-    public int Anisotropy
-    {
-        get => clientSettings.AnisotropicFiltering;
-
-        private set
-        {
-            clientSettings.AnisotropicFiltering = value;
-            clientSettings.Save();
-        }
-    }
-
-    /// <summary>
-    ///     Get or set the maximum FPS setting. This is the maximum FPS that are passed to the window on creation.
-    /// </summary>
-    public int MaxFPS
-    {
-        get => clientSettings.MaxFPS;
-
-        private set
-        {
-            clientSettings.MaxFPS = value;
             clientSettings.Save();
         }
     }
@@ -118,22 +71,6 @@ public class GraphicsSettings : ISettingsProvider
         }
     }
 
-    /// <summary>
-    ///     Get or set whether fullscreen borderless should be used instead of normal fullscreen.
-    /// </summary>
-    public bool UseFullscreenBorderless
-    {
-        get => clientSettings.UseFullscreenBorderless;
-
-        private set
-        {
-            clientSettings.UseFullscreenBorderless = value;
-            clientSettings.Save();
-
-            Screen.UpdateScreenState();
-        }
-    }
-
     /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.Graphics;
@@ -145,5 +82,4 @@ public class GraphicsSettings : ISettingsProvider
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
 }
-
 

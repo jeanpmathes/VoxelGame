@@ -11,14 +11,13 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
 using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
@@ -92,24 +91,16 @@ internal static class Program
 
         GraphicsSettings graphicsSettings = new(Settings.Default);
 
-        GameWindowSettings gameWindowSettings = new()
+        WindowSettings windowSettings = new()
         {
-            RenderFrequency = graphicsSettings.MaxFPS,
-            UpdateFrequency = 60.0
+            Title = Language.VoxelGame + " " + Version,
+            Size = Settings.Default.ScreenSize.ToVector2i()
         };
-
-        var nativeWindowSettings = NativeWindowSettings.Default;
-        nativeWindowSettings.WindowBorder = WindowBorder.Hidden;
-        nativeWindowSettings.Profile = ContextProfile.Core;
-        nativeWindowSettings.Title = Language.VoxelGame + " " + Version;
-        nativeWindowSettings.Size = Settings.Default.ScreenSize.ToVector2i();
-        nativeWindowSettings.StartFocused = true;
 
         logger.LogDebug("Opening window");
 
         using (Application.Client client = new(
-                   gameWindowSettings,
-                   nativeWindowSettings,
+                   windowSettings,
                    graphicsSettings))
         {
             client.Run();
@@ -135,5 +126,4 @@ internal static class Program
         internal bool logDebug;
     }
 }
-
 

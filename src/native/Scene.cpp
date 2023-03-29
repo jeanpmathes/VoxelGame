@@ -249,6 +249,8 @@ void Space::CreateRaytracingPipeline(const ShaderPaths& paths)
 {
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice().Get());
 
+    // todo: use Material abstraction, and allow passing arbitrary count of shader paths + symbols
+
     m_rayGenLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.rayGenShader.c_str());
     m_missLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.missShader.c_str());
     m_hitLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.hitShader.c_str());

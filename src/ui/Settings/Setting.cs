@@ -8,7 +8,7 @@ using System;
 using System.Drawing;
 using Gwen.Net.Control;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Input.Internal;
+using VoxelGame.Support.Definition;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -55,8 +55,8 @@ public abstract class Setting
     /// <param name="validate">Function that validates the current setting value.</param>
     /// <param name="reset">Function that resets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name, Func<KeyOrButton> get,
-        Action<KeyOrButton> set, Func<bool> validate, Action reset)
+    public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name, Func<VirtualKeys> get,
+        Action<VirtualKeys> set, Func<bool> validate, Action reset)
     {
         return new KeyOrButtonSetting(name, get, set, validate, reset)
         {

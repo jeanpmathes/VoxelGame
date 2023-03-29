@@ -6,10 +6,9 @@
 
 using System;
 using Gwen.Net.Control;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
 
 namespace VoxelGame.UI.UserInterfaces;
 
@@ -74,11 +73,12 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Render()
     {
-        GL.Disable(EnableCap.CullFace);
+        // todo: ensure that gui rendering creates the needed pipelien state
+        // GL.Disable(EnableCap.CullFace);
 
         resources.GUI.Render();
 
-        GL.Enable(EnableCap.CullFace);
+        // GL.Enable(EnableCap.CullFace);
     }
 
     /// <summary>
@@ -132,3 +132,4 @@ public abstract class UserInterface : IDisposable
 
     #endregion IDisposable Support
 }
+
