@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 
-namespace VoxelGame.Client.Collections;
+namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     A simple class for storing a set amount of time values. They cannot be read, but operations to calculate the

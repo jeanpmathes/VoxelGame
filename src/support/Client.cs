@@ -195,6 +195,12 @@ public class Client : IDisposable
     protected virtual void OnRender(double delta) {}
 
     /// <summary>
+    ///     Called when the window is resized.
+    /// </summary>
+    /// <param name="size">The new size.</param>
+    protected virtual void OnResize(Vector2i size) {} // todo: call it (new callback must be added to C++)
+
+    /// <summary>
     ///     Called when the client is destroyed.
     /// </summary>
     protected virtual void OnDestroy() {}

@@ -50,8 +50,6 @@ public sealed class Screen : IDisposable
 
         Client = client;
 
-        client.Resized += OnResize;
-
         #region MULTISAMPLED FBO
 
         // todo: port multisampling
@@ -155,17 +153,6 @@ public sealed class Screen : IDisposable
     private static Screen Instance { get; set; } = null!;
 
     private Application.Client Client { get; }
-
-    private void OnResize(object? sender, Vector2i size)
-    {
-        // todo: test if minimizing the window causes issues
-
-        Client.OnResize(Size);
-
-        Application.Client.Instance.Resources.Shaders.UpdateOrthographicProjection();
-
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", size);
-    }
 
     private void EnableWireframe()
     {

@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Client.Collections;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Collections;
 using VoxelGame.Support.Input.Actions;
 
 namespace VoxelGame.Client.Application;
@@ -91,4 +91,5 @@ internal sealed class ScreenBehaviour : IDisposable
 
     #endregion IDisposable Support
 }
+
 

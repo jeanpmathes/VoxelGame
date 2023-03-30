@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Support", "src\su
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Native", "src\native\Native.vcxproj", "{5018F6A3-6533-4744-B1FD-727D199FD2E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.UI.Tests", "tests\VoxelGame.UI.Tests\VoxelGame.UI.Tests.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -86,7 +88,6 @@ Global
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Debug|x64.Build.0 = Debug|Any CPU
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Installer|x64.ActiveCfg = Release|Any CPU
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Manual|x64.ActiveCfg = Debug|Any CPU
-		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Manual|x64.Build.0 = Debug|Any CPU
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Release|x64.ActiveCfg = Release|Any CPU
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Release|x64.Build.0 = Release|Any CPU
 		{66BF3DD4-6BD4-4A6D-B132-F3D96F407297}.Debug|x64.ActiveCfg = Debug|x64
@@ -105,6 +106,12 @@ Global
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Release|x64.Build.0 = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Installer|x64.ActiveCfg = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Installer|x64.Build.0 = Release|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Manual|x64.ActiveCfg = Debug|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Release|x64.ActiveCfg = Release|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Release|x64.Build.0 = Release|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Debug|x64.ActiveCfg = Debug|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Debug|x64.Build.0 = Debug|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Installer|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

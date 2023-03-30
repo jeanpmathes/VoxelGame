@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Logic;
@@ -165,13 +164,13 @@ internal class Client : Support.Client, IPerformanceProvider
         CurrentGame = null;
     }
 
-    /// <summary>
-    ///     Called when the window is resized.
-    /// </summary>
-    public event EventHandler<Vector2i> Resized = delegate {}; // todo: call this (requires new callback in configuration), then it will call the OnResize method
-
-    internal void OnResize(Vector2i size)
+    /// <inheritdoc />
+    protected override void OnResize(Vector2i size)
     {
+        Resources.Shaders.UpdateOrthographicProjection();
+
+        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", size);
+
         sceneManager.OnResize(size);
     }
 }

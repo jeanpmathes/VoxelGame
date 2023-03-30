@@ -378,6 +378,9 @@ void NativeClient::LoadPipeline()
     }
 
     {
+        // todo: when writing abstractions for RT pipeline, write it in a way that allows code to run without the RT pipeline (UI + post only)
+        // todo: then test that the UI unit tests still work, remove the dependency on VG.Client
+        
         m_space.PerformInitialSetupStepOne(m_commandQueue);
 
         SetupSizeDependentResources();
