@@ -9,8 +9,10 @@ using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics.Objects;
 using VoxelGame.Support.Graphics.Utility;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -25,17 +27,26 @@ public sealed class Shaders
     private const string NearPlaneUniform = "nearPlane";
     private const string FarPlaneUniform = "farPlane";
 
+    private readonly DirectoryInfo directory;
+
     private readonly ISet<Shader> farPlaneSet = new HashSet<Shader>();
 
     private readonly ShaderLoader loader;
+    private readonly LoadingContext loadingContext;
     private readonly ISet<Shader> nearPlaneSet = new HashSet<Shader>();
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
     private bool loaded;
+    private RasterPipeline postProcessingPipeline = null!;
+
+    private RasterPipeline space3dPipeline = null!;
 
     private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
+        this.directory = directory;
+        this.loadingContext = loadingContext;
+
         // todo: integrate the new HLSL shaders into the current loading system, then delete the old GLSL shaders
         // todo: when loading the shaders, both UI and Post shader should be integrated into the loading system,
         // but loading failure is fatal and should throw an unhandled exception,
@@ -108,15 +119,16 @@ public sealed class Shaders
     ///     Load all shaders in the given directory.
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
+    /// <param name="client">The client to use.</param>
     /// <param name="loadingContext">The loader to use.</param>
     /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(DirectoryInfo directory, LoadingContext loadingContext)
+    internal static Shaders Load(DirectoryInfo directory, Support.Client client, LoadingContext loadingContext)
     {
         Shaders shaders = new(directory, loadingContext);
 
         using (loadingContext.BeginStep(Events.ShaderSetup, "Shader Setup"))
         {
-            shaders.LoadAll();
+            shaders.LoadAll(client);
         }
 
         return shaders;
@@ -140,14 +152,38 @@ public sealed class Shaders
         loaded = false;
     }
 
-    private void LoadAll()
+    private void LoadAll(Support.Client client)
     {
         loaded = true;
 
-        loaded &= loader.LoadIncludable("noise");
-        loaded &= loader.LoadIncludable("decode");
-        loaded &= loader.LoadIncludable("color");
-        loaded &= loader.LoadIncludable("animation");
+        RasterPipeline LoadPipeline(string name, ShaderPreset preset)
+        {
+            FileInfo path = directory.GetFile($"{name}.hlsl");
+
+            RasterPipeline pipeline = client.CreateRasterPipeline(new PipelineDescription
+                {
+                    PixelShaderPath = path.FullName,
+                    VertexShaderPath = path.FullName,
+                    ShaderPreset = preset
+                },
+                error =>
+                {
+                    loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);
+                    loaded = false;
+                });
+
+            return pipeline;
+        }
+
+        space3dPipeline = LoadPipeline("Space", ShaderPreset.Space3D);
+        postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
+
+        if (!loaded) return;
+
+        client.SetSpace3dPipeline(space3dPipeline);
+        client.SetPostProcessingPipeline(postProcessingPipeline);
+
+        return; // todo: remove this, and maybe the code below
 
         Shader Check(Shader? shader)
         {
@@ -213,3 +249,4 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
+

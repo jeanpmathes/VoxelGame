@@ -110,6 +110,8 @@ public class GameResources
 
         UIResources.Load(window, loadingContext);
 
+        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, loadingContext);
+
         return; // todo: remove
 
         TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
@@ -117,8 +119,6 @@ public class GameResources
 
         BlockTextureArray.EnableLoading(loadingContext);
         FluidTextureArray.EnableLoading(loadingContext);
-
-        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), loadingContext);
 
         Blocks.Load(BlockTextureArray, loadingContext);
 

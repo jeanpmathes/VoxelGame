@@ -150,7 +150,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     const PipelineDescription& description,
     NativeErrorMessageFunc callback)
 {
-    // todo: shader compile error should not cause crash, except UI shader and post shader which could throw a OperationNotSupported at C# side
+    // todo: shader compile error should not cause crash, except UI shader
     // todo: test intentionally wrong shader code
 
     ComPtr<ID3DBlob> vertexShader = CompileShader(

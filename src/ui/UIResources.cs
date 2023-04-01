@@ -157,6 +157,8 @@ public class UIResources
         {
             LoadAttributions(loadingContext);
             LoadGUI(window, loadingContext);
+
+            // todo: load the UI render pipeline (in static method so tests can use it), if it is missing then pass abort: true to the loading context
         }
     }
 
@@ -200,4 +202,3 @@ public class UIResources
 
     private sealed record Attribution(string Name, string Text);
 }
-

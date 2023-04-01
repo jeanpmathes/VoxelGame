@@ -136,35 +136,39 @@ public class LoadingContext
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, FileSystemInfo resource, Exception exception)
+    public void ReportFailure(EventId id, string type, FileSystemInfo resource, Exception exception, bool abort = false)
     {
-        ReportFailure(id, type, resource.GetResourceRelativePath(), exception);
+        ReportFailure(id, type, resource.GetResourceRelativePath(), exception, abort);
     }
 
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, string resource, Exception exception)
+    public void ReportFailure(EventId id, string type, string resource, Exception exception, bool abort = false)
     {
         logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
         ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
     }
 
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, FileSystemInfo resource, string message)
+    public void ReportFailure(EventId id, string type, FileSystemInfo resource, string message, bool abort = false)
     {
-        ReportFailure(id, type, resource.GetResourceRelativePath(), message);
+        ReportFailure(id, type, resource.GetResourceRelativePath(), message, abort);
     }
 
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, string resource, string message)
+    public void ReportFailure(EventId id, string type, string resource, string message, bool abort = false)
     {
         logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
         ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
     }
 
     /// <summary>
@@ -201,6 +205,11 @@ public class LoadingContext
         ReportMissing(type, resource, isCritical: false);
     }
 
+    private void Abort()
+    {
+        throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
+    }
+
     private sealed record Step(LoadingContext Context, EventId ID, string Name, Node Node, IDisposable Scope) : IDisposable
     {
         public void Dispose()
@@ -210,3 +219,4 @@ public class LoadingContext
         }
     }
 }
+
