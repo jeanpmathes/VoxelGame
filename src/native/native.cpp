@@ -6,8 +6,8 @@
 
 #include "stdafx.h"
 
-NativeErrorFunc onError;
-NativeErrorMessageFunc onErrorMessage;
+static NativeErrorFunc onError;
+static NativeErrorMessageFunc onErrorMessage;
 
 NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErrorFunc errorCallback,
                                      const NativeErrorMessageFunc errorMessageCallback)
@@ -162,6 +162,40 @@ NATIVE void NativeSetIndexedMeshObjectMesh(IndexedMeshObject* object,
     TRY
     {
         object->SetNewMesh(vertexData, vertexCount, indexData, indexCount);
+    }
+    CATCH();
+}
+
+NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
+                                                  const PipelineDescription description,
+                                                  const NativeErrorMessageFunc callback)
+{
+    TRY
+    {
+        std::unique_ptr<RasterPipeline> pipeline = RasterPipeline::Create(*client, description, callback);
+        RasterPipeline* ptr = pipeline.get();
+
+        if (ptr != nullptr) client->AddRasterPipeline(std::move(pipeline));
+
+        return ptr;
+    }
+    CATCH();
+}
+
+NATIVE void NativeDesignateSpace3dPipeline(NativeClient* client, RasterPipeline* pipeline)
+{
+    TRY
+    {
+        client->SetSpace3dPipeline(pipeline);
+    }
+    CATCH();
+}
+
+NATIVE void NativeDesignatePostProcessingPipeline(NativeClient* client, RasterPipeline* pipeline)
+{
+    TRY
+    {
+        client->SetPostProcessingPipeline(pipeline);
     }
     CATCH();
 }

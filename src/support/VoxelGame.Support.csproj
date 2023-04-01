@@ -40,4 +40,8 @@
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Resources"/>
+    </ItemGroup>
+
 </Project>

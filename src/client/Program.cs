@@ -118,6 +118,8 @@ internal static class Program
 
             // The runtime will emit a message, to prevent mixing we wait.
             Thread.Sleep(millisecondsTimeout: 100);
+
+            // todo: error window
         };
     }
 

@@ -295,5 +295,45 @@ public static class Native
             NativeSetIndexedMeshObjectMesh(indexedMeshObject.Self, vertexData, vertexLength, indexData, indexLength);
         }
     }
+
+    /// <summary>
+    ///     Create a raster pipeline.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="description">A description of the pipeline to create.</param>
+    /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
+    /// <returns>The raster pipeline, or zero if the pipeline could not be created.</returns>
+    public static RasterPipeline CreateRasterPipeline(Client client,
+        PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback);
+
+        IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+
+        return new RasterPipeline(rasterPipeline, client);
+    }
+
+    /// <summary>
+    ///     Set the pipeline that should be used for rendering 3D space.
+    /// </summary>
+    public static void SetSpace3dPipeline(Client client, RasterPipeline pipeline)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeDesignateSpace3dPipeline(IntPtr native, IntPtr pipeline);
+
+        NativeDesignateSpace3dPipeline(client.Native, pipeline.Self);
+    }
+
+    /// <summary>
+    ///     Set the pipeline that should be used for rendering post processing.
+    /// </summary>
+    public static void SetPostProcessingPipeline(Client client, RasterPipeline pipeline)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeDesignatePostProcessingPipeline(IntPtr native, IntPtr pipeline);
+
+        NativeDesignatePostProcessingPipeline(client.Native, pipeline.Self);
+    }
 }
 

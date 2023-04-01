@@ -11,6 +11,7 @@
 #include "Common.h"
 #include "Space.h"
 
+class RasterPipeline;
 using Microsoft::WRL::ComPtr;
 
 class NativeClient final : public DXApp
@@ -47,14 +48,23 @@ public:
      */
     Space* GetSpace();
 
+    /**
+     * Add a raster pipeline to the client.
+     */
+    void AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline);
+
+    void SetSpace3dPipeline(RasterPipeline* pipeline);
+    void SetPostProcessingPipeline(RasterPipeline* pipeline);
+
     void WaitForGPU();
     void MoveToNextFrame();
 
-private:
     static constexpr UINT FRAME_COUNT = 2;
+
+   private:
     static const float CLEAR_COLOR[4];
     static const float LETTERBOX_COLOR[4];
-
+    
     struct PostVertex
     {
         DirectX::XMFLOAT4 position;
@@ -68,19 +78,15 @@ private:
 
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;
-    ComPtr<ID3D12CommandAllocator> m_spaceCommandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12RootSignature> m_spaceRootSignature;
-    ComPtr<ID3D12PipelineState> m_spacePipelineState;
-    ComPtr<ID3D12GraphicsCommandList4> m_spaceCommandList;
 
     Space m_space;
 
+    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines{};
+    RasterPipeline* m_space3dPipeline{nullptr};
+    RasterPipeline* m_postProcessingPipeline{nullptr};
+
     CD3DX12_VIEWPORT m_postViewport;
     CD3DX12_RECT m_postScissorRect;
-    ComPtr<ID3D12CommandAllocator> m_postCommandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12RootSignature> m_postRootSignature;
-    ComPtr<ID3D12PipelineState> m_postPipelineState;
-    ComPtr<ID3D12GraphicsCommandList4> m_postCommandList;
     ComPtr<ID3D12Resource> m_postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
 
@@ -108,6 +114,8 @@ private:
     bool m_windowedMode;
 
     void CheckRaytracingSupport() const;
+    void PopulateSpaceCommandList();
+    void PopulatePostProcessingCommandList() const;
 
     void LoadDevice();
     void LoadPipeline();

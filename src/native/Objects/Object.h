@@ -17,14 +17,23 @@ class NativeClient;
     name& operator=(const name&) = delete; \
     name& operator=(name&&) = delete; \
     private:
+
 // ReSharper disable once CppInconsistentNaming
 #define NAME_D3D12_OBJECT_WITH_ID(object) \
     do \
     { \
         if (object != nullptr) \
         { \
-            object->SetName((std::wstring(L#object) + L" " + std::to_wstring(GetID())).c_str()); \
+            object->SetName((std::wstring(L#object) + L" #" + std::to_wstring(GetID())).c_str()); \
         } \
+    } while (false)
+
+// ReSharper disable once CppInconsistentNaming
+#define NAME_D3D12_OBJECT_INDEXED_WITH_ID(objects, index) \
+    do \
+    { \
+        objects[index]->SetName( \
+            (std::wstring(L#objects) + L"[" + std::to_wstring(index) + L"] #" + std::to_wstring(GetID())).c_str()); \
     } while (false)
 
 /**

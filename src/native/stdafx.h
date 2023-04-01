@@ -61,6 +61,7 @@
 #include "Objects/MeshObject.h"
 #include "Objects/IndexedMeshObject.h"
 #include "Objects/SequencedMeshObject.h"
+#include "Objects/RasterPipeline.h"
 
 #ifdef _DEBUG
 #include <Initguid.h>

@@ -37,6 +37,9 @@ public sealed class Shaders
     private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
         // todo: integrate the new HLSL shaders into the current loading system, then delete the old GLSL shaders
+        // todo: when loading the shaders, both UI and Post shader should be integrated into the loading system,
+        // but loading failure is fatal and should throw an unhandled exception,
+        // for the Post shader the native client needs a method that is called during init and receives the post render pipeline as a parameter
 
         loader = new ShaderLoader(
             directory,
@@ -210,4 +213,3 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
-

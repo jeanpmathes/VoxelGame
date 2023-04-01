@@ -226,6 +226,33 @@ public class Client : IDisposable
     }
 
     /// <summary>
+    ///     Create a raster pipeline.
+    /// </summary>
+    /// <param name="description">A description of the pipeline.</param>
+    /// <param name="errorCallback">A callback for error messages.</param>
+    /// <returns>The created pipeline.</returns>
+    public RasterPipeline CreateRasterPipeline(PipelineDescription description, Action<string> errorCallback)
+    {
+        return Support.Native.CreateRasterPipeline(this, description, msg => errorCallback(msg));
+    }
+
+    /// <summary>
+    ///     Set which pipeline is used to render 3D space.
+    /// </summary>
+    public void SetSpace3dPipeline(RasterPipeline pipeline)
+    {
+        Support.Native.SetSpace3dPipeline(this, pipeline);
+    }
+
+    /// <summary>
+    ///     Set which pipeline is used for post processing.
+    /// </summary>
+    public void SetPostProcessingPipeline(RasterPipeline pipeline)
+    {
+        Support.Native.SetPostProcessingPipeline(this, pipeline);
+    }
+
+    /// <summary>
     ///     Toggle fullscreen mode.
     /// </summary>
     public void ToggleFullscreen()

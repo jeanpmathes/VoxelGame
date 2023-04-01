@@ -42,4 +42,8 @@ struct SpatialObjectData
 };
 
 #define TRY try
-#define CATCH() catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } catch (const NativeException& e) { onErrorMessage(e.what()); exit(1); }
+#define CATCH() \
+    catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } \
+    catch (const NativeException& e) { onErrorMessage(e.what()); exit(1); } \
+    catch (const std::exception& e) { onErrorMessage(e.what()); exit(1); } \
+    catch (...) { onErrorMessage("Unknown error."); exit(1); }

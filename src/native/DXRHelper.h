@@ -80,7 +80,7 @@ namespace nv_helpers_dx12
         std::ifstream shaderFile(fileName);
         if (shaderFile.good() == false)
         {
-            throw std::logic_error("Cannot find shader file");
+            throw NativeException("Cannot find shader file");
         }
         std::stringstream strStream;
         strStream << shaderFile.rdbuf();
@@ -105,7 +105,7 @@ namespace nv_helpers_dx12
             hr = pResult->GetErrorBuffer(&pError);
             if (FAILED(hr))
             {
-                throw std::logic_error("Failed to get shader compiler error");
+                throw NativeException("Failed to get shader compiler error");
             }
 
             // Convert error blob to a string
@@ -117,7 +117,7 @@ namespace nv_helpers_dx12
             errorMsg.append(infoLog.data());
 
             MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
-            throw std::logic_error("Failed to compile shader");
+            throw NativeException("Failed to compile shader");
 
             // todo: pass compile error out to C#, do not throw exception
         }

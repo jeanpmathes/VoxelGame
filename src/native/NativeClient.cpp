@@ -127,174 +127,10 @@ void NativeClient::LoadDevice()
         m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         m_srvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
-
-    for (UINT n = 0; n < FRAME_COUNT; n++)
-    {
-        TRY_DO(
-            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_spaceCommandAllocators[n])
-            ));
-        NAME_D3D12_OBJECT_INDEXED(m_spaceCommandAllocators, n);
-
-        TRY_DO(
-            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_postCommandAllocators[n])))
-        ;
-        NAME_D3D12_OBJECT_INDEXED(m_postCommandAllocators, n);
-    }
 }
 
 void NativeClient::LoadPipeline()
 {
-    {
-        CD3DX12_DESCRIPTOR_RANGE1 ranges[1] = {};
-        CD3DX12_ROOT_PARAMETER1 rootParameters[1] = {};
-
-        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-        rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr,
-                                   D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        TRY_DO(
-            D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &signature, &error
-            ));
-        TRY_DO(m_device->CreateRootSignature(0,
-            signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_spaceRootSignature)));
-        NAME_D3D12_OBJECT(m_spaceRootSignature);
-    }
-
-    {
-        CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-        CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-
-        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_PIXEL);
-
-        D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-        D3D12_STATIC_SAMPLER_DESC sampler = {};
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.MipLODBias = 0;
-        sampler.MaxAnisotropy = 0;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-        sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-        sampler.MinLOD = 0.0f;
-        sampler.MaxLOD = D3D12_FLOAT32_MAX;
-        sampler.ShaderRegister = 0;
-        sampler.RegisterSpace = 0;
-        sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-        rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 1, &sampler, rootSignatureFlags);
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        TRY_DO(
-            D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &signature, &error
-            ));
-        TRY_DO(m_device->CreateRootSignature(0,
-            signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_postRootSignature)));
-        NAME_D3D12_OBJECT(m_postRootSignature);
-    }
-
-    {
-        ComPtr<ID3DBlob> sceneVertexShader;
-        ComPtr<ID3DBlob> scenePixelShader;
-        ComPtr<ID3DBlob> postVertexShader;
-        ComPtr<ID3DBlob> postPixelShader;
-        ComPtr<ID3DBlob> error;
-
-#if defined(_DEBUG)
-        UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-        UINT compileFlags = 0;
-#endif
-
-        // todo: use custom Pipeline class for PSO and shaders, maybe use enum for different input layout descriptions
-        // todo: get compile error out of blob, see DXRHelper.h
-        // todo: shader compile error should not cause crash, except UI shader which could throw a OperationNotSupported at C# side
-        
-        TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Space.hlsl").c_str(),
-            nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &sceneVertexShader, &error));
-        TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Space.hlsl").c_str(),
-            nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &scenePixelShader, &error));
-
-        TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Post.hlsl").c_str(),
-            nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &postVertexShader, &error));
-        TRY_DO(D3DCompileFromFile(GetAssetFullPath(L"Post.hlsl").c_str(),
-            nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &postPixelShader, &error));
-
-        D3D12_INPUT_ELEMENT_DESC inputElementDescription[] =
-        {
-            {
-                "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
-                0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            },
-            {
-                "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-                0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            }
-        };
-        D3D12_INPUT_ELEMENT_DESC scaleInputElementDescription[] =
-        {
-            {
-                "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-                0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            },
-            {
-                "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
-                0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            }
-        };
-
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-        psoDesc.InputLayout = {inputElementDescription, _countof(inputElementDescription)};
-        psoDesc.pRootSignature = m_spaceRootSignature.Get();
-        psoDesc.VS = CD3DX12_SHADER_BYTECODE(sceneVertexShader.Get());
-        psoDesc.PS = CD3DX12_SHADER_BYTECODE(scenePixelShader.Get());
-        psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-        psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-        psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-        psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-        psoDesc.DepthStencilState.StencilEnable = FALSE;
-        psoDesc.SampleMask = UINT_MAX;
-        psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-        psoDesc.NumRenderTargets = 1;
-        psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-        psoDesc.SampleDesc.Count = 1;
-
-        TRY_DO(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_spacePipelineState)));
-        NAME_D3D12_OBJECT(m_spacePipelineState);
-
-        psoDesc.InputLayout = {scaleInputElementDescription, _countof(scaleInputElementDescription)};
-        psoDesc.pRootSignature = m_postRootSignature.Get();
-        psoDesc.VS = CD3DX12_SHADER_BYTECODE(postVertexShader.Get());
-        psoDesc.PS = CD3DX12_SHADER_BYTECODE(postPixelShader.Get());
-
-        TRY_DO(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_postPipelineState)));
-        NAME_D3D12_OBJECT(m_postPipelineState);
-    }
-
-    {
-        TRY_DO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-            m_spaceCommandAllocators[m_frameIndex].Get(), m_spacePipelineState.Get(), IID_PPV_ARGS(&m_spaceCommandList)
-        ));
-        NAME_D3D12_OBJECT(m_spaceCommandList);
-
-        TRY_DO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-            m_postCommandAllocators[m_frameIndex].Get(), m_postPipelineState.Get(), IID_PPV_ARGS(&m_postCommandList)));
-        NAME_D3D12_OBJECT(m_postCommandList);
-
-        TRY_DO(m_spaceCommandList->Close());
-        TRY_DO(m_postCommandList->Close());
-    }
-
     ComPtr<ID3D12CommandAllocator> commandAllocator;
     ComPtr<ID3D12GraphicsCommandList> commandList;
 
@@ -501,13 +337,20 @@ void NativeClient::OnRender(double)
 
         PopulateCommandLists();
 
-        ID3D12CommandList* ppCommandLists[] = {m_spaceCommandList.Get(), m_postCommandList.Get()};
-        m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+        std::vector<ID3D12CommandList*> commandLists(m_rasterPipelines.size());
+
+        for (const auto& pipeline : m_rasterPipelines)
+        {
+            commandLists.push_back(pipeline->GetCommandList().Get());
+        }
+
+        m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
     TRY_DO(m_swapChain->Present(0, presentFlags));
 
+    // todo: check if this can be removed: (maybe a wrong command allocator is used)
     WaitForGPU(); // There is a possibility that the fences are incorrectly set. This is a workaround for that.
 
     m_space.CleanupRenderSetup();
@@ -581,6 +424,21 @@ Space* NativeClient::GetSpace()
     return &m_space;
 }
 
+void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
+{
+    m_rasterPipelines.push_back(std::move(pipeline));
+}
+
+void NativeClient::SetSpace3dPipeline(RasterPipeline* pipeline)
+{
+    m_space3dPipeline = pipeline;
+}
+
+void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
+{
+    m_postProcessingPipeline = pipeline;
+}
+
 void NativeClient::WaitForGPU()
 {
     TRY_DO(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
@@ -617,31 +475,29 @@ void NativeClient::CheckRaytracingSupport() const
             "Raytracing not supported on device.");
 }
 
-void NativeClient::PopulateCommandLists()
+void NativeClient::PopulateSpaceCommandList()
 {
-    TRY_DO(m_spaceCommandAllocators[m_frameIndex]->Reset());
-    TRY_DO(m_postCommandAllocators[m_frameIndex]->Reset());
-
-    TRY_DO(m_spaceCommandList->Reset(m_spaceCommandAllocators[m_frameIndex].Get(), m_spacePipelineState.Get()));
-    TRY_DO(m_postCommandList->Reset(m_postCommandAllocators[m_frameIndex].Get(), m_postPipelineState.Get()));
-
     {
-        PIXScopedEvent(m_spaceCommandList.Get(), PIX_COLOR_DEFAULT, L"Space");
+        PIXScopedEvent(m_space3dPipeline->GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
 
-        m_space.EnqueueRenderSetup(m_spaceCommandList);
-        m_space.DispatchRays(m_spaceCommandList);
-        m_space.CopyOutputToBuffer(m_intermediateRenderTarget, m_spaceCommandList);
+        m_space.EnqueueRenderSetup(m_space3dPipeline->GetCommandList());
+        m_space.DispatchRays(m_space3dPipeline->GetCommandList());
+        m_space.CopyOutputToBuffer(m_intermediateRenderTarget, m_space3dPipeline->GetCommandList());
     }
 
-    TRY_DO(m_spaceCommandList->Close());
+    TRY_DO(m_space3dPipeline->GetCommandList()->Close());
+}
 
+void NativeClient::PopulatePostProcessingCommandList() const
+{
     {
-        PIXScopedEvent(m_postCommandList.Get(), 0, L"Post Processing");
+        PIXScopedEvent(m_postProcessingPipeline->GetCommandList().Get(), 0, L"Post Processing");
+        const ComPtr<ID3D12GraphicsCommandList4> commandList = m_postProcessingPipeline->GetCommandList();
 
-        m_postCommandList->SetGraphicsRootSignature(m_postRootSignature.Get());
+        commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
 
         ID3D12DescriptorHeap* ppHeaps[] = {m_srvHeap.Get()};
-        m_postCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
         D3D12_RESOURCE_BARRIER barriers[] = {
             CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
@@ -651,35 +507,53 @@ void NativeClient::PopulateCommandLists()
                                                  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
         };
 
-        m_postCommandList->ResourceBarrier(_countof(barriers), barriers);
+        commandList->ResourceBarrier(_countof(barriers), barriers);
 
-        m_postCommandList->SetGraphicsRootDescriptorTable(0, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
-        m_postCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_postCommandList->RSSetViewports(1, &m_postViewport);
-        m_postCommandList->RSSetScissorRects(1, &m_postScissorRect);
+        commandList->SetGraphicsRootDescriptorTable(0, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        commandList->RSSetViewports(1, &m_postViewport);
+        commandList->RSSetScissorRects(1, &m_postScissorRect);
 
         const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
                                                       m_rtvDescriptorSize);
         const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-        m_postCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+        commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-        m_postCommandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
-        m_postCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
+        commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-        m_postCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        m_postCommandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
 
-        m_postCommandList->DrawInstanced(4, 1, 0, 0);
+        commandList->DrawInstanced(4, 1, 0, 0);
 
         barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
         barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
         barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
         barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-        m_postCommandList->ResourceBarrier(_countof(barriers), barriers);
+        commandList->ResourceBarrier(_countof(barriers), barriers);
     }
 
-    TRY_DO(m_postCommandList->Close());
+    TRY_DO(m_postProcessingPipeline->GetCommandList()->Close());
+}
+
+void NativeClient::PopulateCommandLists()
+{
+    for (const auto& pipeline : m_rasterPipelines)
+    {
+        pipeline->Reset(m_frameIndex);
+    }
+
+    if (m_space3dPipeline != nullptr)
+    {
+        PopulateSpaceCommandList();
+
+        if (m_postProcessingPipeline != nullptr)
+        {
+            PopulatePostProcessingCommandList();
+        }
+    }
 }
 
 void NativeClient::UpdatePostViewAndScissor()
