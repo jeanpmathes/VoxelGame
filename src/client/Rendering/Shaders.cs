@@ -172,6 +172,8 @@ public sealed class Shaders
                     loaded = false;
                 });
 
+            if (loaded) loadingContext.ReportSuccess(Events.ShaderSetup, nameof(RasterPipeline), path);
+
             return pipeline;
         }
 

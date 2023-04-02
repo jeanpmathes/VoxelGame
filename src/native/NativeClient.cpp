@@ -337,7 +337,8 @@ void NativeClient::OnRender(double)
 
         PopulateCommandLists();
 
-        std::vector<ID3D12CommandList*> commandLists(m_rasterPipelines.size());
+        std::vector<ID3D12CommandList*> commandLists;
+        commandLists.reserve(m_rasterPipelines.size());
 
         for (const auto& pipeline : m_rasterPipelines)
         {

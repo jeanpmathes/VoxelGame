@@ -285,4 +285,5 @@ __pycache__/
 .sonarlint/
 *.DotSettings
 *.xcf
+launchSettings.json
 Setup/dependencies.wxs
