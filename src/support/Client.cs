@@ -237,6 +237,18 @@ public class Client : IDisposable
     }
 
     /// <summary>
+    ///     Create a raster pipeline with associated shader buffer.
+    /// </summary>
+    /// <param name="description">A description of the pipeline.</param>
+    /// <param name="errorCallback">A callback for error messages.</param>
+    /// <typeparam name="T">The type of the shader buffer data.</typeparam>
+    /// <returns>The created pipeline and shader buffer.</returns>
+    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged
+    {
+        return Support.Native.CreateRasterPipeline<T>(this, description, msg => errorCallback(msg));
+    }
+
+    /// <summary>
     ///     Set which pipeline is used to render 3D space.
     /// </summary>
     public void SetSpace3dPipeline(RasterPipeline pipeline)
@@ -309,4 +321,3 @@ public class Client : IDisposable
 
     #endregion
 }
-

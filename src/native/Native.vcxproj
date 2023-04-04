@@ -155,6 +155,7 @@
         <ClInclude Include="Objects\MeshObject.h"/>
         <ClInclude Include="Objects\Object.h"/>
         <ClInclude Include="Objects\RasterPipeline.h"/>
+        <ClInclude Include="Objects\ShaderBuffer.h"/>
         <ClInclude Include="Objects\SpatialObject.h"/>
         <ClInclude Include="Objects\SequencedMeshObject.h"/>
         <ClInclude Include="Space.h"/>
@@ -204,9 +205,10 @@
         <ClCompile Include="Objects\MeshObject.cpp"/>
         <ClCompile Include="Objects\Object.cpp"/>
         <ClCompile Include="Objects\RasterPipeline.cpp"/>
+        <ClCompile Include="Objects\ShaderBuffer.cpp"/>
         <ClCompile Include="Objects\SpatialObject.cpp"/>
         <ClCompile Include="Objects\SequencedMeshObject.cpp"/>
-        <ClCompile Include="Scene.cpp"/>
+        <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Win32Application.cpp"/>
         <ClCompile Include="NativeClient.cpp"/>
         <ClCompile Include="DXApp.cpp"/>

@@ -296,22 +296,48 @@ public static class Native
         }
     }
 
+    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback);
+
+    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+    private static extern IntPtr NativeGetShaderBuffer(IntPtr rasterPipeline);
+
     /// <summary>
-    ///     Create a raster pipeline.
+    ///     Create a raster pipeline. Use this overload if no shader buffer is needed.
     /// </summary>
     /// <param name="client">The client.</param>
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
-    /// <returns>The raster pipeline, or zero if the pipeline could not be created.</returns>
+    /// <returns>The raster pipeline.</returns>
     public static RasterPipeline CreateRasterPipeline(Client client,
         PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback);
+        Debug.Assert(description.BufferSize == 0);
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+        IntPtr shaderBuffer = NativeGetShaderBuffer(rasterPipeline);
+
+        Debug.Assert(shaderBuffer == IntPtr.Zero);
 
         return new RasterPipeline(rasterPipeline, client);
+    }
+
+    /// <summary>
+    ///     Create a raster pipeline. Use this overload if a shader buffer is needed.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="description">A description of the pipeline to create.</param>
+    /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
+    /// <returns>The raster pipeline and associated shader buffer.</returns>
+    public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(Client client,
+        PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback) where T : unmanaged
+    {
+        description.BufferSize = (ulong) Marshal.SizeOf<T>();
+
+        IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+        IntPtr shaderBuffer = NativeGetShaderBuffer(rasterPipeline);
+
+        return (new RasterPipeline(rasterPipeline, client), new ShaderBuffer<T>(shaderBuffer, client));
     }
 
     /// <summary>
@@ -335,5 +361,19 @@ public static class Native
 
         NativeDesignatePostProcessingPipeline(client.Native, pipeline.Self);
     }
-}
 
+    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+    private static extern unsafe void NativeSetShaderBufferData(IntPtr shaderBuffer, void* data);
+
+    /// <summary>
+    ///     Set the data of a shader buffer.
+    /// </summary>
+    /// <param name="shaderBuffer">The shader buffer.</param>
+    /// <param name="data">The data to set.</param>
+    /// <typeparam name="T">The type of the data.</typeparam>
+    public static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged
+    {
+        T* dataPtr = &data;
+        NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
+    }
+}

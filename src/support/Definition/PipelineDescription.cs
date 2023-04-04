@@ -30,6 +30,11 @@ public struct PipelineDescription
     ///     The shader preset.
     /// </summary>
     public ShaderPreset ShaderPreset;
+
+    /// <summary>
+    ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
+    /// </summary>
+    public ulong BufferSize;
 }
 
 /// <summary>
@@ -49,4 +54,3 @@ public enum ShaderPreset : byte
     /// </summary>
     PostProcessing
 }
-

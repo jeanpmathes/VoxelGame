@@ -250,6 +250,9 @@ void Space::CreateRaytracingPipeline(const ShaderPaths& paths)
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice().Get());
 
     // todo: use Material abstraction, and allow passing arbitrary count of shader paths + symbols
+    // todo: the raytracing pipeline should use an abstraction similar to shader buffer
+    // (but not the same as raytracing does not need a descriptor heap per buffer, on c# side they could be the same)
+    // or on c# side raytracing the mesh object integrates the generic data buffer for raytracing
 
     m_rayGenLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.rayGenShader.c_str());
     m_missLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.missShader.c_str());

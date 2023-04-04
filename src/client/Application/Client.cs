@@ -80,8 +80,6 @@ internal class Client : Support.Client, IPerformanceProvider
     /// </summary>
     internal Game? CurrentGame { get; private set; }
 
-    private double Time { get; set; }
-
     internal double FPS => screenBehaviour.FPS;
     internal double UPS => screenBehaviour.UPS;
 
@@ -111,8 +109,6 @@ internal class Client : Support.Client, IPerformanceProvider
     {
         using (logger.BeginScope("RenderFrame"))
         {
-            Time += delta;
-
             // Resources.Shaders.SetTime((float) Time); todo: check whether this is still needed
             sceneManager.Render((float) delta);
 
@@ -174,4 +170,3 @@ internal class Client : Support.Client, IPerformanceProvider
         sceneManager.OnResize(size);
     }
 }
-

@@ -182,6 +182,15 @@ NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
     CATCH();
 }
 
+NATIVE ShaderBuffer* NativeGetShaderBuffer(const RasterPipeline* pipeline)
+{
+    TRY
+    {
+        return pipeline->GetShaderBuffer();
+    }
+    CATCH();
+}
+
 NATIVE void NativeDesignateSpace3dPipeline(NativeClient* client, RasterPipeline* pipeline)
 {
     TRY
@@ -196,6 +205,15 @@ NATIVE void NativeDesignatePostProcessingPipeline(NativeClient* client, RasterPi
     TRY
     {
         client->SetPostProcessingPipeline(pipeline);
+    }
+    CATCH();
+}
+
+NATIVE void SetShaderBufferData(const ShaderBuffer* buffer, const void* data)
+{
+    TRY
+    {
+        buffer->SetData(data);
     }
     CATCH();
 }

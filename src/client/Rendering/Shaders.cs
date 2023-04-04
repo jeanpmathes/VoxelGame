@@ -177,6 +177,28 @@ public sealed class Shaders
             return pipeline;
         }
 
+        (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(string name, ShaderPreset preset)
+            where T : unmanaged
+        {
+            FileInfo path = directory.GetFile($"{name}.hlsl");
+
+            (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(new PipelineDescription
+                {
+                    PixelShaderPath = path.FullName,
+                    VertexShaderPath = path.FullName,
+                    ShaderPreset = preset
+                },
+                error =>
+                {
+                    loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);
+                    loaded = false;
+                });
+
+            if (loaded) loadingContext.ReportSuccess(Events.ShaderSetup, nameof(RasterPipeline), path);
+
+            return result;
+        }
+
         space3dPipeline = LoadPipeline("Space", ShaderPreset.Space3D);
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
 
@@ -251,4 +273,3 @@ public sealed class Shaders
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 }
-

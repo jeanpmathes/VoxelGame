@@ -43,7 +43,7 @@ static ComPtr<ID3DBlob> CompileShader(
 
 using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>>;
 
-static Preset GetSpace3dPreset(ComPtr<ID3D12Device5> device)
+static Preset GetSpace3dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> space3dInput =
     {
@@ -59,14 +59,22 @@ static Preset GetSpace3dPreset(ComPtr<ID3D12Device5> device)
 
     ComPtr<ID3D12RootSignature> rootSignature;
 
-    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-    CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+    constexpr UINT minParameterCount = 0;
+    CD3DX12_DESCRIPTOR_RANGE1 ranges[minParameterCount + 1];
+    CD3DX12_ROOT_PARAMETER1 rootParameters[minParameterCount + 1];
 
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-    rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_ALL);
+    UINT parameter = 0;
+
+    if (cbufferSize > 0)
+    {
+        ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+        rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_ALL);
+
+        parameter++;
+    }
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-    rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr,
+    rootSignatureDesc.Init_1_1(parameter, rootParameters, 0, nullptr,
                                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     ComPtr<ID3DBlob> signature;
@@ -80,7 +88,7 @@ static Preset GetSpace3dPreset(ComPtr<ID3D12Device5> device)
     return {rootSignature, space3dInput};
 }
 
-static Preset GetPostProcessingPreset(ComPtr<ID3D12Device5> device)
+static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> postProcessingInput =
     {
@@ -96,11 +104,22 @@ static Preset GetPostProcessingPreset(ComPtr<ID3D12Device5> device)
 
     ComPtr<ID3D12RootSignature> rootSignature;
 
-    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-    CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+    constexpr UINT minParameterCount = 1;
+    CD3DX12_DESCRIPTOR_RANGE1 ranges[minParameterCount + 1];
+    CD3DX12_ROOT_PARAMETER1 rootParameters[minParameterCount + 1];
 
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-    rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+    UINT parameter = 0;
+
+    if (cbufferSize > 0)
+    {
+        ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+        rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_ALL);
+
+        parameter++;
+    }
+
+    ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+    rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_PIXEL);
 
     D3D12_STATIC_SAMPLER_DESC sampler;
     sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -118,7 +137,7 @@ static Preset GetPostProcessingPreset(ComPtr<ID3D12Device5> device)
     sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-    rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 1, &sampler,
+    rootSignatureDesc.Init_1_1(parameter, rootParameters, 1, &sampler,
                                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     ComPtr<ID3DBlob> signature;
@@ -132,14 +151,14 @@ static Preset GetPostProcessingPreset(ComPtr<ID3D12Device5> device)
     return {rootSignature, postProcessingInput};
 }
 
-static Preset GetShaderPreset(const ShaderPreset preset, const ComPtr<ID3D12Device5> device)
+static Preset GetShaderPreset(const ShaderPreset preset, const uint64_t cbufferSize, const ComPtr<ID3D12Device5> device)
 {
     switch (preset)
     {
     case ShaderPreset::SPACE_3D: // NOLINT(bugprone-branch-clone)
-        return GetSpace3dPreset(device);
+        return GetSpace3dPreset(cbufferSize, device);
     case ShaderPreset::POST_PROCESSING:
-        return GetPostProcessingPreset(device);
+        return GetPostProcessingPreset(cbufferSize, device);
     default:
         throw NativeException("Invalid shader preset.");
     }
@@ -170,7 +189,9 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     ComPtr<ID3D12RootSignature> rootSignature;
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
 
-    std::tie(rootSignature, inputLayout) = GetShaderPreset(description.shaderPreset, client.GetDevice());
+    std::tie(rootSignature, inputLayout) = GetShaderPreset(
+        description.shaderPreset, description.bufferSize,
+        client.GetDevice());
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.pRootSignature = rootSignature.Get();
@@ -191,12 +212,21 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     ComPtr<ID3D12PipelineState> pipelineState;
     TRY_DO(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
 
-    return std::make_unique<RasterPipeline>(client, rootSignature, pipelineState);
+    std::unique_ptr<ShaderBuffer> shaderBuffer;
+
+    if (description.bufferSize > 0)
+    {
+        shaderBuffer = std::make_unique<ShaderBuffer>(client, description.bufferSize);
+    }
+
+    return std::make_unique<RasterPipeline>(client, std::move(shaderBuffer), rootSignature, pipelineState);
 }
 
-RasterPipeline::RasterPipeline(NativeClient& client,
+RasterPipeline::RasterPipeline(NativeClient& client, std::unique_ptr<ShaderBuffer> buffer,
                                ComPtr<ID3D12RootSignature> rootSignature, ComPtr<ID3D12PipelineState> pipelineState)
-    : Object(client), m_rootSignature(rootSignature), m_pipelineState(pipelineState)
+    : Object(client)
+      , m_rootSignature(rootSignature), m_pipelineState(pipelineState)
+      , m_shaderBuffer(std::move(buffer))
 {
     NAME_D3D12_OBJECT_WITH_ID(m_rootSignature);
     NAME_D3D12_OBJECT_WITH_ID(m_pipelineState);
@@ -232,4 +262,9 @@ ComPtr<ID3D12GraphicsCommandList4> RasterPipeline::GetCommandList() const
 ComPtr<ID3D12RootSignature> RasterPipeline::GetRootSignature() const
 {
     return m_rootSignature;
+}
+
+ShaderBuffer* RasterPipeline::GetShaderBuffer() const
+{
+    return m_shaderBuffer.get();
 }

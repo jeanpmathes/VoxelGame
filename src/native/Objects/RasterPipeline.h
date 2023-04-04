@@ -8,6 +8,8 @@
 
 #include "NativeClient.h"
 
+class ShaderBuffer;
+
 enum class ShaderPreset : uint8_t
 {
     SPACE_3D,
@@ -19,6 +21,7 @@ struct PipelineDescription
     const wchar_t* vertexShaderPath;
     const wchar_t* pixelShaderPath;
     ShaderPreset shaderPreset;
+    uint64_t bufferSize;
 };
 
 /**
@@ -44,6 +47,7 @@ public:
      */
     RasterPipeline(
         NativeClient& client,
+        std::unique_ptr<ShaderBuffer> shaderBuffer,
         ComPtr<ID3D12RootSignature> rootSignature,
         ComPtr<ID3D12PipelineState> pipelineState);
 
@@ -62,11 +66,17 @@ public:
      */
     [[nodiscard]] ComPtr<ID3D12RootSignature> GetRootSignature() const;
 
+    /**
+     * Get the shader buffer of the pipeline, or nullptr if none.
+     */
+    [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
+
 private:
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
 
-
+    std::unique_ptr<ShaderBuffer> m_shaderBuffer{};
+    
     ComPtr<ID3D12CommandAllocator> m_commandAllocators[NativeClient::FRAME_COUNT];
     ComPtr<ID3D12GraphicsCommandList4> m_commandList;
 };

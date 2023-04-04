@@ -90,7 +90,7 @@ private:
 
     Camera m_camera;
     Light m_light;
-
+    
     ComPtr<ID3D12Resource> m_globalConstantBuffer;
     GlobalConstantBuffer m_globalConstantBufferData{};
 
