@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include "NativeClient.h"
-
 class ShaderBuffer;
 
 enum class ShaderPreset : uint8_t
@@ -46,8 +44,9 @@ public:
      * Create a pipeline from an already initialized pipeline state object and associated root signature.
      */
     RasterPipeline(
-        NativeClient& client,
+        NativeClient& client, ShaderPreset preset,
         std::unique_ptr<ShaderBuffer> shaderBuffer,
+        ComPtr<ID3D12DescriptorHeap> descriptorHeap,
         ComPtr<ID3D12RootSignature> rootSignature,
         ComPtr<ID3D12PipelineState> pipelineState);
 
@@ -71,12 +70,30 @@ public:
      */
     [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
 
+    void SetupSecondaryResourceView(ComPtr<ID3D12Resource> resource) const;
+
+    /**
+     * Setup the descriptor heap for the pipeline.
+     */
+    void SetupHeaps(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+
+    /**
+     * Setup the root descriptor table for the pipeline.
+     */
+    void SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+
 private:
+    [[nodiscard]] UINT GetSecondaryResourceSlot() const;
+    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetSecondaryCpuResourceHandle() const;
+    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetSecondaryGpuResourceHandle() const;
+
+    ShaderPreset m_preset;
+    ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
 
     std::unique_ptr<ShaderBuffer> m_shaderBuffer{};
-    
-    ComPtr<ID3D12CommandAllocator> m_commandAllocators[NativeClient::FRAME_COUNT];
+
+    ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
     ComPtr<ID3D12GraphicsCommandList4> m_commandList;
 };

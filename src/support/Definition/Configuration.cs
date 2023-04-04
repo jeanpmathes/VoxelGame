@@ -85,5 +85,10 @@ public static partial class Native
         ///     Whether to allow tearing.
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)] public bool allowTearing;
+
+        /// <summary>
+        ///     Whether to render the 3D scene.
+        /// </summary>
+        [MarshalAs(UnmanagedType.Bool)] public bool enableSpace; // todo: remove this as soon as 3D DXR pipeline can be configured, then not setting up the pipeline is implicitly the same as disabling it
     }
 }

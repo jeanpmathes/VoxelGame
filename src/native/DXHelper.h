@@ -55,6 +55,19 @@ constexpr bool IsDebugBuild = true;
 constexpr bool IsDebugBuild = false;
 #endif
 
+#define REQUIRE(expression) \
+    do { \
+        if (!(expression)) \
+        { \
+            std::string message; \
+            if (IsDebugBuild) \
+                message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
+            else \
+                message = "failed requirement '" #expression "'"; \
+            throw NativeException(message); \
+        } \
+    } while (false)
+
 #define TRY_DO(expression) \
     do { \
         auto result = (expression); \

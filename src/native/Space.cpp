@@ -13,19 +13,24 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue)
 {
     assert(m_meshes.empty());
 
-    ComPtr<ID3D12CommandAllocator> commandAllocator;
-    ComPtr<ID3D12GraphicsCommandList4> commandList;
+    for (UINT n = 0; n < FRAME_COUNT; n++)
+    {
+        TRY_DO(
+            GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators
+                    [n])
+            ));
+        NAME_D3D12_OBJECT_INDEXED(m_commandAllocators, n);
+    }
 
-    TRY_DO(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator)));
-    TRY_DO(
-        GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(
-            &
-            commandList)));
+    TRY_DO(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+        m_commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&m_commandList)
+    ));
+    NAME_D3D12_OBJECT(m_commandList);
 
-    CreateTopLevelAS(commandList);
+    CreateTopLevelAS();
 
-    TRY_DO(commandList->Close());
-    ID3D12CommandList* ppCommandLists[] = {commandList.Get()};
+    TRY_DO(m_commandList->Close());
+    ID3D12CommandList* ppCommandLists[] = {m_commandList.Get()};
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
     m_nativeClient.WaitForGPU();
@@ -68,7 +73,13 @@ IndexedMeshObject& Space::CreateIndexedMeshObject()
     return indexedMeshObject;
 }
 
-void Space::EnqueueRenderSetup(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+void Space::Reset(const UINT frameIndex) const
+{
+    TRY_DO(m_commandAllocators[frameIndex]->Reset());
+    TRY_DO(m_commandList->Reset(m_commandAllocators[frameIndex].Get(), nullptr));
+}
+
+void Space::EnqueueRenderSetup()
 {
     bool modified = false;
 
@@ -76,14 +87,14 @@ void Space::EnqueueRenderSetup(const ComPtr<ID3D12GraphicsCommandList4> commandL
     {
         if (mesh->IsMeshModified())
         {
-            mesh->EnqueueMeshUpload(commandList);
-            mesh->CreateBLAS(commandList);
+            mesh->EnqueueMeshUpload(m_commandList);
+            mesh->CreateBLAS(m_commandList);
 
             modified = true;
         }
     }
 
-    CreateTopLevelAS(commandList);
+    CreateTopLevelAS();
     UpdateShaderResourceHeap();
 
     if (modified)
@@ -100,16 +111,16 @@ void Space::CleanupRenderSetup() const
     }
 }
 
-void Space::DispatchRays(const ComPtr<ID3D12GraphicsCommandList4> commandList) const
+void Space::DispatchRays() const
 {
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    commandList->ResourceBarrier(1, &barrier);
+    m_commandList->ResourceBarrier(1, &barrier);
 
     const std::vector heaps = {m_srvUavHeap.Get()};
-    commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
-                                    heaps.data());
+    m_commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
+                                      heaps.data());
 
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
@@ -129,12 +140,11 @@ void Space::DispatchRays(const ComPtr<ID3D12GraphicsCommandList4> commandList) c
     desc.Height = m_resolution.height;
     desc.Depth = 1;
 
-    commandList->SetPipelineState1(m_rtStateObject.Get());
-    commandList->DispatchRays(&desc);
+    m_commandList->SetPipelineState1(m_rtStateObject.Get());
+    m_commandList->DispatchRays(&desc);
 }
 
-void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer,
-                               const ComPtr<ID3D12GraphicsCommandList4> commandList) const
+void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
 {
     D3D12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -145,15 +155,15 @@ void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer,
             D3D12_RESOURCE_STATE_COPY_DEST)
     };
 
-    commandList->ResourceBarrier(_countof(barriers), barriers);
+    m_commandList->ResourceBarrier(_countof(barriers), barriers);
 
-    commandList->CopyResource(buffer.Get(),
-                              m_outputResource.Get());
+    m_commandList->CopyResource(buffer.Get(),
+                                m_outputResource.Get());
 
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandList->ResourceBarrier(1, &barrier);
+    m_commandList->ResourceBarrier(1, &barrier);
 }
 
 void Space::Update(const double delta)
@@ -179,6 +189,11 @@ Camera* Space::GetCamera()
 Light* Space::GetLight()
 {
     return &m_light;
+}
+
+ComPtr<ID3D12GraphicsCommandList4> Space::GetCommandList() const
+{
+    return m_commandList;
 }
 
 ComPtr<ID3D12Device5> Space::GetDevice() const
@@ -383,7 +398,7 @@ void Space::CreateShaderBindingTable()
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
 }
 
-void Space::CreateTopLevelAS(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+void Space::CreateTopLevelAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
 
@@ -417,7 +432,7 @@ void Space::CreateTopLevelAS(const ComPtr<ID3D12GraphicsCommandList4> commandLis
 
     constexpr bool updateOnly = false;
 
-    topLevelASGenerator.Generate(commandList.Get(),
+    topLevelASGenerator.Generate(m_commandList.Get(),
                                  m_topLevelASBuffers.scratch.Get(), m_topLevelASBuffers.result.Get(),
                                  m_topLevelASBuffers.instanceDesc.Get(),
                                  updateOnly, m_topLevelASBuffers.result.Get());

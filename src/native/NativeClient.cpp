@@ -17,6 +17,7 @@ NativeClient::NativeClient(const UINT width, const UINT height, const std::wstri
     m_spaceViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_spaceScissorRect(0, 0, 0, 0),
     m_space(*this),
+    m_spaceEnabled(configuration.enableSpace),
     m_postViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_postScissorRect(0, 0, 0, 0),
     m_rtvDescriptorSize(0),
@@ -31,6 +32,16 @@ NativeClient::NativeClient(const UINT width, const UINT height, const std::wstri
 ComPtr<ID3D12Device5> NativeClient::GetDevice() const
 {
     return m_device;
+}
+
+UINT NativeClient::GetRtvHeapIncrement() const
+{
+    return m_rtvDescriptorSize;
+}
+
+UINT NativeClient::GetCbvSrvUavHeapIncrement() const
+{
+    return m_srvDescriptorSize;
 }
 
 void NativeClient::OnInit()
@@ -112,17 +123,8 @@ void NativeClient::LoadDevice()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     {
-        D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-        rtvHeapDesc.NumDescriptors = FRAME_COUNT + 1;
-        rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        TRY_DO(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-        D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-        srvHeapDesc.NumDescriptors = FRAME_COUNT + 1;
-        srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        TRY_DO(m_device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&m_srvHeap)));
+        m_rtvHeap = nv_helpers_dx12::CreateDescriptorHeap(m_device.Get(), FRAME_COUNT + 1,
+                                                          D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
 
         m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         m_srvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -319,8 +321,8 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         m_space.PerformResolutionDependentSetup(m_resolution);
     }
 
-    m_device->CreateShaderResourceView(m_intermediateRenderTarget.Get(), nullptr,
-                                       m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+    if (m_postProcessingPipeline != nullptr)
+        m_postProcessingPipeline->SetupSecondaryResourceView(m_intermediateRenderTarget);
 }
 
 void NativeClient::OnUpdate(const double delta)
@@ -344,6 +346,8 @@ void NativeClient::OnRender(double)
         {
             commandLists.push_back(pipeline->GetCommandList().Get());
         }
+
+        commandLists.push_back(m_space.GetCommandList().Get());
 
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
@@ -430,14 +434,10 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
     m_rasterPipelines.push_back(std::move(pipeline));
 }
 
-void NativeClient::SetSpace3dPipeline(RasterPipeline* pipeline)
-{
-    m_space3dPipeline = pipeline;
-}
-
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
     m_postProcessingPipeline = pipeline;
+    m_postProcessingPipeline->SetupSecondaryResourceView(m_intermediateRenderTarget);
 }
 
 void NativeClient::WaitForGPU()
@@ -478,15 +478,17 @@ void NativeClient::CheckRaytracingSupport() const
 
 void NativeClient::PopulateSpaceCommandList()
 {
+    m_space.Reset(m_frameIndex);
+    
     {
-        PIXScopedEvent(m_space3dPipeline->GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
+        PIXScopedEvent(m_space.GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
 
-        m_space.EnqueueRenderSetup(m_space3dPipeline->GetCommandList());
-        m_space.DispatchRays(m_space3dPipeline->GetCommandList());
-        m_space.CopyOutputToBuffer(m_intermediateRenderTarget, m_space3dPipeline->GetCommandList());
+        m_space.EnqueueRenderSetup();
+        m_space.DispatchRays();
+        m_space.CopyOutputToBuffer(m_intermediateRenderTarget);
     }
 
-    TRY_DO(m_space3dPipeline->GetCommandList()->Close());
+    TRY_DO(m_space.GetCommandList()->Close());
 }
 
 void NativeClient::PopulatePostProcessingCommandList() const
@@ -497,8 +499,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
 
         commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
 
-        ID3D12DescriptorHeap* ppHeaps[] = {m_srvHeap.Get()};
-        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        m_postProcessingPipeline->SetupHeaps(commandList);
 
         D3D12_RESOURCE_BARRIER barriers[] = {
             CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
@@ -510,7 +511,8 @@ void NativeClient::PopulatePostProcessingCommandList() const
 
         commandList->ResourceBarrier(_countof(barriers), barriers);
 
-        commandList->SetGraphicsRootDescriptorTable(0, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+        m_postProcessingPipeline->SetupRootDescriptorTable(commandList);
+        
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         commandList->RSSetViewports(1, &m_postViewport);
         commandList->RSSetScissorRects(1, &m_postScissorRect);
@@ -546,7 +548,7 @@ void NativeClient::PopulateCommandLists()
         pipeline->Reset(m_frameIndex);
     }
 
-    if (m_space3dPipeline != nullptr)
+    if (m_spaceEnabled)
     {
         PopulateSpaceCommandList();
 

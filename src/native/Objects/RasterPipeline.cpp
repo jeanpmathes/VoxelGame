@@ -41,7 +41,7 @@ static ComPtr<ID3DBlob> CompileShader(
     return shaderBlob;
 }
 
-using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>>;
+using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>, UINT>;
 
 static Preset GetSpace3dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
 {
@@ -85,7 +85,7 @@ static Preset GetSpace3dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> devic
     TRY_DO(device->CreateRootSignature(0,
         signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 
-    return {rootSignature, space3dInput};
+    return {rootSignature, space3dInput, parameter};
 }
 
 static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
@@ -121,6 +121,8 @@ static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5
     ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
     rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_PIXEL);
 
+    parameter++;
+    
     D3D12_STATIC_SAMPLER_DESC sampler;
     sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
     sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -148,7 +150,7 @@ static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5
     TRY_DO(device->CreateRootSignature(0,
         signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 
-    return {rootSignature, postProcessingInput};
+    return {rootSignature, postProcessingInput, parameter};
 }
 
 static Preset GetShaderPreset(const ShaderPreset preset, const uint64_t cbufferSize, const ComPtr<ID3D12Device5> device)
@@ -171,6 +173,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
 {
     // todo: shader compile error should not cause crash, except UI shader
     // todo: test intentionally wrong shader code
+    // todo: test missing shader file
 
     ComPtr<ID3DBlob> vertexShader = CompileShader(
         description.vertexShaderPath,
@@ -188,8 +191,9 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
 
     ComPtr<ID3D12RootSignature> rootSignature;
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+    UINT parameterCount;
 
-    std::tie(rootSignature, inputLayout) = GetShaderPreset(
+    std::tie(rootSignature, inputLayout, parameterCount) = GetShaderPreset(
         description.shaderPreset, description.bufferSize,
         client.GetDevice());
 
@@ -212,26 +216,40 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     ComPtr<ID3D12PipelineState> pipelineState;
     TRY_DO(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
 
+    REQUIRE(parameterCount > 0);
+
+    ComPtr<ID3D12DescriptorHeap> descriptorHeap = nv_helpers_dx12::CreateDescriptorHeap(
+        client.GetDevice().Get(), parameterCount,
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+
     std::unique_ptr<ShaderBuffer> shaderBuffer;
 
     if (description.bufferSize > 0)
     {
-        shaderBuffer = std::make_unique<ShaderBuffer>(client, description.bufferSize);
+        shaderBuffer = std::make_unique<ShaderBuffer>(client, descriptorHeap, description.bufferSize);
     }
 
-    return std::make_unique<RasterPipeline>(client, std::move(shaderBuffer), rootSignature, pipelineState);
+    return std::make_unique<RasterPipeline>(
+        client, description.shaderPreset, std::move(shaderBuffer),
+        descriptorHeap, rootSignature, pipelineState);
 }
 
-RasterPipeline::RasterPipeline(NativeClient& client, std::unique_ptr<ShaderBuffer> buffer,
-                               ComPtr<ID3D12RootSignature> rootSignature, ComPtr<ID3D12PipelineState> pipelineState)
+RasterPipeline::RasterPipeline(NativeClient& client, ShaderPreset preset, std::unique_ptr<ShaderBuffer> buffer,
+                               ComPtr<ID3D12DescriptorHeap> descriptorHeap,
+                               ComPtr<ID3D12RootSignature> rootSignature,
+                               ComPtr<ID3D12PipelineState> pipelineState)
     : Object(client)
-      , m_rootSignature(rootSignature), m_pipelineState(pipelineState)
+      , m_preset(preset)
+      , m_descriptorHeap(descriptorHeap)
+      , m_rootSignature(rootSignature)
+      , m_pipelineState(pipelineState)
       , m_shaderBuffer(std::move(buffer))
 {
+    NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
     NAME_D3D12_OBJECT_WITH_ID(m_rootSignature);
     NAME_D3D12_OBJECT_WITH_ID(m_pipelineState);
 
-    for (UINT n = 0; n < NativeClient::FRAME_COUNT; n++)
+    for (UINT n = 0; n < FRAME_COUNT; n++)
     {
         TRY_DO(
             client.GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators
@@ -267,4 +285,56 @@ ComPtr<ID3D12RootSignature> RasterPipeline::GetRootSignature() const
 ShaderBuffer* RasterPipeline::GetShaderBuffer() const
 {
     return m_shaderBuffer.get();
+}
+
+void RasterPipeline::SetupSecondaryResourceView(ComPtr<ID3D12Resource> resource) const
+{
+    REQUIRE(m_preset == ShaderPreset::POST_PROCESSING);
+
+    GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), nullptr, GetSecondaryCpuResourceHandle());
+}
+
+void RasterPipeline::SetupHeaps(ComPtr<ID3D12GraphicsCommandList4> commandList) const
+{
+    ID3D12DescriptorHeap* heaps[] = {m_descriptorHeap.Get()};
+    commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+}
+
+void RasterPipeline::SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4> commandList) const
+{
+    if (m_shaderBuffer != nullptr)
+    {
+        commandList->SetGraphicsRootDescriptorTable(0, m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    }
+
+    commandList->SetGraphicsRootDescriptorTable(GetSecondaryResourceSlot(), GetSecondaryGpuResourceHandle());
+}
+
+UINT RasterPipeline::GetSecondaryResourceSlot() const
+{
+    return m_shaderBuffer == nullptr ? 0 : 1;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RasterPipeline::GetSecondaryCpuResourceHandle() const
+{
+    if (m_shaderBuffer == nullptr)
+    {
+        return m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    }
+
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_descriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+                                         1,
+                                         GetClient().GetCbvSrvUavHeapIncrement());
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE RasterPipeline::GetSecondaryGpuResourceHandle() const
+{
+    if (m_shaderBuffer == nullptr)
+    {
+        return m_descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    }
+
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_descriptorHeap->GetGPUDescriptorHandleForHeapStart(),
+                                         1,
+                                         GetClient().GetCbvSrvUavHeapIncrement());
 }

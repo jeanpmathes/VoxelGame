@@ -40,8 +40,6 @@ public sealed class Shaders
     private bool loaded;
     private RasterPipeline postProcessingPipeline = null!;
 
-    private RasterPipeline space3dPipeline = null!;
-
     private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
     {
         this.directory = directory;
@@ -136,6 +134,8 @@ public sealed class Shaders
 
     internal void Delete()
     {
+        // todo: think about deleting (is it still necessary for shaders? - probably not)
+
         SimpleSection.Delete();
         ComplexSection.Delete();
         VaryingHeightSection.Delete();
@@ -199,12 +199,10 @@ public sealed class Shaders
             return result;
         }
 
-        space3dPipeline = LoadPipeline("Space", ShaderPreset.Space3D);
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
 
         if (!loaded) return;
 
-        client.SetSpace3dPipeline(space3dPipeline);
         client.SetPostProcessingPipeline(postProcessingPipeline);
 
         return; // todo: remove this, and maybe the code below

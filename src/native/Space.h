@@ -9,13 +9,13 @@
 #include "nv_helpers_dx12/ShaderBindingTableGenerator.h"
 
 #include "Common.h"
+
 #include "Objects/Camera.h"
 #include "Objects/Light.h"
 #include "Objects/MeshObject.h"
 
 class IndexedMeshObject;
 class SequencedMeshObject;
-class NativeClient;
 
 struct GlobalConstantBuffer
 {
@@ -48,26 +48,36 @@ public:
     IndexedMeshObject& CreateIndexedMeshObject();
 
     /**
+     * Resets the command allocator and command list for the given frame.
+     */
+    void Reset(UINT frameIndex) const;
+
+    /**
      * Adds commands that setup rendering to the command list.
      * This should be called before each frame.
      */
-    void EnqueueRenderSetup(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void EnqueueRenderSetup();
     void CleanupRenderSetup() const;
 
     /**
      * Dispatches rays into the space.
      */
-    void DispatchRays(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+    void DispatchRays() const;
 
     /**
      * Copies the raytracing output to the given buffer.
      */
-    void CopyOutputToBuffer(ComPtr<ID3D12Resource> buffer, ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+    void CopyOutputToBuffer(ComPtr<ID3D12Resource> buffer) const;
 
     void Update(double delta);
 
     Camera* GetCamera();
     Light* GetLight();
+
+    /**
+     * Get the internal command list.
+     */
+    [[nodiscard]] ComPtr<ID3D12GraphicsCommandList4> GetCommandList() const;
 
 private:
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
@@ -83,7 +93,7 @@ private:
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
 
     void CreateShaderBindingTable();
-    void CreateTopLevelAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void CreateTopLevelAS();
 
     NativeClient& m_nativeClient;
     Resolution m_resolution{};
@@ -98,6 +108,9 @@ private:
     ComPtr<IDxcBlob> m_missLibrary;
     ComPtr<IDxcBlob> m_hitLibrary;
     ComPtr<IDxcBlob> m_shadowLibrary;
+
+    ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
+    ComPtr<ID3D12GraphicsCommandList4> m_commandList;
 
     ComPtr<ID3D12RootSignature> m_rayGenSignature;
     ComPtr<ID3D12RootSignature> m_missSignature;

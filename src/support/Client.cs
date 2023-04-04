@@ -33,7 +33,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings)
+    protected Client(WindowSettings windowSettings, bool enableSpace) // todo: remove the enable space arg asap
     {
         configuration.onInit = OnInit;
 
@@ -59,6 +59,7 @@ public class Client : IDisposable
         configuration.onDebug = D3D12Debug.Enable();
 
         configuration.allowTearing = false;
+        configuration.enableSpace = enableSpace;
 
         // todo: add window settings values to configuration and use on native side
 
@@ -246,14 +247,6 @@ public class Client : IDisposable
     public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged
     {
         return Support.Native.CreateRasterPipeline<T>(this, description, msg => errorCallback(msg));
-    }
-
-    /// <summary>
-    ///     Set which pipeline is used to render 3D space.
-    /// </summary>
-    public void SetSpace3dPipeline(RasterPipeline pipeline)
-    {
-        Support.Native.SetSpace3dPipeline(this, pipeline);
     }
 
     /// <summary>

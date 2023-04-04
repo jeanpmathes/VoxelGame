@@ -14,3 +14,5 @@ struct Resolution
     UINT width = 0;
     UINT height = 0;
 };
+
+inline constexpr UINT FRAME_COUNT = 2;

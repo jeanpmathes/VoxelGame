@@ -341,17 +341,6 @@ public static class Native
     }
 
     /// <summary>
-    ///     Set the pipeline that should be used for rendering 3D space.
-    /// </summary>
-    public static void SetSpace3dPipeline(Client client, RasterPipeline pipeline)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeDesignateSpace3dPipeline(IntPtr native, IntPtr pipeline);
-
-        NativeDesignateSpace3dPipeline(client.Native, pipeline.Self);
-    }
-
-    /// <summary>
     ///     Set the pipeline that should be used for rendering post processing.
     /// </summary>
     public static void SetPostProcessingPipeline(Client client, RasterPipeline pipeline)

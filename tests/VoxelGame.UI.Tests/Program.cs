@@ -22,7 +22,7 @@ internal class Program : Support.Client
 
     private UnitTestHarnessControls unitTestHarnessControls = null!;
 
-    private Program(WindowSettings windowSettings) : base(windowSettings)
+    private Program(WindowSettings windowSettings) : base(windowSettings, enableSpace: false)
     {
         gui = GwenGuiFactory.CreateFromClient(this, GwenGuiSettings.Default.From(settings => settings.SkinFile = new FileInfo("DefaultSkin2.png")));
     }

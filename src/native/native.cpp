@@ -186,16 +186,8 @@ NATIVE ShaderBuffer* NativeGetShaderBuffer(const RasterPipeline* pipeline)
 {
     TRY
     {
+        if (pipeline == nullptr) return nullptr;
         return pipeline->GetShaderBuffer();
-    }
-    CATCH();
-}
-
-NATIVE void NativeDesignateSpace3dPipeline(NativeClient* client, RasterPipeline* pipeline)
-{
-    TRY
-    {
-        client->SetSpace3dPipeline(pipeline);
     }
     CATCH();
 }

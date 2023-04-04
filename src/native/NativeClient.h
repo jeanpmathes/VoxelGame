@@ -20,6 +20,8 @@ public:
     NativeClient(UINT width, UINT height, std::wstring name, Configuration configuration);
 
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
+    [[nodiscard]] UINT GetRtvHeapIncrement() const;
+    [[nodiscard]] UINT GetCbvSrvUavHeapIncrement() const;
 
     void OnInit() override;
     void OnUpdate(double delta) override;
@@ -52,14 +54,11 @@ public:
      * Add a raster pipeline to the client.
      */
     void AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline);
-
-    void SetSpace3dPipeline(RasterPipeline* pipeline);
+ 
     void SetPostProcessingPipeline(RasterPipeline* pipeline);
 
     void WaitForGPU();
     void MoveToNextFrame();
-
-    static constexpr UINT FRAME_COUNT = 2;
 
    private:
     static const float CLEAR_COLOR[4];
@@ -80,9 +79,9 @@ public:
     CD3DX12_RECT m_spaceScissorRect;
 
     Space m_space;
+    bool m_spaceEnabled;
 
     std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines{};
-    RasterPipeline* m_space3dPipeline{nullptr};
     RasterPipeline* m_postProcessingPipeline{nullptr};
 
     CD3DX12_VIEWPORT m_postViewport;
@@ -98,7 +97,7 @@ public:
     ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
     ComPtr<ID3D12Resource> m_intermediateRenderTarget;
     ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
-    ComPtr<ID3D12DescriptorHeap> m_srvHeap;
+ 
     UINT m_rtvDescriptorSize;
     UINT m_srvDescriptorSize;
 

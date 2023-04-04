@@ -28,6 +28,7 @@ struct Configuration
     D3D12MessageFunc onDebug;
 
     BOOL allowTearing;
+    BOOL enableSpace;
 };
 
 struct CameraData
