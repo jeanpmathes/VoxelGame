@@ -102,4 +102,3 @@ internal class D3D12Debug
         return (id.ToString(), Events.DirectXDebug);
     }
 }
-

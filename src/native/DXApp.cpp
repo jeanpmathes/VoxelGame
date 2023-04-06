@@ -46,7 +46,10 @@ void DXApp::Tick()
 void DXApp::Init()
 {
     OnInit();
+    
     m_configuration.onInit();
+
+    OnPostInit();
 
     m_updateTimer.SetFixedTimeStep(true);
     m_updateTimer.SetTargetElapsedSeconds(1.0 / 60.0);

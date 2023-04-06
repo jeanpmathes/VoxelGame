@@ -12,7 +12,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Graphics.Groups;
-using VoxelGame.Support.Graphics.Objects;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -143,4 +143,3 @@ public sealed class ScreenElementRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-

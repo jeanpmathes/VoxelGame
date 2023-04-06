@@ -35,6 +35,23 @@ public struct PipelineDescription
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
     /// </summary>
     public ulong BufferSize;
+
+    /// <summary>
+    ///     Creates a new pipeline description.
+    /// </summary>
+    /// <param name="shader">The combined shader file.</param>
+    /// <param name="preset">The shader preset.</param>
+    /// <returns>The pipeline description.</returns>
+    public static PipelineDescription Create(FileInfo shader, ShaderPreset preset)
+    {
+        return new PipelineDescription
+        {
+            VertexShaderPath = shader.FullName,
+            PixelShaderPath = shader.FullName,
+            ShaderPreset = preset,
+            BufferSize = 0
+        };
+    }
 }
 
 /// <summary>
@@ -45,12 +62,12 @@ public enum ShaderPreset : byte
 #pragma warning restore S4022 // Storage is explicit as it is passed to native code.
 {
     /// <summary>
-    ///     Draws in the 3D space.
-    /// </summary>
-    Space3D,
-
-    /// <summary>
     ///     Draws a single quad with a texture containing the previously rendered space.
     /// </summary>
-    PostProcessing
+    PostProcessing,
+
+    /// <summary>
+    ///     Used for drawing 2D rectangles that are either colored or textured.
+    /// </summary>
+    Draw2D
 }

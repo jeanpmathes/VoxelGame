@@ -30,7 +30,7 @@ public class ElementInstancedIDataDrawGroup : IDrawGroup
     {
         this.instanceSize = instanceSize;
 
-        // todo: port to DirectX
+        // todo: port to DirectX, but this class is probably no longer needed
         // GL.CreateBuffers(n: 1, out modelPositionVBO);
         // GL.CreateBuffers(n: 1, out modelEBO);
         // GL.CreateBuffers(n: 1, out instanceVBO);
@@ -176,4 +176,3 @@ public class ElementInstancedIDataDrawGroup : IDrawGroup
         // GL.DeleteVertexArray(vao);
     }
 }
-

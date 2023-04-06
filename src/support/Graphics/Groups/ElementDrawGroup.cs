@@ -19,7 +19,7 @@ public class ElementDrawGroup
 
     private ElementDrawGroup()
     {
-        // todo: port to DirectX
+        // todo: port to DirectX, but this class is probably no longer needed
 
         // GL.CreateBuffers(n: 1, out vbo);
         // GL.CreateBuffers(n: 1, out ebo);
@@ -124,4 +124,3 @@ public class ElementDrawGroup
         // GL.DeleteVertexArray(vao);
     }
 }
-

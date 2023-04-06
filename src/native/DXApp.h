@@ -10,6 +10,8 @@
 
 #include "StepTimer.h"
 
+class Uploader;
+
 /**
  * Base class for DirectX applications.
  */
@@ -57,6 +59,7 @@ public:
 
 protected:
     virtual void OnInit() = 0;
+    virtual void OnPostInit() = 0;
     virtual void OnUpdate(double delta) = 0;
     virtual void OnRender(double delta) = 0;
     virtual void OnDestroy() = 0;

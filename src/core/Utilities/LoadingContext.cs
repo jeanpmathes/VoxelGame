@@ -205,7 +205,7 @@ public class LoadingContext
         ReportMissing(type, resource, isCritical: false);
     }
 
-    private void Abort()
+    private static void Abort()
     {
         throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
     }
@@ -219,4 +219,3 @@ public class LoadingContext
         }
     }
 }
-

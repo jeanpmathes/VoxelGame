@@ -98,8 +98,10 @@ public class UIResources
     private void LoadGUI(Client window, LoadingContext loadingContext)
     {
         FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
+        FileInfo shader = FileSystem.GetResourceDirectory("GUI").GetFile("GUI.hlsl");
 
         Exception? skinLoadingError = null;
+        string? shaderLoadingError = null;
 
         Dictionary<string, TexturePreload> textures = GetTexturePreloads();
         Dictionary<string, Exception?> textureLoadingErrors = new();
@@ -112,6 +114,9 @@ public class UIResources
                     settings.SkinFile = skin;
                     settings.SkinLoadingErrorCallback = exception => skinLoadingError = exception;
 
+                    settings.ShaderFile = shader;
+                    settings.ShaderLoadingErrorCallback = exception => shaderLoadingError = exception;
+
                     foreach ((string _, TexturePreload texture) in textures) settings.TexturePreloads.Add(texture);
 
                     settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name ?? ""] = exception;
@@ -121,6 +126,7 @@ public class UIResources
 
         ReportSkinLoading(skinLoadingError, skin, loadingContext);
         ReportTextureLoading(textures, textureLoadingErrors, loadingContext);
+        ReportShaderLoading(shaderLoadingError, shader, loadingContext);
 
         Modals.SetupLanguage();
 
@@ -133,6 +139,16 @@ public class UIResources
             loadingContext.ReportWarning(Events.ResourceLoad, nameof(GUI), skinFile, skinLoadingError);
         else
             loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), skinFile);
+    }
+
+    private static void ReportShaderLoading(string? shaderLoadingError, FileSystemInfo shader, LoadingContext loadingContext)
+    {
+        const string type = "Shader";
+
+        if (shaderLoadingError != null)
+            loadingContext.ReportFailure(Events.ResourceLoad, type, shader, shaderLoadingError, abort: true);
+        else
+            loadingContext.ReportSuccess(Events.ResourceLoad, type, shader);
     }
 
     private static void ReportTextureLoading(Dictionary<string, TexturePreload> textures, IReadOnlyDictionary<string, Exception?> textureLoadingErrors, LoadingContext loadingContext)
@@ -200,6 +216,5 @@ public class UIResources
         return FileSystem.GetResourceDirectory("GUI", "Icons").GetFile($"{name}.png");
     }
 
-    private sealed record Attribution(string Name, string Text);
+    private sealed record Attribution(string Name, string Text); // todo: remove the no longer needed attribution files
 }
-

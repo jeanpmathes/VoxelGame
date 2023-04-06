@@ -6,8 +6,11 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support;
@@ -364,5 +367,65 @@ public static class Native
     {
         T* dataPtr = &data;
         NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
+    }
+
+    private static readonly Dictionary<RasterPipeline, object> draw2DCallbacks = new();
+
+    /// <summary>
+    ///     Add a draw 2D pipeline.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="pipeline">The pipeline.</param>
+    /// <param name="callback">Callback to be called when the pipeline is executed.</param>
+    public static void AddDraw2DPipeline(Client client, RasterPipeline pipeline, Action<Draw2D> callback)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, Draw2D.Callback callback);
+
+        Debug.Assert(!draw2DCallbacks.ContainsKey(pipeline));
+
+        // ReSharper disable once ConvertToLocalFunction - we need to keep the callback alive
+        Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
+        draw2DCallbacks[pipeline] = draw2dCallback;
+        NativeAddDraw2DPipeline(client.Native, pipeline.Self, draw2dCallback);
+    }
+
+    /// <summary>
+    ///     Remove a draw 2D pipeline.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="pipeline">The pipeline.</param>
+    public static void RemoveDraw2DPipeline(Client client, RasterPipeline pipeline)
+    {
+        Debug.Assert(draw2DCallbacks.ContainsKey(pipeline));
+
+        // todo: implement NativeRemoveDraw2DPipeline, then call it here
+        // todo: all users of AddDraw2DPipeline should call RemoveDraw2DPipeline when they are done (e.g. dispose)
+
+        draw2DCallbacks.Remove(pipeline);
+    }
+
+    /// <summary>
+    ///     Load a texture from a bitmap.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="bitmap">The bitmap.</param>
+    /// <returns>The loaded texture.</returns>
+    public static Texture LoadTexture(Client client, Bitmap bitmap)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr data, TextureDescription description);
+
+        TextureDescription description = new()
+        {
+            Width = (uint) bitmap.Width,
+            Height = (uint) bitmap.Height
+        };
+
+        BitmapData data = bitmap.LockBits(new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        IntPtr texture = NativeLoadTexture(client.Native, data.Scan0, description);
+        bitmap.UnlockBits(data);
+
+        return new Texture(texture, client);
     }
 }

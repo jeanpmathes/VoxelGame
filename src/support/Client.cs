@@ -4,6 +4,7 @@
 //  </copyright>
 //  <author>jeanpmathes</author>
 
+using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
@@ -255,6 +256,26 @@ public class Client : IDisposable
     public void SetPostProcessingPipeline(RasterPipeline pipeline)
     {
         Support.Native.SetPostProcessingPipeline(this, pipeline);
+    }
+
+    /// <summary>
+    ///     Add a pipeline to the draw2d rendering step.
+    /// </summary>
+    /// <param name="pipeline"></param>
+    /// <param name="callback"></param>
+    public void AddDraw2dPipeline(RasterPipeline pipeline, Action<Draw2D> callback)
+    {
+        Support.Native.AddDraw2DPipeline(this, pipeline, callback);
+    }
+
+    /// <summary>
+    ///     Load a texture from a bitmap.
+    /// </summary>
+    /// <param name="bitmap">The bitmap to load from.</param>
+    /// <returns>The loaded texture.</returns>
+    public Texture LoadTexture(Bitmap bitmap)
+    {
+        return Support.Native.LoadTexture(this, bitmap);
     }
 
     /// <summary>

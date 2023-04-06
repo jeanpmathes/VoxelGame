@@ -5,11 +5,13 @@ MeshObject::MeshObject(NativeClient& client) : SpatialObject(client)
 {
     assert(GetClient().GetDevice() != nullptr);
 
-    m_instanceConstantBuffer = nv_helpers_dx12::CreateBuffer(GetClient().GetDevice().Get(),
-                                                             sizeof m_instanceConstantBufferData,
-                                                             D3D12_RESOURCE_FLAG_NONE,
-                                                             D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                             nv_helpers_dx12::kUploadHeapProps);
+    UINT64 alignedSize = sizeof m_instanceConstantBufferData;
+
+    m_instanceConstantBuffer = nv_helpers_dx12::CreateConstantBuffer(GetClient().GetDevice().Get(),
+                                                                     &alignedSize,
+                                                                     D3D12_RESOURCE_FLAG_NONE,
+                                                                     D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                     nv_helpers_dx12::kUploadHeapProps);
 
     Update();
 }

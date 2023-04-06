@@ -53,6 +53,7 @@
 #include "NativeClient.h"
 #include "Space.h"
 #include "Common.h"
+#include "Uploader.h"
 
 #include "Objects/Object.h"
 #include "Objects/SpatialObject.h"
@@ -63,6 +64,9 @@
 #include "Objects/SequencedMeshObject.h"
 #include "Objects/RasterPipeline.h"
 #include "Objects/ShaderBuffer.h"
+#include "Objects/Texture.h"
+
+#include "Interfaces/Draw2D.h"
 
 #ifdef _DEBUG
 #include <Initguid.h>

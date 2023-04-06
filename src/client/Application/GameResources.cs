@@ -149,8 +149,6 @@ public class GameResources
         BlockTextureArray.Dispose();
         FluidTextureArray.Dispose();
 
-        PlayerResources.Unload();
         UIResources.Unload();
     }
 }
-

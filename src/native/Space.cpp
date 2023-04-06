@@ -204,10 +204,11 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 void Space::CreateGlobalConstBuffer()
 {
     m_globalConstantBufferData = {.time = 0.0f, .minLight = 0.4f};
-
-    m_globalConstantBuffer = nv_helpers_dx12::CreateBuffer(GetDevice().Get(), sizeof(m_globalConstantBufferData),
-                                                           D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                           nv_helpers_dx12::kUploadHeapProps);
+    m_globalConstantBufferAlignedSize = sizeof m_globalConstantBufferData;
+    m_globalConstantBuffer = nv_helpers_dx12::CreateConstantBuffer(GetDevice().Get(),
+                                                                   &m_globalConstantBufferAlignedSize,
+                                                                   D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                   nv_helpers_dx12::kUploadHeapProps);
 
     UpdateGlobalConstBuffer();
 }
@@ -217,7 +218,7 @@ void Space::UpdateGlobalConstBuffer() const
     uint8_t* pData;
     TRY_DO(m_globalConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
 
-    memcpy(pData, &m_globalConstantBufferData, sizeof(m_globalConstantBufferData));
+    memcpy(pData, &m_globalConstantBufferData, sizeof m_globalConstantBufferData);
 
     m_globalConstantBuffer->Unmap(0, nullptr);
 }

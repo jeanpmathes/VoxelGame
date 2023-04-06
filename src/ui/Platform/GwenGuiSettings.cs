@@ -48,6 +48,16 @@ public class GwenGuiSettings
     public Action<TexturePreload, Exception> TexturePreloadErrorCallback { get; set; } = (_, _) => {};
 
     /// <summary>
+    ///     The shader file to load.
+    /// </summary>
+    public FileInfo ShaderFile { get; set; } = new("GUI.shader");
+
+    /// <summary>
+    ///     The error callback for the shader loading.
+    /// </summary>
+    public Action<string> ShaderLoadingErrorCallback { get; set; } = _ => {};
+
+    /// <summary>
     ///     Apply a modifier to the settings.
     /// </summary>
     public GwenGuiSettings From(Action<GwenGuiSettings> settingsModifier)
@@ -57,4 +67,3 @@ public class GwenGuiSettings
         return this;
     }
 }
-

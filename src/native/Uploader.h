@@ -1,0 +1,45 @@
+﻿// <copyright file="Uploader.h" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+#pragma once
+
+struct TextureDescription;
+
+/**
+ * Help uploading data to the GPU.
+ */
+class Uploader
+{
+public:
+    explicit Uploader(NativeClient& client);
+
+    /**
+     * Upload a texture to the GPU.
+     */
+    void UploadTexture(const std::byte* data, UINT subresource, UINT subresourceCount,
+                       const TextureDescription& description, ComPtr<ID3D12Resource> destination);
+
+    /**
+     * Upload a buffer to the GPU.
+     */
+    void UploadBuffer(const std::byte* data, UINT size, ComPtr<ID3D12Resource> destination);
+
+    /**
+     * Execute the uploads.
+     */
+    void ExecuteUploads(ComPtr<ID3D12CommandQueue> commandQueue) const;
+
+    [[nodiscard]] ComPtr<ID3D12Device4> GetDevice() const;
+    [[nodiscard]] NativeClient& GetClient() const;
+
+private:
+    NativeClient& m_client;
+
+    ComPtr<ID3D12CommandAllocator> m_commandAllocator = {};
+    ComPtr<ID3D12GraphicsCommandList> m_commandList = {};
+
+    std::vector<ComPtr<ID3D12Resource>> m_uploadBuffers = {};
+};

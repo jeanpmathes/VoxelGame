@@ -46,6 +46,16 @@ namespace nv_helpers_dx12
 #define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
 #endif
 
+    inline ComPtr<ID3D12Resource> CreateConstantBuffer(ID3D12Device* device, uint64_t* size,
+                                                       D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES initState,
+                                                       const D3D12_HEAP_PROPERTIES& heapProps)
+    {
+        const uint64_t originalSize = *size;
+        *size = ROUND_UP(originalSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+
+        return CreateBuffer(device, *size, flags, initState, heapProps);
+    }
+    
     // Specifies a heap used for uploading. This heap type has CPU access optimized
     // for uploading to the GPU.
     static const D3D12_HEAP_PROPERTIES kUploadHeapProps = {

@@ -23,4 +23,3 @@ public static class GwenGuiFactory
         return new GwenGui(window, settings);
     }
 }
-

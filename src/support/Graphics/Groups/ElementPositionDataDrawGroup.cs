@@ -25,7 +25,7 @@ public class ElementPositionDataDrawGroup : IDrawGroup
     {
         this.positionSize = positionSize;
         this.dataSize = dataSize;
-        // todo: port to DirectX
+        // todo: port to DirectX, but this class is probably no longer needed
         // GL.CreateBuffers(n: 1, out positionVBO);
         // GL.CreateBuffers(n: 1, out dataVBO);
         // GL.CreateBuffers(n: 1, out ebo);
@@ -139,4 +139,3 @@ public class ElementPositionDataDrawGroup : IDrawGroup
         // GL.DeleteVertexArray(vao);
     }
 }
-

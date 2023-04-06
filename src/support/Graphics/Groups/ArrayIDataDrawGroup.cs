@@ -18,7 +18,7 @@ public class ArrayIDataDrawGroup : IDrawGroup
     {
         this.size = size;
 
-        // todo: port to DirectX
+        // todo: port to DirectX, but this class is probably no longer needed
         // GL.CreateBuffers(n: 1, out vbo);
         // GL.CreateVertexArrays(n: 1, out vao);
     }
@@ -105,4 +105,3 @@ public class ArrayIDataDrawGroup : IDrawGroup
         // GL.DeleteVertexArray(vao);
     }
 }
-

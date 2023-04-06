@@ -43,23 +43,27 @@ static ComPtr<ID3DBlob> CompileShader(
 
 using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>, UINT>;
 
-static Preset GetSpace3dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
+static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> space3dInput =
     {
         {
-            "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+            "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,
             0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
         },
         {
+            "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
+            0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+        },
+        {
             "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-            0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-        }
+            0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+        },
     };
 
     ComPtr<ID3D12RootSignature> rootSignature;
 
-    constexpr UINT minParameterCount = 0;
+    constexpr UINT minParameterCount = 2;
     CD3DX12_DESCRIPTOR_RANGE1 ranges[minParameterCount + 1];
     CD3DX12_ROOT_PARAMETER1 rootParameters[minParameterCount + 1];
 
@@ -73,8 +77,33 @@ static Preset GetSpace3dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> devic
         parameter++;
     }
 
+    ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
+    rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_ALL);
+
+    parameter++;
+
+    ranges[parameter].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+    rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_PIXEL);
+
+    parameter++;
+
+    D3D12_STATIC_SAMPLER_DESC sampler;
+    sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.MipLODBias = 0;
+    sampler.MaxAnisotropy = 0;
+    sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+    sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+    sampler.MinLOD = 0.0f;
+    sampler.MaxLOD = D3D12_FLOAT32_MAX;
+    sampler.ShaderRegister = 0;
+    sampler.RegisterSpace = 0;
+    sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-    rootSignatureDesc.Init_1_1(parameter, rootParameters, 0, nullptr,
+    rootSignatureDesc.Init_1_1(parameter, rootParameters, 1, &sampler,
                                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     ComPtr<ID3DBlob> signature;
@@ -157,10 +186,10 @@ static Preset GetShaderPreset(const ShaderPreset preset, const uint64_t cbufferS
 {
     switch (preset)
     {
-    case ShaderPreset::SPACE_3D: // NOLINT(bugprone-branch-clone)
-        return GetSpace3dPreset(cbufferSize, device);
-    case ShaderPreset::POST_PROCESSING:
+    case ShaderPreset::POST_PROCESSING: // NOLINT(bugprone-branch-clone)
         return GetPostProcessingPreset(cbufferSize, device);
+    case ShaderPreset::DRAW_2D:
+        return GetDraw2dPreset(cbufferSize, device);
     default:
         throw NativeException("Invalid shader preset.");
     }
@@ -171,7 +200,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     const PipelineDescription& description,
     NativeErrorMessageFunc callback)
 {
-    // todo: shader compile error should not cause crash, except UI shader
+    // todo: shader compile error should not cause crash
     // todo: test intentionally wrong shader code
     // todo: test missing shader file
 
@@ -287,11 +316,31 @@ ShaderBuffer* RasterPipeline::GetShaderBuffer() const
     return m_shaderBuffer.get();
 }
 
-void RasterPipeline::SetupSecondaryResourceView(ComPtr<ID3D12Resource> resource) const
+void RasterPipeline::CreateResourceView(ComPtr<ID3D12Resource> resource) const
 {
     REQUIRE(m_preset == ShaderPreset::POST_PROCESSING);
 
-    GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), nullptr, GetSecondaryCpuResourceHandle());
+    GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), nullptr, GetCpuResourceHandle(0));
+}
+
+void RasterPipeline::CreateResourceViews(
+    const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
+    const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures) const
+{
+    UINT slot = 0;
+
+    for (size_t index = 0; index < cbuffers.size(); index++)
+    {
+        GetClient().GetDevice()->CreateConstantBufferView(&cbuffers[index], GetCpuResourceHandle(slot));
+        slot++;
+    }
+
+    for (size_t index = 0; index < textures.size(); index++)
+    {
+        const auto& [resource, desc] = textures[index];
+        GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, GetCpuResourceHandle(slot));
+        slot++;
+    }
 }
 
 void RasterPipeline::SetupHeaps(ComPtr<ID3D12GraphicsCommandList4> commandList) const
@@ -307,34 +356,47 @@ void RasterPipeline::SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4>
         commandList->SetGraphicsRootDescriptorTable(0, m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
     }
 
-    commandList->SetGraphicsRootDescriptorTable(GetSecondaryResourceSlot(), GetSecondaryGpuResourceHandle());
-}
-
-UINT RasterPipeline::GetSecondaryResourceSlot() const
-{
-    return m_shaderBuffer == nullptr ? 0 : 1;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE RasterPipeline::GetSecondaryCpuResourceHandle() const
-{
-    if (m_shaderBuffer == nullptr)
+    if (m_preset == ShaderPreset::POST_PROCESSING)
     {
-        return m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+        commandList->SetGraphicsRootDescriptorTable(GetResourceSlot(0), GetGpuResourceHandle(0));
     }
+}
+
+void RasterPipeline::BindDescriptor(const UINT slot, const UINT descriptor) const
+{
+    m_commandList->SetGraphicsRootDescriptorTable(GetResourceSlot(slot), GetGpuResourceHandle(descriptor));
+}
+
+UINT RasterPipeline::GetResourceSlot(UINT index) const
+{
+    const UINT offset = m_shaderBuffer == nullptr ? 0 : 1;
+    return offset + index;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RasterPipeline::GetCpuResourceHandle(UINT index) const
+{
+    const UINT offset = GetResourceSlot(index);
 
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_descriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-                                         1,
+                                         offset,
                                          GetClient().GetCbvSrvUavHeapIncrement());
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE RasterPipeline::GetSecondaryGpuResourceHandle() const
+D3D12_GPU_DESCRIPTOR_HANDLE RasterPipeline::GetGpuResourceHandle(UINT index) const
 {
-    if (m_shaderBuffer == nullptr)
-    {
-        return m_descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    }
+    const UINT offset = GetResourceSlot(index);
 
     return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_descriptorHeap->GetGPUDescriptorHandleForHeapStart(),
-                                         1,
+                                         offset,
                                          GetClient().GetCbvSrvUavHeapIncrement());
+}
+
+bool RasterPipeline::IsUsed() const
+{
+    return m_inUse;
+}
+
+void RasterPipeline::SetUsed()
+{
+    m_inUse = true;
 }

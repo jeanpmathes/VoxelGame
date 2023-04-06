@@ -43,7 +43,7 @@ internal class GwenGui : IGwenGui
     {
         GwenPlatform.Init(new VoxelGamePlatform(SetCursor));
         AttachToWindowEvents();
-        rendererBase = ResolveRenderer(Settings);
+        rendererBase = new DirectXRenderer(Parent, Draw, Settings);
 
         skin = new TexturedBase(rendererBase, Settings.SkinFile, Settings.SkinLoadingErrorCallback)
         {
@@ -61,7 +61,7 @@ internal class GwenGui : IGwenGui
 
     public void Render()
     {
-        canvas.RenderCanvas();
+        // This is not used, because the special Draw2D render hook is used.
     }
 
     public void Resize(Vector2i newSize)
@@ -74,6 +74,11 @@ internal class GwenGui : IGwenGui
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    internal void Draw()
+    {
+        canvas.RenderCanvas();
     }
 
     private void Dispose(bool disposing)
@@ -149,10 +154,4 @@ internal class GwenGui : IGwenGui
     {
         Parent.Cursor = mouseCursor;
     }
-
-    private static DirectXRendererBase ResolveRenderer(GwenGuiSettings settings)
-    {
-        return new DirectXRenderer(settings.TexturePreloads, settings.TexturePreloadErrorCallback);
-    }
 }
-

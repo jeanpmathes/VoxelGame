@@ -9,7 +9,7 @@ namespace VoxelGame.Support.Graphics;
 /// <summary>
 ///     Utility class that contains utility methods to get values from the current rendering context.
 /// </summary>
-public static class Context
+public static class Context // todo: maybe remove
 {
     /// <summary>
     ///     Get the max available texture samples.
@@ -21,4 +21,3 @@ public static class Context
     /// </summary>
     public static float MaxAnisotropy => 0.0f; // todo: implement, old: GL.GetFloat((GetPName) All.MaxTextureMaxAnisotropy);
 }
-

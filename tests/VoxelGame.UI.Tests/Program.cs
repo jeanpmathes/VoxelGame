@@ -7,6 +7,7 @@
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support;
 using VoxelGame.UI.Platform;
@@ -24,7 +25,12 @@ internal class Program : Support.Client
 
     private Program(WindowSettings windowSettings) : base(windowSettings, enableSpace: false)
     {
-        gui = GwenGuiFactory.CreateFromClient(this, GwenGuiSettings.Default.From(settings => settings.SkinFile = new FileInfo("DefaultSkin2.png")));
+        gui = GwenGuiFactory.CreateFromClient(this,
+            GwenGuiSettings.Default.From(settings =>
+            {
+                settings.SkinFile = new FileInfo("DefaultSkin2.png");
+                settings.ShaderFile = FileSystem.GetResourceDirectory("GUI").GetFile("GUI.hlsl");
+            }));
     }
 
     [STAThread]

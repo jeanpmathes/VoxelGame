@@ -134,7 +134,8 @@ public sealed class Shaders
 
     internal void Delete()
     {
-        // todo: think about deleting (is it still necessary for shaders? - probably not)
+        // todo: think about deleting (some cleanup like removing from draw2d and similar is necessary)
+        // todo: maybe some more cleanup would be nice
 
         SimpleSection.Delete();
         ComplexSection.Delete();
@@ -160,12 +161,8 @@ public sealed class Shaders
         {
             FileInfo path = directory.GetFile($"{name}.hlsl");
 
-            RasterPipeline pipeline = client.CreateRasterPipeline(new PipelineDescription
-                {
-                    PixelShaderPath = path.FullName,
-                    VertexShaderPath = path.FullName,
-                    ShaderPreset = preset
-                },
+            RasterPipeline pipeline = client.CreateRasterPipeline(
+                PipelineDescription.Create(path, preset),
                 error =>
                 {
                     loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);
@@ -182,12 +179,8 @@ public sealed class Shaders
         {
             FileInfo path = directory.GetFile($"{name}.hlsl");
 
-            (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(new PipelineDescription
-                {
-                    PixelShaderPath = path.FullName,
-                    VertexShaderPath = path.FullName,
-                    ShaderPreset = preset
-                },
+            (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
+                PipelineDescription.Create(path, preset),
                 error =>
                 {
                     loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);

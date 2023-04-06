@@ -11,8 +11,13 @@
 #include "Common.h"
 #include "Space.h"
 
-class RasterPipeline;
+#include "Interfaces/Draw2D.h"
+
+struct TextureDescription;
 using Microsoft::WRL::ComPtr;
+
+class RasterPipeline;
+class Texture;
 
 class NativeClient final : public DXApp
 {
@@ -24,6 +29,7 @@ public:
     [[nodiscard]] UINT GetCbvSrvUavHeapIncrement() const;
 
     void OnInit() override;
+    void OnPostInit() override;
     void OnUpdate(double delta) override;
     void OnRender(double delta) override;
     void OnDestroy() override;
@@ -41,6 +47,11 @@ public:
     void ToggleFullscreen() const;
 
     /**
+     * Load a texture from a file.
+     */
+    Texture* LoadTexture(std::byte* data, const TextureDescription& description);
+    
+    /**
      * Set the mouse position in client coordinates.
      */
     void SetMousePosition(POINT position) const;
@@ -54,8 +65,17 @@ public:
      * Add a raster pipeline to the client.
      */
     void AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline);
- 
+
+    /**
+     * Set the pipeline that will be used for post processing.
+     */
     void SetPostProcessingPipeline(RasterPipeline* pipeline);
+
+    /**
+     * Add a draw 2D pipeline to the client.
+     * The associated callback will be called every frame, after the post processing pipeline.
+     */
+    void AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback);
 
     void WaitForGPU();
     void MoveToNextFrame();
@@ -75,14 +95,18 @@ public:
     D3D12MessageFunc m_debugCallback;
     DWORD m_callbackCookie{};
 
+    std::unique_ptr<Uploader> m_uploader = nullptr;
+    std::vector<std::unique_ptr<Texture>> m_textures = {};
+
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;
 
     Space m_space;
     bool m_spaceEnabled;
 
-    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines{};
-    RasterPipeline* m_postProcessingPipeline{nullptr};
+    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
+    RasterPipeline* m_postProcessingPipeline = nullptr;
+    std::vector<draw2d::Pipeline> m_draw2DPipelines = {};
 
     CD3DX12_VIEWPORT m_postViewport;
     CD3DX12_RECT m_postScissorRect;
@@ -115,9 +139,11 @@ public:
     void CheckRaytracingSupport() const;
     void PopulateSpaceCommandList();
     void PopulatePostProcessingCommandList() const;
+    void PopulateDraw2DCommandList(size_t index);
 
     void LoadDevice();
-    void LoadPipeline();
+    void LoadRasterPipeline();
+    void LoadRaytracingPipeline();
     void CreateDepthBuffer();
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();

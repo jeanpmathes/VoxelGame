@@ -47,7 +47,36 @@ UINT NativeClient::GetCbvSrvUavHeapIncrement() const
 void NativeClient::OnInit()
 {
     LoadDevice();
-    LoadPipeline();
+
+    {
+        TRY_DO(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+        m_fenceValues[m_frameIndex]++;
+
+        m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        if (m_fenceEvent == nullptr)
+        {
+            TRY_DO(HRESULT_FROM_WIN32(GetLastError()));
+        }
+    }
+
+    m_space.PerformInitialSetupStepOne(m_commandQueue);
+
+    SetupSizeDependentResources();
+    SetupSpaceResolutionDependentResources();
+
+    m_uploader = std::make_unique<Uploader>(*this);
+
+    LoadRasterPipeline();
+}
+
+void NativeClient::OnPostInit()
+{
+    LoadRaytracingPipeline();
+
+    m_uploader->ExecuteUploads(m_commandQueue);
+
+    WaitForGPU();
+    m_uploader.reset();
 }
 
 void NativeClient::LoadDevice()
@@ -131,109 +160,41 @@ void NativeClient::LoadDevice()
     }
 }
 
-void NativeClient::LoadPipeline()
+void NativeClient::LoadRasterPipeline()
 {
-    ComPtr<ID3D12CommandAllocator> commandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> commandList;
-
-    TRY_DO(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator)));
-    NAME_D3D12_OBJECT(commandAllocator);
-
-    TRY_DO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-        commandAllocator.Get(),nullptr, IID_PPV_ARGS(&commandList)));
-    NAME_D3D12_OBJECT(commandList);
-
-    ComPtr<ID3D12Resource> postVertexBufferUpload;
+    constexpr PostVertex quadVertices[] =
     {
-        PostVertex quadVertices[] =
-        {
-            {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-            {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-            {{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-            {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
-        };
+        {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
+    };
 
-        constexpr UINT vertexBufferSize = sizeof(quadVertices);
+    constexpr UINT vertexBufferSize = sizeof quadVertices;
+    m_postVertexBuffer = nv_helpers_dx12::CreateBuffer(m_device.Get(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE,
+                                                       D3D12_RESOURCE_STATE_COMMON, nv_helpers_dx12::kDefaultHeapProps);
+    NAME_D3D12_OBJECT(m_postVertexBuffer);
 
-        auto vertexBufferHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-        auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-        TRY_DO(m_device->CreateCommittedResource(
-            &vertexBufferHeapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &vertexBufferDesc,
-            D3D12_RESOURCE_STATE_COMMON,
-            nullptr,
-            IID_PPV_ARGS(&m_postVertexBuffer)));
+    m_uploader->UploadBuffer(reinterpret_cast<const std::byte*>(&quadVertices), vertexBufferSize,
+                             m_postVertexBuffer.Get());
 
-        auto vertexBufferUploadHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        auto vertexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-        TRY_DO(m_device->CreateCommittedResource(
-            &vertexBufferUploadHeapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &vertexBufferUploadDesc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&postVertexBufferUpload)));
+    m_postVertexBufferView.BufferLocation = m_postVertexBuffer->GetGPUVirtualAddress();
+    m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
+    m_postVertexBufferView.SizeInBytes = vertexBufferSize;
+}
 
-        NAME_D3D12_OBJECT(m_postVertexBuffer);
+void NativeClient::LoadRaytracingPipeline()
+{
+    // todo: when writing abstractions for RT pipeline, write it in a way that allows code to run without the RT pipeline (UI + post only)
+    // todo: then test that the UI unit tests still work, remove the dependency on VG.Client
 
-        UINT8* pVertexDataBegin;
-        CD3DX12_RANGE readRange(0, 0);
-        TRY_DO(postVertexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-        memcpy(pVertexDataBegin, quadVertices, sizeof(quadVertices));
-        postVertexBufferUpload->Unmap(0, nullptr);
+    ShaderPaths shaderPaths;
+    shaderPaths.rayGenShader = GetAssetFullPath(L"RayGen.hlsl");
+    shaderPaths.missShader = GetAssetFullPath(L"Miss.hlsl");
+    shaderPaths.hitShader = GetAssetFullPath(L"Hit.hlsl");
+    shaderPaths.shadowShader = GetAssetFullPath(L"Shadow.hlsl");
 
-        auto transitionCommonToCopyDest = CD3DX12_RESOURCE_BARRIER::Transition(m_postVertexBuffer.Get(),
-                                                                               D3D12_RESOURCE_STATE_COMMON,
-                                                                               D3D12_RESOURCE_STATE_COPY_DEST);
-        commandList->ResourceBarrier(1, &transitionCommonToCopyDest);
-
-        commandList->CopyBufferRegion(m_postVertexBuffer.Get(), 0, postVertexBufferUpload.Get(), 0, vertexBufferSize);
-
-        auto transitionCopyDestToBuffer = CD3DX12_RESOURCE_BARRIER::Transition(m_postVertexBuffer.Get(),
-                                                                               D3D12_RESOURCE_STATE_COPY_DEST,
-                                                                               D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-        commandList->ResourceBarrier(1, &transitionCopyDestToBuffer);
-
-        m_postVertexBufferView.BufferLocation = m_postVertexBuffer->GetGPUVirtualAddress();
-        m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
-        m_postVertexBufferView.SizeInBytes = vertexBufferSize;
-    }
-
-    TRY_DO(commandList->Close());
-    ID3D12CommandList* ppCommandLists[] = {commandList.Get()};
-    m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-
-    {
-        TRY_DO(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-        m_fenceValues[m_frameIndex]++;
-
-        m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        if (m_fenceEvent == nullptr)
-        {
-            TRY_DO(HRESULT_FROM_WIN32(GetLastError()));
-        }
-    }
-
-    {
-        // todo: when writing abstractions for RT pipeline, write it in a way that allows code to run without the RT pipeline (UI + post only)
-        // todo: then test that the UI unit tests still work, remove the dependency on VG.Client
-        
-        m_space.PerformInitialSetupStepOne(m_commandQueue);
-
-        SetupSizeDependentResources();
-        SetupSpaceResolutionDependentResources();
-
-        ShaderPaths shaderPaths;
-        shaderPaths.rayGenShader = GetAssetFullPath(L"RayGen.hlsl");
-        shaderPaths.missShader = GetAssetFullPath(L"Miss.hlsl");
-        shaderPaths.hitShader = GetAssetFullPath(L"Hit.hlsl");
-        shaderPaths.shadowShader = GetAssetFullPath(L"Shadow.hlsl");
-
-        m_space.PerformInitialSetupStepTwo(shaderPaths);
-    }
-
-    WaitForGPU();
+    m_space.PerformInitialSetupStepTwo(shaderPaths);
 }
 
 void NativeClient::CreateDepthBuffer()
@@ -307,9 +268,9 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), FRAME_COUNT,
                                                       m_rtvDescriptorSize);
 
-        const auto intermediateRendertargetHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        const auto intermediateRenderTargetHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
         TRY_DO(m_device->CreateCommittedResource(
-            &intermediateRendertargetHeapProps,
+            &intermediateRenderTargetHeapProps,
             D3D12_HEAP_FLAG_NONE,
             &renderTargetDesc,
             D3D12_RESOURCE_STATE_RENDER_TARGET,
@@ -322,7 +283,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
     }
 
     if (m_postProcessingPipeline != nullptr)
-        m_postProcessingPipeline->SetupSecondaryResourceView(m_intermediateRenderTarget);
+        m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
 }
 
 void NativeClient::OnUpdate(const double delta)
@@ -342,21 +303,25 @@ void NativeClient::OnRender(double)
         std::vector<ID3D12CommandList*> commandLists;
         commandLists.reserve(m_rasterPipelines.size());
 
-        for (const auto& pipeline : m_rasterPipelines)
-        {
-            commandLists.push_back(pipeline->GetCommandList().Get());
-        }
-
         commandLists.push_back(m_space.GetCommandList().Get());
 
+        if (m_postProcessingPipeline != nullptr)
+            commandLists.push_back(m_postProcessingPipeline->GetCommandList().Get());
+
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
+
+        for (const auto& pipeline : m_draw2DPipelines)
+        {
+            ID3D12CommandList* commandList = pipeline.GetCommandList().Get();
+            m_commandQueue->ExecuteCommandLists(1, &commandList);
+        }
     }
 
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
     TRY_DO(m_swapChain->Present(0, presentFlags));
 
     // todo: check if this can be removed: (maybe a wrong command allocator is used)
-    WaitForGPU(); // There is a possibility that the fences are incorrectly set. This is a workaround for that.
+    WaitForGPU();
 
     m_space.CleanupRenderSetup();
 
@@ -418,6 +383,18 @@ void NativeClient::ToggleFullscreen() const
     Win32Application::ToggleFullscreenWindow();
 }
 
+Texture* NativeClient::LoadTexture(std::byte* data, const TextureDescription& description)
+{
+    REQUIRE(m_uploader != nullptr && "Textures can only be loaded during the initialization phase.");
+
+    auto texture = Texture::Create(*m_uploader, data, description);
+    Texture* texturePtr = texture.get();
+
+    m_textures.push_back(std::move(texture));
+
+    return texturePtr;
+}
+
 void NativeClient::SetMousePosition(POINT position) const
 {
     TRY_DO(ClientToScreen(Win32Application::GetHwnd(), &position));
@@ -436,8 +413,19 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
+    REQUIRE(!pipeline->IsUsed() && m_postProcessingPipeline == nullptr);
+    pipeline->SetUsed();
+    
     m_postProcessingPipeline = pipeline;
-    m_postProcessingPipeline->SetupSecondaryResourceView(m_intermediateRenderTarget);
+    m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
+}
+
+void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback)
+{
+    REQUIRE(!pipeline->IsUsed());
+    pipeline->SetUsed();
+
+    m_draw2DPipelines.push_back({*this, pipeline, callback});
 }
 
 void NativeClient::WaitForGPU()
@@ -493,10 +481,11 @@ void NativeClient::PopulateSpaceCommandList()
 
 void NativeClient::PopulatePostProcessingCommandList() const
 {
+    const ComPtr<ID3D12GraphicsCommandList4> commandList = m_postProcessingPipeline->GetCommandList();
+    
     {
         PIXScopedEvent(m_postProcessingPipeline->GetCommandList().Get(), 0, L"Post Processing");
-        const ComPtr<ID3D12GraphicsCommandList4> commandList = m_postProcessingPipeline->GetCommandList();
-
+        
         commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
 
         m_postProcessingPipeline->SetupHeaps(commandList);
@@ -527,7 +516,6 @@ void NativeClient::PopulatePostProcessingCommandList() const
 
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
         commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
-
         commandList->DrawInstanced(4, 1, 0, 0);
 
         barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -538,13 +526,49 @@ void NativeClient::PopulatePostProcessingCommandList() const
         commandList->ResourceBarrier(_countof(barriers), barriers);
     }
 
-    TRY_DO(m_postProcessingPipeline->GetCommandList()->Close());
+    TRY_DO(commandList->Close());
+}
+
+void NativeClient::PopulateDraw2DCommandList(const size_t index)
+{
+    auto& pipeline = m_draw2DPipelines[index];
+    const ComPtr<ID3D12GraphicsCommandList4> commandList = pipeline.GetCommandList();
+
+    {
+        PIXScopedEvent(pipeline.GetCommandList().Get(), 0, L"Draw2D");
+
+        D3D12_RESOURCE_BARRIER barriers[] = {
+            CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
+                                                 D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET)
+        };
+        commandList->ResourceBarrier(_countof(barriers), barriers);
+
+        pipeline.PopulateCommandListSetup();
+
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        commandList->RSSetViewports(1, &m_postViewport);
+        commandList->RSSetScissorRects(1, &m_postScissorRect);
+
+        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
+                                                      m_rtvDescriptorSize);
+        const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+
+        pipeline.PopulateCommandListDrawing();
+
+        barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+        commandList->ResourceBarrier(_countof(barriers), barriers);
+    }
+
+    TRY_DO(commandList->Close());
 }
 
 void NativeClient::PopulateCommandLists()
 {
     for (const auto& pipeline : m_rasterPipelines)
     {
+        if (!pipeline->IsUsed()) continue;
         pipeline->Reset(m_frameIndex);
     }
 
@@ -556,6 +580,11 @@ void NativeClient::PopulateCommandLists()
         {
             PopulatePostProcessingCommandList();
         }
+    }
+
+    for (size_t i = 0; i < m_draw2DPipelines.size(); ++i)
+    {
+        PopulateDraw2DCommandList(i);
     }
 }
 

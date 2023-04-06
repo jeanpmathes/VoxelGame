@@ -10,8 +10,8 @@ class ShaderBuffer;
 
 enum class ShaderPreset : uint8_t
 {
-    SPACE_3D,
-    POST_PROCESSING
+    POST_PROCESSING,
+    DRAW_2D,
 };
 
 struct PipelineDescription
@@ -70,7 +70,17 @@ public:
      */
     [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
 
-    void SetupSecondaryResourceView(ComPtr<ID3D12Resource> resource) const;
+    /**
+     * Create a resource view for a single primary resource, apart from the potential shader buffer.
+     */
+    void CreateResourceView(ComPtr<ID3D12Resource> resource) const;
+
+    /**
+     * Create resource views for a set of constant buffers, followed by a set of textures.
+     */
+    void CreateResourceViews(
+        const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
+        const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures) const;
 
     /**
      * Setup the descriptor heap for the pipeline.
@@ -82,18 +92,36 @@ public:
      */
     void SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 
-private:
-    [[nodiscard]] UINT GetSecondaryResourceSlot() const;
-    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetSecondaryCpuResourceHandle() const;
-    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetSecondaryGpuResourceHandle() const;
+    /**
+     * Bind a descriptor on the heap, created with e.g. CreateResourceViews, to a slot in the root signature.
+     */
+    void BindDescriptor(UINT slot, UINT descriptor) const;
 
+    [[nodiscard]] UINT GetResourceSlot(UINT index) const;
+    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetCpuResourceHandle(UINT index) const;
+    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetGpuResourceHandle(UINT index) const;
+
+    /**
+     * Whether the pipeline is currently in use.
+     * A pipeline is in use if it is assigned to rendering step in the client.
+     */
+    [[nodiscard]] bool IsUsed() const;
+
+    /**
+     * Mark the pipeline as used.
+     */
+    void SetUsed();
+
+private:
     ShaderPreset m_preset;
     ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
 
-    std::unique_ptr<ShaderBuffer> m_shaderBuffer{};
+    std::unique_ptr<ShaderBuffer> m_shaderBuffer = nullptr;
 
     ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
     ComPtr<ID3D12GraphicsCommandList4> m_commandList;
+
+    bool m_inUse = false;
 };

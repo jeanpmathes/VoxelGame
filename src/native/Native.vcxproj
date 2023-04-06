@@ -75,7 +75,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxcompiler.lib;d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>dxcompiler.lib;d3d12.lib;dxgi.lib;dxguid.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
     </Link>
     <CustomBuildStep>
@@ -91,7 +91,7 @@
     </FxCompile>
     <PreBuildEvent>
       <Command>(robocopy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64" "$(TargetDir)\" dxcompiler.dll dxil.dll) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
-      <Message>Copy dxcompiler.dll and dxil.dll to target folder.</Message>
+        <Message>Copy some DLLs to target folder.</Message>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
@@ -117,7 +117,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>dxcompiler.lib;d3d12.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>dxcompiler.lib;d3d12.lib;dxguid.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
     </Link>
     <CustomBuildStep>
@@ -133,7 +133,7 @@
     </FxCompile>
       <PreBuildEvent>
           <Command>(robocopy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64" "$(TargetDir)\" dxcompiler.dll dxil.dll) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
-          <Message>Copy dxcompiler.dll and dxil.dll to target folder.</Message>
+          <Message>Copy some DLLs to target folder.</Message>
       </PreBuildEvent>
       <PostBuildEvent>
           <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
@@ -143,6 +143,7 @@
     <ItemGroup>
         <ClInclude Include="Common.h"/>
         <ClInclude Include="DXRHelper.h"/>
+        <ClInclude Include="Interfaces\Draw2D.h"/>
         <ClInclude Include="native.h"/>
         <ClInclude Include="nv_helpers_dx12\BottomLevelASGenerator.h"/>
         <ClInclude Include="nv_helpers_dx12\RaytracingPipelineGenerator.h"/>
@@ -158,7 +159,9 @@
         <ClInclude Include="Objects\ShaderBuffer.h"/>
         <ClInclude Include="Objects\SpatialObject.h"/>
         <ClInclude Include="Objects\SequencedMeshObject.h"/>
+        <ClInclude Include="Objects\Texture.h"/>
         <ClInclude Include="Space.h"/>
+        <ClInclude Include="Uploader.h"/>
         <ClInclude Include="Utilities.h"/>
         <ClInclude Include="Win32Application.h"/>
         <ClInclude Include="NativeClient.h"/>
@@ -169,6 +172,7 @@
         <ClInclude Include="stdafx.h"/>
     </ItemGroup>
     <ItemGroup>
+        <ClCompile Include="Interfaces\Draw2D.cpp"/>
         <ClCompile Include="nv_helpers_dx12\BottomLevelASGenerator.cpp">
             <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
             <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -208,7 +212,9 @@
         <ClCompile Include="Objects\ShaderBuffer.cpp"/>
         <ClCompile Include="Objects\SpatialObject.cpp"/>
         <ClCompile Include="Objects\SequencedMeshObject.cpp"/>
+        <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
+        <ClCompile Include="Uploader.cpp"/>
         <ClCompile Include="Win32Application.cpp"/>
         <ClCompile Include="NativeClient.cpp"/>
         <ClCompile Include="DXApp.cpp"/>

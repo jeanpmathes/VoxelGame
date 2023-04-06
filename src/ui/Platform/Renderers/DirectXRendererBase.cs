@@ -11,12 +11,18 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Gwen.Net;
 using Gwen.Net.Renderer;
+using OpenTK.Mathematics;
+using VoxelGame.Support;
+using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics;
+using VoxelGame.Support.Objects;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = Gwen.Net.Point;
 using Rectangle = Gwen.Net.Rectangle;
 using Size = Gwen.Net.Size;
+using Texture = Gwen.Net.Texture;
 
 namespace VoxelGame.UI.Platform.Renderers;
 
@@ -28,6 +34,8 @@ public abstract class DirectXRendererBase : RendererBase
     protected static int lastTextureID;
     private readonly Graphics graphics;
 
+    private readonly RasterPipeline pipeline;
+
     private readonly Dictionary<string, Bitmap> preloadedTextures = new();
 
     private readonly Dictionary<Tuple<string, Font>, TextRenderer> stringCache;
@@ -36,9 +44,12 @@ public abstract class DirectXRendererBase : RendererBase
     protected Color color;
 
     protected int drawCallCount;
-    protected bool textureEnabled;
 
-    protected DirectXRendererBase(IEnumerable<TexturePreload> texturePreloads, Action<TexturePreload, Exception> errorCallback)
+    private Draw2D? drawer;
+    protected bool textureEnabled;
+    private ShaderBuffer<Vector2> uniformBuffer;
+
+    protected DirectXRendererBase(Client client, Action draw, GwenGuiSettings settings)
     {
         /*GLVersion = (GL.GetInteger(GetPName.MajorVersion) * 10) + GL.GetInteger(GetPName.MinorVersion);*/
 
@@ -47,7 +58,19 @@ public abstract class DirectXRendererBase : RendererBase
         stringFormat = new StringFormat(StringFormat.GenericTypographic);
         stringFormat.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
 
-        foreach (TexturePreload texturePreload in texturePreloads)
+        (pipeline, uniformBuffer) = client.CreateRasterPipeline<Vector2>(
+            PipelineDescription.Create(settings.ShaderFile, ShaderPreset.Draw2D),
+            settings.ShaderLoadingErrorCallback);
+
+        client.AddDraw2dPipeline(pipeline,
+            draw2D =>
+            {
+                drawer = draw2D;
+                draw();
+                drawer = null;
+            });
+
+        foreach (TexturePreload texturePreload in settings.TexturePreloads)
             try
             {
                 Bitmap bitmap = new(texturePreload.File.FullName);
@@ -58,7 +81,7 @@ public abstract class DirectXRendererBase : RendererBase
             catch (Exception e)
                 #pragma warning restore S2221
             {
-                errorCallback(texturePreload, e);
+                settings.TexturePreloadErrorCallback(texturePreload, e);
             }
     }
 

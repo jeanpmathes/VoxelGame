@@ -6,7 +6,7 @@
 
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics.Objects;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Application;
 
@@ -36,13 +36,4 @@ public class PlayerResources
             */
         }
     }
-
-    /// <summary>
-    ///     Unloads all the resources.
-    /// </summary>
-    public void Unload()
-    {
-        Crosshair.Dispose();
-    }
 }
-

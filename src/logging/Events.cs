@@ -12,7 +12,7 @@ namespace VoxelGame.Logging;
 /// <summary>
 ///     Event IDs for important logging events.
 /// </summary>
-public static class Events
+public static class Events // todo: go trough all events and make sure they are used or removed
 {
     /// <summary>
     ///     The default ID, which is also used if no ID is given.
@@ -226,22 +226,22 @@ public static class Events
     /// <summary>
     ///     Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
     /// </summary>
-    public const int UndeletedGlObjects = 3010;
+    public const int UndeletedGlObjects = 3010; // todo: check if this is still used
 
     /// <summary>
     ///     Occurs when rendering objects are incorrectly disposed and their buffers are not deleted. This causes memory leaks.
     /// </summary>
-    public const int UndeletedBuffers = 3011;
+    public const int UndeletedBuffers = 3011; // todo: check if this is still used
 
     /// <summary>
     ///     Occurs when textures are incorrectly disposed and their storage is not deleted. This causes memory leak.
     /// </summary>
-    public const int UndeletedTexture = 3012;
+    public const int UndeletedTexture = 3012; // todo: check if this is still used
 
     /// <summary>
     ///     Occurs when a screenshot is taken.
     /// </summary>
-    public const int Screenshot = 3150;
+    public const int Screenshot = 3150; // todo: use this
 
     /// <summary>
     ///     Occurs when DirectX issues a debug message.
@@ -250,4 +250,3 @@ public static class Events
 
     #endregion RENDERING AND VISUALS
 }
-

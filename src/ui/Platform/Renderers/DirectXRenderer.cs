@@ -5,13 +5,13 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Gwen.Net;
+using VoxelGame.Support;
 
 namespace VoxelGame.UI.Platform.Renderers;
 
-public class DirectXRenderer : DirectXRendererBase
+public class DirectXRenderer : DirectXRendererBase // todo: remove this subclass by pulling up to base class
 {
     private const int MaxVerts = 4096;
     private readonly bool restoreRenderState;
@@ -31,7 +31,7 @@ public class DirectXRenderer : DirectXRendererBase
     private bool wasBlendEnabled;
     private bool wasDepthTestEnabled;
 
-    public DirectXRenderer(IEnumerable<TexturePreload> texturePreloads, Action<TexturePreload, Exception> errorCallback, bool restoreRenderState = true) : base(texturePreloads, errorCallback)
+    public DirectXRenderer(Client client, Action draw, GwenGuiSettings settings, bool restoreRenderState = true) : base(client, draw, settings)
     {
         vertices = new Vertex[MaxVerts];
         vertexSize = Marshal.SizeOf(vertices[0]);

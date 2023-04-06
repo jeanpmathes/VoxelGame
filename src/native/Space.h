@@ -102,7 +102,8 @@ private:
     Light m_light;
     
     ComPtr<ID3D12Resource> m_globalConstantBuffer;
-    GlobalConstantBuffer m_globalConstantBufferData{};
+    UINT64 m_globalConstantBufferAlignedSize = 0;
+    GlobalConstantBuffer m_globalConstantBufferData = {};
 
     ComPtr<IDxcBlob> m_rayGenLibrary;
     ComPtr<IDxcBlob> m_missLibrary;

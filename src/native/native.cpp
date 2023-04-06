@@ -166,6 +166,8 @@ NATIVE void NativeSetIndexedMeshObjectMesh(IndexedMeshObject* object,
     CATCH();
 }
 
+// todo: add a way to delete mesh objects
+
 NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
                                                   const PipelineDescription description,
                                                   const NativeErrorMessageFunc callback)
@@ -206,6 +208,24 @@ NATIVE void SetShaderBufferData(const ShaderBuffer* buffer, const void* data)
     TRY
     {
         buffer->SetData(data);
+    }
+    CATCH();
+}
+
+NATIVE void NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeline, const draw2d::Callback callback)
+{
+    TRY
+    {
+        client->AddDraw2DPipeline(pipeline, callback);
+    }
+    CATCH();
+}
+
+NATIVE Texture* NativeLoadTexture(NativeClient* client, std::byte* data, const TextureDescription description)
+{
+    TRY
+    {
+        return client->LoadTexture(data, description);
     }
     CATCH();
 }
