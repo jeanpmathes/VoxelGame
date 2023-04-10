@@ -39,7 +39,7 @@ std::unique_ptr<Texture> Texture::Create(Uploader& uploader, std::byte* data, Te
 Texture::Texture(NativeClient& client, const ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
     : Object(client), m_resource(resource), m_srvDesc(srvDesc)
 {
-    NAME_D3D12_OBJECT_WITH_ID(resource);
+    NAME_D3D12_OBJECT_WITH_ID(m_resource);
 }
 
 ComPtr<ID3D12Resource> Texture::GetResource() const

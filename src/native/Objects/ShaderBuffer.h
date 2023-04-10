@@ -16,7 +16,12 @@ class ShaderBuffer : public Object
     DECLARE_OBJECT_SUBCLASS(ShaderBuffer)
 
 public:
-    ShaderBuffer(NativeClient& client, ComPtr<ID3D12DescriptorHeap> heap, uint64_t size);
+    ShaderBuffer(NativeClient& client, uint64_t size);
+
+    /**
+     * Create a resource view for the buffer.
+     */
+    void CreateResourceView(ComPtr<ID3D12DescriptorHeap> heap) const;
 
     /**
      * Set the data of the buffer.
@@ -26,4 +31,5 @@ public:
 private:
     uint64_t m_size;
     ComPtr<ID3D12Resource> m_constantBuffer;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc = {};
 };

@@ -15,8 +15,6 @@ namespace VoxelGame.Support;
 /// </summary>
 public class Space
 {
-    private readonly Action<NativeObject> objectHandler;
-
     private Vector3d adjustment = Vector3d.Zero;
 
     private Camera? camera;
@@ -27,11 +25,9 @@ public class Space
     ///     Create a new native space.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="objectHandler">A function that handles created native objects.</param>
-    public Space(Client client, Action<NativeObject> objectHandler)
+    public Space(Client client)
     {
         Client = client;
-        this.objectHandler = objectHandler;
     }
 
     /// <summary>
@@ -49,7 +45,6 @@ public class Space
             if (camera == null)
             {
                 camera = Native.GetCamera(Client);
-                objectHandler(camera);
             }
 
             return camera;
@@ -66,7 +61,6 @@ public class Space
             if (light == null)
             {
                 light = Native.GetLight(Client);
-                objectHandler(light);
             }
 
             return light;
@@ -79,7 +73,6 @@ public class Space
     public SequencedMeshObject CreateSequencedMeshObject()
     {
         SequencedMeshObject sequencedMeshObject = Native.CreateSequencedMeshObject(Client);
-        objectHandler(sequencedMeshObject);
 
         return sequencedMeshObject;
     }
@@ -90,7 +83,6 @@ public class Space
     public IndexedMeshObject CreateIndexedMeshObject()
     {
         IndexedMeshObject indexedMeshObject = Native.CreateIndexedMeshObject(Client);
-        objectHandler(indexedMeshObject);
 
         return indexedMeshObject;
     }
@@ -125,4 +117,3 @@ public class Space
         };
     }
 }
-

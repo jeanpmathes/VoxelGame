@@ -21,6 +21,8 @@ public abstract class NativeObject
     {
         Self = nativePointer;
         Client = client;
+
+        client.RegisterObject(this);
     }
 
     /// <summary>

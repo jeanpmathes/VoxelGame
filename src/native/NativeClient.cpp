@@ -20,6 +20,8 @@ NativeClient::NativeClient(const UINT width, const UINT height, const std::wstri
     m_spaceEnabled(configuration.enableSpace),
     m_postViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_postScissorRect(0, 0, 0, 0),
+    m_draw2DViewport(0.0f, 0.0f, 0.0f, 0.0f),
+    m_draw2DScissorRect(0, 0, 0, 0),
     m_rtvDescriptorSize(0),
     m_srvDescriptorSize(0),
     m_frameIndex(0),
@@ -181,6 +183,22 @@ void NativeClient::LoadRasterPipeline()
     m_postVertexBufferView.BufferLocation = m_postVertexBuffer->GetGPUVirtualAddress();
     m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
     m_postVertexBufferView.SizeInBytes = vertexBufferSize;
+
+    for (UINT n = 0; n < FRAME_COUNT; n++)
+    {
+        TRY_DO(
+            m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+                IID_PPV_ARGS(&m_2dCommandAllocators[n])
+            ));
+        NAME_D3D12_OBJECT_INDEXED(m_2dCommandAllocators, n);
+    }
+
+    TRY_DO(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+        m_2dCommandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&m_2dCommandList)
+    ));
+
+    NAME_D3D12_OBJECT(m_2dCommandList);
+    TRY_DO(m_2dCommandList->Close());
 }
 
 void NativeClient::LoadRaytracingPipeline()
@@ -218,11 +236,20 @@ void NativeClient::CreateDepthBuffer()
 
     m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), &dsvDesc,
                                      m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+    NAME_D3D12_OBJECT(m_depthStencilBuffer);
 }
 
 void NativeClient::SetupSizeDependentResources()
 {
     UpdatePostViewAndScissor();
+
+    {
+        m_draw2DViewport.Width = static_cast<float>(m_width);
+        m_draw2DViewport.Height = static_cast<float>(m_height);
+
+        m_draw2DScissorRect.right = static_cast<LONG>(m_width);
+        m_draw2DScissorRect.bottom = static_cast<LONG>(m_height);
+    }
 
     {
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -300,21 +327,12 @@ void NativeClient::OnRender(double)
 
         PopulateCommandLists();
 
-        std::vector<ID3D12CommandList*> commandLists;
-        commandLists.reserve(m_rasterPipelines.size());
-
-        commandLists.push_back(m_space.GetCommandList().Get());
-
-        if (m_postProcessingPipeline != nullptr)
-            commandLists.push_back(m_postProcessingPipeline->GetCommandList().Get());
+        const std::vector<ID3D12CommandList*> commandLists = {
+            m_space.GetCommandList().Get(),
+            m_2dCommandList.Get()
+        };
 
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
-
-        for (const auto& pipeline : m_draw2DPipelines)
-        {
-            ID3D12CommandList* commandList = pipeline.GetCommandList().Get();
-            m_commandQueue->ExecuteCommandLists(1, &commandList);
-        }
     }
 
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
@@ -414,18 +432,12 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
-    REQUIRE(!pipeline->IsUsed() && m_postProcessingPipeline == nullptr);
-    pipeline->SetUsed();
-    
     m_postProcessingPipeline = pipeline;
     m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
 }
 
 void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback)
 {
-    REQUIRE(!pipeline->IsUsed());
-    pipeline->SetUsed();
-
     m_draw2DPipelines.push_back({*this, pipeline, callback});
 }
 
@@ -482,96 +494,68 @@ void NativeClient::PopulateSpaceCommandList()
 
 void NativeClient::PopulatePostProcessingCommandList() const
 {
-    const ComPtr<ID3D12GraphicsCommandList4> commandList = m_postProcessingPipeline->GetCommandList();
-    
     {
-        PIXScopedEvent(m_postProcessingPipeline->GetCommandList().Get(), 0, L"Post Processing");
-        
-        commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
+        PIXScopedEvent(m_2dCommandList.Get(), 0, L"Post Processing");
 
-        m_postProcessingPipeline->SetupHeaps(commandList);
+        m_postProcessingPipeline->SetPipeline(m_2dCommandList);
+        m_2dCommandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
 
-        D3D12_RESOURCE_BARRIER barriers[] = {
-            CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
-                                                 D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
-            CD3DX12_RESOURCE_BARRIER::Transition(m_intermediateRenderTarget.Get(),
-                                                 D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-        };
+        m_postProcessingPipeline->SetupHeaps(m_2dCommandList);
+        m_postProcessingPipeline->SetupRootDescriptorTable(m_2dCommandList);
 
-        commandList->ResourceBarrier(_countof(barriers), barriers);
-
-        m_postProcessingPipeline->SetupRootDescriptorTable(commandList);
-        
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        commandList->RSSetViewports(1, &m_postViewport);
-        commandList->RSSetScissorRects(1, &m_postScissorRect);
+        m_2dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_2dCommandList->RSSetViewports(1, &m_postViewport);
+        m_2dCommandList->RSSetScissorRects(1, &m_postScissorRect);
 
         const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
                                                       m_rtvDescriptorSize);
         const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-        commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+        m_2dCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-        commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
-        commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        m_2dCommandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
+        m_2dCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
-        commandList->DrawInstanced(4, 1, 0, 0);
-
-        barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-        barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-        commandList->ResourceBarrier(_countof(barriers), barriers);
+        m_2dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        m_2dCommandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
+        m_2dCommandList->DrawInstanced(4, 1, 0, 0);
     }
-
-    TRY_DO(commandList->Close());
 }
 
 void NativeClient::PopulateDraw2DCommandList(const size_t index)
 {
-    auto& pipeline = m_draw2DPipelines[index];
-    const ComPtr<ID3D12GraphicsCommandList4> commandList = pipeline.GetCommandList();
-
     {
-        PIXScopedEvent(pipeline.GetCommandList().Get(), 0, L"Draw2D");
+        auto& pipeline = m_draw2DPipelines[index];
+        PIXScopedEvent(m_2dCommandList.Get(), 0, L"Draw2D");
 
-        D3D12_RESOURCE_BARRIER barriers[] = {
-            CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
-                                                 D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET)
-        };
-        commandList->ResourceBarrier(_countof(barriers), barriers);
+        pipeline.PopulateCommandListSetup(m_2dCommandList);
 
-        pipeline.PopulateCommandListSetup();
-
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        commandList->RSSetViewports(1, &m_postViewport);
-        commandList->RSSetScissorRects(1, &m_postScissorRect);
+        m_2dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_2dCommandList->RSSetViewports(1, &m_draw2DViewport);
+        m_2dCommandList->RSSetScissorRects(1, &m_draw2DScissorRect);
 
         const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
                                                       m_rtvDescriptorSize);
         const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-        commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+        m_2dCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-        pipeline.PopulateCommandListDrawing();
-
-        barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-        commandList->ResourceBarrier(_countof(barriers), barriers);
+        pipeline.PopulateCommandListDrawing(m_2dCommandList);
     }
-
-    TRY_DO(commandList->Close());
 }
 
 void NativeClient::PopulateCommandLists()
 {
-    for (const auto& pipeline : m_rasterPipelines)
-    {
-        if (!pipeline->IsUsed()) continue;
-        pipeline->Reset(m_frameIndex);
-    }
+    TRY_DO(m_2dCommandAllocators[m_frameIndex]->Reset());
+    TRY_DO(m_2dCommandList->Reset(m_2dCommandAllocators[m_frameIndex].Get(), nullptr));
+
+    D3D12_RESOURCE_BARRIER barriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
+                                             D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
+        CD3DX12_RESOURCE_BARRIER::Transition(m_intermediateRenderTarget.Get(),
+                                             D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+    };
+
+    m_2dCommandList->ResourceBarrier(_countof(barriers), barriers);
 
     if (m_spaceEnabled)
     {
@@ -587,6 +571,15 @@ void NativeClient::PopulateCommandLists()
     {
         PopulateDraw2DCommandList(i);
     }
+
+    barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    m_2dCommandList->ResourceBarrier(_countof(barriers), barriers);
+
+    TRY_DO(m_2dCommandList->Close());
 }
 
 void NativeClient::UpdatePostViewAndScissor()

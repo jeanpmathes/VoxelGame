@@ -13,12 +13,14 @@ namespace draw2d
 {
     class Pipeline;
 
+#pragma pack(push, 1)
     struct Vertex
     {
         DirectX::XMFLOAT2 position;
         DirectX::XMFLOAT2 uv;
         DirectX::XMFLOAT4 color;
     };
+#pragma pack(pop)
 
     using InitializeTextures = void(*)(Texture** textures, UINT textureCount, Pipeline* ctx);
     using DrawBuffer = void(*)(const Vertex* vertices, UINT vertexCount, UINT textureIndex, BOOL useTexture,
@@ -42,19 +44,14 @@ namespace draw2d
         Pipeline(NativeClient& client, RasterPipeline* raster, Callback callback);
 
         /**
-         * Get the command list of the internal raster pipeline.
-         */
-        [[nodiscard]] ComPtr<ID3D12GraphicsCommandList4> GetCommandList() const;
-
-        /**
          * Populate the command list with setup calls.
          */
-        void PopulateCommandListSetup() const;
+        void PopulateCommandListSetup(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 
         /**
          * Populate the command list with draw calls.
          */
-        void PopulateCommandListDrawing();
+        void PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandList4> commandList);
 
     private:
         RasterPipeline* m_raster;
@@ -69,5 +66,7 @@ namespace draw2d
 
         UINT m_currentTextureIndex = 0;
         BOOL m_currentUseTexture = FALSE;
+        bool m_initialized = false;
+        ComPtr<ID3D12GraphicsCommandList4> m_currentCommandList = nullptr;
     };
 }

@@ -51,14 +51,9 @@ public:
         ComPtr<ID3D12PipelineState> pipelineState);
 
     /**
-     * Reset the command allocator and command list.
+     * Set the pipeline on the command list.
      */
-    void Reset(UINT frameIndex) const;
-
-    /**
-     * Get the command list of the pipeline.
-     */
-    [[nodiscard]] ComPtr<ID3D12GraphicsCommandList4> GetCommandList() const;
+    void SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 
     /**
      * Get the root signature of the pipeline.
@@ -95,33 +90,17 @@ public:
     /**
      * Bind a descriptor on the heap, created with e.g. CreateResourceViews, to a slot in the root signature.
      */
-    void BindDescriptor(UINT slot, UINT descriptor) const;
+    void BindDescriptor(ComPtr<ID3D12GraphicsCommandList4> commandList, UINT slot, UINT descriptor) const;
 
     [[nodiscard]] UINT GetResourceSlot(UINT index) const;
     [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetCpuResourceHandle(UINT index) const;
     [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetGpuResourceHandle(UINT index) const;
-
-    /**
-     * Whether the pipeline is currently in use.
-     * A pipeline is in use if it is assigned to rendering step in the client.
-     */
-    [[nodiscard]] bool IsUsed() const;
-
-    /**
-     * Mark the pipeline as used.
-     */
-    void SetUsed();
 
 private:
     ShaderPreset m_preset;
     ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
-
+    
     std::unique_ptr<ShaderBuffer> m_shaderBuffer = nullptr;
-
-    ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12GraphicsCommandList4> m_commandList;
-
-    bool m_inUse = false;
 };

@@ -203,7 +203,7 @@ NATIVE void NativeDesignatePostProcessingPipeline(NativeClient* client, RasterPi
     CATCH();
 }
 
-NATIVE void SetShaderBufferData(const ShaderBuffer* buffer, const void* data)
+NATIVE void NativeSetShaderBufferData(const ShaderBuffer* buffer, const void* data)
 {
     TRY
     {

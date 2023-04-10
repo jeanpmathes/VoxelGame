@@ -11,7 +11,6 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
 using Gwen.Net.Renderer;
-using VoxelGame.UI.Platform.Renderers;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Point = Gwen.Net.Point;
@@ -76,7 +75,7 @@ public sealed class TextRenderer : IDisposable
             new System.Drawing.Point(point.X, point.Y),
             format); // render text on the bitmap
 
-        DirectXRendererBase.LoadTextureInternal(Texture, bitmap); // copy bitmap to gl texture
+        // todo: upload the bitmap to the texture and free previous data
     }
 
     private void Dispose(bool manual)
@@ -98,4 +97,3 @@ public sealed class TextRenderer : IDisposable
         Dispose(manual: false);
     }
 }
-

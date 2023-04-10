@@ -16,7 +16,8 @@ class NativeClient;
     name(name&&) = delete; \
     name& operator=(const name&) = delete; \
     name& operator=(name&&) = delete; \
-    private:
+    private: \
+    constexpr static const wchar_t* const ClassName = L#name; \
 
 // ReSharper disable once CppInconsistentNaming
 #define NAME_D3D12_OBJECT_WITH_ID(object) \
@@ -24,7 +25,12 @@ class NativeClient;
     { \
         if (object != nullptr) \
         { \
-            object->SetName((std::wstring(L#object) + L" #" + std::to_wstring(GetID())).c_str()); \
+            object->SetName( \
+                (std::wstring(L#object) + \
+                L" in " + \
+                std::wstring(ClassName) + \
+                L" #" + \
+                std::to_wstring(GetID())).c_str()); \
         } \
     } while (false)
 
@@ -33,7 +39,13 @@ class NativeClient;
     do \
     { \
         objects[index]->SetName( \
-            (std::wstring(L#objects) + L"[" + std::to_wstring(index) + L"] #" + std::to_wstring(GetID())).c_str()); \
+            (std::wstring(L#objects) + \
+            L"[" + \
+            std::to_wstring(index) + \
+            L"] in " + \
+            std::wstring(ClassName) + \
+            L" #" + \
+            std::to_wstring(GetID())).c_str()); \
     } while (false)
 
 /**

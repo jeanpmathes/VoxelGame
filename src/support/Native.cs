@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -426,6 +427,6 @@ public static class Native
         IntPtr texture = NativeLoadTexture(client.Native, data.Scan0, description);
         bitmap.UnlockBits(data);
 
-        return new Texture(texture, client);
+        return new Texture(texture, client, bitmap.Size.ToVector2i());
     }
 }

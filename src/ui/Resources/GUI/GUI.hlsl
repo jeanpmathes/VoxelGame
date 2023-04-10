@@ -1,4 +1,4 @@
-//  <copyright file="Post.hlsl" company="Gwen.Net">
+//  <copyright file="GUI.hlsl" company="Gwen.Net">
 //      Copyright (c) Gwen.Net.
 //      MIT License
 //  </copyright>

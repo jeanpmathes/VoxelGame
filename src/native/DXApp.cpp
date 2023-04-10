@@ -115,8 +115,9 @@ void DXApp::OnMouseMove(const int x, const int y)
     m_configuration.onMouseMove(x, y);
 }
 
-void DXApp::OnMouseWheel(double) const
+void DXApp::OnMouseWheel(const double delta) const
 {
+    m_configuration.onMouseScroll(delta);
 }
 
 void DXApp::SetWindowBounds(const int left, const int top, const int right, const int bottom)

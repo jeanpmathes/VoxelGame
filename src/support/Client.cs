@@ -83,7 +83,7 @@ public class Client : IDisposable
         // todo: add window settings values to configuration and use on native side
 
         Native = Support.Native.Initialize(configuration, OnError, OnErrorMessage);
-        Space = new Space(this, o => objects.Add(o));
+        Space = new Space(this);
     }
 
     /// <summary>
@@ -138,6 +138,14 @@ public class Client : IDisposable
         set;
         // todo: pass to C++, use SetCursor and LoadCursorA (https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora)
     } = MouseCursor.Arrow;
+
+    /// <summary>
+    ///     Register a new native object.
+    /// </summary>
+    internal void RegisterObject(NativeObject nativeObject)
+    {
+        objects.Add(nativeObject);
+    }
 
     private static void OnError(int hr, string message)
     {

@@ -104,14 +104,20 @@ public:
     Space m_space;
     bool m_spaceEnabled;
 
-    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
-    RasterPipeline* m_postProcessingPipeline = nullptr;
-    std::vector<draw2d::Pipeline> m_draw2DPipelines = {};
-
     CD3DX12_VIEWPORT m_postViewport;
     CD3DX12_RECT m_postScissorRect;
     ComPtr<ID3D12Resource> m_postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
+
+    CD3DX12_VIEWPORT m_draw2DViewport;
+    CD3DX12_RECT m_draw2DScissorRect;
+
+    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
+    RasterPipeline* m_postProcessingPipeline = nullptr;
+    std::vector<draw2d::Pipeline> m_draw2DPipelines = {};
+
+    ComPtr<ID3D12CommandAllocator> m_2dCommandAllocators[FRAME_COUNT];
+    ComPtr<ID3D12GraphicsCommandList4> m_2dCommandList;
 
     ComPtr<IDXGISwapChain3> m_swapChain;
     ComPtr<ID3D12Device5> m_device;

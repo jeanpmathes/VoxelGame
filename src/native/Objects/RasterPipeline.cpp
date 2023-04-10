@@ -195,6 +195,22 @@ static Preset GetShaderPreset(const ShaderPreset preset, const uint64_t cbufferS
     }
 }
 
+static void ApplyPresetToPipeline(const ShaderPreset preset, D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc)
+{
+    switch (preset)
+    {
+    case ShaderPreset::POST_PROCESSING: break;
+    case ShaderPreset::DRAW_2D:
+        {
+            desc->DepthStencilState.DepthEnable = false;
+            desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+        }
+        break;
+    default:
+        throw NativeException("Invalid shader preset.");
+    }
+}
+
 std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     NativeClient& client,
     const PipelineDescription& description,
@@ -242,6 +258,8 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     psoDesc.SampleDesc.Count = 1;
 
+    ApplyPresetToPipeline(description.shaderPreset, &psoDesc);
+
     ComPtr<ID3D12PipelineState> pipelineState;
     TRY_DO(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
 
@@ -255,7 +273,8 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
 
     if (description.bufferSize > 0)
     {
-        shaderBuffer = std::make_unique<ShaderBuffer>(client, descriptorHeap, description.bufferSize);
+        shaderBuffer = std::make_unique<ShaderBuffer>(client, description.bufferSize);
+        shaderBuffer->CreateResourceView(descriptorHeap);
     }
 
     return std::make_unique<RasterPipeline>(
@@ -277,33 +296,11 @@ RasterPipeline::RasterPipeline(NativeClient& client, ShaderPreset preset, std::u
     NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
     NAME_D3D12_OBJECT_WITH_ID(m_rootSignature);
     NAME_D3D12_OBJECT_WITH_ID(m_pipelineState);
-
-    for (UINT n = 0; n < FRAME_COUNT; n++)
-    {
-        TRY_DO(
-            client.GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators
-                    [n])
-            ));
-        NAME_D3D12_OBJECT_INDEXED_WITH_ID(m_commandAllocators, n);
-    }
-
-    TRY_DO(client.GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_commandAllocators[0].Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_commandList)
-    ));
-
-    NAME_D3D12_OBJECT_WITH_ID(m_commandList);
-    TRY_DO(m_commandList->Close());
 }
 
-void RasterPipeline::Reset(const UINT frameIndex) const
+void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {
-    TRY_DO(m_commandAllocators[frameIndex]->Reset());
-    TRY_DO(m_commandList->Reset(m_commandAllocators[frameIndex].Get(), m_pipelineState.Get()));
-}
-
-ComPtr<ID3D12GraphicsCommandList4> RasterPipeline::GetCommandList() const
-{
-    return m_commandList;
+    commandList->SetPipelineState(m_pipelineState.Get());
 }
 
 ComPtr<ID3D12RootSignature> RasterPipeline::GetRootSignature() const
@@ -337,6 +334,11 @@ void RasterPipeline::CreateResourceViews(
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
     NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
 
+    if (m_shaderBuffer != nullptr)
+    {
+        m_shaderBuffer->CreateResourceView(m_descriptorHeap);
+    }
+    
     UINT slot = 0;
 
     for (size_t index = 0; index < cbuffers.size(); index++)
@@ -372,9 +374,10 @@ void RasterPipeline::SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4>
     }
 }
 
-void RasterPipeline::BindDescriptor(const UINT slot, const UINT descriptor) const
+void RasterPipeline::BindDescriptor(ComPtr<ID3D12GraphicsCommandList4> commandList,
+                                    const UINT slot, const UINT descriptor) const
 {
-    m_commandList->SetGraphicsRootDescriptorTable(GetResourceSlot(slot), GetGpuResourceHandle(descriptor));
+    commandList->SetGraphicsRootDescriptorTable(GetResourceSlot(slot), GetGpuResourceHandle(descriptor));
 }
 
 UINT RasterPipeline::GetResourceSlot(UINT index) const
@@ -399,14 +402,4 @@ D3D12_GPU_DESCRIPTOR_HANDLE RasterPipeline::GetGpuResourceHandle(UINT index) con
     return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_descriptorHeap->GetGPUDescriptorHandleForHeapStart(),
                                          offset,
                                          GetClient().GetCbvSrvUavHeapIncrement());
-}
-
-bool RasterPipeline::IsUsed() const
-{
-    return m_inUse;
-}
-
-void RasterPipeline::SetUsed()
-{
-    m_inUse = true;
 }

@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-ShaderBuffer::ShaderBuffer(NativeClient& client, const ComPtr<ID3D12DescriptorHeap> heap, const uint64_t size)
+ShaderBuffer::ShaderBuffer(NativeClient& client, const uint64_t size)
     : Object(client), m_size(size)
 {
     uint64_t alignedSize = size;
@@ -10,10 +10,13 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, const ComPtr<ID3D12DescriptorHe
         D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
         nv_helpers_dx12::kUploadHeapProps);
 
-    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-    cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
-    cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
-    client.GetDevice()->CreateConstantBufferView(&cbvDesc, heap->GetCPUDescriptorHandleForHeapStart());
+    m_cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
+    m_cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
+}
+
+void ShaderBuffer::CreateResourceView(ComPtr<ID3D12DescriptorHeap> heap) const
+{
+    GetClient().GetDevice()->CreateConstantBufferView(&m_cbvDesc, heap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void ShaderBuffer::SetData(const void* data) const

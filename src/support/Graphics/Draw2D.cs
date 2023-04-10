@@ -20,59 +20,25 @@ public readonly unsafe struct Draw2D
     /// <summary>
     ///     A single vertex.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Vertex : IEquatable<Vertex>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    #pragma warning disable S3898 // No equality comparison used.
+    public struct Vertex
+    #pragma warning restore S3898 // No equality comparison used.
     {
         /// <summary>
         ///     The position of the vertex.
         /// </summary>
-        public readonly Vector2 Position;
+        public Vector2 Position;
 
         /// <summary>
         ///     The texture coordinate of the vertex.
         /// </summary>
-        public readonly Vector2 TextureCoordinate;
+        public Vector2 TextureCoordinate;
 
         /// <summary>
         ///     The color of the vertex.
         /// </summary>
-        public readonly Vector4 Color;
-
-        /// <summary>
-        ///     The equality operation.
-        /// </summary>
-        public bool Equals(Vertex other)
-        {
-            return Position.Equals(other.Position) && TextureCoordinate.Equals(other.TextureCoordinate) && Color.Equals(other.Color);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            return obj is Vertex other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Position, TextureCoordinate, Color);
-        }
-
-        /// <summary>
-        ///     Whether two vertices are equal.
-        /// </summary>
-        public static bool operator ==(Vertex left, Vertex right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Whether two vertices are not equal.
-        /// </summary>
-        public static bool operator !=(Vertex left, Vertex right)
-        {
-            return !left.Equals(right);
-        }
+        public Vector4 Color;
     }
 
     internal delegate void InitializeTexturesDelegate(IntPtr textures, uint textureCount, IntPtr ctx);
@@ -99,6 +65,8 @@ public readonly unsafe struct Draw2D
 
     /// <summary>
     ///     Initializes all textures that can be used in subsequent draw calls.
+    ///     This must be called at least once before any draw calls.
+    ///     At least one texture must be provided.
     /// </summary>
     /// <param name="textures">The textures to initialize.</param>
     public void InitializeTextures(ICollection<Texture> textures)
@@ -120,7 +88,7 @@ public readonly unsafe struct Draw2D
     /// <param name="vertices">The vertices to draw.</param>
     /// <param name="textureIndex">The index of the texture to use.</param>
     /// <param name="useTexture">Whether to use a texture.</param>
-    public void DrawBuffer(Vertex[] vertices, uint textureIndex, bool useTexture)
+    public void DrawBuffer(Span<Vertex> vertices, uint textureIndex, bool useTexture)
     {
         var vertexCount = (uint) vertices.Length;
 

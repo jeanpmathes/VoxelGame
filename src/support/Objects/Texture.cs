@@ -6,6 +6,7 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -16,10 +17,25 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class Texture : NativeObject
 {
+    private readonly Vector2i size;
+
     /// <summary>
     ///     Create a new texture from a native pointer.
     /// </summary>
-    internal Texture(IntPtr nativePointer, Client client) : base(nativePointer, client) {}
+    internal Texture(IntPtr nativePointer, Client client, Vector2i size) : base(nativePointer, client)
+    {
+        this.size = size;
+    }
+
+    /// <summary>
+    ///     Gets the width of the texture.
+    /// </summary>
+    public int Width => size.X;
+
+    /// <summary>
+    ///     Gets the height of the texture.
+    /// </summary>
+    public int Height => size.Y;
 
     /// <summary>
     ///     Load a texture from a file. This is only allowed during the loading phase.

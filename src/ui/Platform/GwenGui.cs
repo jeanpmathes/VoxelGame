@@ -14,7 +14,6 @@ using VoxelGame.Support;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.UI.Platform.Input;
-using VoxelGame.UI.Platform.Renderers;
 
 namespace VoxelGame.UI.Platform;
 
@@ -24,7 +23,7 @@ internal class GwenGui : IGwenGui
 
     private bool disposed;
     private InputTranslator input = null!;
-    private DirectXRendererBase rendererBase = null!;
+    private DirectXRenderer renderer = null!;
     private SkinBase skin = null!;
 
     internal GwenGui(Client parent, GwenGuiSettings settings)
@@ -43,18 +42,17 @@ internal class GwenGui : IGwenGui
     {
         GwenPlatform.Init(new VoxelGamePlatform(SetCursor));
         AttachToWindowEvents();
-        rendererBase = new DirectXRenderer(Parent, Draw, Settings);
+        renderer = new DirectXRenderer(Parent, Draw, Settings);
 
-        skin = new TexturedBase(rendererBase, Settings.SkinFile, Settings.SkinLoadingErrorCallback)
+        skin = new TexturedBase(renderer, Settings.SkinFile, Settings.SkinLoadingErrorCallback)
         {
-            DefaultFont = new Font(rendererBase, "Calibri", size: 11)
+            DefaultFont = new Font(renderer, "Calibri", size: 11)
         };
 
         canvas = new Canvas(skin);
         input = new InputTranslator(canvas);
 
         canvas.SetSize(Parent.Size.X, Parent.Size.Y);
-        rendererBase.Resize(Parent.Size.X, Parent.Size.Y);
         canvas.ShouldDrawBackground = true;
         canvas.BackgroundColor = skin.ModalBackground;
     }
@@ -66,8 +64,8 @@ internal class GwenGui : IGwenGui
 
     public void Resize(Vector2i newSize)
     {
-        rendererBase.Resize(newSize.X, newSize.Y);
         canvas.SetSize(newSize.X, newSize.Y);
+        renderer.Resize(newSize.ToVector2());
     }
 
     public void Dispose()
@@ -76,7 +74,7 @@ internal class GwenGui : IGwenGui
         GC.SuppressFinalize(this);
     }
 
-    internal void Draw()
+    private void Draw()
     {
         canvas.RenderCanvas();
     }
@@ -90,7 +88,7 @@ internal class GwenGui : IGwenGui
         DetachWindowEvents();
         canvas.Dispose();
         skin.Dispose();
-        rendererBase.Dispose();
+        renderer.Dispose();
 
         disposed = true;
     }
