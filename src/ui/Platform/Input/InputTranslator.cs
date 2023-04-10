@@ -105,7 +105,8 @@ public class InputTranslator
     /// </summary>
     public void ProcessMouseWheel(MouseWheelEventArgs args)
     {
-        canvas.Input_MouseWheel(args.Delta * 60);
+        double delta = args.Delta * 60;
+        canvas.Input_MouseWheel((int) delta);
     }
 
     /// <summary>
@@ -143,4 +144,3 @@ public class InputTranslator
         return canvas.Input_Key(key, down: false);
     }
 }
-

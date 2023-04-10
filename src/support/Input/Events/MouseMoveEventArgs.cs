@@ -16,6 +16,5 @@ public class MouseMoveEventArgs : EventArgs
     /// <summary>
     ///     The new position of the mouse.
     /// </summary>
-    public Vector2 Position { get; set; }
+    public Vector2 Position { get; init; }
 }
-

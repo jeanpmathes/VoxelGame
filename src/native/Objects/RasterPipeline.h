@@ -80,7 +80,7 @@ public:
      */
     void CreateResourceViews(
         const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-        const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures) const;
+        const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures);
 
     /**
      * Setup the descriptor heap for the pipeline.

@@ -11,6 +11,10 @@
 using NativeCallbackFunc = void(*)();
 using NativeStepFunc = void(*)(double);
 using NativeInputFunc = void(*)(UINT8);
+using NativeCharFunc = void(*)(UINT16);
+using NativeMouseMoveFunc = void(*)(INT, INT);
+using NativeMouseScrollFunc = void(*)(double);
+using NativeResizeFunc = void(*)(UINT, UINT);
 using NativeErrorFunc = void(*)(HRESULT, const char*);
 using NativeErrorMessageFunc = void(*)(const char*);
 
@@ -24,6 +28,11 @@ struct Configuration
 
     NativeInputFunc onKeyDown;
     NativeInputFunc onKeyUp;
+    NativeCharFunc onChar;
+    NativeMouseMoveFunc onMouseMove;
+    NativeMouseScrollFunc onMouseScroll;
+
+    NativeResizeFunc onResize;
 
     D3D12MessageFunc onDebug;
 

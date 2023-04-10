@@ -16,6 +16,5 @@ public class KeyboardKeyEventArgs
     /// <summary>
     ///     The key.
     /// </summary>
-    public VirtualKeys Key { get; set; }
+    public VirtualKeys Key { get; init; }
 }
-

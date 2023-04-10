@@ -294,7 +294,7 @@ void NativeClient::OnUpdate(const double delta)
 void NativeClient::OnRender(double)
 {
     if (!m_windowVisible) return;
-
+    
     {
         PIXScopedEvent(m_commandQueue.Get(), 0, L"Render");
 
@@ -320,7 +320,8 @@ void NativeClient::OnRender(double)
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
     TRY_DO(m_swapChain->Present(0, presentFlags));
 
-    // todo: check if this can be removed: (maybe a wrong command allocator is used)
+    // todo: try putting these three lines (wait, cleanup, move) at the top of the function and compare performance
+    // it could be beneficial to let the gpu work until the next frame has to be rendered
     WaitForGPU();
 
     m_space.CleanupRenderSetup();

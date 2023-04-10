@@ -27,6 +27,15 @@ public class Client : IDisposable
 
     private readonly Definition.Native.NativeConfiguration configuration;
 
+    private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
+    {
+        VirtualKeys.LeftButton,
+        VirtualKeys.RightButton,
+        VirtualKeys.MiddleButton,
+        VirtualKeys.ExtraButton1,
+        VirtualKeys.ExtraButton2
+    };
+
     private readonly List<NativeObject> objects = new();
 
     private Vector2i mousePosition;
@@ -57,6 +66,15 @@ public class Client : IDisposable
         configuration.onDestroy = OnDestroy;
         configuration.onKeyDown = OnKeyDown;
         configuration.onKeyUp = OnKeyUp;
+        configuration.onChar = OnChar;
+        configuration.onMouseMove = OnMouseMove;
+        configuration.onMouseWheel = OnMouseWheel;
+
+        configuration.onResize = (width, height) =>
+        {
+            OnResize(new Vector2i((int) width, (int) height));
+        };
+
         configuration.onDebug = D3D12Debug.Enable();
 
         configuration.allowTearing = false;
@@ -144,32 +162,32 @@ public class Client : IDisposable
     /// <summary>
     ///     Called when a mouse button is pressed or released.
     /// </summary>
-    public event EventHandler<MouseButtonEventArgs> MouseButton = delegate {}; // todo: in key up/down, filter for mouse events
+    public event EventHandler<MouseButtonEventArgs> MouseButton = delegate {};
 
     /// <summary>
     ///     Called when the mouse moves.
     /// </summary>
-    public event EventHandler<MouseMoveEventArgs> MouseMove = delegate {}; // todo: pass mouse move from C++ to C#
+    public event EventHandler<MouseMoveEventArgs> MouseMove = delegate {};
 
     /// <summary>
     ///     Called when the mouse wheel is scrolled.
     /// </summary>
-    public event EventHandler<MouseWheelEventArgs> MouseWheel = delegate {}; // todo: pass mouse wheel (WM_MOUSEWHEEL) from C++ to C# 
+    public event EventHandler<MouseWheelEventArgs> MouseWheel = delegate {};
 
     /// <summary>
     ///     Called when a keyboard key is pressed.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyDown = delegate {}; // todo: call this in OnKeyDown (if not calling the mouse events)
+    public event EventHandler<KeyboardKeyEventArgs> KeyDown = delegate {};
 
     /// <summary>
     ///     Called when a keyboard key is released.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyUp = delegate {}; // todo: call this in OnKeyUp (if not calling the mouse events)
+    public event EventHandler<KeyboardKeyEventArgs> KeyUp = delegate {};
 
     /// <summary>
     ///     Called when a text input is received.
     /// </summary>
-    public event EventHandler<TextInputEventArgs> TextInput = delegate {}; // todo: pass text input from C++ to C#, use WM_CHAR 
+    public event EventHandler<TextInputEventArgs> TextInput = delegate {};
 
     /// <summary>
     ///     Close the window.
@@ -200,7 +218,7 @@ public class Client : IDisposable
     ///     Called when the window is resized.
     /// </summary>
     /// <param name="size">The new size.</param>
-    protected virtual void OnResize(Vector2i size) {} // todo: call it (new callback must be added to C++)
+    protected virtual void OnResize(Vector2i size) {}
 
     /// <summary>
     ///     Called when the client is destroyed.
@@ -209,12 +227,68 @@ public class Client : IDisposable
 
     private void OnKeyDown(byte key)
     {
-        KeyState.SetKeyState((VirtualKeys) key, down: true);
+        var virtualKey = (VirtualKeys) key;
+        KeyState.SetKeyState(virtualKey, down: true);
+        HandleKey(virtualKey, down: true);
     }
 
     private void OnKeyUp(byte key)
     {
-        KeyState.SetKeyState((VirtualKeys) key, down: false);
+        var virtualKey = (VirtualKeys) key;
+        KeyState.SetKeyState(virtualKey, down: false);
+        HandleKey(virtualKey, down: false);
+    }
+
+    private void OnChar(char character)
+    {
+        TextInput(this,
+            new TextInputEventArgs
+            {
+                Character = character
+            });
+    }
+
+    private void OnMouseMove(int x, int y)
+    {
+        MousePosition = new Vector2i(x, y);
+
+        MouseMove(this,
+            new MouseMoveEventArgs
+            {
+                Position = MousePosition
+            });
+    }
+
+    private void OnMouseWheel(double delta)
+    {
+        MouseWheel(this,
+            new MouseWheelEventArgs
+            {
+                Delta = delta
+            });
+    }
+
+    private void HandleKey(VirtualKeys key, bool down)
+    {
+        if (mouseButtons.Contains(key))
+        {
+            MouseButton(this,
+                new MouseButtonEventArgs
+                {
+                    Button = key,
+                    IsPressed = down
+                });
+        }
+        else
+        {
+            KeyboardKeyEventArgs args = new()
+            {
+                Key = key
+            };
+
+            if (down) KeyDown(this, args);
+            else KeyUp(this, args);
+        }
     }
 
     /// <summary>

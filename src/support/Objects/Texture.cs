@@ -70,8 +70,7 @@ public class Texture : NativeObject
         return fallback;
     }
 
-    /// <inheritdoc />
-    public override void Synchronize()
+    internal override void Synchronize()
     {
         // Nothing to do here.
     }

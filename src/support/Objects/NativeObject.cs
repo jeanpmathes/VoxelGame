@@ -36,11 +36,10 @@ public abstract class NativeObject
     /// <summary>
     ///     Synchronizes the native object with the managed object.
     /// </summary>
-    public abstract void Synchronize();
+    internal abstract void Synchronize();
 
     /// <summary>
     ///     Called before the native object is synchronized.
     /// </summary>
-    public virtual void PrepareSynchronization() {}
+    internal virtual void PrepareSynchronization() {}
 }
-

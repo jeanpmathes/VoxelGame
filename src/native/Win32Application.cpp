@@ -185,6 +185,22 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_CHAR:
+        if (app)
+        {
+            app->OnChar(static_cast<UINT16>(wParam));
+        }
+        return 0;
+
+    case WM_MOUSEWHEEL:
+        if (app)
+        {
+            const double delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            const double zDelta = delta / WHEEL_DELTA;
+            app->OnMouseWheel(zDelta);
+        }
+        return 0;
+
     case WM_MOUSEMOVE:
         if (app)
         {

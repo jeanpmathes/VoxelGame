@@ -26,8 +26,7 @@ public class Camera : NativeObject
     /// </summary>
     public Vector3d Position { get; set; }
 
-    /// <inheritdoc />
-    public override void PrepareSynchronization()
+    internal override void PrepareSynchronization()
     {
         const float maxDistance = 1000.0f;
 
@@ -42,8 +41,7 @@ public class Camera : NativeObject
         preparedPosition = ((float) adaptedPosition.X, (float) adaptedPosition.Y, (float) adaptedPosition.Z);
     }
 
-    /// <inheritdoc />
-    public override void Synchronize()
+    internal override void Synchronize()
     {
         Native.UpdateCameraData(this,
             new CameraData
@@ -52,4 +50,3 @@ public class Camera : NativeObject
             });
     }
 }
-

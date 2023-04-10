@@ -38,10 +38,8 @@ public class SpatialObject : NativeObject
     /// </summary>
     public Quaterniond Rotation { get; set; }
 
-    /// <inheritdoc />
-    public override void Synchronize()
+    internal override void Synchronize()
     {
         Native.UpdateSpatialObjectData(this, Space.GetAdjustedData(this));
     }
 }
-

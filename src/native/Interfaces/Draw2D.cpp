@@ -46,6 +46,8 @@ void draw2d::Pipeline::PopulateCommandListSetup() const
 
 void draw2d::Pipeline::PopulateCommandListDrawing()
 {
+    m_vertexBuffers.clear();
+    
     const ComPtr<ID3D12GraphicsCommandList4> commandList = m_raster->GetCommandList();
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

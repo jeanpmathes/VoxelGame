@@ -32,8 +32,7 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged
         }
     }
 
-    /// <inheritdoc />
-    public override void Synchronize()
+    internal override void Synchronize()
     {
         if (!dirty) return;
 

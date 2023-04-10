@@ -84,6 +84,7 @@ void DXApp::Destroy()
 void DXApp::HandleSizeChanged(const UINT width, const UINT height, const bool minimized)
 {
     OnSizeChanged(width, height, minimized);
+    m_configuration.onResize(width, height);
 }
 
 void DXApp::HandleWindowMoved(const int xPos, const int yPos)
@@ -101,10 +102,21 @@ void DXApp::OnKeyUp(const UINT8 param) const
     m_configuration.onKeyUp(param);
 }
 
+void DXApp::OnChar(const UINT16 c) const
+{
+    m_configuration.onChar(c);
+}
+
 void DXApp::OnMouseMove(const int x, const int y)
 {
     m_xMousePosition = x;
     m_yMousePosition = y;
+
+    m_configuration.onMouseMove(x, y);
+}
+
+void DXApp::OnMouseWheel(double) const
+{
 }
 
 void DXApp::SetWindowBounds(const int left, const int top, const int right, const int bottom)

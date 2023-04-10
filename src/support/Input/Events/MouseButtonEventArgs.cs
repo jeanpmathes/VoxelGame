@@ -16,11 +16,10 @@ public class MouseButtonEventArgs : EventArgs
     /// <summary>
     ///     The button that was pressed or released.
     /// </summary>
-    public VirtualKeys Button { get; set; }
+    public VirtualKeys Button { get; init; }
 
     /// <summary>
     ///     Whether the button was pressed or released.
     /// </summary>
-    public bool IsPressed { get; set; }
+    public bool IsPressed { get; init; }
 }
-

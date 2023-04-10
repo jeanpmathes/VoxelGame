@@ -16,10 +16,8 @@ public class RasterPipeline : NativeObject
     /// </summary>
     public RasterPipeline(IntPtr nativePointer, Client client) : base(nativePointer, client) {}
 
-    /// <inheritdoc />
-    public override void Synchronize()
+    internal override void Synchronize()
     {
         // Nothing to do here.
     }
 }
-

@@ -325,8 +325,18 @@ void RasterPipeline::CreateResourceView(ComPtr<ID3D12Resource> resource) const
 
 void RasterPipeline::CreateResourceViews(
     const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-    const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures) const
+    const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures)
 {
+    REQUIRE(m_preset == ShaderPreset::DRAW_2D);
+
+    const UINT lastIndex = static_cast<UINT>(cbuffers.size() + textures.size()) - 1;
+    const UINT requiredSlots = GetResourceSlot(lastIndex) + 1;
+
+    m_descriptorHeap = nv_helpers_dx12::CreateDescriptorHeap(
+        GetClient().GetDevice().Get(), requiredSlots,
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+    NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
+
     UINT slot = 0;
 
     for (size_t index = 0; index < cbuffers.size(); index++)

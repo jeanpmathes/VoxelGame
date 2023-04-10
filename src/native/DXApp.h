@@ -41,7 +41,9 @@ public:
 
     void OnKeyDown(UINT8) const;
     void OnKeyUp(UINT8) const;
+    void OnChar(UINT16) const;
     void OnMouseMove(int, int);
+    void OnMouseWheel(double) const;
 
     virtual void OnDisplayChanged()
     {

@@ -230,6 +230,8 @@ public sealed class Shaders
     {
         if (!loaded) return;
 
+        return; // todo: remove the return, and maybe the code below (as projection matrix could be known in c++ code)
+
         Overlay.SetMatrix4(
             "projection",
             Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Screen.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());

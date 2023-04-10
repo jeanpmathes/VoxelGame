@@ -19,6 +19,11 @@ public static partial class Native
     public delegate void NativeCallbackFunc();
 
     /// <summary>
+    ///     A callback that receives a char value describing an input event.
+    /// </summary>
+    public delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] char arg);
+
+    /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
     public delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
@@ -32,6 +37,21 @@ public static partial class Native
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
     public delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] byte arg);
+
+    /// <summary>
+    ///     A callback that receives the new mouse position on a mouse move event.
+    /// </summary>
+    public delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] int x, [MarshalAs(UnmanagedType.I4)] int y);
+
+    /// <summary>
+    ///     A callback that receives the mouse wheel delta on a mouse wheel event.
+    /// </summary>
+    public delegate void NativeMouseWheelFunc(double delta);
+
+    /// <summary>
+    ///     A callback that receives the new window size on a resize event.
+    /// </summary>
+    public delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] uint width, [MarshalAs(UnmanagedType.U4)] uint height);
 
     /// <summary>
     ///     A callback that receives a double delta time value.
@@ -75,6 +95,26 @@ public static partial class Native
         ///     Called on a key up event.
         /// </summary>
         public NativeInputFunc onKeyUp;
+
+        /// <summary>
+        ///     Called on a char event.
+        /// </summary>
+        public NativeCharFunc onChar;
+
+        /// <summary>
+        ///     Called on a mouse move event.
+        /// </summary>
+        public NativeMouseMoveFunc onMouseMove;
+
+        /// <summary>
+        ///     Called on a mouse wheel event.
+        /// </summary>
+        public NativeMouseWheelFunc onMouseWheel;
+
+        /// <summary>
+        ///     Called on a size change event.
+        /// </summary>
+        public NativeResizeFunc onResize;
 
         /// <summary>
         ///     Called when debug messages of D3D12 are received.

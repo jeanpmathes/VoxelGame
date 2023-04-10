@@ -14,6 +14,5 @@ public class TextInputEventArgs : EventArgs
     /// <summary>
     ///     The character.
     /// </summary>
-    public char Character { get; set; }
+    public char Character { get; init; }
 }
-
