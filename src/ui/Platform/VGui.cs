@@ -1,4 +1,4 @@
-﻿// <copyright file="GwenGui.cs" company="Gwen.Net">
+﻿// <copyright file="VGui.cs" company="Gwen.Net">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,7 +17,7 @@ using VoxelGame.UI.Platform.Input;
 
 namespace VoxelGame.UI.Platform;
 
-internal class GwenGui : IGwenGui
+internal sealed class VGui : IGwenGui
 {
     private Canvas canvas = null!;
 
@@ -26,15 +26,15 @@ internal class GwenGui : IGwenGui
     private DirectXRenderer renderer = null!;
     private SkinBase skin = null!;
 
-    internal GwenGui(Client parent, GwenGuiSettings settings)
+    internal VGui(Client parent, GwenGuiSettings settings)
     {
         Parent = parent;
         Settings = settings;
     }
 
-    internal GwenGuiSettings Settings { get; }
+    private GwenGuiSettings Settings { get; }
 
-    internal Client Parent { get; }
+    private Client Parent { get; }
 
     public ControlBase Root => canvas;
 
@@ -55,6 +55,8 @@ internal class GwenGui : IGwenGui
         canvas.SetSize(Parent.Size.X, Parent.Size.Y);
         canvas.ShouldDrawBackground = true;
         canvas.BackgroundColor = skin.ModalBackground;
+
+        renderer.FinishLoading();
     }
 
     public void Render()
@@ -93,7 +95,7 @@ internal class GwenGui : IGwenGui
         disposed = true;
     }
 
-    ~GwenGui()
+    ~VGui()
     {
         Dispose(disposing: false);
     }

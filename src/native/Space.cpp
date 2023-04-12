@@ -387,6 +387,8 @@ void Space::CreateShaderBindingTable()
         mesh->SetupHitGroup(m_sbtHelper, arguments);
     }
 
+    // todo: add a proxy hit group if we have no meshes to make PIX happy 
+
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
     m_sbtStorage = nv_helpers_dx12::CreateBuffer(

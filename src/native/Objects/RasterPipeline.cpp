@@ -204,6 +204,10 @@ static void ApplyPresetToPipeline(const ShaderPreset preset, D3D12_GRAPHICS_PIPE
         {
             desc->DepthStencilState.DepthEnable = false;
             desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+            desc->BlendState.RenderTarget[0].BlendEnable = true;
+            desc->BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+            desc->BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
         }
         break;
     default:

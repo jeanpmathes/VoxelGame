@@ -57,11 +57,13 @@ public sealed class DirectXRenderer : RendererBase
 
     private int currentVertexCount;
 
-    private bool dirtyTextures = true;
+    private bool dirtyTextures;
 
     private Draw2D? drawer;
 
     private int lastTextureIndex = -1;
+
+    private bool loading;
     private bool textureEnabled;
 
     /// <summary>
@@ -70,7 +72,9 @@ public sealed class DirectXRenderer : RendererBase
     internal DirectXRenderer(Client client, Action draw, GwenGuiSettings settings)
     {
         this.client = client;
+
         vertices = new Draw2D.Vertex[MaxVerts];
+        loading = true;
 
         stringCache = new Dictionary<Tuple<string, Font>, TextRenderer>();
         graphics = Graphics.FromImage(new Bitmap(width: 1024, height: 1024));
@@ -88,22 +92,17 @@ public sealed class DirectXRenderer : RendererBase
         textures.Add(client.LoadTexture(sentinel));
 
         foreach (TexturePreload texturePreload in settings.TexturePreloads)
-            try
-            {
-                using Bitmap bitmap = new(texturePreload.File.FullName);
-                Texture texture = client.LoadTexture(bitmap);
+        {
+            Exception? exception = LoadTexture(texturePreload.File,
+                entry =>
+                {
+                    preloadedTextures.Add(texturePreload.Name, entry.Index);
+                    preloadNameToPath.Add(texturePreload.Name, texturePreload.File.FullName);
+                });
 
-                textures.Add(texture);
-                preloadedTextures.Add(texturePreload.Name, textures.Count - 1);
-
-                preloadNameToPath.Add(texturePreload.Name, texturePreload.File.FullName);
-            }
-#pragma warning disable S2221 // Not clear what could be thrown here.
-            catch (Exception e)
-#pragma warning restore S2221
-            {
-                settings.TexturePreloadErrorCallback(texturePreload, e);
-            }
+            if (exception != null)
+                settings.TexturePreloadErrorCallback(texturePreload, exception);
+        }
     }
 
     /// <summary>
@@ -125,6 +124,44 @@ public sealed class DirectXRenderer : RendererBase
     ///     Set the current draw color.
     /// </summary>
     public override Color DrawColor { get; set; }
+
+    /// <summary>
+    ///     Safely load a texture from a file.
+    /// </summary>
+    /// <param name="path">The path to the image file.</param>
+    /// <param name="callback">The callback to call when the texture is loaded.</param>
+    /// <returns></returns>
+    private Exception? LoadTexture(FileSystemInfo path, Action<TextureEntry> callback)
+    {
+        try
+        {
+            using Bitmap bitmap = new(path.FullName);
+            Texture texture = client.LoadTexture(bitmap);
+
+            textures.Add(texture);
+            dirtyTextures = true;
+
+            callback(new TextureEntry(texture, textures.Count - 1));
+
+            return null;
+        }
+#pragma warning disable S2221 // Not clear what could be thrown here.
+        catch (Exception e)
+#pragma warning restore S2221
+        {
+            return e;
+        }
+    }
+
+    /// <summary>
+    ///     Indicate that the loading phase is finished.
+    ///     Textures that are loaded after this call can be freed, while texture created during loading are kept alive with the
+    ///     client.
+    /// </summary>
+    internal void FinishLoading()
+    {
+        loading = false;
+    }
 
     private Action<Draw2D> CreateDrawCallback(Action draw)
     {
@@ -521,31 +558,47 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void LoadTexture(Gwen.Net.Texture t, Action<Exception> errorCallback)
     {
-        // todo: free previous texture if needed
+        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
+
+        TextureEntry? entry = null;
 
         if (preloadedTextures.TryGetValue(t.Name, out int textureIndex))
         {
-            Texture texture = textures[textureIndex];
+            entry = new TextureEntry(textures[textureIndex], textureIndex);
+        }
+        else if (loading)
+        {
+            Exception? exception = LoadTexture(new FileInfo(t.Name),
+                loaded =>
+                {
+                    entry = loaded;
+                });
 
+            if (exception != null) errorCallback(exception);
+        }
+
+        // todo: load texture - allow post-init texture loading
+
+        if (entry is {Texture: var texture, Index: var index})
+        {
             t.Width = texture.Width;
             t.Height = texture.Height;
 
             t.RendererData = new TextureRendererData
             {
-                textureIndex = textureIndex
+                textureIndex = index
             };
         }
         else
         {
             t.Failed = true;
-            // todo: load texture - allow post-init texture loading
         }
     }
 
     /// <inheritdoc />
     public override void LoadTextureRaw(Gwen.Net.Texture t, byte[] pixelData)
     {
-        // todo: free previous texture if needed
+        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
 
         Bitmap bmp;
 
@@ -578,7 +631,8 @@ public sealed class DirectXRenderer : RendererBase
     {
         if (t.RendererData == null) return;
 
-        // todo: free texture if needed
+        // todo: free texture if needed - only allowed if texture was not created in loading phase
+        // todo: also consider indices, maybe use linked list
 
         t.RendererData = null;
     }
@@ -607,7 +661,7 @@ public sealed class DirectXRenderer : RendererBase
 
         System.Drawing.Color pixel = currentPixelColorSource!.GetPixel((int) x, (int) y);
 
-        return new Color(pixel.R, pixel.G, pixel.B, pixel.A);
+        return new Color(pixel.A, pixel.R, pixel.G, pixel.B);
     }
 
     /// <summary>
@@ -623,4 +677,6 @@ public sealed class DirectXRenderer : RendererBase
     {
         public int textureIndex;
     }
+
+    private record struct TextureEntry(Texture Texture, int Index);
 }
