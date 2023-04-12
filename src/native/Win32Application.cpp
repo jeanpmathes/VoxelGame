@@ -185,6 +185,78 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_LBUTTONDOWN:
+        if (app)
+        {
+            app->OnKeyDown(VK_LBUTTON);
+        }
+        return 0;
+
+    case WM_LBUTTONUP:
+        if (app)
+        {
+            app->OnKeyUp(VK_LBUTTON);
+        }
+        return 0;
+
+    case WM_RBUTTONDOWN:
+        if (app)
+        {
+            app->OnKeyDown(VK_RBUTTON);
+        }
+        return 0;
+
+    case WM_RBUTTONUP:
+        if (app)
+        {
+            app->OnKeyUp(VK_RBUTTON);
+        }
+        return 0;
+
+    case WM_MBUTTONDOWN:
+        if (app)
+        {
+            app->OnKeyDown(VK_MBUTTON);
+        }
+        return 0;
+
+    case WM_MBUTTONUP:
+        if (app)
+        {
+            app->OnKeyUp(VK_MBUTTON);
+        }
+        return 0;
+
+    case WM_XBUTTONDOWN:
+        if (app)
+        {
+            const UINT button = GET_XBUTTON_WPARAM(wParam);
+            if (button == XBUTTON1)
+            {
+                app->OnKeyDown(VK_XBUTTON1);
+            }
+            else if (button == XBUTTON2)
+            {
+                app->OnKeyDown(VK_XBUTTON2);
+            }
+        }
+        return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttondown#return-value
+
+    case WM_XBUTTONUP:
+        if (app)
+        {
+            const UINT button = GET_XBUTTON_WPARAM(wParam);
+            if (button == XBUTTON1)
+            {
+                app->OnKeyUp(VK_XBUTTON1);
+            }
+            else if (button == XBUTTON2)
+            {
+                app->OnKeyUp(VK_XBUTTON2);
+            }
+        }
+        return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttonup#return-value
+
     case WM_CHAR:
         if (app)
         {
