@@ -24,9 +24,9 @@ using FontStyle = System.Drawing.FontStyle;
 using Point = Gwen.Net.Point;
 using Rectangle = Gwen.Net.Rectangle;
 using Size = Gwen.Net.Size;
-using Texture = VoxelGame.Support.Objects.Texture;
+using Texture = Gwen.Net.Texture;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.UI.Platform.Renderer;
 
 /// <summary>
 ///     Base class for DirectX renderers.
@@ -39,14 +39,13 @@ public sealed class DirectXRenderer : RendererBase
 
     private readonly Graphics graphics;
     private readonly RasterPipeline pipeline;
-
-    private readonly Dictionary<string, int> preloadedTextures = new();
-
     private readonly Dictionary<string, string> preloadNameToPath = new();
 
     private readonly Dictionary<Tuple<string, Font>, TextRenderer> stringCache;
     private readonly StringFormat stringFormat;
-    private readonly List<Texture> textures = new();
+
+
+    private readonly TextureList textures;
     private readonly ShaderBuffer<Vector2> uniformBuffer;
 
     private readonly Draw2D.Vertex[] vertices;
@@ -56,8 +55,6 @@ public sealed class DirectXRenderer : RendererBase
     private string currentPixelColorSourceName = "";
 
     private int currentVertexCount;
-
-    private bool dirtyTextures;
 
     private Draw2D? drawer;
 
@@ -87,16 +84,13 @@ public sealed class DirectXRenderer : RendererBase
 
         client.AddDraw2dPipeline(pipeline, CreateDrawCallback(draw));
 
-        // The Draw2D pipeline requires at least one texture.
-        using Bitmap sentinel = Texture.CreateFallback(resolution: 1);
-        textures.Add(client.LoadTexture(sentinel));
+        textures = new TextureList(client);
 
         foreach (TexturePreload texturePreload in settings.TexturePreloads)
         {
-            Exception? exception = LoadTexture(texturePreload.File,
-                entry =>
+            Exception? exception = textures.LoadTexture(texturePreload.File,
+                _ =>
                 {
-                    preloadedTextures.Add(texturePreload.Name, entry.Index);
                     preloadNameToPath.Add(texturePreload.Name, texturePreload.File.FullName);
                 });
 
@@ -113,45 +107,17 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     Number of draw calls for the last frame.
     /// </summary>
-    public int DrawCallCount { get; private set; }
+    private int DrawCallCount { get; set; }
 
     /// <summary>
     ///     Gets the current vertex count.
     /// </summary>
-    public int VertexCount { get; private set; }
+    private int VertexCount { get; set; }
 
     /// <summary>
     ///     Set the current draw color.
     /// </summary>
     public override Color DrawColor { get; set; }
-
-    /// <summary>
-    ///     Safely load a texture from a file.
-    /// </summary>
-    /// <param name="path">The path to the image file.</param>
-    /// <param name="callback">The callback to call when the texture is loaded.</param>
-    /// <returns></returns>
-    private Exception? LoadTexture(FileSystemInfo path, Action<TextureEntry> callback)
-    {
-        try
-        {
-            using Bitmap bitmap = new(path.FullName);
-            Texture texture = client.LoadTexture(bitmap);
-
-            textures.Add(texture);
-            dirtyTextures = true;
-
-            callback(new TextureEntry(texture, textures.Count - 1));
-
-            return null;
-        }
-#pragma warning disable S2221 // Not clear what could be thrown here.
-        catch (Exception e)
-#pragma warning restore S2221
-        {
-            return e;
-        }
-    }
 
     /// <summary>
     ///     Indicate that the loading phase is finished.
@@ -169,12 +135,7 @@ public sealed class DirectXRenderer : RendererBase
         {
             drawer = draw2D;
 
-            if (dirtyTextures)
-            {
-                drawer.Value.InitializeTextures(textures);
-                dirtyTextures = false;
-            }
-
+            textures.UploadIfDirty(draw2D);
             draw();
 
             drawer = null;
@@ -232,7 +193,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void DrawTexturedRect(Gwen.Net.Texture t, Rectangle targetRect, float u1 = 0, float v1 = 0, float u2 = 1,
+    public override void DrawTexturedRect(Texture t, Rectangle targetRect, float u1 = 0, float v1 = 0, float u2 = 1,
         float v2 = 1)
     {
         if (null == t.RendererData)
@@ -372,7 +333,7 @@ public sealed class DirectXRenderer : RendererBase
 
         if (stringCache.ContainsKey(key))
         {
-            Gwen.Net.Texture tex = stringCache[key].Texture;
+            Texture tex = stringCache[key].Texture;
 
             return new Size(tex.Width, tex.Height);
         }
@@ -455,7 +416,7 @@ public sealed class DirectXRenderer : RendererBase
 
         if (currentVertexCount == 0) return;
 
-        drawer.Value.DrawBuffer(vertices[..currentVertexCount], (uint) lastTextureIndex, textureEnabled);
+        drawer.Value.DrawBuffer(vertices.AsSpan()[..currentVertexCount], (uint) lastTextureIndex, textureEnabled);
 
         DrawCallCount++;
         VertexCount += currentVertexCount;
@@ -556,19 +517,22 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void LoadTexture(Gwen.Net.Texture t, Action<Exception> errorCallback)
+    public override void LoadTexture(Texture t, Action<Exception> errorCallback)
     {
         // todo: free previous texture if needed - only allowed if texture was not created in loading phase
 
-        TextureEntry? entry = null;
+        TextureList.Entry? entry = null;
 
-        if (preloadedTextures.TryGetValue(t.Name, out int textureIndex))
+        if (preloadNameToPath.TryGetValue(t.Name, out string? path))
         {
-            entry = new TextureEntry(textures[textureIndex], textureIndex);
+            entry ??= textures.GetTexture(path);
         }
-        else if (loading)
+
+        entry ??= textures.GetTexture(t.Name);
+
+        if (entry is null && loading)
         {
-            Exception? exception = LoadTexture(new FileInfo(t.Name),
+            Exception? exception = textures.LoadTexture(new FileInfo(t.Name),
                 loaded =>
                 {
                     entry = loaded;
@@ -592,11 +556,12 @@ public sealed class DirectXRenderer : RendererBase
         else
         {
             t.Failed = true;
+            t.RendererData = null;
         }
     }
 
     /// <inheritdoc />
-    public override void LoadTextureRaw(Gwen.Net.Texture t, byte[] pixelData)
+    public override void LoadTextureRaw(Texture t, byte[] pixelData)
     {
         // todo: free previous texture if needed - only allowed if texture was not created in loading phase
 
@@ -627,7 +592,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void FreeTexture(Gwen.Net.Texture t)
+    public override void FreeTexture(Texture t)
     {
         if (t.RendererData == null) return;
 
@@ -637,7 +602,7 @@ public sealed class DirectXRenderer : RendererBase
         t.RendererData = null;
     }
 
-    private FileInfo GetTextureFile(Gwen.Net.Texture texture)
+    private FileInfo GetTextureFile(Texture texture)
     {
         return preloadNameToPath.TryGetValue(texture.Name, out string? path)
             ? new FileInfo(path)
@@ -645,7 +610,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override Color PixelColor(Gwen.Net.Texture texture, uint x, uint y, Color defaultColor)
+    public override Color PixelColor(Texture texture, uint x, uint y, Color defaultColor)
     {
         if (texture.RendererData == null) return defaultColor;
 
@@ -677,6 +642,4 @@ public sealed class DirectXRenderer : RendererBase
     {
         public int textureIndex;
     }
-
-    private record struct TextureEntry(Texture Texture, int Index);
 }

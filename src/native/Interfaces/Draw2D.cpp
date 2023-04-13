@@ -126,6 +126,9 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
 
     if (m_initialized)
     {
+        m_currentTextureIndex = 0;
+        m_currentUseTexture = FALSE;
+
         m_raster->BindDescriptor(commandList, booleanSlot, falseDescriptorIndex);
         m_raster->BindDescriptor(commandList, textureSlot, firstTextureDescriptorIndex);
     }

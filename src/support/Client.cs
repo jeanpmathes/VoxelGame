@@ -258,7 +258,7 @@ public class Client : IDisposable
 
     private void OnMouseMove(int x, int y)
     {
-        MousePosition = new Vector2i(x, y);
+        mousePosition = new Vector2i(x, y);
 
         MouseMove(this,
             new MouseMoveEventArgs
