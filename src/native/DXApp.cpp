@@ -71,6 +71,7 @@ void DXApp::Render(const StepTimer& timer)
 
     const double delta = timer.GetElapsedSeconds();
 
+    OnPreRender();
     m_configuration.onRender(delta);
     OnRender(delta);
 }

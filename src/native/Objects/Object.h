@@ -25,7 +25,7 @@ class NativeClient;
     { \
         if (object != nullptr) \
         { \
-            object->SetName( \
+            SetName((object).Get(), \
                 (std::wstring(L#object) + \
                 L" in " + \
                 std::wstring(ClassName) + \
@@ -38,7 +38,7 @@ class NativeClient;
 #define NAME_D3D12_OBJECT_INDEXED_WITH_ID(objects, index) \
     do \
     { \
-        objects[index]->SetName( \
+        SetName(objects[index].Get(), \
             (std::wstring(L#objects) + \
             L"[" + \
             std::to_wstring(index) + \

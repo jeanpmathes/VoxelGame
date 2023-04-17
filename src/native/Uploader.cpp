@@ -1,14 +1,17 @@
 ﻿#include "stdafx.h"
 
-Uploader::Uploader(NativeClient& client)
-    : m_client(client)
+Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList> optionalCommandList)
+    : m_client(client), m_commandList(optionalCommandList), m_ownsCommandList(optionalCommandList == nullptr)
 {
-    TRY_DO(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-    NAME_D3D12_OBJECT(m_commandAllocator);
+    if (m_ownsCommandList)
+    {
+        TRY_DO(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+        NAME_D3D12_OBJECT(m_commandAllocator);
 
-    TRY_DO(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_commandAllocator.Get(),nullptr, IID_PPV_ARGS(&m_commandList)));
-    NAME_D3D12_OBJECT(m_commandList);
+        TRY_DO(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+            m_commandAllocator.Get(),nullptr, IID_PPV_ARGS(&m_commandList)));
+        NAME_D3D12_OBJECT(m_commandList);
+    }
 }
 
 void Uploader::UploadTexture(
@@ -34,12 +37,10 @@ void Uploader::UploadTexture(
     UpdateSubresources(m_commandList.Get(), destination.Get(), uploadBuffer.Get(), 0, subresource, subresourceCount,
                        &textureData);
 
-    const auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-                                                                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    m_commandList->ResourceBarrier(1, &transition);
+    if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
 
-void Uploader::UploadBuffer(const std::byte* data, UINT size, ComPtr<ID3D12Resource> destination)
+void Uploader::UploadBuffer(const std::byte* data, const UINT size, const ComPtr<ID3D12Resource> destination)
 {
     const ComPtr<ID3D12Resource> uploadBuffer = nv_helpers_dx12::CreateBuffer(
         GetDevice().Get(),
@@ -83,4 +84,9 @@ ComPtr<ID3D12Device4> Uploader::GetDevice() const
 NativeClient& Uploader::GetClient() const
 {
     return m_client;
+}
+
+bool Uploader::IsUploadingIndividually() const
+{
+    return m_ownsCommandList;
 }

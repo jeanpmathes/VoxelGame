@@ -111,7 +111,6 @@ internal class Client : Support.Client, IPerformanceProvider
         {
             // Resources.Shaders.SetTime((float) Time); todo: check whether this is still needed
             sceneManager.Render((float) delta);
-
             screenBehaviour.Draw(delta);
         }
     }

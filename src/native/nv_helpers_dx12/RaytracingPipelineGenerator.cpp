@@ -262,7 +262,9 @@ namespace nv_helpers_dx12
                                                serializedRootSignature->GetBufferSize(),
                                                IID_PPV_ARGS(&m_dummyGlobalRootSignature));
 
+#if defined(_DEBUG) || defined(DBG)
             m_dummyGlobalRootSignature->SetName(L"Global Root Signature");
+#endif
 
             if (FAILED(hr))
             {
@@ -286,7 +288,9 @@ namespace nv_helpers_dx12
                                                serializedRootSignature->GetBufferSize(),
                                                IID_PPV_ARGS(&m_dummyLocalRootSignature));
 
+#if defined(_DEBUG) || defined(DBG)
             m_dummyLocalRootSignature->SetName(L"Local Root Signature");
+#endif
 
             if (FAILED(hr))
             {

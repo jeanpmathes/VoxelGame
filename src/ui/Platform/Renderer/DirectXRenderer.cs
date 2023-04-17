@@ -5,6 +5,7 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ using System.IO;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Support;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -33,10 +35,8 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class DirectXRenderer : RendererBase
 {
-    private const int MaxVerts = 4096;
-
-    private readonly Client client;
-
+    private const int InvalidTextureIndex = -1;
+    private readonly PooledList<DrawCall> drawCalls = new();
     private readonly Graphics graphics;
     private readonly RasterPipeline pipeline;
     private readonly Dictionary<string, string> preloadNameToPath = new();
@@ -44,11 +44,12 @@ public sealed class DirectXRenderer : RendererBase
     private readonly Dictionary<Tuple<string, Font>, TextRenderer> stringCache;
     private readonly StringFormat stringFormat;
 
-
     private readonly TextureList textures;
     private readonly ShaderBuffer<Vector2> uniformBuffer;
 
-    private readonly Draw2D.Vertex[] vertices;
+    private readonly ArrayPool<Draw2D.Vertex> vertexBufferPool = ArrayPool<Draw2D.Vertex>.Shared;
+
+    private readonly PooledList<Draw2D.Vertex> vertices = new();
     private bool clipEnabled;
 
     private Bitmap? currentPixelColorSource;
@@ -56,9 +57,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private int currentVertexCount;
 
-    private Draw2D? drawer;
-
-    private int lastTextureIndex = -1;
+    private int lastTextureIndex = InvalidTextureIndex;
 
     private bool loading;
     private bool textureEnabled;
@@ -66,11 +65,8 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     Creates a new instance of <see cref="DirectXRenderer" />.
     /// </summary>
-    internal DirectXRenderer(Client client, Action draw, GwenGuiSettings settings)
+    internal DirectXRenderer(Client client, GwenGuiSettings settings)
     {
-        this.client = client;
-
-        vertices = new Draw2D.Vertex[MaxVerts];
         loading = true;
 
         stringCache = new Dictionary<Tuple<string, Font>, TextRenderer>();
@@ -82,7 +78,7 @@ public sealed class DirectXRenderer : RendererBase
             PipelineDescription.Create(settings.ShaderFile, ShaderPreset.Draw2D),
             settings.ShaderLoadingErrorCallback);
 
-        client.AddDraw2dPipeline(pipeline, CreateDrawCallback(draw));
+        client.AddDraw2dPipeline(pipeline, DoDraw);
 
         textures = new TextureList(client);
 
@@ -107,7 +103,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     Number of draw calls for the last frame.
     /// </summary>
-    private int DrawCallCount { get; set; }
+    public int DrawCallCount => drawCalls.Count;
 
     /// <summary>
     ///     Gets the current vertex count.
@@ -129,17 +125,19 @@ public sealed class DirectXRenderer : RendererBase
         loading = false;
     }
 
-    private Action<Draw2D> CreateDrawCallback(Action draw)
+    private void DoDraw(Draw2D drawer)
     {
-        return draw2D =>
+        textures.UploadIfDirty(drawer);
+
+        foreach (DrawCall drawCall in drawCalls)
         {
-            drawer = draw2D;
+            bool texturedDraw = drawCall.TextureIndex != InvalidTextureIndex;
+            drawer.DrawBuffer(drawCall.Vertices.AsSpan()[..drawCall.VertexCount], (uint) drawCall.TextureIndex, texturedDraw);
 
-            textures.UploadIfDirty(draw2D);
-            draw();
+            vertexBufferPool.Return(drawCall.Vertices);
+        }
 
-            drawer = null;
-        };
+        drawCalls.Clear();
     }
 
     /// <inheritdoc />
@@ -375,7 +373,7 @@ public sealed class DirectXRenderer : RendererBase
         {
             Size size = MeasureText(font, text);
             TextRenderer tr = new(size.Width, size.Height, this);
-            tr.DrawString(text, sysFont, Brushes.White, Point.Zero, stringFormat); // renders string on the texture
+            tr.SetString(text, sysFont, Brushes.White, Point.Zero, stringFormat);
 
             DrawTexturedRect(
                 tr.Texture,
@@ -398,10 +396,9 @@ public sealed class DirectXRenderer : RendererBase
     {
         currentVertexCount = 0;
         VertexCount = 0;
-        DrawCallCount = 0;
         clipEnabled = false;
         textureEnabled = false;
-        lastTextureIndex = -1;
+        lastTextureIndex = InvalidTextureIndex;
     }
 
     /// <inheritdoc />
@@ -412,30 +409,32 @@ public sealed class DirectXRenderer : RendererBase
 
     private void Flush()
     {
-        Debug.Assert(drawer.HasValue);
-
         if (currentVertexCount == 0) return;
 
-        drawer.Value.DrawBuffer(vertices.AsSpan()[..currentVertexCount], (uint) lastTextureIndex, textureEnabled);
+        Draw2D.Vertex[] buffer = vertexBufferPool.Rent(currentVertexCount);
+        vertices.AsSpan()[..currentVertexCount].CopyTo(buffer);
+        vertices.Clear();
 
-        DrawCallCount++;
+        drawCalls.Add(new DrawCall(buffer, currentVertexCount, textureEnabled ? lastTextureIndex : InvalidTextureIndex));
+
         VertexCount += currentVertexCount;
         currentVertexCount = 0;
     }
 
     private void PushVertex(int x, int y, Vector2 uv, ref Vector4 vertexColor)
     {
-        vertices[currentVertexCount].Position = new Vector2((short) x, (short) y);
-        vertices[currentVertexCount].TextureCoordinate = uv;
-        vertices[currentVertexCount].Color = vertexColor;
+        vertices.Add(new Draw2D.Vertex
+        {
+            Position = new Vector2((short) x, (short) y),
+            TextureCoordinate = uv,
+            Color = vertexColor
+        });
 
         currentVertexCount++;
     }
 
     private void DrawRect(Rectangle rect, float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
     {
-        if (currentVertexCount + 6 >= MaxVerts) Flush();
-
         if (clipEnabled && PerformClip(rect, ref u1, ref v1, ref u2, ref v2)) return;
 
         float cR = DrawColor.R / 255f;
@@ -530,7 +529,7 @@ public sealed class DirectXRenderer : RendererBase
 
         entry ??= textures.GetTexture(t.Name);
 
-        if (entry is null && loading)
+        if (entry is null)
         {
             Exception? exception = textures.LoadTexture(new FileInfo(t.Name),
                 loaded =>
@@ -541,17 +540,9 @@ public sealed class DirectXRenderer : RendererBase
             if (exception != null) errorCallback(exception);
         }
 
-        // todo: load texture - allow post-init texture loading
-
-        if (entry is {Texture: var texture, Index: var index})
+        if (entry is not null)
         {
-            t.Width = texture.Width;
-            t.Height = texture.Height;
-
-            t.RendererData = new TextureRendererData
-            {
-                textureIndex = index
-            };
+            SetTextureProperties(t, entry.Value);
         }
         else
         {
@@ -563,9 +554,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void LoadTextureRaw(Texture t, byte[] pixelData)
     {
-        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
-
-        Bitmap bmp;
+        Bitmap bitmap;
 
         try
         {
@@ -573,7 +562,7 @@ public sealed class DirectXRenderer : RendererBase
             {
                 fixed (byte* ptr = &pixelData[0])
                 {
-                    bmp = new Bitmap(t.Width, t.Height, 4 * t.Width, PixelFormat.Format32bppArgb, (IntPtr) ptr);
+                    bitmap = new Bitmap(t.Width, t.Height, 4 * t.Width, PixelFormat.Format32bppArgb, (IntPtr) ptr);
                 }
             }
         }
@@ -586,9 +575,33 @@ public sealed class DirectXRenderer : RendererBase
             return;
         }
 
-        // todo: load texture - allow post-init texture loading
+        LoadTextureDirectly(t, bitmap);
 
-        bmp.Dispose();
+        bitmap.Dispose();
+    }
+
+    /// <summary>
+    ///     Load a texture directly from a bitmap.
+    /// </summary>
+    /// <param name="t">The texture to load.</param>
+    /// <param name="bitmap">The bitmap to load.</param>
+    public void LoadTextureDirectly(Texture t, Bitmap bitmap)
+    {
+        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
+
+        TextureList.Entry entry = textures.LoadTexture(bitmap);
+        SetTextureProperties(t, entry);
+    }
+
+    private static void SetTextureProperties(Texture texture, TextureList.Entry entry)
+    {
+        texture.Width = entry.Texture.Width;
+        texture.Height = entry.Texture.Height;
+
+        texture.RendererData = new TextureRendererData
+        {
+            textureIndex = entry.Index
+        };
     }
 
     /// <inheritdoc />
@@ -637,6 +650,8 @@ public sealed class DirectXRenderer : RendererBase
     {
         uniformBuffer.Data = size;
     }
+
+    private record struct DrawCall(Draw2D.Vertex[] Vertices, int VertexCount, int TextureIndex);
 
     private sealed class TextureRendererData
     {

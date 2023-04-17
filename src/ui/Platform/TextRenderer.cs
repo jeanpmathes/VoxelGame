@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
-using Gwen.Net.Renderer;
+using VoxelGame.UI.Platform.Renderer;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Point = Gwen.Net.Point;
@@ -24,15 +24,19 @@ public sealed class TextRenderer : IDisposable
 {
     private readonly Bitmap bitmap;
     private readonly Graphics graphics;
+
+    private readonly DirectXRenderer renderer;
     private bool disposed;
 
     /// <summary>
     ///     Creates a new instance of <see cref="TextRenderer" />.
     /// </summary>
-    public TextRenderer(int width, int height, RendererBase renderer)
+    public TextRenderer(int width, int height, DirectXRenderer renderer)
     {
         Debug.Assert(width > 0);
         Debug.Assert(height > 0);
+
+        this.renderer = renderer;
 
         bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
         graphics = Graphics.FromImage(bitmap);
@@ -66,16 +70,16 @@ public sealed class TextRenderer : IDisposable
     ///     The origin (0, 0) lies at the top-left corner of the backing store.
     /// </param>
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
-    public void DrawString(string text, Font font, Brush brush, Point point, StringFormat format)
+    public void SetString(string text, Font font, Brush brush, Point point, StringFormat format)
     {
         graphics.DrawString(
             text,
             font,
             brush,
             new System.Drawing.Point(point.X, point.Y),
-            format); // render text on the bitmap
+            format);
 
-        // todo: upload the bitmap to the texture and free previous data
+        renderer.LoadTextureDirectly(Texture, bitmap);
     }
 
     private void Dispose(bool manual)
@@ -92,6 +96,9 @@ public sealed class TextRenderer : IDisposable
         disposed = true;
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~TextRenderer()
     {
         Dispose(manual: false);

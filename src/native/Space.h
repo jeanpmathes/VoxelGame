@@ -110,8 +110,7 @@ private:
     ComPtr<IDxcBlob> m_hitLibrary;
     ComPtr<IDxcBlob> m_shadowLibrary;
 
-    ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12GraphicsCommandList4> m_commandList;
+    CommandAllocatorGroup m_commandGroup;
 
     ComPtr<ID3D12RootSignature> m_rayGenSignature;
     ComPtr<ID3D12RootSignature> m_missSignature;

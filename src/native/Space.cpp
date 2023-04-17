@@ -13,24 +13,13 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue)
 {
     assert(m_meshes.empty());
 
-    for (UINT n = 0; n < FRAME_COUNT; n++)
-    {
-        TRY_DO(
-            GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators
-                    [n])
-            ));
-        NAME_D3D12_OBJECT_INDEXED(m_commandAllocators, n);
-    }
-
-    TRY_DO(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&m_commandList)
-    ));
-    NAME_D3D12_OBJECT(m_commandList);
-
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), &m_commandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    m_commandGroup.Reset(0);
+    
     CreateTopLevelAS();
 
-    TRY_DO(m_commandList->Close());
-    ID3D12CommandList* ppCommandLists[] = {m_commandList.Get()};
+    m_commandGroup.Close();
+    ID3D12CommandList* ppCommandLists[] = {m_commandGroup.commandList.Get()};
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
     m_nativeClient.WaitForGPU();
@@ -75,8 +64,7 @@ IndexedMeshObject& Space::CreateIndexedMeshObject()
 
 void Space::Reset(const UINT frameIndex) const
 {
-    TRY_DO(m_commandAllocators[frameIndex]->Reset());
-    TRY_DO(m_commandList->Reset(m_commandAllocators[frameIndex].Get(), nullptr));
+    m_commandGroup.Reset(frameIndex);
 }
 
 void Space::EnqueueRenderSetup()
@@ -87,8 +75,8 @@ void Space::EnqueueRenderSetup()
     {
         if (mesh->IsMeshModified())
         {
-            mesh->EnqueueMeshUpload(m_commandList);
-            mesh->CreateBLAS(m_commandList);
+            mesh->EnqueueMeshUpload(m_commandGroup.commandList);
+            mesh->CreateBLAS(m_commandGroup.commandList);
 
             modified = true;
         }
@@ -116,11 +104,11 @@ void Space::DispatchRays() const
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    m_commandList->ResourceBarrier(1, &barrier);
+    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
 
     const std::vector heaps = {m_srvUavHeap.Get()};
-    m_commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
-                                      heaps.data());
+    m_commandGroup.commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
+                                                   heaps.data());
 
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
@@ -140,8 +128,8 @@ void Space::DispatchRays() const
     desc.Height = m_resolution.height;
     desc.Depth = 1;
 
-    m_commandList->SetPipelineState1(m_rtStateObject.Get());
-    m_commandList->DispatchRays(&desc);
+    m_commandGroup.commandList->SetPipelineState1(m_rtStateObject.Get());
+    m_commandGroup.commandList->DispatchRays(&desc);
 }
 
 void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
@@ -155,15 +143,15 @@ void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
             D3D12_RESOURCE_STATE_COPY_DEST)
     };
 
-    m_commandList->ResourceBarrier(_countof(barriers), barriers);
+    m_commandGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
 
-    m_commandList->CopyResource(buffer.Get(),
-                                m_outputResource.Get());
+    m_commandGroup.commandList->CopyResource(buffer.Get(),
+                                             m_outputResource.Get());
 
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_commandList->ResourceBarrier(1, &barrier);
+    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
 }
 
 void Space::Update(const double delta)
@@ -193,7 +181,7 @@ Light* Space::GetLight()
 
 ComPtr<ID3D12GraphicsCommandList4> Space::GetCommandList() const
 {
-    return m_commandList;
+    return m_commandGroup.commandList;
 }
 
 ComPtr<ID3D12Device5> Space::GetDevice() const
@@ -435,7 +423,7 @@ void Space::CreateTopLevelAS()
 
     constexpr bool updateOnly = false;
 
-    topLevelASGenerator.Generate(m_commandList.Get(),
+    topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
                                  m_topLevelASBuffers.scratch.Get(), m_topLevelASBuffers.result.Get(),
                                  m_topLevelASBuffers.instanceDesc.Get(),
                                  updateOnly, m_topLevelASBuffers.result.Get());

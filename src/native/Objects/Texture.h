@@ -34,7 +34,16 @@ public:
      */
     [[nodiscard]] D3D12_SHADER_RESOURCE_VIEW_DESC GetView() const;
 
+    /**
+     * Create a transition to the usable state (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) for fresh textures.
+     * This is a no-op for usable textures.
+     */
+    void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
+
+    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource);
+    
 private:
     ComPtr<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
+    bool m_usable;
 };

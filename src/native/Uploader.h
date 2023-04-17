@@ -14,7 +14,11 @@ struct TextureDescription;
 class Uploader
 {
 public:
-    explicit Uploader(NativeClient& client);
+    /**
+     * Create a new uploader for a client.
+     * Optionally, a command list can be provided instead of creating a new internal one.
+     */
+    Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> optionalCommandList);
 
     /**
      * Upload a texture to the GPU.
@@ -35,6 +39,11 @@ public:
     [[nodiscard]] ComPtr<ID3D12Device4> GetDevice() const;
     [[nodiscard]] NativeClient& GetClient() const;
 
+    /**
+     * Whether the uploader is uploading individually, meaning that the command list is only used for uploading.
+     */
+    [[nodiscard]] bool IsUploadingIndividually() const;
+
 private:
     NativeClient& m_client;
 
@@ -42,4 +51,6 @@ private:
     ComPtr<ID3D12GraphicsCommandList> m_commandList = {};
 
     std::vector<ComPtr<ID3D12Resource>> m_uploadBuffers = {};
+
+    bool m_ownsCommandList;
 };

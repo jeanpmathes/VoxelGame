@@ -25,8 +25,6 @@ public class Client : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    private readonly Definition.Native.NativeConfiguration configuration;
-
     private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
     {
         VirtualKeys.LeftButton,
@@ -38,6 +36,10 @@ public class Client : IDisposable
 
     private readonly List<NativeObject> objects = new();
 
+#pragma warning disable S1450 // Keep the callback functions alive.
+    private Config config;
+#pragma warning restore S1450 // Keep the callback functions alive.
+
     private Vector2i mousePosition;
 
     /// <summary>
@@ -45,44 +47,44 @@ public class Client : IDisposable
     /// </summary>
     protected Client(WindowSettings windowSettings, bool enableSpace) // todo: remove the enable space arg asap
     {
-        configuration.onInit = OnInit;
-
-        configuration.onUpdate = delta =>
+        Definition.Native.NativeConfiguration configuration = new()
         {
-            Time += delta;
+            onInit = OnInit,
+            onUpdate = delta =>
+            {
+                Time += delta;
 
-            mousePosition = Support.Native.GetMousePosition(Native);
+                mousePosition = Support.Native.GetMousePosition(Native);
 
-            OnUpdate(delta);
+                OnUpdate(delta);
 
-            foreach (NativeObject nativeObject in objects) nativeObject.PrepareSynchronization();
+                foreach (NativeObject nativeObject in objects) nativeObject.PrepareSynchronization();
 
-            foreach (NativeObject nativeObject in objects) nativeObject.Synchronize();
+                foreach (NativeObject nativeObject in objects) nativeObject.Synchronize();
 
-            KeyState.Update();
+                KeyState.Update();
+            },
+            onRender = OnRender,
+            onDestroy = OnDestroy,
+            onKeyDown = OnKeyDown,
+            onKeyUp = OnKeyUp,
+            onChar = OnChar,
+            onMouseMove = OnMouseMove,
+            onMouseWheel = OnMouseWheel,
+            onResize = (width, height) =>
+            {
+                OnResize(new Vector2i((int) width, (int) height));
+            },
+            onDebug = D3D12Debug.Enable(),
+            allowTearing = false,
+            enableSpace = enableSpace
         };
 
-        configuration.onRender = OnRender;
-        configuration.onDestroy = OnDestroy;
-        configuration.onKeyDown = OnKeyDown;
-        configuration.onKeyUp = OnKeyUp;
-        configuration.onChar = OnChar;
-        configuration.onMouseMove = OnMouseMove;
-        configuration.onMouseWheel = OnMouseWheel;
-
-        configuration.onResize = (width, height) =>
-        {
-            OnResize(new Vector2i((int) width, (int) height));
-        };
-
-        configuration.onDebug = D3D12Debug.Enable();
-
-        configuration.allowTearing = false;
-        configuration.enableSpace = enableSpace;
+        config = new Config(configuration, OnError, OnErrorMessage);
 
         // todo: add window settings values to configuration and use on native side
 
-        Native = Support.Native.Initialize(configuration, OnError, OnErrorMessage);
+        Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc, config.ErrorMessageFunc);
         Space = new Space(this);
     }
 
@@ -165,6 +167,8 @@ public class Client : IDisposable
     {
         Support.Native.ShowErrorBox($"Fatal error: {message}");
         logger.LogCritical("Fatal error: {Message}", message);
+
+        throw new InvalidOperationException(message);
     }
 
     /// <summary>
@@ -203,6 +207,8 @@ public class Client : IDisposable
     public void Close()
     {
         // todo: implement, ensure that OnDestroy is called
+        // todo: add event with cancellation token, pass to application client and then scene
+        // -> in game scene closing should not be possible
     }
 
     /// <summary>
@@ -377,6 +383,11 @@ public class Client : IDisposable
         return Support.Native.Run(Native);
     }
 
+    private record struct Config(
+        Definition.Native.NativeConfiguration Configuration,
+        Definition.Native.NativeErrorFunc ErrorFunc,
+        Definition.Native.NativeErrorMessageFunc ErrorMessageFunc);
+
     #region IDisposable Support
 
     private void ReleaseUnmanagedResources()
@@ -394,7 +405,7 @@ public class Client : IDisposable
 
         if (disposing)
         {
-            // release managed resources here
+            config = new Config();
         }
     }
 

@@ -175,43 +175,43 @@ public sealed class SectionRenderer : IDisposable
     /// <param name="meshData">The mesh data to use.</param>
     public void SetData(SectionMeshData meshData)
     {
-        if (disposed) return;
+        if (disposed) return; // todo: remove the usage of the count as the span already has the length
 
-        simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.ExposeArray());
+        simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.AsSpan().ToArray());
 
         crossPlantDrawGroup.SetInstanceData(
             meshData.crossPlantVertexData.Count,
-            meshData.crossPlantVertexData.ExposeArray());
+            meshData.crossPlantVertexData.AsSpan().ToArray());
 
         cropPlantDrawGroup.SetInstanceData(
             meshData.cropPlantVertexData.Count,
-            meshData.cropPlantVertexData.ExposeArray());
+            meshData.cropPlantVertexData.AsSpan().ToArray());
 
         complexDrawGroup.SetData(
             meshData.complexVertexPositions.Count,
-            meshData.complexVertexPositions.ExposeArray(),
+            meshData.complexVertexPositions.AsSpan().ToArray(),
             meshData.complexVertexData.Count,
-            meshData.complexVertexData.ExposeArray(),
+            meshData.complexVertexData.AsSpan().ToArray(),
             meshData.complexIndices.Count,
-            meshData.complexIndices.ExposeArray());
+            meshData.complexIndices.AsSpan().ToArray());
 
         varyingHeightDrawGroup.SetData(
             meshData.varyingHeightVertexData.Count,
-            meshData.varyingHeightVertexData.ExposeArray(),
+            meshData.varyingHeightVertexData.AsSpan().ToArray(),
             meshData.varyingHeightIndices.Count,
-            meshData.varyingHeightIndices.ExposeArray());
+            meshData.varyingHeightIndices.AsSpan().ToArray());
 
         opaqueFluidDrawGroup.SetData(
             meshData.opaqueFluidVertexData.Count,
-            meshData.opaqueFluidVertexData.ExposeArray(),
+            meshData.opaqueFluidVertexData.AsSpan().ToArray(),
             meshData.opaqueFluidIndices.Count,
-            meshData.opaqueFluidIndices.ExposeArray());
+            meshData.opaqueFluidIndices.AsSpan().ToArray());
 
         transparentFluidDrawGroup.SetData(
             meshData.transparentFluidVertexData.Count,
-            meshData.transparentFluidVertexData.ExposeArray(),
+            meshData.transparentFluidVertexData.AsSpan().ToArray(),
             meshData.transparentFluidIndices.Count,
-            meshData.transparentFluidIndices.ExposeArray());
+            meshData.transparentFluidIndices.AsSpan().ToArray());
 
         meshData.ReturnPooled();
     }
@@ -509,4 +509,3 @@ public sealed class SectionRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-

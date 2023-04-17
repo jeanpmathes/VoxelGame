@@ -34,28 +34,23 @@ void draw2d::Pipeline::PopulateCommandListSetup(ComPtr<ID3D12GraphicsCommandList
 {
     m_raster->SetPipeline(commandList);
     commandList->SetGraphicsRootSignature(m_raster->GetRootSignature().Get());
-
-    if (m_initialized)
-    {
-        m_raster->SetupHeaps(commandList);
-        m_raster->SetupRootDescriptorTable(commandList);
-    }
 }
+
+static constexpr UINT BOOLEAN_SLOT = 0;
+static constexpr UINT TEXTURE_SLOT = 1;
+
+static constexpr UINT TRUE_DESCRIPTOR_INDEX = 0;
+static constexpr UINT FALSE_DESCRIPTOR_INDEX = 1;
+static constexpr UINT FIRST_TEXTURE_DESCRIPTOR_INDEX = 2;
 
 void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
-    constexpr UINT booleanSlot = 0;
-    constexpr UINT textureSlot = 1;
-
-    constexpr UINT trueDescriptorIndex = 0;
-    constexpr UINT falseDescriptorIndex = 1;
-    constexpr UINT firstTextureDescriptorIndex = 2;
-
     const Drawer drawer
     {
         .initializeTextures = [](Texture** textures, const UINT textureCount, Pipeline* ctx)
         {
             REQUIRE(textureCount > 0);
+            REQUIRE(ctx->m_initialized == false);
             
             ctx->m_textures.clear();
             ctx->m_textures.reserve(textureCount);
@@ -64,39 +59,33 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             {
                 Texture& texture = *textures[i];
                 ctx->m_textures.push_back(std::make_tuple(texture.GetResource(), texture.GetView()));
+
+                texture.TransitionToUsable(ctx->m_currentCommandList);
             }
 
             ctx->m_raster->CreateResourceViews(ctx->m_constantBufferViews, ctx->m_textures);
 
-            ctx->m_raster->SetupHeaps(ctx->m_currentCommandList);
-            ctx->m_raster->SetupRootDescriptorTable(ctx->m_currentCommandList);
-            
-            ctx->m_currentTextureIndex = 0;
-            ctx->m_currentUseTexture = FALSE;
-
-            ctx->m_raster->BindDescriptor(ctx->m_currentCommandList, booleanSlot, falseDescriptorIndex);
-            ctx->m_raster->BindDescriptor(ctx->m_currentCommandList, textureSlot, firstTextureDescriptorIndex);
-
-            ctx->m_initialized = true;
+            Initialize(ctx);
         },
         .drawBuffer = [](
         const Vertex* vertices, const UINT vertexCount, const UINT textureIndex, const BOOL useTexture,
         Pipeline* ctx)
         {
-            REQUIRE(ctx->m_initialized);
+            if (!ctx->m_initialized) Initialize(ctx);
             
             if (ctx->m_currentUseTexture != useTexture)
             {
                 ctx->m_currentUseTexture = useTexture;
                 ctx->m_raster->BindDescriptor(ctx->m_currentCommandList,
-                                              booleanSlot, useTexture ? trueDescriptorIndex : falseDescriptorIndex);
+                                              BOOLEAN_SLOT,
+                                              useTexture ? TRUE_DESCRIPTOR_INDEX : FALSE_DESCRIPTOR_INDEX);
             }
 
             if (ctx->m_currentTextureIndex != textureIndex && useTexture)
             {
                 ctx->m_currentTextureIndex = textureIndex;
                 ctx->m_raster->BindDescriptor(ctx->m_currentCommandList,
-                                              textureSlot, firstTextureDescriptorIndex + textureIndex);
+                                              TEXTURE_SLOT, FIRST_TEXTURE_DESCRIPTOR_INDEX + textureIndex);
             }
 
             const ComPtr<ID3D12Resource> vertexBuffer = nv_helpers_dx12::CreateBuffer(
@@ -124,18 +113,28 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
 
     m_vertexBuffers.clear();
 
-    if (m_initialized)
-    {
-        m_currentTextureIndex = 0;
-        m_currentUseTexture = FALSE;
-
-        m_raster->BindDescriptor(commandList, booleanSlot, falseDescriptorIndex);
-        m_raster->BindDescriptor(commandList, textureSlot, firstTextureDescriptorIndex);
-    }
-
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     m_currentCommandList = commandList.Get();
     m_callback(drawer);
     m_currentCommandList = nullptr;
+    m_initialized = false;
+}
+
+void draw2d::Pipeline::Initialize(Pipeline* ctx)
+{
+    // Each draw call requires a initialized descriptor heap.
+    // But only one descriptor heap is used for all draw calls.
+    // Therefore, the heap is initialized either on texture initialization or on the first draw call of a frame.
+
+    ctx->m_raster->SetupHeaps(ctx->m_currentCommandList);
+    ctx->m_raster->SetupRootDescriptorTable(ctx->m_currentCommandList);
+
+    ctx->m_currentTextureIndex = 0;
+    ctx->m_currentUseTexture = FALSE;
+
+    ctx->m_raster->BindDescriptor(ctx->m_currentCommandList, BOOLEAN_SLOT, FALSE_DESCRIPTOR_INDEX);
+    ctx->m_raster->BindDescriptor(ctx->m_currentCommandList, TEXTURE_SLOT, FIRST_TEXTURE_DESCRIPTOR_INDEX);
+
+    ctx->m_initialized = true;
 }

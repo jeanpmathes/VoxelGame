@@ -31,6 +31,7 @@ public:
     void OnInit() override;
     void OnPostInit() override;
     void OnUpdate(double delta) override;
+    void OnPreRender() override;
     void OnRender(double delta) override;
     void OnDestroy() override;
 
@@ -116,8 +117,8 @@ public:
     RasterPipeline* m_postProcessingPipeline = nullptr;
     std::vector<draw2d::Pipeline> m_draw2DPipelines = {};
 
-    ComPtr<ID3D12CommandAllocator> m_2dCommandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12GraphicsCommandList4> m_2dCommandList;
+    CommandAllocatorGroup m_uploadGroup;
+    CommandAllocatorGroup m_2dGroup;
 
     ComPtr<IDXGISwapChain3> m_swapChain;
     ComPtr<ID3D12Device5> m_device;

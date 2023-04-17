@@ -5,6 +5,7 @@
 
 using System;
 using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
-public class PooledList<T>
+public class PooledList<T> : IEnumerable<T>
 {
     private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
@@ -133,6 +134,23 @@ public class PooledList<T>
         }
     }
 
+    /// <summary>
+    ///     Returns an enumerator that iterates through the <see cref="PooledList{T}" />.
+    /// </summary>
+    public IEnumerator<T> GetEnumerator()
+    {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
+        for (var i = 0; i < Count; i++) yield return items[i];
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
+        return GetEnumerator();
+    }
+
     private T[] MoveIntoNew(int newSize)
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
@@ -176,14 +194,13 @@ public class PooledList<T>
 
         int count = collection.Count;
 
-        if (count > 0)
-        {
-            EnsureCapacity(Count + count);
+        if (count <= 0) return;
 
-            collection.CopyTo(items, Count);
+        EnsureCapacity(Count + count);
 
-            Count += count;
-        }
+        collection.CopyTo(items, Count);
+
+        Count += count;
     }
 
     /// <summary>
@@ -199,14 +216,13 @@ public class PooledList<T>
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 
-        if (count > 0)
-        {
-            EnsureCapacity(Count + count);
+        if (count <= 0) return;
 
-            Array.Copy(array, sourceIndex: 0, items, Count, count);
+        EnsureCapacity(Count + count);
 
-            Count += count;
-        }
+        Array.Copy(array, sourceIndex: 0, items, Count, count);
+
+        Count += count;
     }
 
     /// <summary>
@@ -258,26 +274,36 @@ public class PooledList<T>
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 
-        if (items.Length < min)
-        {
-            int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
+        if (items.Length >= min) return;
 
-            if ((uint) newCapacity > int.MaxValue) newCapacity = int.MaxValue;
+        int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
 
-            if (newCapacity < min) newCapacity = min;
+        if ((uint) newCapacity > int.MaxValue) newCapacity = int.MaxValue;
 
-            Capacity = newCapacity;
-        }
+        if (newCapacity < min) newCapacity = min;
+
+        Capacity = newCapacity;
     }
 
     /// <summary>
-    ///     Gives access to the internal array of this <see cref="PooledList{T}" />. It has to be returned to the pool.
+    ///     Clears the list.
     /// </summary>
-    public T[] ExposeArray()
+    public void Clear()
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 
-        return items;
+        Count = 0;
+    }
+
+    /// <summary>
+    ///     Gives access to the internal memory of this <see cref="PooledList{T}" />.
+    ///     Only valid until any other method is called on this <see cref="PooledList{T}" />.
+    /// </summary>
+    public Span<T> AsSpan()
+    {
+        Debug.Assert(items != null, NoUseAfterReturnMessage);
+
+        return items.AsSpan(start: 0, Count);
     }
 
     /// <summary>
@@ -304,4 +330,3 @@ public class PooledList<T>
         Debug.Fail("The array is not returned to the pool.");
     }
 }
-

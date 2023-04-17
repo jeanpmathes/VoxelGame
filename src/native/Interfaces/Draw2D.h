@@ -54,6 +54,8 @@ namespace draw2d
         void PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandList4> commandList);
 
     private:
+        static void Initialize(Pipeline* ctx);
+        
         RasterPipeline* m_raster;
         Callback m_callback;
         ComPtr<ID3D12Device> m_device;

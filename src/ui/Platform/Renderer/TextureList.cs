@@ -59,7 +59,7 @@ public class TextureList
     ///     Safely load a texture from a file.
     /// </summary>
     /// <param name="path">The path to the image file.</param>
-    /// <param name="callback">The callback to call when the texture is loaded.</param>
+    /// <param name="callback">The callback that receives the texture entry if the load was successful.</param>
     /// <returns></returns>
     public Exception? LoadTexture(FileSystemInfo path, Action<Entry> callback)
     {
@@ -68,13 +68,10 @@ public class TextureList
             using Bitmap bitmap = new(path.FullName);
             Texture texture = client.LoadTexture(bitmap);
 
-            int index = textures.Count;
-            textures.Add(texture);
-            availableTextures.Add(path.FullName, index);
+            Entry entry = AddEntry(texture);
+            availableTextures[path.FullName] = entry.Index;
 
-            IsDirty = true;
-
-            callback(new Entry(texture, index));
+            callback(entry);
 
             return null;
         }
@@ -84,6 +81,26 @@ public class TextureList
         {
             return e;
         }
+    }
+
+    /// <summary>
+    ///     Load a texture from a bitmap.
+    /// </summary>
+    /// <param name="bitmap">The bitmap to load from.</param>
+    public Entry LoadTexture(Bitmap bitmap)
+    {
+        Texture texture = client.LoadTexture(bitmap);
+
+        return AddEntry(texture);
+    }
+
+    private Entry AddEntry(Texture texture)
+    {
+        int index = textures.Count;
+        textures.Add(texture);
+        IsDirty = true;
+
+        return new Entry(texture, index);
     }
 
     /// <summary>

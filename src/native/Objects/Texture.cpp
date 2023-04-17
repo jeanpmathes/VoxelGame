@@ -33,11 +33,16 @@ std::unique_ptr<Texture> Texture::Create(Uploader& uploader, std::byte* data, Te
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
-    return std::make_unique<Texture>(uploader.GetClient(), texture, srvDesc);
+    auto result = std::make_unique<Texture>(uploader.GetClient(), texture, srvDesc);
+
+    // With an individual upload, the texture will be in safe (non-fresh) state and can be used without transition.
+    result->m_usable = !uploader.IsUploadingIndividually();
+
+    return result;
 }
 
 Texture::Texture(NativeClient& client, const ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
-    : Object(client), m_resource(resource), m_srvDesc(srvDesc)
+    : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_usable(true)
 {
     NAME_D3D12_OBJECT_WITH_ID(m_resource);
 }
@@ -50,4 +55,24 @@ ComPtr<ID3D12Resource> Texture::GetResource() const
 D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetView() const
 {
     return m_srvDesc;
+}
+
+void Texture::TransitionToUsable(const ComPtr<ID3D12GraphicsCommandList> commandList)
+{
+    if (!m_usable) return;
+
+    CreateUsabilityBarrier(commandList, m_resource);
+
+    m_usable = false;
+}
+
+void Texture::CreateUsabilityBarrier(
+    const ComPtr<ID3D12GraphicsCommandList> commandList, const ComPtr<ID3D12Resource> resource)
+{
+    const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        resource.Get(),
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    commandList->ResourceBarrier(1, &barrier);
 }
