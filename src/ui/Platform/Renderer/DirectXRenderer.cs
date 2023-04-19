@@ -435,7 +435,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private void DrawRect(Rectangle rect, float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
     {
-        if (clipEnabled && PerformClip(rect, ref u1, ref v1, ref u2, ref v2)) return;
+        if (clipEnabled && PerformClip(ref rect, ref u1, ref v1, ref u2, ref v2)) return;
 
         float cR = DrawColor.R / 255f;
         float cG = DrawColor.G / 255f;
@@ -454,7 +454,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     CPU scissors test.
     /// </summary>
-    private bool PerformClip(Rectangle rect, ref float u1, ref float v1, ref float u2, ref float v2)
+    private bool PerformClip(ref Rectangle rect, ref float u1, ref float v1, ref float u2, ref float v2)
     {
         if (rect.Y < ClipRegion.Y)
         {
@@ -585,7 +585,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <param name="bitmap">The bitmap to load.</param>
     public void LoadTextureDirectly(Texture t, Bitmap bitmap)
     {
-        TextureList.Handle loadedTexture = textures.LoadTexture(bitmap, textureDiscardAllowed);
+        TextureList.Handle loadedTexture = textures.LoadTexture(bitmap, allowDiscard: true);
         SetTextureProperties(t, loadedTexture);
     }
 
