@@ -4,7 +4,7 @@
 //  </copyright>
 //  <author>Gwen.Net, jeanpmathes</author>
 
-cbuffer SpaceConstantBuffer : register(b0)
+cbuffer ScreenSizeConstantBuffer : register(b0)
 {
 float2 gScreenSize;
 };
@@ -31,10 +31,10 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
     result.uv = uv;
     result.color = color;
 
-    float2 ncdPosition = 2.0f * (position / gScreenSize) - 1.0f;
-    ncdPosition.y *= -1.0f;
+    float2 ndcPosition = 2.0f * (position / gScreenSize) - 1.0f;
+    ndcPosition.y *= -1.0f;
 
-    result.position = float4(ncdPosition, 0.0f, 1.0f);
+    result.position = float4(ndcPosition, 0.0f, 1.0f);
 
     return result;
 }

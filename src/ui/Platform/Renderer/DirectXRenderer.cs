@@ -35,7 +35,6 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class DirectXRenderer : RendererBase
 {
-    private const int InvalidTextureIndex = -1;
     private readonly PooledList<DrawCall> drawCalls = new();
     private readonly Graphics graphics;
     private readonly RasterPipeline pipeline;
@@ -57,7 +56,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private int currentVertexCount;
 
-    private int lastTextureIndex = InvalidTextureIndex;
+    private TextureList.Handle? lastTexture;
 
     private bool textureDiscardAllowed;
     private bool textureEnabled;
@@ -130,10 +129,13 @@ public sealed class DirectXRenderer : RendererBase
 
         foreach (DrawCall drawCall in drawCalls)
         {
-            bool texturedDraw = drawCall.TextureIndex != InvalidTextureIndex;
-            drawer.DrawBuffer(drawCall.Vertices.AsSpan()[..drawCall.VertexCount], (uint) drawCall.TextureIndex, texturedDraw);
+            bool texturedDraw = drawCall.Texture != null;
+            int index = drawCall.Texture?.Entry.Index ?? -1;
+
+            drawer.DrawBuffer(drawCall.Vertices.AsSpan()[..drawCall.VertexCount], (uint) index, texturedDraw);
 
             vertexBufferPool.Return(drawCall.Vertices);
+            ObjectPool<DrawCall>.Shared.Return(drawCall);
         }
 
         drawCalls.Clear();
@@ -201,17 +203,16 @@ public sealed class DirectXRenderer : RendererBase
         }
 
         var handle = (TextureList.Handle) t.RendererData;
-        TextureList.Entry data = handle.Entry;
         targetRect = Translate(targetRect);
 
-        bool differentTexture = data.Index != lastTextureIndex;
+        bool differentTexture = lastTexture != handle;
 
         if (!textureEnabled || differentTexture) Flush();
 
         if (!textureEnabled) textureEnabled = true;
 
         if (differentTexture)
-            lastTextureIndex = data.Index;
+            lastTexture = handle;
 
         DrawRect(targetRect, u1, v1, u2, v2);
     }
@@ -398,7 +399,7 @@ public sealed class DirectXRenderer : RendererBase
         VertexCount = 0;
         clipEnabled = false;
         textureEnabled = false;
-        lastTextureIndex = InvalidTextureIndex;
+        lastTexture = null;
     }
 
     /// <inheritdoc />
@@ -415,7 +416,12 @@ public sealed class DirectXRenderer : RendererBase
         vertices.AsSpan()[..currentVertexCount].CopyTo(buffer);
         vertices.Clear();
 
-        drawCalls.Add(new DrawCall(buffer, currentVertexCount, textureEnabled ? lastTextureIndex : InvalidTextureIndex));
+        DrawCall call = ObjectPool<DrawCall>.Shared.Get();
+        call.VertexCount = currentVertexCount;
+        call.Vertices = buffer;
+        call.Texture = lastTexture;
+
+        drawCalls.Add(call);
 
         VertexCount += currentVertexCount;
         currentVertexCount = 0;
@@ -656,5 +662,10 @@ public sealed class DirectXRenderer : RendererBase
         uniformBuffer.Data = size;
     }
 
-    private record struct DrawCall(Draw2D.Vertex[] Vertices, int VertexCount, int TextureIndex);
+    private sealed class DrawCall
+    {
+        public Draw2D.Vertex[] Vertices { get; set; } = Array.Empty<Draw2D.Vertex>();
+        public int VertexCount { get; set; }
+        public TextureList.Handle? Texture { get; set; }
+    }
 }

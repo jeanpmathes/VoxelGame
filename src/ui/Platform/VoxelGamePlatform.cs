@@ -109,7 +109,7 @@ namespace VoxelGame.UI.Platform
             staThread.Start();
             staThread.Join();
 
-            // at this point either you have clipboard data or an exception
+            // At this point either you have clipboard data or an exception.
             return ret;
         }
 

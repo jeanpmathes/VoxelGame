@@ -53,6 +53,8 @@ internal sealed class VGui : IGwenGui
         canvas = new Canvas(skin);
         input = new InputTranslator(canvas);
 
+        renderer.Resize(Parent.Size);
+
         canvas.SetSize(Parent.Size.X, Parent.Size.Y);
         canvas.ShouldDrawBackground = true;
         canvas.BackgroundColor = skin.ModalBackground;
@@ -67,8 +69,8 @@ internal sealed class VGui : IGwenGui
 
     public void Resize(Vector2i newSize)
     {
-        canvas.SetSize(newSize.X, newSize.Y);
         renderer.Resize(newSize.ToVector2());
+        canvas.SetSize(newSize.X, newSize.Y);
     }
 
     public void Dispose()
