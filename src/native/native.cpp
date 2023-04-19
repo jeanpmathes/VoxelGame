@@ -221,11 +221,20 @@ NATIVE void NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeli
     CATCH();
 }
 
-NATIVE Texture* NativeLoadTexture(NativeClient* client, std::byte* data, const TextureDescription description)
+NATIVE Texture* NativeLoadTexture(const NativeClient* client, std::byte* data, const TextureDescription description)
 {
     TRY
     {
         return client->LoadTexture(data, description);
+    }
+    CATCH();
+}
+
+NATIVE void NativeFreeTexture(const Texture* texture)
+{
+    TRY
+    {
+        texture->Free();
     }
     CATCH();
 }

@@ -212,7 +212,7 @@ public class PooledList<T> : IEnumerable<T>
     ///     type.
     /// </param>
     /// <param name="count">The amount of elements to add.</param>
-    public void AddRange(T[] array, int count)
+    public void AddRange(T[] array, int count) // todo: use span here instead of array+count
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 

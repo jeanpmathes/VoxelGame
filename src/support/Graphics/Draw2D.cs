@@ -68,13 +68,14 @@ public readonly unsafe struct Draw2D
     ///     This must be called at least once before any draw calls.
     ///     At least one texture must be provided.
     /// </summary>
-    /// <param name="textures">The textures to initialize.</param>
-    public void InitializeTextures(ICollection<Texture> textures)
+    /// <param name="allTextures">The textures to initialize.</param>
+    public void InitializeTextures(IEnumerable<Texture> allTextures)
     {
-        var textureCount = (uint) textures.Count;
+        Texture[] textures = allTextures.ToArray();
+        var textureCount = (uint) textures.Length;
 
         var pointers = new IntPtr[textureCount];
-        for (var i = 0; i < textureCount; i++) pointers[i] = textures.ElementAt(i).Self;
+        for (var i = 0; i < textureCount; i++) pointers[i] = textures[i].Self;
 
         fixed (IntPtr* texturesPointer = pointers)
         {

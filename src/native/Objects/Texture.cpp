@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Texture.h"
 
-std::unique_ptr<Texture> Texture::Create(Uploader& uploader, std::byte* data, TextureDescription description)
+Texture* Texture::Create(Uploader& uploader, std::byte* data, TextureDescription description)
 {
     const D3D12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -34,17 +34,24 @@ std::unique_ptr<Texture> Texture::Create(Uploader& uploader, std::byte* data, Te
     srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
     auto result = std::make_unique<Texture>(uploader.GetClient(), texture, srvDesc);
+    auto ptr = result.get();
 
     // With an individual upload, the texture will be in safe (non-fresh) state and can be used without transition.
-    result->m_usable = !uploader.IsUploadingIndividually();
+    ptr->m_usable = !uploader.IsUploadingIndividually();
+    ptr->m_handle = uploader.GetClient().StoreObject(std::move(result));
 
-    return result;
+    return ptr;
 }
 
 Texture::Texture(NativeClient& client, const ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
     : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_usable(true)
 {
     NAME_D3D12_OBJECT_WITH_ID(m_resource);
+}
+
+void Texture::Free() const
+{
+    GetClient().DeleteObject(m_handle);
 }
 
 ComPtr<ID3D12Resource> Texture::GetResource() const
@@ -73,6 +80,6 @@ void Texture::CreateUsabilityBarrier(
         resource.Get(),
         D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
+    
     commandList->ResourceBarrier(1, &barrier);
 }

@@ -20,10 +20,19 @@ class Texture final : public Object
     DECLARE_OBJECT_SUBCLASS(Texture)
 
 public:
-    static std::unique_ptr<Texture> Create(Uploader& uploader, std::byte* data, TextureDescription description);
+    /**
+     * Create a texture from given data.
+     * The texture is stored in the client that is associated with the uploader.
+     */
+    static Texture* Create(Uploader& uploader, std::byte* data, TextureDescription description);
 
     explicit Texture(NativeClient& client, ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 
+    /**
+     * Free this texture. This will detach the texture from the client, causing it to be destroyed.
+     */
+    void Free() const;
+    
     /**
      * Get the resource in which the texture is stored.
      */
@@ -45,5 +54,7 @@ public:
 private:
     ComPtr<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
+    
     bool m_usable;
+    NativeClient::ObjectHandle m_handle{};
 };

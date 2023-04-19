@@ -429,4 +429,16 @@ public static class Native
 
         return new Texture(texture, client, bitmap.Size.ToVector2i());
     }
+
+    /// <summary>
+    ///     Free a texture.
+    /// </summary>
+    /// <param name="texture">The texture.</param>
+    public static void FreeTexture(Texture texture)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeFreeTexture(IntPtr texture);
+
+        NativeFreeTexture(texture.Self);
+    }
 }

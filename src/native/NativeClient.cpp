@@ -398,16 +398,11 @@ void NativeClient::ToggleFullscreen() const
     Win32Application::ToggleFullscreenWindow();
 }
 
-Texture* NativeClient::LoadTexture(std::byte* data, const TextureDescription& description)
+Texture* NativeClient::LoadTexture(std::byte* data, const TextureDescription& description) const
 {
     REQUIRE(m_uploader != nullptr);
 
-    auto texture = Texture::Create(*m_uploader, data, description);
-    Texture* texturePtr = texture.get();
-
-    m_textures.push_back(std::move(texture));
-
-    return texturePtr;
+    return Texture::Create(*m_uploader, data, description);
 }
 
 void NativeClient::SetMousePosition(POINT position) const
@@ -435,6 +430,16 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback)
 {
     m_draw2DPipelines.push_back({*this, pipeline, callback});
+}
+
+NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)
+{
+    return m_objects.insert(m_objects.end(), std::move(object));
+}
+
+void NativeClient::DeleteObject(const ObjectHandle handle)
+{
+    m_objects.erase(handle);
 }
 
 void NativeClient::WaitForGPU()

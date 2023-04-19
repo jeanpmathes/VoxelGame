@@ -36,6 +36,14 @@ public abstract class NativeObject
     protected Client Client { get; }
 
     /// <summary>
+    ///     De-registers the object from the client.
+    /// </summary>
+    protected void Deregister()
+    {
+        Client.DeRegisterObject(this);
+    }
+
+    /// <summary>
     ///     Synchronizes the native object with the managed object.
     /// </summary>
     internal abstract void Synchronize();

@@ -34,7 +34,7 @@ public class Client : IDisposable
         VirtualKeys.ExtraButton2
     };
 
-    private readonly List<NativeObject> objects = new();
+    private readonly ISet<NativeObject> objects = new HashSet<NativeObject>();
 
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
@@ -147,6 +147,14 @@ public class Client : IDisposable
     internal void RegisterObject(NativeObject nativeObject)
     {
         objects.Add(nativeObject);
+    }
+
+    /// <summary>
+    ///     De-register a native object.
+    /// </summary>
+    public void DeRegisterObject(NativeObject nativeObject)
+    {
+        objects.Remove(nativeObject);
     }
 
     private static void OnError(int hr, string message)

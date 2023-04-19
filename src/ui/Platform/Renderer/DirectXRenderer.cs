@@ -59,7 +59,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private int lastTextureIndex = InvalidTextureIndex;
 
-    private bool loading;
+    private bool textureDiscardAllowed;
     private bool textureEnabled;
 
     /// <summary>
@@ -67,8 +67,6 @@ public sealed class DirectXRenderer : RendererBase
     /// </summary>
     internal DirectXRenderer(Client client, GwenGuiSettings settings)
     {
-        loading = true;
-
         stringCache = new Dictionary<Tuple<string, Font>, TextRenderer>();
         graphics = Graphics.FromImage(new Bitmap(width: 1024, height: 1024));
         stringFormat = new StringFormat(StringFormat.GenericTypographic);
@@ -85,6 +83,7 @@ public sealed class DirectXRenderer : RendererBase
         foreach (TexturePreload texturePreload in settings.TexturePreloads)
         {
             Exception? exception = textures.LoadTexture(texturePreload.File,
+                textureDiscardAllowed,
                 _ =>
                 {
                     preloadNameToPath.Add(texturePreload.Name, texturePreload.File.FullName);
@@ -122,7 +121,7 @@ public sealed class DirectXRenderer : RendererBase
     /// </summary>
     internal void FinishLoading()
     {
-        loading = false;
+        textureDiscardAllowed = true;
     }
 
     private void DoDraw(Draw2D drawer)
@@ -201,17 +200,18 @@ public sealed class DirectXRenderer : RendererBase
             return;
         }
 
-        var data = (TextureRendererData) t.RendererData;
+        var handle = (TextureList.Handle) t.RendererData;
+        TextureList.Entry data = handle.Entry;
         targetRect = Translate(targetRect);
 
-        bool differentTexture = data.textureIndex != lastTextureIndex;
+        bool differentTexture = data.Index != lastTextureIndex;
 
         if (!textureEnabled || differentTexture) Flush();
 
         if (!textureEnabled) textureEnabled = true;
 
         if (differentTexture)
-            lastTextureIndex = data.textureIndex;
+            lastTextureIndex = data.Index;
 
         DrawRect(targetRect, u1, v1, u2, v2);
     }
@@ -518,36 +518,34 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void LoadTexture(Texture t, Action<Exception> errorCallback)
     {
-        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
-
-        TextureList.Entry? entry = null;
+        TextureList.Handle? handle = null;
 
         if (preloadNameToPath.TryGetValue(t.Name, out string? path))
         {
-            entry ??= textures.GetTexture(path);
+            handle ??= textures.GetTexture(path);
         }
 
-        entry ??= textures.GetTexture(t.Name);
+        handle ??= textures.GetTexture(t.Name);
 
-        if (entry is null)
+        if (handle is null)
         {
             Exception? exception = textures.LoadTexture(new FileInfo(t.Name),
+                textureDiscardAllowed,
                 loaded =>
                 {
-                    entry = loaded;
+                    handle = loaded;
                 });
 
             if (exception != null) errorCallback(exception);
         }
 
-        if (entry is not null)
+        if (handle is not null)
         {
-            SetTextureProperties(t, entry.Value);
+            SetTextureProperties(t, handle);
         }
         else
         {
-            t.Failed = true;
-            t.RendererData = null;
+            SetFailedTextureProperties(t);
         }
     }
 
@@ -570,7 +568,7 @@ public sealed class DirectXRenderer : RendererBase
         catch (Exception)
 #pragma warning restore S2221
         {
-            t.Failed = true;
+            SetFailedTextureProperties(t);
 
             return;
         }
@@ -587,21 +585,27 @@ public sealed class DirectXRenderer : RendererBase
     /// <param name="bitmap">The bitmap to load.</param>
     public void LoadTextureDirectly(Texture t, Bitmap bitmap)
     {
-        // todo: free previous texture if needed - only allowed if texture was not created in loading phase
-
-        TextureList.Entry entry = textures.LoadTexture(bitmap);
-        SetTextureProperties(t, entry);
+        TextureList.Handle loadedTexture = textures.LoadTexture(bitmap, textureDiscardAllowed);
+        SetTextureProperties(t, loadedTexture);
     }
 
-    private static void SetTextureProperties(Texture texture, TextureList.Entry entry)
+    private void SetTextureProperties(Texture texture, TextureList.Handle loadedTexture)
     {
-        texture.Width = entry.Texture.Width;
-        texture.Height = entry.Texture.Height;
+        textures.DiscardTexture(texture.RendererData as TextureList.Handle);
 
-        texture.RendererData = new TextureRendererData
-        {
-            textureIndex = entry.Index
-        };
+        texture.Width = loadedTexture.Entry.Texture.Width;
+        texture.Height = loadedTexture.Entry.Texture.Height;
+
+        texture.RendererData = loadedTexture;
+    }
+
+    private void SetFailedTextureProperties(Texture texture)
+    {
+        texture.Width = 0;
+        texture.Height = 0;
+
+        textures.DiscardTexture(texture.RendererData as TextureList.Handle);
+        texture.RendererData = null;
     }
 
     /// <inheritdoc />
@@ -609,10 +613,11 @@ public sealed class DirectXRenderer : RendererBase
     {
         if (t.RendererData == null) return;
 
-        // todo: free texture if needed - only allowed if texture was not created in loading phase
-        // todo: also consider indices, maybe use linked list
+        textures.DiscardTexture(t.RendererData as TextureList.Handle);
 
         t.RendererData = null;
+        t.Width = 0;
+        t.Height = 0;
     }
 
     private FileInfo GetTextureFile(Texture texture)
@@ -652,9 +657,4 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     private record struct DrawCall(Draw2D.Vertex[] Vertices, int VertexCount, int TextureIndex);
-
-    private sealed class TextureRendererData
-    {
-        public int textureIndex;
-    }
 }

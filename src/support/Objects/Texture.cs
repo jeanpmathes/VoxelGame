@@ -90,4 +90,12 @@ public class Texture : NativeObject
     {
         // Nothing to do here.
     }
+
+    /// <summary>
+    ///     Frees the texture.
+    /// </summary>
+    public void Free()
+    {
+        Native.FreeTexture(this);
+    }
 }

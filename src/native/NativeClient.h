@@ -50,7 +50,7 @@ public:
     /**
      * Load a texture from a file.
      */
-    Texture* LoadTexture(std::byte* data, const TextureDescription& description);
+    Texture* LoadTexture(std::byte* data, const TextureDescription& description) const;
     
     /**
      * Set the mouse position in client coordinates.
@@ -78,6 +78,11 @@ public:
      */
     void AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback);
 
+    using ObjectHandle = std::list<std::unique_ptr<Object>>::iterator;
+
+    ObjectHandle StoreObject(std::unique_ptr<Object> object);
+    void DeleteObject(ObjectHandle handle);
+
     void WaitForGPU();
     void MoveToNextFrame();
 
@@ -97,7 +102,7 @@ public:
     DWORD m_callbackCookie{};
 
     std::unique_ptr<Uploader> m_uploader = nullptr;
-    std::vector<std::unique_ptr<Texture>> m_textures = {};
+    std::list<std::unique_ptr<Object>> m_objects = {};
 
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;
