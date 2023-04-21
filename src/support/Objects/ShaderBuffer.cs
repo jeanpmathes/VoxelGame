@@ -27,6 +27,8 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged
         get => data;
         set
         {
+            if (EqualityComparer<T>.Default.Equals(Data, value)) return;
+
             data = value;
             dirty = true;
         }
