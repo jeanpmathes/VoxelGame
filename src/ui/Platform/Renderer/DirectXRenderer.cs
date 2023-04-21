@@ -52,7 +52,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private uint currentVertexCount;
 
-    private TextureList.Handle? lastTexture;
+    private TextureList.Handle lastTexture;
 
     private bool textureDiscardAllowed;
     private bool textureEnabled;
@@ -127,8 +127,8 @@ public sealed class DirectXRenderer : RendererBase
 
         foreach (DrawCall drawCall in drawCalls)
         {
-            bool texturedDraw = drawCall.Texture != null;
-            int index = drawCall.Texture?.Entry.Index ?? -1;
+            bool texturedDraw = drawCall.Texture.IsValid;
+            int index = drawCall.Texture.Index;
 
             drawer.DrawBuffer((drawCall.FirstVertex, drawCall.VertexCount), (uint) index, texturedDraw);
 
@@ -365,7 +365,7 @@ public sealed class DirectXRenderer : RendererBase
         VertexCount = 0;
         clipEnabled = false;
         textureEnabled = false;
-        lastTexture = null;
+        lastTexture = TextureList.Handle.Invalid;
     }
 
     /// <inheritdoc />
@@ -486,16 +486,16 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void LoadTexture(Texture t, Action<Exception> errorCallback)
     {
-        TextureList.Handle? handle = null;
+        TextureList.Handle handle = TextureList.Handle.Invalid;
 
         if (preloadNameToPath.TryGetValue(t.Name, out string? path))
         {
-            handle ??= textures.GetTexture(path);
+            handle = textures.GetTexture(path);
         }
 
-        handle ??= textures.GetTexture(t.Name);
+        if (!handle.IsValid) handle = textures.GetTexture(t.Name);
 
-        if (handle is null)
+        if (!handle.IsValid)
         {
             Exception? exception = textures.LoadTexture(new FileInfo(t.Name),
                 textureDiscardAllowed,
@@ -507,7 +507,7 @@ public sealed class DirectXRenderer : RendererBase
             if (exception != null) errorCallback(exception);
         }
 
-        if (handle is not null)
+        if (handle.IsValid)
         {
             SetTextureProperties(t, handle);
         }
@@ -559,10 +559,15 @@ public sealed class DirectXRenderer : RendererBase
 
     private void SetTextureProperties(Texture texture, TextureList.Handle loadedTexture)
     {
-        textures.DiscardTexture(texture.RendererData as TextureList.Handle);
+        textures.DiscardTexture(GetRenderData(texture));
 
-        texture.Width = loadedTexture.Entry.Texture.Width;
-        texture.Height = loadedTexture.Entry.Texture.Height;
+        TextureList.Entry? entry = textures.GetEntry(loadedTexture);
+
+        Debug.Assert(loadedTexture.IsValid);
+        Debug.Assert(entry != null);
+
+        texture.Width = entry.Texture.Width;
+        texture.Height = entry.Texture.Height;
 
         texture.RendererData = loadedTexture;
     }
@@ -572,7 +577,7 @@ public sealed class DirectXRenderer : RendererBase
         texture.Width = 0;
         texture.Height = 0;
 
-        textures.DiscardTexture(texture.RendererData as TextureList.Handle);
+        textures.DiscardTexture(GetRenderData(texture));
         texture.RendererData = null;
     }
 
@@ -581,7 +586,7 @@ public sealed class DirectXRenderer : RendererBase
     {
         if (t.RendererData == null) return;
 
-        textures.DiscardTexture(t.RendererData as TextureList.Handle);
+        textures.DiscardTexture(GetRenderData(t));
 
         t.RendererData = null;
         t.Width = 0;
@@ -624,10 +629,20 @@ public sealed class DirectXRenderer : RendererBase
         uniformBuffer.Data = size;
     }
 
+    private static TextureList.Handle GetRenderData(Texture texture)
+    {
+        if (texture.RendererData == null) return TextureList.Handle.Invalid;
+
+        var handle = (TextureList.Handle) texture.RendererData;
+        Debug.Assert(handle.IsValid);
+
+        return handle;
+    }
+
     private sealed class DrawCall
     {
         public uint FirstVertex { get; set; }
         public uint VertexCount { get; set; }
-        public TextureList.Handle? Texture { get; set; }
+        public TextureList.Handle Texture { get; set; }
     }
 }

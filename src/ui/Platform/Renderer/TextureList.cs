@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using VoxelGame.Core.Collections;
 using VoxelGame.Support;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -21,10 +22,13 @@ namespace VoxelGame.UI.Platform.Renderer;
 public class TextureList
 {
     private const int NeverDiscard = -1;
-    private readonly Dictionary<string, LinkedListNode<Entry>> availableTextures = new();
+    private readonly Dictionary<string, int> availableTextures = new();
 
     private readonly Client client;
-    private readonly LinkedList<Entry> textures = new();
+    private readonly PriorityQueue<int, int> freeIndices = new();
+
+    private readonly Entry sentinel;
+    private readonly PooledList<Entry> textures = new();
 
     /// <summary>
     ///     Creates a new texture list.
@@ -35,8 +39,9 @@ public class TextureList
         this.client = client;
 
         // The Draw2D pipeline requires at least one texture.
-        using Bitmap sentinel = Texture.CreateFallback(resolution: 1);
-        textures.AddLast(new Entry(client.LoadTexture(sentinel), NeverDiscard));
+        using Bitmap image = Texture.CreateFallback(resolution: 1);
+        sentinel = new Entry(client.LoadTexture(image), NeverDiscard);
+        textures.Add(sentinel);
     }
 
     /// <summary>
@@ -53,13 +58,7 @@ public class TextureList
     {
         if (!IsDirty) return;
 
-        draw2D.InitializeTextures(textures.Select((entry, index) =>
-        {
-            IEntry e = entry;
-            e.SetIndex(index);
-
-            return entry.Texture;
-        }));
+        draw2D.InitializeTextures(textures.Select(entry => entry.Texture));
 
         IsDirty = false;
     }
@@ -73,9 +72,9 @@ public class TextureList
     /// <returns>An exception if the load failed, null otherwise.</returns>
     public Exception? LoadTexture(FileSystemInfo path, bool allowDiscard, Action<Handle> callback)
     {
-        Handle? existing = GetTexture(path.FullName);
+        Handle existing = GetTexture(path.FullName);
 
-        if (existing != null)
+        if (existing.IsValid)
         {
             callback(existing);
 
@@ -119,20 +118,20 @@ public class TextureList
     ///     If the usage count reaches zero, the texture is discarded.
     /// </summary>
     /// <param name="handle">The texture handle.</param>
-    public void DiscardTexture(Handle? handle)
+    public void DiscardTexture(Handle handle)
     {
-        if (handle is not {Index: var index}) return;
+        if (GetEntry(handle) is not IEntry entry) return;
 
-        IEntry e = index.Value;
+        if (entry.UsageCount == NeverDiscard) return;
 
-        if (e.UsageCount == NeverDiscard) return;
+        entry.UsageCount--;
 
-        e.UsageCount--;
+        if (entry.UsageCount != 0) return;
 
-        if (e.UsageCount != 0) return;
+        textures[handle.Index].Texture.Free();
+        textures[handle.Index] = sentinel;
 
-        textures.Remove(index);
-        index.Value.Texture.Free();
+        freeIndices.Enqueue(handle.Index, handle.Index);
 
         IsDirty = true;
     }
@@ -140,20 +139,20 @@ public class TextureList
     private Handle AddEntry(Texture texture, bool allowDiscard)
     {
         int usageCount = allowDiscard ? 0 : NeverDiscard;
+        int index = GetNextFreeIndex();
 
-        LinkedListNode<Entry> index = textures.AddLast(new Entry(texture, usageCount));
-        IncreaseUsageCount(index);
+        Entry entry = new(texture, usageCount);
+        textures[index] = entry;
+        IncreaseUsageCount(entry);
 
         IsDirty = true;
 
         return new Handle(index);
     }
 
-    private static void IncreaseUsageCount(LinkedListNode<Entry> index)
+    private static void IncreaseUsageCount(IEntry? entry)
     {
-        IEntry entry = index.Value;
-
-        if (entry.UsageCount != NeverDiscard) entry.UsageCount++;
+        if (entry != null && entry.UsageCount != NeverDiscard) entry.UsageCount++;
     }
 
     /// <summary>
@@ -161,25 +160,54 @@ public class TextureList
     /// </summary>
     /// <param name="name">The name of the texture.</param>
     /// <returns>The texture entry, if found.</returns>
-    public Handle? GetTexture(string name)
+    public Handle GetTexture(string name)
     {
-        if (!availableTextures.TryGetValue(name, out LinkedListNode<Entry>? entry)) return null;
+        if (!availableTextures.TryGetValue(name, out int index)) return Handle.Invalid;
 
-        IncreaseUsageCount(entry);
+        Handle handle = new(index);
 
-        return new Handle(entry);
+        IncreaseUsageCount(GetEntry(handle));
+
+        return handle;
+    }
+
+    /// <summary>
+    ///     Get the texture list entry for a handle.
+    /// </summary>
+    /// <param name="handle">The handle.</param>
+    /// <returns>The texture list entry, if the handle is valid.</returns>
+    public Entry? GetEntry(Handle handle)
+    {
+        return handle.IsValid ? textures[handle.Index] : null;
+    }
+
+    private int GetNextFreeIndex()
+    {
+        if (freeIndices.TryDequeue(out int index, out _)) return index;
+
+        index = textures.Count;
+        textures.Add(sentinel);
+
+        return index;
     }
 
     /// <summary>
     /// A handle to a texture list entry.
     /// </summary>
     /// <param name="Index">The index of the texture in the texture list.</param>
-    public record Handle(LinkedListNode<Entry> Index)
+    public readonly record struct Handle(int Index)
     {
+        private const int InvalidIndex = -1;
+
         /// <summary>
-        ///     Get the texture list entry.
+        /// Get the handle that represents no texture.
         /// </summary>
-        public Entry Entry => Index.Value;
+        public static Handle Invalid => new(InvalidIndex);
+
+        /// <summary>
+        ///     Get whether the handle is valid.
+        /// </summary>
+        public bool IsValid => Index != InvalidIndex;
     }
 
     /// <summary>
@@ -205,22 +233,11 @@ public class TextureList
         /// </summary>
         public Texture Texture { get; }
 
-        /// <summary>
-        ///     Get the index of the texture in the uploaded list.
-        /// </summary>
-        public int Index { get; private set; }
-
         int IEntry.UsageCount { get; set; }
-
-        void IEntry.SetIndex(int index)
-        {
-            Index = index;
-        }
     }
 
     private interface IEntry
     {
         public int UsageCount { get; set; }
-        public void SetIndex(int index);
     }
 }
