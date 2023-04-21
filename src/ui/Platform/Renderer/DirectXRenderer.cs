@@ -5,7 +5,6 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -45,15 +44,13 @@ public sealed class DirectXRenderer : RendererBase
     private readonly TextureList textures;
     private readonly ShaderBuffer<Vector2> uniformBuffer;
 
-    private readonly ArrayPool<Draw2D.Vertex> vertexBufferPool = ArrayPool<Draw2D.Vertex>.Shared;
-
-    private readonly PooledList<Draw2D.Vertex> vertices = new();
+    private readonly PooledList<Draw2D.Vertex> vertexBuffer = new();
     private bool clipEnabled;
 
     private Bitmap? currentPixelColorSource;
     private string currentPixelColorSourceName = "";
 
-    private int currentVertexCount;
+    private uint currentVertexCount;
 
     private TextureList.Handle? lastTexture;
 
@@ -104,7 +101,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     Gets the current vertex count.
     /// </summary>
-    private int VertexCount { get; set; }
+    private uint VertexCount { get; set; }
 
     /// <summary>
     ///     Set the current draw color.
@@ -126,17 +123,19 @@ public sealed class DirectXRenderer : RendererBase
         textCache.Evict();
         textures.UploadIfDirty(drawer);
 
+        drawer.UploadBuffer(vertexBuffer.AsSpan());
+
         foreach (DrawCall drawCall in drawCalls)
         {
             bool texturedDraw = drawCall.Texture != null;
             int index = drawCall.Texture?.Entry.Index ?? -1;
 
-            drawer.DrawBuffer(drawCall.Vertices.AsSpan()[..drawCall.VertexCount], (uint) index, texturedDraw);
+            drawer.DrawBuffer((drawCall.FirstVertex, drawCall.VertexCount), (uint) index, texturedDraw);
 
-            vertexBufferPool.Return(drawCall.Vertices);
             ObjectPool<DrawCall>.Shared.Return(drawCall);
         }
 
+        vertexBuffer.Clear();
         drawCalls.Clear();
     }
 
@@ -325,8 +324,6 @@ public sealed class DirectXRenderer : RendererBase
 
         Debug.Assert(sysFont != null);
 
-        //todo: move this part to constructor
-
         SizeF tabSize = graphics.MeasureString(
             "....",
             sysFont); //Spaces are not being picked up, let's just use .'s.
@@ -381,13 +378,9 @@ public sealed class DirectXRenderer : RendererBase
     {
         if (currentVertexCount == 0) return;
 
-        Draw2D.Vertex[] buffer = vertexBufferPool.Rent(currentVertexCount);
-        vertices.AsSpan()[..currentVertexCount].CopyTo(buffer);
-        vertices.Clear();
-
         DrawCall call = ObjectPool<DrawCall>.Shared.Get();
+        call.FirstVertex = VertexCount;
         call.VertexCount = currentVertexCount;
-        call.Vertices = buffer;
         call.Texture = lastTexture;
 
         drawCalls.Add(call);
@@ -398,7 +391,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private void PushVertex(int x, int y, Vector2 uv, ref Vector4 vertexColor)
     {
-        vertices.Add(new Draw2D.Vertex
+        vertexBuffer.Add(new Draw2D.Vertex
         {
             Position = new Vector2((short) x, (short) y),
             TextureCoordinate = uv,
@@ -633,8 +626,8 @@ public sealed class DirectXRenderer : RendererBase
 
     private sealed class DrawCall
     {
-        public Draw2D.Vertex[] Vertices { get; set; } = Array.Empty<Draw2D.Vertex>();
-        public int VertexCount { get; set; }
+        public uint FirstVertex { get; set; }
+        public uint VertexCount { get; set; }
         public TextureList.Handle? Texture { get; set; }
     }
 }

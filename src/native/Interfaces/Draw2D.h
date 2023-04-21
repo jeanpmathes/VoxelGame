@@ -23,12 +23,14 @@ namespace draw2d
 #pragma pack(pop)
 
     using InitializeTextures = void(*)(Texture** textures, UINT textureCount, Pipeline* ctx);
-    using DrawBuffer = void(*)(const Vertex* vertices, UINT vertexCount, UINT textureIndex, BOOL useTexture,
+    using UploadBuffer = void(*)(const Vertex* vertices, UINT vertexCount, Pipeline* ctx);
+    using DrawBuffer = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture,
                                Pipeline* ctx);
 
     struct Drawer
     {
         InitializeTextures initializeTextures;
+        UploadBuffer uploadBuffer;
         DrawBuffer drawBuffer;
         Pipeline* ctx;
     };
@@ -64,7 +66,7 @@ namespace draw2d
         std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC> m_constantBufferViews = {};
         std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>> m_textures = {};
 
-        std::vector<ComPtr<ID3D12Resource>> m_vertexBuffers = {};
+        ComPtr<ID3D12Resource> m_vertexBuffer = nullptr;
 
         UINT m_currentTextureIndex = 0;
         BOOL m_currentUseTexture = FALSE;

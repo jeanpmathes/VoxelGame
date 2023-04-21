@@ -67,8 +67,27 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
 
             Initialize(ctx);
         },
+        .uploadBuffer = [](const Vertex* vertices, const UINT vertexCount, Pipeline* ctx)
+        {
+            ctx->m_vertexBuffer = nv_helpers_dx12::CreateBuffer(
+                ctx->m_device.Get(), vertexCount * sizeof(Vertex),
+                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                nv_helpers_dx12::kUploadHeapProps);
+
+            Vertex* pData;
+            TRY_DO(ctx->m_vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+            memcpy(pData, vertices, vertexCount * sizeof(Vertex));
+            ctx->m_vertexBuffer->Unmap(0, nullptr);
+
+            D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+            vertexBufferView.BufferLocation = ctx->m_vertexBuffer->GetGPUVirtualAddress();
+            vertexBufferView.StrideInBytes = sizeof(Vertex);
+            vertexBufferView.SizeInBytes = vertexCount * sizeof(Vertex);
+
+            ctx->m_currentCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+        },
         .drawBuffer = [](
-        const Vertex* vertices, const UINT vertexCount, const UINT textureIndex, const BOOL useTexture,
+        const UINT firstVertex, const UINT vertexCount, const UINT textureIndex, const BOOL useTexture,
         Pipeline* ctx)
         {
             if (!ctx->m_initialized) Initialize(ctx);
@@ -88,30 +107,10 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                                               TEXTURE_SLOT, FIRST_TEXTURE_DESCRIPTOR_INDEX + textureIndex);
             }
 
-            const ComPtr<ID3D12Resource> vertexBuffer = nv_helpers_dx12::CreateBuffer(
-                ctx->m_device.Get(), vertexCount * sizeof(Vertex),
-                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                nv_helpers_dx12::kUploadHeapProps);
-
-            ctx->m_vertexBuffers.push_back(vertexBuffer);
-
-            Vertex* pData;
-            TRY_DO(vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-            memcpy(pData, vertices, vertexCount * sizeof(Vertex));
-            vertexBuffer->Unmap(0, nullptr);
-
-            D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-            vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-            vertexBufferView.StrideInBytes = sizeof(Vertex);
-            vertexBufferView.SizeInBytes = vertexCount * sizeof(Vertex);
-
-            ctx->m_currentCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-            ctx->m_currentCommandList->DrawInstanced(vertexCount, 1, 0, 0);
+            ctx->m_currentCommandList->DrawInstanced(vertexCount, 1, firstVertex, 0);
         },
         .ctx = this
     };
-
-    m_vertexBuffers.clear();
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

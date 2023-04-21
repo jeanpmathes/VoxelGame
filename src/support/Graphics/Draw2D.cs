@@ -43,7 +43,9 @@ public readonly unsafe struct Draw2D
 
     internal delegate void InitializeTexturesDelegate(IntPtr textures, uint textureCount, IntPtr ctx);
 
-    internal delegate void DrawBufferDelegate(IntPtr vertices, uint vertexCount, uint textureIndex, [MarshalAs(UnmanagedType.Bool)] bool useTexture, IntPtr ctx);
+    internal delegate void UploadBufferDelegate(IntPtr vertices, uint vertexCount, IntPtr ctx);
+
+    internal delegate void DrawBufferDelegate(uint firstVertex, uint vertexCount, uint textureIndex, [MarshalAs(UnmanagedType.Bool)] bool useTexture, IntPtr ctx);
 
     #pragma warning disable S3898 // No equality comparison used.
     internal struct Internal
@@ -51,6 +53,7 @@ public readonly unsafe struct Draw2D
     {
 #pragma warning disable CS0649 // Assigned by native code.
         internal readonly InitializeTexturesDelegate initializeTextures;
+        internal readonly UploadBufferDelegate uploadBuffer;
         internal readonly DrawBufferDelegate drawBuffer;
         internal readonly IntPtr ctx;
 #pragma warning restore CS0649 // Assigned by native code.
@@ -84,19 +87,29 @@ public readonly unsafe struct Draw2D
     }
 
     /// <summary>
-    ///     Draws a buffer of vertices.
+    /// Uploads a buffer of vertices to the GPU.
+    /// This replaces the current buffer, meaning that during one frame, only one buffer can be used.
     /// </summary>
-    /// <param name="vertices">The vertices to draw.</param>
-    /// <param name="textureIndex">The index of the texture to use.</param>
-    /// <param name="useTexture">Whether to use a texture.</param>
-    public void DrawBuffer(Span<Vertex> vertices, uint textureIndex, bool useTexture)
+    /// <param name="vertices">The vertices to upload.</param>
+    public void UploadBuffer(Span<Vertex> vertices)
     {
         var vertexCount = (uint) vertices.Length;
 
         fixed (Vertex* verticesPointer = vertices)
         {
-            @internal.drawBuffer((IntPtr) verticesPointer, vertexCount, textureIndex, useTexture, @internal.ctx);
+            @internal.uploadBuffer((IntPtr) verticesPointer, vertexCount, @internal.ctx);
         }
+    }
+
+    /// <summary>
+    ///     Draw parts of the current buffer.
+    /// </summary>
+    /// <param name="range">The range of vertices to draw, given as a tuple of the first vertex and the number of vertices.</param>
+    /// <param name="textureIndex">The index of the texture to use. Is ignored if <paramref name="useTexture" /> is false.</param>
+    /// <param name="useTexture">Whether to use a texture.</param>
+    public void DrawBuffer((uint first, uint lenght) range, uint textureIndex, bool useTexture)
+    {
+        @internal.drawBuffer(range.first, range.lenght, textureIndex, useTexture, @internal.ctx);
     }
 
     internal delegate void Callback(Internal @internal);
