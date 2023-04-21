@@ -561,13 +561,13 @@ public sealed class DirectXRenderer : RendererBase
     {
         textures.DiscardTexture(GetRenderData(texture));
 
-        TextureList.Entry? entry = textures.GetEntry(loadedTexture);
+        Support.Objects.Texture? entry = textures.GetEntry(loadedTexture);
 
         Debug.Assert(loadedTexture.IsValid);
         Debug.Assert(entry != null);
 
-        texture.Width = entry.Texture.Width;
-        texture.Height = entry.Texture.Height;
+        texture.Width = entry.Width;
+        texture.Height = entry.Height;
 
         texture.RendererData = loadedTexture;
     }

@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using VoxelGame.Core.Collections;
 using VoxelGame.Support;
 using VoxelGame.Support.Graphics;
@@ -27,8 +26,10 @@ public class TextureList
     private readonly Client client;
     private readonly PriorityQueue<int, int> freeIndices = new();
 
-    private readonly Entry sentinel;
-    private readonly PooledList<Entry> textures = new();
+    private readonly Texture sentinel;
+
+    private readonly PooledList<Texture> textures = new();
+    private readonly PooledList<int> usage = new();
 
     /// <summary>
     ///     Creates a new texture list.
@@ -40,8 +41,8 @@ public class TextureList
 
         // The Draw2D pipeline requires at least one texture.
         using Bitmap image = Texture.CreateFallback(resolution: 1);
-        sentinel = new Entry(client.LoadTexture(image), NeverDiscard);
-        textures.Add(sentinel);
+        sentinel = client.LoadTexture(image);
+        AddEntry(sentinel, allowDiscard: false);
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public class TextureList
     {
         if (!IsDirty) return;
 
-        draw2D.InitializeTextures(textures.Select(entry => entry.Texture));
+        draw2D.InitializeTextures(textures.AsSpan());
 
         IsDirty = false;
     }
@@ -120,16 +121,16 @@ public class TextureList
     /// <param name="handle">The texture handle.</param>
     public void DiscardTexture(Handle handle)
     {
-        if (GetEntry(handle) is not IEntry entry) return;
+        if (!handle.IsValid) return;
+        if (usage[handle.Index] == NeverDiscard) return;
 
-        if (entry.UsageCount == NeverDiscard) return;
+        usage[handle.Index]--;
 
-        entry.UsageCount--;
+        if (usage[handle.Index] != 0) return;
 
-        if (entry.UsageCount != 0) return;
-
-        textures[handle.Index].Texture.Free();
+        textures[handle.Index].Free();
         textures[handle.Index] = sentinel;
+        usage[handle.Index] = NeverDiscard;
 
         freeIndices.Enqueue(handle.Index, handle.Index);
 
@@ -139,20 +140,20 @@ public class TextureList
     private Handle AddEntry(Texture texture, bool allowDiscard)
     {
         int usageCount = allowDiscard ? 0 : NeverDiscard;
-        int index = GetNextFreeIndex();
+        Handle handle = GetNextFreeHandle();
 
-        Entry entry = new(texture, usageCount);
-        textures[index] = entry;
-        IncreaseUsageCount(entry);
+        textures[handle.Index] = texture;
+        usage[handle.Index] = usageCount;
+        IncreaseUsageCount(handle);
 
         IsDirty = true;
 
-        return new Handle(index);
+        return handle;
     }
 
-    private static void IncreaseUsageCount(IEntry? entry)
+    private void IncreaseUsageCount(Handle handle)
     {
-        if (entry != null && entry.UsageCount != NeverDiscard) entry.UsageCount++;
+        if (handle.IsValid && usage[handle.Index] != NeverDiscard) usage[handle.Index]++;
     }
 
     /// <summary>
@@ -166,7 +167,7 @@ public class TextureList
 
         Handle handle = new(index);
 
-        IncreaseUsageCount(GetEntry(handle));
+        IncreaseUsageCount(handle);
 
         return handle;
     }
@@ -176,19 +177,20 @@ public class TextureList
     /// </summary>
     /// <param name="handle">The handle.</param>
     /// <returns>The texture list entry, if the handle is valid.</returns>
-    public Entry? GetEntry(Handle handle)
+    public Texture? GetEntry(Handle handle)
     {
         return handle.IsValid ? textures[handle.Index] : null;
     }
 
-    private int GetNextFreeIndex()
+    private Handle GetNextFreeHandle()
     {
-        if (freeIndices.TryDequeue(out int index, out _)) return index;
+        if (freeIndices.TryDequeue(out int index, out _)) return new Handle(index);
 
         index = textures.Count;
         textures.Add(sentinel);
+        usage.Add(item: 0);
 
-        return index;
+        return new Handle(index);
     }
 
     /// <summary>
@@ -208,36 +210,5 @@ public class TextureList
         ///     Get whether the handle is valid.
         /// </summary>
         public bool IsValid => Index != InvalidIndex;
-    }
-
-    /// <summary>
-    ///     An internal texture list entry.
-    /// </summary>
-    public class Entry : IEntry
-    {
-        /// <summary>
-        ///     Creates a new texture list entry.
-        /// </summary>
-        /// <param name="texture">The texture.</param>
-        /// <param name="usageCount">The usage count.</param>
-        public Entry(Texture texture, int usageCount)
-        {
-            Texture = texture;
-
-            IEntry self = this;
-            self.UsageCount = usageCount;
-        }
-
-        /// <summary>
-        ///     Get the texture.
-        /// </summary>
-        public Texture Texture { get; }
-
-        int IEntry.UsageCount { get; set; }
-    }
-
-    private interface IEntry
-    {
-        public int UsageCount { get; set; }
     }
 }
