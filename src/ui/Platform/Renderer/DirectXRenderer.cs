@@ -40,8 +40,7 @@ public sealed class DirectXRenderer : RendererBase
     private readonly RasterPipeline pipeline;
     private readonly Dictionary<string, string> preloadNameToPath = new();
 
-    private readonly Dictionary<Tuple<string, Font>, TextRenderer> stringCache;
-    private readonly StringFormat stringFormat;
+    private readonly TextCache textCache;
 
     private readonly TextureList textures;
     private readonly ShaderBuffer<Vector2> uniformBuffer;
@@ -66,10 +65,9 @@ public sealed class DirectXRenderer : RendererBase
     /// </summary>
     internal DirectXRenderer(Client client, GwenGuiSettings settings)
     {
-        stringCache = new Dictionary<Tuple<string, Font>, TextRenderer>();
         graphics = Graphics.FromImage(new Bitmap(width: 1024, height: 1024));
-        stringFormat = new StringFormat(StringFormat.GenericTypographic);
-        stringFormat.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+
+        textCache = new TextCache(this);
 
         (pipeline, uniformBuffer) = client.CreateRasterPipeline<Vector2>(
             PipelineDescription.Create(settings.ShaderFile, ShaderPreset.Draw2D),
@@ -96,7 +94,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <summary>
     ///     Size of the text cache.
     /// </summary>
-    public int TextCacheSize => stringCache.Count;
+    public int TextCacheSize => textCache.Size;
 
     /// <summary>
     ///     Number of draw calls for the last frame.
@@ -125,6 +123,7 @@ public sealed class DirectXRenderer : RendererBase
 
     private void DoDraw(Draw2D drawer)
     {
+        textCache.Evict();
         textures.UploadIfDirty(drawer);
 
         foreach (DrawCall drawCall in drawCalls)
@@ -144,7 +143,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void Dispose()
     {
-        FlushTextCache();
+        textCache.Dispose();
         currentPixelColorSource?.Dispose();
 
         base.Dispose();
@@ -153,16 +152,7 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     protected override void OnScaleChanged(float oldScale)
     {
-        FlushTextCache();
-    }
-
-    /// <summary>
-    ///     Flushes the text cache.
-    /// </summary>
-    private void FlushTextCache()
-    {
-        foreach (TextRenderer textRenderer in stringCache.Values) textRenderer.Dispose();
-        stringCache.Clear();
+        textCache.Flush();
     }
 
     /// <inheritdoc />
@@ -328,29 +318,27 @@ public sealed class DirectXRenderer : RendererBase
             sysFont = (System.Drawing.Font) font.RendererData;
         }
 
-        Tuple<string, Font> key = new(text, font);
-
-        if (stringCache.ContainsKey(key))
+        if (textCache.GetTexture(font, text) is {} texture)
         {
-            Texture tex = stringCache[key].Texture;
-
-            return new Size(tex.Width, tex.Height);
+            return new Size(texture.Width, texture.Height);
         }
 
         Debug.Assert(sysFont != null);
+
+        //todo: move this part to constructor
 
         SizeF tabSize = graphics.MeasureString(
             "....",
             sysFont); //Spaces are not being picked up, let's just use .'s.
 
-        stringFormat.SetTabStops(
+        textCache.StringFormat.SetTabStops(
             firstTabOffset: 0f,
             new[]
             {
                 tabSize.Width
             });
 
-        SizeF size = graphics.MeasureString(text, sysFont, System.Drawing.Point.Empty, stringFormat);
+        SizeF size = graphics.MeasureString(text, sysFont, System.Drawing.Point.Empty, textCache.StringFormat);
 
         return new Size(Util.Ceil(size.Width), Util.Ceil(size.Height));
     }
@@ -360,36 +348,17 @@ public sealed class DirectXRenderer : RendererBase
     {
         Flush();
 
-        if (font.RendererData is not System.Drawing.Font sysFont
-            || Math.Abs(font.RealSize - font.Size * Scale) > 2)
+        if (font.RendererData is not System.Drawing.Font || Math.Abs(font.RealSize - font.Size * Scale) > 2)
         {
             FreeFont(font);
             LoadFont(font);
-            sysFont = (System.Drawing.Font) font.RendererData;
         }
 
-        Tuple<string, Font> key = new(text, font);
+        Texture texture = textCache.GetOrCreateTexture(font, text);
 
-        if (!stringCache.ContainsKey(key))
-        {
-            Size size = MeasureText(font, text);
-            TextRenderer tr = new(size.Width, size.Height, this);
-            tr.SetString(text, sysFont, Brushes.White, Point.Zero, stringFormat);
-
-            DrawTexturedRect(
-                tr.Texture,
-                new Rectangle(position.X, position.Y, tr.Texture.Width, tr.Texture.Height));
-
-            stringCache[key] = tr;
-        }
-        else
-        {
-            TextRenderer tr = stringCache[key];
-
-            DrawTexturedRect(
-                tr.Texture,
-                new Rectangle(position.X, position.Y, tr.Texture.Width, tr.Texture.Height));
-        }
+        DrawTexturedRect(
+            texture,
+            new Rectangle(position.X, position.Y, texture.Width, texture.Height));
     }
 
     /// <inheritdoc />

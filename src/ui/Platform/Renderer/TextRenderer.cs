@@ -10,12 +10,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
-using VoxelGame.UI.Platform.Renderer;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Point = Gwen.Net.Point;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.UI.Platform.Renderer;
 
 /// <summary>
 ///     Renders text to a texture.
