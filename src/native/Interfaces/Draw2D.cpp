@@ -69,20 +69,41 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         },
         .uploadBuffer = [](const Vertex* vertices, const UINT vertexCount, Pipeline* ctx)
         {
-            ctx->m_vertexBuffer = nv_helpers_dx12::CreateBuffer(
-                ctx->m_device.Get(), vertexCount * sizeof(Vertex),
+            const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
+
+            ctx->m_uploadBuffer = nv_helpers_dx12::CreateBuffer(
+                ctx->m_device.Get(), vertexBufferSize,
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                 nv_helpers_dx12::kUploadHeapProps);
 
             Vertex* pData;
-            TRY_DO(ctx->m_vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-            memcpy(pData, vertices, vertexCount * sizeof(Vertex));
-            ctx->m_vertexBuffer->Unmap(0, nullptr);
+            TRY_DO(ctx->m_uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+            memcpy(pData, vertices, vertexBufferSize);
+            ctx->m_uploadBuffer->Unmap(0, nullptr);
+
+            ctx->m_vertexBuffer = nv_helpers_dx12::CreateBuffer(
+                ctx->m_device.Get(), vertexBufferSize,
+                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
+                nv_helpers_dx12::kDefaultHeapProps);
+
+            auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(),
+                                                                   D3D12_RESOURCE_STATE_COMMON,
+                                                                   D3D12_RESOURCE_STATE_COPY_DEST);
+            ctx->m_currentCommandList->ResourceBarrier(1, &transition);
+
+            ctx->m_currentCommandList->CopyBufferRegion(ctx->m_vertexBuffer.Get(), 0,
+                                                        ctx->m_uploadBuffer.Get(), 0,
+                                                        vertexBufferSize);
+
+            transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(),
+                                                              D3D12_RESOURCE_STATE_COPY_DEST,
+                                                              D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
             D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
             vertexBufferView.BufferLocation = ctx->m_vertexBuffer->GetGPUVirtualAddress();
             vertexBufferView.StrideInBytes = sizeof(Vertex);
-            vertexBufferView.SizeInBytes = vertexCount * sizeof(Vertex);
+            vertexBufferView.SizeInBytes = vertexBufferSize;
 
             ctx->m_currentCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
         },

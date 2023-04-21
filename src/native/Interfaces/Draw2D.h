@@ -67,6 +67,7 @@ namespace draw2d
         std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>> m_textures = {};
 
         ComPtr<ID3D12Resource> m_vertexBuffer = nullptr;
+        ComPtr<ID3D12Resource> m_uploadBuffer = nullptr;
 
         UINT m_currentTextureIndex = 0;
         BOOL m_currentUseTexture = FALSE;
