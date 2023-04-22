@@ -307,6 +307,8 @@ void NativeClient::OnUpdate(const double delta)
 
 void NativeClient::OnPreRender()
 {
+    if (!m_windowVisible) return;
+    
     m_uploadGroup.Reset(m_frameIndex);
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
