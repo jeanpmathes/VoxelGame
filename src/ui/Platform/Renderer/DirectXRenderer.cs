@@ -181,17 +181,17 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void DrawTexturedRect(Texture t, Rectangle targetRect, float u1 = 0, float v1 = 0, float u2 = 1,
+    public override void DrawTexturedRect(Texture texture, Rectangle targetRect, float u1 = 0, float v1 = 0, float u2 = 1,
         float v2 = 1)
     {
-        if (null == t.RendererData)
+        if (null == texture.RendererData)
         {
             DrawMissingImage(targetRect);
 
             return;
         }
 
-        var handle = (TextureList.Handle) t.RendererData;
+        var handle = (TextureList.Handle) texture.RendererData;
         targetRect = Translate(targetRect);
 
         bool differentTexture = lastTexture != handle;
@@ -484,20 +484,20 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void LoadTexture(Texture t, Action<Exception> errorCallback)
+    public override void LoadTexture(Texture texture, Action<Exception> errorCallback)
     {
         TextureList.Handle handle = TextureList.Handle.Invalid;
 
-        if (preloadNameToPath.TryGetValue(t.Name, out string? path))
+        if (preloadNameToPath.TryGetValue(texture.Name, out string? path))
         {
             handle = textures.GetTexture(path);
         }
 
-        if (!handle.IsValid) handle = textures.GetTexture(t.Name);
+        if (!handle.IsValid) handle = textures.GetTexture(texture.Name);
 
         if (!handle.IsValid)
         {
-            Exception? exception = textures.LoadTexture(new FileInfo(t.Name),
+            Exception? exception = textures.LoadTexture(new FileInfo(texture.Name),
                 textureDiscardAllowed,
                 loaded =>
                 {
@@ -509,16 +509,16 @@ public sealed class DirectXRenderer : RendererBase
 
         if (handle.IsValid)
         {
-            SetTextureProperties(t, handle);
+            SetTextureProperties(texture, handle);
         }
         else
         {
-            SetFailedTextureProperties(t);
+            SetFailedTextureProperties(texture);
         }
     }
 
     /// <inheritdoc />
-    public override void LoadTextureRaw(Texture t, byte[] pixelData)
+    public override void LoadTextureRaw(Texture texture, byte[] pixelData)
     {
         Bitmap bitmap;
 
@@ -528,7 +528,7 @@ public sealed class DirectXRenderer : RendererBase
             {
                 fixed (byte* ptr = &pixelData[0])
                 {
-                    bitmap = new Bitmap(t.Width, t.Height, 4 * t.Width, PixelFormat.Format32bppArgb, (IntPtr) ptr);
+                    bitmap = new Bitmap(texture.Width, texture.Height, 4 * texture.Width, PixelFormat.Format32bppArgb, (IntPtr) ptr);
                 }
             }
         }
@@ -536,12 +536,12 @@ public sealed class DirectXRenderer : RendererBase
         catch (Exception)
 #pragma warning restore S2221
         {
-            SetFailedTextureProperties(t);
+            SetFailedTextureProperties(texture);
 
             return;
         }
 
-        LoadTextureDirectly(t, bitmap);
+        LoadTextureDirectly(texture, bitmap);
 
         bitmap.Dispose();
     }
@@ -582,15 +582,15 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void FreeTexture(Texture t)
+    public override void FreeTexture(Texture texture)
     {
-        if (t.RendererData == null) return;
+        if (texture.RendererData == null) return;
 
-        textures.DiscardTexture(GetRenderData(t));
+        textures.DiscardTexture(GetRenderData(texture));
 
-        t.RendererData = null;
-        t.Width = 0;
-        t.Height = 0;
+        texture.RendererData = null;
+        texture.Width = 0;
+        texture.Height = 0;
     }
 
     private FileInfo GetTextureFile(Texture texture)
