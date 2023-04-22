@@ -65,6 +65,12 @@ internal sealed class VGui : IGwenGui
     public void Render()
     {
         canvas.RenderCanvas();
+
+        // Helps the UI to recognize that the mouse is over a control if that control was just added:
+        input.ProcessMouseMove(new MouseMoveEventArgs
+        {
+            Position = Parent.MousePosition.ToVector2()
+        });
     }
 
     public void Resize(Vector2i newSize)
