@@ -566,29 +566,30 @@ public sealed class DirectXRenderer : RendererBase
 
         texture.Width = entry.Width;
         texture.Height = entry.Height;
+        texture.Failed = false;
 
         texture.RendererData = loadedTexture;
     }
 
     private void SetFailedTextureProperties(Texture texture)
     {
+        textures.DiscardTexture(GetRenderData(texture));
+
+        texture.RendererData = null;
         texture.Width = 0;
         texture.Height = 0;
-
-        textures.DiscardTexture(GetRenderData(texture));
-        texture.RendererData = null;
+        texture.Failed = true;
     }
 
     /// <inheritdoc />
     public override void FreeTexture(Texture texture)
     {
-        if (texture.RendererData == null) return;
-
         textures.DiscardTexture(GetRenderData(texture));
 
         texture.RendererData = null;
         texture.Width = 0;
         texture.Height = 0;
+        texture.Failed = false;
     }
 
     private FileInfo GetTextureFile(Texture texture)

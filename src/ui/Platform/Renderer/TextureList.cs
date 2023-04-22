@@ -26,10 +26,18 @@ public class TextureList
     private readonly Client client;
     private readonly PriorityQueue<int, int> freeIndices = new();
 
+    /// <summary>
+    ///     Contains the indices of textures that were added since the last upload.
+    ///     This is used to prevent textures from being discarded during the same frame they are uploaded.
+    /// </summary>
+    private readonly SortedSet<int> newTextures = new();
+
     private readonly Texture sentinel;
 
     private readonly PooledList<Texture> textures = new();
     private readonly PooledList<int> usage = new();
+
+    private SortedSet<int> previousNewTextures = new();
 
     /// <summary>
     ///     Creates a new texture list.
@@ -58,6 +66,11 @@ public class TextureList
     public void UploadIfDirty(Draw2D draw2D)
     {
         if (!IsDirty) return;
+
+        foreach (int index in previousNewTextures) DiscardIfUnused(new Handle(index));
+
+        previousNewTextures = newTextures;
+        newTextures.Clear();
 
         draw2D.InitializeTextures(textures.AsSpan());
 
@@ -124,9 +137,15 @@ public class TextureList
         if (!handle.IsValid) return;
         if (usage[handle.Index] == NeverDiscard) return;
 
-        usage[handle.Index]--;
+        usage[handle.Index] = Math.Max(val1: 0, usage[handle.Index] - 1);
 
+        DiscardIfUnused(handle);
+    }
+
+    private void DiscardIfUnused(Handle handle)
+    {
         if (usage[handle.Index] != 0) return;
+        if (newTextures.Contains(handle.Index)) return;
 
         textures[handle.Index].Free();
         textures[handle.Index] = sentinel;
@@ -147,6 +166,7 @@ public class TextureList
         IncreaseUsageCount(handle);
 
         IsDirty = true;
+        newTextures.Add(handle.Index);
 
         return handle;
     }
