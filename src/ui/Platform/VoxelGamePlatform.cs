@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading;
 using Gwen.Net;
 using Gwen.Net.Platform;
@@ -46,8 +46,6 @@ namespace VoxelGame.UI.Platform
         /// <returns>Clipboard text.</returns>
         public string GetClipboardText()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return "";
-
             var ret = string.Empty;
 
             Thread staThread = new(
@@ -87,8 +85,6 @@ namespace VoxelGame.UI.Platform
         /// <returns>True if succeeded.</returns>
         public bool SetClipboardText(string text)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
-
             var ret = false;
 
             Thread staThread = new(
@@ -294,8 +290,15 @@ namespace VoxelGame.UI.Platform
         {
             DirectoryInfo di = new(path);
 
-            return di.GetDirectories().Select(
-                d => new FileSystemDirectoryInfo(d.FullName, d.LastWriteTime) as IFileSystemDirectoryInfo);
+            try
+            {
+                return di.GetDirectories().Select(
+                    d => new FileSystemDirectoryInfo(d.FullName, d.LastWriteTime) as IFileSystemDirectoryInfo);
+            }
+            catch (Exception e) when (e is DirectoryNotFoundException or SecurityException or UnauthorizedAccessException)
+            {
+                return Enumerable.Empty<IFileSystemDirectoryInfo>();
+            }
         }
 
         /// <summary>
@@ -305,8 +308,16 @@ namespace VoxelGame.UI.Platform
         {
             DirectoryInfo di = new(path);
 
-            return di.GetFiles(filter).Select(
-                f => new FileSystemFileInfo(f.FullName, f.LastWriteTime, f.Length) as IFileSystemFileInfo);
+            try
+            {
+                return di.GetFiles(filter).Select(
+                    f => new FileSystemFileInfo(f.FullName, f.LastWriteTime, f.Length) as IFileSystemFileInfo);
+
+            }
+            catch (Exception e) when (e is DirectoryNotFoundException or SecurityException or UnauthorizedAccessException)
+            {
+                return Enumerable.Empty<IFileSystemFileInfo>();
+            }
         }
 
         /// <summary>
