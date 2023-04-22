@@ -59,7 +59,7 @@ internal static class Program
     }
 
     [STAThread]
-    private static void Main(string[] args)
+    private static int Main(string[] args)
     {
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
@@ -99,14 +99,18 @@ internal static class Program
 
         logger.LogDebug("Opening window");
 
+        int exitCode;
+
         using (Application.Client client = new(
                    windowSettings,
                    graphicsSettings))
         {
-            client.Run();
+            exitCode = client.Run();
         }
 
-        logger.LogInformation(Events.ApplicationState, "Exiting");
+        logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
+
+        return exitCode;
     }
 
     [Conditional("RELEASE")]
@@ -128,4 +132,3 @@ internal static class Program
         internal bool logDebug;
     }
 }
-

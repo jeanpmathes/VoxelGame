@@ -129,7 +129,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Get whether the window is focused.
     /// </summary>
-    public bool IsFocused => true; // todo: implement
+    public bool IsFocused => true; // todo: implement - not m_isWindowVisible, use WM_ACTIVATE
 
     /// <summary>
     ///     Get or set the current mouse cursor.
