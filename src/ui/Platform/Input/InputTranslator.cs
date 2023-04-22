@@ -50,19 +50,27 @@ public class InputTranslator
             case VirtualKeys.Home: return GwenMappedKey.Home;
             case VirtualKeys.End: return GwenMappedKey.End;
             case VirtualKeys.Delete: return GwenMappedKey.Delete;
+
             case VirtualKeys.LeftControl:
                 controlPressed = true;
 
                 return GwenMappedKey.Control;
             case VirtualKeys.LeftMenu: return GwenMappedKey.Alt;
             case VirtualKeys.LeftShift: return GwenMappedKey.Shift;
-            case VirtualKeys.Menu: return GwenMappedKey.Alt;
+
             case VirtualKeys.RightControl: return GwenMappedKey.Control;
             case VirtualKeys.RightMenu:
                 if (controlPressed) canvas.Input_Key(GwenMappedKey.Control, down: false);
 
                 return GwenMappedKey.Alt;
             case VirtualKeys.RightShift: return GwenMappedKey.Shift;
+
+            case VirtualKeys.Control:
+                controlPressed = true;
+
+                return GwenMappedKey.Control;
+            case VirtualKeys.Menu: return GwenMappedKey.Alt;
+            case VirtualKeys.Shift: return GwenMappedKey.Shift;
 
             default:
                 return GwenMappedKey.Invalid;

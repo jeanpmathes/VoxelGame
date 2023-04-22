@@ -23,6 +23,9 @@ namespace VoxelGame.UI.Platform
     /// </summary>
     public class VoxelGamePlatform : IPlatform
     {
+        // Clipboard related code from:
+        // http://forums.getpaint.net/index.php?/topic/13712-trouble-accessing-the-clipboard/page__view__findpost__p__226140
+
         private const string LibrariesCategory = "Libraries";
         private readonly Action<MouseCursor> setCursor;
         private readonly Stopwatch watch;
@@ -45,7 +48,6 @@ namespace VoxelGame.UI.Platform
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return "";
 
-            // code from http://forums.getpaint.net/index.php?/topic/13712-trouble-accessing-the-clipboard/page__view__findpost__p__226140
             var ret = string.Empty;
 
             Thread staThread = new(
@@ -74,7 +76,7 @@ namespace VoxelGame.UI.Platform
             staThread.Start();
             staThread.Join();
 
-            // at this point either you have clipboard data or an exception*/
+            // At this point either you have clipboard data or an exception
             return ret;
         }
 
@@ -335,7 +337,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Implementation of <see cref="IFileSystemItemInfo" />.
         /// </summary>
-        public class FileSystemItemInfo : IFileSystemItemInfo
+        private class FileSystemItemInfo : IFileSystemItemInfo
         {
             /// <summary>
             ///     Create a new instance of <see cref="FileSystemItemInfo" />.
