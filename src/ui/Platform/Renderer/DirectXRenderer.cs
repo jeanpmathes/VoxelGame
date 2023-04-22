@@ -198,10 +198,8 @@ public sealed class DirectXRenderer : RendererBase
 
         if (!textureEnabled || differentTexture) Flush();
 
-        if (!textureEnabled) textureEnabled = true;
-
-        if (differentTexture)
-            lastTexture = handle;
+        textureEnabled = true;
+        lastTexture = handle;
 
         DrawRect(targetRect, u1, v1, u2, v2);
     }
@@ -381,7 +379,7 @@ public sealed class DirectXRenderer : RendererBase
         DrawCall call = ObjectPool<DrawCall>.Shared.Get();
         call.FirstVertex = VertexCount;
         call.VertexCount = currentVertexCount;
-        call.Texture = lastTexture;
+        call.Texture = textureEnabled ? lastTexture : TextureList.Handle.Invalid;
 
         drawCalls.Add(call);
 
