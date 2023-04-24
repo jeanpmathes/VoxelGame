@@ -19,7 +19,11 @@ internal class TrueRatioImagePanel : ControlBase
 
     internal TrueRatioImagePanel(ControlBase parent) : base(parent)
     {
-        imagePanel = new ImagePanel(this);
+        imagePanel = new ImagePanel(this)
+        {
+            Dock = Dock.Fill
+        };
+
         FitImage();
     }
 
@@ -64,10 +68,11 @@ internal class TrueRatioImagePanel : ControlBase
             fittedHeight = imageSize.Width / availableRatio;
         }
 
-        var fittedSize = new Size((int) Math.Ceiling(fittedWidth), (int) Math.Round(fittedHeight));
-        int offset = imageSize.Height - fittedSize.Height;
+        var fittedSize = new Size((int) Math.Ceiling(fittedWidth), (int) Math.Ceiling(fittedHeight));
 
-        imagePanel.TextureRect = new Rectangle(x: 0, offset, fittedSize);
+        int offsetX = imageSize.Width - fittedSize.Width;
+        int offsetY = imageSize.Height - fittedSize.Height;
+
+        imagePanel.TextureRect = new Rectangle(offsetX, offsetY, fittedSize);
     }
 }
-

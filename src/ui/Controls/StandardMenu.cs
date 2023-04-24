@@ -92,4 +92,3 @@ internal abstract class StandardMenu : ControlBase
 
     protected abstract void CreateDisplay(ControlBase display);
 }
-

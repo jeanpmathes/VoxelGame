@@ -13,7 +13,7 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-PSInput VSMain(float4 position : POSITION, float2 uv : TEXCOORD)
+PSInput VSMain(const float4 position : POSITION, const float2 uv : TEXCOORD)
 {
     PSInput result;
 
@@ -23,7 +23,7 @@ PSInput VSMain(float4 position : POSITION, float2 uv : TEXCOORD)
     return result;
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+float4 PSMain(const PSInput input) : SV_TARGET
 {
     return gTexture.Sample(gSampler, input.uv);
 }
