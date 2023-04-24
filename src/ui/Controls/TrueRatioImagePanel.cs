@@ -42,6 +42,11 @@ internal class TrueRatioImagePanel : ControlBase
         FitImage();
     }
 
+    protected override void OnScaleChanged()
+    {
+        FitImage();
+    }
+
     private void FitImage()
     {
         imagePanel.SetUV(u1: 0, v1: 0, u2: 1, v2: 1);
