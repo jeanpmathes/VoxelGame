@@ -14,6 +14,11 @@ namespace VoxelGame.Support.Definition;
 public static partial class Native
 {
     /// <summary>
+    ///     A callback that receives a bool value.
+    /// </summary>
+    public delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] bool arg);
+
+    /// <summary>
     ///     A simple callback function.
     /// </summary>
     public delegate void NativeCallbackFunc();
@@ -115,6 +120,11 @@ public static partial class Native
         ///     Called on a size change event.
         /// </summary>
         public NativeResizeFunc onResize;
+
+        /// <summary>
+        ///     Called when the window active state changes.
+        /// </summary>
+        public NativeBoolFunc onActiveStateChange;
 
         /// <summary>
         ///     Called when debug messages of D3D12 are received.

@@ -55,6 +55,7 @@ public:
 
     void HandleSizeChanged(UINT width, UINT height, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
+    void HandleActiveStateChange(bool active) const;
 
     void OnKeyDown(UINT8) const;
     void OnKeyUp(UINT8) const;

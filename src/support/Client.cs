@@ -75,6 +75,10 @@ public class Client : IDisposable
             {
                 OnResize(new Vector2i((int) width, (int) height));
             },
+            onActiveStateChange = state =>
+            {
+                IsFocused = state;
+            },
             onDebug = D3D12Debug.Enable(),
             allowTearing = false,
             enableSpace = enableSpace
@@ -129,7 +133,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Get whether the window is focused.
     /// </summary>
-    public bool IsFocused => true; // todo: implement - not m_isWindowVisible, use WM_ACTIVATE
+    public bool IsFocused { get; private set; }
 
     /// <summary>
     /// Set the mouse cursor.

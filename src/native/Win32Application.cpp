@@ -162,6 +162,16 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_ACTIVATE:
+        {
+            const bool active = LOWORD(wParam) != WA_INACTIVE;
+            if (app)
+            {
+                app->HandleActiveStateChange(active);
+            }
+        }
+        return 0;
+
     case WM_PAINT:
         {
             if (app)

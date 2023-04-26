@@ -93,6 +93,11 @@ void DXApp::HandleWindowMoved(const int xPos, const int yPos)
     OnWindowMoved(xPos, yPos);
 }
 
+void DXApp::HandleActiveStateChange(const bool active) const
+{
+    m_configuration.onActiveStateChange(active);
+}
+
 void DXApp::OnKeyDown(const UINT8 param) const
 {
     m_configuration.onKeyDown(param);
