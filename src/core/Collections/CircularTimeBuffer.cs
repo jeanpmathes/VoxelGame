@@ -17,11 +17,12 @@ public class CircularTimeBuffer
 {
     private readonly double[] buffer;
     private readonly int capacity;
+    private int filledSlots;
+
     private int writeIndex;
 
     /// <summary>
     ///     Create a new <see cref="CircularTimeBuffer" /> with the specified capacity.
-    ///     Initially the buffer is filled with default values, and are already used for all operations.
     /// </summary>
     /// <param name="capacity">The capacity, must be larger than zero.</param>
     public CircularTimeBuffer(int capacity)
@@ -36,7 +37,7 @@ public class CircularTimeBuffer
     /// <summary>
     ///     Get the average of all values in the buffer.
     /// </summary>
-    public double Average => buffer.Sum() / capacity;
+    public double Average => buffer.Take(filledSlots).Sum() / filledSlots;
 
     /// <summary>
     ///     Write a new value to the buffer.
@@ -47,6 +48,7 @@ public class CircularTimeBuffer
         buffer[writeIndex] = time;
         writeIndex++;
         writeIndex %= capacity;
+
+        filledSlots = Math.Min(filledSlots + 1, capacity);
     }
 }
-
