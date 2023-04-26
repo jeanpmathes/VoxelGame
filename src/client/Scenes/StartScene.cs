@@ -89,6 +89,12 @@ public sealed class StartScene : IScene
         // Method intentionally left empty.
     }
 
+    /// <inheritdoc />
+    public bool CanCloseWindow()
+    {
+        return true;
+    }
+
     #region IDisposable Support
 
     private bool disposed;
@@ -122,4 +128,3 @@ public sealed class StartScene : IScene
 
     #endregion IDisposable Support
 }
-

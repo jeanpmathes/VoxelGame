@@ -82,6 +82,11 @@ void DXApp::Destroy()
     m_configuration.onDestroy();
 }
 
+bool DXApp::CanClose() const
+{
+    return m_configuration.canClose();
+}
+
 void DXApp::HandleSizeChanged(const UINT width, const UINT height, const bool minimized)
 {
     OnSizeChanged(width, height, minimized);

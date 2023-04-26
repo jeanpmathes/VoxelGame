@@ -170,6 +170,12 @@ public sealed class GameScene : IScene
         Game = null!;
     }
 
+    /// <inheritdoc />
+    public bool CanCloseWindow()
+    {
+        return false; // todo: test if this works
+    }
+
     private void RenderUI()
     {
         Game.Player.RenderOverlays();
@@ -211,6 +217,3 @@ public sealed class GameScene : IScene
 
     #endregion IDisposable Support.
 }
-
-
-

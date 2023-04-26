@@ -29,6 +29,12 @@ public static partial class Native
     public delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] char arg);
 
     /// <summary>
+    ///     Checks if a condition is true.
+    /// </summary>
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public delegate bool NativeCheckFunc();
+
+    /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
     public delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
@@ -90,6 +96,11 @@ public static partial class Native
         ///     Called on shutdown of the native client.
         /// </summary>
         public NativeCallbackFunc onDestroy;
+
+        /// <summary>
+        ///     Decides whether the window can be closed right now.
+        /// </summary>
+        public NativeCheckFunc canClose;
 
         /// <summary>
         ///     Called on a key down event.

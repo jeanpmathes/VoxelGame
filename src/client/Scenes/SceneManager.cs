@@ -70,5 +70,12 @@ public class SceneManager
     {
         current?.Update(deltaTime);
     }
-}
 
+    /// <summary>
+    ///     Whether the current scene allows that the window is closed.
+    /// </summary>
+    public bool CanCloseWindow()
+    {
+        return current?.CanCloseWindow() ?? true;
+    }
+}

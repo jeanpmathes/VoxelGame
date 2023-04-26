@@ -6,6 +6,7 @@
 
 #include "stdafx.h"
 
+void* Win32Application::m_app = nullptr;
 HWND Win32Application::m_hwnd = nullptr;
 bool Win32Application::m_fullscreenMode = false;
 RECT Win32Application::m_windowRect;
@@ -37,7 +38,8 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
         nullptr,
         hInstance,
         pApp);
-
+    m_app = pApp;
+    
     pApp->Init();
 
     ShowWindow(m_hwnd, nCmdShow);
@@ -326,6 +328,13 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_CLOSE:
+        if (app && app->CanClose())
+        {
+            TRY_DO(DestroyWindow(hWnd));
+        }
+        return 0;
+        
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;

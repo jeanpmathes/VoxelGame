@@ -71,6 +71,17 @@ public static class Native
     }
 
     /// <summary>
+    ///     Request that the main window is closed.
+    /// </summary>
+    public static void RequestClose(Client client)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeRequestClose(IntPtr native);
+
+        NativeRequestClose(client.Native);
+    }
+
+    /// <summary>
     ///     Start the main loop of the native client. This function will not return until the client is closed.
     /// </summary>
     /// <param name="native">A pointer to the native client.</param>

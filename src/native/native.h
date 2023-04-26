@@ -10,6 +10,7 @@
 
 using NativeCallbackFunc = void(*)();
 using NativeStepFunc = void(*)(double);
+using NativeCheckFunc = BOOL(*)();
 using NativeInputFunc = void(*)(UINT8);
 using NativeCharFunc = void(*)(UINT16);
 using NativeMouseMoveFunc = void(*)(INT, INT);
@@ -26,6 +27,8 @@ struct Configuration
 
     NativeCallbackFunc onInit;
     NativeCallbackFunc onDestroy;
+
+    NativeCheckFunc canClose;
 
     NativeInputFunc onKeyDown;
     NativeInputFunc onKeyUp;

@@ -40,6 +40,16 @@ NATIVE void NativeFinalize(const NativeClient* client)
     CATCH();
 }
 
+NATIVE void NativeRequestClose(const NativeClient* client)
+{
+    TRY
+    {
+        REQUIRE(Win32Application::IsRunning(client));
+        PostMessage(Win32Application::GetHwnd(), WM_CLOSE, 0, 0);
+    }
+    CATCH();
+}
+
 NATIVE int NativeRun(NativeClient* client, const int nCmdShow)
 {
     TRY

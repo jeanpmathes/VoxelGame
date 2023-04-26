@@ -136,6 +136,11 @@ internal class Client : Support.Client, IPerformanceProvider
         Resources.Unload();
     }
 
+    protected override bool CanClose()
+    {
+        return sceneManager.CanCloseWindow();
+    }
+
     /// <summary>
     ///     Start a game in a world. A game can only be started when no other game is running.
     /// </summary>

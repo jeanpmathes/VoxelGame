@@ -41,5 +41,9 @@ public interface IScene : IDisposable
     ///     Unload this scene. After unloading, a scene must not be used anymore.
     /// </summary>
     void Unload();
-}
 
+    /// <summary>
+    ///     Whether the window can be closed in this scene.
+    /// </summary>
+    bool CanCloseWindow();
+}

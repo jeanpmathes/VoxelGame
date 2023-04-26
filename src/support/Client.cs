@@ -66,6 +66,7 @@ public class Client : IDisposable
             },
             onRender = OnRender,
             onDestroy = OnDestroy,
+            canClose = CanClose,
             onKeyDown = OnKeyDown,
             onKeyUp = OnKeyUp,
             onChar = OnChar,
@@ -215,9 +216,15 @@ public class Client : IDisposable
     /// </summary>
     public void Close()
     {
-        // todo: implement, ensure that OnDestroy is called -> using PostMessage with WM_CLOSE
-        // todo: add event CanClose that is called on WM_CLOSE, if returns false, do not call PostQuitMessage
-        // -> in game scene closing should not be possible
+        Support.Native.RequestClose(this);
+    }
+
+    /// <summary>
+    ///     Decide whether the window can be closed right now.
+    /// </summary>
+    protected virtual bool CanClose()
+    {
+        return true;
     }
 
     /// <summary>
