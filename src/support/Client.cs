@@ -73,7 +73,8 @@ public class Client : IDisposable
             onMouseWheel = OnMouseWheel,
             onResize = (width, height) =>
             {
-                OnResize(new Vector2i((int) width, (int) height));
+                Size = new Vector2i((int) width, (int) height);
+                OnResize(Size);
             },
             onActiveStateChange = state =>
             {
@@ -128,7 +129,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Get the current window size.
     /// </summary>
-    public Vector2i Size => Vector2i.Zero; // todo: implement
+    public Vector2i Size { get; private set; }
 
     /// <summary>
     ///     Get whether the window is focused.
