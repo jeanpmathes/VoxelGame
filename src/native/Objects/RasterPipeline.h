@@ -8,7 +8,7 @@
 
 class ShaderBuffer;
 
-enum class ShaderPreset : uint8_t
+enum class ShaderPreset : BYTE
 {
     POST_PROCESSING,
     DRAW_2D,

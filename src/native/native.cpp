@@ -90,6 +90,15 @@ NATIVE void NativeSetMousePosition(const NativeClient* client, const LONG x, con
     CATCH();
 }
 
+NATIVE void NativeSetCursor(const NativeClient* client, MouseCursor cursor)
+{
+    TRY
+    {
+        client->SetMouseCursor(cursor);
+    }
+    CATCH();
+}
+
 NATIVE Camera* NativeGetCamera(NativeClient* client)
 {
     TRY

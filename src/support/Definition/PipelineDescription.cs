@@ -19,17 +19,17 @@ public struct PipelineDescription
     /// <summary>
     ///     Path to the vertex shader.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPWStr)] public string VertexShaderPath;
+    [MarshalAs(UnmanagedType.LPWStr)] private string VertexShaderPath;
 
     /// <summary>
     ///     Path to the pixel shader.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPWStr)] public string PixelShaderPath;
+    [MarshalAs(UnmanagedType.LPWStr)] private string PixelShaderPath;
 
     /// <summary>
     ///     The shader preset.
     /// </summary>
-    public ShaderPreset ShaderPreset;
+    private ShaderPreset ShaderPreset;
 
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.

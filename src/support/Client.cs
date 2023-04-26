@@ -132,14 +132,12 @@ public class Client : IDisposable
     public bool IsFocused => true; // todo: implement - not m_isWindowVisible, use WM_ACTIVATE
 
     /// <summary>
-    ///     Get or set the current mouse cursor.
+    /// Set the mouse cursor.
     /// </summary>
-    public MouseCursor Cursor
+    public void SetCursor(MouseCursor cursor)
     {
-        get;
-        set;
-        // todo: pass to C++, use SetCursor and LoadCursorA (https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora)
-    } = MouseCursor.Arrow;
+        Support.Native.SetCursor(this, cursor);
+    }
 
     /// <summary>
     ///     Register a new native object.
@@ -159,9 +157,7 @@ public class Client : IDisposable
 
     private static void OnError(int hr, string message)
     {
-        Exception? exception = Marshal.GetExceptionForHR(hr);
-
-        if (exception == null) return;
+        Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
 
         Support.Native.ShowErrorBox($"Fatal error ({hr:X}): {message}");
 
@@ -214,8 +210,8 @@ public class Client : IDisposable
     /// </summary>
     public void Close()
     {
-        // todo: implement, ensure that OnDestroy is called
-        // todo: add event with cancellation token, pass to application client and then scene
+        // todo: implement, ensure that OnDestroy is called -> using PostMessage with WM_CLOSE
+        // todo: add event CanClose that is called on WM_CLOSE, if returns false, do not call PostQuitMessage
         // -> in game scene closing should not be possible
     }
 

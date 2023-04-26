@@ -136,6 +136,51 @@ void DXApp::UpdateForSizeChange(const UINT clientWidth, const UINT clientHeight)
     m_aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
 }
 
+void DXApp::SetMouseCursor(const MouseCursor cursor) const
+{
+    const TCHAR* cursorName;
+    switch (cursor)
+    {
+    case MouseCursor::ARROW:
+        cursorName = IDC_ARROW;
+        break;
+    case MouseCursor::I_BEAM:
+        cursorName = IDC_IBEAM;
+        break;
+    case MouseCursor::SIZE_NS:
+        cursorName = IDC_SIZENS;
+        break;
+    case MouseCursor::SIZE_WE:
+        cursorName = IDC_SIZEWE;
+        break;
+    case MouseCursor::SIZE_NWSE:
+        cursorName = IDC_SIZENWSE;
+        break;
+    case MouseCursor::SIZE_NESW:
+        cursorName = IDC_SIZENESW;
+        break;
+    case MouseCursor::SIZE_ALL:
+        cursorName = IDC_SIZEALL;
+        break;
+    case MouseCursor::NO:
+        cursorName = IDC_NO;
+        break;
+    case MouseCursor::WAIT:
+        cursorName = IDC_WAIT;
+        break;
+    case MouseCursor::HAND:
+        cursorName = IDC_HAND;
+        break;
+    default:
+        throw NativeException("Cursor not implemented.");
+    }
+
+    const HCURSOR cursorHandle = LoadCursor(nullptr, cursorName);
+    CHECK_RETURN(cursorHandle);
+
+    SetCursor(cursorHandle);
+}
+
 float DXApp::GetAspectRatio() const
 {
     return m_aspectRatio;

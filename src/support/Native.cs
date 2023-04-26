@@ -140,6 +140,19 @@ public static class Native
         NativeSetMousePosition(native, x, y);
     }
 
+    /// <summary>
+    ///     Set the mouse cursor.
+    /// </summary>
+    /// <param name="client">The client for which to set the cursor.</param>
+    /// <param name="cursor">The cursor to set.</param>
+    public static void SetCursor(Client client, MouseCursor cursor)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetCursor(IntPtr native, MouseCursor cursor);
+
+        NativeSetCursor(client.Native, cursor);
+    }
+
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
 
     /// <summary>

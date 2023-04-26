@@ -13,6 +13,23 @@
 class Uploader;
 
 /**
+ * The mouse cursor type.
+ */
+enum class MouseCursor : BYTE
+{
+    ARROW,
+    I_BEAM,
+    SIZE_NS,
+    SIZE_WE,
+    SIZE_NWSE,
+    SIZE_NESW,
+    SIZE_ALL,
+    NO,
+    WAIT,
+    HAND
+};
+
+/**
  * Base class for DirectX applications.
  */
 class DXApp
@@ -55,6 +72,7 @@ public:
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
+    void SetMouseCursor(MouseCursor cursor) const;
 
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }

@@ -18,12 +18,12 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     windowClass.lpfnWndProc = WindowProc;
     windowClass.hInstance = hInstance;
-    windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    windowClass.hCursor = nullptr;
     windowClass.lpszClassName = L"DXApp";
     RegisterClassEx(&windowClass);
 
     RECT windowRect = {0, 0, static_cast<LONG>(pApp->GetWidth()), static_cast<LONG>(pApp->GetHeight())};
-    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+    TRY_DO(AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE));
 
     m_hwnd = CreateWindow(
         windowClass.lpszClassName,
@@ -67,20 +67,20 @@ void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
     {
         SetWindowLong(m_hwnd, GWL_STYLE, WINDOW_STYLE);
 
-        SetWindowPos(
+        TRY_DO(SetWindowPos(
             m_hwnd,
             HWND_NOTOPMOST,
             m_windowRect.left,
             m_windowRect.top,
             m_windowRect.right - m_windowRect.left,
             m_windowRect.bottom - m_windowRect.top,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE);
+            SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
         ShowWindow(m_hwnd, SW_NORMAL);
     }
     else
     {
-        GetWindowRect(m_hwnd, &m_windowRect);
+        TRY_DO(GetWindowRect(m_hwnd, &m_windowRect));
 
         SetWindowLong(m_hwnd, GWL_STYLE,
                       WINDOW_STYLE & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
@@ -117,14 +117,14 @@ void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
             };
         }
 
-        SetWindowPos(
+        TRY_DO(SetWindowPos(
             m_hwnd,
             HWND_TOPMOST,
             fullscreenWindowRect.left,
             fullscreenWindowRect.top,
             fullscreenWindowRect.right,
             fullscreenWindowRect.bottom,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE);
+            SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
 
         ShowWindow(m_hwnd, SW_MAXIMIZE);
@@ -136,16 +136,16 @@ void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
 void Win32Application::SetWindowOrderToTopMost(bool setToTopMost)
 {
     RECT windowRect;
-    GetWindowRect(m_hwnd, &windowRect);
+    TRY_DO(GetWindowRect(m_hwnd, &windowRect));
 
-    SetWindowPos(
+    TRY_DO(SetWindowPos(
         m_hwnd,
         (setToTopMost) ? HWND_TOPMOST : HWND_NOTOPMOST,
         windowRect.left,
         windowRect.top,
         windowRect.right - windowRect.left,
         windowRect.bottom - windowRect.top,
-        SWP_FRAMECHANGED | SWP_NOACTIVATE);
+        SWP_FRAMECHANGED | SWP_NOACTIVATE));
 }
 
 // ReSharper disable once CppParameterMayBeConst
@@ -286,11 +286,11 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         if (app)
         {
             RECT windowRect = {};
-            GetWindowRect(hWnd, &windowRect);
+            TRY_DO(GetWindowRect(hWnd, &windowRect));
             app->SetWindowBounds(windowRect.left, windowRect.top, windowRect.right, windowRect.bottom);
 
             RECT clientRect = {};
-            GetClientRect(hWnd, &clientRect);
+            TRY_DO(GetClientRect(hWnd, &clientRect));
             app->HandleSizeChanged(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top,
                                    wParam == SIZE_MINIMIZED);
         }
@@ -300,7 +300,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         if (app)
         {
             RECT windowRect = {};
-            GetWindowRect(hWnd, &windowRect);
+            TRY_DO(GetWindowRect(hWnd, &windowRect));
             app->SetWindowBounds(windowRect.left, windowRect.top, windowRect.right, windowRect.bottom);
 
             const int xPos = static_cast<short>(LOWORD(lParam));

@@ -239,7 +239,7 @@ internal class KeybindManager : ISettingsProvider
     internal Keybind BlockInteract { get; } = Keybind.RegisterButton(
         "block_interact",
         Language.KeyForceInteract,
-        VirtualKeys.LeftControl);
+        VirtualKeys.Control);
 
     internal Keybind PlacementMode { get; } =
         Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, VirtualKeys.R);
@@ -259,4 +259,3 @@ internal class KeybindManager : ISettingsProvider
 
     #endregion KEYBINDS
 }
-

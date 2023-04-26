@@ -11,7 +11,6 @@ using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
 using VoxelGame.Support;
-using VoxelGame.Support.Definition;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.UI.Platform.Input;
 using VoxelGame.UI.Platform.Renderer;
@@ -41,7 +40,7 @@ internal sealed class VGui : IGwenGui
 
     public void Load()
     {
-        GwenPlatform.Init(new VoxelGamePlatform(SetCursor));
+        GwenPlatform.Init(new VoxelGamePlatform(Parent.SetCursor));
         AttachToWindowEvents();
         renderer = new DirectXRenderer(Parent, Settings);
 
@@ -152,10 +151,5 @@ internal sealed class VGui : IGwenGui
     private void Parent_MouseWheel(object? sender, MouseWheelEventArgs obj)
     {
         input.ProcessMouseWheel(obj);
-    }
-
-    private void SetCursor(MouseCursor mouseCursor)
-    {
-        Parent.Cursor = mouseCursor;
     }
 }

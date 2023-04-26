@@ -71,12 +71,23 @@ constexpr bool IsDebugBuild = false;
 #define TRY_DO(expression) \
     do { \
         auto result = (expression); \
-        std::string message; \
+        std::string errorMessage; \
         if (IsDebugBuild) \
-            message = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
+            errorMessage = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
-            message = "throwing from " #expression; \
-        ThrowIfFailed(result, message); \
+            errorMessage = "throwing from " #expression; \
+        ThrowIfFailed(result, errorMessage); \
+    } while (false)
+
+#define CHECK_RETURN(value) \
+    do { \
+        std::string errorMessage; \
+        if (IsDebugBuild) \
+            errorMessage = "error with " #value " at " __FILE__ ":" + std::to_string(__LINE__); \
+        else \
+            errorMessage = "error with " #value; \
+        BOOL ok = (value) != NULL; \
+        ThrowIfFailed(ok, errorMessage); \
     } while (false)
 
 inline void ThrowIfFailed(const BOOL b, const std::string message)
