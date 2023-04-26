@@ -61,13 +61,13 @@ public static class Native
     /// <summary>
     ///     Finalize the native client.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
-    public static void Finalize(IntPtr native)
+    /// <param name="client">The client to finalize.</param>
+    public static void Finalize(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeFinalize(IntPtr native);
 
-        NativeFinalize(native);
+        NativeFinalize(client.Native);
     }
 
     /// <summary>
@@ -84,55 +84,55 @@ public static class Native
     /// <summary>
     ///     Start the main loop of the native client. This function will not return until the client is closed.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
+    /// <param name="client">The client to run.</param>
     /// <returns>The exit code.</returns>
-    public static int Run(IntPtr native)
+    public static int Run(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern int NativeRun(IntPtr native, int nCmdShow);
 
         const int nCmdShow = 1;
 
-        return NativeRun(native, nCmdShow);
+        return NativeRun(client.Native, nCmdShow);
     }
 
     /// <summary>
     ///     Set the resolution of the window.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
+    /// <param name="client">The client for which to set the resolution.</param>
     /// <param name="width">The new width.</param>
     /// <param name="height">The new height.</param>
-    public static void SetResolution(IntPtr native, uint width, uint height)
+    public static void SetResolution(Client client, uint width, uint height)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetResolution(IntPtr native, uint width, uint height);
 
-        NativeSetResolution(native, width, height);
+        NativeSetResolution(client.Native, width, height);
     }
 
     /// <summary>
     ///     Toggle fullscreen mode.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
-    public static void ToggleFullscreen(IntPtr native)
+    /// <param name="client">The client for which to toggle fullscreen.</param>
+    public static void ToggleFullscreen(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeToggleFullscreen(IntPtr native);
 
-        NativeToggleFullscreen(native);
+        NativeToggleFullscreen(client.Native);
     }
 
     /// <summary>
     ///     Get the current mouse position.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
+    /// <param name="client">The client for which to get the mouse position.</param>
     /// <returns>The current mouse position, in client coordinates.</returns>
-    public static (int x, int y) GetMousePosition(IntPtr native)
+    public static (int x, int y) GetMousePosition(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeGetMousePosition(IntPtr native, out long x, out long y);
 
-        NativeGetMousePosition(native, out long x, out long y);
+        NativeGetMousePosition(client.Native, out long x, out long y);
 
         return ((int) x, (int) y);
     }
@@ -140,15 +140,15 @@ public static class Native
     /// <summary>
     ///     Set the mouse position.
     /// </summary>
-    /// <param name="native">A pointer to the native client.</param>
+    /// <param name="client">The client for which to set the mouse position.</param>
     /// <param name="x">The new x position, in client coordinates.</param>
     /// <param name="y">The new y position, in client coordinates.</param>
-    public static void SetMousePosition(IntPtr native, int x, int y)
+    public static void SetMousePosition(Client client, int x, int y)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetMousePosition(IntPtr native, long x, long y);
 
-        NativeSetMousePosition(native, x, y);
+        NativeSetMousePosition(client.Native, x, y);
     }
 
     /// <summary>

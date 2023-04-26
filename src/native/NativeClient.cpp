@@ -9,10 +9,9 @@
 constexpr float NativeClient::CLEAR_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-NativeClient::NativeClient(const UINT width, const UINT height, const std::wstring name,
-                           const Configuration configuration) :
-    DXApp(width, height, name, configuration),
-    m_resolution{width, height},
+NativeClient::NativeClient(const Configuration configuration) :
+    DXApp(configuration),
+    m_resolution{configuration.width, configuration.height},
     m_debugCallback(configuration.onDebug),
     m_spaceViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_spaceScissorRect(0, 0, 0, 0),

@@ -41,6 +41,10 @@ struct Configuration
 
     D3D12MessageFunc onDebug;
 
+    UINT width;
+    UINT height;
+    LPWSTR title;
+
     BOOL allowTearing;
     BOOL enableSpace;
 };

@@ -308,6 +308,14 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_GETMINMAXINFO:
+        {
+            auto pMinMaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
+            pMinMaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
+            pMinMaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
+        }
+        return 0;
+
     case WM_MOVE:
         if (app)
         {

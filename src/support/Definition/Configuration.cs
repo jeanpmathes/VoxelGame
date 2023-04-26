@@ -143,6 +143,21 @@ public static partial class Native
         public D3D12MessageFunc onDebug;
 
         /// <summary>
+        ///     The initial window width.
+        /// </summary>
+        public uint width;
+
+        /// <summary>
+        ///     The initial window height.
+        /// </summary>
+        public uint height;
+
+        /// <summary>
+        ///     The initial window title.
+        /// </summary>
+        [MarshalAs(UnmanagedType.LPWStr)] public string title;
+
+        /// <summary>
         ///     Whether to allow tearing.
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)] public bool allowTearing;

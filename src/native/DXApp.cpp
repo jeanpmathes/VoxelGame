@@ -11,20 +11,20 @@
 
 using namespace Microsoft::WRL;
 
-DXApp::DXApp(const UINT width, const UINT height, const std::wstring name, const Configuration configuration) :
-    m_width(width),
-    m_height(height),
+DXApp::DXApp(const Configuration configuration) :
+    m_width(max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH)),
+    m_height(max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT)),
     m_aspectRatio(0.0f),
     m_windowBounds{0, 0, 0, 0},
     m_tearingSupport(false),
-    m_title(name),
+    m_title(configuration.title),
     m_configuration(configuration)
 {
     const auto path = std::filesystem::current_path() / "Resources" / "Shaders";
     m_assetsPath = path.wstring();
     m_assetsPath += std::filesystem::path::preferred_separator;
 
-    UpdateForSizeChange(width, height);
+    UpdateForSizeChange(m_width, m_height);
     CheckTearingSupport();
 }
 

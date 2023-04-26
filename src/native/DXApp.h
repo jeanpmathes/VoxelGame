@@ -35,7 +35,7 @@ enum class MouseCursor : BYTE
 class DXApp
 {
 public:
-    DXApp(UINT width, UINT height, std::wstring name, Configuration configuration);
+    DXApp(Configuration configuration);
     virtual ~DXApp();
 
     DXApp(const DXApp& other) = delete;

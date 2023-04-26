@@ -91,11 +91,11 @@ internal static class Program
 
         GraphicsSettings graphicsSettings = new(Settings.Default);
 
-        WindowSettings windowSettings = new()
+        WindowSettings windowSettings = new WindowSettings
         {
             Title = Language.VoxelGame + " " + Version,
             Size = Settings.Default.ScreenSize.ToVector2i()
-        };
+        }.Corrected;
 
         logger.LogDebug("Opening window");
 

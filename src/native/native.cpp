@@ -17,7 +17,7 @@ NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErr
 
     TRY
     {
-        return new NativeClient(1280, 720, L"D3D12 Native Client", config);
+        return new NativeClient(config);
     }
     CATCH();
 }

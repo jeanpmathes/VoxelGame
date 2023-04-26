@@ -22,7 +22,7 @@ class Texture;
 class NativeClient final : public DXApp
 {
 public:
-    NativeClient(UINT width, UINT height, std::wstring name, Configuration configuration);
+    explicit NativeClient(Configuration configuration);
 
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
     [[nodiscard]] UINT GetRtvHeapIncrement() const;

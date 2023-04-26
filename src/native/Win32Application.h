@@ -22,6 +22,9 @@ public:
     static bool IsFullscreen() { return m_fullscreenMode; }
     static bool IsRunning(const DXApp* pApp) { return m_app == pApp; }
 
+    static constexpr UINT MINIMUM_WINDOW_WIDTH = 150;
+    static constexpr UINT MINIMUM_WINDOW_HEIGHT = 150;
+
 protected:
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

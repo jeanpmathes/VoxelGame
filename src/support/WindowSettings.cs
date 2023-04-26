@@ -11,9 +11,21 @@ namespace VoxelGame.Support;
 /// <summary>
 ///     The initial window settings.
 /// </summary>
-public class WindowSettings
+public record WindowSettings
 {
+    /// <summary>
+    ///     The title of the window.
+    /// </summary>
     public string Title { get; init; } = "New Window";
-    public Vector2i Size { get; init; } = Vector2i.Zero;
-}
 
+    /// <summary>
+    ///     The initial size of the window.
+    /// </summary>
+    public Vector2i Size { get; init; } = Vector2i.One;
+
+    /// <summary>
+    ///     Get a version of these settings with corrected values that are safe to use.
+    /// </summary>
+    public WindowSettings Corrected
+        => this with {Size = new Vector2i(Math.Max(val1: 1, Size.X), Math.Max(val1: 1, Size.Y))};
+}

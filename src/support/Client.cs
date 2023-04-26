@@ -4,6 +4,7 @@
 //  </copyright>
 //  <author>jeanpmathes</author>
 
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -47,6 +48,9 @@ public class Client : IDisposable
     /// </summary>
     protected Client(WindowSettings windowSettings, bool enableSpace) // todo: remove the enable space arg asap
     {
+        Debug.Assert(windowSettings.Size.X > 0);
+        Debug.Assert(windowSettings.Size.Y > 0);
+
         Definition.Native.NativeConfiguration configuration = new()
         {
             onInit = OnInit,
@@ -54,7 +58,7 @@ public class Client : IDisposable
             {
                 Time += delta;
 
-                mousePosition = Support.Native.GetMousePosition(Native);
+                mousePosition = Support.Native.GetMousePosition(this);
 
                 OnUpdate(delta);
 
@@ -82,13 +86,14 @@ public class Client : IDisposable
                 IsFocused = state;
             },
             onDebug = D3D12Debug.Enable(),
+            width = (uint) windowSettings.Size.X,
+            height = (uint) windowSettings.Size.Y,
+            title = windowSettings.Title,
             allowTearing = false,
             enableSpace = enableSpace
         };
 
         config = new Config(configuration, OnError, OnErrorMessage);
-
-        // todo: add window settings values to configuration and use on native side
 
         Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc, config.ErrorMessageFunc);
         Space = new Space(this);
@@ -123,7 +128,7 @@ public class Client : IDisposable
         set
         {
             mousePosition = value;
-            Support.Native.SetMousePosition(Native, mousePosition.X, mousePosition.Y);
+            Support.Native.SetMousePosition(this, mousePosition.X, mousePosition.Y);
         }
     }
 
@@ -328,7 +333,7 @@ public class Client : IDisposable
     /// <param name="height">The new height.</param>
     protected void SetResolution(uint width, uint height)
     {
-        Support.Native.SetResolution(Native, width, height);
+        Support.Native.SetResolution(this, width, height);
     }
 
     /// <summary>
@@ -387,7 +392,7 @@ public class Client : IDisposable
     /// </summary>
     public void ToggleFullscreen()
     {
-        Support.Native.ToggleFullscreen(Native);
+        Support.Native.ToggleFullscreen(this);
     }
 
     /// <summary>
@@ -396,7 +401,7 @@ public class Client : IDisposable
     /// <returns>The exit code of the client.</returns>
     public int Run()
     {
-        return Support.Native.Run(Native);
+        return Support.Native.Run(this);
     }
 
     private record struct Config(
@@ -408,7 +413,7 @@ public class Client : IDisposable
 
     private void ReleaseUnmanagedResources()
     {
-        Support.Native.Finalize(Native);
+        Support.Native.Finalize(this);
     }
 
     /// <summary>
