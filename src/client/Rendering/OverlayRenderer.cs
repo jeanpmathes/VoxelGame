@@ -18,6 +18,8 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class OverlayRenderer : IDisposable
 {
+    // todo: maybe overlay renderer and screen element renderer can be merged (differences are in shader, data, and setup which can all be done in ctor)
+
     private const int BlockMode = 0;
     private const int FluidMode = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
@@ -45,6 +47,10 @@ public sealed class OverlayRenderer : IDisposable
 
         drawGroup = ElementDrawGroup.Create();
         drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
+
+        disposed = true; // todo: remove this line when porting to DirectX
+
+        return; // todo: remove this line when porting to DirectX
 
         Shaders.Overlay.Use();
 
@@ -174,4 +180,3 @@ public sealed class OverlayRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-

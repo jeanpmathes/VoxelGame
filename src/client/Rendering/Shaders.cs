@@ -137,6 +137,8 @@ public sealed class Shaders
         // todo: think about deleting (some cleanup like removing from draw2d and similar is necessary)
         // todo: maybe some more cleanup would be nice
 
+        return;
+
         SimpleSection.Delete();
         ComplexSection.Delete();
         VaryingHeightSection.Delete();

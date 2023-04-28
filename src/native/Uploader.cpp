@@ -15,10 +15,10 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
 }
 
 void Uploader::UploadTexture(
-    const std::byte* data, const UINT subresource, const UINT subresourceCount,
+    std::byte** data, UINT subresources,
     const TextureDescription& description, const ComPtr<ID3D12Resource> destination)
 {
-    const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), subresource, subresourceCount);
+    const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
     const ComPtr<ID3D12Resource> uploadBuffer = nv_helpers_dx12::CreateBuffer(
         GetDevice().Get(),
@@ -29,14 +29,18 @@ void Uploader::UploadTexture(
 
     m_uploadBuffers.push_back(uploadBuffer);
 
-    D3D12_SUBRESOURCE_DATA textureData;
-    textureData.pData = data;
-    textureData.RowPitch = static_cast<LONG_PTR>(description.width) * 4;
-    textureData.SlicePitch = textureData.RowPitch * description.height;
+    std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
+    for (UINT subresource = 0; subresource < subresources; subresource++)
+    {
+        uploadDescription[subresource].pData = data[subresource];
+        uploadDescription[subresource].RowPitch = static_cast<LONG_PTR>(description.width) * 4;
+        uploadDescription[subresource].SlicePitch = uploadDescription[subresource].RowPitch * description.height;
+    }
 
-    UpdateSubresources(m_commandList.Get(), destination.Get(), uploadBuffer.Get(), 0, subresource, subresourceCount,
-                       &textureData);
-
+    UpdateSubresources(m_commandList.Get(), destination.Get(), uploadBuffer.Get(),
+                       0, 0, subresources,
+                       uploadDescription.data());
+    
     if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
 

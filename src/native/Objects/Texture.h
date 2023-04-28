@@ -10,6 +10,7 @@ struct TextureDescription
 {
     UINT width;
     UINT height;
+    UINT depth;
 };
 
 /**
@@ -24,7 +25,7 @@ public:
      * Create a texture from given data.
      * The texture is stored in the client that is associated with the uploader.
      */
-    static Texture* Create(Uploader& uploader, std::byte* data, TextureDescription description);
+    static Texture* Create(Uploader& uploader, std::byte** data, TextureDescription description);
 
     explicit Texture(NativeClient& client, ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 

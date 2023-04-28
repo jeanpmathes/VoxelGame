@@ -24,7 +24,6 @@ public class SequencedMeshObject : SpatialObject
     /// <param name="vertices">The vertices of the mesh.</param>
     public void SetMesh(SpatialVertex[] vertices)
     {
-        Native.SetSequencedMeshObjectData(this, vertices, vertices.Length);
+        Native.SetSequencedMeshObjectData(this, vertices);
     }
 }
-

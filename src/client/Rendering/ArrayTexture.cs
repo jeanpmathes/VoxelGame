@@ -10,17 +10,19 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
 ///     Represents an array texture.
 /// </summary>
-public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
+public sealed class ArrayTexture : ITextureIndexProvider
 {
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
@@ -29,29 +31,80 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
 
-    private readonly Dictionary<string, int> textureIndices = new();
+    private readonly Texture[] parts;
 
-    private int arrayCount;
-    private int[] handles = null!;
+    private readonly Dictionary<string, int> textureIndices = new();
 
     private LoadingContext? loadingContext;
 
     /// <summary>
     ///     Create a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
+    /// <param name="client">The client that will own the texture.</param>
     /// <param name="loadingContext">The context in which loading is performed.</param>
     /// <param name="textureDirectory">The directory to load textures from.</param>
     /// <param name="resolution">The resolution of the array. Textures that do not fit are excluded.</param>
-    /// <param name="useCustomMipmapGeneration">
-    ///     True if custom mipmap generation should be used instead of the standard OpenGL
-    ///     one. The custom algorithm is better for textures with complete transparency.
-    /// </param>
-    /// <param name="parameters">Optional texture parameters.</param>
-    public ArrayTexture(LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters)
+    /// <param name="maxTextures">The maximum number of textures to load.</param>
+    public ArrayTexture(Support.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures) // todo: ensure that no texture units are mentioned in the wiki
     {
-        // todo: port to DirectX 
+        Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
-        Initialize(loadingContext, textureDirectory, resolution, useCustomMipmapGeneration, parameters);
+        FileInfo[] texturePaths;
+
+        try
+        {
+            texturePaths = textureDirectory.GetFiles("*.png");
+        }
+        catch (DirectoryNotFoundException)
+        {
+            texturePaths = Array.Empty<FileInfo>();
+
+            loadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
+        }
+
+        List<Bitmap> textures = new();
+
+        // Create fallback texture.
+        Bitmap fallback = Texture.CreateFallback(resolution);
+        textures.Add(fallback);
+
+        // Load all textures, preprocess them and add them to the list.
+        LoadBitmaps(resolution, texturePaths, textures);
+        Span<Bitmap> subresources = CollectionsMarshal.AsSpan(textures);
+
+        int requiredParts = (maxTextures - 1) / Texture.MaxArrayTextureDepth + 1;
+
+        // Check if the arrays could hold all textures.
+        if (textures.Count > maxTextures) // todo: divide by mipmap count here and in log, consider it in the slicing below (or find more elegant solution like second list)
+        {
+            logger.LogCritical(
+                "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this ArrayTexture",
+                textures.Count,
+                maxTextures);
+
+            subresources = subresources[..maxTextures];
+        }
+
+        Count = subresources.Length; // todo: divide by mipmap count here too
+
+        // Split the full texture list into parts and create the array textures.
+        parts = new Texture[requiredParts];
+        var currentPart = 0;
+        var added = 0;
+
+        while (added < subresources.Length) // todo: consider mipmaps here too
+        {
+            int next = Math.Min(added + Texture.MaxArrayTextureDepth, subresources.Length);
+            parts[currentPart] = client.LoadTexture(subresources[added..next]);
+
+            added = next;
+            currentPart++;
+        }
+
+        // Cleanup.
+        foreach (Bitmap bitmap in textures) bitmap.Dispose();
+
+        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
     }
 
     /// <summary>
@@ -100,109 +153,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         loadingContext = null;
     }
 
-    /// <summary>
-    ///     Bind this array to the texture units.
-    /// </summary>
-    public void Use()
-    {
-        // for (var i = 0; i < arrayCount; i++) GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
-    }
-
-    internal void SetWrapMode()
-    {
-        // for (var i = 0; i < arrayCount; i++)
-        // {
-        //     GL.BindTextureUnit(textureUnits[i] - TextureUnit.Texture0, handles[i]);
-        //
-        //     GL.TextureParameter(handles[i], TextureParameterName.TextureWrapS, (int) mode);
-        //     GL.TextureParameter(handles[i], TextureParameterName.TextureWrapT, (int) mode);
-        // }
-    }
-
-    private void Initialize(LoadingContext initialLoadingContext,
-        DirectoryInfo textureDirectory, int resolution, bool useCustomMipmapGeneration, TextureParameters? parameters)
-    {
-        Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
-
-        /*
-        arrayCount = units.Length;
-
-        textureUnits = units;
-        handles = new int[arrayCount];
-
-        GetHandles(handles);
-
-        FileInfo[] texturePaths;
-
-        try
-        {
-            texturePaths = textureDirectory.GetFiles("*.png");
-        }
-        catch (DirectoryNotFoundException)
-        {
-            texturePaths = Array.Empty<FileInfo>();
-
-            initialLoadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
-        }
-
-        List<Bitmap> textures = new();
-
-        // Create fall back texture.
-        Bitmap fallback = Texture.CreateFallback(resolution);
-        textures.Add(fallback);
-
-        // Split all images into separate bitmaps and create a list.
-        LoadBitmaps(resolution, texturePaths, textures);
-        PreprocessBitmaps(textures);
-
-        // Check if the arrays could hold all textures
-        if (textures.Count > UnitSize * handles.Length)
-        {
-            logger.LogCritical(
-                "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for an ArrayTexture using {Units} units",
-                textures.Count,
-                UnitSize * handles.Length,
-                units.Length);
-
-            textures = textures.GetRange(index: 0, UnitSize * handles.Length);
-        }
-
-        Count = textures.Count;
-
-        var loadedTextures = 0;
-        var currentUnit = 0;
-
-        while (loadedTextures < textures.Count)
-        {
-            int remainingTextures = textures.Count - loadedTextures;
-
-            SetupArrayTexture(
-                handles[currentUnit],
-                units[currentUnit],
-                resolution,
-                textures,
-                loadedTextures,
-                loadedTextures + (remainingTextures < UnitSize ? remainingTextures : UnitSize),
-                useCustomMipmapGeneration);
-
-            parameters?.SetTextureParameters(handles[currentUnit]);
-
-            loadedTextures += UnitSize;
-            currentUnit++;
-        }
-
-        // Cleanup
-        foreach (Bitmap bitmap in textures) bitmap.Dispose();
-
-        initialLoadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
-        */
-    }
-
-    private static void PreprocessBitmaps(List<Bitmap> textures)
-    {
-        foreach (Bitmap texture in textures) PreprocessBitmap(texture);
-    }
-
     private static void PreprocessBitmap(Bitmap texture)
     {
         long r = 0;
@@ -240,70 +190,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         }
     }
 
-    private void GetHandles(int[] arr)
-    {
-        // GL.CreateTextures(TextureTarget.Texture2DArray, arrayCount, arr);
-    }
-
-    /*
-    private static void SetupArrayTexture(int handle, TextureUnit unit, int resolution,
-        IReadOnlyList<Bitmap> textures,
-        int startIndex, int length, bool useCustomMipmapGeneration)
-    {
-        var levels = (int) Math.Log(resolution, newBase: 2);
-
-        GL.BindTextureUnit(unit - TextureUnit.Texture0, handle);
-
-        // Allocate storage for array
-        GL.TextureStorage3D(handle, levels, SizedInternalFormat.Rgba8, resolution, resolution, length);
-
-        using Bitmap container = new(resolution, resolution * length, PixelFormat.Format32bppArgb);
-
-        // Combine all textures into one
-        for (int i = startIndex; i < length; i++)
-        {
-            textures[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
-            PlaceBitmap(textures[i], container, x: 0, i * resolution);
-        }
-
-        // Upload pixel data to array
-        BitmapData data = container.LockBits(
-            new Rectangle(x: 0, y: 0, container.Width, container.Height),
-            ImageLockMode.ReadOnly,
-            PixelFormat.Format32bppArgb);
-
-        GL.TextureSubImage3D(
-            handle,
-            level: 0,
-            xoffset: 0,
-            yoffset: 0,
-            zoffset: 0,
-            resolution,
-            resolution,
-            length,
-            OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
-            PixelType.UnsignedByte,
-            data.Scan0);
-
-        container.UnlockBits(data);
-
-        // Generate mipmaps for array
-        if (!useCustomMipmapGeneration) GL.GenerateTextureMipmap(handle);
-        else GenerateMipmapWithoutTransparencyMixing(handle, container, levels, length);
-
-        // Set texture parameters for array
-        GL.TextureParameter(
-            handle,
-            TextureParameterName.TextureMinFilter,
-            (int) TextureMinFilter.NearestMipmapNearest);
-
-        GL.TextureParameter(handle, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Nearest);
-
-        GL.TextureParameter(handle, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
-        GL.TextureParameter(handle, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
-    }
-    */
-
     /// <summary>
     ///     Loads all bitmaps specified by the paths into the list. The bitmaps are split into smaller parts that are all sized
     ///     according to the resolution.
@@ -311,10 +197,11 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private void LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, ICollection<Bitmap> bitmaps)
+    private void LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, IList<Bitmap> bitmaps)
     {
         if (paths.Count == 0) return;
 
+        var levels = (int) Math.Log(resolution, newBase: 2);
         var texIndex = 1;
 
         foreach (FileInfo path in paths)
@@ -336,6 +223,9 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
                                 PixelFormat.Format32bppArgb));
 
                         texIndex++;
+
+                        PreprocessBitmap(bitmaps[^1]);
+                        GenerateMipmapWithoutTransparencyMixing(bitmaps[^1], levels); // todo: upload the mipmaps to the GPU (description must be adapted)
                     }
                 }
                 else
@@ -359,8 +249,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             destination.SetPixel(x + i, y + j, source.GetPixel(i, j));
     }
 
-    private static void GenerateMipmapWithoutTransparencyMixing(int handle, Bitmap baseLevel, int levels,
-        int length)
+    private static void GenerateMipmapWithoutTransparencyMixing(Bitmap baseLevel, int levels)
     {
         Bitmap upperLevel = baseLevel;
 
@@ -374,7 +263,7 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
             CreateLowerLevel(ref upperLevel, ref lowerLevel);
 
             // Upload pixel data to array
-            UploadPixelData(handle, lowerLevel, lod, length);
+            // todo: here was the upload before, but what now? pass all data at once, in correct order according to subresource indexing
 
             if (!upperLevel.Equals(baseLevel)) upperLevel.Dispose();
 
@@ -382,31 +271,6 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
         }
 
         if (!upperLevel.Equals(baseLevel)) upperLevel.Dispose();
-    }
-
-    private static void UploadPixelData(int handle, Bitmap bitmap, int lod, int length)
-    {
-        // todo: maybe this is a good point where upload to DirectX could be added
-
-        BitmapData data = bitmap.LockBits(
-            new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height),
-            ImageLockMode.ReadOnly,
-            PixelFormat.Format32bppArgb);
-
-        /*GL.TextureSubImage3D(
-            handle,
-            lod,
-            xoffset: 0,
-            yoffset: 0,
-            zoffset: 0,
-            bitmap.Width,
-            bitmap.Width,
-            length,
-            OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
-            PixelType.UnsignedByte,
-            data.Scan0);*/
-
-        bitmap.UnlockBits(data);
     }
 
     private static void CreateLowerLevel(ref Bitmap upperLevel, ref Bitmap lowerLevel)
@@ -455,43 +319,4 @@ public sealed class ArrayTexture : IDisposable, ITextureIndexProvider
 
         return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
     }
-
-    #region IDisposable Support
-
-    private bool disposed;
-
-    private void Dispose(bool disposing)
-    {
-        if (disposed) return;
-
-        if (disposing)
-            for (var i = 0; i < arrayCount; i++)
-                ; //GL.DeleteTexture(handles[i]); todo: freeing still important
-        else
-            logger.LogWarning(
-                Events.UndeletedTexture,
-                "Texture disposed by GC without freeing storage");
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~ArrayTexture()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of this texture.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    #endregion IDisposable Support
 }
-

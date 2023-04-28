@@ -1,13 +1,19 @@
 ﻿#include "stdafx.h"
 #include "Texture.h"
 
-Texture* Texture::Create(Uploader& uploader, std::byte* data, TextureDescription description)
+Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescription description)
 {
+    REQUIRE(description.width > 0);
+    REQUIRE(description.height > 0);
+    REQUIRE(description.depth > 0);
+
+    REQUIRE(description.depth < D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION);
+
     const D3D12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_B8G8R8A8_UNORM,
         description.width,
         description.height,
-        1,
+        static_cast<UINT16>(description.depth),
         1,
         1,
         0,
@@ -25,12 +31,19 @@ Texture* Texture::Create(Uploader& uploader, std::byte* data, TextureDescription
         nullptr,
         IID_PPV_ARGS(&texture)));
 
-    uploader.UploadTexture(data, 0, 1, description, texture);
+    UINT subresources = description.depth;
+    uploader.UploadTexture(data, subresources, description, texture);
+
+    D3D12_SRV_DIMENSION dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    if (description.depth > 1)
+    {
+        dimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    }
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.Format = textureDesc.Format;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.ViewDimension = dimension;
     srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
     auto result = std::make_unique<Texture>(uploader.GetClient(), texture, srvDesc);

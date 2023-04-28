@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using VoxelGame.Core.Utilities;
+using OpenTK.Mathematics;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -267,18 +267,16 @@ public static class Native
     /// </summary>
     /// <param name="sequencedMeshObject">The sequenced mesh object.</param>
     /// <param name="vertices">The vertices.</param>
-    /// <param name="length">The number of vertices. Must be less than or equal to the length of the vertices array.</param>
-    public static unsafe void SetSequencedMeshObjectData(SequencedMeshObject sequencedMeshObject, SpatialVertex[] vertices, int length)
+    public static unsafe void SetSequencedMeshObjectData(SequencedMeshObject sequencedMeshObject, Span<SpatialVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetSequencedMeshObjectMesh(IntPtr sequencedMeshObject, SpatialVertex* vertices, int length);
 
-        Debug.Assert(length <= vertices.Length);
-        Debug.Assert(length >= 0);
+        Debug.Assert(vertices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
         {
-            NativeSetSequencedMeshObjectMesh(sequencedMeshObject.Self, vertexData, length);
+            NativeSetSequencedMeshObjectMesh(sequencedMeshObject.Self, vertexData, vertices.Length);
         }
     }
 
@@ -303,24 +301,19 @@ public static class Native
     /// </summary>
     /// <param name="indexedMeshObject">The indexed mesh object.</param>
     /// <param name="vertices">The vertices.</param>
-    /// <param name="vertexLength">The number of vertices. Must be less than or equal to the length of the vertices array.</param>
     /// <param name="indices">The indices.</param>
-    /// <param name="indexLength">The number of indices. Must be less than or equal to the length of the indices array.</param>
-    public static unsafe void SetIndexedMeshObjectData(IndexedMeshObject indexedMeshObject, SpatialVertex[] vertices, int vertexLength, uint[] indices, int indexLength)
+    public static unsafe void SetIndexedMeshObjectData(IndexedMeshObject indexedMeshObject, Span<SpatialVertex> vertices, Span<uint> indices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetIndexedMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength, uint* indices, int indexLength);
 
-        Debug.Assert(vertexLength <= vertices.Length);
-        Debug.Assert(vertexLength >= 0);
-
-        Debug.Assert(indexLength <= indices.Length);
-        Debug.Assert(indexLength >= 0);
+        Debug.Assert(vertices.Length >= 0);
+        Debug.Assert(indices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
         fixed (uint* indexData = indices)
         {
-            NativeSetIndexedMeshObjectMesh(indexedMeshObject.Self, vertexData, vertexLength, indexData, indexLength);
+            NativeSetIndexedMeshObjectMesh(indexedMeshObject.Self, vertexData, vertices.Length, indexData, indices.Length);
         }
     }
 
@@ -434,24 +427,43 @@ public static class Native
     ///     Load a texture from a bitmap.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="bitmap">The bitmap.</param>
+    /// <param name="bitmaps">All bitmaps used to build the texture.</param>
     /// <returns>The loaded texture.</returns>
-    public static Texture LoadTexture(Client client, Bitmap bitmap)
+    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> bitmaps)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr data, TextureDescription description);
+        static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr* data, TextureDescription description);
+
+        Debug.Assert(bitmaps.Length > 0);
 
         TextureDescription description = new()
         {
-            Width = (uint) bitmap.Width,
-            Height = (uint) bitmap.Height
+            Width = (uint) bitmaps[index: 0].Width,
+            Height = (uint) bitmaps[index: 0].Height,
+            Depth = (uint) bitmaps.Length
         };
 
-        BitmapData data = bitmap.LockBits(new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        IntPtr texture = NativeLoadTexture(client.Native, data.Scan0, description);
-        bitmap.UnlockBits(data);
+        List<IntPtr> subresources = new(bitmaps.Length);
+        List<BitmapData> locks = new(bitmaps.Length);
 
-        return new Texture(texture, client, bitmap.Size.ToVector2i());
+        foreach (Bitmap bitmap in bitmaps)
+        {
+            BitmapData data = bitmap.LockBits(new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            subresources.Add(data.Scan0);
+            locks.Add(data);
+        }
+
+        IntPtr texture;
+
+        fixed (IntPtr* subresourcesPtr = CollectionsMarshal.AsSpan(subresources))
+        {
+            texture = NativeLoadTexture(client.Native, subresourcesPtr, description);
+        }
+
+        for (var i = 0; i < bitmaps.Length; i++) bitmaps[i].UnlockBits(locks[i]);
+
+        return new Texture(texture, client, new Vector2i((int) description.Width, (int) description.Height));
     }
 
     /// <summary>

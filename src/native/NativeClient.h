@@ -50,7 +50,7 @@ public:
     /**
      * Load a texture from a file.
      */
-    Texture* LoadTexture(std::byte* data, const TextureDescription& description) const;
+    Texture* LoadTexture(std::byte** data, const TextureDescription& description) const;
     
     /**
      * Set the mouse position in client coordinates.

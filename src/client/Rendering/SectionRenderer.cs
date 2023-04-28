@@ -67,6 +67,10 @@ public sealed class SectionRenderer : IDisposable
         opaqueFluidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
         transparentFluidDrawGroup = ElementIDataDrawGroup.Create(size: 2);
 
+        disposed = true; // todo: remove this line when porting to DirectX
+
+        return; // todo: remove this line when porting to DirectX
+
         #region SIMPLE BUFFER SETUP
 
         simpleDrawGroup.VertexArrayBindBuffer();
@@ -175,6 +179,8 @@ public sealed class SectionRenderer : IDisposable
     /// <param name="meshData">The mesh data to use.</param>
     public void SetData(SectionMeshData meshData)
     {
+        meshData.ReturnPooled(); // todo: remove this line when porting to DirectX
+
         if (disposed) return; // todo: remove the usage of the count as the span already has the length
 
         simpleDrawGroup.SetData(meshData.simpleVertexData.Count, meshData.simpleVertexData.AsSpan().ToArray());

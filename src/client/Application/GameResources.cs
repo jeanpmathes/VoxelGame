@@ -80,39 +80,26 @@ public class GameResources
         {
             using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
             {
-                // todo: wrap native textures, load them from here
-                /*
-                BlockTextureArray = new ArrayTexture(loadingContext,
+                BlockTextureArray = new ArrayTexture(Client.Instance,
+                    loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
-                    useCustomMipmapGeneration: true,
-                    texParams,
-                    TextureUnit.Texture1,
-                    TextureUnit.Texture2,
-                    TextureUnit.Texture3,
-                    TextureUnit.Texture4);
-                */
+                    1 << 13); // todo: use constant here and in vertex data creation
             }
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
             {
-                // todo: wrap native textures, load them from here
-                /*
-                FluidTextureArray = new ArrayTexture(loadingContext,
+                FluidTextureArray = new ArrayTexture(Client.Instance,
+                    loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
-                    useCustomMipmapGeneration: false,
-                    texParams,
-                    TextureUnit.Texture5);
-                */
+                    1 << 11); // todo: use constant here and in vertex data creation
             }
         }
 
         UIResources.Load(window, loadingContext);
 
         Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, loadingContext);
-
-        return; // todo: remove
 
         TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
         BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
@@ -142,13 +129,7 @@ public class GameResources
     /// </summary>
     public void Unload()
     {
-        return; // todo: remove
-
         Shaders.Delete();
-
-        BlockTextureArray.Dispose();
-        FluidTextureArray.Dispose();
-
         UIResources.Unload();
     }
 }

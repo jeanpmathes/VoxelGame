@@ -187,11 +187,13 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
             if (IsBlockBoundingBoxVisualized(selectedBlock))
             {
+                /* todo: restore this
                 Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
                     "color",
                     new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
 
                 visualization.DrawSelectionBox(selectedBlock.GetCollider(World, position));
+                */
             }
         }
 

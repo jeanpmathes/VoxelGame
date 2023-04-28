@@ -35,6 +35,8 @@ public sealed class BoxRenderer : IDisposable
 
         drawGroup = ElementDrawGroup.Create();
 
+        return;
+
         Shaders.Selection.Use();
 
         drawGroup.VertexArrayBindBuffer(size: 3);
@@ -206,4 +208,3 @@ public sealed class BoxRenderer : IDisposable
 
     #endregion IDisposable Support
 }
-

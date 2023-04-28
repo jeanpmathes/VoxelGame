@@ -25,7 +25,6 @@ public class IndexedMeshObject : SpatialObject
     /// <param name="indices">The indices.</param>
     public void SetMesh(SpatialVertex[] vertices, uint[] indices)
     {
-        Native.SetIndexedMeshObjectData(this, vertices, vertices.Length, indices, indices.Length);
+        Native.SetIndexedMeshObjectData(this, vertices, indices);
     }
 }
-

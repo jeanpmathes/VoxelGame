@@ -384,7 +384,17 @@ public class Client : IDisposable
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Bitmap bitmap)
     {
-        return Support.Native.LoadTexture(this, bitmap);
+        return Support.Native.LoadTexture(this, new[] {bitmap});
+    }
+
+    /// <summary>
+    ///     Load a texture from a bitmap array.
+    /// </summary>
+    /// <param name="bitmaps">The bitmaps to load from.</param>
+    /// <returns>The loaded texture.</returns>
+    public Texture LoadTexture(Span<Bitmap> bitmaps)
+    {
+        return Support.Native.LoadTexture(this, bitmaps);
     }
 
     /// <summary>

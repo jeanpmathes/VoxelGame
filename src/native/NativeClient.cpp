@@ -399,7 +399,7 @@ void NativeClient::ToggleFullscreen() const
     Win32Application::ToggleFullscreenWindow();
 }
 
-Texture* NativeClient::LoadTexture(std::byte* data, const TextureDescription& description) const
+Texture* NativeClient::LoadTexture(std::byte** data, const TextureDescription& description) const
 {
     REQUIRE(m_uploader != nullptr);
 

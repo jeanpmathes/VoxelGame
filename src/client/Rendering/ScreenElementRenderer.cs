@@ -33,10 +33,16 @@ public sealed class ScreenElementRenderer : IDisposable
     /// </summary>
     public ScreenElementRenderer()
     {
+        // todo: port to DirectX
+
         (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
 
         drawGroup = ElementDrawGroup.Create();
         drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
+
+        disposed = true; // todo: remove this line when porting to DirectX
+
+        return; // todo: remove this line when porting to DirectX
 
         Shaders.ScreenElement.Use();
 
