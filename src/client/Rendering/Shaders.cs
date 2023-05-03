@@ -11,6 +11,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics.Objects;
+using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Graphics.Utility;
 using VoxelGame.Support.Objects;
 
@@ -19,7 +20,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     A utility class for loading, compiling and managing shaders used by the game.
 /// </summary>
-public sealed class Shaders
+public sealed class Shaders // todo: delete all GLSL shaders
 {
     private const string SectionFragmentShader = "section";
 
@@ -114,6 +115,11 @@ public sealed class Shaders
     public Shader ScreenElement { get; private set; } = null!;
 
     /// <summary>
+    ///     The default raytracing material.
+    /// </summary>
+    public Material DefaultMaterial { get; private set; } = null!;
+
+    /// <summary>
     ///     Load all shaders in the given directory.
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
@@ -159,6 +165,40 @@ public sealed class Shaders
     {
         loaded = true;
 
+        LoadRasterPipelines(client);
+        LoadRaytracingPipeline(client);
+
+        if (!loaded) return;
+
+        client.SetPostProcessingPipeline(postProcessingPipeline);
+
+        return; // todo: remove this, and maybe the code below
+
+        Shader Check(Shader? shader)
+        {
+            loaded &= shader != null;
+
+            return shader!;
+        }
+
+        SimpleSection = Check(loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader));
+        ComplexSection = Check(loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader));
+        VaryingHeightSection = Check(loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader));
+        CrossPlantSection = Check(loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader));
+        CropPlantSection = Check(loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader));
+        OpaqueFluidSection = Check(loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section"));
+        TransparentFluidSectionAccumulate = Check(loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate"));
+        TransparentFluidSectionDraw = Check(loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw"));
+
+        Overlay = Check(loader.Load(nameof(Overlay), "overlay", "overlay"));
+        Selection = Check(loader.Load(nameof(Selection), "selection", "selection"));
+        ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
+
+        UpdateOrthographicProjection();
+    }
+
+    private void LoadRasterPipelines(Support.Client client)
+    {
         RasterPipeline LoadPipeline(string name, ShaderPreset preset)
         {
             FileInfo path = directory.GetFile($"{name}.hlsl");
@@ -195,34 +235,23 @@ public sealed class Shaders
         }
 
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
+    }
 
-        if (!loaded) return;
+    private void LoadRaytracingPipeline(Support.Client client)
+    {
+        PipelineBuilder builder = new();
 
-        client.SetPostProcessingPipeline(postProcessingPipeline);
+        const string defaultClosestHit = "ClosestHit";
+        const string defaultShadowHit = "ShadowClosestHit";
 
-        return; // todo: remove this, and maybe the code below
+        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), new[] {"RayGen"});
+        builder.AddShaderFile(directory.GetFile("Miss.hlsl"), new[] {"Miss"});
+        builder.AddShaderFile(directory.GetFile("Hit.hlsl"), new[] {defaultClosestHit});
+        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowHit, "ShadowMiss"});
 
-        Shader Check(Shader? shader)
-        {
-            loaded &= shader != null;
+        DefaultMaterial = builder.AddMaterial(nameof(DefaultMaterial), defaultClosestHit, defaultShadowHit);
 
-            return shader!;
-        }
-
-        SimpleSection = Check(loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader));
-        ComplexSection = Check(loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader));
-        VaryingHeightSection = Check(loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader));
-        CrossPlantSection = Check(loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader));
-        CropPlantSection = Check(loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader));
-        OpaqueFluidSection = Check(loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section"));
-        TransparentFluidSectionAccumulate = Check(loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate"));
-        TransparentFluidSectionDraw = Check(loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw"));
-
-        Overlay = Check(loader.Load(nameof(Overlay), "overlay", "overlay"));
-        Selection = Check(loader.Load(nameof(Selection), "selection", "selection"));
-        ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
-
-        UpdateOrthographicProjection();
+        loaded &= builder.Build(client, loadingContext);
     }
 
     /// <summary>

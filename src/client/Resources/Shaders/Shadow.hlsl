@@ -1,13 +1,7 @@
 ﻿#include "Common.hlsl"
 
 [shader("closesthit")]
-void SequencedShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes attributes)
-{
-    hitInfo.isHit = true;
-}
-
-[shader("closesthit")]
-void IndexedShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes attributes)
+void ShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes attributes)
 {
     hitInfo.isHit = true;
 }

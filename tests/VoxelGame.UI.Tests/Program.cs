@@ -14,7 +14,7 @@ using VoxelGame.UI.Platform;
 
 namespace VoxelGame.UI.Tests;
 
-internal class Program : Support.Client
+internal class Program : Client
 {
     private const int MaxFrameSamples = 1000;
     private readonly IGwenGui gui;
@@ -23,7 +23,7 @@ internal class Program : Support.Client
 
     private UnitTestHarnessControls unitTestHarnessControls = null!;
 
-    private Program(WindowSettings windowSettings) : base(windowSettings, enableSpace: false)
+    private Program(WindowSettings windowSettings) : base(windowSettings)
     {
         gui = GwenGuiFactory.CreateFromClient(this,
             GwenGuiSettings.Default.From(settings =>
@@ -44,7 +44,7 @@ internal class Program : Support.Client
             Size = new Vector2i(x: 800, y: 600)
         };
 
-        using Support.Client client = new Program(windowSettings);
+        using Client client = new Program(windowSettings);
         client.Run();
     }
 

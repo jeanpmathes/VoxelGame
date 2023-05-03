@@ -11,7 +11,7 @@ Space::Space(NativeClient& nativeClient) :
 
 void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue)
 {
-    assert(m_meshes.empty());
+    REQUIRE(m_meshes.empty());
 
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), &m_commandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
@@ -33,33 +33,33 @@ void Space::PerformResolutionDependentSetup(const Resolution& resolution)
     m_camera.Initialize();
 }
 
-void Space::PerformInitialSetupStepTwo(const ShaderPaths& paths)
+void Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 {
     CreateShaderResourceHeap();
-    CreateRaytracingPipeline(paths);
+    CreateRaytracingPipeline(pipeline);
 
     CreateGlobalConstBuffer();
     CreateShaderBindingTable();
 }
 
-SequencedMeshObject& Space::CreateSequencedMeshObject()
+MeshObject& Space::CreateMeshObject(UINT materialIndex)
 {
-    auto object = std::make_unique<SequencedMeshObject>(m_nativeClient);
-    auto& sequencedMeshObject = *object;
-
-    m_meshes.push_back(std::move(object));
-
-    return sequencedMeshObject;
-}
-
-IndexedMeshObject& Space::CreateIndexedMeshObject()
-{
-    auto object = std::make_unique<IndexedMeshObject>(m_nativeClient);
+    auto object = std::make_unique<MeshObject>(m_nativeClient, materialIndex);
     auto& indexedMeshObject = *object;
 
     m_meshes.push_back(std::move(object));
 
     return indexedMeshObject;
+}
+
+void Space::FreeMeshObject(const MeshObject::Handle handle)
+{
+    m_meshes.erase(handle);
+}
+
+const Material& Space::GetMaterial(const UINT index) const
+{
+    return *m_materials[index];
 }
 
 void Space::Reset(const UINT frameIndex) const
@@ -249,51 +249,73 @@ void Space::UpdateShaderResourceHeap() const
     GetDevice()->CreateConstantBufferView(&cbvDesc, srvHandle);
 }
 
-void Space::CreateRaytracingPipeline(const ShaderPaths& paths)
+void Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 {
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice().Get());
+    m_shaderBlobs = std::vector<ComPtr<IDxcBlob>>(pipelineDescription.description.shaderCount);
 
-    // todo: use Material abstraction, and allow passing arbitrary count of shader paths + symbols
-    // todo: the raytracing pipeline should use an abstraction similar to shader buffer
-    // (but not the same as raytracing does not need a descriptor heap per buffer, on c# side they could be the same)
-    // or on c# side raytracing the mesh object integrates the generic data buffer for raytracing
+    UINT currentSymbolIndex = 0;
 
-    m_rayGenLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.rayGenShader.c_str());
-    m_missLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.missShader.c_str());
-    m_hitLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.hitShader.c_str());
-    m_shadowLibrary = nv_helpers_dx12::CompileShaderLibrary(paths.shadowShader.c_str());
+    for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
+    {
+        // todo: use OnShaderLoadingError callback, return false and handle error in caller
+        m_shaderBlobs[shader] = nv_helpers_dx12::CompileShaderLibrary(pipelineDescription.shaderFiles[shader].path);
 
-    pipeline.AddLibrary(m_rayGenLibrary.Get(), {L"RayGen"});
-    pipeline.AddLibrary(m_missLibrary.Get(), {L"Miss"});
-    pipeline.AddLibrary(m_hitLibrary.Get(), {L"IndexedClosestHit", L"SequencedClosestHit"});
-    pipeline.AddLibrary(m_shadowLibrary.Get(),
-                        {L"IndexedShadowClosestHit", L"SequencedShadowClosestHit", L"ShadowMiss"});
+        const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
 
+        std::vector<std::wstring> symbols;
+        symbols.reserve(currentSymbolCount);
+
+        for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++)
+        {
+            symbols.push_back(pipelineDescription.symbols[currentSymbolIndex++]);
+        }
+
+        pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
+        // todo: try to check if library actually contains the symbols (in debug builds)
+    }
+    
     m_rayGenSignature = CreateRayGenSignature();
     m_missSignature = CreateMissSignature();
-    m_hitSignatureSequenced = SequencedMeshObject::CreateRootSignature(GetDevice());
-    m_shadowSignatureSequenced = SequencedMeshObject::CreateRootSignature(GetDevice());
-    m_hitSignatureIndexed = IndexedMeshObject::CreateRootSignature(GetDevice());
-    m_shadowSignatureIndexed = IndexedMeshObject::CreateRootSignature(GetDevice());
+
+    UINT currentHitGroupIndex = 0;
+
+    for (UINT material = 0; material < pipelineDescription.description.materialCount; material++)
+    {
+        auto m = std::make_unique<Material>();
+
+        auto addHitGroup = [&](const std::wstring& closestHitSymbol)
+            -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
+        {
+            ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
+            std::wstring hitGroup = std::to_wstring(currentHitGroupIndex++);
+
+            pipeline.AddHitGroup(hitGroup, closestHitSymbol);
+            pipeline.AddRootSignatureAssociation(rootSignature.Get(), {hitGroup});
+
+            return {hitGroup, rootSignature};
+        };
+
+        std::tie(m->normalHitGroup, m->normalRootSignature)
+            = addHitGroup(pipelineDescription.materials[material].closestHitSymbol);
+
+        std::tie(m->shadowHitGroup, m->shadowRootSignature)
+            = addHitGroup(pipelineDescription.materials[material].shadowHitSymbol);
+
+#if defined(_DEBUG) || defined(DBG)
+        std::wstring debugName = pipelineDescription.materials[material].debugName;
+        m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str());
+        m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str());
+#endif
+
+        m_materials.push_back(std::move(m));
+    }
 
     NAME_D3D12_OBJECT(m_rayGenSignature);
     NAME_D3D12_OBJECT(m_missSignature);
-    NAME_D3D12_OBJECT(m_hitSignatureSequenced);
-    NAME_D3D12_OBJECT(m_shadowSignatureSequenced);
-    NAME_D3D12_OBJECT(m_hitSignatureIndexed);
-    NAME_D3D12_OBJECT(m_shadowSignatureIndexed);
-
-    pipeline.AddHitGroup(L"IndexedHitGroup", L"IndexedClosestHit");
-    pipeline.AddHitGroup(L"IndexedShadowHitGroup", L"IndexedShadowClosestHit");
-    pipeline.AddHitGroup(L"SequencedHitGroup", L"SequencedClosestHit");
-    pipeline.AddHitGroup(L"SequencedShadowHitGroup", L"SequencedShadowClosestHit");
 
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), {L"Miss", L"ShadowMiss"});
-    pipeline.AddRootSignatureAssociation(m_hitSignatureIndexed.Get(), {L"IndexedHitGroup"});
-    pipeline.AddRootSignatureAssociation(m_hitSignatureSequenced.Get(), {L"SequencedHitGroup"});
-    pipeline.AddRootSignatureAssociation(m_shadowSignatureSequenced.Get(), {L"SequencedShadowHitGroup"});
-    pipeline.AddRootSignatureAssociation(m_shadowSignatureIndexed.Get(), {L"IndexedShadowHitGroup"});
 
     pipeline.SetMaxPayloadSize(4 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
@@ -349,6 +371,23 @@ ComPtr<ID3D12RootSignature> Space::CreateMissSignature() const
     return rsc.Generate(GetDevice().Get(), true);
 }
 
+ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
+{
+    nv_helpers_dx12::RootSignatureGenerator rsc;
+
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1); // Index Buffer
+
+    rsc.AddHeapRangesParameter({
+        {2, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}
+    });
+
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Global Data
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1); // Instance Data
+
+    return rsc.Generate(GetDevice().Get(), true);
+}
+
 void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
@@ -383,7 +422,7 @@ void Space::CreateShaderBindingTable()
         GetDevice().Get(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ, nv_helpers_dx12::kUploadHeapProps);
 
-    assert(m_sbtStorage != nullptr);
+    REQUIRE(m_sbtStorage != nullptr);
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -393,11 +432,11 @@ void Space::CreateTopLevelAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
 
-    for (size_t index = 0; index < m_meshes.size(); index++)
+    UINT instanceID = 0;
+    for (const auto& mesh : m_meshes)
     {
-        MeshObject& mesh = *m_meshes[index];
-        topLevelASGenerator.AddInstance(mesh.GetBLAS().Get(), mesh.GetTransform(), static_cast<UINT>(index),
-                                        2 * static_cast<UINT>(index));
+        topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
+                                        instanceID++, 2 * mesh->GetMaterialIndex());
     }
 
     UINT64 scratchSize, resultSize, instanceDescriptionSize;

@@ -55,7 +55,7 @@ void Camera::SetPosition(const DirectX::XMFLOAT3& position)
 
 void Camera::SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) const
 {
-    assert(cbvDesc);
+    REQUIRE(cbvDesc);
 
     cbvDesc->BufferLocation = m_spaceCameraBuffer->GetGPUVirtualAddress();
     cbvDesc->SizeInBytes = m_spaceCameraBufferSize;

@@ -74,13 +74,11 @@ public class GameResources
 
     private void PerformLoading(LoadingContext loadingContext)
     {
-        var texParams = TextureParameters.CreateForWorld(Client.Instance);
-
         using (loadingContext.BeginStep(Events.ResourceLoad, "World Textures"))
         {
             using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
             {
-                BlockTextureArray = new ArrayTexture(Client.Instance,
+                BlockTextureArray = ArrayTexture.Load(Client.Instance,
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
@@ -89,7 +87,7 @@ public class GameResources
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
             {
-                FluidTextureArray = new ArrayTexture(Client.Instance,
+                FluidTextureArray = ArrayTexture.Load(Client.Instance,
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,

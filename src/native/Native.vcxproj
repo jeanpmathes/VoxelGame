@@ -151,14 +151,12 @@
         <ClInclude Include="nv_helpers_dx12\ShaderBindingTableGenerator.h"/>
         <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.h"/>
         <ClInclude Include="Objects\Camera.h"/>
-        <ClInclude Include="Objects\IndexedMeshObject.h"/>
         <ClInclude Include="Objects\Light.h"/>
         <ClInclude Include="Objects\MeshObject.h"/>
         <ClInclude Include="Objects\Object.h"/>
         <ClInclude Include="Objects\RasterPipeline.h"/>
         <ClInclude Include="Objects\ShaderBuffer.h"/>
         <ClInclude Include="Objects\SpatialObject.h"/>
-        <ClInclude Include="Objects\SequencedMeshObject.h"/>
         <ClInclude Include="Objects\Texture.h"/>
         <ClInclude Include="Space.h"/>
         <ClInclude Include="Uploader.h"/>
@@ -205,14 +203,12 @@
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="Objects\Camera.cpp"/>
-        <ClCompile Include="Objects\IndexedMeshObject.cpp"/>
         <ClCompile Include="Objects\Light.cpp"/>
         <ClCompile Include="Objects\MeshObject.cpp"/>
         <ClCompile Include="Objects\Object.cpp"/>
         <ClCompile Include="Objects\RasterPipeline.cpp"/>
         <ClCompile Include="Objects\ShaderBuffer.cpp"/>
         <ClCompile Include="Objects\SpatialObject.cpp"/>
-        <ClCompile Include="Objects\SequencedMeshObject.cpp"/>
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Uploader.cpp"/>

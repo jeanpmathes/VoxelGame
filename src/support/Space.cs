@@ -6,6 +6,7 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support;
@@ -56,35 +57,17 @@ public class Space
     /// </summary>
     public Light Light
     {
-        get
-        {
-            if (light == null)
-            {
-                light = Native.GetLight(Client);
-            }
-
-            return light;
-        }
-    }
-
-    /// <summary>
-    ///     Create a new sequenced mesh object.
-    /// </summary>
-    public SequencedMeshObject CreateSequencedMeshObject()
-    {
-        SequencedMeshObject sequencedMeshObject = Native.CreateSequencedMeshObject(Client);
-
-        return sequencedMeshObject;
+        get { return light ??= Native.GetLight(Client); }
     }
 
     /// <summary>
     ///     Create a new indexed mesh object.
     /// </summary>
-    public IndexedMeshObject CreateIndexedMeshObject()
+    public MeshObject CreateMeshObject(Material material)
     {
-        IndexedMeshObject indexedMeshObject = Native.CreateIndexedMeshObject(Client);
+        MeshObject meshObject = Native.CreateMeshObject(Client, material.Index);
 
-        return indexedMeshObject;
+        return meshObject;
     }
 
     /// <summary>

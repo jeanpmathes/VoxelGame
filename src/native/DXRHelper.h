@@ -129,7 +129,7 @@ namespace nv_helpers_dx12
             MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
             throw NativeException("Failed to compile shader");
 
-            // todo: pass compile error out to C#, do not throw exception
+            // todo: pass compile error out to C#, do not throw exception or open window
         }
 
         ComPtr<IDxcBlob> pBlob;

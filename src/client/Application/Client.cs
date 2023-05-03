@@ -36,7 +36,7 @@ internal class Client : Support.Client, IPerformanceProvider
     /// </summary>
     /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
-    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings) : base(windowSettings, enableSpace: true)
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings) : base(windowSettings)
     {
         Instance = this;
 

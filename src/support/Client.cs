@@ -46,7 +46,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings, bool enableSpace) // todo: remove the enable space arg asap
+    protected Client(WindowSettings windowSettings)
     {
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
@@ -89,8 +89,7 @@ public class Client : IDisposable
             width = (uint) windowSettings.Size.X,
             height = (uint) windowSettings.Size.Y,
             title = windowSettings.Title,
-            allowTearing = false,
-            enableSpace = enableSpace
+            allowTearing = false
         };
 
         config = new Config(configuration, OnError, OnErrorMessage);
@@ -141,6 +140,14 @@ public class Client : IDisposable
     ///     Get whether the window is focused.
     /// </summary>
     public bool IsFocused { get; private set; }
+
+    /// <summary>
+    ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
+    /// </summary>
+    internal void InitializeRaytracing(SpacePipeline pipeline)
+    {
+        Support.Native.InitializeRaytracing(this, pipeline);
+    }
 
     /// <summary>
     /// Set the mouse cursor.

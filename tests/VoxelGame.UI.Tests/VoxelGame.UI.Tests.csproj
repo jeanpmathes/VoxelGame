@@ -44,7 +44,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\client\VoxelGame.Client.csproj"/>
         <ProjectReference Include="..\..\src\ui\VoxelGame.UI.csproj"/>
     </ItemGroup>
 

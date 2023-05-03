@@ -38,6 +38,8 @@ public:
     void OnSizeChanged(UINT width, UINT height, bool minimized) override;
     void OnWindowMoved(int xPos, int yPos) override;
 
+    void InitRaytracingPipeline(const SpacePipeline& pipeline);
+
     /**
      * Set the resolution of the space viewport. This has no effect on the window size.
      */
@@ -60,7 +62,7 @@ public:
     /**
      * Get the space that is being rendered.
      */
-    Space* GetSpace();
+    Space* GetSpace() const;
 
     /**
      * Add a raster pipeline to the client.
@@ -107,8 +109,8 @@ public:
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;
 
-    Space m_space;
-    bool m_spaceEnabled;
+    std::unique_ptr<Space> m_space;
+    bool m_spaceInitialized = false;
 
     CD3DX12_VIEWPORT m_postViewport;
     CD3DX12_RECT m_postScissorRect;
@@ -149,13 +151,12 @@ public:
     bool m_windowedMode;
 
     void CheckRaytracingSupport() const;
-    void PopulateSpaceCommandList();
+    void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
     void PopulateDraw2DCommandList(size_t index);
 
     void LoadDevice();
     void LoadRasterPipeline();
-    void LoadRaytracingPipeline();
     void CreateDepthBuffer();
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();

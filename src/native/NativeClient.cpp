@@ -15,8 +15,7 @@ NativeClient::NativeClient(const Configuration configuration) :
     m_debugCallback(configuration.onDebug),
     m_spaceViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_spaceScissorRect(0, 0, 0, 0),
-    m_space(*this),
-    m_spaceEnabled(configuration.enableSpace),
+    m_space(std::make_unique<Space>(*this)),
     m_postViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_postScissorRect(0, 0, 0, 0),
     m_draw2DViewport(0.0f, 0.0f, 0.0f, 0.0f),
@@ -60,7 +59,7 @@ void NativeClient::OnInit()
         }
     }
 
-    m_space.PerformInitialSetupStepOne(m_commandQueue);
+    m_space->PerformInitialSetupStepOne(m_commandQueue);
 
     SetupSizeDependentResources();
     SetupSpaceResolutionDependentResources();
@@ -72,8 +71,8 @@ void NativeClient::OnInit()
 
 void NativeClient::OnPostInit()
 {
-    LoadRaytracingPipeline();
-
+    if (!m_spaceInitialized) m_space = nullptr;
+    
     m_uploader->ExecuteUploads(m_commandQueue);
 
     WaitForGPU();
@@ -187,20 +186,6 @@ void NativeClient::LoadRasterPipeline()
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_2dGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
-void NativeClient::LoadRaytracingPipeline()
-{
-    // todo: when writing abstractions for RT pipeline, write it in a way that allows code to run without the RT pipeline (UI + post only)
-    // todo: then test that the UI unit tests still work, remove the dependency on VG.Client
-
-    ShaderPaths shaderPaths;
-    shaderPaths.rayGenShader = GetAssetFullPath(L"RayGen.hlsl");
-    shaderPaths.missShader = GetAssetFullPath(L"Miss.hlsl");
-    shaderPaths.hitShader = GetAssetFullPath(L"Hit.hlsl");
-    shaderPaths.shadowShader = GetAssetFullPath(L"Shadow.hlsl");
-
-    m_space.PerformInitialSetupStepTwo(shaderPaths);
-}
-
 void NativeClient::CreateDepthBuffer()
 {
     m_dsvHeap = nv_helpers_dx12::CreateDescriptorHeap(m_device.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
@@ -292,7 +277,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         m_device->CreateRenderTargetView(m_intermediateRenderTarget.Get(), nullptr, rtvHandle);
         NAME_D3D12_OBJECT(m_intermediateRenderTarget);
 
-        m_space.PerformResolutionDependentSetup(m_resolution);
+        if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
     }
 
     if (m_postProcessingPipeline != nullptr)
@@ -301,7 +286,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
 
 void NativeClient::OnUpdate(const double delta)
 {
-    m_space.Update(delta);
+    if (m_space) m_space->Update(delta);
 }
 
 void NativeClient::OnPreRender()
@@ -323,11 +308,12 @@ void NativeClient::OnRender(double)
 
         PopulateCommandLists();
 
-        const std::vector<ID3D12CommandList*> commandLists = {
-            m_space.GetCommandList().Get(),
+        std::vector<ID3D12CommandList*> commandLists = {
             m_uploadGroup.commandList.Get(),
             m_2dGroup.commandList.Get()
         };
+
+        if (m_space) commandLists.push_back(m_space->GetCommandList().Get());
 
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
@@ -339,7 +325,7 @@ void NativeClient::OnRender(double)
     // it could be beneficial to let the gpu work until the next frame has to be rendered
     WaitForGPU();
 
-    m_space.CleanupRenderSetup();
+    if (m_space) m_space->CleanupRenderSetup();
 
     MoveToNextFrame();
 }
@@ -384,6 +370,12 @@ void NativeClient::OnWindowMoved(int, int)
 {
 }
 
+void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
+{
+    m_space->PerformInitialSetupStepTwo(pipeline);
+    m_spaceInitialized = true;
+}
+
 void NativeClient::SetResolution(UINT width, UINT height)
 {
     m_resolution.width = width;
@@ -412,9 +404,9 @@ void NativeClient::SetMousePosition(POINT position) const
     TRY_DO(SetCursorPos(position.x, position.y));
 }
 
-Space* NativeClient::GetSpace()
+Space* NativeClient::GetSpace() const
 {
-    return &m_space;
+    return m_space.get();
 }
 
 void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
@@ -479,19 +471,21 @@ void NativeClient::CheckRaytracingSupport() const
             "Raytracing not supported on device.");
 }
 
-void NativeClient::PopulateSpaceCommandList()
+void NativeClient::PopulateSpaceCommandList() const
 {
-    m_space.Reset(m_frameIndex);
+    REQUIRE(m_space != nullptr);
+
+    m_space->Reset(m_frameIndex);
     
     {
-        PIXScopedEvent(m_space.GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
+        PIXScopedEvent(m_space->GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
 
-        m_space.EnqueueRenderSetup();
-        m_space.DispatchRays();
-        m_space.CopyOutputToBuffer(m_intermediateRenderTarget);
+        m_space->EnqueueRenderSetup();
+        m_space->DispatchRays();
+        m_space->CopyOutputToBuffer(m_intermediateRenderTarget);
     }
 
-    TRY_DO(m_space.GetCommandList()->Close());
+    TRY_DO(m_space->GetCommandList()->Close());
 }
 
 void NativeClient::PopulatePostProcessingCommandList() const
@@ -558,7 +552,7 @@ void NativeClient::PopulateCommandLists()
 
     m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
 
-    if (m_spaceEnabled)
+    if (m_space)
     {
         PopulateSpaceCommandList();
 

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "SpatialObject.h"
 
 struct SpatialVertex
@@ -37,37 +39,53 @@ struct AccelerationStructureBuffers
 /**
  * \brief An object that has a mesh of any kind.
  */
-class MeshObject : public SpatialObject
+class MeshObject final : public SpatialObject
 {
     DECLARE_OBJECT_SUBCLASS(MeshObject)
 
 public:
-    explicit MeshObject(NativeClient& client);
+    explicit MeshObject(NativeClient& client, UINT materialIndex);
 
     void Update();
 
-    [[nodiscard]] virtual bool IsMeshModified() const = 0;
+    void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount);
+
+    [[nodiscard]] bool IsMeshModified() const;
 
     /**
      * Enqueues commands to upload the mesh to the GPU.
      * Should only be called when the mesh is modified.
      */
-    virtual void EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList) = 0;
+    void EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList);
 
     /**
      * Finalizes the mesh upload.
      * Can be called every frame, but only when all commands have been executed.
      */
-    virtual void CleanupMeshUpload() = 0;
+    void CleanupMeshUpload();
 
     void FillArguments(StandardShaderArguments& shaderArguments) const;
 
-    virtual void SetupHitGroup(
+    void SetupHitGroup(
         nv_helpers_dx12::ShaderBindingTableGenerator& sbt,
-        StandardShaderArguments& shaderArguments) = 0;
+        StandardShaderArguments& shaderArguments) const;
 
-    virtual void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList) = 0;
-    virtual ComPtr<ID3D12Resource> GetBLAS() = 0;
+    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    ComPtr<ID3D12Resource> GetBLAS();
+
+    UINT GetMaterialIndex() const;
+
+    using Handle = std::list<std::unique_ptr<MeshObject>>::iterator;
+
+    /**
+     * Associate this object with a handle. This is performed by the space automatically.
+     */
+    void AssociateWithHandle(Handle handle);
+
+    /**
+     * Free this object.
+     */
+    void Free() const;
 
 protected:
     [[nodiscard]] AccelerationStructureBuffers
@@ -77,6 +95,20 @@ protected:
         std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> indexBuffers = {}) const;
 
 private:
+    UINT m_materialIndex;
+    
     ComPtr<ID3D12Resource> m_instanceConstantBuffer = nullptr;
     InstanceConstantBuffer m_instanceConstantBufferData = {};
+
+    ComPtr<ID3D12Resource> m_vertexBufferUpload = {};
+    ComPtr<ID3D12Resource> m_indexBufferUpload = {};
+
+    ComPtr<ID3D12Resource> m_vertexBuffer = {};
+    ComPtr<ID3D12Resource> m_indexBuffer = {};
+
+    UINT m_vertexCount = 0;
+    UINT m_indexCount = 0;
+    AccelerationStructureBuffers m_blas = {};
+
+    std::optional<Handle> m_handle = std::nullopt;
 };

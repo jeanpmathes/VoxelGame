@@ -1,4 +1,4 @@
-﻿// <copyright file="IndexedMeshObject.cs" company="VoxelGame">
+﻿// <copyright file="MeshObject.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,12 +11,12 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A mesh object with an indexed sequence of vertices.
 /// </summary>
-public class IndexedMeshObject : SpatialObject
+public class MeshObject : SpatialObject
 {
     /// <summary>
     ///     Create a new native indexed mesh object.
     /// </summary>
-    public IndexedMeshObject(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
+    public MeshObject(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
 
     /// <summary>
     ///     Set the mesh of this object.
@@ -25,6 +25,6 @@ public class IndexedMeshObject : SpatialObject
     /// <param name="indices">The indices.</param>
     public void SetMesh(SpatialVertex[] vertices, uint[] indices)
     {
-        Native.SetIndexedMeshObjectData(this, vertices, indices);
+        Native.SetMeshObjectData(this, vertices, indices);
     }
 }

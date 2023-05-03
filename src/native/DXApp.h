@@ -91,8 +91,6 @@ protected:
     virtual void OnSizeChanged(UINT width, UINT height, bool minimized) = 0;
     virtual void OnWindowMoved(int xPos, int yPos) = 0;
 
-    std::wstring GetAssetFullPath(LPCWSTR assetName) const;
-
     void GetHardwareAdapter(
         _In_ IDXGIFactory1* pFactory,
         _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
@@ -110,7 +108,6 @@ protected:
     bool m_tearingSupport;
 
 private:
-    std::wstring m_assetsPath;
     std::wstring m_title;
 
     Configuration m_configuration;

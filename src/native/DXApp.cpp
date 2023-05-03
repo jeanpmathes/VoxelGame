@@ -7,7 +7,6 @@
 #include "stdafx.h"
 
 #include <filesystem>
-#include <iostream>
 
 using namespace Microsoft::WRL;
 
@@ -20,10 +19,6 @@ DXApp::DXApp(const Configuration configuration) :
     m_title(configuration.title),
     m_configuration(configuration)
 {
-    const auto path = std::filesystem::current_path() / "Resources" / "Shaders";
-    m_assetsPath = path.wstring();
-    m_assetsPath += std::filesystem::path::preferred_separator;
-
     UpdateForSizeChange(m_width, m_height);
     CheckTearingSupport();
 }
@@ -194,11 +189,6 @@ void DXApp::SetMouseCursor(const MouseCursor cursor) const
 float DXApp::GetAspectRatio() const
 {
     return m_aspectRatio;
-}
-
-std::wstring DXApp::GetAssetFullPath(const LPCWSTR assetName) const
-{
-    return m_assetsPath + assetName;
 }
 
 _Use_decl_annotations_

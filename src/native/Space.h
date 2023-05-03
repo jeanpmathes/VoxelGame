@@ -14,9 +14,6 @@
 #include "Objects/Light.h"
 #include "Objects/MeshObject.h"
 
-class IndexedMeshObject;
-class SequencedMeshObject;
-
 struct GlobalConstantBuffer
 {
     float time;
@@ -24,12 +21,46 @@ struct GlobalConstantBuffer
     float minLight;
 };
 
-struct ShaderPaths
+struct MaterialDescription
 {
-    std::wstring rayGenShader;
-    std::wstring missShader;
-    std::wstring hitShader;
-    std::wstring shadowShader;
+    LPWSTR debugName;
+
+    LPWSTR closestHitSymbol;
+    LPWSTR shadowHitSymbol;
+};
+
+struct ShaderFileDescription
+{
+    LPWSTR path;
+    UINT symbolCount;
+};
+
+struct SpacePipelineDescription
+{
+    UINT shaderCount;
+    UINT materialCount;
+
+    NativeErrorMessageFunc onShaderLoadingError;
+    // todo: check if compile errors and missing shaders are handled correctly
+};
+
+class SpacePipeline
+{
+public:
+    ShaderFileDescription* shaderFiles;
+    LPWSTR* symbols;
+    MaterialDescription* materials;
+    SpacePipelineDescription description;
+};
+
+class Material
+{
+public:
+    std::wstring normalHitGroup;
+    ComPtr<ID3D12RootSignature> normalRootSignature;
+
+    std::wstring shadowHitGroup;
+    ComPtr<ID3D12RootSignature> shadowRootSignature;
 };
 
 /**
@@ -42,10 +73,12 @@ public:
 
     void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue);
     void PerformResolutionDependentSetup(const Resolution& resolution);
-    void PerformInitialSetupStepTwo(const ShaderPaths& paths);
+    void PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
 
-    SequencedMeshObject& CreateSequencedMeshObject();
-    IndexedMeshObject& CreateIndexedMeshObject();
+    MeshObject& CreateMeshObject(UINT materialIndex);
+    void FreeMeshObject(MeshObject::Handle handle);
+
+    [[nodiscard]] const Material& GetMaterial(UINT index) const;
 
     /**
      * Resets the command allocator and command list for the given frame.
@@ -86,11 +119,12 @@ private:
     void UpdateGlobalConstBuffer() const;
     void CreateShaderResourceHeap();
     void UpdateShaderResourceHeap() const;
-    void CreateRaytracingPipeline(const ShaderPaths& paths);
+    void CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     void CreateRaytracingOutputBuffer();
 
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
+    [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMaterialSignature() const;
 
     void CreateShaderBindingTable();
     void CreateTopLevelAS();
@@ -105,20 +139,14 @@ private:
     UINT64 m_globalConstantBufferAlignedSize = 0;
     GlobalConstantBuffer m_globalConstantBufferData = {};
 
-    ComPtr<IDxcBlob> m_rayGenLibrary;
-    ComPtr<IDxcBlob> m_missLibrary;
-    ComPtr<IDxcBlob> m_hitLibrary;
-    ComPtr<IDxcBlob> m_shadowLibrary;
+    std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
+    std::vector<std::unique_ptr<Material>> m_materials = {};
 
     CommandAllocatorGroup m_commandGroup;
 
     ComPtr<ID3D12RootSignature> m_rayGenSignature;
     ComPtr<ID3D12RootSignature> m_missSignature;
-    ComPtr<ID3D12RootSignature> m_hitSignatureSequenced;
-    ComPtr<ID3D12RootSignature> m_hitSignatureIndexed;
-    ComPtr<ID3D12RootSignature> m_shadowSignatureSequenced;
-    ComPtr<ID3D12RootSignature> m_shadowSignatureIndexed;
-
+    
     nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper{};
     ComPtr<ID3D12Resource> m_sbtStorage;
 
@@ -130,5 +158,5 @@ private:
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 
-    std::vector<std::unique_ptr<MeshObject>> m_meshes = {};
+    std::list<std::unique_ptr<MeshObject>> m_meshes = {};
 };

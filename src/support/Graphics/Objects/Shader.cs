@@ -12,7 +12,7 @@ namespace VoxelGame.Support.Graphics.Objects;
 /// <summary>
 ///     A shader.
 /// </summary>
-public class Shader
+public class Shader // todo: delete this class
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Shader>();
 
@@ -230,4 +230,3 @@ public class Shader
         // GL.DeleteProgram(Handle);
     }
 }
-

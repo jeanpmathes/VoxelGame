@@ -60,8 +60,6 @@
 #include "Objects/Camera.h"
 #include "Objects/Light.h"
 #include "Objects/MeshObject.h"
-#include "Objects/IndexedMeshObject.h"
-#include "Objects/SequencedMeshObject.h"
 #include "Objects/RasterPipeline.h"
 #include "Objects/ShaderBuffer.h"
 #include "Objects/Texture.h"

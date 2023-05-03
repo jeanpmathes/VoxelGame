@@ -69,7 +69,7 @@ float3 CalculateShading(int v1, int v2, int v3, Attributes attributes)
 }
 
 [shader("closesthit")]
-void IndexedClosestHit(inout HitInfo payload, Attributes attributes)
+void ClosestHit(inout HitInfo payload, Attributes attributes)
 {
     const uint vertId = 3 * PrimitiveIndex();
 
@@ -77,20 +77,6 @@ void IndexedClosestHit(inout HitInfo payload, Attributes attributes)
         indices[vertId + 0],
         indices[vertId + 1],
         indices[vertId + 2],
-        attributes);
-
-    payload.colorAndDistance = float4(hitColor, RayTCurrent());
-}
-
-[shader("closesthit")]
-void SequencedClosestHit(inout HitInfo payload, Attributes attributes)
-{
-    const uint vertId = 3 * PrimitiveIndex();
-
-    float3 hitColor = CalculateShading(
-        vertId + 0,
-        vertId + 1,
-        vertId + 2,
         attributes);
 
     payload.colorAndDistance = float4(hitColor, RayTCurrent());

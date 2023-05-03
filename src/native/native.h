@@ -46,7 +46,6 @@ struct Configuration
     LPWSTR title;
 
     BOOL allowTearing;
-    BOOL enableSpace;
 };
 
 struct CameraData

@@ -21,7 +21,7 @@ public class Texture : NativeObject
     ///     The maximum number of entries in an array texture.
     ///     See D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, and note that some devices may have a higher limit.
     /// </summary>
-    public const int MaxArrayTextureDepth = 2048;
+    public const int MaxArrayTextureDepth = 2048; // todo: get this value from C++ side (maybe return value of init)
 
     private readonly Vector2i size;
 

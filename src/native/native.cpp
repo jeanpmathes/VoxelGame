@@ -109,7 +109,25 @@ NATIVE void NativeSetCursor(const NativeClient* client, MouseCursor cursor)
     CATCH();
 }
 
-NATIVE Camera* NativeGetCamera(NativeClient* client)
+NATIVE void NativeInitializeRaytracing(NativeClient* client,
+                                       ShaderFileDescription* shaderFiles,
+                                       LPWSTR* symbols,
+                                       MaterialDescription* materials,
+                                       const SpacePipelineDescription description)
+{
+    TRY
+    {
+        client->InitRaytracingPipeline({
+            shaderFiles,
+            symbols,
+            materials,
+            description
+        });
+    }
+    CATCH();
+}
+
+NATIVE Camera* NativeGetCamera(const NativeClient* client)
 {
     TRY
     {
@@ -118,7 +136,7 @@ NATIVE Camera* NativeGetCamera(NativeClient* client)
     CATCH();
 }
 
-NATIVE Light* NativeGetLight(NativeClient* client)
+NATIVE Light* NativeGetLight(const NativeClient* client)
 {
     TRY
     {
@@ -146,37 +164,27 @@ NATIVE void NativeUpdateSpatialObjectData(SpatialObject* object, const SpatialOb
     CATCH();
 }
 
-NATIVE SequencedMeshObject* NativeCreateSequencedMeshObject(NativeClient* client)
+NATIVE MeshObject* NativeCreateMeshObject(const NativeClient* client, const UINT materialIndex)
 {
     TRY
     {
-        return &client->GetSpace()->CreateSequencedMeshObject();
+        return &client->GetSpace()->CreateMeshObject(materialIndex);
     }
     CATCH();
 }
 
-NATIVE void NativeSetSequencedMeshObjectMesh(SequencedMeshObject* object,
-                                             const SpatialVertex* vertexData, const UINT vertexCount)
+NATIVE void NativeFreeMeshObject(const MeshObject* object)
 {
     TRY
     {
-        object->SetNewMesh(vertexData, vertexCount);
+        object->Free();
     }
     CATCH();
 }
 
-NATIVE IndexedMeshObject* NativeCreateIndexedMeshObject(NativeClient* client)
-{
-    TRY
-    {
-        return &client->GetSpace()->CreateIndexedMeshObject();
-    }
-    CATCH();
-}
-
-NATIVE void NativeSetIndexedMeshObjectMesh(IndexedMeshObject* object,
-                                           const SpatialVertex* vertexData, const UINT vertexCount,
-                                           const UINT* indexData, const UINT indexCount)
+NATIVE void NativeSetMeshObjectMesh(MeshObject* object,
+                                    const SpatialVertex* vertexData, const UINT vertexCount,
+                                    const UINT* indexData, const UINT indexCount)
 {
     TRY
     {
@@ -184,8 +192,6 @@ NATIVE void NativeSetIndexedMeshObjectMesh(IndexedMeshObject* object,
     }
     CATCH();
 }
-
-// todo: add a way to delete mesh objects
 
 NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
                                                   const PipelineDescription description,

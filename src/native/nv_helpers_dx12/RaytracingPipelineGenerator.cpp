@@ -233,7 +233,7 @@ namespace nv_helpers_dx12
         HRESULT hr = m_device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject));
         if (FAILED(hr))
         {
-            throw std::logic_error("Could not create the raytracing state object");
+            throw std::logic_error("Could not create the raytracing state object.");
         }
         return rtStateObject;
     }

@@ -164,6 +164,26 @@ public static class Native
         NativeSetCursor(client.Native, cursor);
     }
 
+    /// <summary>
+    ///     Initialize raytracing.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="pipeline">A description of the raytracing pipeline.</param>
+    public static void InitializeRaytracing(Client client, SpacePipeline pipeline)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeInitializeRaytracing(IntPtr native,
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
+            ShaderFileDescription[] shaderFiles,
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
+            string[] symbols,
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
+            MaterialDescription[] materials,
+            SpacePipelineDescription description);
+
+        NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.Description);
+    }
+
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
 
     /// <summary>
@@ -247,65 +267,31 @@ public static class Native
     }
 
     /// <summary>
-    ///     Create a sequenced mesh object.
-    /// </summary>
-    /// <param name="client">The client.</param>
-    /// <returns>The sequenced mesh object.</returns>
-    public static SequencedMeshObject CreateSequencedMeshObject(Client client)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateSequencedMeshObject(IntPtr native);
-
-        IntPtr sequencedMeshObject = NativeCreateSequencedMeshObject(client.Native);
-
-        return new SequencedMeshObject(sequencedMeshObject, client.Space);
-    }
-
-    /// <summary>
-    ///     Create an indexed mesh object.
-    ///     The lengths allow to use only a part of the arrays.
-    /// </summary>
-    /// <param name="sequencedMeshObject">The sequenced mesh object.</param>
-    /// <param name="vertices">The vertices.</param>
-    public static unsafe void SetSequencedMeshObjectData(SequencedMeshObject sequencedMeshObject, Span<SpatialVertex> vertices)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetSequencedMeshObjectMesh(IntPtr sequencedMeshObject, SpatialVertex* vertices, int length);
-
-        Debug.Assert(vertices.Length >= 0);
-
-        fixed (SpatialVertex* vertexData = vertices)
-        {
-            NativeSetSequencedMeshObjectMesh(sequencedMeshObject.Self, vertexData, vertices.Length);
-        }
-    }
-
-    /// <summary>
     ///     Create an indexed mesh object.
     /// </summary>
     /// <param name="client">The client.</param>
+    /// <param name="materialIndex">The material index, as defined in pipeline setup.</param>
     /// <returns>The indexed mesh object.</returns>
-    public static IndexedMeshObject CreateIndexedMeshObject(Client client)
+    public static MeshObject CreateMeshObject(Client client, uint materialIndex)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateIndexedMeshObject(IntPtr native);
+        static extern IntPtr NativeCreateMeshObject(IntPtr native, uint materialIndex);
 
-        IntPtr indexedMeshObject = NativeCreateIndexedMeshObject(client.Native);
+        IntPtr indexedMeshObject = NativeCreateMeshObject(client.Native, materialIndex);
 
-        return new IndexedMeshObject(indexedMeshObject, client.Space);
+        return new MeshObject(indexedMeshObject, client.Space);
     }
 
     /// <summary>
-    ///     Create an indexed mesh object.
-    ///     The lengths allow to use only a part of the arrays.
+    ///     Set the mesh data of an indexed mesh object.
     /// </summary>
-    /// <param name="indexedMeshObject">The indexed mesh object.</param>
+    /// <param name="meshObject">The indexed mesh object.</param>
     /// <param name="vertices">The vertices.</param>
     /// <param name="indices">The indices.</param>
-    public static unsafe void SetIndexedMeshObjectData(IndexedMeshObject indexedMeshObject, Span<SpatialVertex> vertices, Span<uint> indices)
+    public static unsafe void SetMeshObjectData(MeshObject meshObject, Span<SpatialVertex> vertices, Span<uint> indices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetIndexedMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength, uint* indices, int indexLength);
+        static extern void NativeSetMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength, uint* indices, int indexLength);
 
         Debug.Assert(vertices.Length >= 0);
         Debug.Assert(indices.Length >= 0);
@@ -313,7 +299,7 @@ public static class Native
         fixed (SpatialVertex* vertexData = vertices)
         fixed (uint* indexData = indices)
         {
-            NativeSetIndexedMeshObjectMesh(indexedMeshObject.Self, vertexData, vertices.Length, indexData, indices.Length);
+            NativeSetMeshObjectMesh(meshObject.Self, vertexData, vertices.Length, indexData, indices.Length);
         }
     }
 
