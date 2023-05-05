@@ -3,7 +3,7 @@
 static ComPtr<ID3DBlob> CompileShader(
     const wchar_t* path,
     const char* entryPoint, const char* target,
-    NativeErrorMessageFunc callback)
+    NativeErrorFunc callback)
 {
     ComPtr<ID3DBlob> shaderBlob;
     ComPtr<ID3DBlob> errorBlob;
@@ -14,7 +14,7 @@ static ComPtr<ID3DBlob> CompileShader(
     UINT compileFlags = 0;
 #endif
 
-    if (const auto result = D3DCompileFromFile(
+    const auto result = D3DCompileFromFile(
             path,
             nullptr,
             D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -24,16 +24,22 @@ static ComPtr<ID3DBlob> CompileShader(
             0,
             &shaderBlob,
             &errorBlob);
-        FAILED(result) && errorBlob != nullptr && errorBlob->GetBufferPointer() != nullptr)
+
+    if (FAILED(result))
     {
-        std::vector<char> message(errorBlob->GetBufferSize() + 1);
-        memcpy(message.data(), errorBlob->GetBufferPointer(), errorBlob->GetBufferSize());
-        message[errorBlob->GetBufferSize()] = 0;
+        std::stringstream formattedMessage;
+        formattedMessage << "Failed to compile shader";
 
-        std::string formattedMessage = "Shader compilation failed: ";
-        formattedMessage.append(message.data());
+        if (errorBlob != nullptr && errorBlob->GetBufferPointer() != nullptr)
+        {
+            std::vector<char> message(errorBlob->GetBufferSize() + 1);
+            memcpy(message.data(), errorBlob->GetBufferPointer(), errorBlob->GetBufferSize());
+            message[errorBlob->GetBufferSize()] = 0;
 
-        callback(formattedMessage.c_str());
+            formattedMessage << ": " << message.data();
+        }
+
+        callback(result, formattedMessage.str().c_str());
 
         return nullptr;
     }
@@ -218,12 +224,8 @@ static void ApplyPresetToPipeline(const ShaderPreset preset, D3D12_GRAPHICS_PIPE
 std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     NativeClient& client,
     const PipelineDescription& description,
-    NativeErrorMessageFunc callback)
+    NativeErrorFunc callback)
 {
-    // todo: shader compile error should not cause crash
-    // todo: test intentionally wrong shader code
-    // todo: test missing shader file
-
     ComPtr<ID3DBlob> vertexShader = CompileShader(
         description.vertexShaderPath,
         "VSMain",

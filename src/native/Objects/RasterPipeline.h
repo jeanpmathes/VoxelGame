@@ -38,7 +38,7 @@ public:
     static std::unique_ptr<RasterPipeline> Create(
         NativeClient& client,
         const PipelineDescription& description,
-        NativeErrorMessageFunc callback);
+        NativeErrorFunc callback);
 
     /**
      * Create a pipeline from an already initialized pipeline state object and associated root signature.

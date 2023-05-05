@@ -173,6 +173,11 @@ public class Client : IDisposable
         objects.Remove(nativeObject);
     }
 
+    private static string FormatErrorMessage(int hr, string message)
+    {
+        return $"{message} | {Marshal.GetExceptionForHR(hr)?.Message ?? "No Description"}";
+    }
+
     private static void OnError(int hr, string message)
     {
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
@@ -351,7 +356,7 @@ public class Client : IDisposable
     /// <returns>The created pipeline.</returns>
     public RasterPipeline CreateRasterPipeline(PipelineDescription description, Action<string> errorCallback)
     {
-        return Support.Native.CreateRasterPipeline(this, description, msg => errorCallback(msg));
+        return Support.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
 
     /// <summary>
@@ -363,7 +368,12 @@ public class Client : IDisposable
     /// <returns>The created pipeline and shader buffer.</returns>
     public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged
     {
-        return Support.Native.CreateRasterPipeline<T>(this, description, msg => errorCallback(msg));
+        return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
+    }
+
+    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<string> errorCallback)
+    {
+        return (hr, message) => errorCallback(FormatErrorMessage(hr, message));
     }
 
     /// <summary>

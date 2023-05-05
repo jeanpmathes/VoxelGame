@@ -35,7 +35,7 @@ public class GwenGuiSettings
     /// <summary>
     ///     The error callback for the skin loading.
     /// </summary>
-    public Action<Exception> SkinLoadingErrorCallback { get; set; } = _ => {};
+    public Action<Exception> SkinLoadingErrorCallback { get; set; } = e => throw e;
 
     /// <summary>
     ///     List of textures to preload.
@@ -45,7 +45,7 @@ public class GwenGuiSettings
     /// <summary>
     ///     Callback for texture preloading errors.
     /// </summary>
-    public Action<TexturePreload, Exception> TexturePreloadErrorCallback { get; set; } = (_, _) => {};
+    public Action<TexturePreload, Exception> TexturePreloadErrorCallback { get; set; } = (_, e) => throw e;
 
     /// <summary>
     ///     The shader file to load.
@@ -55,7 +55,7 @@ public class GwenGuiSettings
     /// <summary>
     ///     The error callback for the shader loading.
     /// </summary>
-    public Action<string> ShaderLoadingErrorCallback { get; set; } = _ => {};
+    public Action<string> ShaderLoadingErrorCallback { get; set; } = e => throw new InvalidOperationException(e);
 
     /// <summary>
     ///     Apply a modifier to the settings.

@@ -304,7 +304,7 @@ public static class Native
     }
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback);
+    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorFunc callback);
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
     private static extern IntPtr NativeGetShaderBuffer(IntPtr rasterPipeline);
@@ -317,7 +317,7 @@ public static class Native
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline.</returns>
     public static RasterPipeline CreateRasterPipeline(Client client,
-        PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback)
+        PipelineDescription description, Definition.Native.NativeErrorFunc callback)
     {
         Debug.Assert(description.BufferSize == 0);
 
@@ -337,7 +337,7 @@ public static class Native
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer.</returns>
     public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(Client client,
-        PipelineDescription description, Definition.Native.NativeErrorMessageFunc callback) where T : unmanaged
+        PipelineDescription description, Definition.Native.NativeErrorFunc callback) where T : unmanaged
     {
         description.BufferSize = (ulong) Marshal.SizeOf<T>();
 

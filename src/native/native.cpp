@@ -195,7 +195,7 @@ NATIVE void NativeSetMeshObjectMesh(MeshObject* object,
 
 NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
                                                   const PipelineDescription description,
-                                                  const NativeErrorMessageFunc callback)
+                                                  const NativeErrorFunc callback)
 {
     TRY
     {
