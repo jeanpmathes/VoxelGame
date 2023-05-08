@@ -12,7 +12,7 @@ StructuredBuffer<int> indices: register(t1);
 cbuffer GlobalCB : register(b0) {
 float gTime;
 float3 gLightPos;
-float minLight;
+float gMinLight;
 }
 
 cbuffer InstanceCB : register(b1) {
@@ -62,14 +62,14 @@ float3 CalculateShading(int v1, int v2, int v3, Attributes attributes)
 
     const float visibility = shadowPayload.isHit ? 0.0f : 1.0f;
 
-    const float lightIntensity = clamp(dot(normal, lightDir) * visibility, minLight, 1.0f);
+    const float lightIntensity = clamp(dot(normal, lightDir) * visibility, gMinLight, 1.0f);
     color *= lightIntensity;
 
     return color;
 }
 
 [shader("closesthit")]
-void ClosestHit(inout HitInfo payload, Attributes attributes)
+void ClosestHit(inout HitInfo payload, const Attributes attributes)
 {
     const uint vertId = 3 * PrimitiveIndex();
 

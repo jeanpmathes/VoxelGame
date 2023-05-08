@@ -8,6 +8,13 @@ SpatialObject::SpatialObject(NativeClient& client) : Object(client)
     RecalculateTransform();
 }
 
+bool SpatialObject::ClearTransformDirty()
+{
+    const bool wasDirty = m_transformDirty;
+    m_transformDirty = false;
+    return wasDirty;
+}
+
 void SpatialObject::SetPosition(const DirectX::XMFLOAT3& position)
 {
     m_position = position;
@@ -48,4 +55,5 @@ void SpatialObject::RecalculateTransform()
         position);
 
     XMStoreFloat4x4(&m_transform, transform);
+    m_transformDirty = true;
 }

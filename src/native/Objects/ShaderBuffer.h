@@ -11,7 +11,7 @@
 /**
  * Abstraction for a cbuffer used in shaders.
  */
-class ShaderBuffer : public Object
+class ShaderBuffer final : public Object
 {
     DECLARE_OBJECT_SUBCLASS(ShaderBuffer)
 
@@ -27,6 +27,11 @@ public:
      * Set the data of the buffer.
      */
     void SetData(const void* data) const;
+
+    /**
+     * Get the GPU virtual address of the buffer.
+     */
+    [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
 
 private:
     uint64_t m_size;

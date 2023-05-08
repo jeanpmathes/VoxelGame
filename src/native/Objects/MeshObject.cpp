@@ -19,25 +19,31 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
 
 void MeshObject::Update()
 {
-    const DirectX::XMFLOAT4X4 objectToWorld = GetTransform();
+    if (!ClearTransformDirty()) return;
 
-    const DirectX::XMMATRIX transform = XMLoadFloat4x4(&objectToWorld);
-    const DirectX::XMMATRIX transformNormal = XMMatrixToNormal(transform);
+    {
+        const DirectX::XMFLOAT4X4 objectToWorld = GetTransform();
 
-    DirectX::XMFLOAT4X4 objectToWorldNormal = {};
-    XMStoreFloat4x4(&objectToWorldNormal, transformNormal);
+        const DirectX::XMMATRIX transform = XMLoadFloat4x4(&objectToWorld);
+        const DirectX::XMMATRIX transformNormal = XMMatrixToNormal(transform);
 
-    m_instanceConstantBufferData = {
-        .objectToWorld = objectToWorld,
-        .objectToWorldNormal = objectToWorldNormal
-    };
+        DirectX::XMFLOAT4X4 objectToWorldNormal = {};
+        XMStoreFloat4x4(&objectToWorldNormal, transformNormal);
 
-    uint8_t* pData;
-    TRY_DO(m_instanceConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+        m_instanceConstantBufferData = {
+            .objectToWorld = objectToWorld,
+            .objectToWorldNormal = objectToWorldNormal
+        };
+    }
 
-    memcpy(pData, &m_instanceConstantBufferData, sizeof m_instanceConstantBufferData);
+    {
+        uint8_t* pData;
+        TRY_DO(m_instanceConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
 
-    m_instanceConstantBuffer->Unmap(0, nullptr);
+        memcpy(pData, &m_instanceConstantBufferData, sizeof m_instanceConstantBufferData);
+
+        m_instanceConstantBuffer->Unmap(0, nullptr);
+    }
 }
 
 void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount)

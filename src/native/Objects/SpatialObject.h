@@ -20,6 +20,8 @@ class SpatialObject : public Object
 protected:
     explicit SpatialObject(NativeClient& client);
 
+    [[nodiscard]] bool ClearTransformDirty();
+
 public:
     void SetPosition(const DirectX::XMFLOAT3& position);
     [[nodiscard]] const DirectX::XMFLOAT3& GetPosition() const;
@@ -35,4 +37,6 @@ private:
     DirectX::XMFLOAT3 m_position{};
     DirectX::XMFLOAT4 m_rotation{};
     DirectX::XMFLOAT4X4 m_transform{};
+
+    bool m_transformDirty = true;
 };
