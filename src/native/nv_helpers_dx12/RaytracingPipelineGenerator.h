@@ -174,7 +174,7 @@ namespace nv_helpers_dx12
 
         /// Build a list containing the export symbols for the ray generation shaders, miss shaders, and
         /// hit group names
-        void BuildShaderExportList(std::vector<std::wstring>& exportedSymbols);
+        void BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const;
 
         std::vector<Library> m_libraries = {};
         std::vector<HitGroup> m_hitGroups = {};

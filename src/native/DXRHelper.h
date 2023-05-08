@@ -18,9 +18,6 @@
 
 namespace nv_helpers_dx12
 {
-    //--------------------------------------------------------------------------------------------------
-    //
-    //
     inline ComPtr<ID3D12Resource> CreateBuffer(ID3D12Device* m_device, uint64_t size,
                                                D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES initState,
                                                const D3D12_HEAP_PROPERTIES& heapProps)
@@ -69,14 +66,12 @@ namespace nv_helpers_dx12
     static const D3D12_HEAP_PROPERTIES kDefaultHeapProps = {
         D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 0, 0
     };
-
-    //--------------------------------------------------------------------------------------------------
+    
     // Compile a HLSL file into a DXIL library
-    //
     inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<void(const char*)> errorCallback)
     {
         static ComPtr<IDxcCompiler> pCompiler = nullptr;
-        static ComPtr<IDxcLibrary> pLibrary = nullptr;
+        static ComPtr<IDxcUtils> pUtils = nullptr;
         static ComPtr<IDxcIncludeHandler> dxcIncludeHandler;
 
         HRESULT hr;
@@ -85,8 +80,8 @@ namespace nv_helpers_dx12
         if (!pCompiler)
         {
             TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
-            TRY_DO(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
-            TRY_DO(pLibrary->CreateIncludeHandler(&dxcIncludeHandler));
+            TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils)));
+            TRY_DO(pUtils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
         }
         
         // Open and read the file
@@ -104,8 +99,7 @@ namespace nv_helpers_dx12
 
         // Create blob from the string
         ComPtr<IDxcBlobEncoding> pTextBlob;
-        TRY_DO(pLibrary->CreateBlobWithEncodingFromPinned(
-            sShader.c_str(), static_cast<uint32_t>(sShader.size()), 0, &pTextBlob));
+        TRY_DO(pUtils->CreateBlobFromPinned(sShader.c_str(), sShader.size(), CP_UTF8, &pTextBlob));
 
         // Compile
         ComPtr<IDxcOperationResult> pResult;
@@ -140,10 +134,7 @@ namespace nv_helpers_dx12
         TRY_DO(pResult->GetResult(&pBlob));
         return pBlob;
     }
-
-    //--------------------------------------------------------------------------------------------------
-    //
-    //
+    
     inline ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(ID3D12Device* device, uint32_t count,
                                                              D3D12_DESCRIPTOR_HEAP_TYPE type, bool shaderVisible)
     {

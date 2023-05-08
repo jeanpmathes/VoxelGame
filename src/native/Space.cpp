@@ -276,7 +276,11 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         }
 
         pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
-        // todo: try to check if library actually contains the symbols (in debug builds)
+
+#if defined(_DEBUG) || defined(DBG)
+
+
+#endif
     }
     
     m_rayGenSignature = CreateRayGenSignature();

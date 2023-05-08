@@ -41,6 +41,8 @@ compiling in debug mode.
 
 #include "RaytracingPipelineGenerator.h"
 
+#include <d3d12shader.h>
+
 #include "dxcapi.h"
 
 #include <unordered_set>
@@ -299,7 +301,7 @@ namespace nv_helpers_dx12
         }
     }
 
-    void RayTracingPipelineGenerator::BuildShaderExportList(std::vector<std::wstring>& exportedSymbols)
+    void RayTracingPipelineGenerator::BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const
     {
         // Get all names from libraries
         // Get names associated to hit groups
