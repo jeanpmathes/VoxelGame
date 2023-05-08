@@ -33,13 +33,15 @@ void Space::PerformResolutionDependentSetup(const Resolution& resolution)
     m_camera.Initialize();
 }
 
-void Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
+bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 {
     CreateShaderResourceHeap();
-    CreateRaytracingPipeline(pipeline);
+    if (!CreateRaytracingPipeline(pipeline)) return false;
 
     CreateGlobalConstBuffer();
     CreateShaderBindingTable();
+
+    return true;
 }
 
 MeshObject& Space::CreateMeshObject(UINT materialIndex)
@@ -249,7 +251,7 @@ void Space::UpdateShaderResourceHeap() const
     GetDevice()->CreateConstantBufferView(&cbvDesc, srvHandle);
 }
 
-void Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
+bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 {
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice().Get());
     m_shaderBlobs = std::vector<ComPtr<IDxcBlob>>(pipelineDescription.description.shaderCount);
@@ -258,8 +260,10 @@ void Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
-        // todo: use OnShaderLoadingError callback, return false and handle error in caller
-        m_shaderBlobs[shader] = nv_helpers_dx12::CompileShaderLibrary(pipelineDescription.shaderFiles[shader].path);
+        m_shaderBlobs[shader] = nv_helpers_dx12::CompileShaderLibrary(
+            pipelineDescription.shaderFiles[shader].path,
+            pipelineDescription.description.onShaderLoadingError);
+        if (m_shaderBlobs[shader] == nullptr) return false;
 
         const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
 
@@ -325,6 +329,8 @@ void Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     NAME_D3D12_OBJECT(m_rtStateObject);
 
     TRY_DO(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProperties)));
+
+    return true;
 }
 
 void Space::CreateRaytracingOutputBuffer()

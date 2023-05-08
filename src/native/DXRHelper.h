@@ -7,12 +7,14 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <functional>
+
 #include <d3d12.h>
 #include <dxcapi.h>
 
 #include "DXHelper.h"
 
-#include <vector>
 
 namespace nv_helpers_dx12
 {
@@ -71,7 +73,7 @@ namespace nv_helpers_dx12
     //--------------------------------------------------------------------------------------------------
     // Compile a HLSL file into a DXIL library
     //
-    inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName)
+    inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<void(const char*)> errorCallback)
     {
         static ComPtr<IDxcCompiler> pCompiler = nullptr;
         static ComPtr<IDxcLibrary> pLibrary = nullptr;
@@ -86,12 +88,16 @@ namespace nv_helpers_dx12
             TRY_DO(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
             TRY_DO(pLibrary->CreateIncludeHandler(&dxcIncludeHandler));
         }
+        
         // Open and read the file
         std::ifstream shaderFile(fileName);
-        if (shaderFile.good() == false)
+        if (not shaderFile.good())
         {
-            throw NativeException("Cannot find shader file");
+            std::string errorMsg = "Failed to open shader file";
+            errorCallback(errorMsg.c_str());
+            return nullptr;
         }
+        
         std::stringstream strStream;
         strStream << shaderFile.rdbuf();
         std::string sShader = strStream.str();
@@ -115,7 +121,7 @@ namespace nv_helpers_dx12
             hr = pResult->GetErrorBuffer(&pError);
             if (FAILED(hr))
             {
-                throw NativeException("Failed to get shader compiler error");
+                throw NativeException("Failed to get shader compiler error.");
             }
 
             // Convert error blob to a string
@@ -123,13 +129,11 @@ namespace nv_helpers_dx12
             memcpy(infoLog.data(), pError->GetBufferPointer(), pError->GetBufferSize());
             infoLog[pError->GetBufferSize()] = 0;
 
-            std::string errorMsg = "Shader Compiler Error:\n";
+            std::string errorMsg = "Shader Compilation Error:\n";
             errorMsg.append(infoLog.data());
 
-            MessageBoxA(nullptr, errorMsg.c_str(), "Error!", MB_OK);
-            throw NativeException("Failed to compile shader");
-
-            // todo: pass compile error out to C#, do not throw exception or open window
+            errorCallback(errorMsg.c_str());
+            return nullptr;
         }
 
         ComPtr<IDxcBlob> pBlob;

@@ -244,7 +244,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
         const string defaultClosestHit = "ClosestHit";
         const string defaultShadowHit = "ShadowClosestHit";
 
-        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), new[] {"RayGen"});
+        builder.AddShaderFile(directory.GetFile("RayGen_.hlsl"), new[] {"RayGen"});
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), new[] {"Miss"});
         builder.AddShaderFile(directory.GetFile("Hit.hlsl"), new[] {defaultClosestHit});
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowHit, "ShadowMiss"});

@@ -41,7 +41,6 @@ struct SpacePipelineDescription
     UINT materialCount;
 
     NativeErrorMessageFunc onShaderLoadingError;
-    // todo: check if compile errors and missing shaders are handled correctly
 };
 
 class SpacePipeline
@@ -73,7 +72,7 @@ public:
 
     void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue);
     void PerformResolutionDependentSetup(const Resolution& resolution);
-    void PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
+    bool PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
 
     MeshObject& CreateMeshObject(UINT materialIndex);
     void FreeMeshObject(MeshObject::Handle handle);
@@ -119,7 +118,7 @@ private:
     void UpdateGlobalConstBuffer() const;
     void CreateShaderResourceHeap();
     void UpdateShaderResourceHeap() const;
-    void CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
+    bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     void CreateRaytracingOutputBuffer();
 
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;

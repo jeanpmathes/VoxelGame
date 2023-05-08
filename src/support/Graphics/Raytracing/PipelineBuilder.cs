@@ -105,9 +105,9 @@ public class PipelineBuilder
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions);
     }
 
-    private void ReportFailure(LoadingContext loadingContext, string message)
+    private static void ReportFailure(LoadingContext loadingContext, string message)
     {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportFailure(Events.ShaderError, nameof(SpacePipeline), shader.File, message);
+        loadingContext.ReportFailure(Events.ShaderError, nameof(SpacePipeline), "RT_Pipeline", message);
     }
 
     private void ReportSuccess(LoadingContext loadingContext)

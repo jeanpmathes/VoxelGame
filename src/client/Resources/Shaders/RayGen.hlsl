@@ -21,8 +21,8 @@ void RayGen()
     float4 target = mul(projectionI, float4(d.x, d.y, 1, 1));
 
     RayDesc ray;
-    ray.Origin = mul(viewI, float4(0, 0, 0, 1));
-    ray.Direction = mul(viewI, float4(target.xyz, 0));
+    ray.Origin = mul(viewI, float4(0, 0, 0, 1)).xyz;
+    ray.Direction = mul(viewI, float4(target.xyz, 0)).xyz;
     ray.TMin = 0;
     ray.TMax = 100000;
 

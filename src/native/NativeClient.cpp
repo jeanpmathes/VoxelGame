@@ -372,8 +372,14 @@ void NativeClient::OnWindowMoved(int, int)
 
 void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
 {
-    m_space->PerformInitialSetupStepTwo(pipeline);
-    m_spaceInitialized = true;
+    if (m_space->PerformInitialSetupStepTwo(pipeline))
+    {
+        m_spaceInitialized = true;
+    }
+    else
+    {
+        m_space = nullptr;
+    }
 }
 
 void NativeClient::SetResolution(UINT width, UINT height)
