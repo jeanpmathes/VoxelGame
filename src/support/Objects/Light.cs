@@ -14,8 +14,7 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class Light : SpatialObject
 {
-    private Vector3 direction = Vector3.Zero;
-    private bool dirty = true;
+    private Vector3d direction = Vector3d.Zero;
 
     /// <summary>
     ///     Create a new light.
@@ -30,20 +29,10 @@ public class Light : SpatialObject
         get => direction;
         set
         {
-            direction = value.ToVector3();
-            dirty = true;
-        }
-    }
+            if (value == direction) return;
 
-    /// <inheritdoc />
-    internal override void Synchronize()
-    {
-        base.Synchronize();
-
-        if (dirty)
-        {
-            Native.SetLightDirection(this, direction);
-            dirty = false;
+            Native.SetLightDirection(this, value.ToVector3());
+            direction = value;
         }
     }
 }

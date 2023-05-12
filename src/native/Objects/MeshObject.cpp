@@ -46,6 +46,11 @@ void MeshObject::Update()
     }
 }
 
+void MeshObject::SetEnabledState(const bool enabled)
+{
+    m_enabled = enabled;
+}
+
 void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount)
 {
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;

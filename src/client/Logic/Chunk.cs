@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -80,9 +79,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
-        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(
-            SectionPosition.From(Position, (x, y, z)),
-            context);
+        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(context);
     }
 
     /// <summary>
@@ -125,8 +122,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         for (var s = 0; s < SectionCount; s++)
         {
-            (int x, int y, int z) = IndexToLocalSection(s);
-            GetSection(s).RecreateIncompleteMesh(SectionPosition.From(Position, (x, y, z)), context);
+            GetSection(s).RecreateIncompleteMesh(context);
         }
     }
 
@@ -148,8 +144,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         for (var s = 0; s < SectionCount; s++)
         {
-            (int x, int y, int z) = IndexToLocalSection(s);
-            sectionMeshes[s] = GetSection(s).CreateMeshData(SectionPosition.From(Position, (x, y, z)), context);
+            sectionMeshes[s] = GetSection(s).CreateMeshData(context);
         }
 
         meshDataIndex = 0;
@@ -189,29 +184,31 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <summary>
-    ///     Adds all sections inside of the frustum to the render list.
+    /// Enable and disable section renderers based on the frustum.
     /// </summary>
     /// <param name="frustum">The view frustum to use for culling.</param>
-    /// <param name="renderList">The list to add the chunks and positions too.</param>
-    public void AddCulledToRenderList(Frustum frustum,
-        ICollection<(Section section, Vector3d position)> renderList)
+    public void CullSections(Frustum frustum)
     {
         Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
 
-        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox)) return;
+        bool chunkVisible = hasMeshData && frustum.IsBoxVisible(chunkBox);
 
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
         {
-            SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
-            Vector3d position = sectionPosition.FirstBlock;
+            var sectionVisible = true;
 
-            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
+            if (chunkVisible)
+            {
+                SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
+                Vector3d position = sectionPosition.FirstBlock;
 
-            if (!frustum.IsBoxVisible(sectionBox)) continue;
+                Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
+                sectionVisible = frustum.IsBoxVisible(sectionBox);
+            }
 
-            renderList.Add((GetSection(LocalSectionToIndex(x, y, z)), position));
+            GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(sectionVisible);
         }
     }
 }

@@ -48,6 +48,7 @@ public:
 
     void Update();
 
+    void SetEnabledState(bool enabled);
     void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount);
 
     [[nodiscard]] bool IsMeshModified() const;

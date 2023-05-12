@@ -28,11 +28,9 @@ public class World : Core.Logic.World
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-    private static readonly Vector3d SunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
+    private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
-
-    private readonly List<(Section section, Vector3d position)> renderList = new();
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -79,7 +77,7 @@ public class World : Core.Logic.World
         MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
         MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
 
-        space.Light.Direction = SunLightDirection;
+        space.Light.Direction = sunLightDirection;
     }
 
     /// <summary>
@@ -90,7 +88,7 @@ public class World : Core.Logic.World
     {
         player = newPlayer;
 
-        space.Light.Direction = SunLightDirection;
+        space.Light.Direction = sunLightDirection;
     }
 
     /// <summary>
@@ -105,17 +103,13 @@ public class World : Core.Logic.World
         Application.Client.Instance.Resources.Shaders.SetPlanes(view.NearClipping, view.FarClipping);
         PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
 
-        renderList.Clear();
-
         // Perform culling on all active chunks.
         for (int x = -Core.Entities.Player.LoadDistance; x <= Core.Entities.Player.LoadDistance; x++)
         for (int y = -Core.Entities.Player.LoadDistance; y <= Core.Entities.Player.LoadDistance; y++)
         for (int z = -Core.Entities.Player.LoadDistance; z <= Core.Entities.Player.LoadDistance; z++)
         {
             Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-            chunk?.Cast().AddCulledToRenderList(context.Frustum, renderList);
-
-            // todo: for culling, allow enabling/disabling the mesh objects of a section (add SectionRenderer::Enabled property, and the AddCulled method can be changed to set it)
+            chunk?.Cast().CullSections(context.Frustum);
         }
 
         // Render all players in this world

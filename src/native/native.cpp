@@ -191,6 +191,15 @@ NATIVE void NativeFreeMeshObject(const MeshObject* object)
     CATCH();
 }
 
+NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabled)
+{
+    TRY
+    {
+        object->SetEnabledState(enabled);
+    }
+    CATCH();
+}
+
 NATIVE void NativeSetMeshObjectMesh(MeshObject* object,
                                     const SpatialVertex* vertexData, const UINT vertexCount,
                                     const UINT* indexData, const UINT indexCount)

@@ -62,6 +62,16 @@ public sealed class SectionRenderer : IDisposable
         meshData.ReturnPooled();
     }
 
+    /// <summary>
+    ///     Set whether the renderer is enabled.
+    /// </summary>
+    public void SetEnabledState(bool enabled)
+    {
+        if (disposed) return;
+
+        simple.IsEnabled = enabled;
+    }
+
     #region IDisposable Support
 
     private bool disposed;

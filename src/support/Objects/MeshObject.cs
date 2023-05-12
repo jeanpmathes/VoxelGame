@@ -13,10 +13,27 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class MeshObject : SpatialObject
 {
+    private bool enabled = true;
+
     /// <summary>
     ///     Create a new native indexed mesh object.
     /// </summary>
     public MeshObject(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
+
+    /// <summary>
+    ///     Set or get the enabled state of this object. If disabled, the object will not be rendered.
+    /// </summary>
+    public bool IsEnabled
+    {
+        get => enabled;
+        set
+        {
+            if (value == enabled) return;
+
+            Native.SetMeshObjectEnabledState(this, value);
+            enabled = value;
+        }
+    }
 
     /// <summary>
     ///     Set the mesh of this object.

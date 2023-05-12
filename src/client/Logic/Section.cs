@@ -47,29 +47,27 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void CreateAndSetMesh(SectionPosition position, ChunkMeshingContext context)
+    public void CreateAndSetMesh(ChunkMeshingContext context)
     {
         BlockSides required = GetRequiredSides(position);
         missing = required & ~context.AvailableSides & BlockSides.All;
 
-        SectionMeshData meshData = CreateMeshData(position, context);
+        SectionMeshData meshData = CreateMeshData(context);
         SetMeshDataInternal(meshData);
     }
 
     /// <summary>
     ///     Recreate and set the mesh if it is incomplete, which means that it was meshed without all required neighbors.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void RecreateIncompleteMesh(SectionPosition position, ChunkMeshingContext context)
+    public void RecreateIncompleteMesh(ChunkMeshingContext context)
     {
         if (missing == BlockSides.None) return;
 
         BlockSides required = GetRequiredSides(position);
 
-        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(position, context);
+        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
     }
 
     private static BlockSides GetRequiredSides(SectionPosition position)
@@ -92,10 +90,9 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Create mesh data for this section.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
-    public SectionMeshData CreateMeshData(SectionPosition position, ChunkMeshingContext chunkContext)
+    public SectionMeshData CreateMeshData(ChunkMeshingContext chunkContext)
     {
         MeshingContext context = new(position, chunkContext);
 
@@ -141,6 +138,16 @@ public class Section : Core.Logic.Section
         missing = BlockSides.None;
 
         SetMeshDataInternal(meshData);
+    }
+
+    /// <summary>
+    ///     Set whether the renderer is enabled.
+    /// </summary>
+    public void SetRendererEnabledState(bool enabled)
+    {
+        Debug.Assert(renderer != null);
+
+        renderer.SetEnabledState(enabled);
     }
 
     private void SetMeshDataInternal(SectionMeshData meshData)

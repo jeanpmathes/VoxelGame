@@ -309,6 +309,19 @@ public static class Native
     }
 
     /// <summary>
+    ///     Set the enabled state of a mesh object.
+    /// </summary>
+    /// <param name="meshObject">The mesh object.</param>
+    /// <param name="enabled">Whether the mesh object should be enabled.</param>
+    public static void SetMeshObjectEnabledState(MeshObject meshObject, bool enabled)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetMeshObjectEnabledState(IntPtr native, bool enabled);
+
+        NativeSetMeshObjectEnabledState(meshObject.Self, enabled);
+    }
+
+    /// <summary>
     ///     Set the mesh data of an indexed mesh object.
     /// </summary>
     /// <param name="meshObject">The indexed mesh object.</param>
