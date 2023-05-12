@@ -35,6 +35,7 @@ public interface IComplex : IBlockMeshable
             complexVertexPositions.Add(vertices[i * 8 + 1] + y);
             complexVertexPositions.Add(vertices[i * 8 + 2] + z);
 
+            // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
             // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
             int upperData =
                 ((vertices[i * 8 + 5] < 0f
@@ -51,6 +52,7 @@ public interface IComplex : IBlockMeshable
 
             complexVertexData.Add(upperData);
 
+            // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
             // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
             int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | mesh.GetAnimationBit(i, shift: 16) |
                             textureIndices[i];
@@ -184,4 +186,3 @@ public interface IComplex : IBlockMeshable
         }
     }
 }
-

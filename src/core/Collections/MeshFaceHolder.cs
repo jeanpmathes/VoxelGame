@@ -24,6 +24,34 @@ public class MeshFaceHolder
     protected MeshFaceHolder(BlockSide side)
     {
         this.side = side;
+
+        LengthAxis = DetermineLengthAxis();
+        HeightAxis = DetermineHeightAxis();
+    }
+
+    protected Vector3i LengthAxis { get; }
+    protected Vector3i HeightAxis { get; }
+
+    private (int, int, int) DetermineLengthAxis()
+    {
+        return side switch
+        {
+            BlockSide.Front or BlockSide.Back => (0, 1, 0),
+            BlockSide.Left or BlockSide.Right => (0, 0, 1),
+            BlockSide.Bottom or BlockSide.Top => (0, 0, 1),
+            BlockSide.All or _ => throw new InvalidOperationException()
+        };
+    }
+
+    private (int, int, int) DetermineHeightAxis()
+    {
+        return side switch
+        {
+            BlockSide.Front or BlockSide.Back => (1, 0, 0),
+            BlockSide.Left or BlockSide.Right => (0, 1, 0),
+            BlockSide.Bottom or BlockSide.Top => (1, 0, 0),
+            BlockSide.All or _ => throw new InvalidOperationException()
+        };
     }
 
     /// <summary>
@@ -65,5 +93,21 @@ public class MeshFaceHolder
                 throw new InvalidOperationException();
         }
     }
-}
 
+    /// <summary>
+    ///     Restore the position from the given indices.
+    /// </summary>
+    protected Vector3i RestorePosition(int layer, int row, int position)
+    {
+        return side switch
+        {
+            BlockSide.Front => new Vector3i(row, position, layer),
+            BlockSide.Back => new Vector3i(row, position, layer),
+            BlockSide.Left => new Vector3i(layer, row, position),
+            BlockSide.Right => new Vector3i(layer, row, position),
+            BlockSide.Bottom => new Vector3i(row, layer, position),
+            BlockSide.Top => new Vector3i(row, layer, position),
+            BlockSide.All or _ => throw new InvalidOperationException()
+        };
+    }
+}

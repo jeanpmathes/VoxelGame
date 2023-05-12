@@ -11,7 +11,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
 /// </summary>
-public class BlockMesh
+public class BlockMesh // todo: adapt to changes, simplify (e.g. texture indices and UVs can be stored in per-Quad array)
 {
     private readonly uint[] indices;
     private readonly int[] textureIndices;
@@ -48,4 +48,3 @@ public class BlockMesh
         };
     }
 }
-

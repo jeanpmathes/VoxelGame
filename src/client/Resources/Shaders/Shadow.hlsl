@@ -1,7 +1,13 @@
-﻿#include "Common.hlsl"
+﻿//  <copyright file="Shadow.hlsl" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+#include "Common.hlsl"
 
 [shader("closesthit")]
-void ShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes attributes)
+void ShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
 {
     hitInfo.isHit = true;
 }

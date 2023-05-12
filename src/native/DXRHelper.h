@@ -99,7 +99,7 @@ namespace nv_helpers_dx12
 
         // Create blob from the string
         ComPtr<IDxcBlobEncoding> pTextBlob;
-        TRY_DO(pUtils->CreateBlobFromPinned(sShader.c_str(), sShader.size(), CP_UTF8, &pTextBlob));
+        TRY_DO(pUtils->CreateBlobFromPinned(sShader.c_str(), static_cast<UINT32>(sShader.size()), CP_UTF8, &pTextBlob));
 
         // Compile
         ComPtr<IDxcOperationResult> pResult;

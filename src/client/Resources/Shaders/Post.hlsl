@@ -1,8 +1,8 @@
-//  <copyright file="Post.hlsl" company="Microsoft">
-//      Copyright (c) Microsoft. All rights reserved.
-//      MIT License
-//  </copyright>
-//  <author>Microsoft, jeanpmathes</author>
+//  <copyright file="Post.hlsl" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
 
 Texture2D gTexture : register(t0);
 SamplerState gSampler : register(s0);

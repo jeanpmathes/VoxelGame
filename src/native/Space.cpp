@@ -49,7 +49,8 @@ MeshObject& Space::CreateMeshObject(UINT materialIndex)
     auto object = std::make_unique<MeshObject>(m_nativeClient, materialIndex);
     auto& indexedMeshObject = *object;
 
-    m_meshes.push_back(std::move(object));
+    const auto handle = m_meshes.insert(m_meshes.end(), std::move(object));
+    indexedMeshObject.AssociateWithHandle(handle);
 
     return indexedMeshObject;
 }
@@ -247,7 +248,6 @@ void Space::UpdateShaderResourceHeap() const
     srvHandle.ptr += GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
     m_camera.SetBufferViewDescription(&cbvDesc);
-
     GetDevice()->CreateConstantBufferView(&cbvDesc, srvHandle);
 }
 
@@ -367,9 +367,9 @@ ComPtr<ID3D12RootSignature> Space::CreateRayGenSignature() const
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
     rsc.AddHeapRangesParameter({
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0},
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1},
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2}
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0}, // Output Texture
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}, // BVH
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2} // Camera Data
     });
 
     return rsc.Generate(GetDevice().Get(), true);
@@ -389,7 +389,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1); // Index Buffer
 
     rsc.AddHeapRangesParameter({
-        {2, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}
+        {2, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1} // BVH
     });
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Global Data
@@ -420,8 +420,11 @@ void Space::CreateShaderBindingTable()
 
     for (const auto& mesh : m_meshes)
     {
-        mesh->FillArguments(arguments);
-        mesh->SetupHitGroup(m_sbtHelper, arguments);
+        if (mesh->IsEnabled())
+        {
+            mesh->FillArguments(arguments);
+            mesh->SetupHitGroup(m_sbtHelper, arguments);
+        }
     }
 
     // todo: add a proxy hit group if we have no meshes to make PIX happy 
@@ -445,8 +448,11 @@ void Space::CreateTopLevelAS()
     UINT instanceID = 0;
     for (const auto& mesh : m_meshes)
     {
-        topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
-                                        instanceID++, 2 * mesh->GetMaterialIndex());
+        if (mesh->IsEnabled())
+        {
+            topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
+                                            instanceID++, 2 * mesh->GetMaterialIndex());
+        }
     }
 
     UINT64 scratchSize, resultSize, instanceDescriptionSize;

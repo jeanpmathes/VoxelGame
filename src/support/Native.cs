@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -280,6 +281,18 @@ public static class Native
         IntPtr indexedMeshObject = NativeCreateMeshObject(client.Native, materialIndex);
 
         return new MeshObject(indexedMeshObject, client.Space);
+    }
+
+    /// <summary>
+    ///     Free a mesh object.
+    /// </summary>
+    /// <param name="meshObject">The mesh object to delete.</param>
+    public static void FreeMeshObject(MeshObject meshObject)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeFreeMeshObject(IntPtr native);
+
+        NativeFreeMeshObject(meshObject.Self);
     }
 
     /// <summary>

@@ -13,7 +13,7 @@
 struct SpatialVertex
 {
     DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT4 color;
+    UINT data;
 };
 
 struct InstanceConstantBuffer
@@ -51,6 +51,7 @@ public:
     void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount);
 
     [[nodiscard]] bool IsMeshModified() const;
+    [[nodiscard]] bool IsEnabled() const;
 
     /**
      * Enqueues commands to upload the mesh to the GPU.
@@ -73,7 +74,7 @@ public:
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     ComPtr<ID3D12Resource> GetBLAS();
 
-    UINT GetMaterialIndex() const;
+    [[nodiscard]] UINT GetMaterialIndex() const;
 
     using Handle = std::list<std::unique_ptr<MeshObject>>::iterator;
 
@@ -111,4 +112,6 @@ private:
     AccelerationStructureBuffers m_blas = {};
 
     std::optional<Handle> m_handle = std::nullopt;
+    bool m_enabled = true;
+    bool m_modified = false;
 };

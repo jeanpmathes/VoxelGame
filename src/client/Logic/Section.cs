@@ -8,7 +8,6 @@
 
 using System;
 using System.Diagnostics;
-using OpenTK.Mathematics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
@@ -29,10 +28,9 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Create a new client section.
     /// </summary>
-    public Section()
+    public Section(SectionPosition position) : base(position)
     {
-        renderer = new SectionRenderer();
-
+        renderer = null;
         hasMesh = false;
         disposed = false;
     }
@@ -41,6 +39,7 @@ public class Section : Core.Logic.Section
     public override void Setup(Core.Logic.Section loaded)
     {
         blocks = loaded.Cast().blocks;
+        renderer = new SectionRenderer(Application.Client.Instance.Space, position.FirstBlock);
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }
@@ -150,16 +149,6 @@ public class Section : Core.Logic.Section
         Debug.Assert(hasMesh == meshData.IsFilled);
 
         renderer.SetData(meshData);
-    }
-
-    /// <summary>
-    ///     Render this section.
-    /// </summary>
-    /// <param name="stage">The current render stage.</param>
-    /// <param name="position">The position of this section in world coordinates.</param>
-    public void Render(int stage, Vector3d position)
-    {
-        if (hasMesh) renderer?.DrawStage(stage, position);
     }
 
     #region IDisposable Support

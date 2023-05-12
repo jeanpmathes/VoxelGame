@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Support.Definition;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Support.Objects;
 
@@ -23,8 +23,17 @@ public class MeshObject : SpatialObject
     /// </summary>
     /// <param name="vertices">The vertices.</param>
     /// <param name="indices">The indices.</param>
-    public void SetMesh(SpatialVertex[] vertices, uint[] indices)
+    public void SetMesh(Span<SpatialVertex> vertices, Span<uint> indices)
     {
         Native.SetMeshObjectData(this, vertices, indices);
+    }
+
+    /// <summary>
+    ///     Frees the native object.
+    /// </summary>
+    public void Free()
+    {
+        Deregister();
+        Native.FreeMeshObject(this);
     }
 }

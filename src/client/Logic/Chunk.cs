@@ -65,9 +65,9 @@ public partial class Chunk : Core.Logic.Chunk
         });
     }
 
-    private static Core.Logic.Section CreateSection()
+    private static Core.Logic.Section CreateSection(SectionPosition position)
     {
-        return new Section();
+        return new Section(position);
     }
 
     /// <summary>
@@ -215,5 +215,3 @@ public partial class Chunk : Core.Logic.Chunk
         }
     }
 }
-
-

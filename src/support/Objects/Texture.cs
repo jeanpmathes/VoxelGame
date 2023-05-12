@@ -102,6 +102,7 @@ public class Texture : NativeObject
     /// </summary>
     public void Free()
     {
+        Deregister();
         Native.FreeTexture(this);
     }
 }

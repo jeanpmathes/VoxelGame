@@ -224,9 +224,9 @@ public static class Events // todo: go trough all events and make sure they are 
     public const int ShaderError = 3006;
 
     /// <summary>
-    ///     Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
+    ///     Occurs when wrapper objects are incorrectly disposed and their native objects are not deleted. This causes memory leaks.
     /// </summary>
-    public const int UndeletedGlObjects = 3010; // todo: check if this is still used
+    public const int LeakedNativeObject = 3010;
 
     /// <summary>
     ///     Occurs when rendering objects are incorrectly disposed and their buffers are not deleted. This causes memory leaks.
@@ -237,6 +237,11 @@ public static class Events // todo: go trough all events and make sure they are 
     ///     Occurs when textures are incorrectly disposed and their storage is not deleted. This causes memory leak.
     /// </summary>
     public const int UndeletedTexture = 3012; // todo: check if this is still used
+
+    /// <summary>
+    ///     Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
+    /// </summary>
+    public const int UndeletedGlObjects = 3013; // todo: check if this is still used
 
     /// <summary>
     ///     Occurs when a screenshot is taken.

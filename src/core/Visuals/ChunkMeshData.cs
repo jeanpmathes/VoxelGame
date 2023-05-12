@@ -41,7 +41,7 @@ public class SectionMeshData
 {
     private bool isReturnedToPool;
 
-    internal SectionMeshData(PooledList<int> simpleVertexData,
+    internal SectionMeshData((PooledList<SpatialVertex>, PooledList<uint>) simpleMesh,
         PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
         PooledList<uint> complexIndices,
         PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
@@ -50,7 +50,7 @@ public class SectionMeshData
         PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
         PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
-        this.simpleVertexData = simpleVertexData;
+        SimpleMesh = simpleMesh;
 
         this.complexVertexPositions = complexVertexPositions;
         this.complexVertexData = complexVertexData;
@@ -72,7 +72,7 @@ public class SectionMeshData
 
     private SectionMeshData()
     {
-        simpleVertexData = new PooledList<int>();
+        SimpleMesh = (new PooledList<SpatialVertex>(), new PooledList<uint>());
 
         complexVertexPositions = new PooledList<float>();
         complexVertexData = new PooledList<int>();
@@ -100,10 +100,15 @@ public class SectionMeshData
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
+    public bool IsFilled => SimpleMesh.Vertices.Count != 0 || complexVertexPositions.Count != 0 ||
                             varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
                             cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
+
+    /// <summary>
+    ///     The simple mesh data, corresponding to <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />.
+    /// </summary>
+    public (PooledList<SpatialVertex> Vertices, PooledList<uint> Indices) SimpleMesh { get; }
 
     /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
@@ -112,7 +117,8 @@ public class SectionMeshData
     {
         Debug.Assert(!isReturnedToPool);
 
-        simpleVertexData.ReturnToPool();
+        SimpleMesh.Vertices.ReturnToPool();
+        SimpleMesh.Indices.ReturnToPool();
 
         complexVertexPositions.ReturnToPool();
         complexVertexData.ReturnToPool();
@@ -145,6 +151,7 @@ public class SectionMeshData
     }
 
     #pragma warning disable
+
     public readonly PooledList<uint> complexIndices;
     public readonly PooledList<int> complexVertexData;
 
@@ -157,7 +164,6 @@ public class SectionMeshData
 
     public readonly PooledList<int> opaqueFluidVertexData;
 
-    public readonly PooledList<int> simpleVertexData;
     public readonly PooledList<uint> transparentFluidIndices;
 
     public readonly PooledList<int> transparentFluidVertexData;
@@ -166,4 +172,3 @@ public class SectionMeshData
     public readonly PooledList<int> varyingHeightVertexData;
     #pragma warning restore
 }
-

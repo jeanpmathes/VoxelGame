@@ -235,8 +235,11 @@ public class MeshingContext
     {
         // We build the mesh data for everything except complex meshes, as they are already in the correct format.
 
-        PooledList<int> simpleVertexData = new(capacity: 2048);
-        GenerateMesh(blockMeshFaceHolders, simpleVertexData);
+        // todo: evaluate all initial capacities
+
+        PooledList<SpatialVertex> simpleVertices = new(capacity: 2048);
+        PooledList<uint> simpleIndices = new(capacity: 2048);
+        GenerateMesh(blockMeshFaceHolders, simpleVertices, simpleIndices);
 
         PooledList<int> varyingHeightVertexData = new(capacity: 8);
         PooledList<uint> varyingHeightIndices = new(capacity: 8);
@@ -270,7 +273,7 @@ public class MeshingContext
             transparentFluidIndices);
 
         return new SectionMeshData(
-            simpleVertexData,
+            (simpleVertices, simpleIndices),
             complexVertexPositions,
             complexVertexData,
             complexIndices,
@@ -295,9 +298,9 @@ public class MeshingContext
         ReturnToPool(transparentFluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(BlockMeshFaceHolder[] holders, PooledList<int> data)
+    private static void GenerateMesh(BlockMeshFaceHolder[] holders, PooledList<SpatialVertex> vertices, PooledList<uint> indices)
     {
-        foreach (BlockMeshFaceHolder holder in holders) holder.GenerateMesh(data);
+        foreach (BlockMeshFaceHolder holder in holders) holder.GenerateMesh(vertices, indices);
     }
 
     private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, ref uint vertexCount,
@@ -317,4 +320,3 @@ public class MeshingContext
         foreach (VaryingHeightMeshFaceHolder holder in holders) holder.ReturnToPool();
     }
 }
-

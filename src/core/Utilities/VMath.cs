@@ -302,6 +302,18 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Check if two floating-point vector values are nearly equal.
+    /// </summary>
+    /// <param name="a">The first vector.</param>
+    /// <param name="b">The second vector.</param>
+    /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
+    /// <returns>True if the two vectors are nearly equal.</returns>
+    public static bool NearlyEqual(Vector3d a, Vector3d b, double epsilon = Epsilon)
+    {
+        return NearlyEqual(a.X, b.X, epsilon) && NearlyEqual(a.Y, b.Y, epsilon) && NearlyEqual(a.Z, b.Z, epsilon);
+    }
+
+    /// <summary>
     ///     Check near equality to zero.
     /// </summary>
     /// <param name="a">The value to check for near equality with zero.</param>
@@ -528,4 +540,3 @@ public static class VMath
         );
     }
 }
-

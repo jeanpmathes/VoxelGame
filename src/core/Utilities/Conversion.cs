@@ -43,5 +43,12 @@ public static class Conversion
     {
         return b ? 1 : 0;
     }
-}
 
+    /// <summary>
+    ///     Convert a bool to an uint.
+    /// </summary>
+    public static uint ToUInt(this bool b)
+    {
+        return b ? 1u : 0u;
+    }
+}

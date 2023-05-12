@@ -260,7 +260,7 @@ public static class BlockModels
     /// </summary>
     /// <param name="faces"></param>
     /// <returns></returns>
-    public static uint[] GenerateDoubleSidedIndexDataArray(int faces)
+    private static uint[] GenerateDoubleSidedIndexDataArray(int faces)
     {
         var indices = new uint[faces * 12];
 
@@ -320,4 +320,3 @@ public static class BlockModels
         return isRotated ? rotatedBlockUVs : defaultBlockUVs;
     }
 }
-

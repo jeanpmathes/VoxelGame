@@ -112,9 +112,9 @@ public partial class Chunk : IDisposable
         World = world;
         Position = position;
 
-        for (var s = 0; s < SectionCount; s++)
+        for (var index = 0; index < SectionCount; index++)
         {
-            sections[s] = createSection();
+            sections[index] = createSection(SectionPosition.From(Position, IndexToLocalSection(index)));
         }
 
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
@@ -516,7 +516,7 @@ public partial class Chunk : IDisposable
         for (var i = 0; i < RandomTickBatchSize; i++)
         {
             int index = (anchor + i) % SectionCount;
-            sections[index].SendRandomUpdates(World, SectionPosition.From(Position, IndexToLocalSection(index)));
+            sections[index].SendRandomUpdates(World);
         }
     }
 
@@ -888,7 +888,7 @@ public partial class Chunk : IDisposable
     /// <summary>
     ///     Creates a section.
     /// </summary>
-    protected delegate Section SectionFactory();
+    protected delegate Section SectionFactory(SectionPosition position);
 
     [Flags]
     private enum DecorationLevels
@@ -947,5 +947,3 @@ public partial class Chunk : IDisposable
 
     #endregion IDisposable Support
 }
-
-

@@ -1,3 +1,9 @@
+//  <copyright file="Miss.hlsl" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
 #include "Common.hlsl"
 
 [shader("miss")]

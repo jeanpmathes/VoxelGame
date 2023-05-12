@@ -79,18 +79,12 @@ public abstract class Section : IDisposable
     public static readonly int SizeExp2 = (int) Math.Log(Size, newBase: 2) * 2;
 
     /// <summary>
-    ///     The blocks stored in this section.
-    /// </summary>
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    protected uint[] blocks;
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
-    /// <summary>
     ///     Creates a new section.
     /// </summary>
-    protected Section()
+    protected Section(SectionPosition position)
     {
         blocks = new uint[Size * Size * Size];
+        this.position = position;
     }
 
     /// <summary>
@@ -114,12 +108,12 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Get the content at a world position.
     /// </summary>
-    /// <param name="position">The world position. Must be in the section.</param>
+    /// <param name="blockPosition">The world position. Must be in the section.</param>
     /// <returns>The content at the given position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public uint GetContent(Vector3i position)
+    public uint GetContent(Vector3i blockPosition)
     {
-        return GetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1));
+        return GetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1));
     }
 
     /// <summary>
@@ -138,12 +132,12 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Set the content at a world position.
     /// </summary>
-    /// <param name="position">The world position. Must be in the section.</param>
+    /// <param name="blockPosition">The world position. Must be in the section.</param>
     /// <param name="value">The value to set at the specified position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetContent(Vector3i position, uint value)
+    public void SetContent(Vector3i blockPosition, uint value)
     {
-        SetContent(position.X & (Size - 1), position.Y & (Size - 1), position.Z & (Size - 1), value);
+        SetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1), value);
     }
 
     /// <summary>
@@ -181,8 +175,7 @@ public abstract class Section : IDisposable
     ///     Send random updates to blocks in this section.
     /// </summary>
     /// <param name="world">The world this section is in.</param>
-    /// <param name="position">The position of the section.</param>
-    public void SendRandomUpdates(World world, SectionPosition position)
+    public void SendRandomUpdates(World world)
     {
         uint val = GetPos(out Vector3i selectedPosition);
         Decode(val, out Block block, out uint data, out _, out _, out _);
@@ -279,12 +272,12 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Get the block at a given section position.
     /// </summary>
-    /// <param name="position">The position.</param>
+    /// <param name="blockPosition">The position.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance GetBlock(Vector3i position)
+    public BlockInstance GetBlock(Vector3i blockPosition)
     {
-        uint val = GetContent(position.X, position.Y, position.Z);
+        uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
         uint data = (val & DataMask) >> DataShift;
 
@@ -294,17 +287,29 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Get the fluid at a given section position.
     /// </summary>
-    /// <param name="position">The section position.</param>
+    /// <param name="blockPosition">The section position.</param>
     /// <returns>The fluid. It is always assumed to by static.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public FluidInstance GetFluid(Vector3i position)
+    public FluidInstance GetFluid(Vector3i blockPosition)
     {
-        uint val = GetContent(position.X, position.Y, position.Z);
+        uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
         var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
 
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
+
+#pragma warning disable CA1051 // Do not declare visible instance fields
+    /// <summary>
+    ///     The blocks stored in this section.
+    /// </summary>
+    protected uint[] blocks;
+
+    /// <summary>
+    ///     The position of this section.
+    /// </summary>
+    [NonSerialized] protected SectionPosition position;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
 
@@ -333,4 +338,3 @@ public abstract class Section : IDisposable
 
     #endregion IDisposable Support
 }
-

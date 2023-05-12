@@ -53,6 +53,15 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
 
     m_vertexCount = vertexCount;
     m_indexCount = indexCount;
+    m_modified = true;
+
+    if (m_vertexCount == 0 || m_indexCount == 0)
+    {
+        m_vertexBufferUpload = nullptr;
+        m_indexBufferUpload = nullptr;
+
+        return;
+    }
 
     const auto vertexBufferUploadHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     const auto vertexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
@@ -63,6 +72,7 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
         IID_PPV_ARGS(&m_vertexBufferUpload)));
+    // todo: maybe this does not release the old buffer? - check GPU memory usage -> if it is a problem, many other places must be checked too
 
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBufferUpload);
 
@@ -78,27 +88,44 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
 
     NAME_D3D12_OBJECT_WITH_ID(m_indexBufferUpload);
 
-    UINT8* pVertexDataBegin;
-    CD3DX12_RANGE readRange(0, 0);
-    TRY_DO(m_vertexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-    memcpy(pVertexDataBegin, vertices, vertexBufferSize);
-    m_vertexBufferUpload->Unmap(0, nullptr);
+    {
+        UINT8* pVertexDataBegin;
+        CD3DX12_RANGE readRange(0, 0);
+        TRY_DO(m_vertexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
+        memcpy(pVertexDataBegin, vertices, vertexBufferSize);
+        m_vertexBufferUpload->Unmap(0, nullptr);
+    }
 
-    UINT8* pIndexDataBegin;
-    CD3DX12_RANGE readRange2(0, 0);
-    TRY_DO(m_indexBufferUpload->Map(0, &readRange2, reinterpret_cast<void**>(&pIndexDataBegin)));
-    memcpy(pIndexDataBegin, indices, indexBufferSize);
-    m_indexBufferUpload->Unmap(0, nullptr);
+    {
+        UINT8* pIndexDataBegin;
+        CD3DX12_RANGE readRange(0, 0);
+        TRY_DO(m_indexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
+        memcpy(pIndexDataBegin, indices, indexBufferSize);
+        m_indexBufferUpload->Unmap(0, nullptr);
+    }
 }
 
 bool MeshObject::IsMeshModified() const
 {
-    return m_vertexBufferUpload != nullptr && m_indexBufferUpload != nullptr;
+    return m_modified;
+}
+
+bool MeshObject::IsEnabled() const
+{
+    return m_enabled && m_vertexCount > 0 && m_indexCount > 0;
 }
 
 void MeshObject::EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     REQUIRE(IsMeshModified());
+
+    if (m_vertexCount == 0 || m_indexCount == 0)
+    {
+        m_vertexBuffer = nullptr;
+        m_indexBuffer = nullptr;
+
+        return;
+    }
 
     const auto vertexBufferSize = m_vertexBufferUpload->GetDesc().Width;
     const auto indexBufferSize = m_indexBufferUpload->GetDesc().Width;
@@ -151,6 +178,8 @@ void MeshObject::CleanupMeshUpload()
 {
     m_vertexBufferUpload.Reset();
     m_indexBufferUpload.Reset();
+
+    m_modified = false;
 }
 
 void MeshObject::FillArguments(StandardShaderArguments& shaderArguments) const
@@ -183,6 +212,14 @@ void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt
 
 void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
+    REQUIRE(IsMeshModified());
+
+    if (m_vertexCount == 0 || m_indexCount == 0)
+    {
+        m_blas = {};
+        return;
+    }
+    
     m_blas = CreateBottomLevelAS(commandList,
                                  {{m_vertexBuffer, m_vertexCount}},
                                  {{m_indexBuffer, m_indexCount}});
@@ -226,11 +263,11 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
             indexCount > 0)
         {
             bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex),
-                                          indexBuffer.Get(), 0, indexCount, nullptr, 0, true);
+                                          indexBuffer.Get(), 0, indexCount, nullptr, 0, false);
         }
         else
         {
-            bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex), nullptr, 0);
+            bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex), nullptr, 0, false);
         }
     }
 
@@ -247,6 +284,9 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
                                                    D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                                    D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
                                                    nv_helpers_dx12::kDefaultHeapProps);
+
+    NAME_D3D12_OBJECT_WITH_ID(buffers.scratch);
+    NAME_D3D12_OBJECT_WITH_ID(buffers.result);
 
     bottomLevelAS.Generate(commandList.Get(), buffers.scratch.Get(), buffers.result.Get(),
                            false, nullptr);

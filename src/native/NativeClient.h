@@ -109,7 +109,7 @@ public:
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;
 
-    std::unique_ptr<Space> m_space;
+    std::unique_ptr<Space> m_space = nullptr;
     bool m_spaceInitialized = false;
 
     CD3DX12_VIEWPORT m_postViewport;

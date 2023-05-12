@@ -241,7 +241,10 @@ public readonly struct TintColor : IEquatable<TintColor>
 
     #endregion PREDEFINED COLORS
 
-    private int ToBits => ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
+    /// <summary>
+    ///     Gets the tint as bits.
+    /// </summary>
+    public uint ToBits => ((uint) (r * 7f) << 6) | ((uint) (g * 7f) << 3) | (uint) (b * 7f);
 
     /// <summary>
     ///     Convert this color to a <see cref="Color4" />.
@@ -258,9 +261,19 @@ public readonly struct TintColor : IEquatable<TintColor>
     /// </summary>
     /// <param name="neutral">The tint color to use as for neutral tint.</param>
     /// <returns>The tint bits.</returns>
-    public int GetBits(TintColor neutral)
+    public int GetBits(TintColor neutral) // todo: remove this method
     {
-        return IsNeutral ? neutral.ToBits : ToBits;
+        return (int) (IsNeutral ? neutral.ToBits : ToBits);
+    }
+
+    /// <summary>
+    ///     Select this tint or the neutral tint.
+    /// </summary>
+    /// <param name="neutral">The neutral tint.</param>
+    /// <returns>The selected tint.</returns>
+    public TintColor Select(TintColor neutral)
+    {
+        return IsNeutral ? neutral : this;
     }
 
     /// <inheritdoc />
@@ -299,5 +312,3 @@ public readonly struct TintColor : IEquatable<TintColor>
         return !(left == right);
     }
 }
-
-

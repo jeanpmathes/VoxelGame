@@ -17,6 +17,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support;
 
 namespace VoxelGame.Client.Logic;
 
@@ -37,6 +38,8 @@ public class World : Core.Logic.World
     private readonly HashSet<(Chunk chunk, (int x, int y, int z))> sectionsToMesh =
         new();
 
+    private readonly Space space;
+
     private Player? player;
 
     /// <summary>
@@ -44,6 +47,8 @@ public class World : Core.Logic.World
     /// </summary>
     public World(DirectoryInfo path, string name, (int upper, int lower) seed) : base(path, name, seed)
     {
+        space = Application.Client.Instance.Space;
+
         Setup();
     }
 
@@ -52,6 +57,8 @@ public class World : Core.Logic.World
     /// </summary>
     public World(DirectoryInfo path, WorldInformation information) : base(path, information)
     {
+        space = Application.Client.Instance.Space;
+
         Setup();
     }
 
@@ -69,6 +76,8 @@ public class World : Core.Logic.World
     {
         MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
         MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
+
+        space.Light.Position = (0, 1000, 0);
     }
 
     /// <summary>
@@ -78,6 +87,8 @@ public class World : Core.Logic.World
     public void AddPlayer(Player newPlayer)
     {
         player = newPlayer;
+
+        space.Light.Position = (0, 1000, 0);
     }
 
     /// <summary>
@@ -94,33 +105,16 @@ public class World : Core.Logic.World
 
         renderList.Clear();
 
-        // Fill the render list.
+        // Perform culling on all active chunks.
         for (int x = -Core.Entities.Player.LoadDistance; x <= Core.Entities.Player.LoadDistance; x++)
         for (int y = -Core.Entities.Player.LoadDistance; y <= Core.Entities.Player.LoadDistance; y++)
         for (int z = -Core.Entities.Player.LoadDistance; z <= Core.Entities.Player.LoadDistance; z++)
         {
             Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
             chunk?.Cast().AddCulledToRenderList(context.Frustum, renderList);
+
+            // todo: for culling, allow enabling/disabling the mesh objects of a section (add SectionRenderer::Enabled property, and the AddCulled method can be changed to set it)
         }
-
-        DoRenderPass(context);
-    }
-
-    private void DoRenderPass(PassContext context)
-    {
-        // Render the collected sections.
-        for (var stage = 0; stage < SectionRenderer.DrawStageCount; stage++)
-        {
-            if (renderList.Count == 0) break;
-
-            SectionRenderer.PrepareStage(stage, context);
-
-            for (var i = 0; i < renderList.Count; i++) renderList[i].section.Render(stage, renderList[i].position);
-
-            SectionRenderer.FinishStage(stage);
-        }
-
-        SectionRenderer.DrawFullscreenPasses();
 
         // Render all players in this world
         player?.Render();

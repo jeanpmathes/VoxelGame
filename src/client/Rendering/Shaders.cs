@@ -46,11 +46,6 @@ public sealed class Shaders // todo: delete all GLSL shaders
         this.directory = directory;
         this.loadingContext = loadingContext;
 
-        // todo: integrate the new HLSL shaders into the current loading system, then delete the old GLSL shaders
-        // todo: when loading the shaders, both UI and Post shader should be integrated into the loading system,
-        // but loading failure is fatal and should throw an unhandled exception,
-        // for the Post shader the native client needs a method that is called during init and receives the post render pipeline as a parameter
-
         loader = new ShaderLoader(
             directory,
             loadingContext,
@@ -117,7 +112,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
     /// <summary>
     ///     The default raytracing material.
     /// </summary>
-    public Material DefaultMaterial { get; private set; } = null!;
+    public Material SimpleSectionMaterial { get; private set; } = null!;
 
     /// <summary>
     ///     Load all shaders in the given directory.
@@ -241,15 +236,15 @@ public sealed class Shaders // todo: delete all GLSL shaders
     {
         PipelineBuilder builder = new();
 
-        const string defaultClosestHit = "ClosestHit";
-        const string defaultShadowHit = "ShadowClosestHit";
+        const string simpleSectionClosestHit = "SimpleSectionClosestHit";
+        const string defaultShadowClosestHit = "ShadowClosestHit";
 
         builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), new[] {"RayGen"});
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), new[] {"Miss"});
-        builder.AddShaderFile(directory.GetFile("Hit.hlsl"), new[] {defaultClosestHit});
-        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowHit, "ShadowMiss"});
+        builder.AddShaderFile(directory.GetFile("Hit.hlsl"), new[] {simpleSectionClosestHit});
+        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowClosestHit, "ShadowMiss"});
 
-        DefaultMaterial = builder.AddMaterial(nameof(DefaultMaterial), defaultClosestHit, defaultShadowHit);
+        SimpleSectionMaterial = builder.AddMaterial(nameof(SimpleSectionMaterial), simpleSectionClosestHit, defaultShadowClosestHit);
 
         loaded &= builder.Build(client, loadingContext);
     }

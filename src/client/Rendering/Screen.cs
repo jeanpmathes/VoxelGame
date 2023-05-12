@@ -352,6 +352,8 @@ public sealed class Screen : IDisposable
             GL.DeleteVertexArray(emptyVAO);*/
         }
 
+        // todo: cleanup, adapt logging here
+
         logger.LogWarning(Events.UndeletedGlObjects, "Screen object disposed by GC without freeing storage");
 
         disposed = true;
@@ -376,4 +378,3 @@ public sealed class Screen : IDisposable
 
     #endregion IDisposable Support
 }
-

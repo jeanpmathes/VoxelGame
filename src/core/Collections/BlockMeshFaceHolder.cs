@@ -8,6 +8,8 @@ using System;
 using System.Buffers;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Collections;
 
@@ -42,21 +44,15 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     ///     Add a new face to the holder.
     /// </summary>
     /// <param name="pos">The position of the face, relative to the section origin.</param>
-    /// <param name="vertexData">The binary encoded vertex data to use for every vertex.</param>
-    /// <param name="vertices">The binary encoded vertices of the face.</param>
+    /// <param name="data">The binary encoded data of the quad.</param>
     /// <param name="isRotated">True if the face is rotated.</param>
-    public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
-        bool isRotated)
+    public void AddFace(Vector3i pos, (uint a, uint b, uint c, uint d) data, bool isRotated)
     {
         ExtractIndices(pos, out int layer, out int row, out int position);
 
         // Build current face.
         MeshFace currentFace = MeshFace.Get(
-            vertices.vertA,
-            vertices.vertB,
-            vertices.vertC,
-            vertices.vertD,
-            vertexData,
+            data,
             isRotated,
             position);
 
@@ -66,7 +62,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
             currentFace.Return();
             currentFace = lastFaces[layer][row]!;
 
-            ExtendFace(currentFace, vertices);
+            ExtendFace(currentFace);
         }
         else
         {
@@ -109,82 +105,27 @@ public class BlockMeshFaceHolder : MeshFaceHolder
         }
     }
 
-    private void ExtendFace(MeshFace face, (int vertA, int vertB, int vertC, int vertD) vertices)
+    private static void ExtendFace(MeshFace face)
     {
-        switch (side)
-        {
-            case BlockSide.Front:
-            case BlockSide.Back:
-            case BlockSide.Bottom:
-                face.vertex01 = vertices.vertB;
-                face.vertex11 = vertices.vertC;
-
-                break;
-
-            case BlockSide.Left:
-                face.vertex11 = vertices.vertC;
-                face.vertex10 = vertices.vertD;
-
-                break;
-
-            case BlockSide.Right:
-                face.vertex00 = vertices.vertA;
-                face.vertex01 = vertices.vertB;
-
-                break;
-
-            case BlockSide.Top:
-                face.vertex00 = vertices.vertA;
-                face.vertex10 = vertices.vertD;
-
-                break;
-
-            default: throw new InvalidOperationException();
-        }
-
         face.length++;
     }
 
-    private void CombineFace(MeshFace newFace, MeshFace combinationFace)
+    private static void CombineFace(MeshFace newFace, MeshFace combinationFace)
     {
-        switch (side)
-        {
-            case BlockSide.Front:
-            case BlockSide.Bottom:
-            case BlockSide.Top:
-                newFace.vertex00 = combinationFace.vertex00;
-                newFace.vertex01 = combinationFace.vertex01;
-
-                break;
-
-            case BlockSide.Back:
-                newFace.vertex11 = combinationFace.vertex11;
-                newFace.vertex10 = combinationFace.vertex10;
-
-                break;
-
-            case BlockSide.Left:
-            case BlockSide.Right:
-                newFace.vertex00 = combinationFace.vertex00;
-                newFace.vertex10 = combinationFace.vertex10;
-
-                break;
-
-            default: throw new InvalidOperationException();
-        }
-
         newFace.height = combinationFace.height + 1;
     }
 
     /// <summary>
     ///     Generate the mesh using all faces held by this holder.
     /// </summary>
-    /// <param name="meshData">The list where the meshData will be added to.</param>
-    public void GenerateMesh(PooledList<int> meshData)
+    /// <param name="vertices">The list of vertices to add to.</param>
+    /// <param name="indices">The list of indices to add to.</param>
+    public void GenerateMesh(PooledList<SpatialVertex> vertices, PooledList<uint> indices)
     {
         if (count == 0) return;
 
-        meshData.Capacity += count;
+        vertices.Capacity += count * 4;
+        indices.Capacity += count * 6;
 
         for (var l = 0; l < Section.Size; l++)
         for (var r = 0; r < Section.Size; r++)
@@ -196,28 +137,14 @@ public class BlockMeshFaceHolder : MeshFaceHolder
                 if (side is BlockSide.Left or BlockSide.Right)
                     currentFace.isRotated = !currentFace.isRotated;
 
-                int vertTexRepetition = BuildVertexTexRepetitionMask(
+                Meshing.SetTextureRepetition(ref currentFace.data,
                     currentFace.isRotated,
                     currentFace.height,
                     currentFace.length);
 
-                meshData.Add(vertTexRepetition | currentFace.vertex00);
-                meshData.Add(currentFace.vertData);
+                (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
 
-                meshData.Add(vertTexRepetition | currentFace.vertex11);
-                meshData.Add(currentFace.vertData);
-
-                meshData.Add(vertTexRepetition | currentFace.vertex01);
-                meshData.Add(currentFace.vertData);
-
-                meshData.Add(vertTexRepetition | currentFace.vertex00);
-                meshData.Add(currentFace.vertData);
-
-                meshData.Add(vertTexRepetition | currentFace.vertex10);
-                meshData.Add(currentFace.vertData);
-
-                meshData.Add(vertTexRepetition | currentFace.vertex11);
-                meshData.Add(currentFace.vertData);
+                Meshing.PushFaces(vertices, indices, positions, currentFace.data);
 
                 MeshFace? next = currentFace.previous;
                 currentFace.Return();
@@ -226,14 +153,28 @@ public class BlockMeshFaceHolder : MeshFaceHolder
         }
     }
 
-    private static int BuildVertexTexRepetitionMask(bool isRotated, int height, int length)
+    private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, MeshFace face)
     {
-        const int heightShift = 24;
-        const int lengthShift = 20;
+        Vector3 position = RestorePosition(layer, row, face.position);
 
-        return !isRotated
-            ? (height << heightShift) | (length << lengthShift)
-            : (length << heightShift) | (height << lengthShift);
+        Vector3 lenght = LengthAxis.ToVector3() * face.length;
+        Vector3 height = HeightAxis.ToVector3() * face.height;
+
+        Vector3 v00 = position;
+        Vector3 v01 = position + height;
+        Vector3 v10 = position + lenght;
+        Vector3 v11 = position + lenght + height;
+
+        return side switch
+        {
+            BlockSide.Front => (v10, v00, v01, v11),
+            BlockSide.Back => (v00, v10, v11, v01),
+            BlockSide.Left => (v01, v00, v10, v11),
+            BlockSide.Right => (v11, v10, v00, v01),
+            BlockSide.Bottom => (v10, v00, v01, v11),
+            BlockSide.Top => (v10, v00, v01, v11),
+            BlockSide.All or _ => throw new InvalidOperationException()
+        };
     }
 
     /// <summary>
@@ -250,27 +191,20 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
     private sealed class MeshFace
     {
-        public int height;
+        public (uint a, uint b, uint c, uint d) data;
+        public uint height;
 
         public bool isRotated;
-        public int length;
+        public uint length;
 
-        private int position;
+        public int position;
         public MeshFace? previous;
-
-        public int vertData;
-
-        public int vertex00;
-        public int vertex01;
-        public int vertex10;
-        public int vertex11;
 
         public bool IsExtendable(MeshFace extension)
         {
             return position + length + 1 == extension.position &&
                    height == extension.height &&
-                   isRotated == extension.isRotated &&
-                   vertData == extension.vertData;
+                   isRotated == extension.isRotated;
         }
 
         public bool IsCombinable(MeshFace addition)
@@ -278,25 +212,18 @@ public class BlockMeshFaceHolder : MeshFaceHolder
             return position == addition.position &&
                    length == addition.length &&
                    isRotated == addition.isRotated &&
-                   vertData == addition.vertData;
+                   data == addition.data;
         }
 
         #region POOLING
 
-        public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, bool isRotated,
-            int position)
+        public static MeshFace Get((uint, uint, uint, uint) data, bool isRotated, int position)
         {
             MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 
             instance.previous = null;
 
-            instance.vertex00 = vert00;
-            instance.vertex01 = vert01;
-            instance.vertex11 = vert11;
-            instance.vertex10 = vert10;
-
-            instance.vertData = vertData;
-
+            instance.data = data;
             instance.isRotated = isRotated;
 
             instance.position = position;
@@ -316,4 +243,3 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
 #pragma warning restore CA1812
 }
-

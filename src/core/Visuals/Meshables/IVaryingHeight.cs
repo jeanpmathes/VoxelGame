@@ -74,31 +74,16 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void MeshLikeSimple(Vector3i position, BlockSide side, MeshData mesh, MeshingContext context)
     {
-        side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-        (int x, int y, int z) = position;
-
-        // int: uv-- ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
-        int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 10) |
-                         ((a[1] + y) << 5) | (a[2] + z);
-
-        int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 10) |
-                         ((b[1] + y) << 5) | (b[2] + z);
-
-        int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 10) |
-                         ((c[1] + y) << 5) | (c[2] + z);
-
-        int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) |
-                         ((d[1] + y) << 5) | (d[2] + z);
-
-        // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
-        int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
-                        mesh.TextureIndex;
-
-        context.GetSimpleBlockMeshFaceHolder(side).AddFace(
-            position,
-            lowerData,
-            (upperDataA, upperDataB, upperDataC, upperDataD),
-            isRotated: false);
+        ISimple.AddSimpleMesh(position,
+            side,
+            new ISimple.MeshData
+            {
+                TextureIndex = mesh.TextureIndex,
+                IsTextureRotated = false,
+                Tint = mesh.Tint,
+                IsAnimated = false
+            },
+            context);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -112,6 +97,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
             toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
+        // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
         // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
         int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |
                          (y << 5) | (z + a[2]);
@@ -125,6 +111,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) |
                          (y << 5) | (z + d[2]);
 
+        // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
         // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
         int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 20) |
                         (height << 16) | mesh.TextureIndex;
@@ -193,5 +180,3 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         }
     }
 }
-
-

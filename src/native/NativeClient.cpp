@@ -308,12 +308,12 @@ void NativeClient::OnRender(double)
 
         PopulateCommandLists();
 
-        std::vector<ID3D12CommandList*> commandLists = {
-            m_uploadGroup.commandList.Get(),
-            m_2dGroup.commandList.Get()
-        };
+        std::vector<ID3D12CommandList*> commandLists;
+        commandLists.reserve(3);
 
+        commandLists.push_back(m_uploadGroup.commandList.Get());
         if (m_space) commandLists.push_back(m_space->GetCommandList().Get());
+        commandLists.push_back(m_2dGroup.commandList.Get());
 
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }

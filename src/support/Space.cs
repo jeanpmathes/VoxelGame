@@ -63,9 +63,15 @@ public class Space
     /// <summary>
     ///     Create a new indexed mesh object.
     /// </summary>
-    public MeshObject CreateMeshObject(Material material)
+    /// <param name="material">The material. It cannot be changed later.</param>
+    /// <param name="position">The initial position.</param>
+    /// <param name="rotation">The initial rotation.</param>
+    public MeshObject CreateMeshObject(Material material, Vector3d position = default, Quaterniond rotation = default)
     {
         MeshObject meshObject = Native.CreateMeshObject(Client, material.Index);
+
+        meshObject.Position = position;
+        meshObject.Rotation = rotation;
 
         return meshObject;
     }

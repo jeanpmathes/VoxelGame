@@ -7,10 +7,10 @@
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Support.Definition;
+namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     The vertex layout used by all meshes.
+///     The vertex layout used by all basic meshes.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 #pragma warning disable S3898 // No equality comparison used.
@@ -23,8 +23,7 @@ public struct SpatialVertex
     public Vector3 Position;
 
     /// <summary>
-    ///     The color of the vertex.
+    ///     Additional data for the vertex. The complete shader data is split over the four vertices of a quad.
     /// </summary>
-    public Vector4 Color;
+    public uint Data;
 }
-
