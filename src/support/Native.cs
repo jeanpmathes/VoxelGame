@@ -242,6 +242,19 @@ public static class Native
     }
 
     /// <summary>
+    ///     Set the direction of a light.
+    /// </summary>
+    /// <param name="light">The light.</param>
+    /// <param name="direction">The new direction. Must be normalized.</param>
+    public static void SetLightDirection(Light light, Vector3 direction)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetLightDirection(IntPtr light, Vector3 direction);
+
+        NativeSetLightDirection(light.Self, direction);
+    }
+
+    /// <summary>
     ///     Update the data of a camera.
     /// </summary>
     /// <param name="camera">The camera.</param>

@@ -28,6 +28,8 @@ public class World : Core.Logic.World
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
+    private static readonly Vector3d SunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
+
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
     private readonly List<(Section section, Vector3d position)> renderList = new();
@@ -77,7 +79,7 @@ public class World : Core.Logic.World
         MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
         MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
 
-        space.Light.Position = (0, 1000, 0);
+        space.Light.Direction = SunLightDirection;
     }
 
     /// <summary>
@@ -88,7 +90,7 @@ public class World : Core.Logic.World
     {
         player = newPlayer;
 
-        space.Light.Position = (0, 1000, 0);
+        space.Light.Direction = SunLightDirection;
     }
 
     /// <summary>

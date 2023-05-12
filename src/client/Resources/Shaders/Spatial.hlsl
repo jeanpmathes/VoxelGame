@@ -17,7 +17,7 @@ StructuredBuffer<int> indices: register(t1);
 
 cbuffer GlobalCB : register(b0) {
 float gTime;
-float3 gLightPos;
+float3 gLightDir;
 float gMinLight;
 }
 
@@ -167,8 +167,8 @@ Info GetCurrentInfo(const in Attributes attributes)
 float3 CalculateShading(const float3 normal, const float3 baseColor)
 {
     const float3 worldOrigin = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();
-    const float3 lightDir = normalize(gLightPos - worldOrigin);
-
+    const float3 dirToLight = -gLightDir;
+    
     float3 color = baseColor;
 
     // Backface culling with CCW winding:
@@ -179,7 +179,7 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
 
     RayDesc ray;
     ray.Origin = worldOrigin;
-    ray.Direction = lightDir;
+    ray.Direction = dirToLight;
     ray.TMin = VG_RAY_EPSILON;
     ray.TMax = VG_RAY_DISTANCE;
 
@@ -190,7 +190,7 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
 
     const float visibility = shadowPayload.isHit ? 0.0f : 1.0f;
 
-    const float lightIntensity = clamp(dot(normal, lightDir) * visibility, gMinLight, 1.0f);
+    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
     color *= lightIntensity;
 
     return color;

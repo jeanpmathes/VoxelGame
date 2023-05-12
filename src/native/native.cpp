@@ -145,6 +145,15 @@ NATIVE Light* NativeGetLight(const NativeClient* client)
     CATCH();
 }
 
+NATIVE void NativeSetLightDirection(Light* light, const DirectX::XMFLOAT3 direction)
+{
+    TRY
+    {
+        light->SetDirection(direction);
+    }
+    CATCH();
+}
+
 NATIVE void NativeUpdateCameraData(Camera* camera, const CameraData data)
 {
     TRY

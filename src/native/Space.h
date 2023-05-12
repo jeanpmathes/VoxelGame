@@ -17,7 +17,7 @@
 struct GlobalConstantBuffer
 {
     float time;
-    DirectX::XMFLOAT3 lightPosition;
+    DirectX::XMFLOAT3 lightDirection;
     float minLight;
 };
 

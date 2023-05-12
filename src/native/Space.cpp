@@ -160,7 +160,7 @@ void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
 void Space::Update(const double delta)
 {
     m_globalConstantBufferData.time += static_cast<float>(delta);
-    m_globalConstantBufferData.lightPosition = m_light.GetPosition();
+    m_globalConstantBufferData.lightDirection = m_light.GetDirection();
 
     for (const auto& mesh : m_meshes)
     {

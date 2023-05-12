@@ -9,12 +9,18 @@
 #include "SpatialObject.h"
 
 /**
- * \brief Represents the light of the space.
+ * \brief Represents the light of the space. It is an directional light.
  */
-class Light : public SpatialObject
+class Light final : public SpatialObject
 {
-public:
-    ~Light() override = default;
+    DECLARE_OBJECT_SUBCLASS(Light)
 
+public:
     explicit Light(NativeClient& client);
+
+    void SetDirection(const DirectX::XMFLOAT3& direction);
+    [[nodiscard]] const DirectX::XMFLOAT3& GetDirection() const;
+
+private:
+    DirectX::XMFLOAT3 m_direction = {0.0f, 0.0f, 0.0f};
 };
