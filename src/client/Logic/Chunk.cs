@@ -111,6 +111,12 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <inheritdoc />
+    protected override void OnDeactivation()
+    {
+        DisableAllSectionRenderers();
+    }
+
+    /// <inheritdoc />
     protected override void OnNeighborActivation(Core.Logic.Chunk neighbor)
     {
         RecreateIncompleteSectionMeshes();
@@ -187,28 +193,33 @@ public partial class Chunk : Core.Logic.Chunk
     /// Enable and disable section renderers based on the frustum.
     /// </summary>
     /// <param name="frustum">The view frustum to use for culling.</param>
-    public void CullSections(Frustum frustum)
+    public void CullSections(Frustum frustum) // todo: check if the frustum culling actually works (meaning: all necessary sections are there, and some are culled)
     {
         Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
 
-        bool chunkVisible = hasMeshData && frustum.IsBoxVisible(chunkBox);
+        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox))
+        {
+            DisableAllSectionRenderers();
+
+            return;
+        }
 
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
         {
-            var sectionVisible = true;
+            SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
+            Vector3d position = sectionPosition.FirstBlock;
 
-            if (chunkVisible)
-            {
-                SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
-                Vector3d position = sectionPosition.FirstBlock;
+            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
+            bool visible = frustum.IsBoxVisible(sectionBox);
 
-                Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
-                sectionVisible = frustum.IsBoxVisible(sectionBox);
-            }
-
-            GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(sectionVisible);
+            GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(visible);
         }
+    }
+
+    private void DisableAllSectionRenderers()
+    {
+        for (var index = 0; index < SectionCount; index++) GetSection(index).SetRendererEnabledState(enabled: false);
     }
 }
