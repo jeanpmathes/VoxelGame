@@ -157,8 +157,9 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     {
         Vector3 position = RestorePosition(layer, row, face.position);
 
-        Vector3 lenght = LengthAxis.ToVector3() * face.length;
-        Vector3 height = HeightAxis.ToVector3() * face.height;
+        // Both height and lenght are given in additional distance to the normal height and lenght of a quad, so we add 1.
+        Vector3 lenght = LengthAxis.ToVector3() * (face.length + 1);
+        Vector3 height = HeightAxis.ToVector3() * (face.height + 1);
 
         Vector3 v00 = position;
         Vector3 v01 = position + height;
