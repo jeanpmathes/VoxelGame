@@ -21,15 +21,8 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     const CD3DX12_HEAP_PROPERTIES textureProperties(D3D12_HEAP_TYPE_DEFAULT);
 
-    ComPtr<ID3D12Resource> texture;
-
-    TRY_DO(uploader.GetDevice()->CreateCommittedResource(
-        &textureProperties,
-        D3D12_HEAP_FLAG_NONE,
-        &textureDesc,
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        nullptr,
-        IID_PPV_ARGS(&texture)));
+    Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
+        textureDesc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
 
     UINT subresources = description.depth;
     uploader.UploadTexture(data, subresources, description, texture);
@@ -56,7 +49,8 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     return ptr;
 }
 
-Texture::Texture(NativeClient& client, const ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
+Texture::Texture(NativeClient& client, const Allocation<ID3D12Resource> resource,
+                 D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
     : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_usable(true)
 {
     NAME_D3D12_OBJECT_WITH_ID(m_resource);
@@ -67,7 +61,7 @@ void Texture::Free() const
     GetClient().DeleteObject(m_handle);
 }
 
-ComPtr<ID3D12Resource> Texture::GetResource() const
+Allocation<ID3D12Resource> Texture::GetResource() const
 {
     return m_resource;
 }
@@ -87,7 +81,7 @@ void Texture::TransitionToUsable(const ComPtr<ID3D12GraphicsCommandList> command
 }
 
 void Texture::CreateUsabilityBarrier(
-    const ComPtr<ID3D12GraphicsCommandList> commandList, const ComPtr<ID3D12Resource> resource)
+    const ComPtr<ID3D12GraphicsCommandList> commandList, const Allocation<ID3D12Resource> resource)
 {
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(),

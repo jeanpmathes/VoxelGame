@@ -29,7 +29,7 @@ public:
 private:
     DirectX::XMFLOAT3 m_position = {};
 
-    ComPtr<ID3D12Resource> m_spaceCameraBuffer = nullptr;
+    Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
     ComPtr<ID3D12DescriptorHeap> m_spaceConstHeap = nullptr;
     uint32_t m_spaceCameraBufferSize = 0;
 };

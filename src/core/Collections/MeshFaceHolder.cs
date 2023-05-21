@@ -29,7 +29,14 @@ public class MeshFaceHolder
         HeightAxis = DetermineHeightAxis();
     }
 
+    /// <summary>
+    ///     The axis along which length extension happens.
+    /// </summary>
     protected Vector3i LengthAxis { get; }
+
+    /// <summary>
+    ///     The axis along which height extension happens.
+    /// </summary>
     protected Vector3i HeightAxis { get; }
 
     private (int, int, int) DetermineLengthAxis()

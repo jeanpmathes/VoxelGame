@@ -18,6 +18,11 @@ struct Resolution
 inline constexpr UINT FRAME_COUNT = 2;
 
 /**
+ * Get the name of a D3D12 object.
+ */
+std::wstring GetObjectName(ComPtr<ID3D12Object> object);
+
+/**
  * A group of command allocators and a command list.
  */
 struct CommandAllocatorGroup
@@ -39,4 +44,5 @@ struct CommandAllocatorGroup
             NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, n); \
         } \
         NAME_D3D12_OBJECT((group)->commandList); \
+        (group)->Close(); \
     } while (false)

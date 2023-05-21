@@ -12,7 +12,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     Represents a camera in the game.
 /// </summary>
-public class Camera : IView
+public class Camera : IView // todo: merge this class and the one in VG.Support, move IView there
 {
     private double fov = MathHelper.DegreesToRadians(degrees: 70.0);
 

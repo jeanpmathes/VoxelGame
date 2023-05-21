@@ -31,9 +31,9 @@ struct StandardShaderArguments
 
 struct AccelerationStructureBuffers
 {
-    ComPtr<ID3D12Resource> scratch;
-    ComPtr<ID3D12Resource> result;
-    ComPtr<ID3D12Resource> instanceDesc;
+    Allocation<ID3D12Resource> scratch;
+    Allocation<ID3D12Resource> result;
+    Allocation<ID3D12Resource> instanceDesc;
 };
 
 /**
@@ -73,7 +73,7 @@ public:
         StandardShaderArguments& shaderArguments) const;
 
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    ComPtr<ID3D12Resource> GetBLAS();
+    Allocation<ID3D12Resource> GetBLAS();
 
     [[nodiscard]] UINT GetMaterialIndex() const;
 
@@ -93,20 +93,21 @@ protected:
     [[nodiscard]] AccelerationStructureBuffers
     CreateBottomLevelAS(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
-        std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vertexBuffers,
-        std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> indexBuffers = {}) const;
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers = {}) const;
 
 private:
     UINT m_materialIndex;
-    
-    ComPtr<ID3D12Resource> m_instanceConstantBuffer = nullptr;
+
+    Allocation<ID3D12Resource> m_instanceConstantBuffer = {};
+    UINT64 m_instanceConstantBufferAlignedSize = 0;
     InstanceConstantBuffer m_instanceConstantBufferData = {};
 
-    ComPtr<ID3D12Resource> m_vertexBufferUpload = {};
-    ComPtr<ID3D12Resource> m_indexBufferUpload = {};
+    Allocation<ID3D12Resource> m_vertexBufferUpload = {};
+    Allocation<ID3D12Resource> m_indexBufferUpload = {};
 
-    ComPtr<ID3D12Resource> m_vertexBuffer = {};
-    ComPtr<ID3D12Resource> m_indexBuffer = {};
+    Allocation<ID3D12Resource> m_vertexBuffer = {};
+    Allocation<ID3D12Resource> m_indexBuffer = {};
 
     UINT m_vertexCount = 0;
     UINT m_indexCount = 0;

@@ -6,13 +6,9 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
-    UINT64 alignedSize = sizeof m_instanceConstantBufferData;
+    m_instanceConstantBufferAlignedSize = sizeof m_instanceConstantBufferData;
 
-    m_instanceConstantBuffer = nv_helpers_dx12::CreateConstantBuffer(GetClient().GetDevice().Get(),
-                                                                     &alignedSize,
-                                                                     D3D12_RESOURCE_FLAG_NONE,
-                                                                     D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                     nv_helpers_dx12::kUploadHeapProps);
+    m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
 
     Update();
 }
@@ -38,11 +34,11 @@ void MeshObject::Update()
 
     {
         uint8_t* pData;
-        TRY_DO(m_instanceConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+        TRY_DO(m_instanceConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
 
         memcpy(pData, &m_instanceConstantBufferData, sizeof m_instanceConstantBufferData);
 
-        m_instanceConstantBuffer->Unmap(0, nullptr);
+        m_instanceConstantBuffer.resource->Unmap(0, nullptr);
     }
 }
 
@@ -62,51 +58,38 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
 
     if (m_vertexCount == 0 || m_indexCount == 0)
     {
-        m_vertexBufferUpload = nullptr;
-        m_indexBufferUpload = nullptr;
+        m_vertexBufferUpload = {};
+        m_indexBufferUpload = {};
 
         return;
     }
-
-    const auto vertexBufferUploadHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    
     const auto vertexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    TRY_DO(GetClient().GetDevice()->CreateCommittedResource(
-        &vertexBufferUploadHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &vertexBufferUploadDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&m_vertexBufferUpload)));
-    // todo: maybe this does not release the old buffer? - check GPU memory usage -> if it is a problem, many other places must be checked too
-
+    m_vertexBufferUpload = util::AllocateResource<ID3D12Resource>(GetClient(),
+                                                                  vertexBufferUploadDesc, D3D12_HEAP_TYPE_UPLOAD,
+                                                                  D3D12_RESOURCE_STATE_GENERIC_READ);
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBufferUpload);
 
-    auto indexBufferUploadHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto indexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
-    TRY_DO(GetClient().GetDevice()->CreateCommittedResource(
-        &indexBufferUploadHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &indexBufferUploadDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&m_indexBufferUpload)));
-
+    const auto indexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
+    m_indexBufferUpload = util::AllocateResource<ID3D12Resource>(GetClient(),
+                                                                 indexBufferUploadDesc, D3D12_HEAP_TYPE_UPLOAD,
+                                                                 D3D12_RESOURCE_STATE_GENERIC_READ);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBufferUpload);
 
     {
         UINT8* pVertexDataBegin;
-        CD3DX12_RANGE readRange(0, 0);
-        TRY_DO(m_vertexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
+        const CD3DX12_RANGE readRange(0, 0);
+        TRY_DO(m_vertexBufferUpload.resource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
         memcpy(pVertexDataBegin, vertices, vertexBufferSize);
-        m_vertexBufferUpload->Unmap(0, nullptr);
+        m_vertexBufferUpload.resource->Unmap(0, nullptr);
     }
 
     {
         UINT8* pIndexDataBegin;
-        CD3DX12_RANGE readRange(0, 0);
-        TRY_DO(m_indexBufferUpload->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
+        const CD3DX12_RANGE readRange(0, 0);
+        TRY_DO(m_indexBufferUpload.resource->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
         memcpy(pIndexDataBegin, indices, indexBufferSize);
-        m_indexBufferUpload->Unmap(0, nullptr);
+        m_indexBufferUpload.resource->Unmap(0, nullptr);
     }
 }
 
@@ -126,37 +109,25 @@ void MeshObject::EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList
 
     if (m_vertexCount == 0 || m_indexCount == 0)
     {
-        m_vertexBuffer = nullptr;
-        m_indexBuffer = nullptr;
+        m_vertexBuffer = {};
+        m_indexBuffer = {};
 
         return;
     }
 
-    const auto vertexBufferSize = m_vertexBufferUpload->GetDesc().Width;
-    const auto indexBufferSize = m_indexBufferUpload->GetDesc().Width;
-
-    const auto vertexBufferHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    const auto vertexBufferSize = m_vertexBufferUpload.resource->GetDesc().Width;
+    const auto indexBufferSize = m_indexBufferUpload.resource->GetDesc().Width;
+    
     const auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    TRY_DO(GetClient().GetDevice()->CreateCommittedResource(
-        &vertexBufferHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &vertexBufferDesc,
-        D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
-        IID_PPV_ARGS(&m_vertexBuffer)));
-
+    m_vertexBuffer = util::AllocateResource<ID3D12Resource>(GetClient(),
+                                                            vertexBufferDesc, D3D12_HEAP_TYPE_DEFAULT,
+                                                            D3D12_RESOURCE_STATE_COMMON);
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBuffer);
-
-    const auto indexBufferHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    
     const auto indexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
-    TRY_DO(GetClient().GetDevice()->CreateCommittedResource(
-        &indexBufferHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &indexBufferDesc,
-        D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
-        IID_PPV_ARGS(&m_indexBuffer)));
-
+    m_indexBuffer = util::AllocateResource<ID3D12Resource>(GetClient(),
+                                                           indexBufferDesc, D3D12_HEAP_TYPE_DEFAULT,
+                                                           D3D12_RESOURCE_STATE_COMMON);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBuffer);
 
     D3D12_RESOURCE_BARRIER transitionCommonToCopyDest[] = {
@@ -181,15 +152,15 @@ void MeshObject::EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList
 
 void MeshObject::CleanupMeshUpload()
 {
-    m_vertexBufferUpload.Reset();
-    m_indexBufferUpload.Reset();
+    m_vertexBufferUpload = {};
+    m_indexBufferUpload = {};
 
     m_modified = false;
 }
 
 void MeshObject::FillArguments(StandardShaderArguments& shaderArguments) const
 {
-    shaderArguments.instanceBuffer = reinterpret_cast<void*>(m_instanceConstantBuffer->GetGPUVirtualAddress());
+    shaderArguments.instanceBuffer = reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress());
 }
 
 void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt,
@@ -199,16 +170,16 @@ void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt
 
     sbt.AddHitGroup(material.normalHitGroup,
                     {
-                        reinterpret_cast<void*>(m_vertexBuffer->GetGPUVirtualAddress()),
-                        reinterpret_cast<void*>(m_indexBuffer->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_vertexBuffer.resource->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_indexBuffer.resource->GetGPUVirtualAddress()),
                         shaderArguments.heap,
                         shaderArguments.globalBuffer,
                         shaderArguments.instanceBuffer
                     });
     sbt.AddHitGroup(material.shadowHitGroup,
                     {
-                        reinterpret_cast<void*>(m_vertexBuffer->GetGPUVirtualAddress()),
-                        reinterpret_cast<void*>(m_indexBuffer->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_vertexBuffer.resource->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_indexBuffer.resource->GetGPUVirtualAddress()),
                         shaderArguments.heap,
                         shaderArguments.globalBuffer,
                         shaderArguments.instanceBuffer
@@ -230,7 +201,7 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
                                  {{m_indexBuffer, m_indexCount}});
 }
 
-ComPtr<ID3D12Resource> MeshObject::GetBLAS()
+Allocation<ID3D12Resource> MeshObject::GetBLAS()
 {
     return m_blas.result;
 }
@@ -253,9 +224,11 @@ void MeshObject::Free() const
 }
 
 AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> commandList,
-                                                             std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>>
+                                                             std::vector<std::pair<
+                                                                 Allocation<ID3D12Resource>, uint32_t>>
                                                              vertexBuffers,
-                                                             std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>>
+                                                             std::vector<std::pair<
+                                                                 Allocation<ID3D12Resource>, uint32_t>>
                                                              indexBuffers) const
 {
     nv_helpers_dx12::BottomLevelASGenerator bottomLevelAS;
@@ -264,7 +237,9 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     {
         auto& [buffer, count] = vertexBuffers[i];
 
-        if (auto [indexBuffer, indexCount] = i < indexBuffers.size() ? indexBuffers[i] : std::make_pair(nullptr, 0);
+        if (auto [indexBuffer, indexCount] = i < indexBuffers.size()
+                                                 ? indexBuffers[i]
+                                                 : std::make_pair(Allocation<ID3D12Resource>(), uint32_t());
             indexCount > 0)
         {
             bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex),
@@ -281,14 +256,14 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
 
     AccelerationStructureBuffers buffers;
-    buffers.scratch = nv_helpers_dx12::CreateBuffer(GetClient().GetDevice().Get(), scratchSizeInBytes,
-                                                    D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                    D3D12_RESOURCE_STATE_COMMON,
-                                                    nv_helpers_dx12::kDefaultHeapProps);
-    buffers.result = nv_helpers_dx12::CreateBuffer(GetClient().GetDevice().Get(), resultSizeInBytes,
-                                                   D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                   D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                                   nv_helpers_dx12::kDefaultHeapProps);
+    buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
+                                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                           D3D12_RESOURCE_STATE_COMMON,
+                                           D3D12_HEAP_TYPE_DEFAULT);
+    buffers.result = util::AllocateBuffer(GetClient(), resultSizeInBytes,
+                                          D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                          D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+                                          D3D12_HEAP_TYPE_DEFAULT);
 
     NAME_D3D12_OBJECT_WITH_ID(buffers.scratch);
     NAME_D3D12_OBJECT_WITH_ID(buffers.result);

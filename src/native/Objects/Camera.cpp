@@ -8,14 +8,17 @@ void Camera::Initialize()
 {
     constexpr uint32_t matrixCount = 4;
     m_spaceCameraBufferSize = matrixCount * sizeof(DirectX::XMMATRIX);
-    m_spaceCameraBuffer = nv_helpers_dx12::CreateBuffer(GetClient().GetDevice().Get(), m_spaceCameraBufferSize,
-                                                        D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                        nv_helpers_dx12::kUploadHeapProps);
-    m_spaceConstHeap = nv_helpers_dx12::CreateDescriptorHeap(GetClient().GetDevice().Get(), 1,
-                                                             D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+    m_spaceCameraBuffer = util::AllocateBuffer(GetClient(), m_spaceCameraBufferSize,
+                                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                               D3D12_HEAP_TYPE_UPLOAD);
+    m_spaceConstHeap = CreateDescriptorHeap(GetClient().GetDevice().Get(), 1,
+                                            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+
+    NAME_D3D12_OBJECT(m_spaceCameraBuffer);
+    NAME_D3D12_OBJECT(m_spaceConstHeap);
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-    cbvDesc.BufferLocation = m_spaceCameraBuffer->GetGPUVirtualAddress();
+    cbvDesc.BufferLocation = m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
     cbvDesc.SizeInBytes = m_spaceCameraBufferSize;
 
     const D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_spaceConstHeap->GetCPUDescriptorHandleForHeapStart();
@@ -43,9 +46,9 @@ void Camera::Update() const
     XMStoreFloat4x4(&matrices[3], projectionI);
 
     uint8_t* pData;
-    TRY_DO(m_spaceCameraBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+    TRY_DO(m_spaceCameraBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
     memcpy(pData, matrices.data(), m_spaceCameraBufferSize);
-    m_spaceCameraBuffer->Unmap(0, nullptr);
+    m_spaceCameraBuffer.resource->Unmap(0, nullptr);
 }
 
 void Camera::SetPosition(const DirectX::XMFLOAT3& position)
@@ -57,6 +60,6 @@ void Camera::SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) 
 {
     REQUIRE(cbvDesc);
 
-    cbvDesc->BufferLocation = m_spaceCameraBuffer->GetGPUVirtualAddress();
+    cbvDesc->BufferLocation = m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
     cbvDesc->SizeInBytes = m_spaceCameraBufferSize;
 }

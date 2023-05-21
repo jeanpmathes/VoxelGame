@@ -193,7 +193,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// Enable and disable section renderers based on the frustum.
     /// </summary>
     /// <param name="frustum">The view frustum to use for culling.</param>
-    public void CullSections(Frustum frustum) // todo: check if the frustum culling actually works (meaning: all necessary sections are there, and some are culled)
+    public void CullSections(Frustum frustum)
     {
         Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
 

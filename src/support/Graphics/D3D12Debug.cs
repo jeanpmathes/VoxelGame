@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
@@ -53,7 +54,6 @@ internal class D3D12Debug
         string categoryName = ResolveCategory(category);
         (string idResolved, int eventId) = ResolveEvent(id);
 
-
         logger.Log(
             level,
             eventId,
@@ -62,7 +62,18 @@ internal class D3D12Debug
             idResolved,
             message);
 
-        if (level >= LogLevel.Error) Debugger.Break();
+        if (id
+            is Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT
+            or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT
+            or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
+        {
+            Debugger.Log((int) LogLevel.Critical, "DirectX Debug", $"Extended Data: {Marshal.PtrToStringUni(context)}");
+            Debugger.Break();
+        }
+        else if (level >= LogLevel.Error)
+        {
+            Debugger.Break();
+        }
     }
 
     private static LogLevel GetLevel(Definition.Native.D3D12_MESSAGE_SEVERITY severity)

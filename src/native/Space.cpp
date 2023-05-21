@@ -1,7 +1,5 @@
 ﻿#include "stdafx.h"
 
-#include <iostream>
-
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
     m_camera(nativeClient),
@@ -9,11 +7,12 @@ Space::Space(NativeClient& nativeClient) :
 {
 }
 
-void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue)
+void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQueue)
 {
     REQUIRE(m_meshes.empty());
 
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), &m_commandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
     
     CreateTopLevelAS();
@@ -115,15 +114,20 @@ void Space::DispatchRays() const
 
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
-    desc.RayGenerationShaderRecord.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.
-        GetRayGenSectionOffset();
+    desc.RayGenerationShaderRecord.StartAddress
+        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        + m_sbtHelper.GetRayGenSectionOffset();
     desc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
 
-    desc.MissShaderTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetMissSectionOffset();
+    desc.MissShaderTable.StartAddress
+        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        + m_sbtHelper.GetMissSectionOffset();
     desc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
     desc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
 
-    desc.HitGroupTable.StartAddress = m_sbtStorage->GetGPUVirtualAddress() + m_sbtHelper.GetHitGroupSectionOffset();
+    desc.HitGroupTable.StartAddress
+        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        + m_sbtHelper.GetHitGroupSectionOffset();
     desc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
     desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
 
@@ -135,7 +139,7 @@ void Space::DispatchRays() const
     m_commandGroup.commandList->DispatchRays(&desc);
 }
 
-void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
+void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
 {
     D3D12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -195,11 +199,8 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 void Space::CreateGlobalConstBuffer()
 {
     m_globalConstantBufferData = {.time = 0.0f, .minLight = 0.4f};
-    m_globalConstantBufferAlignedSize = sizeof m_globalConstantBufferData;
-    m_globalConstantBuffer = nv_helpers_dx12::CreateConstantBuffer(GetDevice().Get(),
-                                                                   &m_globalConstantBufferAlignedSize,
-                                                                   D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                   nv_helpers_dx12::kUploadHeapProps);
+    m_globalConstantBufferSize = sizeof m_globalConstantBufferData;
+    m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
 
     UpdateGlobalConstBuffer();
 }
@@ -207,16 +208,16 @@ void Space::CreateGlobalConstBuffer()
 void Space::UpdateGlobalConstBuffer() const
 {
     uint8_t* pData;
-    TRY_DO(m_globalConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+    TRY_DO(m_globalConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
 
     memcpy(pData, &m_globalConstantBufferData, sizeof m_globalConstantBufferData);
 
-    m_globalConstantBuffer->Unmap(0, nullptr);
+    m_globalConstantBuffer.resource->Unmap(0, nullptr);
 }
 
 void Space::CreateShaderResourceHeap()
 {
-    m_srvUavHeap = nv_helpers_dx12::CreateDescriptorHeap(
+    m_srvUavHeap = CreateDescriptorHeap(
         GetDevice().Get(),
         3,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
@@ -242,7 +243,7 @@ void Space::UpdateShaderResourceHeap() const
     srvDesc.Format = DXGI_FORMAT_UNKNOWN;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result->GetGPUVirtualAddress();
+    srvDesc.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->GetGPUVirtualAddress();
     GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, srvHandle);
 
     srvHandle.ptr += GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -260,7 +261,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
-        m_shaderBlobs[shader] = nv_helpers_dx12::CompileShaderLibrary(
+        m_shaderBlobs[shader] = CompileShaderLibrary(
             pipelineDescription.shaderFiles[shader].path,
             pipelineDescription.description.onShaderLoadingError);
         if (m_shaderBlobs[shader] == nullptr) return false;
@@ -339,25 +340,23 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
 void Space::CreateRaytracingOutputBuffer()
 {
-    D3D12_RESOURCE_DESC resDesc = {};
-    resDesc.DepthOrArraySize = 1;
-    resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    D3D12_RESOURCE_DESC outputDescription = {};
+    outputDescription.DepthOrArraySize = 1;
+    outputDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-    resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-    resDesc.Width = m_resolution.width;
-    resDesc.Height = m_resolution.height;
-    resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    resDesc.MipLevels = 1;
-    resDesc.SampleDesc.Count = 1;
+    outputDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    outputDescription.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    outputDescription.Width = m_resolution.width;
+    outputDescription.Height = m_resolution.height;
+    outputDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    outputDescription.MipLevels = 1;
+    outputDescription.SampleDesc.Count = 1;
 
-    TRY_DO(GetDevice()->CreateCommittedResource(
-        &nv_helpers_dx12::kDefaultHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &resDesc,
-        D3D12_RESOURCE_STATE_COPY_SOURCE,
-        nullptr,
-        IID_PPV_ARGS(&m_outputResource)));
+    m_outputResource = util::AllocateResource<ID3D12Resource>(
+        m_nativeClient,
+        outputDescription,
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_RESOURCE_STATE_COPY_SOURCE);
 
     NAME_D3D12_OBJECT(m_outputResource);
 }
@@ -414,7 +413,7 @@ void Space::CreateShaderBindingTable()
 
     StandardShaderArguments arguments = {
         .heap = heapPointer,
-        .globalBuffer = reinterpret_cast<void*>(m_globalConstantBuffer->GetGPUVirtualAddress()),
+        .globalBuffer = reinterpret_cast<void*>(m_globalConstantBuffer.resource->GetGPUVirtualAddress()),
         .instanceBuffer = nullptr // Will be set per instance.
     };
 
@@ -431,11 +430,10 @@ void Space::CreateShaderBindingTable()
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
-    m_sbtStorage = nv_helpers_dx12::CreateBuffer(
-        GetDevice().Get(), sbtSize, D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ, nv_helpers_dx12::kUploadHeapProps);
-
-    REQUIRE(m_sbtStorage != nullptr);
+    m_sbtStorage = util::AllocateBuffer(
+        m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
+    
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -459,18 +457,18 @@ void Space::CreateTopLevelAS()
     topLevelASGenerator.ComputeASBufferSizes(GetDevice().Get(), true, &scratchSize, &resultSize,
                                              &instanceDescriptionSize);
 
-    m_topLevelASBuffers.scratch = nv_helpers_dx12::CreateBuffer(GetDevice().Get(), scratchSize,
-                                                                D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                                D3D12_RESOURCE_STATE_COMMON,
-                                                                nv_helpers_dx12::kDefaultHeapProps);
-    m_topLevelASBuffers.result = nv_helpers_dx12::CreateBuffer(GetDevice().Get(), resultSize,
-                                                               D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                               D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                                               nv_helpers_dx12::kDefaultHeapProps);
-    m_topLevelASBuffers.instanceDesc = nv_helpers_dx12::CreateBuffer(GetDevice().Get(), instanceDescriptionSize,
-                                                                     D3D12_RESOURCE_FLAG_NONE,
-                                                                     D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                     nv_helpers_dx12::kUploadHeapProps);
+    m_topLevelASBuffers.scratch = util::AllocateBuffer(m_nativeClient, scratchSize,
+                                                       D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                                       D3D12_RESOURCE_STATE_COMMON,
+                                                       D3D12_HEAP_TYPE_DEFAULT);
+    m_topLevelASBuffers.result = util::AllocateBuffer(m_nativeClient, resultSize,
+                                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                                      D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+                                                      D3D12_HEAP_TYPE_DEFAULT);
+    m_topLevelASBuffers.instanceDesc = util::AllocateBuffer(m_nativeClient, instanceDescriptionSize,
+                                                            D3D12_RESOURCE_FLAG_NONE,
+                                                            D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                            D3D12_HEAP_TYPE_UPLOAD);
 
     NAME_D3D12_OBJECT(m_topLevelASBuffers.scratch);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
@@ -479,7 +477,8 @@ void Space::CreateTopLevelAS()
     constexpr bool updateOnly = false;
 
     topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
-                                 m_topLevelASBuffers.scratch.Get(), m_topLevelASBuffers.result.Get(),
+                                 m_topLevelASBuffers.scratch.Get(),
+                                 m_topLevelASBuffers.result.Get(),
                                  m_topLevelASBuffers.instanceDesc.Get(),
-                                 updateOnly, m_topLevelASBuffers.result.Get());
+                                 updateOnly, nullptr);
 }

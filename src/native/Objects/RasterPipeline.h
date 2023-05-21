@@ -68,14 +68,14 @@ public:
     /**
      * Create a resource view for a single primary resource, apart from the potential shader buffer.
      */
-    void CreateResourceView(ComPtr<ID3D12Resource> resource) const;
+    void CreateResourceView(Allocation<ID3D12Resource> resource) const;
 
     /**
      * Create resource views for a set of constant buffers, followed by a set of textures.
      */
     void CreateResourceViews(
         const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-        const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures);
+        const std::vector<std::tuple<Allocation<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures);
 
     /**
      * Setup the descriptor heap for the pipeline.

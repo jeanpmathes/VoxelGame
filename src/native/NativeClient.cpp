@@ -34,6 +34,11 @@ ComPtr<ID3D12Device5> NativeClient::GetDevice() const
     return m_device;
 }
 
+ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const
+{
+    return m_allocator;
+}
+
 UINT NativeClient::GetRtvHeapIncrement() const
 {
     return m_rtvDescriptorSize;
@@ -50,6 +55,8 @@ void NativeClient::OnInit()
 
     {
         TRY_DO(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+        NAME_D3D12_OBJECT(m_fence);
+        
         m_fenceValues[m_frameIndex]++;
 
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -72,7 +79,7 @@ void NativeClient::OnInit()
 void NativeClient::OnPostInit()
 {
     if (!m_spaceInitialized) m_space = nullptr;
-    
+
     m_uploader->ExecuteUploads(m_commandQueue);
 
     WaitForGPU();
@@ -85,11 +92,21 @@ void NativeClient::LoadDevice()
 
 #if defined(_DEBUG)
     {
-        ComPtr<ID3D12Debug> debugController;
+        ComPtr<ID3D12Debug5> debugController;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
         {
             debugController->EnableDebugLayer();
+            debugController->SetEnableAutoName(TRUE);
+            
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+        }
+
+        ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dredSettings))))
+        {
+            dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+            dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+            dredSettings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
         }
     }
 #endif
@@ -105,16 +122,50 @@ void NativeClient::LoadDevice()
         D3D_FEATURE_LEVEL_12_2,
         IID_PPV_ARGS(&m_device)
     ));
-
     NAME_D3D12_OBJECT(m_device);
 
 #if defined(_DEBUG)
+    auto callback = [](D3D12_MESSAGE_CATEGORY category, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id,
+                       LPCSTR description, void* context)
+    {
+        const auto* self = static_cast<NativeClient*>(context);
+
+        std::wstring messageStore;
+
+        if (id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT ||
+            id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT ||
+            id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
+        {
+            ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
+            TRY_DO(self->m_device->QueryInterface(IID_PPV_ARGS(&dred)));
+
+            D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
+            TRY_DO(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
+
+            D3D12_DRED_PAGE_FAULT_OUTPUT2 dredPageFaultOutput = {};
+            TRY_DO(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
+            
+            messageStore = util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
+        }
+
+        void* newContext = messageStore.empty() ? nullptr : const_cast<wchar_t*>(messageStore.c_str());
+        self->m_debugCallback(category, severity, id, description, newContext);
+    };
+
     TRY_DO(m_device->QueryInterface(__uuidof(ID3D12InfoQueue1), &m_infoQueue));
-    TRY_DO(
-        m_infoQueue->RegisterMessageCallback(m_debugCallback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, nullptr, &
-            m_callbackCookie));
+    TRY_DO(m_infoQueue->RegisterMessageCallback(
+        callback,
+        D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+        this,
+        &m_callbackCookie));
     TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
 #endif
+
+    D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
+    allocatorDesc.pDevice = m_device.Get();
+    allocatorDesc.pAdapter = hardwareAdapter.Get();
+
+    TRY_DO(D3D12MA::CreateAllocator(&allocatorDesc, &m_allocator));
 
     CheckRaytracingSupport();
 
@@ -152,8 +203,10 @@ void NativeClient::LoadDevice()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     {
-        m_rtvHeap = nv_helpers_dx12::CreateDescriptorHeap(m_device.Get(), FRAME_COUNT + 1,
-                                                          D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+        m_rtvHeap = CreateDescriptorHeap(m_device.Get(), FRAME_COUNT + 1,
+                                         D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+
+        NAME_D3D12_OBJECT(m_rtvHeap);
 
         m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         m_srvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -171,14 +224,14 @@ void NativeClient::LoadRasterPipeline()
     };
 
     constexpr UINT vertexBufferSize = sizeof quadVertices;
-    m_postVertexBuffer = nv_helpers_dx12::CreateBuffer(m_device.Get(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE,
-                                                       D3D12_RESOURCE_STATE_COMMON, nv_helpers_dx12::kDefaultHeapProps);
+    m_postVertexBuffer = util::AllocateBuffer(*this, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE,
+                                              D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT(m_postVertexBuffer);
 
     m_uploader->UploadBuffer(reinterpret_cast<const std::byte*>(&quadVertices), vertexBufferSize,
-                             m_postVertexBuffer.Get());
+                             m_postVertexBuffer);
 
-    m_postVertexBufferView.BufferLocation = m_postVertexBuffer->GetGPUVirtualAddress();
+    m_postVertexBufferView.BufferLocation = m_postVertexBuffer.resource->GetGPUVirtualAddress();
     m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
     m_postVertexBufferView.SizeInBytes = vertexBufferSize;
 
@@ -188,7 +241,8 @@ void NativeClient::LoadRasterPipeline()
 
 void NativeClient::CreateDepthBuffer()
 {
-    m_dsvHeap = nv_helpers_dx12::CreateDescriptorHeap(m_device.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+    m_dsvHeap = CreateDescriptorHeap(m_device.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+    NAME_D3D12_OBJECT(m_dsvHeap);
 
     const D3D12_HEAP_PROPERTIES depthHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     D3D12_RESOURCE_DESC depthResourceDesc =
@@ -252,7 +306,6 @@ void NativeClient::SetupSpaceResolutionDependentResources()
 
     {
         const D3D12_RESOURCE_DESC swapChainDesc = m_renderTargets[m_frameIndex]->GetDesc();
-        const CD3DX12_CLEAR_VALUE clearValue(swapChainDesc.Format, CLEAR_COLOR);
         const CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             swapChainDesc.Format,
             m_resolution.width,
@@ -263,19 +316,21 @@ void NativeClient::SetupSpaceResolutionDependentResources()
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
             D3D12_TEXTURE_LAYOUT_UNKNOWN, 0u);
 
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), FRAME_COUNT,
-                                                      m_rtvDescriptorSize);
+        m_intermediateRenderTargetView = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(),
+                                                                       FRAME_COUNT,
+                                                                       m_rtvDescriptorSize);
 
-        const auto intermediateRenderTargetHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-        TRY_DO(m_device->CreateCommittedResource(
-            &intermediateRenderTargetHeapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &renderTargetDesc,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            &clearValue,
-            IID_PPV_ARGS(&m_intermediateRenderTarget)));
-        m_device->CreateRenderTargetView(m_intermediateRenderTarget.Get(), nullptr, rtvHandle);
+        m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
+            *this,
+            renderTargetDesc,
+            D3D12_HEAP_TYPE_DEFAULT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
         NAME_D3D12_OBJECT(m_intermediateRenderTarget);
+
+        m_device->CreateRenderTargetView(
+            m_intermediateRenderTarget.Get(),
+            nullptr,
+            m_intermediateRenderTargetView);
 
         if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
     }
@@ -292,7 +347,7 @@ void NativeClient::OnUpdate(const double delta)
 void NativeClient::OnPreRender()
 {
     if (!m_windowVisible) return;
-    
+
     m_uploadGroup.Reset(m_frameIndex);
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
@@ -300,7 +355,7 @@ void NativeClient::OnPreRender()
 void NativeClient::OnRender(double)
 {
     if (!m_windowVisible) return;
-    
+
     {
         PIXScopedEvent(m_commandQueue.Get(), 0, L"Render");
 
@@ -321,8 +376,6 @@ void NativeClient::OnRender(double)
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
     TRY_DO(m_swapChain->Present(0, presentFlags));
 
-    // todo: try putting these three lines (wait, cleanup, move) at the top of the function and compare performance
-    // it could be beneficial to let the gpu work until the next frame has to be rendered
     WaitForGPU();
 
     if (m_space) m_space->CleanupRenderSetup();
@@ -482,7 +535,7 @@ void NativeClient::PopulateSpaceCommandList() const
     REQUIRE(m_space != nullptr);
 
     m_space->Reset(m_frameIndex);
-    
+
     {
         PIXScopedEvent(m_space->GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
 
@@ -496,6 +549,8 @@ void NativeClient::PopulateSpaceCommandList() const
 
 void NativeClient::PopulatePostProcessingCommandList() const
 {
+    if (m_space == nullptr) return; // Nothing to post-process.
+
     {
         PIXScopedEvent(m_2dGroup.commandList.Get(), 0, L"Post Processing");
 

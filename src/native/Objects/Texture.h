@@ -27,7 +27,8 @@ public:
      */
     static Texture* Create(Uploader& uploader, std::byte** data, TextureDescription description);
 
-    explicit Texture(NativeClient& client, ComPtr<ID3D12Resource> resource, D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
+    explicit Texture(NativeClient& client, Allocation<ID3D12Resource> resource,
+                     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 
     /**
      * Free this texture. This will detach the texture from the client, causing it to be destroyed.
@@ -37,7 +38,7 @@ public:
     /**
      * Get the resource in which the texture is stored.
      */
-    [[nodiscard]] ComPtr<ID3D12Resource> GetResource() const;
+    [[nodiscard]] Allocation<ID3D12Resource> GetResource() const;
 
     /**
      * Get the shader resource view description.
@@ -50,10 +51,11 @@ public:
      */
     void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
 
-    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource);
+    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList,
+                                       Allocation<ID3D12Resource> resource);
     
 private:
-    ComPtr<ID3D12Resource> m_resource;
+    Allocation<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
     
     bool m_usable;

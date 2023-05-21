@@ -25,6 +25,7 @@ public:
     explicit NativeClient(Configuration configuration);
 
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
+    [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
     [[nodiscard]] UINT GetRtvHeapIncrement() const;
     [[nodiscard]] UINT GetCbvSrvUavHeapIncrement() const;
 
@@ -98,6 +99,12 @@ public:
         DirectX::XMFLOAT2 uv;
     };
 
+    ComPtr<ID3D12Device5> m_device;
+    ComPtr<D3D12MA::Allocator> m_allocator;
+    ComPtr<IDXGISwapChain3> m_swapChain;
+    ComPtr<ID3D12InfoQueue1> m_infoQueue;
+    ComPtr<ID3D12CommandQueue> m_commandQueue;
+    
     Resolution m_resolution;
 
     D3D12MessageFunc m_debugCallback;
@@ -114,7 +121,7 @@ public:
 
     CD3DX12_VIEWPORT m_postViewport;
     CD3DX12_RECT m_postScissorRect;
-    ComPtr<ID3D12Resource> m_postVertexBuffer;
+    Allocation<ID3D12Resource> m_postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
 
     CD3DX12_VIEWPORT m_draw2DViewport;
@@ -127,13 +134,9 @@ public:
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;
 
-    ComPtr<IDXGISwapChain3> m_swapChain;
-    ComPtr<ID3D12Device5> m_device;
-    ComPtr<ID3D12InfoQueue1> m_infoQueue;
-    ComPtr<ID3D12CommandQueue> m_commandQueue;
-
     ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
-    ComPtr<ID3D12Resource> m_intermediateRenderTarget;
+    Allocation<ID3D12Resource> m_intermediateRenderTarget;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
     ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
  
     UINT m_rtvDescriptorSize;

@@ -12,6 +12,7 @@
 
 #include <Windows.h>
 #include <windowsx.h>
+
 // DirectX
 
 #include <d3d12.h>
@@ -19,11 +20,30 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include "d3dx12.h"
+#include "comdef.h"
 #include <pix3.h>
 
 // STD
 
 #include <string>
+#include <mutex>
+#include <algorithm>
+#include <utility>
+#include <cstdlib>
+#include <cstdint>
+#include <stdexcept>
+#include <iomanip>
+#include <sstream>
+#include <map>
+#include <vector>
+#include <set>
+#include <list>
+#include <array>
+#include <memory>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <functional>
 
 // WRL
 
@@ -42,6 +62,11 @@
 
 #include "DXRHelper.h"
 #include "DXHelper.h"
+
+// D3D12 Memory Allocator
+
+#include "Tools/D3D12MemAlloc.h"
+#include "Tools/Allocation.h"
 
 // Custom
 

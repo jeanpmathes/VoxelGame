@@ -60,14 +60,14 @@ namespace draw2d
         
         RasterPipeline* m_raster;
         Callback m_callback;
-        ComPtr<ID3D12Device> m_device;
+        NativeClient& m_client;
 
-        std::vector<ComPtr<ID3D12Resource>> m_cbuffers = {};
+        std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
         std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC> m_constantBufferViews = {};
-        std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>> m_textures = {};
+        std::vector<std::tuple<Allocation<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>> m_textures = {};
 
-        ComPtr<ID3D12Resource> m_vertexBuffer = nullptr;
-        ComPtr<ID3D12Resource> m_uploadBuffer = nullptr;
+        Allocation<ID3D12Resource> m_vertexBuffer = {};
+        Allocation<ID3D12Resource> m_uploadBuffer = {};
 
         UINT m_currentTextureIndex = 0;
         BOOL m_currentUseTexture = FALSE;

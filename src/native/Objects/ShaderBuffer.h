@@ -35,6 +35,6 @@ public:
 
 private:
     uint64_t m_size;
-    ComPtr<ID3D12Resource> m_constantBuffer;
+    Allocation<ID3D12Resource> m_constantBuffer;
     D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc = {};
 };

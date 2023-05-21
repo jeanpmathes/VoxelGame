@@ -99,7 +99,7 @@ public:
     /**
      * Copies the raytracing output to the given buffer.
      */
-    void CopyOutputToBuffer(ComPtr<ID3D12Resource> buffer) const;
+    void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
 
     void Update(double delta);
 
@@ -133,9 +133,9 @@ private:
 
     Camera m_camera;
     Light m_light;
-    
-    ComPtr<ID3D12Resource> m_globalConstantBuffer;
-    UINT64 m_globalConstantBufferAlignedSize = 0;
+
+    Allocation<ID3D12Resource> m_globalConstantBuffer;
+    UINT64 m_globalConstantBufferSize = 0;
     GlobalConstantBuffer m_globalConstantBufferData = {};
 
     std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
@@ -147,11 +147,11 @@ private:
     ComPtr<ID3D12RootSignature> m_missSignature;
     
     nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper{};
-    ComPtr<ID3D12Resource> m_sbtStorage;
+    Allocation<ID3D12Resource> m_sbtStorage;
 
     ComPtr<ID3D12StateObject> m_rtStateObject;
     ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
-    ComPtr<ID3D12Resource> m_outputResource;
+    Allocation<ID3D12Resource> m_outputResource;
 
     ComPtr<ID3D12DescriptorHeap> m_srvUavHeap;
 

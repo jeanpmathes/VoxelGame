@@ -23,7 +23,7 @@ class NativeClient;
 #define NAME_D3D12_OBJECT_WITH_ID(object) \
     do \
     { \
-        if (object != nullptr) \
+        if (object.Get() != nullptr) \
         { \
             SetName((object).Get(), \
                 (std::wstring(L#object) + \

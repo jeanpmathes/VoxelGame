@@ -16,16 +16,16 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
 
 void Uploader::UploadTexture(
     std::byte** data, UINT subresources,
-    const TextureDescription& description, const ComPtr<ID3D12Resource> destination)
+    const TextureDescription& description, const Allocation<ID3D12Resource> destination)
 {
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
-    const ComPtr<ID3D12Resource> uploadBuffer = nv_helpers_dx12::CreateBuffer(
-        GetDevice().Get(),
+    const Allocation<ID3D12Resource> uploadBuffer = util::AllocateBuffer(
+        GetClient(),
         uploadBufferSize,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
-        nv_helpers_dx12::kUploadHeapProps);
+        D3D12_HEAP_TYPE_UPLOAD);
 
     m_uploadBuffers.push_back(uploadBuffer);
 
@@ -44,21 +44,21 @@ void Uploader::UploadTexture(
     if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
 
-void Uploader::UploadBuffer(const std::byte* data, const UINT size, const ComPtr<ID3D12Resource> destination)
+void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Allocation<ID3D12Resource> destination)
 {
-    const ComPtr<ID3D12Resource> uploadBuffer = nv_helpers_dx12::CreateBuffer(
-        GetDevice().Get(),
+    const Allocation<ID3D12Resource> uploadBuffer = util::AllocateBuffer(
+        GetClient(),
         size,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
-        nv_helpers_dx12::kUploadHeapProps);
+        D3D12_HEAP_TYPE_UPLOAD);
 
     m_uploadBuffers.push_back(uploadBuffer);
 
     std::byte* pData;
-    TRY_DO(uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+    TRY_DO(uploadBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
     memcpy(pData, data, size);
-    uploadBuffer->Unmap(0, nullptr);
+    uploadBuffer.resource->Unmap(0, nullptr);
 
     auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(),
                                                            D3D12_RESOURCE_STATE_COMMON,

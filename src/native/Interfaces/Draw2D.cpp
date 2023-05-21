@@ -1,29 +1,30 @@
 ﻿#include "stdafx.h"
 
-draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, Callback callback)
-    : m_raster(raster), m_callback(callback), m_device(client.GetDevice())
+draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const Callback callback)
+    : m_raster(raster), m_callback(callback), m_client(client)
 {
-    auto addBuffer = [this, &client](const BOOL value)
+    auto addBuffer = [this](const BOOL value)
     {
         constexpr UINT size = sizeof(BOOL);
-        uint64_t alignedSize = size;
 
-        const ComPtr<ID3D12Resource> constantBuffer = nv_helpers_dx12::CreateConstantBuffer(
-            client.GetDevice().Get(), &alignedSize,
-            D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-            nv_helpers_dx12::kUploadHeapProps);
+        UINT64 alignedSize = size;
+
+        const auto booleanConstantBuffer = util::AllocateConstantBuffer(
+            m_client, &alignedSize);
 
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-        cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
+        cbvDesc.BufferLocation = booleanConstantBuffer.resource->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
 
-        this->m_cbuffers.push_back(constantBuffer);
+        NAME_D3D12_OBJECT(/* Draw2D */ booleanConstantBuffer);
+
+        this->m_cbuffers.push_back(booleanConstantBuffer);
         this->m_constantBufferViews.push_back(cbvDesc);
 
         BOOL* pData;
-        TRY_DO(constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+        TRY_DO(booleanConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
         *pData = value;
-        constantBuffer->Unmap(0, nullptr);
+        booleanConstantBuffer.resource->Unmap(0, nullptr);
     };
 
     addBuffer(TRUE);
@@ -71,20 +72,22 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         {
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
-            ctx->m_uploadBuffer = nv_helpers_dx12::CreateBuffer(
-                ctx->m_device.Get(), vertexBufferSize,
+            ctx->m_uploadBuffer = util::AllocateBuffer(
+                ctx->m_client, vertexBufferSize,
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                nv_helpers_dx12::kUploadHeapProps);
+                D3D12_HEAP_TYPE_UPLOAD);
 
             Vertex* pData;
-            TRY_DO(ctx->m_uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+            TRY_DO(ctx->m_uploadBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
             memcpy(pData, vertices, vertexBufferSize);
-            ctx->m_uploadBuffer->Unmap(0, nullptr);
+            ctx->m_uploadBuffer.resource->Unmap(0, nullptr);
 
-            ctx->m_vertexBuffer = nv_helpers_dx12::CreateBuffer(
-                ctx->m_device.Get(), vertexBufferSize,
+            ctx->m_vertexBuffer = util::AllocateBuffer(
+                ctx->m_client, vertexBufferSize,
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
-                nv_helpers_dx12::kDefaultHeapProps);
+                D3D12_HEAP_TYPE_DEFAULT);
+
+            NAME_D3D12_OBJECT(/* Draw2D */ ctx->m_vertexBuffer);
 
             auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(),
                                                                    D3D12_RESOURCE_STATE_COMMON,
@@ -101,7 +104,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
             D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-            vertexBufferView.BufferLocation = ctx->m_vertexBuffer->GetGPUVirtualAddress();
+            vertexBufferView.BufferLocation = ctx->m_vertexBuffer.resource->GetGPUVirtualAddress();
             vertexBufferView.StrideInBytes = sizeof(Vertex);
             vertexBufferView.SizeInBytes = vertexBufferSize;
 

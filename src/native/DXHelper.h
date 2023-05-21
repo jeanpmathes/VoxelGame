@@ -10,8 +10,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include "comdef.h"
-
 using Microsoft::WRL::ComPtr;
 
 inline std::string HResultToString(const HRESULT hr)
@@ -47,7 +45,7 @@ public:
     }
 };
 
-#define SAFE_RELEASE(p) if (p) (p)->Release()
+#define SAFE_RELEASE(ptr)   do { if(ptr) { (ptr)->Release(); (ptr) = NULL; } } while(false)
 
 #ifdef _DEBUG
 constexpr bool IsDebugBuild = true;
@@ -110,16 +108,19 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string message)
 #if defined(_DEBUG) || defined(DBG)
 inline void SetName(ID3D12Object* pObject, const LPCWSTR name)
 {
-    pObject->SetName(name);
+    TRY_DO(pObject->SetName(name));
 }
 
 inline void SetNameIndexed(ID3D12Object* pObject, const LPCWSTR name, const UINT index)
 {
-    WCHAR fullName[50];
-    if (swprintf_s(fullName, L"%s[%u]", name, index) > 0)
-    {
-        pObject->SetName(fullName);
-    }
+    std::wstringstream ss;
+
+    ss << name;
+    ss << "[";
+    ss << std::to_wstring(index);
+    ss << "]";
+
+    TRY_DO(pObject->SetName(ss.str().c_str()));
 }
 #else
 inline void SetName(ID3D12Object*, LPCWSTR)
@@ -145,36 +146,6 @@ inline UINT CalculateConstantBufferByteSize(UINT byteSize)
     return (byteSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(
         D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
 }
-
-#ifdef D3D_COMPILE_STANDARD_FILE_INCLUDE
-inline ComPtr<ID3DBlob> CompileShader(
-    const std::wstring& filename,
-    const D3D_SHADER_MACRO* defines,
-    const std::string& entrypoint,
-    const std::string& target)
-{
-    UINT compileFlags;
-#if defined(_DEBUG) || defined(DBG)
-    compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-    compileFlags = 0;
-#endif
-
-    ComPtr<ID3DBlob> byteCode = nullptr;
-    ComPtr<ID3DBlob> errors;
-
-    const HRESULT hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                          entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errors);
-
-    if (errors != nullptr)
-    {
-        OutputDebugStringA(static_cast<char*>(errors->GetBufferPointer()));
-    }
-    TRY_DO(hr);
-
-    return byteCode;
-}
-#endif
 
 // Resets all elements in a ComPtr array.
 template <class T>

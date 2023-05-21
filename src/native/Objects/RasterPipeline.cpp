@@ -271,7 +271,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
 
     REQUIRE(parameterCount > 0);
 
-    ComPtr<ID3D12DescriptorHeap> descriptorHeap = nv_helpers_dx12::CreateDescriptorHeap(
+    ComPtr<ID3D12DescriptorHeap> rasterPipelineDescriptorHeap = CreateDescriptorHeap(
         client.GetDevice().Get(), parameterCount,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
 
@@ -280,12 +280,14 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     if (description.bufferSize > 0)
     {
         shaderBuffer = std::make_unique<ShaderBuffer>(client, description.bufferSize);
-        shaderBuffer->CreateResourceView(descriptorHeap);
+        shaderBuffer->CreateResourceView(rasterPipelineDescriptorHeap);
     }
+
+    NAME_D3D12_OBJECT(rasterPipelineDescriptorHeap);
 
     return std::make_unique<RasterPipeline>(
         client, description.shaderPreset, std::move(shaderBuffer),
-        descriptorHeap, rootSignature, pipelineState);
+        rasterPipelineDescriptorHeap, rootSignature, pipelineState);
 }
 
 RasterPipeline::RasterPipeline(NativeClient& client, ShaderPreset preset, std::unique_ptr<ShaderBuffer> buffer,
@@ -319,26 +321,28 @@ ShaderBuffer* RasterPipeline::GetShaderBuffer() const
     return m_shaderBuffer.get();
 }
 
-void RasterPipeline::CreateResourceView(ComPtr<ID3D12Resource> resource) const
+void RasterPipeline::CreateResourceView(Allocation<ID3D12Resource> resource) const
 {
     REQUIRE(m_preset == ShaderPreset::POST_PROCESSING);
 
-    GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), nullptr, GetCpuResourceHandle(0));
+    GetClient().GetDevice()->CreateShaderResourceView(resource.resource.Get(), nullptr, GetCpuResourceHandle(0));
 }
 
 void RasterPipeline::CreateResourceViews(
     const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-    const std::vector<std::tuple<ComPtr<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures)
+    const std::vector<std::tuple<Allocation<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures)
 {
     REQUIRE(m_preset == ShaderPreset::DRAW_2D);
 
     const UINT lastIndex = static_cast<UINT>(cbuffers.size() + textures.size()) - 1;
     const UINT requiredSlots = GetResourceSlot(lastIndex) + 1;
 
-    m_descriptorHeap = nv_helpers_dx12::CreateDescriptorHeap(
+    m_descriptorHeap = CreateDescriptorHeap(
         GetClient().GetDevice().Get(), requiredSlots,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
-    NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
+
+    const auto rasterPipelineDescriptorHeap = m_descriptorHeap; // For better naming.
+    NAME_D3D12_OBJECT_WITH_ID(rasterPipelineDescriptorHeap);
 
     if (m_shaderBuffer != nullptr)
     {

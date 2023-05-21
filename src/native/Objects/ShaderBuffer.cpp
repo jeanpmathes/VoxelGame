@@ -3,15 +3,10 @@
 ShaderBuffer::ShaderBuffer(NativeClient& client, const uint64_t size)
     : Object(client), m_size(size)
 {
-    uint64_t alignedSize = size;
+    m_constantBuffer = util::AllocateConstantBuffer(GetClient(), &m_size);
 
-    m_constantBuffer = nv_helpers_dx12::CreateConstantBuffer(
-        client.GetDevice().Get(), &alignedSize,
-        D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-        nv_helpers_dx12::kUploadHeapProps);
-
-    m_cbvDesc.BufferLocation = m_constantBuffer->GetGPUVirtualAddress();
-    m_cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
+    m_cbvDesc.BufferLocation = m_constantBuffer.resource->GetGPUVirtualAddress();
+    m_cbvDesc.SizeInBytes = static_cast<UINT>(m_size);
 }
 
 void ShaderBuffer::CreateResourceView(const ComPtr<ID3D12DescriptorHeap> heap) const
@@ -22,14 +17,14 @@ void ShaderBuffer::CreateResourceView(const ComPtr<ID3D12DescriptorHeap> heap) c
 void ShaderBuffer::SetData(const void* data) const
 {
     uint8_t* pData;
-    TRY_DO(m_constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
+    TRY_DO(m_constantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
 
     memcpy(pData, data, m_size);
 
-    m_constantBuffer->Unmap(0, nullptr);
+    m_constantBuffer.resource->Unmap(0, nullptr);
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const
 {
-    return m_constantBuffer->GetGPUVirtualAddress();
+    return m_constantBuffer.resource->GetGPUVirtualAddress();
 }

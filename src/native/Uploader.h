@@ -24,12 +24,12 @@ public:
      * Upload a texture to the GPU.
      */
     void UploadTexture(std::byte** data, UINT subresources,
-                       const TextureDescription& description, ComPtr<ID3D12Resource> destination);
+                       const TextureDescription& description, Allocation<ID3D12Resource> destination);
 
     /**
      * Upload a buffer to the GPU.
      */
-    void UploadBuffer(const std::byte* data, UINT size, ComPtr<ID3D12Resource> destination);
+    void UploadBuffer(const std::byte* data, UINT size, Allocation<ID3D12Resource> destination);
 
     /**
      * Execute the uploads.
@@ -50,7 +50,7 @@ private:
     ComPtr<ID3D12CommandAllocator> m_commandAllocator = {};
     ComPtr<ID3D12GraphicsCommandList> m_commandList = {};
 
-    std::vector<ComPtr<ID3D12Resource>> m_uploadBuffers = {};
+    std::vector<Allocation<ID3D12Resource>> m_uploadBuffers = {};
 
     bool m_ownsCommandList;
 };
