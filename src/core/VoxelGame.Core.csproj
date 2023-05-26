@@ -1,28 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+      <Version>1.3.0.0</Version>
     <DebugType>full</DebugType>
     <OutputType>Library</OutputType>
-      <IsWebBootstrapper>false</IsWebBootstrapper>
-      <PublishUrl>publish\</PublishUrl>
-      <Install>true</Install>
-      <InstallFrom>Disk</InstallFrom>
-      <UpdateEnabled>false</UpdateEnabled>
-      <UpdateMode>Foreground</UpdateMode>
-      <UpdateInterval>7</UpdateInterval>
-      <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-      <UpdatePeriodically>false</UpdatePeriodically>
-      <UpdateRequired>false</UpdateRequired>
-      <MapFileExtensions>true</MapFileExtensions>
-      <ApplicationRevision>0</ApplicationRevision>
-      <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
-      <UseApplicationTrust>false</UseApplicationTrust>
-      <BootstrapperEnabled>true</BootstrapperEnabled>
       <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
       <Platforms>x64</Platforms>
       <Configurations>Debug;Release</Configurations>
       <PackageId>VoxelGame.Core</PackageId>
-      <PackageVersion>1.3.0</PackageVersion>
   </PropertyGroup>
 
     <PropertyGroup>
@@ -43,15 +28,12 @@
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <Version>1.2.0</Version>
         <NeutralLanguage>en</NeutralLanguage>
-        <AssemblyVersion>1.3.0.0</AssemblyVersion>
-        <FileVersion>1.3.0.0</FileVersion>
         <Authors>jeanpmathes</Authors>
         <Company>jeanpmathes</Company>
-        <PackageLicenseExpression>MIT LICENSE</PackageLicenseExpression>
+        <PackageLicenseExpression>MIT License</PackageLicenseExpression>
         <SignAssembly>false</SignAssembly>
         <DelaySign>false</DelaySign>
         <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-        <StartupObject></StartupObject>
         <LangVersion>10</LangVersion>
     </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

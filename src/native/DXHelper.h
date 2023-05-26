@@ -47,10 +47,10 @@ public:
 
 #define SAFE_RELEASE(ptr)   do { if(ptr) { (ptr)->Release(); (ptr) = NULL; } } while(false)
 
-#ifdef _DEBUG
-constexpr bool IsDebugBuild = true;
+#if defined(_DEBUG)
+constexpr bool IS_DEBUG_BUILD = true;
 #else
-constexpr bool IsDebugBuild = false;
+constexpr bool IS_DEBUG_BUILD = false;
 #endif
 
 #define REQUIRE(expression) \
@@ -58,7 +58,7 @@ constexpr bool IsDebugBuild = false;
         if (!(expression)) \
         { \
             std::string message; \
-            if (IsDebugBuild) \
+            if (IS_DEBUG_BUILD) \
                 message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
             else \
                 message = "failed requirement '" #expression "'"; \
@@ -70,7 +70,7 @@ constexpr bool IsDebugBuild = false;
     do { \
         auto result = (expression); \
         std::string errorMessage; \
-        if (IsDebugBuild) \
+        if (IS_DEBUG_BUILD) \
             errorMessage = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
             errorMessage = "throwing from " #expression; \
@@ -80,7 +80,7 @@ constexpr bool IsDebugBuild = false;
 #define CHECK_RETURN(value) \
     do { \
         std::string errorMessage; \
-        if (IsDebugBuild) \
+        if (IS_DEBUG_BUILD) \
             errorMessage = "error with " #value " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
             errorMessage = "error with " #value; \
@@ -105,7 +105,7 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string message)
 }
 
 // Assign a name to the object to aid with debugging.
-#if defined(_DEBUG) || defined(DBG)
+#if defined(_DEBUG)
 inline void SetName(ID3D12Object* pObject, const LPCWSTR name)
 {
     TRY_DO(pObject->SetName(name));

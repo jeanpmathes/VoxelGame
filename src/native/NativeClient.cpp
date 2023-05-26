@@ -435,7 +435,7 @@ void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
     }
 }
 
-void NativeClient::SetResolution(UINT width, UINT height)
+void NativeClient::SetResolution(const UINT width, const UINT height)
 {
     m_resolution.width = width;
     m_resolution.height = height;

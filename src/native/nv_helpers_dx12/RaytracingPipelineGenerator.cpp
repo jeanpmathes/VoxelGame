@@ -264,7 +264,7 @@ namespace nv_helpers_dx12
                                                serializedRootSignature->GetBufferSize(),
                                                IID_PPV_ARGS(&m_dummyGlobalRootSignature));
 
-#if defined(_DEBUG) || defined(DBG)
+#if defined(_DEBUG)
             m_dummyGlobalRootSignature->SetName(L"Global Root Signature");
 #endif
 
@@ -290,7 +290,7 @@ namespace nv_helpers_dx12
                                                serializedRootSignature->GetBufferSize(),
                                                IID_PPV_ARGS(&m_dummyLocalRootSignature));
 
-#if defined(_DEBUG) || defined(DBG)
+#if defined(_DEBUG)
             m_dummyLocalRootSignature->SetName(L"Local Root Signature");
 #endif
 
@@ -314,7 +314,7 @@ namespace nv_helpers_dx12
         {
             for (const auto& exportName : lib.m_exportedSymbols)
             {
-#ifdef _DEBUG
+#if defined(_DEBUG)
                 // Sanity check in debug mode: check that no name is exported more than once
                 if (exports.contains(exportName))
                 {
@@ -325,7 +325,7 @@ namespace nv_helpers_dx12
             }
         }
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
         // Sanity check in debug mode: verify that the hit groups do not reference an unknown shader name
         std::unordered_set<std::wstring> all_exports = exports;
 

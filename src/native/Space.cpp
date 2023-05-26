@@ -277,11 +277,6 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         }
 
         pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
-
-#if defined(_DEBUG) || defined(DBG)
-
-
-#endif
     }
     
     m_rayGenSignature = CreateRayGenSignature();
@@ -311,7 +306,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         std::tie(m->shadowHitGroup, m->shadowRootSignature)
             = addHitGroup(pipelineDescription.materials[material].shadowHitSymbol);
 
-#if defined(_DEBUG) || defined(DBG)
+#if defined(_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
         m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str());
         m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str());

@@ -52,7 +52,8 @@ public sealed class Screen : IDisposable
 
         #region MULTISAMPLED FBO
 
-        // todo: port multisampling
+        // todo: port multisampling or maybe just remove it for now (covered by resolution scaling)
+        // todo: add future note on using a smart sampling pattern which would make a sampling setting interesting again
         int maxSamples = Context.MaxTextureSamples;
         samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
 
