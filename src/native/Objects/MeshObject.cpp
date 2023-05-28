@@ -100,6 +100,7 @@ bool MeshObject::IsMeshModified() const
 
 bool MeshObject::IsEnabled() const
 {
+    return false;
     return m_enabled && m_vertexCount > 0 && m_indexCount > 0;
 }
 

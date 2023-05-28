@@ -28,7 +28,7 @@ NATIVE void NativeFinalize(const NativeClient* client)
     {
         delete client;
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
         IDXGIDebug1* pDebug = nullptr;
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
         {

@@ -35,7 +35,7 @@ void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12Pipe
         pipelineStatePtr = pipelineState.Get();
     }
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
     const std::wstring commandAllocatorName = GetObjectName(commandAllocators[frameIndex]);
     const std::wstring commandListName = GetObjectName(commandList);
 #endif
@@ -43,7 +43,7 @@ void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12Pipe
     TRY_DO(commandAllocators[frameIndex]->Reset());
     TRY_DO(commandList->Reset(commandAllocators[frameIndex].Get(), pipelineStatePtr));
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
     TRY_DO(commandAllocators[frameIndex]->SetName(commandAllocatorName.c_str()));
     TRY_DO(commandList->SetName(commandListName.c_str()));
 #endif

@@ -8,7 +8,7 @@ static ComPtr<ID3DBlob> CompileShader(
     ComPtr<ID3DBlob> shaderBlob;
     ComPtr<ID3DBlob> errorBlob;
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
     UINT compileFlags = 0;

@@ -84,7 +84,7 @@ namespace util
         return AllocateBuffer(client, *size,
                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     }
-
+    
     inline std::wstring FormatDRED(
         const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& breadcrumbs,
         const D3D12_DRED_PAGE_FAULT_OUTPUT2& pageFaults,
@@ -108,6 +108,8 @@ namespace util
         default: message << L"Invalid";
             break;
         }
+
+        message << std::endl;
 
         message << L"1. Auto Breadcrumbs:" << std::endl;
 
@@ -215,48 +217,66 @@ namespace util
             auto node = breadcrumbs.pHeadAutoBreadcrumbNode;
             while (node != nullptr)
             {
-                message << L"\t|";
-                message << L" CommandList: " << str(node->pCommandListDebugNameW);
-                message << L" CommandQueue: " << str(node->pCommandQueueDebugNameW);
-                message << L" Operations: ";
-
-                message << std::endl;
-
-                std::map<UINT, std::vector<const wchar_t*>> contexts;
-
-                for (UINT context = 0; context < node->BreadcrumbContextsCount; context++)
-                {
-                    const auto& [index, string] = node->pBreadcrumbContexts[context];
-                    contexts[index].push_back(string);
-                }
-
                 const UINT lastOperation = node->pLastBreadcrumbValue != nullptr
                                                ? *node->pLastBreadcrumbValue
                                                : node->BreadcrumbCount;
 
-                for (UINT operation = 0; operation < node->BreadcrumbCount; operation++)
+                message << L"\t|";
+                message << L" CommandList: " << str(node->pCommandListDebugNameW);
+                message << L" CommandQueue: " << str(node->pCommandQueueDebugNameW);
+
+                const bool complete = lastOperation == node->BreadcrumbCount;
+
+                if (complete)
                 {
-                    message << L"\t\t|";
-                    message << L" " << getOperationText(node->pCommandHistory[operation]);
+                    message << L" COMPLETE";
+                }
+                else
+                {
+                    message << L" Operations: ";
+                    message << L"(";
+                    message << std::to_wstring(lastOperation);
+                    message << L"/";
+                    message << std::to_wstring(node->BreadcrumbCount);
+                    message << L")";
+                }
 
-                    if (operation == lastOperation) message << L" (last)";
+                message << std::endl;
 
-                    message << std::endl;
+                if (!complete)
+                {
+                    std::map<UINT, std::vector<const wchar_t*>> contexts;
 
-                    if (auto context = contexts.find(operation); context != contexts.end())
+                    for (UINT context = 0; context < node->BreadcrumbContextsCount; context++)
                     {
-                        std::vector<const wchar_t*> strings;
-                        std::tie(std::ignore, strings) = *context;
+                        const auto& [index, string] = node->pBreadcrumbContexts[context];
+                        contexts[index].push_back(string);
+                    }
 
-                        for (const auto& string : strings)
+                    for (UINT operation = 0; operation < node->BreadcrumbCount; operation++)
+                    {
+                        message << L"\t\t|";
+                        message << L" " << getOperationText(node->pCommandHistory[operation]);
+
+                        if (operation == lastOperation) message << L" (last)";
+
+                        message << std::endl;
+
+                        if (auto context = contexts.find(operation); context != contexts.end())
                         {
-                            message << L"\t\t\t|";
-                            message << L" " << string;
-                            message << std::endl;
+                            std::vector<const wchar_t*> strings;
+                            std::tie(std::ignore, strings) = *context;
+
+                            for (const auto& string : strings)
+                            {
+                                message << L"\t\t\t|";
+                                message << L" " << string;
+                                message << std::endl;
+                            }
                         }
                     }
                 }
-
+                
                 node = node->pNext;
             }
         }

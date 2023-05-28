@@ -47,7 +47,7 @@ public:
 
 #define SAFE_RELEASE(ptr)   do { if(ptr) { (ptr)->Release(); (ptr) = NULL; } } while(false)
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
 constexpr bool IS_DEBUG_BUILD = true;
 #else
 constexpr bool IS_DEBUG_BUILD = false;
@@ -105,7 +105,7 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string message)
 }
 
 // Assign a name to the object to aid with debugging.
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
 inline void SetName(ID3D12Object* pObject, const LPCWSTR name)
 {
     TRY_DO(pObject->SetName(name));

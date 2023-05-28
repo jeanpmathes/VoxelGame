@@ -91,7 +91,7 @@
 
 #include "Interfaces/Draw2D.h"
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
 #include <Initguid.h>
 #include <dxgidebug.h>
 #endif

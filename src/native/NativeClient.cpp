@@ -90,13 +90,14 @@ void NativeClient::LoadDevice()
 {
     UINT dxgiFactoryFlags = 0;
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
     {
         ComPtr<ID3D12Debug5> debugController;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
         {
             debugController->EnableDebugLayer();
             debugController->SetEnableAutoName(TRUE);
+            debugController->SetEnableGPUBasedValidation(TRUE);
             
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
@@ -124,7 +125,7 @@ void NativeClient::LoadDevice()
     ));
     NAME_D3D12_OBJECT(m_device);
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
     auto callback = [](D3D12_MESSAGE_CATEGORY category, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id,
                        LPCSTR description, void* context)
     {

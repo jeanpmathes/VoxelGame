@@ -306,7 +306,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         std::tie(m->shadowHitGroup, m->shadowRootSignature)
             = addHitGroup(pipelineDescription.materials[material].shadowHitSymbol);
 
-#if defined(_DEBUG)
+#if defined(VG_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
         m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str());
         m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str());
