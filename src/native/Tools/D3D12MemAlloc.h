@@ -317,7 +317,7 @@ struct ALLOCATION_DESC
       Except when you validate that D3D12MA::Allocator::GetD3D12Options()`.ResourceHeapTier == D3D12_RESOURCE_HEAP_TIER_1` -
       then you can leave it 0.
     - You can specify additional flags if needed. Then the memory will always be allocated as
-      separate block using `D3D12Device::CreateCommittedResource` or `CreateHeap`, not as part of an existing larget block.
+      separate block using `D3D12Device::CreateCommittedResource` or `CreateHeap`, not as part of an existing large block.
 
     When D3D12MA::ALLOCATION_DESC::CustomPool != NULL this member is ignored.
     */

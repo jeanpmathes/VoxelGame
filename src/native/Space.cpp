@@ -139,7 +139,7 @@ void Space::DispatchRays() const
     m_commandGroup.commandList->DispatchRays(&desc);
 }
 
-void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
+void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
 {
     D3D12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(

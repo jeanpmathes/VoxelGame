@@ -321,11 +321,11 @@ ShaderBuffer* RasterPipeline::GetShaderBuffer() const
     return m_shaderBuffer.get();
 }
 
-void RasterPipeline::CreateResourceView(Allocation<ID3D12Resource> resource) const
+void RasterPipeline::CreateResourceView(ComPtr<ID3D12Resource> resource) const
 {
     REQUIRE(m_preset == ShaderPreset::POST_PROCESSING);
 
-    GetClient().GetDevice()->CreateShaderResourceView(resource.resource.Get(), nullptr, GetCpuResourceHandle(0));
+    GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), nullptr, GetCpuResourceHandle(0));
 }
 
 void RasterPipeline::CreateResourceViews(

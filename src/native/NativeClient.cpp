@@ -307,6 +307,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
 
     {
         const D3D12_RESOURCE_DESC swapChainDesc = m_renderTargets[m_frameIndex]->GetDesc();
+        const CD3DX12_CLEAR_VALUE clearValue(swapChainDesc.Format, CLEAR_COLOR);
         const CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             swapChainDesc.Format,
             m_resolution.width,
@@ -321,11 +322,16 @@ void NativeClient::SetupSpaceResolutionDependentResources()
                                                                        FRAME_COUNT,
                                                                        m_rtvDescriptorSize);
 
-        m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
-            *this,
-            renderTargetDesc,
-            D3D12_HEAP_TYPE_DEFAULT,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
+        const auto intermediateRenderTargetHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+        TRY_DO(m_device->CreateCommittedResource(
+            &intermediateRenderTargetHeapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &renderTargetDesc,
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            &clearValue,
+            IID_PPV_ARGS(&m_intermediateRenderTarget)));
+        
         NAME_D3D12_OBJECT(m_intermediateRenderTarget);
 
         m_device->CreateRenderTargetView(

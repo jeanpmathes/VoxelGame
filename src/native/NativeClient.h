@@ -135,7 +135,7 @@ public:
     CommandAllocatorGroup m_2dGroup;
 
     ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
-    Allocation<ID3D12Resource> m_intermediateRenderTarget;
+    ComPtr<ID3D12Resource> m_intermediateRenderTarget;
     CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
     ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
  

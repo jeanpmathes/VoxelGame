@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include <wrl.h>
+
 using Microsoft::WRL::ComPtr;
 
 inline std::string HResultToString(const HRESULT hr)
@@ -44,8 +46,6 @@ public:
     {
     }
 };
-
-#define SAFE_RELEASE(ptr)   do { if(ptr) { (ptr)->Release(); (ptr) = NULL; } } while(false)
 
 #if defined(VG_DEBUG)
 constexpr bool IS_DEBUG_BUILD = true;

@@ -68,7 +68,7 @@ public:
     /**
      * Create a resource view for a single primary resource, apart from the potential shader buffer.
      */
-    void CreateResourceView(Allocation<ID3D12Resource> resource) const;
+    void CreateResourceView(ComPtr<ID3D12Resource> resource) const;
 
     /**
      * Create resource views for a set of constant buffers, followed by a set of textures.

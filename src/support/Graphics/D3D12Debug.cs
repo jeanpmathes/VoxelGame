@@ -16,6 +16,7 @@ namespace VoxelGame.Support.Graphics;
 /// </summary>
 internal class D3D12Debug
 {
+    private const string DebugCategory = "DirectX Debug";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<D3D12Debug>();
 
     private static D3D12Debug? instance;
@@ -62,12 +63,14 @@ internal class D3D12Debug
             idResolved,
             message);
 
+        Debugger.Log((int) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
+
         if (id
             is Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT
             or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT
             or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
         {
-            Debugger.Log((int) LogLevel.Critical, "DirectX Debug", $"Extended Data: {Marshal.PtrToStringUni(context)}");
+            Debugger.Log((int) LogLevel.Critical, DebugCategory, $"Extended Data: {Marshal.PtrToStringUni(context)}");
             Debugger.Break();
         }
         else if (level >= LogLevel.Error)

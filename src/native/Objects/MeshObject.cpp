@@ -100,7 +100,6 @@ bool MeshObject::IsMeshModified() const
 
 bool MeshObject::IsEnabled() const
 {
-    return false;
     return m_enabled && m_vertexCount > 0 && m_indexCount > 0;
 }
 
@@ -238,24 +237,26 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     {
         auto& [buffer, count] = vertexBuffers[i];
 
+        const bool isOpaque = false;
+
         if (auto [indexBuffer, indexCount] = i < indexBuffers.size()
                                                  ? indexBuffers[i]
                                                  : std::make_pair(Allocation<ID3D12Resource>(), uint32_t());
             indexCount > 0)
         {
             bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex),
-                                          indexBuffer.Get(), 0, indexCount, nullptr, 0, false);
+                                          indexBuffer.Get(), 0, indexCount, nullptr, 0, isOpaque);
         }
         else
         {
-            bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex), nullptr, 0, false);
+            bottomLevelAS.AddVertexBuffer(buffer.Get(), 0, count, sizeof(SpatialVertex), nullptr, 0, isOpaque);
         }
     }
 
     UINT64 scratchSizeInBytes = 0;
     UINT64 resultSizeInBytes = 0;
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
-
+    
     AccelerationStructureBuffers buffers;
     buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,

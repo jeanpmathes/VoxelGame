@@ -31,10 +31,13 @@ namespace util
         const NativeClient& client,
         const D3D12_RESOURCE_DESC& resourceDesc,
         const D3D12_HEAP_TYPE heapType,
-        const D3D12_RESOURCE_STATES initState)
+        const D3D12_RESOURCE_STATES initState,
+        const bool committed = false)
     {
         D3D12MA::ALLOCATION_DESC allocationDesc = {};
         allocationDesc.HeapType = heapType;
+
+        if (committed) allocationDesc.Flags |= D3D12MA::ALLOCATION_FLAG_COMMITTED;
 
         ComPtr<T> resource;
         ComPtr<D3D12MA::Allocation> allocation;
@@ -60,7 +63,8 @@ namespace util
         const UINT64 size,
         const D3D12_RESOURCE_FLAGS flags,
         const D3D12_RESOURCE_STATES initState,
-        const D3D12_HEAP_TYPE heapType)
+        const D3D12_HEAP_TYPE heapType,
+        const bool committed = false)
     {
         D3D12_RESOURCE_DESC bufferDescription;
         bufferDescription.Alignment = 0;
@@ -75,7 +79,7 @@ namespace util
         bufferDescription.SampleDesc.Quality = 0;
         bufferDescription.Width = size;
 
-        return AllocateResource<ID3D12Resource>(client, bufferDescription, heapType, initState);
+        return AllocateResource<ID3D12Resource>(client, bufferDescription, heapType, initState, committed);
     }
 
     inline Allocation<ID3D12Resource> AllocateConstantBuffer(const NativeClient& client, UINT64* size)

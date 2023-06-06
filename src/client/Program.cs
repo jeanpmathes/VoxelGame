@@ -95,7 +95,7 @@ internal static class Program
         {
             Title = Language.VoxelGame + " " + Version,
             Size = Settings.Default.ScreenSize.ToVector2i()
-        }.Corrected;
+        }.Corrected; // todo: icon
 
         logger.LogDebug("Opening window");
 
