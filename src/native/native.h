@@ -48,17 +48,6 @@ struct Configuration
     BOOL allowTearing;
 };
 
-struct CameraData
-{
-    DirectX::XMFLOAT3 position;
-};
-
-struct SpatialObjectData
-{
-    DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT4 rotation;
-};
-
 #define TRY try
 #define CATCH() \
     catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } \

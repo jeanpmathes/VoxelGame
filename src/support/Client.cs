@@ -137,6 +137,11 @@ public class Client : IDisposable
     public Vector2i Size { get; private set; }
 
     /// <summary>
+    ///     Get the current aspect ratio <c>x/y</c>.
+    /// </summary>
+    public double AspectRatio => Size.X / (double) Size.Y;
+
+    /// <summary>
     ///     Get whether the window is focused.
     /// </summary>
     public bool IsFocused { get; private set; }

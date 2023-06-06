@@ -256,11 +256,11 @@ public sealed class Shaders // todo: delete all GLSL shaders
     {
         if (!loaded) return;
 
-        return; // todo: remove the return, and maybe the code below (as projection matrix could be known in c++ code)
+        return; // todo: remove the return, and maybe the code below (as projection matrix could be known in c++ code or are just not necessary for these steps anymore)
 
         Overlay.SetMatrix4(
             "projection",
-            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Screen.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
+            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Application.Client.Instance.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
 
         ScreenElement.SetMatrix4(
             "projection",

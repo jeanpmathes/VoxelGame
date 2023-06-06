@@ -80,12 +80,10 @@ public sealed class GameScene : IScene
         consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
         escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
 
-        Camera camera = new(new Vector3d());
-
         Player player = new(
             world,
             mass: 70f,
-            camera,
+            client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
             ui,
             client.Resources.PlayerResources);

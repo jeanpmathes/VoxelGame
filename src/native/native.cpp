@@ -154,11 +154,22 @@ NATIVE void NativeSetLightDirection(Light* light, const DirectX::XMFLOAT3 direct
     CATCH();
 }
 
-NATIVE void NativeUpdateCameraData(Camera* camera, const CameraData data)
+NATIVE void NativeUpdateBasicCameraData(Camera* camera, const BasicCameraData data)
 {
     TRY
     {
         camera->SetPosition(data.position);
+        camera->SetOrientation(data.front, data.up);
+    }
+    CATCH();
+}
+
+NATIVE void NativeUpdateAdvancedCameraData(Camera* camera, const AdvancedCameraData data)
+{
+    TRY
+    {
+        camera->SetFov(data.fov);
+        camera->SetPlanes(data.nearDistance, data.farDistance);
     }
     CATCH();
 }

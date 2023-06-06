@@ -10,6 +10,12 @@
 
 class NativeClient;
 
+struct SpatialObjectData
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT4 rotation;
+};
+
 /**
  * \brief The base class of all objects in the space that can be observed. This explicitly excludes the camera.
  */

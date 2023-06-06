@@ -255,16 +255,29 @@ public static class Native
     }
 
     /// <summary>
-    ///     Update the data of a camera.
+    ///     Update the basic data of a camera.
     /// </summary>
     /// <param name="camera">The camera.</param>
     /// <param name="data">The new data.</param>
-    public static void UpdateCameraData(Camera camera, CameraData data)
+    public static void UpdateBasicCameraData(Camera camera, BasicCameraData data)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeUpdateCameraData(IntPtr camera, CameraData data);
+        static extern void NativeUpdateBasicCameraData(IntPtr camera, BasicCameraData data);
 
-        NativeUpdateCameraData(camera.Self, data);
+        NativeUpdateBasicCameraData(camera.Self, data);
+    }
+
+    /// <summary>
+    ///     Update the advanced data of a camera.
+    /// </summary>
+    /// <param name="camera">The camera.</param>
+    /// <param name="data">The new data.</param>
+    public static void UpdateAdvancedCameraData(Camera camera, AdvancedCameraData data)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeUpdateAdvancedCameraData(IntPtr camera, AdvancedCameraData data);
+
+        NativeUpdateAdvancedCameraData(camera.Self, data);
     }
 
     /// <summary>

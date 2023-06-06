@@ -18,6 +18,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support;
+using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Logic;
 

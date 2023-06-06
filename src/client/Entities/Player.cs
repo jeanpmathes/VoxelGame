@@ -13,6 +13,8 @@ using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Support.Graphics;
+using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 

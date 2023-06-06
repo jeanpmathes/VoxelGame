@@ -237,7 +237,7 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     {
         auto& [buffer, count] = vertexBuffers[i];
 
-        const bool isOpaque = false;
+        constexpr bool isOpaque = false;
 
         if (auto [indexBuffer, indexCount] = i < indexBuffers.size()
                                                  ? indexBuffers[i]

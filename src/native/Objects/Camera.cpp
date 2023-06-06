@@ -28,12 +28,12 @@ void Camera::Initialize()
 void Camera::Update() const
 {
     const DirectX::XMVECTOR eye = DirectX::XMVectorSet(m_position.x, m_position.y, m_position.z, 0.0f);
-    const DirectX::XMVECTOR forward = DirectX::XMVectorSet(1.0f, -1.0f, 1.0f, 0.0f);
-    const DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    const DirectX::XMVECTOR forward = DirectX::XMVectorSet(m_front.x, m_front.y, m_front.z, 0.0f);
+    const DirectX::XMVECTOR up = DirectX::XMVectorSet(m_up.x, m_up.y, m_up.z, 0.0f);
 
     const auto view = DirectX::XMMatrixLookAtRH(eye, DirectX::XMVectorAdd(eye, forward), up);
-    constexpr float fovAngleY = 70.0f * DirectX::XM_PI / 180.0f;
-    const auto projection = DirectX::XMMatrixPerspectiveFovRH(fovAngleY, GetClient().GetAspectRatio(), 0.1f, 1000.0f);
+    const float fovAngleY = m_fov * DirectX::XM_PI / 180.0f;
+    const auto projection = DirectX::XMMatrixPerspectiveFovRH(fovAngleY, GetClient().GetAspectRatio(), m_near, m_far);
 
     DirectX::XMVECTOR det;
     const auto viewI = XMMatrixInverse(&det, view);
@@ -55,6 +55,27 @@ void Camera::SetPosition(const DirectX::XMFLOAT3& position)
 {
     m_position = position;
 }
+
+void Camera::SetOrientation(const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& up)
+{
+    m_front = front;
+    m_up = up;
+}
+
+void Camera::SetFov(const float fov)
+{
+    m_fov = fov;
+}
+
+void Camera::SetPlanes(const float nearDistance, const float farDistance)
+{
+    REQUIRE(nearDistance > 0.0f);
+    REQUIRE(farDistance > nearDistance);
+
+    m_near = nearDistance;
+    m_far = farDistance;
+}
+
 
 void Camera::SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) const
 {

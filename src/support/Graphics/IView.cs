@@ -7,10 +7,10 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Support.Graphics;
 
 /// <summary>
-///     Defines a view into the world, providing methods used to render the world.
+///     Defines a view into the world, providing data that describes that view and properties like the view matrix.
 /// </summary>
 public interface IView
 {
@@ -39,4 +39,3 @@ public interface IView
     /// </summary>
     public Matrix4d ProjectionMatrix { get; }
 }
-

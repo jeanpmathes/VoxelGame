@@ -173,17 +173,12 @@ public sealed class Screen : IDisposable
         // isWireframeActive = false;
     }
 
-    #region PUBLIC STATIC PROPERTIES
+    #region PUBLIC STATIC PROPERTIES // todo: try to remove these, move them to client and use instance methods / properties
 
     /// <summary>
     ///     Gets the window size. The value is equal to the value retrieved from the client.
     /// </summary>
     public static Vector2i Size => Instance.Client.Size;
-
-    /// <summary>
-    ///     Gets the aspect ratio <c>x/y</c>.
-    /// </summary>
-    public static double AspectRatio => Size.X / (double) Size.Y;
 
     /// <summary>
     ///     Gets whether the screen is in fullscreen.
