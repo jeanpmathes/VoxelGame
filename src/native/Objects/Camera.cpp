@@ -49,6 +49,8 @@ void Camera::Update() const
     TRY_DO(m_spaceCameraBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
     memcpy(pData, matrices.data(), m_spaceCameraBufferSize);
     m_spaceCameraBuffer.resource->Unmap(0, nullptr);
+
+    std::cout << "native aspect ratio: " << GetClient().GetAspectRatio() << std::endl;
 }
 
 void Camera::SetPosition(const DirectX::XMFLOAT3& position)

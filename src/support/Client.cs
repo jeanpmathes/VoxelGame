@@ -10,6 +10,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core;
+using VoxelGame.Core.Collections;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -35,7 +37,7 @@ public class Client : IDisposable
         VirtualKeys.ExtraButton2
     };
 
-    private readonly ISet<NativeObject> objects = new HashSet<NativeObject>();
+    private readonly GappedList<NativeObject?> objects = new(gapValue: null);
 
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
@@ -62,9 +64,8 @@ public class Client : IDisposable
 
                 OnUpdate(delta);
 
-                foreach (NativeObject nativeObject in objects) nativeObject.PrepareSynchronization();
-
-                foreach (NativeObject nativeObject in objects) nativeObject.Synchronize();
+                foreach (NativeObject? nativeObject in objects.AsSpan()) nativeObject?.PrepareSynchronization();
+                foreach (NativeObject? nativeObject in objects.AsSpan()) nativeObject?.Synchronize();
 
                 KeyState.Update();
             },
@@ -165,17 +166,20 @@ public class Client : IDisposable
     /// <summary>
     ///     Register a new native object.
     /// </summary>
-    internal void RegisterObject(NativeObject nativeObject)
+    internal int RegisterObject(NativeObject nativeObject)
     {
-        objects.Add(nativeObject);
+        ApplicationInformation.Instance.EnsureMainThread(objects);
+
+        return objects.Add(nativeObject);
     }
 
     /// <summary>
     ///     De-register a native object.
     /// </summary>
-    public void DeRegisterObject(NativeObject nativeObject)
+    public void DeRegisterObject(int index)
     {
-        objects.Remove(nativeObject);
+        ApplicationInformation.Instance.EnsureMainThread(objects);
+        objects.RemoveAt(index);
     }
 
     private static string FormatErrorMessage(int hr, string message)

@@ -12,6 +12,8 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public abstract class NativeObject
 {
+    private readonly int index;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="NativeObject" /> class.
     /// </summary>
@@ -22,7 +24,7 @@ public abstract class NativeObject
         Self = nativePointer;
         Client = client;
 
-        client.RegisterObject(this);
+        index = client.RegisterObject(this);
     }
 
     /// <summary>
@@ -40,7 +42,7 @@ public abstract class NativeObject
     /// </summary>
     protected void Deregister()
     {
-        Client.DeRegisterObject(this);
+        Client.DeRegisterObject(index);
     }
 
     /// <summary>

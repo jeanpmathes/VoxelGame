@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using VoxelGame.Core.Collections;
@@ -24,7 +25,6 @@ public class TextureList
     private readonly Dictionary<string, int> availableTextures = new();
 
     private readonly Client client;
-    private readonly PriorityQueue<int, int> freeIndices = new();
 
     /// <summary>
     ///     Contains the indices of textures that were added since the last upload.
@@ -32,9 +32,8 @@ public class TextureList
     /// </summary>
     private readonly SortedSet<int> newTextures = new();
 
-    private readonly Texture sentinel;
+    private readonly GappedList<Texture> textures;
 
-    private readonly PooledList<Texture> textures = new();
     private readonly PooledList<int> usage = new();
 
     private SortedSet<int> previousNewTextures = new();
@@ -49,7 +48,9 @@ public class TextureList
 
         // The Draw2D pipeline requires at least one texture.
         using Bitmap image = Texture.CreateFallback(resolution: 1);
-        sentinel = client.LoadTexture(image);
+        Texture sentinel = client.LoadTexture(image);
+
+        textures = new GappedList<Texture>(sentinel);
         AddEntry(sentinel, allowDiscard: false);
     }
 
@@ -148,10 +149,9 @@ public class TextureList
         if (newTextures.Contains(handle.Index)) return;
 
         textures[handle.Index].Free();
-        textures[handle.Index] = sentinel;
         usage[handle.Index] = NeverDiscard;
 
-        freeIndices.Enqueue(handle.Index, handle.Index);
+        textures.RemoveAt(handle.Index);
 
         IsDirty = true;
     }
@@ -159,16 +159,28 @@ public class TextureList
     private Handle AddEntry(Texture texture, bool allowDiscard)
     {
         int usageCount = allowDiscard ? 0 : NeverDiscard;
-        Handle handle = GetNextFreeHandle();
+        Handle handle = new(textures.Add(texture));
 
-        textures[handle.Index] = texture;
-        usage[handle.Index] = usageCount;
+        SafelySetUsage(handle, usageCount);
         IncreaseUsageCount(handle);
 
         IsDirty = true;
         newTextures.Add(handle.Index);
 
         return handle;
+    }
+
+    private void SafelySetUsage(Handle handle, int usageCount)
+    {
+        if (usage.Count > handle.Index)
+        {
+            usage[handle.Index] = usageCount;
+        }
+        else
+        {
+            Debug.Assert(usage.Count == handle.Index);
+            usage.Add(usageCount);
+        }
     }
 
     private void IncreaseUsageCount(Handle handle)
@@ -200,17 +212,6 @@ public class TextureList
     public Texture? GetEntry(Handle handle)
     {
         return handle.IsValid ? textures[handle.Index] : null;
-    }
-
-    private Handle GetNextFreeHandle()
-    {
-        if (freeIndices.TryDequeue(out int index, out _)) return new Handle(index);
-
-        index = textures.Count;
-        textures.Add(sentinel);
-        usage.Add(item: 0);
-
-        return new Handle(index);
     }
 
     /// <summary>
