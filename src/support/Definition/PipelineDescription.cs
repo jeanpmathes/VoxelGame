@@ -34,7 +34,7 @@ public struct PipelineDescription
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
     /// </summary>
-    public ulong BufferSize;
+    public uint BufferSize;
 
     /// <summary>
     ///     Creates a new pipeline description.

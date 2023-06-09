@@ -498,9 +498,9 @@ public abstract class ChunkState
     public record struct RequestDescription
     {
         /// <summary>
-        ///     Whether to keep the current request even if the same state type is already requested.
+        ///     Whether to keep the current request even if the same state type of state is already requested.
         /// </summary>
-        public bool AllowDuplicateTypes { get; init; }
+        public bool AllowDuplicateStateByType { get; init; }
 
         /// <summary>
         ///     Whether to skip this request when deactivating the chunk.
@@ -510,7 +510,7 @@ public abstract class ChunkState
         /// <summary>
         ///     Whether to allow to discard this request if the next required state is the same as this request.
         /// </summary>
-        public bool AllowDiscardOnLoop { get; init; }
+        public bool AllowDiscardOnRepeat { get; init; }
     }
 
     /// <summary>
@@ -529,15 +529,15 @@ public abstract class ChunkState
         /// <param name="description">The description of the request.</param>
         public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
         {
-            if (description.AllowDiscardOnLoop)
+            if (description.AllowDiscardOnRepeat)
             {
-                bool nextIsLoop = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
-                bool currentIsLoop = !current.isEntered && IsSameState(current, state);
+                bool nextIsRepetition = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
+                bool currentIsRepetition = !current.isEntered && IsSameState(current, state);
 
-                if (nextIsLoop || currentIsLoop) return;
+                if (nextIsRepetition || currentIsRepetition) return;
             }
 
-            if (!description.AllowDuplicateTypes)
+            if (!description.AllowDuplicateStateByType)
             {
                 bool isDuplicate = requests.Any(request => IsSameState(request.state, state));
 
@@ -582,4 +582,3 @@ public abstract class ChunkState
         }
     }
 }
-

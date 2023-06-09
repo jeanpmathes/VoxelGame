@@ -152,14 +152,9 @@ public partial class Chunk : IDisposable
     public ChunkPosition Position { get; }
 
     /// <summary>
-    ///     Gets the position of the chunk as a point located in the center of the chunk.
-    /// </summary>
-    public Vector3d ChunkPoint => Position.Center;
-
-    /// <summary>
     ///     The extents of a chunk.
     /// </summary>
-    public static Vector3d ChunkExtents => new(BlockSize / 2f, BlockSize / 2f, BlockSize / 2f);
+    public static Vector3d Extents => new(BlockSize / 2f, BlockSize / 2f, BlockSize / 2f);
 
     /// <summary>
     ///     The world this chunk is in.

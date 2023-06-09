@@ -8,24 +8,13 @@
 
 #include "NativeClient.h"
 
-inline DirectX::XMMATRIX XMMatrixToNormal(const DirectX::XMMATRIX& matrix)
-{
-    DirectX::XMMATRIX upper = matrix;
-
-    upper.r[0].m128_f32[3] = 0.f;
-    upper.r[1].m128_f32[3] = 0.f;
-    upper.r[2].m128_f32[3] = 0.f;
-    upper.r[3].m128_f32[0] = 0.f;
-    upper.r[3].m128_f32[1] = 0.f;
-    upper.r[3].m128_f32[2] = 0.f;
-    upper.r[3].m128_f32[3] = 1.f;
-
-    DirectX::XMVECTOR det;
-    return XMMatrixTranspose(XMMatrixInverse(&det, upper));
-}
-
 namespace util
 {
+    /**
+     * \brief Allocate a resource with the given parameters on the default pool of the client's allocator.
+     * \tparam T The type of the resource to allocate.
+     * \return The allocation and resource.
+     */
     template <typename T>
     Allocation<T> AllocateResource(
         const NativeClient& client,
@@ -58,6 +47,9 @@ namespace util
         return result;
     }
 
+    /**
+     * Allocate a buffer with the given parameters on the default pool of the client's allocator.
+     */
     inline Allocation<ID3D12Resource> AllocateBuffer(
         const NativeClient& client,
         const UINT64 size,
@@ -82,11 +74,52 @@ namespace util
         return AllocateResource<ID3D12Resource>(client, bufferDescription, heapType, initState, committed);
     }
 
+    /**
+     * Allocate a constant buffer with the given size on the default pool of the client's allocator.
+     */
     inline Allocation<ID3D12Resource> AllocateConstantBuffer(const NativeClient& client, UINT64* size)
     {
         *size = ROUND_UP(*size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         return AllocateBuffer(client, *size,
                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
+    }
+
+    /**
+     * Map a resource and write the given data to it.
+     */
+    template <typename D>
+    [[nodiscard]] HRESULT MapAndWrite(const Allocation<ID3D12Resource> resource, const D& data)
+    {
+        constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
+        D* dataPointer;
+
+        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&dataPointer));
+        if (FAILED(result)) return result;
+
+        *dataPointer = data;
+
+        resource.resource->Unmap(0, nullptr);
+        return result;
+    }
+
+    /**
+     * Map a resource and write the given data to it. The data is assumed to be an array of D.
+     */
+    template <typename D>
+    [[nodiscard]] HRESULT MapAndWrite(const Allocation<ID3D12Resource> resource, const D* data, const UINT count)
+    {
+        REQUIRE(count > 0);
+
+        constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
+        D* dataPointer;
+
+        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&dataPointer));
+        if (FAILED(result)) return result;
+
+        memcpy(dataPointer, data, sizeof(D) * count);
+
+        resource.resource->Unmap(0, nullptr);
+        return result;
     }
     
     inline std::wstring FormatDRED(

@@ -175,8 +175,6 @@ public class Camera : NativeObject, IView
                 Front = Front.ToVector3(),
                 Up = Up.ToVector3()
             });
-
-        Console.WriteLine($"managed aspect ratio: {Client.AspectRatio}");
     }
 
     private void UpdateVectors()

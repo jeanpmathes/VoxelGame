@@ -19,7 +19,7 @@ struct PipelineDescription
     const wchar_t* vertexShaderPath;
     const wchar_t* pixelShaderPath;
     ShaderPreset shaderPreset;
-    uint64_t bufferSize;
+    UINT bufferSize;
 };
 
 /**

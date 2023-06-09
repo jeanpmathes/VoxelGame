@@ -391,7 +391,7 @@ public static class Native
     public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(Client client,
         PipelineDescription description, Definition.Native.NativeErrorFunc callback) where T : unmanaged
     {
-        description.BufferSize = (ulong) Marshal.SizeOf<T>();
+        description.BufferSize = (uint) Marshal.SizeOf<T>();
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
         IntPtr shaderBuffer = NativeGetShaderBuffer(rasterPipeline);

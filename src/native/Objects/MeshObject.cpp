@@ -32,14 +32,7 @@ void MeshObject::Update()
         };
     }
 
-    {
-        uint8_t* pData;
-        TRY_DO(m_instanceConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-
-        memcpy(pData, &m_instanceConstantBufferData, sizeof m_instanceConstantBufferData);
-
-        m_instanceConstantBuffer.resource->Unmap(0, nullptr);
-    }
+    TRY_DO(util::MapAndWrite(m_instanceConstantBuffer, m_instanceConstantBufferData));
 }
 
 void MeshObject::SetEnabledState(const bool enabled)
@@ -76,21 +69,8 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
                                                                  D3D12_RESOURCE_STATE_GENERIC_READ);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBufferUpload);
 
-    {
-        UINT8* pVertexDataBegin;
-        const CD3DX12_RANGE readRange(0, 0);
-        TRY_DO(m_vertexBufferUpload.resource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-        memcpy(pVertexDataBegin, vertices, vertexBufferSize);
-        m_vertexBufferUpload.resource->Unmap(0, nullptr);
-    }
-
-    {
-        UINT8* pIndexDataBegin;
-        const CD3DX12_RANGE readRange(0, 0);
-        TRY_DO(m_indexBufferUpload.resource->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin)));
-        memcpy(pIndexDataBegin, indices, indexBufferSize);
-        m_indexBufferUpload.resource->Unmap(0, nullptr);
-    }
+    TRY_DO(util::MapAndWrite(m_vertexBufferUpload, vertices, vertexCount));
+    TRY_DO(util::MapAndWrite(m_indexBufferUpload, indices, indexCount));
 }
 
 bool MeshObject::IsMeshModified() const

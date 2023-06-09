@@ -207,12 +207,7 @@ void Space::CreateGlobalConstBuffer()
 
 void Space::UpdateGlobalConstBuffer() const
 {
-    uint8_t* pData;
-    TRY_DO(m_globalConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-
-    memcpy(pData, &m_globalConstantBufferData, sizeof m_globalConstantBufferData);
-
-    m_globalConstantBuffer.resource->Unmap(0, nullptr);
+    TRY_DO(util::MapAndWrite(m_globalConstantBuffer, m_globalConstantBufferData));
 }
 
 void Space::CreateShaderResourceHeap()

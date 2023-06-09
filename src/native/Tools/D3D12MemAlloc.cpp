@@ -62,7 +62,6 @@
 #endif
 
 #ifndef D3D12MA_ASSERT
-    #include <cassert>
     #define D3D12MA_ASSERT(cond) REQUIRE(cond)
 #endif
 

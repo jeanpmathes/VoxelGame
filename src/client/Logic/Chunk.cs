@@ -58,9 +58,9 @@ public partial class Chunk : Core.Logic.Chunk
 
         State.RequestNextState<Meshing>(new ChunkState.RequestDescription
         {
-            AllowDuplicateTypes = false,
+            AllowDuplicateStateByType = false,
             AllowSkipOnDeactivation = true,
-            AllowDiscardOnLoop = false
+            AllowDiscardOnRepeat = false
         });
     }
 
@@ -195,7 +195,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     public void CullSections(Frustum frustum)
     {
-        Box3d chunkBox = VMath.CreateBox3(ChunkPoint, ChunkExtents);
+        Box3d chunkBox = VMath.CreateBox3(Position.Center, Extents);
 
         if (!hasMeshData || !frustum.IsBoxVisible(chunkBox))
         {

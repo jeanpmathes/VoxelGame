@@ -21,10 +21,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const C
         this->m_cbuffers.push_back(booleanConstantBuffer);
         this->m_constantBufferViews.push_back(cbvDesc);
 
-        BOOL* pData;
-        TRY_DO(booleanConstantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-        *pData = value;
-        booleanConstantBuffer.resource->Unmap(0, nullptr);
+        TRY_DO(util::MapAndWrite(booleanConstantBuffer, value));
     };
 
     addBuffer(TRUE);
@@ -77,10 +74,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                 D3D12_HEAP_TYPE_UPLOAD);
 
-            Vertex* pData;
-            TRY_DO(ctx->m_uploadBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-            memcpy(pData, vertices, vertexBufferSize);
-            ctx->m_uploadBuffer.resource->Unmap(0, nullptr);
+            TRY_DO(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
             ctx->m_vertexBuffer = util::AllocateBuffer(
                 ctx->m_client, vertexBufferSize,

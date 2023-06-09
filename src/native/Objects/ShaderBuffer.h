@@ -16,7 +16,7 @@ class ShaderBuffer final : public Object
     DECLARE_OBJECT_SUBCLASS(ShaderBuffer)
 
 public:
-    ShaderBuffer(NativeClient& client, uint64_t size);
+    ShaderBuffer(NativeClient& client, UINT size);
 
     /**
      * Create a resource view for the buffer.
@@ -34,7 +34,7 @@ public:
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
 
 private:
-    uint64_t m_size;
+    UINT m_size;
     Allocation<ID3D12Resource> m_constantBuffer;
     D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc = {};
 };

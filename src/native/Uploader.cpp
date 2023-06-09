@@ -55,10 +55,7 @@ void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Alloca
 
     m_uploadBuffers.push_back(uploadBuffer);
 
-    std::byte* pData;
-    TRY_DO(uploadBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-    memcpy(pData, data, size);
-    uploadBuffer.resource->Unmap(0, nullptr);
+    TRY_DO(util::MapAndWrite(uploadBuffer, data, size));
 
     auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(),
                                                            D3D12_RESOURCE_STATE_COMMON,

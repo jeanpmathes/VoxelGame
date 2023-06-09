@@ -1,9 +1,13 @@
 ﻿#include "stdafx.h"
 
-ShaderBuffer::ShaderBuffer(NativeClient& client, const uint64_t size)
+ShaderBuffer::ShaderBuffer(NativeClient& client, const UINT size)
     : Object(client), m_size(size)
 {
-    m_constantBuffer = util::AllocateConstantBuffer(GetClient(), &m_size);
+    UINT64 alignedSize = size;
+    m_constantBuffer = util::AllocateConstantBuffer(GetClient(), &alignedSize);
+
+    REQUIRE(alignedSize <= UINT_MAX);
+    m_size = static_cast<UINT>(alignedSize);
 
     m_cbvDesc.BufferLocation = m_constantBuffer.resource->GetGPUVirtualAddress();
     m_cbvDesc.SizeInBytes = static_cast<UINT>(m_size);
@@ -16,12 +20,8 @@ void ShaderBuffer::CreateResourceView(const ComPtr<ID3D12DescriptorHeap> heap) c
 
 void ShaderBuffer::SetData(const void* data) const
 {
-    uint8_t* pData;
-    TRY_DO(m_constantBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-
-    memcpy(pData, data, m_size);
-
-    m_constantBuffer.resource->Unmap(0, nullptr);
+    auto* pData = static_cast<const std::byte*>(data);
+    TRY_DO(util::MapAndWrite(m_constantBuffer, pData, m_size));
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const
