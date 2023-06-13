@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Collections;
 /// <summary>
 ///     A specialized class used to compact varying height block faces and fluid faces while meshing.
 /// </summary>
-public class VaryingHeightMeshFaceHolder : MeshFaceHolder
+public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the same refactoring here as in BlockMeshFaceHolder
 {
     private static readonly uint[] indices =
     {
@@ -326,4 +326,3 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 
 #pragma warning restore CA1812
 }
-

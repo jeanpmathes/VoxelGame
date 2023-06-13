@@ -6,6 +6,7 @@
 
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Visuals;
@@ -28,6 +29,8 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     /// <param name="side">The block side that the faces will correspond too.</param>
     public BlockMeshFaceHolder(BlockSide side) : base(side)
     {
+        Debug.Assert(side != BlockSide.All);
+
         // Initialize layers.
         lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.Size);
 
@@ -155,7 +158,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
     private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, MeshFace face)
     {
-        Vector3 position = RestorePosition(layer, row, face.position);
+        Vector3 position = RestorePosition(layer, row, face.position) + SideDependentOffset;
 
         // Both height and lenght are given in additional distance to the normal height and lenght of a quad, so we add 1.
         Vector3 lenght = LengthAxis.ToVector3() * (face.length + 1);
@@ -168,12 +171,12 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
         return side switch
         {
-            BlockSide.Front => (v10, v00, v01, v11),
+            BlockSide.Front => (v01, v11, v10, v00),
             BlockSide.Back => (v00, v10, v11, v01),
             BlockSide.Left => (v01, v00, v10, v11),
             BlockSide.Right => (v11, v10, v00, v01),
-            BlockSide.Bottom => (v10, v00, v01, v11),
-            BlockSide.Top => (v10, v00, v01, v11),
+            BlockSide.Bottom => (v01, v11, v10, v00),
+            BlockSide.Top => (v11, v01, v00, v10),
             BlockSide.All or _ => throw new InvalidOperationException()
         };
     }

@@ -44,7 +44,7 @@ public:
     void SetPlanes(float nearDistance, float farDistance);
 
     void SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) const;
-
+    
 private:
     DirectX::XMFLOAT3 m_position = {};
     DirectX::XMFLOAT3 m_front = {};

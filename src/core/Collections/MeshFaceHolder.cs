@@ -27,36 +27,63 @@ public class MeshFaceHolder
 
         LengthAxis = DetermineLengthAxis();
         HeightAxis = DetermineHeightAxis();
+        SideDependentOffset = DetermineSideDependentOffset();
     }
 
     /// <summary>
-    ///     The axis along which length extension happens.
+    ///     The axis along which length extension (extend) happens.
     /// </summary>
     protected Vector3i LengthAxis { get; }
 
     /// <summary>
-    ///     The axis along which height extension happens.
+    ///     The axis along which height extension (combine) happens.
     /// </summary>
     protected Vector3i HeightAxis { get; }
 
-    private (int, int, int) DetermineLengthAxis()
+    /// <summary>
+    ///     An offset that is applied to the position of the face, depending on the side.
+    ///     This offset closes gaps when the axis directions are negative.
+    /// </summary>
+    protected Vector3i SideDependentOffset { get; }
+
+    private Vector3i DetermineLengthAxis()
     {
         return side switch
         {
-            BlockSide.Front or BlockSide.Back => (0, 1, 0),
-            BlockSide.Left or BlockSide.Right => (0, 0, 1),
-            BlockSide.Bottom or BlockSide.Top => (0, 0, 1),
+            BlockSide.Front => (0, 1, 0),
+            BlockSide.Back => (0, 1, 0),
+            BlockSide.Left => (0, 0, 1),
+            BlockSide.Right => (0, 0, 1),
+            BlockSide.Bottom => (0, 0, 1),
+            BlockSide.Top => (0, 0, 1),
             BlockSide.All or _ => throw new InvalidOperationException()
         };
     }
 
-    private (int, int, int) DetermineHeightAxis()
+    private Vector3i DetermineHeightAxis()
     {
         return side switch
         {
-            BlockSide.Front or BlockSide.Back => (1, 0, 0),
-            BlockSide.Left or BlockSide.Right => (0, 1, 0),
-            BlockSide.Bottom or BlockSide.Top => (1, 0, 0),
+            BlockSide.Front => (-1, 0, 0),
+            BlockSide.Back => (-1, 0, 0),
+            BlockSide.Left => (0, -1, 0),
+            BlockSide.Right => (0, -1, 0),
+            BlockSide.Bottom => (-1, 0, 0),
+            BlockSide.Top => (-1, 0, 0),
+            BlockSide.All or _ => throw new InvalidOperationException()
+        };
+    }
+
+    private Vector3i DetermineSideDependentOffset()
+    {
+        return side switch
+        {
+            BlockSide.Front => (1, 0, 1),
+            BlockSide.Back => (1, 0, 0),
+            BlockSide.Left => (0, 1, 0),
+            BlockSide.Right => (1, 1, 0),
+            BlockSide.Bottom => (1, 0, 0),
+            BlockSide.Top => (1, 1, 0),
             BlockSide.All or _ => throw new InvalidOperationException()
         };
     }

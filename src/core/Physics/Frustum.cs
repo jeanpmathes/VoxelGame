@@ -262,7 +262,7 @@ public readonly struct Frustum : IEquatable<Frustum>
 
     /// <summary>
     ///     Check whether a <see cref="Box3" /> is visible in this <see cref="Frustum" />.
-    ///     This differs from <see cref="IsBoxInFrustum" /> in that a box false-positives are possible,
+    ///     This differs from <see cref="IsBoxInFrustum" /> in that false-positives are possible,
     ///     e.g. a box is not culled despite being outside the frustum.
     /// </summary>
     /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
@@ -328,4 +328,3 @@ public readonly struct Frustum : IEquatable<Frustum>
         return !left.Equals(right);
     }
 }
-
