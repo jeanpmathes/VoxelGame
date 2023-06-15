@@ -56,7 +56,7 @@ public partial class Chunk : Core.Logic.Chunk
     {
         if (!IsFullyDecorated) return;
 
-        State.RequestNextState<Meshing>(new ChunkState.RequestDescription
+        State.RequestNextState<Meshing>(new Core.Logic.ChunkState.RequestDescription
         {
             AllowDuplicateStateByType = false,
             AllowSkipOnDeactivation = true,
@@ -86,7 +86,7 @@ public partial class Chunk : Core.Logic.Chunk
     ///     Process a chance to mesh the entire chunk.
     /// </summary>
     /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
-    public ChunkState? ProcessMeshingOption()
+    public Core.Logic.ChunkState? ProcessMeshingOption()
     {
         BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
 

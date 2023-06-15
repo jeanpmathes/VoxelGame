@@ -26,11 +26,11 @@ public class Section : Core.Logic.Section
     [NonSerialized] private SectionRenderer? renderer;
 
     /// <summary>
-    ///     Create a new client section.
+    ///     Create a new client section. The section is empty, requiring generation.
     /// </summary>
     public Section(SectionPosition position) : base(position)
     {
-        renderer = null;
+        renderer = new SectionRenderer(Application.Client.Instance.Space, position.FirstBlock);
         hasMesh = false;
         disposed = false;
     }
@@ -39,7 +39,6 @@ public class Section : Core.Logic.Section
     public override void Setup(Core.Logic.Section loaded)
     {
         blocks = loaded.Cast().blocks;
-        renderer = new SectionRenderer(Application.Client.Instance.Space, position.FirstBlock);
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }

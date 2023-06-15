@@ -124,27 +124,27 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     Get the texture index.
         /// </summary>
-        public int TextureIndex { get; init; }
+        internal int TextureIndex { get; init; }
 
         /// <summary>
         ///     Whether the texture is rotated.
         /// </summary>
-        public bool IsTextureRotated { get; init; }
+        internal bool IsTextureRotated { get; init; }
 
         /// <summary>
         ///     The block tint.
         /// </summary>
-        public TintColor Tint { get; init; }
+        internal TintColor Tint { get; init; }
 
         /// <summary>
         ///     Whether the block is animated.
         /// </summary>
-        public bool IsAnimated { get; init; }
+        internal bool IsAnimated { get; init; }
 
         /// <summary>
         /// Whether the block is actually animated, meaning animation is safe.
         /// </summary>
-        public bool IsActuallyAnimated => IsAnimated && TextureIndex != 0;
+        internal bool IsActuallyAnimated => IsAnimated && TextureIndex != 0;
 
         /// <inheritdoc />
         public bool Equals(MeshData other)

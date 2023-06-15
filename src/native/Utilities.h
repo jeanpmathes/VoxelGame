@@ -79,7 +79,8 @@ namespace util
      */
     inline Allocation<ID3D12Resource> AllocateConstantBuffer(const NativeClient& client, UINT64* size)
     {
-        *size = ROUND_UP(*size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        const UINT64 originalSize = *size;
+        *size = ROUND_UP(originalSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         return AllocateBuffer(client, *size,
                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     }

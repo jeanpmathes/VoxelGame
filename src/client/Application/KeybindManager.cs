@@ -176,7 +176,7 @@ internal class KeybindManager : ISettingsProvider
         return $"Input_{bind}";
     }
 
-    internal VirtualKeys GetCurrentBind(Keybind bind)
+    private VirtualKeys GetCurrentBind(Keybind bind)
     {
         Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
@@ -225,7 +225,7 @@ internal class KeybindManager : ISettingsProvider
     internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, VirtualKeys.D);
     internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, VirtualKeys.A);
 
-    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, VirtualKeys.LeftShift);
+    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, VirtualKeys.Shift);
     internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, VirtualKeys.Space);
     internal Keybind Crouch { get; } = Keybind.RegisterButton("crouch", Language.KeyCrouch, VirtualKeys.C);
 

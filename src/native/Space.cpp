@@ -419,7 +419,7 @@ void Space::CreateShaderBindingTable()
     // todo: add a proxy hit group if we have no meshes to make PIX happy 
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
-
+    
     m_sbtStorage = util::AllocateBuffer(
         m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);

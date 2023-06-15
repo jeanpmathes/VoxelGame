@@ -7,7 +7,6 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
     REQUIRE(GetClient().GetDevice() != nullptr);
 
     m_instanceConstantBufferAlignedSize = sizeof m_instanceConstantBufferData;
-
     m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
 
     Update();
@@ -56,17 +55,17 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
 
         return;
     }
-    
-    const auto vertexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    m_vertexBufferUpload = util::AllocateResource<ID3D12Resource>(GetClient(),
-                                                                  vertexBufferUploadDesc, D3D12_HEAP_TYPE_UPLOAD,
-                                                                  D3D12_RESOURCE_STATE_GENERIC_READ);
+
+    m_vertexBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
+                                                D3D12_RESOURCE_FLAG_NONE,
+                                                D3D12_RESOURCE_STATE_COMMON,
+                                                D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBufferUpload);
 
-    const auto indexBufferUploadDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
-    m_indexBufferUpload = util::AllocateResource<ID3D12Resource>(GetClient(),
-                                                                 indexBufferUploadDesc, D3D12_HEAP_TYPE_UPLOAD,
-                                                                 D3D12_RESOURCE_STATE_GENERIC_READ);
+    m_indexBufferUpload = util::AllocateBuffer(GetClient(), indexBufferSize,
+                                               D3D12_RESOURCE_FLAG_NONE,
+                                               D3D12_RESOURCE_STATE_COMMON,
+                                               D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBufferUpload);
 
     TRY_DO(util::MapAndWrite(m_vertexBufferUpload, vertices, vertexCount));
@@ -83,7 +82,7 @@ bool MeshObject::IsEnabled() const
     return m_enabled && m_vertexCount > 0 && m_indexCount > 0;
 }
 
-void MeshObject::EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
+void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     REQUIRE(IsMeshModified());
 
@@ -97,20 +96,21 @@ void MeshObject::EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList
 
     const auto vertexBufferSize = m_vertexBufferUpload.resource->GetDesc().Width;
     const auto indexBufferSize = m_indexBufferUpload.resource->GetDesc().Width;
-    
-    const auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    m_vertexBuffer = util::AllocateResource<ID3D12Resource>(GetClient(),
-                                                            vertexBufferDesc, D3D12_HEAP_TYPE_DEFAULT,
-                                                            D3D12_RESOURCE_STATE_COMMON);
+
+    m_vertexBuffer = util::AllocateBuffer(GetClient(), vertexBufferSize,
+                                          D3D12_RESOURCE_FLAG_NONE,
+                                          D3D12_RESOURCE_STATE_COMMON,
+                                          D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBuffer);
-    
-    const auto indexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
-    m_indexBuffer = util::AllocateResource<ID3D12Resource>(GetClient(),
-                                                           indexBufferDesc, D3D12_HEAP_TYPE_DEFAULT,
-                                                           D3D12_RESOURCE_STATE_COMMON);
+
+    m_indexBuffer = util::AllocateBuffer(GetClient(), indexBufferSize,
+                                         D3D12_RESOURCE_FLAG_NONE,
+                                         D3D12_RESOURCE_STATE_COMMON,
+                                         D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBuffer);
 
     D3D12_RESOURCE_BARRIER transitionCommonToCopyDest[] = {
+        // todo: check if creation in copy dest state works
         CD3DX12_RESOURCE_BARRIER::Transition(m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
                                              D3D12_RESOURCE_STATE_COPY_DEST),
         CD3DX12_RESOURCE_BARRIER::Transition(m_indexBuffer.Get(), D3D12_RESOURCE_STATE_COMMON,
