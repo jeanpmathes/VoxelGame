@@ -73,4 +73,3 @@ public class StartUserInterface : UserInterface
         if (isCriticalMissing) control.DisableWorldSelection();
     }
 }
-

@@ -9,12 +9,15 @@
 #include <optional>
 
 #include "SpatialObject.h"
+#include "Common.h"
 
+#pragma pack(push, 4)
 struct SpatialVertex
 {
     DirectX::XMFLOAT3 position;
     UINT data;
 };
+#pragma pack(pop)
 
 struct InstanceConstantBuffer
 {
@@ -27,13 +30,6 @@ struct StandardShaderArguments
     void* heap;
     void* globalBuffer;
     void* instanceBuffer;
-};
-
-struct AccelerationStructureBuffers
-{
-    Allocation<ID3D12Resource> scratch;
-    Allocation<ID3D12Resource> result;
-    Allocation<ID3D12Resource> instanceDesc;
 };
 
 /**

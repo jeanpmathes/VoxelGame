@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     The vertex layout used by all basic meshes.
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
 #pragma warning disable S3898 // No equality comparison used.
 public struct SpatialVertex
 #pragma warning restore S3898 // No equality comparison used.

@@ -47,11 +47,10 @@ public class SceneFactory
     ///     Create a new start scene.
     /// </summary>
     /// <param name="resourceLoadingFailure">A resource loading failure that occurred during the game start, if any.</param>
+    /// <param name="loadWorldDirectly">The index of the world to load directly, if any.</param>
     /// <returns>The created scene.</returns>
-    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure)
+    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
     {
-        return new StartScene(client, resourceLoadingFailure);
+        return new StartScene(client, resourceLoadingFailure, loadWorldDirectly);
     }
 }
-
-

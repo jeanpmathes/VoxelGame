@@ -52,65 +52,51 @@ internal static class Program
     /// </summary>
     internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
 
-    [Conditional("DEBUG")]
-    private static void ApplyDebugModification(Arguments arguments)
-    {
-        arguments.logDebug = true;
-    }
-
     [STAThread]
-    private static int Main(string[] args)
+    private static int Main(string[] commandLineArguments)
     {
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
         StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");
         WorldsDirectory = FileSystem.CreateSubdirectory(AppDataDirectory, "Worlds");
 
-        Arguments arguments = new()
-        {
-            logDebug = args.Length > 0 && args[0] == "-logDebug"
-        };
+        return Arguments.Handle(commandLineArguments,
+            logging =>
+            {
+                ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
 
-        ApplyDebugModification(arguments);
+                SetupExceptionHandler(logger);
 
-        ILogger logger = LoggingHelper.SetupLogging(nameof(Program), arguments.logDebug, AppDataDirectory);
+                if (logging.LogDebug) logger.LogDebug(Events.Meta, "Logging debug messages");
+                else
+                    logger.LogInformation(
+                        Events.Meta,
+                        "Debug messages will not be logged. Use the respective argument to log debug messages");
 
-        SetupExceptionHandler(logger);
+                Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
+                ApplicationInformation.Initialize(Version);
+                System.Console.Title = Language.VoxelGame + @" " + Version;
 
-        if (arguments.logDebug) logger.LogDebug(Events.Meta, "Logging debug messages");
-        else
-            logger.LogInformation(
-                Events.Meta,
-                "Debug messages will not be logged. Use '-logDebug' to log debug messages");
+                logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
 
-        Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
-        ApplicationInformation.Initialize(Version);
-        System.Console.Title = Language.VoxelGame + @" " + Version;
+                return logger;
+            },
+            (args, logger) =>
+            {
+                GraphicsSettings graphicsSettings = new(Settings.Default);
 
-        logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+                WindowSettings windowSettings = new WindowSettings
+                {
+                    Title = Language.VoxelGame + " " + Version,
+                    Size = Settings.Default.ScreenSize.ToVector2i()
+                }.Corrected; // todo: icon
 
-        GraphicsSettings graphicsSettings = new(Settings.Default);
+                logger.LogDebug("Opening window");
 
-        WindowSettings windowSettings = new WindowSettings
-        {
-            Title = Language.VoxelGame + " " + Version,
-            Size = Settings.Default.ScreenSize.ToVector2i()
-        }.Corrected; // todo: icon
+                using Application.Client client = new(windowSettings, graphicsSettings, args);
 
-        logger.LogDebug("Opening window");
-
-        int exitCode;
-
-        using (Application.Client client = new(
-                   windowSettings,
-                   graphicsSettings))
-        {
-            exitCode = client.Run();
-        }
-
-        logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
-
-        return exitCode;
+                return client.Run();
+            });
     }
 
     [Conditional("RELEASE")]
@@ -125,10 +111,5 @@ internal static class Program
 
             // todo: error window
         };
-    }
-
-    private sealed class Arguments
-    {
-        internal bool logDebug;
     }
 }

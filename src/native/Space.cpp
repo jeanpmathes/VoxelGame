@@ -464,11 +464,8 @@ void Space::CreateTopLevelAS()
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDesc);
 
-    constexpr bool updateOnly = false;
-
     topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
                                  m_topLevelASBuffers.scratch.Get(),
                                  m_topLevelASBuffers.result.Get(),
-                                 m_topLevelASBuffers.instanceDesc.Get(),
-                                 updateOnly, nullptr);
+                                 m_topLevelASBuffers.instanceDesc.Get());
 }

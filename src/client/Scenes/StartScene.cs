@@ -6,10 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -20,19 +25,27 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public sealed class StartScene : IScene
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
+
     private readonly Application.Client client;
+
+    private readonly int? loadWorldDirectly;
 
     private readonly ResourceLoadingFailure? resourceLoadingFailure;
     private readonly StartUserInterface ui;
 
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure)
+    private readonly WorldProvider worldProvider;
+
+    private bool isFirstUpdate = true;
+
+    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
     {
         this.client = client;
-
         this.resourceLoadingFailure = resourceLoadingFailure;
+        this.loadWorldDirectly = loadWorldDirectly;
 
-        WorldProvider worldProvider = new(Program.WorldsDirectory);
-        worldProvider.WorldActivation += (_, args) => client.StartGame(args);
+        worldProvider = new WorldProvider(Program.WorldsDirectory);
+        worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
         List<ISettingsProvider> settingsProviders = new()
         {
@@ -68,7 +81,25 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Update(double deltaTime)
     {
-        // Method intentionally left empty.
+        if (!isFirstUpdate) return;
+
+        isFirstUpdate = false;
+
+        if (loadWorldDirectly is not {} index) return;
+
+        worldProvider.Refresh();
+        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
+
+        if (world != default((WorldInformation, DirectoryInfo)))
+        {
+            logger.LogInformation("Loading world at index {Index} directly", index);
+
+            worldProvider.LoadWorld(world.info, world.path);
+        }
+        else
+        {
+            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
+        }
     }
 
     /// <inheritdoc />

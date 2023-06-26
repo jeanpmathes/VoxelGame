@@ -25,6 +25,8 @@ void CommandAllocatorGroup::Initialize(
 
     TRY_DO(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
         group->commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&group->commandList)));
+
+    TRY_DO(group->commandList->Close());
 }
 
 void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12PipelineState> pipelineState) const

@@ -25,6 +25,8 @@ internal class Client : Support.Client, IPerformanceProvider
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
     private readonly InputManager input;
+
+    private readonly GameParameters parameters;
     private readonly SceneFactory sceneFactory;
 
     private readonly SceneManager sceneManager;
@@ -36,9 +38,11 @@ internal class Client : Support.Client, IPerformanceProvider
     /// </summary>
     /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
-    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings) : base(windowSettings)
+    /// <param name="parameters">The parameters, passed from the command line.</param>
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters) : base(windowSettings)
     {
         Instance = this;
+        this.parameters = parameters;
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
@@ -96,7 +100,8 @@ internal class Client : Support.Client, IPerformanceProvider
 
             Resources.Load(loadingContext);
 
-            sceneManager.Load(sceneFactory.CreateStartScene(loadingContext.State));
+            IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
+            sceneManager.Load(startScene);
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
@@ -158,7 +163,7 @@ internal class Client : Support.Client, IPerformanceProvider
     /// </summary>
     internal void ExitGame()
     {
-        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null);
+        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
         sceneManager.Load(startScene);
 
         CurrentGame = null;

@@ -1,6 +1,7 @@
-/******************************************************************************
- * Copyright 1998-2018 NVIDIA Corp. All Rights Reserved.
- *****************************************************************************/
+// <copyright file="DXRHelper.h" company="NVIDIA Corp.">
+//     Copyright 1998-2018 NVIDIA Corp. All Rights Reserved.
+// </copyright>
+// <author>NVIDIA Corp, jeanpmathes</author>
 
 #pragma once
 

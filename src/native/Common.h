@@ -15,6 +15,16 @@ struct Resolution
     UINT height = 0;
 };
 
+/**
+ * All resources required to build an acceleration structure.
+ */
+struct AccelerationStructureBuffers
+{
+    Allocation<ID3D12Resource> scratch;
+    Allocation<ID3D12Resource> result;
+    Allocation<ID3D12Resource> instanceDesc;
+};
+
 inline constexpr UINT FRAME_COUNT = 2;
 
 /**
@@ -44,7 +54,6 @@ struct CommandAllocatorGroup
             NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, n); \
         } \
         NAME_D3D12_OBJECT((group)->commandList); \
-        (group)->Close(); \
     } while (false)
 
 inline DirectX::XMMATRIX XMMatrixToNormal(const DirectX::XMMATRIX& matrix)
