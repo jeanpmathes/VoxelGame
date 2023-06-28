@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Support.Graphics;
@@ -19,7 +19,7 @@ internal class D3D12Debug
     private const string DebugCategory = "DirectX Debug";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<D3D12Debug>();
 
-    private static D3D12Debug? instance;
+    private static (D3D12Debug debug, Client client)? instance;
 
 #pragma warning disable S1450
 
@@ -36,13 +36,30 @@ internal class D3D12Debug
     /// <summary>
     ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the native configuration.
     /// </summary>
-    internal static Definition.Native.D3D12MessageFunc Enable()
+    internal static Definition.Native.D3D12MessageFunc Enable(Client client)
     {
         Debug.Assert(instance is null);
 
-        instance = new D3D12Debug(DebugCallback);
+        D3D12Debug debug = new(DebugCallback);
+        instance = (debug, client);
 
-        return instance.debugCallbackDelegate;
+        return debug.debugCallbackDelegate;
+    }
+
+    private static void OpenInEditor(string title, string text)
+    {
+        DirectoryInfo directory = FileSystem.CreateTemporaryDirectory();
+        FileInfo file = directory.GetFile($"{title}.txt");
+
+        file.WriteAllText(text);
+
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = file.FullName,
+            UseShellExecute = true
+        };
+
+        Process.Start(startInfo);
     }
 
     private static void DebugCallback(
@@ -70,7 +87,11 @@ internal class D3D12Debug
             or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT
             or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
         {
-            Debugger.Log((int) LogLevel.Critical, DebugCategory, $"Extended Data: {Marshal.PtrToStringUni(context)}");
+            Client client = instance!.Value.client;
+
+            OpenInEditor("DRED", client.GetDRED());
+            OpenInEditor("Allocator", client.GetAllocatorStatistics());
+
             Debugger.Break();
         }
         else if (level >= LogLevel.Error)

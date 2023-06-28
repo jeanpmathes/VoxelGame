@@ -17,6 +17,7 @@ using NativeMouseMoveFunc = void(*)(INT, INT);
 using NativeMouseScrollFunc = void(*)(double);
 using NativeResizeFunc = void(*)(UINT, UINT);
 using NativeBoolFunc = void(*)(BOOL);
+using NativeWStringFunc = void(*)(LPCWSTR);
 using NativeErrorFunc = void(*)(HRESULT, const char*);
 using NativeErrorMessageFunc = void(*)(const char*);
 

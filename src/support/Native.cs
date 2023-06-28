@@ -98,6 +98,37 @@ public static class Native
     }
 
     /// <summary>
+    ///     Get current allocator statistics as a string.
+    /// </summary>
+    public static string GetAllocatorStatistics(Client client)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativePassAllocatorStatistics(IntPtr native, Definition.Native.NativeWStringFunc onWString);
+
+        var result = "";
+
+        NativePassAllocatorStatistics(client.Native, s => result = s);
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Get the DRED (Device Removed Extended Data) string. This is only available in debug builds and after a device
+    ///     removal.
+    /// </summary>
+    public static string GetDRED(Client client)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativePassDRED(IntPtr native, Definition.Native.NativeWStringFunc onWString);
+
+        var result = "";
+
+        NativePassDRED(client.Native, s => result = s);
+
+        return result;
+    }
+
+    /// <summary>
     ///     Set the resolution of the window.
     /// </summary>
     /// <param name="client">The client for which to set the resolution.</param>

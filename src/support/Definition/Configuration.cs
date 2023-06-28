@@ -70,6 +70,11 @@ public static partial class Native
     public delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] double arg);
 
     /// <summary>
+    ///     A callback that receives a wide string value.
+    /// </summary>
+    public delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] string arg);
+
+    /// <summary>
     ///     Contains the configuration of the native side.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]

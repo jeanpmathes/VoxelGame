@@ -89,6 +89,8 @@ public:
     void WaitForGPU();
     void MoveToNextFrame();
 
+    std::wstring GetDRED() const;
+
    private:
     static const float CLEAR_COLOR[4];
     static const float LETTERBOX_COLOR[4];

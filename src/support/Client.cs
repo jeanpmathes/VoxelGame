@@ -86,7 +86,7 @@ public class Client : IDisposable
             {
                 IsFocused = state;
             },
-            onDebug = D3D12Debug.Enable(),
+            onDebug = D3D12Debug.Enable(this),
             width = (uint) windowSettings.Size.X,
             height = (uint) windowSettings.Size.Y,
             title = windowSettings.Title,
@@ -205,6 +205,16 @@ public class Client : IDisposable
         logger.LogCritical("Fatal error: {Message}", message);
 
         throw new InvalidOperationException(message);
+    }
+
+    internal string GetDRED()
+    {
+        return Support.Native.GetDRED(this);
+    }
+
+    internal string GetAllocatorStatistics()
+    {
+        return Support.Native.GetAllocatorStatistics(this);
     }
 
     /// <summary>

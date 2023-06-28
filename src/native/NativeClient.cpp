@@ -126,36 +126,9 @@ void NativeClient::LoadDevice()
     NAME_D3D12_OBJECT(m_device);
 
 #if defined(VG_DEBUG)
-    auto callback = [](D3D12_MESSAGE_CATEGORY category, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id,
-                       LPCSTR description, void* context)
-    {
-        const auto* self = static_cast<NativeClient*>(context);
-
-        std::wstring messageStore;
-
-        if (id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT ||
-            id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT ||
-            id == D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
-        {
-            ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
-            TRY_DO(self->m_device->QueryInterface(IID_PPV_ARGS(&dred)));
-
-            D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
-            TRY_DO(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
-
-            D3D12_DRED_PAGE_FAULT_OUTPUT2 dredPageFaultOutput = {};
-            TRY_DO(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
-            
-            messageStore = util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
-        }
-
-        void* newContext = messageStore.empty() ? nullptr : const_cast<wchar_t*>(messageStore.c_str());
-        self->m_debugCallback(category, severity, id, description, newContext);
-    };
-
     TRY_DO(m_device->QueryInterface(__uuidof(ID3D12InfoQueue1), &m_infoQueue));
     TRY_DO(m_infoQueue->RegisterMessageCallback(
-        callback,
+        m_debugCallback,
         D3D12_MESSAGE_CALLBACK_FLAG_NONE,
         this,
         &m_callbackCookie));
@@ -525,6 +498,20 @@ void NativeClient::MoveToNextFrame()
     }
 
     m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+}
+
+std::wstring NativeClient::GetDRED() const
+{
+    ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
+    TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&dred)));
+
+    D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
+    TRY_DO(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
+
+    D3D12_DRED_PAGE_FAULT_OUTPUT2 dredPageFaultOutput = {};
+    TRY_DO(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
+
+    return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
 
 void NativeClient::CheckRaytracingSupport() const

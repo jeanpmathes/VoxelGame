@@ -170,6 +170,29 @@ public static class FileSystem
     {
         return new DirectoryInfo(Path.GetFullPath(path));
     }
+
+    /// <summary>
+    ///     Creates a temporary directory.
+    /// </summary>
+    /// <returns>The temporary directory.</returns>
+    public static DirectoryInfo CreateTemporaryDirectory()
+    {
+        string? directory = null;
+
+        do
+        {
+            directory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (IOException)
+            {
+                directory = null;
+            }
+        } while (directory == null);
+
+        return new DirectoryInfo(directory);
+    }
 }
-
-

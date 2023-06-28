@@ -59,6 +59,30 @@ NATIVE int NativeRun(NativeClient* client, const int nCmdShow)
     CATCH();
 }
 
+NATIVE void NativePassAllocatorStatistics(const NativeClient* client, const NativeWStringFunc receiver)
+{
+    TRY
+    {
+        LPWSTR statistics;
+        client->GetAllocator()->BuildStatsString(&statistics, TRUE);
+
+        receiver(statistics);
+
+        client->GetAllocator()->FreeStatsString(statistics);
+    }
+    CATCH();
+}
+
+NATIVE void NativePassDRED(const NativeClient* client, const NativeWStringFunc receiver)
+{
+    TRY
+    {
+        const std::wstring dred = client->GetDRED();
+        receiver(const_cast<LPWSTR>(dred.c_str()));
+    }
+    CATCH();
+}
+
 NATIVE void NativeSetResolution(NativeClient* client, const UINT width, const UINT height)
 {
     TRY

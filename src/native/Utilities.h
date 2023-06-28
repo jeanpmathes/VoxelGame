@@ -321,6 +321,12 @@ namespace util
 
         message << L"2. Page Fault: " << L"[" << pageFaults.PageFaultVA << L"]" << std::endl;
 
+        if (pageFaults.pHeadExistingAllocationNode == nullptr)
+            message << L"\t| No existing allocation node" << std::endl;
+
+        if (pageFaults.pHeadRecentFreedAllocationNode == nullptr)
+            message << L"\t| No recent freed allocation node" << std::endl;
+
         {
             auto formatNodes = [&](const wchar_t* category, const D3D12_DRED_ALLOCATION_NODE1* node)
             {
