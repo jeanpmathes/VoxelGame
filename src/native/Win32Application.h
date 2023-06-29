@@ -22,6 +22,12 @@ public:
     static bool IsFullscreen() { return m_fullscreenMode; }
     static bool IsRunning(const DXApp* pApp) { return m_app == pApp; }
 
+    static void ShowErrorMessage(LPCWSTR message, LPCWSTR title);
+
+    static void EnterErrorMode();
+    static void ExitErrorMode();
+    static bool IsInErrorMode();
+
     static constexpr UINT MINIMUM_WINDOW_WIDTH = 150;
     static constexpr UINT MINIMUM_WINDOW_HEIGHT = 150;
 
@@ -34,4 +40,5 @@ private:
     static bool m_fullscreenMode;
     static constexpr UINT WINDOW_STYLE = WS_OVERLAPPEDWINDOW;
     static RECT m_windowRect;
+    static size_t m_errorModeDepth;
 };

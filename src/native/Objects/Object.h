@@ -23,22 +23,21 @@ class NativeClient;
 #define NAME_D3D12_OBJECT_WITH_ID(object) \
     do \
     { \
-        if (object.Get() != nullptr) \
-        { \
-            SetName((object).Get(), \
-                (std::wstring(L#object) + \
-                L" in " + \
-                std::wstring(ClassName) + \
-                L" #" + \
-                std::to_wstring(GetID())).c_str()); \
-        } \
+        if (!IS_DEBUG_BUILD) break; \
+        SetName((object), \
+            (std::wstring(L#object) + \
+            L" in " + \
+            std::wstring(ClassName) + \
+            L" #" + \
+            std::to_wstring(GetID())).c_str()); \
     } while (false)
 
 // ReSharper disable once CppInconsistentNaming
 #define NAME_D3D12_OBJECT_INDEXED_WITH_ID(objects, index) \
     do \
     { \
-        SetName(objects[index].Get(), \
+        if (!IS_DEBUG_BUILD) break; \
+        SetName(objects[index], \
             (std::wstring(L#objects) + \
             L"[" + \
             std::to_wstring(index) + \

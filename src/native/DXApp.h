@@ -45,8 +45,9 @@ public:
 
     /**
      * Perform a tick, which can update and render the application.
+     * \param allowUpdate Whether to allow the application to update.
      */
-    void Tick();
+    void Tick(bool allowUpdate);
 
     void Init();
     void Update(const StepTimer& timer);

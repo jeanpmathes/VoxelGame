@@ -126,6 +126,19 @@ void NativeClient::LoadDevice()
     NAME_D3D12_OBJECT(m_device);
 
 #if defined(VG_DEBUG)
+    auto callback = [](
+        const D3D12_MESSAGE_CATEGORY category,
+        const D3D12_MESSAGE_SEVERITY severity,
+        const D3D12_MESSAGE_ID id,
+        const LPCSTR description, void* context) -> void
+    {
+        const auto self = static_cast<NativeClient*>(context);
+
+        Win32Application::EnterErrorMode();
+        self->m_debugCallback(category, severity, id, description, nullptr);
+        Win32Application::ExitErrorMode();
+    };
+    
     TRY_DO(m_device->QueryInterface(__uuidof(ID3D12InfoQueue1), &m_infoQueue));
     TRY_DO(m_infoQueue->RegisterMessageCallback(
         m_debugCallback,

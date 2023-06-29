@@ -5,7 +5,6 @@
 //  <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -22,27 +21,20 @@ namespace VoxelGame.Support;
 /// </summary>
 public static class Native
 {
+    private const string DllFilePath = @".\Native.dll";
+
     /// <summary>
     ///     Show an error message box.
     /// </summary>
     /// <param name="message">The error message.</param>
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "IdentifierTypo")]
     #pragma warning disable S3242 // The specific types are matched on the native side.
     public static void ShowErrorBox(string message)
     {
-        [DllImport("user32.dll")]
-        static extern int MessageBoxW(IntPtr hWnd, [MarshalAs(UnmanagedType.LPWStr)] string lpText, [MarshalAs(UnmanagedType.LPWStr)] string lpCaption, uint uType);
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
 
-        const uint MB_OK = 0x00000000;
-        const uint MB_ICONERROR = 0x00000010;
-        const uint MB_SYSTEMMODAL = 0x00001000;
-
-        int result = MessageBoxW(IntPtr.Zero, message, "Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
-        Marshal.ThrowExceptionForHR(result);
+        NativeShowErrorBox(message, "Error");
     }
-
-    private const string DllFilePath = @".\Native.dll";
 
     /// <summary>
     ///     Initialize the native client.

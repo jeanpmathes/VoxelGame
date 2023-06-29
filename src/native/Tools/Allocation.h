@@ -21,7 +21,7 @@ struct Allocation
     {
     }
 
-    Allocation(const ComPtr<D3D12MA::Allocation> allocation, ComPtr<T> resource)
+    Allocation(ComPtr<D3D12MA::Allocation> allocation, ComPtr<T> resource)
         : allocation(allocation), resource(resource)
     {
     }
@@ -31,3 +31,10 @@ struct Allocation
         return resource.Get();
     }
 };
+
+template <typename T>
+void SetName(const Allocation<T>& allocation, const LPCWSTR name)
+{
+    allocation.allocation->SetName(name);
+    TRY_DO(allocation.resource->SetName(name));
+}

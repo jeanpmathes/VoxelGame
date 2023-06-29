@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <sstream>
 
+// ReSharper disable once CppUnusedIncludeDirective
 #include <wrl.h>
 
 using Microsoft::WRL::ComPtr;
@@ -104,14 +105,7 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string message)
     }
 }
 
-// Assign a name to the object to aid with debugging.
-#if defined(VG_DEBUG)
-inline void SetName(ID3D12Object* pObject, const LPCWSTR name)
-{
-    TRY_DO(pObject->SetName(name));
-}
-
-inline void SetNameIndexed(ID3D12Object* pObject, const LPCWSTR name, const UINT index)
+inline std::wstring GetNameIndexed(const LPCWSTR name, const UINT index)
 {
     std::wstringstream ss;
 
@@ -120,24 +114,30 @@ inline void SetNameIndexed(ID3D12Object* pObject, const LPCWSTR name, const UINT
     ss << std::to_wstring(index);
     ss << "]";
 
-    TRY_DO(pObject->SetName(ss.str().c_str()));
+    return ss.str();
 }
-#else
-inline void SetName(ID3D12Object*, LPCWSTR)
+
+inline void SetName(const ComPtr<ID3D12Object>& object, const LPCWSTR name)
 {
-}
-inline void SetNameIndexed(ID3D12Object*, LPCWSTR, UINT)
-{
-}
-#endif
+    TRY_DO(object->SetName(name));
+} 
 
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.
 // The indexed variant will include the index in the name of the object.
 
 // ReSharper disable CppInconsistentNaming
-#define NAME_D3D12_OBJECT(x) SetName((x).Get(), L#x)
-#define NAME_D3D12_OBJECT_INDEXED(x, n) SetNameIndexed((x)[n].Get(), L#x, n)
+#define NAME_D3D12_OBJECT(object) \
+    do { \
+        if (!IS_DEBUG_BUILD) break; \
+        SetName((object), L#object); \
+    } while (false)
+
+#define NAME_D3D12_OBJECT_INDEXED(object, index) \
+    do { \
+        if (!IS_DEBUG_BUILD) break; \
+        SetName((object)[index], GetNameIndexed(L#object, index).c_str()); \
+    } while (false)
 // ReSharper restore CppInconsistentNaming
 
 inline UINT CalculateConstantBufferByteSize(UINT byteSize)

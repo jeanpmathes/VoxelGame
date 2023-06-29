@@ -189,8 +189,9 @@ public class Client : IDisposable
 
     private static void OnError(int hr, string message)
     {
-        Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
+        Debugger.Break();
 
+        Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
         Support.Native.ShowErrorBox($"Fatal error ({hr:X}): {message}");
 
         var hex = hr.ToString("X", CultureInfo.InvariantCulture);
@@ -201,6 +202,8 @@ public class Client : IDisposable
 
     private static void OnErrorMessage(string message)
     {
+        Debugger.Break();
+
         Support.Native.ShowErrorBox($"Fatal error: {message}");
         logger.LogCritical("Fatal error: {Message}", message);
 

@@ -25,12 +25,15 @@ DXApp::DXApp(const Configuration configuration) :
 
 DXApp::~DXApp() = default;
 
-void DXApp::Tick()
+void DXApp::Tick(const bool allowUpdate)
 {
-    m_updateTimer.Tick([&]
+    if (allowUpdate)
     {
-        Update(m_updateTimer);
-    });
+        m_updateTimer.Tick([&]
+        {
+            Update(m_updateTimer);
+        });
+    }
 
     m_renderTimer.Tick([&]
     {

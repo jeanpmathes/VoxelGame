@@ -9,6 +9,12 @@
 static NativeErrorFunc onError;
 static NativeErrorMessageFunc onErrorMessage;
 
+NATIVE void NativeShowErrorBox(const LPCWSTR message, const LPCWSTR caption)
+{
+    // No try-catch because the catch might call this function again.
+    Win32Application::ShowErrorMessage(message, caption);
+}
+
 NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErrorFunc errorCallback,
                                      const NativeErrorMessageFunc errorMessageCallback)
 {

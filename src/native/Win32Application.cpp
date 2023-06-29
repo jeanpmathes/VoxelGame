@@ -10,6 +10,7 @@ void* Win32Application::m_app = nullptr;
 HWND Win32Application::m_hwnd = nullptr;
 bool Win32Application::m_fullscreenMode = false;
 RECT Win32Application::m_windowRect;
+size_t Win32Application::m_errorModeDepth = 0;
 
 // ReSharper disable once CppParameterMayBeConst
 int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
@@ -41,20 +42,23 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
     m_app = pApp;
     
     pApp->Init();
+    pApp->Tick(true);
 
     ShowWindow(m_hwnd, nCmdShow);
+
+    pApp->Tick(true);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        if (PeekMessage(&msg, m_hwnd, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
         else
         {
-            pApp->Tick();
+            pApp->Tick(true);
         }
     }
 
@@ -150,10 +154,34 @@ void Win32Application::SetWindowOrderToTopMost(bool setToTopMost)
         SWP_FRAMECHANGED | SWP_NOACTIVATE));
 }
 
+void Win32Application::ShowErrorMessage(const LPCWSTR message, const LPCWSTR title)
+{
+    EnterErrorMode();
+    MessageBoxW(m_hwnd, message, title, MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
+    ExitErrorMode();
+}
+
+void Win32Application::EnterErrorMode()
+{
+    ++m_errorModeDepth;
+}
+
+void Win32Application::ExitErrorMode()
+{
+    --m_errorModeDepth;
+}
+
+bool Win32Application::IsInErrorMode()
+{
+    return m_errorModeDepth > 0;
+}
+
 // ReSharper disable once CppParameterMayBeConst
 LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {
     const auto app = reinterpret_cast<DXApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+    if (IsInErrorMode()) return DefWindowProc(hWnd, message, wParam, lParam);
 
     switch (message)
     {
@@ -178,7 +206,8 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         {
             if (app)
             {
-                app->Tick();
+                app->Tick(false);
+                ValidateRect(m_hwnd, nullptr);
             }
         }
         return 0;
