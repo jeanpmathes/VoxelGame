@@ -67,6 +67,9 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         },
         .uploadBuffer = [](const Vertex* vertices, const UINT vertexCount, Pipeline* ctx)
         {
+            REQUIRE(vertices != nullptr);
+            REQUIRE(vertexCount > 0);
+            
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
             ctx->m_uploadBuffer = util::AllocateBuffer(
@@ -108,6 +111,8 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         const UINT firstVertex, const UINT vertexCount, const UINT textureIndex, const BOOL useTexture,
         Pipeline* ctx)
         {
+            REQUIRE(vertexCount > 0);
+            
             if (!ctx->m_initialized) Initialize(ctx);
             
             if (ctx->m_currentUseTexture != useTexture)

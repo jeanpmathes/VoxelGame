@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -180,10 +182,13 @@ public class RenderPipeline
 
     private void DoDraw(Draw2D drawer)
     {
+        Debug.Assert((drawCalls.Count > 0).Implies(vertexBuffer.Count > 0));
+
         preDraw();
         Textures.UploadIfDirty(drawer);
 
-        drawer.UploadBuffer(vertexBuffer.AsSpan());
+        if (vertexBuffer.Count > 0)
+            drawer.UploadBuffer(vertexBuffer.AsSpan());
 
         foreach (DrawCall drawCall in drawCalls)
         {

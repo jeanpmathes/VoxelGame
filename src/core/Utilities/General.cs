@@ -22,4 +22,12 @@ public static class General
 
         return obj;
     }
+
+    /// <summary>
+    ///     Signifies an implication. If a is true, b must be true as well.
+    /// </summary>
+    public static bool Implies(this bool a, bool b)
+    {
+        return !a || b;
+    }
 }

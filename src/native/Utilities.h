@@ -39,12 +39,7 @@ namespace util
             &allocation,
             IID_PPV_ARGS(&resource)));
 
-        Allocation<T> result = {};
-
-        result.allocation = allocation;
-        result.resource = resource;
-
-        return result;
+        return {allocation, resource};
     }
 
     /**

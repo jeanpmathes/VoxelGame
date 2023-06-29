@@ -7040,6 +7040,8 @@ HRESULT AllocatorPimpl::CreateResource(
         return E_INVALIDARG;
     }
     D3D12MA_ASSERT(IsPow2(resAllocInfo.Alignment));
+    if (resAllocInfo.SizeInBytes <= 0) 
+        ExitProcess(12);
     D3D12MA_ASSERT(resAllocInfo.SizeInBytes > 0);
 
     BlockVector* blockVector = NULL;
