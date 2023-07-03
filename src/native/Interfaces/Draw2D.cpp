@@ -16,7 +16,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const C
         cbvDesc.BufferLocation = booleanConstantBuffer.resource->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
 
-        NAME_D3D12_OBJECT(/* Draw2D */ booleanConstantBuffer);
+        NAME_D3D12_OBJECT(booleanConstantBuffer);
 
         this->m_cbuffers.push_back(booleanConstantBuffer);
         this->m_constantBufferViews.push_back(cbvDesc);
@@ -76,6 +76,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                 ctx->m_client, vertexBufferSize,
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                 D3D12_HEAP_TYPE_UPLOAD);
+            NAME_D3D12_OBJECT(ctx->m_uploadBuffer);
 
             TRY_DO(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
@@ -83,8 +84,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                 ctx->m_client, vertexBufferSize,
                 D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
                 D3D12_HEAP_TYPE_DEFAULT);
-
-            NAME_D3D12_OBJECT(/* Draw2D */ ctx->m_vertexBuffer);
+            NAME_D3D12_OBJECT(ctx->m_vertexBuffer);
 
             auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(),
                                                                    D3D12_RESOURCE_STATE_COMMON,

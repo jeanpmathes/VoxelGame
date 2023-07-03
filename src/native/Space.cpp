@@ -201,6 +201,7 @@ void Space::CreateGlobalConstBuffer()
     m_globalConstantBufferData = {.time = 0.0f, .minLight = 0.4f};
     m_globalConstantBufferSize = sizeof m_globalConstantBufferData;
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
+    NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
     UpdateGlobalConstBuffer();
 }

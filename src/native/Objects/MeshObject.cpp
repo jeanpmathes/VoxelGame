@@ -8,6 +8,7 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
 
     m_instanceConstantBufferAlignedSize = sizeof m_instanceConstantBufferData;
     m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
+    NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantBuffer);
 
     Update();
 }

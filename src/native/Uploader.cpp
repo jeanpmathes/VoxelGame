@@ -20,14 +20,15 @@ void Uploader::UploadTexture(
 {
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
-    const Allocation<ID3D12Resource> uploadBuffer = util::AllocateBuffer(
+    const Allocation<ID3D12Resource> textureUploadBuffer = util::AllocateBuffer(
         GetClient(),
         uploadBufferSize,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         D3D12_HEAP_TYPE_UPLOAD);
+    NAME_D3D12_OBJECT(textureUploadBuffer);
 
-    m_uploadBuffers.push_back(uploadBuffer);
+    m_uploadBuffers.push_back(textureUploadBuffer);
 
     std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
     for (UINT subresource = 0; subresource < subresources; subresource++)
@@ -37,7 +38,7 @@ void Uploader::UploadTexture(
         uploadDescription[subresource].SlicePitch = uploadDescription[subresource].RowPitch * description.height;
     }
 
-    UpdateSubresources(m_commandList.Get(), destination.Get(), uploadBuffer.Get(),
+    UpdateSubresources(m_commandList.Get(), destination.Get(), textureUploadBuffer.Get(),
                        0, 0, subresources,
                        uploadDescription.data());
     
@@ -46,23 +47,24 @@ void Uploader::UploadTexture(
 
 void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Allocation<ID3D12Resource> destination)
 {
-    const Allocation<ID3D12Resource> uploadBuffer = util::AllocateBuffer(
+    const Allocation<ID3D12Resource> normalUploadBuffer = util::AllocateBuffer(
         GetClient(),
         size,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         D3D12_HEAP_TYPE_UPLOAD);
+    NAME_D3D12_OBJECT(normalUploadBuffer);
 
-    m_uploadBuffers.push_back(uploadBuffer);
+    m_uploadBuffers.push_back(normalUploadBuffer);
 
-    TRY_DO(util::MapAndWrite(uploadBuffer, data, size));
+    TRY_DO(util::MapAndWrite(normalUploadBuffer, data, size));
 
     auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(),
                                                            D3D12_RESOURCE_STATE_COMMON,
                                                            D3D12_RESOURCE_STATE_COPY_DEST);
     m_commandList->ResourceBarrier(1, &transition);
 
-    m_commandList->CopyBufferRegion(destination.Get(), 0, uploadBuffer.Get(), 0, size);
+    m_commandList->CopyBufferRegion(destination.Get(), 0, normalUploadBuffer.Get(), 0, size);
 
     transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(),
                                                       D3D12_RESOURCE_STATE_COPY_DEST,
