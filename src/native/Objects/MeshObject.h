@@ -112,4 +112,5 @@ private:
     std::optional<Handle> m_handle = std::nullopt;
     bool m_enabled = true;
     bool m_modified = false;
+    bool m_uploadRequired = false;
 };

@@ -350,7 +350,7 @@ void NativeClient::OnRender(double)
     if (!m_windowVisible) return;
 
     {
-        PIXScopedEvent(m_commandQueue.Get(), 0, L"Render");
+        PIXScopedEvent(m_commandQueue.Get(), PIX_COLOR_DEFAULT, L"Render");
 
         m_uploadGroup.Close();
 
@@ -559,7 +559,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
     if (m_space == nullptr) return; // Nothing to post-process.
 
     {
-        PIXScopedEvent(m_2dGroup.commandList.Get(), 0, L"Post Processing");
+        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
 
         m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
         m_2dGroup.commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
@@ -589,7 +589,7 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
 {
     {
         auto& pipeline = m_draw2DPipelines[index];
-        PIXScopedEvent(m_2dGroup.commandList.Get(), 0, L"Draw2D");
+        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
 
         pipeline.PopulateCommandListSetup(m_2dGroup.commandList);
 

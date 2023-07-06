@@ -42,12 +42,16 @@ void MeshObject::SetEnabledState(const bool enabled)
 
 void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount)
 {
+    REQUIRE(!IsMeshModified());
+    REQUIRE(!m_uploadRequired);
+    
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
     const auto indexBufferSize = sizeof(UINT) * indexCount;
 
     m_vertexCount = vertexCount;
     m_indexCount = indexCount;
     m_modified = true;
+    m_uploadRequired = true;
 
     if (m_vertexCount == 0 || m_indexCount == 0)
     {
@@ -59,13 +63,13 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, con
 
     m_vertexBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                                 D3D12_RESOURCE_FLAG_NONE,
-                                                D3D12_RESOURCE_STATE_COMMON,
+                                                D3D12_RESOURCE_STATE_GENERIC_READ,
                                                 D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_vertexBufferUpload);
 
     m_indexBufferUpload = util::AllocateBuffer(GetClient(), indexBufferSize,
                                                D3D12_RESOURCE_FLAG_NONE,
-                                               D3D12_RESOURCE_STATE_COMMON,
+                                               D3D12_RESOURCE_STATE_GENERIC_READ,
                                                D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_indexBufferUpload);
 
@@ -86,6 +90,9 @@ bool MeshObject::IsEnabled() const
 void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     REQUIRE(IsMeshModified());
+    REQUIRE(m_uploadRequired);
+
+    m_uploadRequired = false;
 
     if (m_vertexCount == 0 || m_indexCount == 0)
     {
@@ -97,7 +104,7 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
 
     const auto vertexBufferSize = m_vertexBufferUpload.resource->GetDesc().Width;
     const auto indexBufferSize = m_indexBufferUpload.resource->GetDesc().Width;
-
+    
     m_vertexBuffer = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                           D3D12_RESOURCE_FLAG_NONE,
                                           D3D12_RESOURCE_STATE_COMMON,
@@ -133,6 +140,8 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
 
 void MeshObject::CleanupMeshUpload()
 {
+    REQUIRE(!m_uploadRequired);
+    
     m_vertexBufferUpload = {};
     m_indexBufferUpload = {};
 
@@ -147,6 +156,8 @@ void MeshObject::FillArguments(StandardShaderArguments& shaderArguments) const
 void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt,
                                StandardShaderArguments& shaderArguments) const
 {
+    REQUIRE(!m_uploadRequired);
+    
     const Material& material = GetClient().GetSpace()->GetMaterial(m_materialIndex);
 
     sbt.AddHitGroup(material.normalHitGroup,
@@ -170,7 +181,8 @@ void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt
 void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
     REQUIRE(IsMeshModified());
-
+    REQUIRE(!m_uploadRequired);
+    
     if (m_vertexCount == 0 || m_indexCount == 0)
     {
         m_blas = {};
