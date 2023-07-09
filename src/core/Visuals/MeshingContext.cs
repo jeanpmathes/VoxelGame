@@ -237,9 +237,8 @@ public class MeshingContext
 
         // todo: evaluate all initial capacities
 
-        PooledList<SpatialVertex> simpleVertices = new(capacity: 2048);
-        PooledList<uint> simpleIndices = new(capacity: 2048);
-        GenerateMesh(blockMeshFaceHolders, simpleVertices, simpleIndices);
+        PooledList<SpatialVertex> simpleMesh = new(capacity: 2048);
+        GenerateMesh(blockMeshFaceHolders, simpleMesh);
 
         PooledList<int> varyingHeightVertexData = new(capacity: 8);
         PooledList<uint> varyingHeightIndices = new(capacity: 8);
@@ -273,7 +272,7 @@ public class MeshingContext
             transparentFluidIndices);
 
         return new SectionMeshData(
-            (simpleVertices, simpleIndices),
+            simpleMesh,
             complexVertexPositions,
             complexVertexData,
             complexIndices,
@@ -298,9 +297,9 @@ public class MeshingContext
         ReturnToPool(transparentFluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(BlockMeshFaceHolder[] holders, PooledList<SpatialVertex> vertices, PooledList<uint> indices)
+    private static void GenerateMesh(BlockMeshFaceHolder[] holders, PooledList<SpatialVertex> mesh)
     {
-        foreach (BlockMeshFaceHolder holder in holders) holder.GenerateMesh(vertices, indices);
+        foreach (BlockMeshFaceHolder holder in holders) holder.GenerateMesh(mesh);
     }
 
     private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, ref uint vertexCount,

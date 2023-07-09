@@ -66,12 +66,10 @@ public class BlockMeshFaceHolderTest
         FillHolder(holder, side.Direction());
 
         PooledList<SpatialVertex> vertices = new();
-        PooledList<uint> indices = new();
 
-        holder.GenerateMesh(vertices, indices);
+        holder.GenerateMesh(vertices);
 
         Assert.Equal(expected: 4, vertices.Count);
-        Assert.Equal(expected: 6, indices.Count);
 
         Vector3[] expected = GetSideMesh(side);
 
@@ -81,7 +79,6 @@ public class BlockMeshFaceHolderTest
         Assert.True(VMath.NearlyEqual(expected[3], vertices[index: 3].Position));
 
         vertices.ReturnToPool();
-        indices.ReturnToPool();
     }
 
     [Fact]

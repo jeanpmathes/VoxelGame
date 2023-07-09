@@ -260,7 +260,7 @@ public static class BlockModels
     /// </summary>
     /// <param name="faces"></param>
     /// <returns></returns>
-    private static uint[] GenerateDoubleSidedIndexDataArray(int faces)
+    private static uint[] GenerateDoubleSidedIndexDataArray(int faces) // todo: remove index generation
     {
         var indices = new uint[faces * 12];
 
@@ -291,7 +291,7 @@ public static class BlockModels
     /// </summary>
     /// <param name="faces">The number of faces.</param>
     /// <returns>The index arrays.</returns>
-    public static uint[] GenerateIndexDataArray(int faces)
+    public static uint[] GenerateIndexDataArray(int faces) // todo: remove index generation
     {
         var indices = new uint[faces * 6];
 

@@ -362,19 +362,16 @@ public static class Native
     /// </summary>
     /// <param name="meshObject">The indexed mesh object.</param>
     /// <param name="vertices">The vertices.</param>
-    /// <param name="indices">The indices.</param>
-    public static unsafe void SetMeshObjectData(MeshObject meshObject, Span<SpatialVertex> vertices, Span<uint> indices)
+    public static unsafe void SetMeshObjectData(MeshObject meshObject, Span<SpatialVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength, uint* indices, int indexLength);
+        static extern void NativeSetMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength);
 
         Debug.Assert(vertices.Length >= 0);
-        Debug.Assert(indices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
-        fixed (uint* indexData = indices)
         {
-            NativeSetMeshObjectMesh(meshObject.Self, vertexData, vertices.Length, indexData, indices.Length);
+            NativeSetMeshObjectMesh(meshObject.Self, vertexData, vertices.Length);
         }
     }
 

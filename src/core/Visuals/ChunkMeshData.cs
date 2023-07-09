@@ -41,7 +41,7 @@ public class SectionMeshData
 {
     private bool isReturnedToPool;
 
-    internal SectionMeshData((PooledList<SpatialVertex>, PooledList<uint>) simpleMesh,
+    internal SectionMeshData(PooledList<SpatialVertex> simpleMesh,
         PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
         PooledList<uint> complexIndices,
         PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
@@ -72,7 +72,7 @@ public class SectionMeshData
 
     private SectionMeshData()
     {
-        SimpleMesh = (new PooledList<SpatialVertex>(), new PooledList<uint>());
+        SimpleMesh = new PooledList<SpatialVertex>();
 
         complexVertexPositions = new PooledList<float>();
         complexVertexData = new PooledList<int>();
@@ -100,7 +100,7 @@ public class SectionMeshData
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => SimpleMesh.Vertices.Count != 0 || complexVertexPositions.Count != 0 ||
+    public bool IsFilled => SimpleMesh.Count != 0 || complexVertexPositions.Count != 0 ||
                             varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
                             cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
@@ -108,7 +108,7 @@ public class SectionMeshData
     /// <summary>
     ///     The simple mesh data, corresponding to <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />.
     /// </summary>
-    public (PooledList<SpatialVertex> Vertices, PooledList<uint> Indices) SimpleMesh { get; }
+    public PooledList<SpatialVertex> SimpleMesh { get; }
 
     /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
@@ -117,8 +117,7 @@ public class SectionMeshData
     {
         Debug.Assert(!isReturnedToPool);
 
-        SimpleMesh.Vertices.ReturnToPool();
-        SimpleMesh.Indices.ReturnToPool();
+        SimpleMesh.ReturnToPool();
 
         complexVertexPositions.ReturnToPool();
         complexVertexData.ReturnToPool();

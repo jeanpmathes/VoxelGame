@@ -93,12 +93,74 @@ void Space::EnqueueRenderSetup()
     }
 }
 
-void Space::CleanupRenderSetup() const
+void Space::CleanupRenderSetup()
 {
     for (const auto& mesh : m_meshes)
     {
         mesh->CleanupMeshUpload();
     }
+
+    m_indexBufferUploads.clear();
+}
+
+std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT vertexCount)
+{
+    REQUIRE(vertexCount > 0);
+    REQUIRE(vertexCount % 4 == 0);
+
+    const UINT requiredQuadCount = vertexCount / 4;
+    const UINT requiredIndexCount = requiredQuadCount * 6;
+
+    if (requiredIndexCount > m_sharedIndexCount)
+    {
+        const UINT requiredIndexBufferSize = requiredIndexCount * sizeof(UINT);
+
+        Allocation<ID3D12Resource> sharedIndexUpload = util::AllocateBuffer(m_nativeClient, requiredIndexBufferSize,
+                                                                            D3D12_RESOURCE_FLAG_NONE,
+                                                                            D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                            D3D12_HEAP_TYPE_UPLOAD);
+        NAME_D3D12_OBJECT(sharedIndexUpload);
+
+        const UINT availableQuadCount = m_sharedIndexCount / 6;
+        for (UINT quad = availableQuadCount; quad < requiredQuadCount; quad++)
+        {
+            // A CW winding order is used.
+
+            m_indices.push_back(quad * 4 + 0);
+            m_indices.push_back(quad * 4 + 1);
+            m_indices.push_back(quad * 4 + 2);
+
+            m_indices.push_back(quad * 4 + 0);
+            m_indices.push_back(quad * 4 + 2);
+            m_indices.push_back(quad * 4 + 3);
+        }
+
+        TRY_DO(util::MapAndWrite(sharedIndexUpload, m_indices.data(), requiredIndexCount));
+
+        m_sharedIndexBuffer = util::AllocateBuffer(m_nativeClient, requiredIndexBufferSize,
+                                                   D3D12_RESOURCE_FLAG_NONE,
+                                                   D3D12_RESOURCE_STATE_COPY_DEST,
+                                                   D3D12_HEAP_TYPE_DEFAULT);
+        NAME_D3D12_OBJECT(m_sharedIndexBuffer);
+
+        m_commandGroup.commandList->CopyBufferRegion(m_sharedIndexBuffer.Get(), 0,
+                                                     sharedIndexUpload.resource.Get(), 0,
+                                                     requiredIndexBufferSize);
+
+        const D3D12_RESOURCE_BARRIER transitionCopyDestToShaderResource = {
+            CD3DX12_RESOURCE_BARRIER::Transition(m_sharedIndexBuffer.Get(),
+                                                 D3D12_RESOURCE_STATE_COPY_DEST,
+                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+        };
+        m_commandGroup.commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
+
+        m_sharedIndexCount = requiredIndexCount;
+        m_indexBufferUploads.emplace_back(m_sharedIndexBuffer, sharedIndexUpload);
+
+        std::cout << "Index buffer resized to " << requiredIndexCount << " indices." << std::endl;
+    }
+
+    return {m_sharedIndexBuffer, requiredIndexCount};
 }
 
 void Space::DispatchRays() const
@@ -304,8 +366,8 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
 #if defined(VG_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
-        m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str());
-        m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str());
+        TRY_DO(m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str()));
+        TRY_DO(m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str()));
 #endif
 
         m_materials.push_back(std::move(m));
@@ -376,7 +438,6 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1); // Index Buffer
 
     rsc.AddHeapRangesParameter({
         {2, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1} // BVH

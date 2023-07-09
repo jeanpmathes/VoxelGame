@@ -122,13 +122,11 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     ///     Generate the mesh using all faces held by this holder.
     /// </summary>
     /// <param name="vertices">The list of vertices to add to.</param>
-    /// <param name="indices">The list of indices to add to.</param>
-    public void GenerateMesh(PooledList<SpatialVertex> vertices, PooledList<uint> indices)
+    public void GenerateMesh(PooledList<SpatialVertex> vertices)
     {
         if (count == 0) return;
 
         vertices.Capacity += count * 4;
-        indices.Capacity += count * 6;
 
         for (var l = 0; l < Section.Size; l++)
         for (var r = 0; r < Section.Size; r++)
@@ -147,7 +145,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
                 (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
 
-                Meshing.PushFaces(vertices, indices, positions, currentFace.data);
+                Meshing.PushQuad(vertices, positions, currentFace.data);
 
                 MeshFace? next = currentFace.previous;
                 currentFace.Return();

@@ -203,8 +203,7 @@ namespace nv_helpers_dx12
         if (m_resultSizeInBytes == 0 || m_scratchSizeInBytes == 0)
         {
             throw std::logic_error(
-                "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs "
-                "to be called before Build");
+                "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs to be called before Build");
         }
         // Create a descriptor of the requested builder work, to generate a
         // bottom-level AS from the input parameters

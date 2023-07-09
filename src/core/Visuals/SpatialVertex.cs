@@ -11,6 +11,7 @@ namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     The vertex layout used by all basic meshes.
+///     A mesh is simply a sequence of quads with their vertices in CW order.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 #pragma warning disable S3898 // No equality comparison used.

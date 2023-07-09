@@ -6,14 +6,13 @@
 
 #include "Common.hlsl"
 
-struct STriVertex
+struct SpatialVertex
 {
     float3 vertex;
     uint data;
 };
 
-StructuredBuffer<STriVertex> vertices : register(t0);
-StructuredBuffer<int> indices: register(t1);
+StructuredBuffer<SpatialVertex> vertices : register(t0);
 
 cbuffer GlobalCB : register(b0) {
 float gTime;
@@ -29,61 +28,53 @@ float4x4 iWorldNormal;
 RaytracingAccelerationStructure spaceBVH : register(t2);
 
 /**
- * Read the basic mesh data, meaning the vertex indices, the vertex positions and the normal.
- */
-void ReadMeshData(out int3 vi, out float3 posX, out float3 posY, out float3 posZ, out float3 normal)
-{
-    const uint vertId = 3 * PrimitiveIndex();
-
-    vi = int3(
-        indices[vertId + 0],
-        indices[vertId + 1],
-        indices[vertId + 2]);
-
-    posX = vertices[vi[0]].vertex;
-    posY = vertices[vi[1]].vertex;
-    posZ = vertices[vi[2]].vertex;
-
-    const float3 e1 = posY - posX;
-    const float3 e2 = posZ - posX;
-
-    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz;
-}
-
-/**
- * Read the additional data associated with the current quad.
+ * Read the mesh data.
+ * The first part of the mesh data are the vertex positions of the triangle that were hit.
+ * A normal is calculated from these positions.
+ * The order of the positions is CCW.
+ * Additionally, the data stored in the quad the triangle belongs to is read.
  * For this to work, the following conditions must be met:
  * - The mesh must be a quad mesh.
- * - The indices of a quad follow the pattern 0-2-1-|-0-3-2-|...
- * - The vertex order is CW, the index order is CCW.
+ * - The vertex order is CW.
  */
-void ReadQuadData(out uint4 data)
+void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC, out float3 normal, out uint4 data)
 {
-    const bool isFirst = (PrimitiveIndex() % 2) == 0;
+    // A quad looks like this:
+    // 1 -- 2
+    // |  / |
+    // | /  |
+    // 0 -- 3
+    // The top left triangle is the first one, the bottom right triangle is the second one.
 
-    const uint2 vertIds = isFirst
-                              ? uint2(3 * PrimitiveIndex(), 3 * (PrimitiveIndex() + 1))
-                              : uint2(3 * (PrimitiveIndex() - 1), 3 * PrimitiveIndex());
+    const uint primitiveIndex = PrimitiveIndex();
+    const bool isFirst = (primitiveIndex % 2) == 0;
+    const uint vertexIndex = isFirst ? 4 * primitiveIndex : 4 * (primitiveIndex - 1);
+
+    vi = isFirst ? int3(0, 2, 1) : int3(0, 3, 2);
+    vi += vertexIndex;
+
+    posA = vertices[vi[0]].vertex;
+    posB = vertices[vi[1]].vertex;
+    posC = vertices[vi[2]].vertex;
+
+    const float3 e1 = posB - posA;
+    const float3 e2 = posC - posA;
+
+    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz * -1.f;
 
     data = uint4(
-        vertices[vertIds[0] + 0].data, // Vertex 0
-        vertices[vertIds[0] + 2].data, // Vertex 1
-        vertices[vertIds[1] + 2].data, // Vertex 2
-        vertices[vertIds[1] + 1].data); // Vertex 3
+        vertices[vertexIndex + 0].data,
+        vertices[vertexIndex + 1].data,
+        vertices[vertexIndex + 2].data,
+        vertices[vertexIndex + 3].data);
 }
 
 /**
  * Get the interpolation factors for the quad.
- * For this to work, the following conditions must be met:
- *  - The mesh must be a quad mesh.
- *  - The indices of a quad follow the pattern 0-2-1-|-0-3-2-|...
- *  - The vertex order is CW, the index order is CCW.
  */
 float2 GetQuadInterpolation(float3 barycentric)
 {
     const bool isFirst = (PrimitiveIndex() % 2) == 0;
-    // Because the barycentrics are in vertex order instead of index order,
-    // the pattern is now: 0-1-2-|-0-2-3-|...
 
     const float2 a = float2(0.0, 0.0);
     const float2 b = float2(0.0, 1.0);
@@ -95,14 +86,14 @@ float2 GetQuadInterpolation(float3 barycentric)
     if (isFirst)
     {
         uv = barycentric.x * a
-            + barycentric.y * b
-            + barycentric.z * c;
+            + barycentric.y * c
+            + barycentric.z * b;
     }
     else
     {
         uv = barycentric.x * a
-            + barycentric.y * c
-            + barycentric.z * d;
+            + barycentric.y * d
+            + barycentric.z * c;
     }
 
     return uv;
@@ -116,19 +107,19 @@ struct Info
     int3 vi;
 
     /**
-     * The x position of the current triangle.
+     * The a position of the current triangle.
      */
-    float3 x;
+    float3 a;
 
     /**
-     * The y position of the current triangle.
+     * The b position of the current triangle.
      */
-    float3 y;
+    float3 b;
 
     /**
-     * The z position of the current triangle.
+     * The c position of the current triangle.
      */
-    float3 z;
+    float3 c;
 
     /**
      * The normal of the current triangle.
@@ -155,8 +146,7 @@ Info GetCurrentInfo(const in Attributes attributes)
 {
     Info info;
 
-    ReadMeshData(info.vi, info.x, info.y, info.z, info.normal);
-    ReadQuadData(info.data);
+    ReadMeshData(info.vi, info.a, info.b, info.c, info.normal, info.data);
 
     info.barycentric = GetBarycentrics(attributes);
     info.uv = GetQuadInterpolation(info.barycentric);
@@ -171,8 +161,7 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
     
     float3 color = baseColor;
 
-    // Backface culling with CCW winding:
-    if (dot(normal, WorldRayDirection()) > 0.f)
+    if (dot(normal, WorldRayDirection()) < 0.f)
     {
         return float3(0.f, 0.f, 0.f);
     }

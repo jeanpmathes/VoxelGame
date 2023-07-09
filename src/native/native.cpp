@@ -241,13 +241,11 @@ NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabl
     CATCH();
 }
 
-NATIVE void NativeSetMeshObjectMesh(MeshObject* object,
-                                    const SpatialVertex* vertexData, const UINT vertexCount,
-                                    const UINT* indexData, const UINT indexCount)
+NATIVE void NativeSetMeshObjectMesh(MeshObject* object, const SpatialVertex* vertexData, const UINT vertexCount)
 {
     TRY
     {
-        object->SetNewMesh(vertexData, vertexCount, indexData, indexCount);
+        object->SetNewMesh(vertexData, vertexCount);
     }
     CATCH();
 }

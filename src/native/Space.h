@@ -89,7 +89,13 @@ public:
      * This should be called before each frame.
      */
     void EnqueueRenderSetup();
-    void CleanupRenderSetup() const;
+    void CleanupRenderSetup();
+
+    /**
+     * Get a buffer containing indices for the given vertex count.
+     * The indices are valid for a vertex buffer that contains a list of quads.
+     */
+    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
 
     /**
      * Dispatches rays into the space.
@@ -158,4 +164,9 @@ private:
     AccelerationStructureBuffers m_topLevelASBuffers;
 
     std::list<std::unique_ptr<MeshObject>> m_meshes = {};
+
+    std::vector<UINT> m_indices = {};
+    Allocation<ID3D12Resource> m_sharedIndexBuffer = {};
+    UINT m_sharedIndexCount = 0;
+    std::vector<std::pair<Allocation<ID3D12Resource>, Allocation<ID3D12Resource>>> m_indexBufferUploads = {};
 };

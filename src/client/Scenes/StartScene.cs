@@ -29,14 +29,14 @@ public sealed class StartScene : IScene
 
     private readonly Application.Client client;
 
-    private readonly int? loadWorldDirectly;
-
     private readonly ResourceLoadingFailure? resourceLoadingFailure;
     private readonly StartUserInterface ui;
 
     private readonly WorldProvider worldProvider;
 
     private bool isFirstUpdate = true;
+
+    private int? loadWorldDirectly;
 
     internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
     {
@@ -75,7 +75,14 @@ public sealed class StartScene : IScene
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());
 
-        if (resourceLoadingFailure != null) ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+        if (resourceLoadingFailure == null) return;
+
+        ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+
+        if (loadWorldDirectly is null) return;
+
+        logger.LogWarning("Resource loading failure prevents direct world loading, going to main menu");
+        loadWorldDirectly = null;
     }
 
     /// <inheritdoc />

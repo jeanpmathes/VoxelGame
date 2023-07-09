@@ -39,10 +39,9 @@ public class MeshObject : SpatialObject
     ///     Set the mesh of this object.
     /// </summary>
     /// <param name="vertices">The vertices.</param>
-    /// <param name="indices">The indices.</param>
-    public void SetMesh(Span<SpatialVertex> vertices, Span<uint> indices)
+    public void SetMesh(Span<SpatialVertex> vertices)
     {
-        Native.SetMeshObjectData(this, vertices, indices);
+        Native.SetMeshObjectData(this, vertices);
     }
 
     /// <summary>

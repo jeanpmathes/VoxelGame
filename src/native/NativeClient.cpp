@@ -138,10 +138,10 @@ void NativeClient::LoadDevice()
         self->m_debugCallback(category, severity, id, description, nullptr);
         Win32Application::ExitErrorMode();
     };
-    
-    TRY_DO(m_device->QueryInterface(__uuidof(ID3D12InfoQueue1), &m_infoQueue));
+
+    TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
     TRY_DO(m_infoQueue->RegisterMessageCallback(
-        m_debugCallback,
+        callback,
         D3D12_MESSAGE_CALLBACK_FLAG_NONE,
         this,
         &m_callbackCookie));
@@ -499,9 +499,9 @@ void NativeClient::WaitForGPU()
 
 void NativeClient::MoveToNextFrame()
 {
-    const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
-    TRY_DO(m_commandQueue->Signal(m_fence.Get(), currentFenceValue));
+    TRY_DO(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
+    const UINT64 currentFenceValue = m_fenceValues[static_cast<UINT64>(m_frameIndex)];
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])

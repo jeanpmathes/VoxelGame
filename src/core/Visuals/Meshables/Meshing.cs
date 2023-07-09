@@ -34,51 +34,40 @@ public static class Meshing
     }
 
     /// <summary>
-    ///     Push a quad to a mesh, defined by vertices and indices.
+    ///     Push a quad to a mesh.
     /// </summary>
-    /// <param name="vertices">The vertices of the mesh.</param>
-    /// <param name="indices">The indices of the mesh.</param>
+    /// <param name="mesh">The mesh, defined by vertices.</param>
     /// <param name="positions">The four positions of the quad, in clockwise order.</param>
     /// <param name="data">The data of the quad.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void PushFaces(
-        PooledList<SpatialVertex> vertices, PooledList<uint> indices,
+    public static void PushQuad(
+        PooledList<SpatialVertex> mesh,
         (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
         (uint a, uint b, uint c, uint d) data)
     {
-        var index = (uint) vertices.Count;
-
-        vertices.Add(new SpatialVertex
+        mesh.Add(new SpatialVertex
         {
             Position = positions.a,
             Data = data.a
         });
 
-        vertices.Add(new SpatialVertex
+        mesh.Add(new SpatialVertex
         {
             Position = positions.b,
             Data = data.b
         });
 
-        vertices.Add(new SpatialVertex
+        mesh.Add(new SpatialVertex
         {
             Position = positions.c,
             Data = data.c
         });
 
-        vertices.Add(new SpatialVertex
+        mesh.Add(new SpatialVertex
         {
             Position = positions.d,
             Data = data.d
         });
-
-        indices.Add(index + 0);
-        indices.Add(index + 2);
-        indices.Add(index + 1);
-
-        indices.Add(index + 0);
-        indices.Add(index + 3);
-        indices.Add(index + 2);
     }
 
     /// <summary>

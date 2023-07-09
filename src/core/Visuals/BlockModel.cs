@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Visuals;
     "Performance",
     "CA1819:Properties should not return arrays",
     Justification = "This class is meant for data storage.")]
-public sealed class BlockModel
+public sealed class BlockModel // todo: remove everything index-related from this class (rendered no longer uses indices for RT)
 {
     private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 

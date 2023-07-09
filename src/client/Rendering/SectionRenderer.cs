@@ -57,7 +57,7 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        simple.SetMesh(meshData.SimpleMesh.Vertices.AsSpan(), meshData.SimpleMesh.Indices.AsSpan());
+        simple.SetMesh(meshData.SimpleMesh.AsSpan());
 
         meshData.ReturnPooled();
     }

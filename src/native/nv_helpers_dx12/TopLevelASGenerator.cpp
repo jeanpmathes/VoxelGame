@@ -154,8 +154,7 @@ namespace nv_helpers_dx12
         descriptorsBuffer->Map(0, nullptr, reinterpret_cast<void**>(&instanceDescs));
         if (!instanceDescs)
         {
-            throw std::logic_error("Cannot map the instance descriptor buffer - is it "
-                "in the upload heap?");
+            throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
         }
 
         auto instanceCount = static_cast<UINT>(m_instances.size());

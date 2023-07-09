@@ -45,7 +45,7 @@ public:
     void Update();
 
     void SetEnabledState(bool enabled);
-    void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount, const UINT* indices, UINT indexCount);
+    void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount);
 
     [[nodiscard]] bool IsMeshModified() const;
     [[nodiscard]] bool IsEnabled() const;
@@ -90,7 +90,7 @@ protected:
     CreateBottomLevelAS(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers = {}) const;
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers) const;
 
 private:
     UINT m_materialIndex;
@@ -100,17 +100,18 @@ private:
     InstanceConstantBuffer m_instanceConstantBufferData = {};
 
     Allocation<ID3D12Resource> m_vertexBufferUpload = {};
-    Allocation<ID3D12Resource> m_indexBufferUpload = {};
-
     Allocation<ID3D12Resource> m_vertexBuffer = {};
-    Allocation<ID3D12Resource> m_indexBuffer = {};
-
     UINT m_vertexCount = 0;
-    UINT m_indexCount = 0;
+
+    Allocation<ID3D12Resource> m_usedIndexBuffer = {};
+    UINT m_usedIndexCount = 0;
+    
     AccelerationStructureBuffers m_blas = {};
 
     std::optional<Handle> m_handle = std::nullopt;
     bool m_enabled = true;
     bool m_modified = false;
+    
     bool m_uploadRequired = false;
+    bool m_uploadEnqueued = false;
 };

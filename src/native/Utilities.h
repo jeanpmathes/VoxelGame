@@ -21,6 +21,7 @@ namespace util
         const D3D12_RESOURCE_DESC& resourceDesc,
         const D3D12_HEAP_TYPE heapType,
         const D3D12_RESOURCE_STATES initState,
+        const D3D12_CLEAR_VALUE* optimizedClearValue = nullptr,
         const bool committed = false)
     {
         D3D12MA::ALLOCATION_DESC allocationDesc = {};
@@ -35,7 +36,7 @@ namespace util
             &allocationDesc,
             &resourceDesc,
             initState,
-            nullptr,
+            optimizedClearValue,
             &allocation,
             IID_PPV_ARGS(&resource)));
 
@@ -66,7 +67,7 @@ namespace util
         bufferDescription.SampleDesc.Quality = 0;
         bufferDescription.Width = size;
 
-        return AllocateResource<ID3D12Resource>(client, bufferDescription, heapType, initState, committed);
+        return AllocateResource<ID3D12Resource>(client, bufferDescription, heapType, initState, nullptr, committed);
     }
 
     /**
