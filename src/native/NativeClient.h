@@ -90,7 +90,7 @@ public:
     void MoveToNextFrame();
 
     std::wstring GetDRED() const;
-
+    
    private:
     static const float CLEAR_COLOR[4];
     static const float LETTERBOX_COLOR[4];
@@ -137,7 +137,8 @@ public:
     CommandAllocatorGroup m_2dGroup;
 
     ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
-    ComPtr<ID3D12Resource> m_intermediateRenderTarget;
+    Allocation<ID3D12Resource> m_intermediateRenderTarget;
+    bool m_intermediateRenderTargetInitialized = false;
     CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
     ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
  
@@ -145,7 +146,8 @@ public:
     UINT m_srvDescriptorSize;
 
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
-    ComPtr<ID3D12Resource> m_depthStencilBuffer;
+    Allocation<ID3D12Resource> m_depthStencilBuffer;
+    bool m_depthStencilBufferInitialized = false;
 
     UINT m_frameIndex;
     HANDLE m_fenceEvent{};
@@ -163,8 +165,10 @@ public:
     void LoadDevice();
     void LoadRasterPipeline();
     void CreateDepthBuffer();
+    void EnsureValidDepthBuffer(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();
+    void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void PopulateCommandLists();
     void UpdatePostViewAndScissor();
 };

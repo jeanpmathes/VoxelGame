@@ -63,11 +63,11 @@ protected:
     explicit Object(NativeClient& client);
 
     [[nodiscard]] NativeClient& GetClient() const;
-    [[nodiscard]] uint64_t GetID() const;
+    [[nodiscard]] UINT64 GetID() const;
 
 private:
     NativeClient& m_client;
 
-    static uint64_t m_nextID;
-    uint64_t m_id = m_nextID++;
+    static UINT64 m_nextID;
+    UINT64 m_id = m_nextID++;
 };

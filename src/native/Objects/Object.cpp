@@ -10,9 +10,9 @@ NativeClient& Object::GetClient() const
     return m_client;
 }
 
-uint64_t Object::GetID() const
+UINT64 Object::GetID() const
 {
     return m_id;
 }
 
-uint64_t Object::m_nextID = 0;
+UINT64 Object::m_nextID = 0;

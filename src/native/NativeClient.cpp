@@ -231,15 +231,23 @@ void NativeClient::CreateDepthBuffer()
     m_dsvHeap = CreateDescriptorHeap(m_device.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
     NAME_D3D12_OBJECT(m_dsvHeap);
 
-    const D3D12_HEAP_PROPERTIES depthHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    D3D12_RESOURCE_DESC depthResourceDesc =
-        CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 1);
+    D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        DXGI_FORMAT_D32_FLOAT,
+        m_width, m_height,
+        1, 1);
     depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    
     const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
-    TRY_DO(
-        m_device->CreateCommittedResource( &depthHeapProperties, D3D12_HEAP_FLAG_NONE, &depthResourceDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE, &depthOptimizedClearValue, IID_PPV_ARGS(&m_depthStencilBuffer)));
+    m_depthStencilBuffer = util::AllocateResource<ID3D12Resource>(
+        *this,
+        depthResourceDesc,
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthOptimizedClearValue);
+    NAME_D3D12_OBJECT(m_depthStencilBuffer);
+
+    m_depthStencilBufferInitialized = false;
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
     dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -248,7 +256,14 @@ void NativeClient::CreateDepthBuffer()
 
     m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), &dsvDesc,
                                      m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-    NAME_D3D12_OBJECT(m_depthStencilBuffer);
+}
+
+void NativeClient::EnsureValidDepthBuffer(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+{
+    if (m_depthStencilBufferInitialized) return;
+    m_depthStencilBufferInitialized = true;
+
+    commandList->DiscardResource(m_depthStencilBuffer.Get(), nullptr);
 }
 
 void NativeClient::SetupSizeDependentResources()
@@ -308,17 +323,15 @@ void NativeClient::SetupSpaceResolutionDependentResources()
                                                                        FRAME_COUNT,
                                                                        m_rtvDescriptorSize);
 
-        const auto intermediateRenderTargetHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-
-        TRY_DO(m_device->CreateCommittedResource(
-            &intermediateRenderTargetHeapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &renderTargetDesc,
+        m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
+            *this,
+            renderTargetDesc,
+            D3D12_HEAP_TYPE_DEFAULT,
             D3D12_RESOURCE_STATE_RENDER_TARGET,
-            &clearValue,
-            IID_PPV_ARGS(&m_intermediateRenderTarget)));
-        
+            &clearValue);
         NAME_D3D12_OBJECT(m_intermediateRenderTarget);
+
+        m_intermediateRenderTargetInitialized = false;
 
         m_device->CreateRenderTargetView(
             m_intermediateRenderTarget.Get(),
@@ -330,6 +343,14 @@ void NativeClient::SetupSpaceResolutionDependentResources()
 
     if (m_postProcessingPipeline != nullptr)
         m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
+}
+
+void NativeClient::EnsureValidIntermediateRenderTarget(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+{
+    if (m_intermediateRenderTargetInitialized) return;
+    m_intermediateRenderTargetInitialized = true;
+
+    commandList->DiscardResource(m_intermediateRenderTarget.Get(), nullptr);
 }
 
 void NativeClient::OnUpdate(const double delta)
@@ -609,6 +630,9 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
 void NativeClient::PopulateCommandLists()
 {
     m_2dGroup.Reset(m_frameIndex);
+
+    EnsureValidDepthBuffer(m_2dGroup.commandList);
+    EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
     D3D12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),

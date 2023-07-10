@@ -156,8 +156,6 @@ std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT ver
 
         m_sharedIndexCount = requiredIndexCount;
         m_indexBufferUploads.emplace_back(m_sharedIndexBuffer, sharedIndexUpload);
-
-        std::cout << "Index buffer resized to " << requiredIndexCount << " indices." << std::endl;
     }
 
     return {m_sharedIndexBuffer, requiredIndexCount};
@@ -201,7 +199,7 @@ void Space::DispatchRays() const
     m_commandGroup.commandList->DispatchRays(&desc);
 }
 
-void Space::CopyOutputToBuffer(const ComPtr<ID3D12Resource> buffer) const
+void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
 {
     D3D12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(

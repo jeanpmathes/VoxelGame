@@ -321,7 +321,7 @@ ShaderBuffer* RasterPipeline::GetShaderBuffer() const
     return m_shaderBuffer.get();
 }
 
-void RasterPipeline::CreateResourceView(ComPtr<ID3D12Resource> resource) const
+void RasterPipeline::CreateResourceView(const Allocation<ID3D12Resource> resource) const
 {
     REQUIRE(m_preset == ShaderPreset::POST_PROCESSING);
 

@@ -105,7 +105,7 @@ public:
     /**
      * Copies the raytracing output to the given buffer.
      */
-    void CopyOutputToBuffer(ComPtr<ID3D12Resource> buffer) const;
+    void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
 
     void Update(double delta);
 
