@@ -15,6 +15,9 @@ struct Resolution
     UINT height = 0;
 };
 
+bool operator==(const Resolution& lhs, const Resolution& rhs);
+bool operator!=(const Resolution& lhs, const Resolution& rhs);
+
 /**
  * All resources required to build an acceleration structure.
  */

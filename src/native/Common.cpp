@@ -1,5 +1,15 @@
 ﻿#include "stdafx.h"
 
+bool operator==(const Resolution& lhs, const Resolution& rhs)
+{
+    return lhs.width == rhs.width && lhs.height == rhs.height;
+}
+
+bool operator!=(const Resolution& lhs, const Resolution& rhs)
+{
+    return !(lhs == rhs);
+}
+
 std::wstring GetObjectName(const ComPtr<ID3D12Object> object)
 {
     UINT nameSizeInByte = 0;

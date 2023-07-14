@@ -23,18 +23,22 @@ internal class FloatRangeSetting : Setting
 {
     private readonly Func<float> get;
 
+
     private readonly float max;
     private readonly float min;
+
+    private readonly bool percentage;
     private readonly Action<float> set;
 
-
-    internal FloatRangeSetting(string name, float min, float max, Func<float> get, Action<float> set)
+    internal FloatRangeSetting(string name, float min, float max, bool percentage, Func<float> get, Action<float> set)
     {
         this.get = get;
         this.set = set;
 
         this.min = min;
         this.max = max;
+
+        this.percentage = percentage;
 
         Name = name;
     }
@@ -58,6 +62,13 @@ internal class FloatRangeSetting : Setting
             VerticalAlignment = VerticalAlignment.Center
         };
 
+        void SetText()
+        {
+            value.Text = percentage
+                ? $"{floatRange.Value:P}"
+                : $"{floatRange.Value:F}";
+        }
+
         SetText();
 
         Button select = new(layout)
@@ -72,10 +83,5 @@ internal class FloatRangeSetting : Setting
         };
 
         floatRange.ValueChanged += (_, _) => { SetText(); };
-
-        void SetText()
-        {
-            value.Text = $"{floatRange.Value:F}";
-        }
     }
 }

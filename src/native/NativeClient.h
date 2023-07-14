@@ -40,11 +40,7 @@ public:
     void OnWindowMoved(int xPos, int yPos) override;
 
     void InitRaytracingPipeline(const SpacePipeline& pipeline);
-
-    /**
-     * Set the resolution of the space viewport. This has no effect on the window size.
-     */
-    void SetResolution(UINT32 width, UINT32 height);
+    
     /**
      * Toggle fullscreen mode.
      */

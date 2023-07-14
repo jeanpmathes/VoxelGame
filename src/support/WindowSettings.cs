@@ -24,6 +24,11 @@ public record WindowSettings
     public Vector2i Size { get; init; } = Vector2i.One;
 
     /// <summary>
+    ///     The scale at which the world space is rendered.
+    /// </summary>
+    public float RenderScale { get; init; } = 1.0f;
+
+    /// <summary>
     ///     Get a version of these settings with corrected values that are safe to use.
     /// </summary>
     public WindowSettings Corrected

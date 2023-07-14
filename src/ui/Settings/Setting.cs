@@ -112,12 +112,14 @@ public abstract class Setting
     /// <param name="set">Function that sets the current setting value.</param>
     /// <param name="min">The minimum value of the setting.</param>
     /// <param name="max">The maximum value of the setting.</param>
+    /// <param name="percentage">Whether the value is a percentage and should be displayed as such.</param>
     /// <returns>The created setting.</returns>
     public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name,
         Func<float> get, Action<float> set,
-        float min = float.MinValue, float max = float.MaxValue)
+        float min = float.MinValue, float max = float.MaxValue,
+        bool percentage = false)
     {
-        return new FloatRangeSetting(name, min, max, get, set)
+        return new FloatRangeSetting(name, min, max, percentage, get, set)
         {
             Provider = provider
         };

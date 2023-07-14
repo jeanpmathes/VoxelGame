@@ -51,6 +51,16 @@ public class GraphicsSettings : ISettingsProvider
                 Language.GraphicsWindowSize,
                 () => WindowSize,
                 size => WindowSize = size));
+
+        settings.Add(
+            Setting.CreateFloatRangeSetting(
+                this,
+                Language.GraphicsRenderResolutionScale,
+                () => RenderResolutionScale,
+                scale => RenderResolutionScale = scale,
+                min: 0.1f,
+                max: 5f,
+                percentage: true));
     }
 
     /// <summary>
@@ -81,6 +91,9 @@ public class GraphicsSettings : ISettingsProvider
         }
     }
 
+    /// <summary>
+    ///     Get or set the window size setting.
+    /// </summary>
     public Vector2i WindowSize
     {
         get => clientSettings.WindowSize.ToVector2i();
@@ -88,6 +101,20 @@ public class GraphicsSettings : ISettingsProvider
         private set
         {
             clientSettings.WindowSize = new Size(value.X, value.Y);
+            clientSettings.Save();
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the render resolution scale setting.
+    /// </summary>
+    public float RenderResolutionScale
+    {
+        get => (float) clientSettings.RenderResolutionScale;
+
+        private set
+        {
+            clientSettings.RenderResolutionScale = value;
             clientSettings.Save();
         }
     }

@@ -99,17 +99,6 @@ NATIVE void NativePassDRED(const NativeClient* client, const NativeWStringFunc r
     CATCH();
 }
 
-NATIVE void NativeSetResolution(NativeClient* client, const UINT width, const UINT height)
-{
-    TRY
-    {
-        REQUIRE(CALL_ON_MAIN_THREAD(client));
-        
-        client->SetResolution(width, height);
-    }
-    CATCH();
-}
-
 NATIVE void NativeToggleFullscreen(const NativeClient* client)
 {
     TRY

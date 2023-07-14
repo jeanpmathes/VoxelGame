@@ -25,9 +25,9 @@ namespace Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
-        public float MouseSensitivity {
+        public double MouseSensitivity {
             get {
-                return ((float)(this["MouseSensitivity"]));
+                return ((double)(this["MouseSensitivity"]));
             }
             set {
                 this["MouseSensitivity"] = value;
@@ -37,9 +37,9 @@ namespace Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0.0225")]
-        public float CrosshairScale {
+        public double CrosshairScale {
             get {
-                return ((float)(this["CrosshairScale"]));
+                return ((double)(this["CrosshairScale"]));
             }
             set {
                 this["CrosshairScale"] = value;
@@ -115,6 +115,18 @@ namespace Properties {
             }
             set {
                 this["FoliageQuality"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.5")]
+        public double RenderResolutionScale {
+            get {
+                return ((double)(this["RenderResolutionScale"]));
+            }
+            set {
+                this["RenderResolutionScale"] = value;
             }
         }
     }

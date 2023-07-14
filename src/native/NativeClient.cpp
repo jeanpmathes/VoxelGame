@@ -403,7 +403,7 @@ void NativeClient::OnDestroy()
     CloseHandle(m_fenceEvent);
 }
 
-void NativeClient::OnSizeChanged(UINT width, UINT height, bool minimized)
+void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool minimized)
 {
     if ((width != m_width || height != m_height) && !minimized)
     {
@@ -426,8 +426,17 @@ void NativeClient::OnSizeChanged(UINT width, UINT height, bool minimized)
         m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
         UpdateForSizeChange(width, height);
-
         SetupSizeDependentResources();
+
+        Resolution newResolution;
+        newResolution.width = static_cast<UINT>(width * GetRenderScale());
+        newResolution.height = static_cast<UINT>(height * GetRenderScale());
+
+        if (newResolution != m_resolution)
+        {
+            m_resolution = newResolution;
+            SetupSpaceResolutionDependentResources();
+        }
     }
 
     m_windowVisible = !minimized;
@@ -447,15 +456,6 @@ void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
     {
         m_space = nullptr;
     }
-}
-
-void NativeClient::SetResolution(const UINT width, const UINT height)
-{
-    m_resolution.width = width;
-    m_resolution.height = height;
-
-    WaitForGPU();
-    SetupSpaceResolutionDependentResources();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic

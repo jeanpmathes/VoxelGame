@@ -3,10 +3,10 @@
               GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
     <Profiles/>
     <Settings>
-        <Setting Name="MouseSensitivity" Type="System.Single" Scope="User">
+        <Setting Name="MouseSensitivity" Type="System.Double" Scope="User">
             <Value Profile="(Default)">0.3</Value>
         </Setting>
-        <Setting Name="CrosshairScale" Type="System.Single" Scope="User">
+        <Setting Name="CrosshairScale" Type="System.Double" Scope="User">
             <Value Profile="(Default)">0.0225</Value>
         </Setting>
         <Setting Name="CrosshairColor" Type="System.Drawing.Color" Scope="User">
@@ -26,6 +26,9 @@
         </Setting>
         <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
             <Value Profile="(Default)">Medium</Value>
+        </Setting>
+        <Setting Name="RenderResolutionScale" Type="System.Double" Scope="User">
+            <Value Profile="(Default)">0.5</Value>
         </Setting>
     </Settings>
 </SettingsFile>

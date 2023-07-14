@@ -121,20 +121,6 @@ public static class Native
     }
 
     /// <summary>
-    ///     Set the resolution of the window.
-    /// </summary>
-    /// <param name="client">The client for which to set the resolution.</param>
-    /// <param name="width">The new width.</param>
-    /// <param name="height">The new height.</param>
-    public static void SetResolution(Client client, uint width, uint height)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetResolution(IntPtr native, uint width, uint height);
-
-        NativeSetResolution(client.Native, width, height);
-    }
-
-    /// <summary>
     ///     Toggle fullscreen mode.
     /// </summary>
     /// <param name="client">The client for which to toggle fullscreen.</param>

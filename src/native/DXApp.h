@@ -73,6 +73,7 @@ public:
     [[nodiscard]] UINT GetWidth() const { return m_width; }
     [[nodiscard]] UINT GetHeight() const { return m_height; }
     [[nodiscard]] const WCHAR* GetTitle() const { return m_title.c_str(); }
+    [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);

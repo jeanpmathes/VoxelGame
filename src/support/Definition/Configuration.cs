@@ -163,6 +163,11 @@ public static partial class Native
         [MarshalAs(UnmanagedType.LPWStr)] public string title;
 
         /// <summary>
+        ///     The scale at which the world is rendered, as a percentage of the window size.
+        /// </summary>
+        public float renderScale;
+
+        /// <summary>
         ///     Whether to allow tearing.
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)] public bool allowTearing;

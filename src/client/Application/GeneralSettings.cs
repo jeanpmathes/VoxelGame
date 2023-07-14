@@ -76,7 +76,7 @@ public class GeneralSettings : ISettingsProvider
     /// </summary>
     public float CrosshairScale
     {
-        get => clientSettings.CrosshairScale;
+        get => (float) clientSettings.CrosshairScale;
         private set
         {
             float old = CrosshairScale;
@@ -93,7 +93,7 @@ public class GeneralSettings : ISettingsProvider
     /// </summary>
     public float MouseSensitivity
     {
-        get => clientSettings.MouseSensitivity;
+        get => (float) clientSettings.MouseSensitivity;
         private set
         {
             float old = MouseSensitivity;
@@ -131,5 +131,3 @@ public class GeneralSettings : ISettingsProvider
     /// </summary>
     public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged = delegate {};
 }
-
-

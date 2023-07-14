@@ -519,6 +519,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Rendering Resolution Scale.
+        /// </summary>
+        public static string GraphicsRenderResolutionScale {
+            get {
+                return ResourceManager.GetString("GraphicsRenderResolutionScale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sample Count (MSAA).
         /// </summary>
         public static string GraphicsSampleCount {

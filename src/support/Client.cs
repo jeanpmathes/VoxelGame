@@ -90,6 +90,7 @@ public class Client : IDisposable
             width = (uint) windowSettings.Size.X,
             height = (uint) windowSettings.Size.Y,
             title = windowSettings.Title,
+            renderScale = windowSettings.RenderScale,
             allowTearing = false
         };
 
@@ -358,16 +359,6 @@ public class Client : IDisposable
             if (down) KeyDown(this, args);
             else KeyUp(this, args);
         }
-    }
-
-    /// <summary>
-    ///     Set the resolution of the client.
-    /// </summary>
-    /// <param name="width">The new width.</param>
-    /// <param name="height">The new height.</param>
-    protected void SetResolution(uint width, uint height)
-    {
-        Support.Native.SetResolution(this, width, height);
     }
 
     /// <summary>

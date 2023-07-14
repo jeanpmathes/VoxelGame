@@ -88,7 +88,8 @@ internal static class Program
                 WindowSettings windowSettings = new WindowSettings
                 {
                     Title = Language.VoxelGame + " " + Version,
-                    Size = graphicsSettings.WindowSize
+                    Size = graphicsSettings.WindowSize,
+                    RenderScale = graphicsSettings.RenderResolutionScale
                 }.Corrected; // todo: icon
 
                 logger.LogDebug("Opening window");

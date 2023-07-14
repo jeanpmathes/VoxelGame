@@ -46,6 +46,8 @@ struct Configuration
     UINT height;
     LPWSTR title;
 
+    FLOAT renderScale;
+    
     BOOL allowTearing;
 };
 
