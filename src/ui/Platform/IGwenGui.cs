@@ -32,8 +32,12 @@ public interface IGwenGui : IDisposable
     void Resize(Vector2i newSize);
 
     /// <summary>
+    ///     Updates the GUI.
+    /// </summary>
+    void Update();
+
+    /// <summary>
     ///     Renders the GUI.
     /// </summary>
     void Render();
 }
-

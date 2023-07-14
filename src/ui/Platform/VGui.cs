@@ -5,6 +5,7 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Platform;
@@ -19,6 +20,7 @@ namespace VoxelGame.UI.Platform;
 
 internal sealed class VGui : IGwenGui
 {
+    private readonly List<Action> inputEvents = new();
     private Canvas canvas = null!;
 
     private bool disposed;
@@ -59,6 +61,13 @@ internal sealed class VGui : IGwenGui
         canvas.BackgroundColor = skin.ModalBackground;
 
         renderer.FinishLoading();
+    }
+
+    public void Update()
+    {
+        foreach (Action inputEvent in inputEvents) inputEvent();
+
+        inputEvents.Clear();
     }
 
     public void Render()
@@ -105,51 +114,51 @@ internal sealed class VGui : IGwenGui
 
     private void AttachToWindowEvents()
     {
-        Parent.KeyUp += Parent_KeyUp;
-        Parent.KeyDown += Parent_KeyDown;
-        Parent.TextInput += Parent_TextInput;
-        Parent.MouseButton += Parent_MouseButton;
-        Parent.MouseMove += Parent_MouseMove;
-        Parent.MouseWheel += Parent_MouseWheel;
+        Parent.KeyUp += OnKeyUp;
+        Parent.KeyDown += OnKeyDown;
+        Parent.TextInput += OnTextInput;
+        Parent.MouseButton += OnMouseButton;
+        Parent.MouseMove += OnMouseMove;
+        Parent.MouseWheel += OnMouseWheel;
     }
 
     private void DetachWindowEvents()
     {
-        Parent.KeyUp -= Parent_KeyUp;
-        Parent.KeyDown -= Parent_KeyDown;
-        Parent.TextInput -= Parent_TextInput;
-        Parent.MouseButton -= Parent_MouseButton;
-        Parent.MouseMove -= Parent_MouseMove;
-        Parent.MouseWheel -= Parent_MouseWheel;
+        Parent.KeyUp -= OnKeyUp;
+        Parent.KeyDown -= OnKeyDown;
+        Parent.TextInput -= OnTextInput;
+        Parent.MouseButton -= OnMouseButton;
+        Parent.MouseMove -= OnMouseMove;
+        Parent.MouseWheel -= OnMouseWheel;
     }
 
-    private void Parent_KeyUp(object? sender, KeyboardKeyEventArgs obj)
+    private void OnKeyUp(object? sender, KeyboardKeyEventArgs obj)
     {
-        input.ProcessKeyUp(obj);
+        inputEvents.Add(() => input.ProcessKeyUp(obj));
     }
 
-    private void Parent_KeyDown(object? sender, KeyboardKeyEventArgs obj)
+    private void OnKeyDown(object? sender, KeyboardKeyEventArgs obj)
     {
-        input.ProcessKeyDown(obj);
+        inputEvents.Add(() => input.ProcessKeyDown(obj));
     }
 
-    private void Parent_TextInput(object? sender, TextInputEventArgs obj)
+    private void OnTextInput(object? sender, TextInputEventArgs obj)
     {
-        input.ProcessTextInput(obj);
+        inputEvents.Add(() => input.ProcessTextInput(obj));
     }
 
-    private void Parent_MouseButton(object? sender, MouseButtonEventArgs obj)
+    private void OnMouseButton(object? sender, MouseButtonEventArgs obj)
     {
-        input.ProcessMouseButton(obj);
+        inputEvents.Add(() => input.ProcessMouseButton(obj));
     }
 
-    private void Parent_MouseMove(object? sender, MouseMoveEventArgs obj)
+    private void OnMouseMove(object? sender, MouseMoveEventArgs obj)
     {
-        input.ProcessMouseMove(obj);
+        inputEvents.Add(() => input.ProcessMouseMove(obj));
     }
 
-    private void Parent_MouseWheel(object? sender, MouseWheelEventArgs obj)
+    private void OnMouseWheel(object? sender, MouseWheelEventArgs obj)
     {
-        input.ProcessMouseWheel(obj);
+        inputEvents.Add(() => input.ProcessMouseWheel(obj));
     }
 }

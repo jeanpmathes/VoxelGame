@@ -62,6 +62,7 @@ public:
 protected:
     explicit Object(NativeClient& client);
 
+public:
     [[nodiscard]] NativeClient& GetClient() const;
     [[nodiscard]] UINT64 GetID() const;
 

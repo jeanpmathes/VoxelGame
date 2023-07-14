@@ -17,7 +17,8 @@ DXApp::DXApp(const Configuration configuration) :
     m_windowBounds{0, 0, 0, 0},
     m_tearingSupport(false),
     m_title(configuration.title),
-    m_configuration(configuration)
+    m_configuration(configuration),
+    m_mainThreadId(std::this_thread::get_id())
 {
     UpdateForSizeChange(m_width, m_height);
     CheckTearingSupport();
@@ -59,8 +60,12 @@ void DXApp::Update(const StepTimer& timer)
 {
     const double delta = timer.GetElapsedSeconds();
 
+    m_cycle = Cycle::UPDATE;
+    
     m_configuration.onUpdate(delta);
     OnUpdate(delta);
+
+    m_cycle = std::nullopt;
 }
 
 void DXApp::Render(const StepTimer& timer)
@@ -69,9 +74,13 @@ void DXApp::Render(const StepTimer& timer)
 
     const double delta = timer.GetElapsedSeconds();
 
+    m_cycle = Cycle::RENDER;
+
     OnPreRender();
     m_configuration.onRender(delta);
     OnRender(delta);
+
+    m_cycle = std::nullopt;
 }
 
 void DXApp::Destroy()
@@ -192,6 +201,13 @@ void DXApp::SetMouseCursor(const MouseCursor cursor) const
 float DXApp::GetAspectRatio() const
 {
     return m_aspectRatio;
+}
+
+std::optional<DXApp::Cycle> DXApp::GetCycle() const
+{
+    if (m_mainThreadId == std::this_thread::get_id()) return m_cycle;
+
+    return Cycle::WORKER;
 }
 
 _Use_decl_annotations_

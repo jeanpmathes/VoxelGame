@@ -81,6 +81,29 @@ public:
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
 
+    enum class Cycle
+    {
+        /**
+         * The thread is in the update cycle.
+         */
+        UPDATE,
+
+        /**
+         * The thread is in the render cycle.
+         */
+        RENDER,
+
+        /**
+         * The thread is a worker thread.
+         */
+        WORKER,
+    };
+
+    /**
+     * Get the current cycle the calling thread is in.
+     */
+    [[nodiscard]] std::optional<Cycle> GetCycle() const;
+
 protected:
     virtual void OnInit() = 0;
     virtual void OnPostInit() = 0;
@@ -118,4 +141,14 @@ private:
 
     int m_xMousePosition = 0;
     int m_yMousePosition = 0;
+
+    std::optional<Cycle> m_cycle = std::nullopt;
+    std::thread::id m_mainThreadId;
 };
+
+#define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)
+#define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER)
+#define CALL_IN_WORKER(client) ((client)->GetCycle() == DXApp::Cycle::WORKER)
+#define CALL_OUTSIDE_CYCLE(client) (!(client)->GetCycle().has_value())
+#define CALL_INSIDE_CYCLE(client) ((client)->GetCycle().has_value() && (client)->GetCycle().value() != DXApp::Cycle::WORKER)
+#define CALL_ON_MAIN_THREAD(client) (!(client)->GetCycle().has_value() || (client)->GetCycle().value() != DXApp::Cycle::WORKER)

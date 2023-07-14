@@ -88,25 +88,13 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Update(double deltaTime)
     {
-        if (!isFirstUpdate) return;
-
-        isFirstUpdate = false;
-
-        if (loadWorldDirectly is not {} index) return;
-
-        worldProvider.Refresh();
-        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
-
-        if (world != default((WorldInformation, DirectoryInfo)))
+        if (isFirstUpdate)
         {
-            logger.LogInformation("Loading world at index {Index} directly", index);
+            DoFirstUpdate();
+            isFirstUpdate = false;
+        }
 
-            worldProvider.LoadWorld(world.info, world.path);
-        }
-        else
-        {
-            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
-        }
+        ui.Update();
     }
 
     /// <inheritdoc />
@@ -131,6 +119,25 @@ public sealed class StartScene : IScene
     public bool CanCloseWindow()
     {
         return true;
+    }
+
+    private void DoFirstUpdate()
+    {
+        if (loadWorldDirectly is not {} index) return;
+
+        worldProvider.Refresh();
+        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
+
+        if (world != default((WorldInformation, DirectoryInfo)))
+        {
+            logger.LogInformation("Loading world at index {Index} directly", index);
+
+            worldProvider.LoadWorld(world.info, world.path);
+        }
+        else
+        {
+            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
+        }
     }
 
     #region IDisposable Support

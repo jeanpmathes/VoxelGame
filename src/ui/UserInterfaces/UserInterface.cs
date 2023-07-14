@@ -69,16 +69,19 @@ public abstract class UserInterface : IDisposable
     protected abstract void CreateNewControl();
 
     /// <summary>
+    ///     Update the user interface. This handles the input.
+    /// </summary>
+    public void Update()
+    {
+        resources.GUI.Update();
+    }
+
+    /// <summary>
     ///     Render the user interface.
     /// </summary>
     public void Render()
     {
-        // todo: ensure that gui rendering creates the needed pipelien state
-        // GL.Disable(EnableCap.CullFace);
-
         resources.GUI.Render();
-
-        // GL.Enable(EnableCap.CullFace);
     }
 
     /// <summary>
@@ -132,4 +135,3 @@ public abstract class UserInterface : IDisposable
 
     #endregion IDisposable Support
 }
-

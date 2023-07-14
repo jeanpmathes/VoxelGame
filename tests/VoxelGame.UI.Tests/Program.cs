@@ -63,6 +63,8 @@ internal class Program : Client
     {
         updateFrameTimes.Write(delta);
         unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
+
+        gui.Update();
     }
 
     protected override void OnRender(double delta)

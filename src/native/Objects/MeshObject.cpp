@@ -183,6 +183,9 @@ void MeshObject::AssociateWithHandle(Handle handle)
 
 void MeshObject::Free() const
 {
+    REQUIRE(!m_uploadEnqueued);
+    REQUIRE(!m_uploadRequired);
+    
     REQUIRE(m_handle.has_value());
     GetClient().GetSpace()->FreeMeshObject(m_handle.value());
 }

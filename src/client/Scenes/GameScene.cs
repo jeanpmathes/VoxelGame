@@ -143,6 +143,8 @@ public sealed class GameScene : IScene
     {
         using (logger.BeginScope("GameScene Update"))
         {
+            ui.Update();
+
             Game.Update(deltaTime);
 
             if (!Screen.IsFocused)

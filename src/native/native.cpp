@@ -32,6 +32,8 @@ NATIVE void NativeFinalize(const NativeClient* client)
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         delete client;
 
 #if defined(VG_DEBUG)
@@ -50,7 +52,9 @@ NATIVE void NativeRequestClose(const NativeClient* client)
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(client));
         REQUIRE(Win32Application::IsRunning(client));
+        
         PostMessage(Win32Application::GetHwnd(), WM_CLOSE, 0, 0);
     }
     CATCH();
@@ -60,6 +64,8 @@ NATIVE int NativeRun(NativeClient* client, const int nCmdShow)
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         return Win32Application::Run(client, GetModuleHandle(nullptr), nCmdShow);
     }
     CATCH();
@@ -69,6 +75,8 @@ NATIVE void NativePassAllocatorStatistics(const NativeClient* client, const Nati
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         LPWSTR statistics;
         client->GetAllocator()->BuildStatsString(&statistics, TRUE);
 
@@ -83,6 +91,8 @@ NATIVE void NativePassDRED(const NativeClient* client, const NativeWStringFunc r
 {
     TRY
     {
+        REQUIRE(CALL_IN_RENDER(client));
+        
         const std::wstring dred = client->GetDRED();
         receiver(const_cast<LPWSTR>(dred.c_str()));
     }
@@ -93,6 +103,8 @@ NATIVE void NativeSetResolution(NativeClient* client, const UINT width, const UI
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         client->SetResolution(width, height);
     }
     CATCH();
@@ -102,6 +114,8 @@ NATIVE void NativeToggleFullscreen(const NativeClient* client)
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         client->ToggleFullscreen();
     }
     CATCH();
@@ -147,6 +161,8 @@ NATIVE void NativeInitializeRaytracing(NativeClient* client,
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         client->InitRaytracingPipeline({
             shaderFiles,
             symbols,
@@ -179,6 +195,8 @@ NATIVE void NativeSetLightDirection(Light* light, const DirectX::XMFLOAT3 direct
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&light->GetClient()));
+        
         light->SetDirection(direction);
     }
     CATCH();
@@ -188,6 +206,8 @@ NATIVE void NativeUpdateBasicCameraData(Camera* camera, const BasicCameraData da
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&camera->GetClient()));
+        
         camera->SetPosition(data.position);
         camera->SetOrientation(data.front, data.up);
     }
@@ -198,6 +218,8 @@ NATIVE void NativeUpdateAdvancedCameraData(Camera* camera, const AdvancedCameraD
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&camera->GetClient()));
+        
         camera->SetFov(data.fov);
         camera->SetPlanes(data.nearDistance, data.farDistance);
     }
@@ -208,6 +230,8 @@ NATIVE void NativeUpdateSpatialObjectData(SpatialObject* object, const SpatialOb
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+        
         object->SetPosition(data.position);
         object->SetRotation(data.rotation);
     }
@@ -218,6 +242,8 @@ NATIVE MeshObject* NativeCreateMeshObject(const NativeClient* client, const UINT
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(client));
+        
         return &client->GetSpace()->CreateMeshObject(materialIndex);
     }
     CATCH();
@@ -227,6 +253,8 @@ NATIVE void NativeFreeMeshObject(const MeshObject* object)
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+        
         object->Free();
     }
     CATCH();
@@ -236,6 +264,8 @@ NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabl
 {
     TRY
     {
+        REQUIRE(CALL_INSIDE_CYCLE(&object->GetClient()));
+        
         object->SetEnabledState(enabled);
     }
     CATCH();
@@ -245,6 +275,8 @@ NATIVE void NativeSetMeshObjectMesh(MeshObject* object, const SpatialVertex* ver
 {
     TRY
     {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+        
         object->SetNewMesh(vertexData, vertexCount);
     }
     CATCH();
@@ -256,6 +288,8 @@ NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         std::unique_ptr<RasterPipeline> pipeline = RasterPipeline::Create(*client, description, callback);
         RasterPipeline* ptr = pipeline.get();
 
@@ -280,6 +314,8 @@ NATIVE void NativeDesignatePostProcessingPipeline(NativeClient* client, RasterPi
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         client->SetPostProcessingPipeline(pipeline);
     }
     CATCH();
@@ -289,6 +325,8 @@ NATIVE void NativeSetShaderBufferData(const ShaderBuffer* buffer, const void* da
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(&buffer->GetClient()));
+        
         buffer->SetData(data);
     }
     CATCH();
@@ -298,6 +336,8 @@ NATIVE void NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeli
 {
     TRY
     {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+        
         client->AddDraw2DPipeline(pipeline, callback);
     }
     CATCH();
@@ -307,6 +347,8 @@ NATIVE Texture* NativeLoadTexture(const NativeClient* client, std::byte** data, 
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         return client->LoadTexture(data, description);
     }
     CATCH();
@@ -316,6 +358,8 @@ NATIVE void NativeFreeTexture(const Texture* texture)
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(&texture->GetClient()));
+        
         texture->Free();
     }
     CATCH();
