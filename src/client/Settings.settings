@@ -12,7 +12,7 @@
         <Setting Name="CrosshairColor" Type="System.Drawing.Color" Scope="User">
             <Value Profile="(Default)">White</Value>
         </Setting>
-        <Setting Name="ScreenSize" Type="System.Drawing.Size" Scope="User">
+        <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
             <Value Profile="(Default)">480, 270</Value>
         </Setting>
         <Setting Name="SampleCount" Type="System.Int32" Scope="User">

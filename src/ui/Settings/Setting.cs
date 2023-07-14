@@ -7,6 +7,7 @@
 using System;
 using System.Drawing;
 using Gwen.Net.Control;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Definition;
 using VoxelGame.UI.Providers;
@@ -55,8 +56,9 @@ public abstract class Setting
     /// <param name="validate">Function that validates the current setting value.</param>
     /// <param name="reset">Function that resets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name, Func<VirtualKeys> get,
-        Action<VirtualKeys> set, Func<bool> validate, Action reset)
+    public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name,
+        Func<VirtualKeys> get, Action<VirtualKeys> set,
+        Func<bool> validate, Action reset)
     {
         return new KeyOrButtonSetting(name, get, set, validate, reset)
         {
@@ -74,8 +76,8 @@ public abstract class Setting
     /// <param name="min">The minimum allowed value.</param>
     /// <param name="max">The maximum allowed value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateIntegerSetting(ISettingsProvider provider, string name, Func<int> get,
-        Action<int> set,
+    public static Setting CreateIntegerSetting(ISettingsProvider provider, string name,
+        Func<int> get, Action<int> set,
         int min = int.MinValue, int max = int.MaxValue)
     {
         return new IntegerSetting(name, min, max, get, set)
@@ -92,8 +94,8 @@ public abstract class Setting
     /// <param name="get">Function to get the current setting value.</param>
     /// <param name="set">Function to set the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateColorSetting(ISettingsProvider provider, string name, Func<Color> get,
-        Action<Color> set)
+    public static Setting CreateColorSetting(ISettingsProvider provider, string name,
+        Func<Color> get, Action<Color> set)
     {
         return new ColorSettings(name, get, set)
         {
@@ -111,8 +113,8 @@ public abstract class Setting
     /// <param name="min">The minimum value of the setting.</param>
     /// <param name="max">The maximum value of the setting.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name, Func<float> get,
-        Action<float> set,
+    public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name,
+        Func<float> get, Action<float> set,
         float min = float.MinValue, float max = float.MaxValue)
     {
         return new FloatRangeSetting(name, min, max, get, set)
@@ -129,8 +131,8 @@ public abstract class Setting
     /// <param name="get">Function that gets the current setting value.</param>
     /// <param name="set">Function that sets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateQualitySetting(ISettingsProvider provider, string name, Func<Quality> get,
-        Action<Quality> set)
+    public static Setting CreateQualitySetting(ISettingsProvider provider, string name,
+        Func<Quality> get, Action<Quality> set)
     {
         return new QualitySetting(name, get, set)
         {
@@ -146,13 +148,29 @@ public abstract class Setting
     /// <param name="get">Function that gets the current setting value.</param>
     /// <param name="set">Function that sets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateBooleanSetting(ISettingsProvider provider, string name, Func<bool> get,
-        Action<bool> set)
+    public static Setting CreateBooleanSetting(ISettingsProvider provider, string name,
+        Func<bool> get, Action<bool> set)
     {
         return new BooleanSetting(name, get, set)
         {
             Provider = provider
         };
     }
-}
 
+    /// <summary>
+    ///     Create a setting for a size value.
+    /// </summary>
+    /// <param name="provider">The setting provider.</param>
+    /// <param name="name">The name of the setting.</param>
+    /// <param name="get">Function that gets the current setting value.</param>
+    /// <param name="set">Function that sets the current setting value.</param>
+    /// <returns>The created setting.</returns>
+    public static Setting CreateSizeSetting(ISettingsProvider provider, string name,
+        Func<Vector2i> get, Action<Vector2i> set)
+    {
+        return new SizeSetting(name, get, set)
+        {
+            Provider = provider
+        };
+    }
+}

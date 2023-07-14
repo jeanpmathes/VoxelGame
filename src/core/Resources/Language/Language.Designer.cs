@@ -537,6 +537,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Window Size.
+        /// </summary>
+        public static string GraphicsWindowSize {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Grass.
         /// </summary>
         public static string Grass {

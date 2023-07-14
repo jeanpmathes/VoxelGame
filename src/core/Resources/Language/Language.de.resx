@@ -591,4 +591,7 @@
     <data name="Salt" xml:space="preserve">
     <value>Salz</value>
   </data>
+    <data name="GraphicsWindowSize" xml:space="preserve">
+      <value>Fenstergröße</value>
+  </data>
 </root>

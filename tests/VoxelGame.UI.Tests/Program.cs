@@ -6,6 +6,7 @@
 
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
+using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -37,6 +38,7 @@ internal class Program : Client
     internal static void Main()
     {
         LoggingHelper.SetupMockLogging();
+        ApplicationInformation.Initialize("0.0.0.1");
 
         WindowSettings windowSettings = new()
         {

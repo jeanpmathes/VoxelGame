@@ -61,12 +61,12 @@ namespace Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("480, 270")]
-        public global::System.Drawing.Size ScreenSize {
+        public global::System.Drawing.Size WindowSize {
             get {
-                return ((global::System.Drawing.Size)(this["ScreenSize"]));
+                return ((global::System.Drawing.Size)(this["WindowSize"]));
             }
             set {
-                this["ScreenSize"] = value;
+                this["WindowSize"] = value;
             }
         }
         

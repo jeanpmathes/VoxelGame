@@ -582,13 +582,16 @@
   <data name="Retry" xml:space="preserve">
     <value>Retry</value>
   </data>
-  <data name="SeaWater" xml:space="preserve">
+    <data name="SeaWater" xml:space="preserve">
     <value>Sea Water</value>
   </data>
-  <data name="FreshWater" xml:space="preserve">
+    <data name="FreshWater" xml:space="preserve">
     <value>Fresh Water</value>
   </data>
-  <data name="Salt" xml:space="preserve">
+    <data name="Salt" xml:space="preserve">
     <value>Salt</value>
+  </data>
+    <data name="GraphicsWindowSize" xml:space="preserve">
+      <value>Window Size</value>
   </data>
 </root>

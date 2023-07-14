@@ -6,8 +6,11 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
@@ -41,6 +44,13 @@ public class GraphicsSettings : ISettingsProvider
                 Language.GraphicsFoliageQuality,
                 () => FoliageQuality,
                 quality => FoliageQuality = quality)); // todo: use this, maybe in the intersect shader
+
+        settings.Add(
+            Setting.CreateSizeSetting(
+                this,
+                Language.GraphicsWindowSize,
+                () => WindowSize,
+                size => WindowSize = size));
     }
 
     /// <summary>
@@ -71,6 +81,17 @@ public class GraphicsSettings : ISettingsProvider
         }
     }
 
+    public Vector2i WindowSize
+    {
+        get => clientSettings.WindowSize.ToVector2i();
+
+        private set
+        {
+            clientSettings.WindowSize = new Size(value.X, value.Y);
+            clientSettings.Save();
+        }
+    }
+
     /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.Graphics;
@@ -82,4 +103,3 @@ public class GraphicsSettings : ISettingsProvider
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
 }
-
