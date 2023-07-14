@@ -34,7 +34,7 @@ dispatch rays description.
 
 */
 
-#include "ShaderBindingTableGenerator.h"
+#include "ShaderBindingTableGenerator.hpp"
 
 #include <algorithm>
 #include <iterator>

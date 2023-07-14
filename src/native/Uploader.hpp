@@ -1,4 +1,4 @@
-﻿// <copyright file="Uploader.h" company="VoxelGame">
+﻿// <copyright file="Uploader.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

@@ -1,4 +1,4 @@
-//  <copyright file="Win32Application.h" company="Microsoft">
+//  <copyright file="Win32Application.hpp" company="Microsoft">
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "DXApp.h"
+#include "DXApp.hpp"
 
 class DXApp;
 

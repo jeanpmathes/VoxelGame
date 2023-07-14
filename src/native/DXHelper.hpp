@@ -1,4 +1,4 @@
-//  <copyright file="DXHelper.h" company="Microsoft">
+//  <copyright file="DXHelper.hpp" company="Microsoft">
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>

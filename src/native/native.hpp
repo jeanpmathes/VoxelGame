@@ -1,4 +1,4 @@
-﻿//  <copyright file="native.h" company="VoxelGame">
+﻿//  <copyright file="native.hpp" company="VoxelGame">
 //      MIT License
 // 	 For full license see the repository.
 //  </copyright>

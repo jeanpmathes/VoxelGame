@@ -1,4 +1,4 @@
-﻿//  <copyright file="Utilities.h" company="VoxelGame">
+﻿//  <copyright file="Utilities.hpp" company="VoxelGame">
 //      MIT License
 // 	 For full license see the repository.
 //  </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "NativeClient.h"
+#include "NativeClient.hpp"
 
 namespace util
 {

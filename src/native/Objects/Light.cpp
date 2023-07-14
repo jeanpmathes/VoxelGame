@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-#include "Light.h"
+#include "Light.hpp"
 
 Light::Light(NativeClient& client) : SpatialObject(client)
 {

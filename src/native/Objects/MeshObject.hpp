@@ -1,4 +1,4 @@
-﻿// <copyright file="MeshObject.h" company="VoxelGame">
+﻿// <copyright file="MeshObject.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -8,8 +8,8 @@
 
 #include <optional>
 
-#include "SpatialObject.h"
-#include "Common.h"
+#include "SpatialObject.hpp"
+#include "../Common.hpp"
 
 #pragma pack(push, 4)
 struct SpatialVertex

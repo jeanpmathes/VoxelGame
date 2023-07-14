@@ -1,4 +1,4 @@
-//  <copyright file="DXApp.h" company="Microsoft">
+//  <copyright file="DXApp.hpp" company="Microsoft">
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>
@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "native.h"
+#include "native.hpp"
 
-#include "StepTimer.h"
+#include "StepTimer.hpp"
 
 class Uploader;
 

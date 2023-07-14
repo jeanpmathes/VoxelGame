@@ -29,7 +29,7 @@ Contacts for feedback:
 - mlefrancois@nvidia.com (Martin-Karl Lefrancois)
 */
 
-#include "BottomLevelASGenerator.h"
+#include "BottomLevelASGenerator.hpp"
 
 #include <stdexcept>
 

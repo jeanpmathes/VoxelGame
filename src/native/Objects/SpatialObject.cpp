@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "SpatialObject.h"
+#include "SpatialObject.hpp"
 
 SpatialObject::SpatialObject(NativeClient& client) : Object(client)
 {

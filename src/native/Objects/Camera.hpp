@@ -1,4 +1,4 @@
-﻿// <copyright file="Camera.h" company="VoxelGame">
+﻿// <copyright file="Camera.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Object.hpp"
 
 class NativeClient;
 

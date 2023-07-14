@@ -1,4 +1,4 @@
-﻿// <copyright file="Texture.h" company="VoxelGame">
+﻿// <copyright file="Texture.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

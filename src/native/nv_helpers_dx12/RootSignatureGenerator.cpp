@@ -35,7 +35,7 @@ pointers will be bound.
 
 */
 
-#include "RootSignatureGenerator.h"
+#include "RootSignatureGenerator.hpp"
 
 #include <stdexcept>
 #include <wrl/client.h>

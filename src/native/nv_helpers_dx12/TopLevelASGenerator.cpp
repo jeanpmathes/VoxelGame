@@ -45,7 +45,7 @@ buffer needs to be kept until the command list execution is finished.
 
 */
 
-#include "TopLevelASGenerator.h"
+#include "TopLevelASGenerator.hpp"
 
 #include <stdexcept>
 

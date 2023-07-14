@@ -1,4 +1,4 @@
-﻿// <copyright file="Space.h" company="VoxelGame">
+﻿// <copyright file="Space.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,13 +6,13 @@
 
 #pragma once
 
-#include "nv_helpers_dx12/ShaderBindingTableGenerator.h"
+#include "nv_helpers_dx12/ShaderBindingTableGenerator.hpp"
 
-#include "Common.h"
+#include "Common.hpp"
 
-#include "Objects/Camera.h"
-#include "Objects/Light.h"
-#include "Objects/MeshObject.h"
+#include "Objects/Camera.hpp"
+#include "Objects/Light.hpp"
+#include "Objects/MeshObject.hpp"
 
 struct GlobalConstantBuffer
 {

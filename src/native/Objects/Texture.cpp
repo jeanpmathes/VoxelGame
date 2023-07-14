@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Texture.h"
+#include "Texture.hpp"
 
 Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescription description)
 {

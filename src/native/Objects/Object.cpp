@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Object.h"
+#include "Object.hpp"
 
 Object::Object(NativeClient& client) : m_client(client)
 {

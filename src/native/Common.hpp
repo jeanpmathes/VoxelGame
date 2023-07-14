@@ -1,4 +1,4 @@
-﻿// <copyright file="Common.h" company="VoxelGame">
+﻿// <copyright file="Common.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

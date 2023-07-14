@@ -1,4 +1,4 @@
-﻿// <copyright file="Light.h" company="VoxelGame">
+﻿// <copyright file="Light.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "SpatialObject.h"
+#include "SpatialObject.hpp"
 
 /**
  * \brief Represents the light of the space. It is an directional light.

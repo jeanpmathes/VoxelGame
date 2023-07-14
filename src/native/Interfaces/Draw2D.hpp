@@ -1,4 +1,4 @@
-﻿// <copyright file="Draw2D.h" company="VoxelGame">
+﻿// <copyright file="Draw2D.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

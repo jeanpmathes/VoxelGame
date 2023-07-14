@@ -1,4 +1,4 @@
-﻿// <copyright file="Util.h" company="VoxelGame">
+﻿// <copyright file="Util.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "D3D12MemAlloc.h"
+#include "D3D12MemAlloc.hpp"
 
 /**
  * Contains a resource and its allocation.

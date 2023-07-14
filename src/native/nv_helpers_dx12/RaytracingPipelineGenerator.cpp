@@ -39,7 +39,7 @@ compiling in debug mode.
 
 */
 
-#include "RaytracingPipelineGenerator.h"
+#include "RaytracingPipelineGenerator.hpp"
 
 #include <d3d12shader.h>
 

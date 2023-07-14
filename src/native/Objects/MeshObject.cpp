@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "MeshObject.h"
+#include "MeshObject.hpp"
 
 MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
     : SpatialObject(client), m_materialIndex(materialIndex)

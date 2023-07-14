@@ -2,7 +2,7 @@
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>
-//  <author>Microsoft</author>
+//  <author>Microsoft, jeanpmathes</author>
 
 #pragma once
 
@@ -52,44 +52,44 @@
 
 // nv_helpers_dx12
 
-#include "nv_helpers_dx12/TopLevelASGenerator.h"
-#include "nv_helpers_dx12/BottomLevelASGenerator.h"
-#include "nv_helpers_dx12/RaytracingPipelineGenerator.h"
-#include "nv_helpers_dx12/ShaderBindingTableGenerator.h"
-#include "nv_helpers_dx12/RootSignatureGenerator.h"
+#include "nv_helpers_dx12/TopLevelASGenerator.hpp"
+#include "nv_helpers_dx12/BottomLevelASGenerator.hpp"
+#include "nv_helpers_dx12/RaytracingPipelineGenerator.hpp"
+#include "nv_helpers_dx12/ShaderBindingTableGenerator.hpp"
+#include "nv_helpers_dx12/RootSignatureGenerator.hpp"
 
 // Helpers
 
-#include "DXRHelper.h"
-#include "DXHelper.h"
+#include "DXRHelper.hpp"
+#include "DXHelper.hpp"
 
 // D3D12 Memory Allocator
 
-#include "Tools/D3D12MemAlloc.h"
-#include "Tools/Allocation.h"
+#include "Tools/D3D12MemAlloc.hpp"
+#include "Tools/Allocation.hpp"
 
 // Custom
 
-#include "DXApp.h"
-#include "native.h"
-#include "StepTimer.h"
-#include "Utilities.h"
-#include "Win32Application.h"
-#include "NativeClient.h"
-#include "Space.h"
-#include "Common.h"
-#include "Uploader.h"
+#include "DXApp.hpp"
+#include "native.hpp"
+#include "StepTimer.hpp"
+#include "Utilities.hpp"
+#include "Win32Application.hpp"
+#include "NativeClient.hpp"
+#include "Space.hpp"
+#include "Common.hpp"
+#include "Uploader.hpp"
 
-#include "Objects/Object.h"
-#include "Objects/SpatialObject.h"
-#include "Objects/Camera.h"
-#include "Objects/Light.h"
-#include "Objects/MeshObject.h"
-#include "Objects/RasterPipeline.h"
-#include "Objects/ShaderBuffer.h"
-#include "Objects/Texture.h"
+#include "Objects/Object.hpp"
+#include "Objects/SpatialObject.hpp"
+#include "Objects/Camera.hpp"
+#include "Objects/Light.hpp"
+#include "Objects/MeshObject.hpp"
+#include "Objects/RasterPipeline.hpp"
+#include "Objects/ShaderBuffer.hpp"
+#include "Objects/Texture.hpp"
 
-#include "Interfaces/Draw2D.h"
+#include "Interfaces/Draw2D.hpp"
 
 #if defined(VG_DEBUG)
 #include <Initguid.h>

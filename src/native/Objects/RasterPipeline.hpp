@@ -1,4 +1,4 @@
-﻿// <copyright file="RasterPipeline.h" company="VoxelGame">
+﻿// <copyright file="RasterPipeline.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

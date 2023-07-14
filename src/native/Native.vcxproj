@@ -143,34 +143,34 @@
         </PostBuildEvent>
     </ItemDefinitionGroup>
     <ItemGroup>
-        <ClInclude Include="Common.h"/>
-        <ClInclude Include="DXRHelper.h"/>
-        <ClInclude Include="Interfaces\Draw2D.h"/>
-        <ClInclude Include="native.h"/>
-        <ClInclude Include="nv_helpers_dx12\BottomLevelASGenerator.h"/>
-        <ClInclude Include="nv_helpers_dx12\RaytracingPipelineGenerator.h"/>
-        <ClInclude Include="nv_helpers_dx12\RootSignatureGenerator.h"/>
-        <ClInclude Include="nv_helpers_dx12\ShaderBindingTableGenerator.h"/>
-        <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.h"/>
-        <ClInclude Include="Objects\Camera.h"/>
-        <ClInclude Include="Objects\Light.h"/>
-        <ClInclude Include="Objects\MeshObject.h"/>
-        <ClInclude Include="Objects\Object.h"/>
-        <ClInclude Include="Objects\RasterPipeline.h"/>
-        <ClInclude Include="Objects\ShaderBuffer.h"/>
-        <ClInclude Include="Objects\SpatialObject.h"/>
-        <ClInclude Include="Objects\Texture.h"/>
-        <ClInclude Include="Space.h"/>
-        <ClInclude Include="Tools\Allocation.h"/>
-        <ClInclude Include="Tools\D3D12MemAlloc.h"/>
-        <ClInclude Include="Uploader.h"/>
-        <ClInclude Include="Utilities.h"/>
-        <ClInclude Include="Win32Application.h"/>
-        <ClInclude Include="NativeClient.h"/>
-        <ClInclude Include="StepTimer.h"/>
+        <ClInclude Include="Common.hpp"/>
+        <ClInclude Include="DXRHelper.hpp"/>
+        <ClInclude Include="Interfaces\Draw2D.hpp"/>
+        <ClInclude Include="native.hpp"/>
+        <ClInclude Include="nv_helpers_dx12\BottomLevelASGenerator.hpp"/>
+        <ClInclude Include="nv_helpers_dx12\RaytracingPipelineGenerator.hpp"/>
+        <ClInclude Include="nv_helpers_dx12\RootSignatureGenerator.hpp"/>
+        <ClInclude Include="nv_helpers_dx12\ShaderBindingTableGenerator.hpp"/>
+        <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.hpp"/>
+        <ClInclude Include="Objects\Camera.hpp"/>
+        <ClInclude Include="Objects\Light.hpp"/>
+        <ClInclude Include="Objects\MeshObject.hpp"/>
+        <ClInclude Include="Objects\Object.hpp"/>
+        <ClInclude Include="Objects\RasterPipeline.hpp"/>
+        <ClInclude Include="Objects\ShaderBuffer.hpp"/>
+        <ClInclude Include="Objects\SpatialObject.hpp"/>
+        <ClInclude Include="Objects\Texture.hpp"/>
+        <ClInclude Include="Space.hpp"/>
+        <ClInclude Include="Tools\Allocation.hpp"/>
+        <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
+        <ClInclude Include="Uploader.hpp"/>
+        <ClInclude Include="Utilities.hpp"/>
+        <ClInclude Include="Win32Application.hpp"/>
+        <ClInclude Include="NativeClient.hpp"/>
+        <ClInclude Include="StepTimer.hpp"/>
         <ClInclude Include="d3dx12.h"/>
-        <ClInclude Include="DXApp.h"/>
-        <ClInclude Include="DXHelper.h"/>
+        <ClInclude Include="DXApp.hpp"/>
+        <ClInclude Include="DXHelper.hpp"/>
         <ClInclude Include="stdafx.h"/>
     </ItemGroup>
     <ItemGroup>

@@ -1,4 +1,4 @@
-//  <copyright file="StepTimer.h" company="Microsoft">
+//  <copyright file="StepTimer.hpp" company="Microsoft">
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>

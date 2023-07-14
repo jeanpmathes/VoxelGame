@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 //
 
-#include "D3D12MemAlloc.h"
+#include "D3D12MemAlloc.hpp"
 
 #include <combaseapi.h>
 #include <mutex>
@@ -33,7 +33,7 @@
     #include <shared_mutex>
 #endif
 
-#include "DXHelper.h"
+#include "..\DXHelper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

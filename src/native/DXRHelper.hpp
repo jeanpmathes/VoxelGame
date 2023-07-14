@@ -1,4 +1,4 @@
-// <copyright file="DXRHelper.h" company="NVIDIA Corp.">
+// <copyright file="DXRHelper.hpp" company="NVIDIA Corp.">
 //     Copyright 1998-2018 NVIDIA Corp. All Rights Reserved.
 // </copyright>
 // <author>NVIDIA Corp, jeanpmathes</author>
@@ -14,7 +14,7 @@
 #include <d3d12.h>
 #include <dxcapi.h>
 
-#include "DXHelper.h"
+#include "DXHelper.hpp"
 
 #ifndef ROUND_UP
 #define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))

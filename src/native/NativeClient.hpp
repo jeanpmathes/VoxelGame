@@ -1,4 +1,4 @@
-//  <copyright file="NativeClient.h" company="Microsoft">
+//  <copyright file="NativeClient.hpp" company="Microsoft">
 //      Copyright (c) Microsoft. All rights reserved.
 //      MIT License
 //  </copyright>
@@ -6,12 +6,12 @@
 
 #pragma once
 
-#include "DXApp.h"
+#include "DXApp.hpp"
 
-#include "Common.h"
-#include "Space.h"
+#include "Common.hpp"
+#include "Space.hpp"
 
-#include "Interfaces/Draw2D.h"
+#include "Interfaces/Draw2D.hpp"
 
 struct TextureDescription;
 using Microsoft::WRL::ComPtr;

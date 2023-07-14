@@ -1,4 +1,4 @@
-﻿// <copyright file="ShaderBuffer.h" company="VoxelGame">
+﻿// <copyright file="ShaderBuffer.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Object.hpp"
 
 /**
  * Abstraction for a cbuffer used in shaders.
