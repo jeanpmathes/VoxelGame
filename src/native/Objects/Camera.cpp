@@ -45,11 +45,6 @@ void Camera::Update() const
     XMStoreFloat4x4(&matrices[2], viewI);
     XMStoreFloat4x4(&matrices[3], projectionI);
 
-    uint8_t* pData;
-    TRY_DO(m_spaceCameraBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&pData)));
-    memcpy(pData, matrices.data(), m_spaceCameraBufferSize);
-    m_spaceCameraBuffer.resource->Unmap(0, nullptr);
-
     TRY_DO(util::MapAndWrite(m_spaceCameraBuffer, matrices.data(), static_cast<UINT>(matrices.size())));
 }
 

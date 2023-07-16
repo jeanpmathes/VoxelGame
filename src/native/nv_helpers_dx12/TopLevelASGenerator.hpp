@@ -96,10 +96,12 @@ namespace nv_helpers_dx12
                     UINT instanceID,
                     /// Instance ID, which can be used in the shaders to
                                                     /// identify this specific instance
-                    UINT hitGroupIndex
+                    UINT hitGroupIndex,
                     /// Hit group index, corresponding the the index of the
                                                     /// hit group in the Shader Binding Table that will be
-                                                    /// invocated upon hitting the geometry
+                                                    /// invocated upon hitting the geometry,
+                    D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE
+                    /// Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
         );
 
         /// Compute the size of the scratch space required to build the acceleration
@@ -146,7 +148,8 @@ namespace nv_helpers_dx12
         /// Helper struct storing the instance data
         struct Instance
         {
-            Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId);
+            Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId,
+                     D3D12_RAYTRACING_INSTANCE_FLAGS flgs);
             /// Bottom-level AS
             Microsoft::WRL::ComPtr<ID3D12Resource> bottomLevelAS;
             /// Transform matrix
@@ -155,6 +158,8 @@ namespace nv_helpers_dx12
             UINT instanceID;
             /// Hit group index used to fetch the shaders from the SBT
             UINT hitGroupIndex;
+            /// Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
+            D3D12_RAYTRACING_INSTANCE_FLAGS flags;
         };
 
         /// Construction flags, indicating whether the AS supports iterative updates

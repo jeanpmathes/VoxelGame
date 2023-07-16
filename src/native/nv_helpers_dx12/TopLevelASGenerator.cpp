@@ -64,12 +64,13 @@ namespace nv_helpers_dx12
         // positions
         UINT instanceID, // Instance ID, which can be used in the shaders to
         // identify this specific instance
-        UINT hitGroupIndex // Hit group index, corresponding the the index of the
+        UINT hitGroupIndex, // Hit group index, corresponding the the index of the
         // hit group in the Shader Binding Table that will be
-        // invocated upon hitting the geometry
+        // invocated upon hitting the geometry,
+        D3D12_RAYTRACING_INSTANCE_FLAGS flags // Instance flags, e.g. concerning the winding order
     )
     {
-        m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex));
+        m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, flags));
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
@@ -172,9 +173,8 @@ namespace nv_helpers_dx12
             instanceDescs[i].InstanceID = m_instances[i].instanceID;
             // Index of the hit group invoked upon intersection
             instanceDescs[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
-            // Instance flags, including backface culling, winding, etc - TODO: should
-            // be accessible from outside
-            instanceDescs[i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+            // Instance flags, including backface culling, winding, etc
+            instanceDescs[i].Flags = m_instances[i].flags;
             // Instance transform matrix
             const DirectX::XMMATRIX instance = XMLoadFloat4x4(&m_instances[i].transform);
             DirectX::XMMATRIX m = XMMatrixTranspose(instance);
@@ -239,9 +239,13 @@ namespace nv_helpers_dx12
         commandList->ResourceBarrier(1, &uavBarrier);
     }
 
-    TopLevelASGenerator::Instance::Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID,
-                                            UINT hgId)
-        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId)
+    TopLevelASGenerator::Instance::Instance(
+        ID3D12Resource* blAS,
+        const DirectX::XMFLOAT4X4& tr,
+        UINT iID,
+        UINT hgId,
+        D3D12_RAYTRACING_INSTANCE_FLAGS flgs)
+        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId), flags(flgs)
     {
     }
 } // namespace nv_helpers_dx12

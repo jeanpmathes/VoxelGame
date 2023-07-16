@@ -32,9 +32,7 @@ void RayGen()
     ray.TMin = 0;
     ray.TMax = VG_RAY_DISTANCE;
 
-    TraceRay(gSpaceBVH, RAY_FLAG_NONE,
-             0xFF, 0, 0, 0,
-             ray, payload);
+    TraceRay(gSpaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 0, 0, 0, ray, payload);
 
     gColorOutput[launchIndex] = float4(payload.colorAndDistance.rgb, 1.f);
 }

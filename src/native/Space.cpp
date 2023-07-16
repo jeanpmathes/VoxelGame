@@ -124,7 +124,11 @@ std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT ver
         const UINT availableQuadCount = m_sharedIndexCount / 6;
         for (UINT quad = availableQuadCount; quad < requiredQuadCount; quad++)
         {
-            // A CW winding order is used.
+            // The shaders operate on quad basis, so the index winding order does not matter there.
+            // The quads itself are defined in CW order.
+
+            // DirectX also uses CW order for triangles, but in a left-handed coordinate system.
+            // Because VoxelGame uses a right-handed coordinate system, the BLAS creation requires special handling.
 
             m_indices.push_back(quad * 4 + 0);
             m_indices.push_back(quad * 4 + 1);
@@ -498,8 +502,11 @@ void Space::CreateTopLevelAS()
     {
         if (mesh->IsEnabled())
         {
+            // The CCW flag is used because DirectX uses left-handed coordinates.
+            
             topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
-                                            instanceID++, 2 * mesh->GetMaterialIndex());
+                                            instanceID++, 2 * mesh->GetMaterialIndex(),
+                                            D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
         }
     }
 

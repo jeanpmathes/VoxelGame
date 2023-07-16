@@ -96,7 +96,7 @@ public:
      * The indices are valid for a vertex buffer that contains a list of quads.
      */
     [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
-
+    
     /**
      * Dispatches rays into the space.
      */
@@ -116,7 +116,7 @@ public:
      * Get the internal command list.
      */
     [[nodiscard]] ComPtr<ID3D12GraphicsCommandList4> GetCommandList() const;
-
+    
 private:
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
 
@@ -133,7 +133,7 @@ private:
 
     void CreateShaderBindingTable();
     void CreateTopLevelAS();
-
+    
     NativeClient& m_nativeClient;
     Resolution m_resolution{};
 
