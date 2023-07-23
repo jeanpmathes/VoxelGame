@@ -58,11 +58,8 @@ constexpr bool IS_DEBUG_BUILD = false;
     do { \
         if (!(expression)) \
         { \
-            std::string message; \
-            if (IS_DEBUG_BUILD) \
-                message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
-            else \
-                message = "failed requirement '" #expression "'"; \
+            if (!IS_DEBUG_BUILD) break; \
+            std::string message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
             throw NativeException(message); \
         } \
     } while (false)

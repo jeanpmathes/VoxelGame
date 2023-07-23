@@ -157,6 +157,7 @@ private:
 
     ComPtr<ID3D12StateObject> m_rtStateObject;
     ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
+    ComPtr<ID3D12RootSignature> m_rtGlobalRootSignature;
     Allocation<ID3D12Resource> m_outputResource;
 
     ComPtr<ID3D12DescriptorHeap> m_srvUavHeap;

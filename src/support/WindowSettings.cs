@@ -29,6 +29,11 @@ public record WindowSettings
     public float RenderScale { get; init; } = 1.0f;
 
     /// <summary>
+    ///     Gets a value indicating whether to enable special PIX support.
+    /// </summary>
+    public bool SupportPIX { get; init; }
+
+    /// <summary>
     ///     Get a version of these settings with corrected values that are safe to use.
     /// </summary>
     public WindowSettings Corrected

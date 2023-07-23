@@ -54,9 +54,19 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
     ComPtr<IDxcBlobEncoding> pTextBlob;
     TRY_DO(pUtils->CreateBlobFromPinned(sShader.c_str(), static_cast<UINT32>(sShader.size()), CP_UTF8, &pTextBlob));
 
+    std::vector<LPCWSTR> args;
+    std::vector<DxcDefine> defines;
+
+#if defined(VG_DEBUG)
+    args.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
+    args.push_back(DXC_ARG_DEBUG);
+#endif
+
     // Compile
     ComPtr<IDxcOperationResult> pResult;
-    TRY_DO(pCompiler->Compile(pTextBlob.Get(), fileName, L"", L"lib_6_3", nullptr, 0, nullptr, 0,
+    TRY_DO(pCompiler->Compile(pTextBlob.Get(), fileName, L"", L"lib_6_3",
+        args.data(), args.size(),
+        defines.data(), defines.size(),
         dxcIncludeHandler.Get(), &pResult));
 
     // Verify the result

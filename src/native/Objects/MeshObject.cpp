@@ -42,8 +42,6 @@ void MeshObject::SetEnabledState(const bool enabled)
 
 void MeshObject::SetNewMesh(const SpatialVertex* vertices, const UINT vertexCount)
 {
-    REQUIRE(!IsMeshModified());
-    REQUIRE(!m_uploadRequired);
     REQUIRE(!m_uploadEnqueued);
     
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
@@ -57,7 +55,7 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, const UINT vertexCoun
         m_vertexBufferUpload = {};
         return;
     }
-
+    
     m_vertexBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                                 D3D12_RESOURCE_FLAG_NONE,
                                                 D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -132,7 +130,7 @@ void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt
     REQUIRE(!m_uploadRequired);
     
     const Material& material = GetClient().GetSpace()->GetMaterial(m_materialIndex);
-
+    
     sbt.AddHitGroup(material.normalHitGroup,
                     {
                         reinterpret_cast<void*>(m_vertexBuffer.resource->GetGPUVirtualAddress()),
@@ -167,6 +165,8 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
 
 Allocation<ID3D12Resource> MeshObject::GetBLAS()
 {
+    REQUIRE(!m_uploadRequired);
+    
     return m_blas.result;
 }
 
@@ -184,7 +184,6 @@ void MeshObject::AssociateWithHandle(Handle handle)
 void MeshObject::Free() const
 {
     REQUIRE(!m_uploadEnqueued);
-    REQUIRE(!m_uploadRequired);
     
     REQUIRE(m_handle.has_value());
     GetClient().GetSpace()->FreeMeshObject(m_handle.value());
@@ -218,6 +217,8 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     UINT64 scratchSizeInBytes = 0;
     UINT64 resultSizeInBytes = 0;
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
+
+    const bool committed = GetClient().SupportPIX();
     
     AccelerationStructureBuffers buffers;
     buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
@@ -227,7 +228,8 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     buffers.result = util::AllocateBuffer(GetClient(), resultSizeInBytes,
                                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                           D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                          D3D12_HEAP_TYPE_DEFAULT);
+                                          D3D12_HEAP_TYPE_DEFAULT,
+                                          committed);
 
     NAME_D3D12_OBJECT_WITH_ID(buffers.scratch);
     NAME_D3D12_OBJECT_WITH_ID(buffers.result);

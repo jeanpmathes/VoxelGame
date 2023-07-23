@@ -97,7 +97,9 @@ void NativeClient::LoadDevice()
         {
             debugController->EnableDebugLayer();
             debugController->SetEnableAutoName(TRUE);
-            debugController->SetEnableGPUBasedValidation(TRUE);
+
+            // todo: try again to remove the check and test if PIX captures correctly
+            if (!SupportPIX()) debugController->SetEnableGPUBasedValidation(TRUE);
             
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
@@ -145,7 +147,15 @@ void NativeClient::LoadDevice()
         D3D12_MESSAGE_CALLBACK_FLAG_NONE,
         this,
         &m_callbackCookie));
+    
     TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
+
+    if (PIXIsAttachedForGpuCapture() && !SupportPIX())
+    {
+        TRY_DO(
+            m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING,
+                "PIX detected, consider using the --pix command line argument"));
+    }
 #endif
 
     D3D12MA::ALLOCATOR_DESC allocatorDesc = {};

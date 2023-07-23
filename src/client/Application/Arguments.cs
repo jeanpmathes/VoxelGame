@@ -50,6 +50,14 @@ public static class Arguments
 
         command.AddOption(loadWorldDirectlyOption);
 
+        var supportGraphicalDebuggerOption = new Option<bool>(
+            "--pix",
+            description: "Whether to configure some features in a way that improve the PIX debugging experience at the cost of performance and validation.",
+            getDefaultValue: () => false
+        );
+
+        command.AddOption(supportGraphicalDebuggerOption);
+
         ILogger GetLogger(InvocationContext context)
         {
             Debug.Assert(logDebugOption != null);
@@ -65,7 +73,9 @@ public static class Arguments
             context.ExitCode = RunApplication(GetLogger(context),
                 logger =>
                 {
-                    GameParameters gameParameters = new(context.ParseResult.GetValueForOption(loadWorldDirectlyOption));
+                    GameParameters gameParameters = new(
+                        context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
+                        context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption));
 
                     return runGame(gameParameters, logger);
                 });
@@ -108,7 +118,7 @@ public delegate int RunGame(GameParameters parameters, ILogger logger);
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly)
+public record GameParameters(int LoadWorldDirectly, bool SupportPIX)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.

@@ -42,11 +42,11 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
     m_app = pApp;
     
     pApp->Init();
-    pApp->Tick(true);
+    pApp->Tick(DXApp::ALLOW_BOTH);
 
     ShowWindow(m_hwnd, nCmdShow);
 
-    pApp->Tick(true);
+    pApp->Tick(DXApp::ALLOW_BOTH);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -58,7 +58,7 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
         }
         else
         {
-            pApp->Tick(true);
+            pApp->Tick(DXApp::ALLOW_BOTH);
         }
     }
 
@@ -206,7 +206,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         {
             if (app)
             {
-                app->Tick(false);
+                app->Tick(DXApp::ALLOW_RENDER);
                 ValidateRect(m_hwnd, nullptr);
             }
         }
@@ -339,9 +339,9 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
 
     case WM_GETMINMAXINFO:
         {
-            auto pMinMaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
-            pMinMaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
-            pMinMaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
+            const auto minmaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
+            minmaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
+            minmaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
         }
         return 0;
 

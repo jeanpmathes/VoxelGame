@@ -89,7 +89,8 @@ internal static class Program
                 {
                     Title = Language.VoxelGame + " " + Version,
                     Size = graphicsSettings.WindowSize,
-                    RenderScale = graphicsSettings.RenderResolutionScale
+                    RenderScale = graphicsSettings.RenderResolutionScale,
+                    SupportPIX = args.SupportPIX
                 }.Corrected; // todo: icon
 
                 logger.LogDebug("Opening window");

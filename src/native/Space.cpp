@@ -176,6 +176,8 @@ void Space::DispatchRays() const
     m_commandGroup.commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
                                                    heaps.data());
 
+    m_commandGroup.commandList->SetComputeRootSignature(m_rtGlobalRootSignature.Get());
+
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
     desc.RayGenerationShaderRecord.StartAddress
@@ -368,8 +370,9 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
 #if defined(VG_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
-        TRY_DO(m->normalRootSignature->SetName((L"RT Material Normal RS " + debugName).c_str()));
-        TRY_DO(m->shadowRootSignature->SetName((L"RT Material Shadow RS " + debugName).c_str()));
+        // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
+        TRY_DO(m->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+        TRY_DO(m->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
 #endif
 
         m_materials.push_back(std::move(m));
@@ -387,6 +390,8 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     m_rtStateObject = pipeline.Generate();
     NAME_D3D12_OBJECT(m_rtStateObject);
+
+    m_rtGlobalRootSignature = pipeline.GetGlobalRootSignature();
 
     TRY_DO(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProperties)));
 
@@ -442,7 +447,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
 
     rsc.AddHeapRangesParameter({
-        {2, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1} // BVH
+        {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1} // BVH
     });
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Global Data
@@ -480,7 +485,7 @@ void Space::CreateShaderBindingTable()
         }
     }
 
-    // todo: add a proxy hit group if we have no meshes to make PIX happy 
+    // todo: add a proxy hit group if we have no meshes to make PIX happy (check if it still complains first) 
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
     
@@ -514,6 +519,8 @@ void Space::CreateTopLevelAS()
     topLevelASGenerator.ComputeASBufferSizes(GetDevice().Get(), true, &scratchSize, &resultSize,
                                              &instanceDescriptionSize);
 
+    const bool committed = m_nativeClient.SupportPIX();
+    
     m_topLevelASBuffers.scratch = util::AllocateBuffer(m_nativeClient, scratchSize,
                                                        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                                        D3D12_RESOURCE_STATE_COMMON,
@@ -521,11 +528,13 @@ void Space::CreateTopLevelAS()
     m_topLevelASBuffers.result = util::AllocateBuffer(m_nativeClient, resultSize,
                                                       D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                                       D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                                      D3D12_HEAP_TYPE_DEFAULT);
+                                                      D3D12_HEAP_TYPE_DEFAULT,
+                                                      committed);
     m_topLevelASBuffers.instanceDesc = util::AllocateBuffer(m_nativeClient, instanceDescriptionSize,
                                                             D3D12_RESOURCE_FLAG_NONE,
                                                             D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                            D3D12_HEAP_TYPE_UPLOAD);
+                                                            D3D12_HEAP_TYPE_UPLOAD,
+                                                            committed);
 
     NAME_D3D12_OBJECT(m_topLevelASBuffers.scratch);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);

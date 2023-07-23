@@ -26,6 +26,9 @@ public class InputManager
         Listener = new InputListener(this);
     }
 
+    /// <summary>
+    ///     The current state of the keyboard.
+    /// </summary>
     public KeyState State { get; private set; } = null!;
 
     /// <summary>
@@ -71,4 +74,3 @@ public class InputManager
     /// </summary>
     public event EventHandler OnUpdate = delegate {};
 }
-

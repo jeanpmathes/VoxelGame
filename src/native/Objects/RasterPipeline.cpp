@@ -9,7 +9,7 @@ static ComPtr<ID3DBlob> CompileShader(
     ComPtr<ID3DBlob> errorBlob;
 
 #if defined(VG_DEBUG)
-    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #else
     UINT compileFlags = 0;
 #endif
@@ -59,11 +59,11 @@ static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device
         },
         {
             "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
-            0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+            0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
         },
         {
             "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-            0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+            0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
         },
     };
 
@@ -205,7 +205,12 @@ static void ApplyPresetToPipeline(const ShaderPreset preset, D3D12_GRAPHICS_PIPE
 {
     switch (preset)
     {
-    case ShaderPreset::POST_PROCESSING: break;
+    case ShaderPreset::POST_PROCESSING:
+        {
+            desc->DepthStencilState.DepthEnable = true;
+            desc->DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+            desc->DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        }
     case ShaderPreset::DRAW_2D:
         {
             desc->DepthStencilState.DepthEnable = false;
@@ -257,6 +262,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+    psoDesc.DepthStencilState.DepthEnable = FALSE;
     psoDesc.DepthStencilState.StencilEnable = FALSE;
     psoDesc.SampleMask = UINT_MAX;
     psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

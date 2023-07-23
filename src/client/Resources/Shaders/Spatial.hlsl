@@ -25,7 +25,7 @@ float4x4 iWorld;
 float4x4 iWorldNormal;
 }
 
-RaytracingAccelerationStructure spaceBVH : register(t2);
+RaytracingAccelerationStructure spaceBVH : register(t1);
 
 /**
  * Read the mesh data.
@@ -48,9 +48,9 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
 
     const uint primitiveIndex = PrimitiveIndex();
     const bool isFirst = (primitiveIndex % 2) == 0;
-    const uint vertexIndex = isFirst ? 4 * primitiveIndex : 4 * (primitiveIndex - 1);
+    const uint vertexIndex = (primitiveIndex / 2) * 4;
 
-    vi = isFirst ? int3(0, 2, 1) : int3(0, 3, 2);
+    vi = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
     vi += vertexIndex;
 
     posA = vertices[vi[0]].vertex;
@@ -60,7 +60,8 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;
 
-    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz * -1.f;
+    normal = normalize(cross(e1, e2)); //mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz;
+    normal = normalize(normal);
 
     data = uint4(
         vertices[vertexIndex + 0].data,
@@ -160,12 +161,7 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
     const float3 dirToLight = -gLightDir;
     
     float3 color = baseColor;
-
-    if (dot(normal, WorldRayDirection()) < 0.f)
-    {
-        return float3(0.f, 0.f, 0.f);
-    }
-
+    
     RayDesc ray;
     ray.Origin = worldOrigin;
     ray.Direction = dirToLight;
@@ -175,12 +171,12 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
     ShadowHitInfo shadowPayload;
     shadowPayload.isHit = false;
 
-    TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
+    //TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
 
     const float visibility = shadowPayload.isHit ? 0.0f : 1.0f;
 
-    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
-    color *= lightIntensity;
+    //const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
+    //color *= lightIntensity;
 
-    return color;
+    return normal * 0.5f + 0.5f;
 }

@@ -91,7 +91,8 @@ public class Client : IDisposable
             height = (uint) windowSettings.Size.Y,
             title = windowSettings.Title,
             renderScale = windowSettings.RenderScale,
-            allowTearing = false
+            allowTearing = false,
+            supportPIX = windowSettings.SupportPIX
         };
 
         config = new Config(configuration, OnError, OnErrorMessage);

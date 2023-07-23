@@ -43,11 +43,18 @@ public:
     DXApp(DXApp&& other) = delete;
     DXApp& operator=(DXApp&& other) = delete;
 
+    enum CycleFlags
+    {
+        ALLOW_UPDATE = 1 << 0,
+        ALLOW_RENDER = 1 << 1,
+        ALLOW_BOTH = ALLOW_UPDATE | ALLOW_RENDER,
+    };
+
     /**
      * Perform a tick, which can update and render the application.
-     * \param allowUpdate Whether to allow the application to update.
+     * \param flags The flags to control which cycles are allowed.
      */
-    void Tick(bool allowUpdate);
+    void Tick(CycleFlags flags);
 
     void Init();
     void Update(const StepTimer& timer);
@@ -73,7 +80,11 @@ public:
     [[nodiscard]] UINT GetWidth() const { return m_width; }
     [[nodiscard]] UINT GetHeight() const { return m_height; }
     [[nodiscard]] const WCHAR* GetTitle() const { return m_title.c_str(); }
-    [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
+
+    /**
+     * Whether to configure features in a way that are more friendly to PIX.
+     */
+    [[nodiscard]] BOOL SupportPIX() const { return m_configuration.supportPIX; }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
@@ -123,6 +134,8 @@ protected:
 
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
+
+    [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
 
     UINT m_width;
     UINT m_height;

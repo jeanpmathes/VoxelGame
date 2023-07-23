@@ -122,6 +122,8 @@ namespace nv_helpers_dx12
         /// Compiles the raytracing state object
         Microsoft::WRL::ComPtr<ID3D12StateObject> Generate();
 
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> GetGlobalRootSignature() const;
+
     private:
         /// Storage for DXIL libraries and their exported symbols
         struct Library

@@ -49,6 +49,7 @@ struct Configuration
     FLOAT renderScale;
     
     BOOL allowTearing;
+    BOOL supportPIX;
 };
 
 #define TRY try

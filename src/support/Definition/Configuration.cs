@@ -171,5 +171,11 @@ public static partial class Native
         ///     Whether to allow tearing.
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)] public bool allowTearing;
+
+        /// <summary>
+        ///     Whether to disable some features like GPU validation to improve PIX support.
+        ///     In release builds, this has no effect.
+        /// </summary>
+        [MarshalAs(UnmanagedType.Bool)] public bool supportPIX;
     }
 }

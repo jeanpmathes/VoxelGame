@@ -151,7 +151,8 @@ namespace nv_helpers_dx12
         }
 
         Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSig;
-        hr = device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
+        hr = device->CreateRootSignature(0,
+                                         pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
                                          IID_PPV_ARGS(&pRootSig));
         if (FAILED(hr))
         {

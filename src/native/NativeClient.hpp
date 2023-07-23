@@ -96,7 +96,7 @@ public:
         DirectX::XMFLOAT4 position;
         DirectX::XMFLOAT2 uv;
     };
-
+    
     ComPtr<ID3D12Device5> m_device;
     ComPtr<D3D12MA::Allocator> m_allocator;
     ComPtr<IDXGISwapChain3> m_swapChain;

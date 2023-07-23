@@ -26,9 +26,9 @@ DXApp::DXApp(const Configuration configuration) :
 
 DXApp::~DXApp() = default;
 
-void DXApp::Tick(const bool allowUpdate)
+void DXApp::Tick(const CycleFlags flags)
 {
-    if (allowUpdate)
+    if (flags & ALLOW_UPDATE)
     {
         m_updateTimer.Tick([&]
         {
@@ -36,10 +36,13 @@ void DXApp::Tick(const bool allowUpdate)
         });
     }
 
-    m_renderTimer.Tick([&]
+    if (flags & ALLOW_RENDER)
     {
-        Render(m_renderTimer);
-    });
+        m_renderTimer.Tick([&]
+        {
+            Render(m_renderTimer);
+        });
+    }
 }
 
 void DXApp::Init()

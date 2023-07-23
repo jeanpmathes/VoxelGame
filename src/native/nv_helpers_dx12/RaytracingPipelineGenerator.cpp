@@ -240,6 +240,11 @@ namespace nv_helpers_dx12
         return rtStateObject;
     }
 
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> RayTracingPipelineGenerator::GetGlobalRootSignature() const
+    {
+        return m_dummyGlobalRootSignature;
+    }
+
     void RayTracingPipelineGenerator::CreateDummyRootSignatures()
     {
         // Creation of the global root signature
