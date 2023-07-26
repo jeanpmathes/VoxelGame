@@ -57,33 +57,22 @@ buffer needs to be kept until the command list execution is finished.
 namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::AddInstance(
-        ID3D12Resource* bottomLevelAS, // Bottom-level acceleration structure containing the
-        // actual geometric data of the instance
-        const DirectX::XMFLOAT4X4& transform, // Transform matrix to apply to the instance, allowing the
-        // same bottom-level AS to be used at several world-space
-        // positions
-        UINT instanceID, // Instance ID, which can be used in the shaders to
-        // identify this specific instance
-        UINT hitGroupIndex, // Hit group index, corresponding the the index of the
-        // hit group in the Shader Binding Table that will be
-        // invoked upon hitting the geometry,
-        D3D12_RAYTRACING_INSTANCE_FLAGS flags // Instance flags, e.g. concerning the winding order
+        ID3D12Resource* bottomLevelAS,
+        const DirectX::XMFLOAT4X4& transform,
+        UINT instanceID,
+        UINT hitGroupIndex,
+        D3D12_RAYTRACING_INSTANCE_FLAGS flags 
     )
     {
         m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, flags));
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
-        ID3D12Device5* device, // Device on which the build will be performed
-        bool allowUpdate, // If true, the resulting acceleration structure will
-        // allow iterative updates
-        UINT64* scratchSizeInBytes, // Required scratch memory on the GPU to build
-        // the acceleration structure
-        UINT64* resultSizeInBytes, // Required GPU memory to store the acceleration
-        // structure
-        UINT64* descriptorsSizeInBytes // Required GPU memory to store instance
-        // descriptors, containing the matrices,
-        // indices etc.
+        ID3D12Device5* device,
+        bool allowUpdate,
+        UINT64* scratchSizeInBytes,
+        UINT64* resultSizeInBytes,
+        UINT64* descriptorsSizeInBytes 
     )
     {
         // The generated AS can support iterative updates. This may change the final
@@ -122,32 +111,27 @@ namespace nv_helpers_dx12
         m_scratchSizeInBytes = info.ScratchDataSizeInBytes;
         // The instance descriptors are stored as-is in GPU memory, so we can deduce
         // the required size from the instance count
-        m_instanceDescsSizeInBytes =
+        m_instanceDescriptionsSizeInBytes =
             ROUND_UP(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(),
                      D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        if (m_instanceDescsSizeInBytes == 0)
+        if (m_instanceDescriptionsSizeInBytes == 0)
         {
-            m_instanceDescsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+            m_instanceDescriptionsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
         }
 
         *scratchSizeInBytes = m_scratchSizeInBytes;
         *resultSizeInBytes = m_resultSizeInBytes;
-        *descriptorsSizeInBytes = m_instanceDescsSizeInBytes;
+        *descriptorsSizeInBytes = m_instanceDescriptionsSizeInBytes;
     }
 
     void TopLevelASGenerator::Generate(
-        ID3D12GraphicsCommandList4* commandList, // Command list on which the build will be enqueued
-        ID3D12Resource* scratchBuffer, // Scratch buffer used by the builder to
-        // store temporary data
-        ID3D12Resource* resultBuffer, // Result buffer storing the acceleration structure
-        ID3D12Resource* descriptorsBuffer, // Auxiliary result buffer containing the instance
-        // descriptors, has to be in upload heap
-        bool updateOnly /*= false*/, // If true, simply refit the existing
-        // acceleration structure
-        ID3D12Resource* previousResult /*= nullptr*/ // Optional previous acceleration
-        // structure, used if an iterative update
-        // is requested
+        ID3D12GraphicsCommandList4* commandList,
+        ID3D12Resource* scratchBuffer,
+        ID3D12Resource* resultBuffer,
+        ID3D12Resource* descriptorsBuffer,
+        bool updateOnly,
+        ID3D12Resource* previousResult
     )
     {
         // Copy the descriptors in the target descriptor buffer
@@ -163,7 +147,7 @@ namespace nv_helpers_dx12
         // Initialize the memory to zero on the first time only
         if (!updateOnly)
         {
-            ZeroMemory(instanceDescs, m_instanceDescsSizeInBytes);
+            ZeroMemory(instanceDescs, m_instanceDescriptionsSizeInBytes);
         }
 
         // Create the description for each instance
@@ -244,8 +228,8 @@ namespace nv_helpers_dx12
         const DirectX::XMFLOAT4X4& tr,
         UINT iID,
         UINT hgId,
-        D3D12_RAYTRACING_INSTANCE_FLAGS flgs)
-        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId), flags(flgs)
+        D3D12_RAYTRACING_INSTANCE_FLAGS f)
+        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId), flags(f)
     {
     }
 } // namespace nv_helpers_dx12

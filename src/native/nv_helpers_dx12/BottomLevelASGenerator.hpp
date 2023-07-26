@@ -80,98 +80,76 @@ namespace nv_helpers_dx12
         /// Add a vertex buffer in GPU memory into the acceleration structure. The
         /// vertices are supposed to be represented by 3 float32 value. Indices are
         /// implicit.
+        /// \param vertexBuffer Buffer containing the vertex coordinates, possibly interleaved with other vertex data
+        /// \param vertexOffsetInBytes Offset of the first vertex in the vertex buffer
+        /// \param vertexCount Number of vertices to consider in the buffer
+        /// \param vertexSizeInBytes Size of a vertex including all its other data, used to stride in the buffer
+        /// \param transformBuffer Buffer containing a 4x4 transform matrix in GPU memory, to be applied to the vertices.
+        /// \param transformOffsetInBytes Offset of the transform matrix in the transform buffer
+        /// \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit
         void AddVertexBuffer(ID3D12Resource* vertexBuffer,
-                             /// Buffer containing the vertex coordinates,
-                                                                                 /// possibly interleaved with other vertex data
                              UINT64 vertexOffsetInBytes,
-                             /// Offset of the first vertex in the vertex
-                                                                                 /// buffer
                              uint32_t vertexCount,
-                             /// Number of vertices to consider
-                                                                                 /// in the buffer
                              UINT vertexSizeInBytes,
-                             /// Size of a vertex including all
-                                                                                 /// its other data, used to stride
-                                                                                 /// in the buffer
                              ID3D12Resource* transformBuffer,
-                             /// Buffer containing a 4x4 transform
-                                                                                    /// matrix in GPU memory, to be applied
-                                                                                    /// to the vertices. This buffer cannot
-                                                                                    /// be nullptr
                              UINT64 transformOffsetInBytes,
-                             /// Offset of the transform matrix in the
-                                                                                    /// transform buffer
                              bool isOpaque = true
-                             /// If true, the geometry is considered opaque,
-                                                                        /// optimizing the search for a closest hit
         );
 
         /// Add a vertex buffer along with its index buffer in GPU memory into the acceleration structure.
         /// The vertices are supposed to be represented by 3 float32 value, and the indices are 32-bit
         /// unsigned ints
+        /// \param vertexBuffer Buffer containing the vertex coordinates, possibly interleaved with other vertex data
+        /// \param vertexOffsetInBytes Offset of the first vertex in the vertex buffer
+        /// \param vertexCount Number of vertices to consider in the buffer
+        /// \param vertexSizeInBytes Size of a vertex including all its other data, used to stride in the buffer
+        /// \param indexBuffer Buffer containing the vertex indices describing the triangles
+        /// \param indexOffsetInBytes Offset of the first index in the index buffer
+        /// \param indexCount Number of indices to consider in the buffer
+        /// \param transformBuffer Buffer containing a 4x4 transform matrix in GPU memory, to be applied to the vertices.
+        /// \param transformOffsetInBytes Offset of the transform matrix in the transform buffer
+        /// \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit
         void AddVertexBuffer(ID3D12Resource* vertexBuffer,
-                             /// Buffer containing the vertex coordinates,
-                                                                                 /// possibly interleaved with other vertex data
                              UINT64 vertexOffsetInBytes,
-                             /// Offset of the first vertex in the vertex
-                                                                                 /// buffer
                              uint32_t vertexCount,
-                             /// Number of vertices to consider
-                                                                                 /// in the buffer
                              UINT vertexSizeInBytes,
-                             /// Size of a vertex including
-                                                                                 /// all its other data,
-                                                                                 /// used to stride in the buffer
                              ID3D12Resource* indexBuffer,
-                             /// Buffer containing the vertex indices
-                                                                                 /// describing the triangles
                              UINT64 indexOffsetInBytes,
-                             /// Offset of the first index in
-                                                                                 /// the index buffer
-                             uint32_t indexCount, /// Number of indices to consider in the buffer
+                             uint32_t indexCount,
                              ID3D12Resource* transformBuffer,
-                             /// Buffer containing a 4x4 transform
-                                                                                    /// matrix in GPU memory, to be applied
-                                                                                    /// to the vertices. This buffer cannot
-                                                                                    /// be nullptr
                              UINT64 transformOffsetInBytes,
-                             /// Offset of the transform matrix in the
-                                                                                    /// transform buffer
                              bool isOpaque = true
-                             /// If true, the geometry is considered opaque,
-                                                                        /// optimizing the search for a closest hit
         );
 
         /// Compute the size of the scratch space required to build the acceleration structure, as well as
         /// the size of the resulting structure. The allocation of the buffers is then left to the
         /// application
+        /// \param device Device on which the build will be performed
+        /// \param allowUpdate If true, the resulting acceleration structure will allow iterative updates
+        /// \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure
+        /// \param resultSizeInBytes Required GPU memory to store the acceleration structure
         void ComputeASBufferSizes(
-            ID3D12Device5* device, /// Device on which the build will be performed
+            ID3D12Device5* device,
             bool allowUpdate,
-            /// If true, the resulting acceleration structure will
-                                             /// allow iterative updates
             UINT64* scratchSizeInBytes,
-            /// Required scratch memory on the GPU to
-                                             /// build the acceleration structure
             UINT64* resultSizeInBytes
-            /// Required GPU memory to store the
-                                             /// acceleration structure
         );
 
         /// Enqueue the construction of the acceleration structure on a command list, using
         /// application-provided buffers and possibly a pointer to the previous acceleration structure in
         /// case of iterative updates. Note that the update can be done in place: the result and
         /// previousResult pointers can be the same.
+        /// \param commandList Command list on which the build will be enqueued
+        /// \param scratchBuffer Scratch buffer used by the builder to store temporary data
+        /// \param resultBuffer Result buffer storing the acceleration structure
+        /// \param updateOnly If true, simply refit the existing acceleration structure
+        /// \param previousResult Optional previous acceleration structure, used if an iterative update is requested
         void Generate(
-            ID3D12GraphicsCommandList4* commandList, /// Command list on which the build will be enqueued
+            ID3D12GraphicsCommandList4* commandList,
             ID3D12Resource* scratchBuffer,
-            /// Scratch buffer used by the builder to
-                                                /// store temporary data
-            ID3D12Resource* resultBuffer, /// Result buffer storing the acceleration structure
-            bool updateOnly = false, /// If true, simply refit the existing acceleration structure
+            ID3D12Resource* resultBuffer,
+            bool updateOnly = false,
             ID3D12Resource* previousResult = nullptr
-            /// Optional previous acceleration structure, used
-                                                          /// if an iterative update is requested
         );
 
     private:
@@ -186,6 +164,7 @@ namespace nv_helpers_dx12
 
         /// Flags for the builder, specifying whether to allow iterative updates, or
         /// when to perform an update
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
+            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     };
 } // namespace nv_helpers_dx12

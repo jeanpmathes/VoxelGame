@@ -205,6 +205,6 @@ namespace nv_helpers_dx12
 
         /// The program names are translated into program identifiers.The size in bytes of an identifier
         /// is provided by the device and is the same for all categories.
-        UINT m_progIdSize = 0;
+        UINT m_programIdSize = 0;
     };
 } // namespace nv_helpers_dx12

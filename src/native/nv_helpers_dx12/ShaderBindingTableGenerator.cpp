@@ -69,7 +69,7 @@ namespace nv_helpers_dx12
     uint32_t ShaderBindingTableGenerator::ComputeSBTSize()
     {
         // Size of a program identifier
-        m_progIdSize = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
+        m_programIdSize = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
         // Compute the entry size of each program type depending on the maximum number of parameters in
         // each category
         m_rayGenEntrySize = GetEntrySize(m_rayGen);
@@ -136,7 +136,7 @@ namespace nv_helpers_dx12
         m_rayGenEntrySize = 0;
         m_missEntrySize = 0;
         m_hitGroupEntrySize = 0;
-        m_progIdSize = 0;
+        m_programIdSize = 0;
     }
 
     UINT ShaderBindingTableGenerator::GetRayGenSectionSize() const
@@ -205,9 +205,9 @@ namespace nv_helpers_dx12
                 throw std::logic_error(transformedErrMsg);
             }
             // Copy the shader identifier
-            memcpy(pData, id, m_progIdSize);
+            memcpy(pData, id, m_programIdSize);
             // Copy all its resources pointers or values in bulk
-            memcpy(pData + m_progIdSize, shader.m_inputData.data(), shader.m_inputData.size() * 8);
+            memcpy(pData + m_programIdSize, shader.m_inputData.data(), shader.m_inputData.size() * 8);
 
             pData += entrySize;
         }
@@ -225,7 +225,7 @@ namespace nv_helpers_dx12
         }
         // A SBT entry is made of a program ID and a set of parameters, taking 8 bytes each. Those
         // parameters can either be 8-bytes pointers, or 4-bytes constants
-        uint32_t entrySize = m_progIdSize + 8 * static_cast<uint32_t>(maxArgs);
+        uint32_t entrySize = m_programIdSize + 8 * static_cast<uint32_t>(maxArgs);
 
         // The entries of the shader binding table must be 32-bytes-aligned
         entrySize = ROUND_UP(entrySize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
