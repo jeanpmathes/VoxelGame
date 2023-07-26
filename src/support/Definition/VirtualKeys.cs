@@ -406,4 +406,3 @@ public enum VirtualKeys
 
     LastKey = OEMClear
 }
-

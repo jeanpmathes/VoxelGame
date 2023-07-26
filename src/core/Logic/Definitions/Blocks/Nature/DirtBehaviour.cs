@@ -42,4 +42,3 @@ public static class DirtBehaviour
             world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }
-

@@ -292,5 +292,3 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         if (!valid) Destroy(world, position);
     }
 }
-
-

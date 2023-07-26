@@ -54,4 +54,3 @@ public class TintedBlock : BasicBlock, IWideConnectable
         entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }
 }
-

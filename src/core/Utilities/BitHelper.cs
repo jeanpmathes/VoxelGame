@@ -59,4 +59,3 @@ public static class BitHelper
         return bools.Sum(b => b.ToInt());
     }
 }
-

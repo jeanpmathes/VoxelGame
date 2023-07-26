@@ -99,4 +99,3 @@ public static class VerticalFlowExtensions
         return flow.ExitSide().Opposite();
     }
 }
-

@@ -28,17 +28,17 @@ namespace VoxelGame.Core.Logic;
 public partial class Chunk : IDisposable
 {
     /// <summary>
-    /// The number of sections in a chunk along every axis.
+    ///     The number of sections in a chunk along every axis.
     /// </summary>
     public const int Size = 4;
 
     /// <summary>
-    /// The number of blocks in a chunk along every axis.
+    ///     The number of blocks in a chunk along every axis.
     /// </summary>
     public const int BlockSize = Size * Section.Size;
 
     /// <summary>
-    /// The number of sections per chunk.
+    ///     The number of sections per chunk.
     /// </summary>
     public const int SectionCount = Size * Size * Size;
 
@@ -112,10 +112,7 @@ public partial class Chunk : IDisposable
         World = world;
         Position = position;
 
-        for (var index = 0; index < SectionCount; index++)
-        {
-            sections[index] = createSection(SectionPosition.From(Position, IndexToLocalSection(index)));
-        }
+        for (var index = 0; index < SectionCount; index++) sections[index] = createSection(SectionPosition.From(Position, IndexToLocalSection(index)));
 
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
             Block.MaxBlockTicksPerFrameAndChunk,
@@ -147,7 +144,7 @@ public partial class Chunk : IDisposable
     public bool IsRequested => isRequested;
 
     /// <summary>
-    /// Get the position of this chunk.
+    ///     Get the position of this chunk.
     /// </summary>
     public ChunkPosition Position { get; }
 
@@ -175,7 +172,7 @@ public partial class Chunk : IDisposable
     ///     Acquire the core resource, possibly stealing it.
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
-    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None" />.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireCore(Access access)
     {
@@ -219,7 +216,7 @@ public partial class Chunk : IDisposable
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
     /// </summary>
-    /// <param name="access">The access to acquire. Must not be <see cref="Access.None"/>.</param>
+    /// <param name="access">The access to acquire. Must not be <see cref="Access.None" />.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireExtended(Access access)
     {
@@ -288,10 +285,7 @@ public partial class Chunk : IDisposable
         blockTickManager.Setup(World, localUpdateCounter);
         fluidTickManager.Setup(World, localUpdateCounter);
 
-        for (var s = 0; s < SectionCount; s++)
-        {
-            sections[s].Setup(loaded.sections[s]);
-        }
+        for (var s = 0; s < SectionCount; s++) sections[s].Setup(loaded.sections[s]);
 
         // Loaded chunk is not disposed because this chunk takes ownership of the resources.
     }
@@ -495,7 +489,7 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    /// Tick some random blocks.
+    ///     Tick some random blocks.
     /// </summary>
     public void Tick()
     {
@@ -516,7 +510,7 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    /// Get a section of this chunk.
+    ///     Get a section of this chunk.
     /// </summary>
     /// <param name="position">The position of the section. Must be in this chunk.</param>
     /// <returns>The section.</returns>

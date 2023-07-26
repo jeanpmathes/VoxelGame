@@ -48,7 +48,7 @@ void DXApp::Tick(const CycleFlags flags)
 void DXApp::Init()
 {
     OnInit();
-    
+
     m_configuration.onInit();
 
     OnPostInit();
@@ -64,7 +64,7 @@ void DXApp::Update(const StepTimer& timer)
     const double delta = timer.GetElapsedSeconds();
 
     m_cycle = Cycle::UPDATE;
-    
+
     m_configuration.onUpdate(delta);
     OnUpdate(delta);
 

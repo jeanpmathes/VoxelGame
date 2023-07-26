@@ -14,7 +14,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
-    
+
     CreateTopLevelAS();
 
     m_commandGroup.Close();
@@ -332,7 +332,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
         pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
     }
-    
+
     m_rayGenSignature = CreateRayGenSignature();
     m_missSignature = CreateMissSignature();
 
@@ -480,11 +480,11 @@ void Space::CreateShaderBindingTable()
     // todo: add a proxy hit group if we have no meshes to make PIX happy (check if it still complains first) 
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
-    
+
     m_sbtStorage = util::AllocateBuffer(
         m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-    
+
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -500,7 +500,7 @@ void Space::CreateTopLevelAS()
         if (mesh->IsEnabled())
         {
             // The CCW flag is used because DirectX uses left-handed coordinates.
-            
+
             topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
                                             instanceID, 2 * instanceID,
                                             D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
@@ -514,7 +514,7 @@ void Space::CreateTopLevelAS()
                                              &instanceDescriptionSize);
 
     const bool committed = m_nativeClient.SupportPIX();
-    
+
     m_topLevelASBuffers.scratch = util::AllocateBuffer(m_nativeClient, scratchSize,
                                                        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                                        D3D12_RESOURCE_STATE_COMMON,

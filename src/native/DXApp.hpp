@@ -62,7 +62,7 @@ public:
     void Destroy();
 
     bool CanClose() const;
-    
+
     void HandleSizeChanged(UINT width, UINT height, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
     void HandleActiveStateChange(bool active) const;

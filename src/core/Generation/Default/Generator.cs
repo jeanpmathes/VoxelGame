@@ -359,5 +359,3 @@ public class Generator : IWorldGenerator
         }
     }
 }
-
-

@@ -35,4 +35,3 @@ public class SetOverlays : Command
         context.Player.OverlayEnabled = enabled;
     }
 }
-

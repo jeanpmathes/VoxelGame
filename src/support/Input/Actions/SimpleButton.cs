@@ -29,4 +29,3 @@ public class SimpleButton : Button
         IsDown = state.IsKeyDown(Key);
     }
 }
-

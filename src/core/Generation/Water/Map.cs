@@ -32,4 +32,3 @@ public class Map : IMap
         return 20.0;
     }
 }
-

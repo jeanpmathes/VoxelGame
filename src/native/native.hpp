@@ -47,7 +47,7 @@ struct Configuration
     LPWSTR title;
 
     FLOAT renderScale;
-    
+
     BOOL allowTearing;
     BOOL supportPIX;
 };

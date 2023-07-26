@@ -33,4 +33,3 @@ public class NoiseFactory
     public FastNoiseLite GetNextNoise() => new(random.Next(int.MinValue, int.MaxValue));
     #pragma warning restore S4049 // Changes state, should be a method
 }
-

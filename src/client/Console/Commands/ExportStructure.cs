@@ -52,4 +52,3 @@ public class ExportStructure : Command
         else Context.Console.WriteError("Failed to export structure.");
     }
 }
-

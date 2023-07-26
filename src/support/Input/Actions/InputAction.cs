@@ -34,5 +34,3 @@ public abstract class InputAction
     /// <param name="e"></param>
     protected abstract void Update(object? sender, EventArgs e);
 }
-
-

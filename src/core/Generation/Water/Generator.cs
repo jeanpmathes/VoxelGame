@@ -74,5 +74,3 @@ public class Generator : IWorldGenerator
         return position.Y <= waterLevel ? water : empty;
     }
 }
-
-

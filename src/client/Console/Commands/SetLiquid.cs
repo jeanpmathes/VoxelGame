@@ -59,4 +59,3 @@ public class SetFluid : Command
         Context.Player.World.SetFluid(fluid.AsInstance(level), position);
     }
 }
-

@@ -67,5 +67,3 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         return mesh;
     }
 }
-
-

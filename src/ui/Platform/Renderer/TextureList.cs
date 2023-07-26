@@ -215,7 +215,7 @@ public class TextureList
     }
 
     /// <summary>
-    /// A handle to a texture list entry.
+    ///     A handle to a texture list entry.
     /// </summary>
     /// <param name="Index">The index of the texture in the texture list.</param>
     public readonly record struct Handle(int Index)
@@ -223,7 +223,7 @@ public class TextureList
         private const int InvalidIndex = -1;
 
         /// <summary>
-        /// Get the handle that represents no texture.
+        ///     Get the handle that represents no texture.
         /// </summary>
         public static Handle Invalid => new(InvalidIndex);
 

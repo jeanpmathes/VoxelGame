@@ -15,9 +15,9 @@ uniform float time;
 
 void main()
 {
-	vec4 color = texture(arrayTexture, vec3(texCoord, animation_fluid(texIndex, time)));
+    vec4 color = texture(arrayTexture, vec3(texCoord, animation_fluid(texIndex, time)));
 
-	color *= tint;
+    color *= tint;
 
-	outputColor = color;
+    outputColor = color;
 }

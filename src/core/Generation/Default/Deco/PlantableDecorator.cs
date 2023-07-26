@@ -48,4 +48,3 @@ public class PlantableDecorator : SurfaceDecorator
         return below.Block.Block is IPlantable;
     }
 }
-

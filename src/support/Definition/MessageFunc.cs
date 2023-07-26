@@ -937,4 +937,3 @@ public static partial class Native
         D3D12_MESSAGE_SEVERITY_MESSAGE = D3D12_MESSAGE_SEVERITY_INFO + 1
     }
 }
-

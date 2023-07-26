@@ -276,4 +276,3 @@ public class FireBlock : Block, IFillable, IComplex
         return (data & GetFlag(side)) != 0;
     }
 }
-

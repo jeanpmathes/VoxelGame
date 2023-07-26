@@ -136,5 +136,3 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return Texture with {Tint = fluid};
     }
 }
-
-

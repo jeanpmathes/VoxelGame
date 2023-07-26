@@ -42,14 +42,12 @@ public class SurfaceDecorator : Decorator
     public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         for (var y = 0; y < height; y++)
+        for (int x = -width / 2; x <= width / 2; x++)
+        for (int z = -width / 2; z <= width / 2; z++)
         {
-            for (int x = -width / 2; x <= width / 2; x++)
-            for (int z = -width / 2; z <= width / 2; z++)
-            {
-                Content current = grid.GetContent(position + (x, y, z)) ?? Content.Default;
+            Content current = grid.GetContent(position + (x, y, z)) ?? Content.Default;
 
-                if (!current.IsSettable) return false;
-            }
+            if (!current.IsSettable) return false;
         }
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;
@@ -57,6 +55,3 @@ public class SurfaceDecorator : Decorator
         return below.Block.IsSolidAndFull;
     }
 }
-
-
-

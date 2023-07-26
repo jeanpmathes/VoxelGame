@@ -56,7 +56,7 @@ void NativeClient::OnInit()
     {
         TRY_DO(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
         NAME_D3D12_OBJECT(m_fence);
-        
+
         m_fenceValues[m_frameIndex]++;
 
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -100,7 +100,7 @@ void NativeClient::LoadDevice()
 
             // todo: try again to remove the check and test if PIX captures correctly
             if (!SupportPIX()) debugController->SetEnableGPUBasedValidation(TRUE);
-            
+
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
 
@@ -147,7 +147,7 @@ void NativeClient::LoadDevice()
         D3D12_MESSAGE_CALLBACK_FLAG_NONE,
         this,
         &m_callbackCookie));
-    
+
     TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
 
     if (PIXIsAttachedForGpuCapture() && !SupportPIX())
@@ -246,7 +246,7 @@ void NativeClient::CreateDepthBuffer()
         m_width, m_height,
         1, 1);
     depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-    
+
     const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
     m_depthStencilBuffer = util::AllocateResource<ID3D12Resource>(

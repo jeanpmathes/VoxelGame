@@ -25,4 +25,3 @@ public interface ICombustible : IBlockBase
         return Destroy(world, position);
     }
 }
-

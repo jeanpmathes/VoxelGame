@@ -86,4 +86,3 @@ public record BlockFlags
     /// </summary>
     public static BlockFlags Trigger => new() {IsTrigger = true, ReceiveCollisions = true};
 }
-

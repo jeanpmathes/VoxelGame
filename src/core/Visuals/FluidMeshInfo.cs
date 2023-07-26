@@ -49,4 +49,3 @@ public readonly record struct FluidMeshInfo
         return new FluidMeshInfo(block, level, side, isStatic);
     }
 }
-

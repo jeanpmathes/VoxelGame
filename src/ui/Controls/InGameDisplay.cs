@@ -117,4 +117,3 @@ internal class InGameDisplay : ControlBase
         debugViewContainer.IsHidden = !debugMode;
     }
 }
-

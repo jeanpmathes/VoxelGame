@@ -207,5 +207,3 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }
 }
-
-

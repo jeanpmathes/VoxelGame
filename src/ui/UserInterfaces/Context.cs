@@ -26,4 +26,3 @@ internal sealed class Context
 
     internal UIResources Resources { get; }
 }
-

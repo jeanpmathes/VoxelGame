@@ -227,5 +227,3 @@ public class DoorBlock : Block, IFillable, IComplex
             Destroy(world, position);
     }
 }
-
-

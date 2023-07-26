@@ -102,7 +102,7 @@ public class Biome
     private Layer? Dampen { get; set; }
 
     /// <summary>
-    /// Setup the biome. This must be called after all init-properties have been set.
+    ///     Setup the biome. This must be called after all init-properties have been set.
     /// </summary>
     /// <param name="factory">The noise generator factory to use.</param>
     /// <param name="palette">The palette to use for the biome.</param>
@@ -270,4 +270,3 @@ public class Biome
     /// </summary>
     public record struct Dampening(int DampenedOffset, int OriginalOffset, int Width);
 }
-

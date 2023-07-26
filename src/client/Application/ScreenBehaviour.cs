@@ -91,5 +91,3 @@ internal sealed class ScreenBehaviour : IDisposable
 
     #endregion IDisposable Support
 }
-
-

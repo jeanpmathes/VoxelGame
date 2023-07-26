@@ -41,7 +41,7 @@ void Uploader::UploadTexture(
     UpdateSubresources(m_commandList.Get(), destination.Get(), textureUploadBuffer.Get(),
                        0, 0, subresources,
                        uploadDescription.data());
-    
+
     if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
 

@@ -28,4 +28,3 @@ public class SetWireframe : Command
         Screen.SetWireframe(enable);
     }
 }
-

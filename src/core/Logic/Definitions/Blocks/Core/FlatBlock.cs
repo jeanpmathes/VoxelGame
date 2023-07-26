@@ -195,5 +195,3 @@ public class FlatBlock : Block, IFillable, IComplex
         return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
     }
 }
-
-

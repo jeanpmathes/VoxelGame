@@ -11,7 +11,7 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, const UINT size)
     m_size = static_cast<UINT>(alignedSize);
 
     m_cbvDesc.BufferLocation = m_constantBuffer.resource->GetGPUVirtualAddress();
-    m_cbvDesc.SizeInBytes = static_cast<UINT>(m_size);
+    m_cbvDesc.SizeInBytes = m_size;
 }
 
 void ShaderBuffer::CreateResourceView(const ComPtr<ID3D12DescriptorHeap> heap) const

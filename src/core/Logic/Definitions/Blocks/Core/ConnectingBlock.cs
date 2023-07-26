@@ -63,5 +63,3 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
         }
     }
 }
-
-

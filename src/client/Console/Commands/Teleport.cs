@@ -31,14 +31,8 @@ public class Teleport : Command
     /// <exclude />
     public void Invoke(string target)
     {
-        if (GetNamedPosition(target) is {} position)
-        {
-            Do(Context, position);
-        }
-        else
-        {
-            Context.Console.WriteError($"Unknown target: {target}");
-        }
+        if (GetNamedPosition(target) is {} position) Do(Context, position);
+        else Context.Console.WriteError($"Unknown target: {target}");
     }
 
     /// <summary>
@@ -51,4 +45,3 @@ public class Teleport : Command
         context.Player.Teleport(position);
     }
 }
-

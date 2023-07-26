@@ -18,4 +18,3 @@ public static class NumberGenerator
     /// </summary>
     public static Random Random { get; } = new();
 }
-

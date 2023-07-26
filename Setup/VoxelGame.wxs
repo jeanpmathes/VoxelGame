@@ -2,72 +2,73 @@
 <?include VoxelGame.wxi?>
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)"
-           UpgradeCode="017E7E7E-DE39-49AF-BE55-Af2EB194E8E7">
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine"
-             Comments="The $(var.ProductName) installer." Platform="x64"/>
+    <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)"
+             Manufacturer="$(var.Manufacturer)"
+             UpgradeCode="017E7E7E-DE39-49AF-BE55-Af2EB194E8E7">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine"
+                 Comments="The $(var.ProductName) installer." Platform="x64"/>
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed."/>
-    <MediaTemplate EmbedCab="yes"/>
+        <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed."/>
+        <MediaTemplate EmbedCab="yes"/>
 
-    <UIRef Id="WixUI_Mondo"/>
-    <WixVariable Id="WixUILicenseRtf" Value="$(var.License)"/>
-    <WixVariable Id="WixUIBannerBmp" Value="$(var.ImagesDir)banner.bmp"/>
-    <WixVariable Id="WixUIDialogBmp" Value="$(var.ImagesDir)dialog.bmp"/>
+        <UIRef Id="WixUI_Mondo"/>
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.License)"/>
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.ImagesDir)banner.bmp"/>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.ImagesDir)dialog.bmp"/>
 
-    <WixVariable Id="PublishDir" Value="..\Publish\"/>
+        <WixVariable Id="PublishDir" Value="..\Publish\"/>
 
-    <Icon Id="ChunkIcon" SourceFile="$(var.IconsDir)chunk_icon.ico"/>
+        <Icon Id="ChunkIcon" SourceFile="$(var.IconsDir)chunk_icon.ico"/>
 
-    <Feature Id="MainFeature" Title="VoxelGame" Level="1" Absent="disallow">
-      <ComponentGroupRef Id="ExecutionEnvironment"/>
-      <ComponentGroupRef Id="Dependencies"/>
-      <Feature Id="ManualFeature" Title="Manual" Level="2" Absent="allow">
-        <ComponentGroupRef Id="HelpingFiles"/>
-      </Feature>
-    </Feature>
-  </Product>
+        <Feature Id="MainFeature" Title="VoxelGame" Level="1" Absent="disallow">
+            <ComponentGroupRef Id="ExecutionEnvironment"/>
+            <ComponentGroupRef Id="Dependencies"/>
+            <Feature Id="ManualFeature" Title="Manual" Level="2" Absent="allow">
+                <ComponentGroupRef Id="HelpingFiles"/>
+            </Feature>
+        </Feature>
+    </Product>
 
-  <Fragment>
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFiles64Folder">
-        <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
-          <Directory Id="INSTALLFOLDER" Name="VoxelGame">
-            <Directory Id="MANUALFOLDER" Name="Manual">
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
+                    <Directory Id="INSTALLFOLDER" Name="VoxelGame">
+                        <Directory Id="MANUALFOLDER" Name="Manual">
+                        </Directory>
+                    </Directory>
+                </Directory>
             </Directory>
-          </Directory>
+            <Directory Id="DesktopFolder" Name="Desktop">
+            </Directory>
         </Directory>
-      </Directory>
-      <Directory Id="DesktopFolder" Name="Desktop">
-      </Directory>
-    </Directory>
-  </Fragment>
+    </Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="ExecutionEnvironment" Directory="INSTALLFOLDER">
-      <Component Id="Executable" Win64="yes">
-        <File Id="VoxelGameEXE" Name="VoxelGame.exe" Source="$(var.ApplicationPath)" KeyPath="yes">
-          <Shortcut Id="DesktopEXE" Directory="DesktopFolder" WorkingDirectory="INSTALLFOLDER"
-                    Name="VoxelGame $(var.Version)" Advertise="yes" Icon="DesktopIcon.exe">
-            <Icon Id="DesktopIcon.exe" SourceFile="$(var.ApplicationPath)"/>
-          </Shortcut>
-        </File>
-        <ProgId Id="ChunkFile" Advertise="yes"
-                NoOpen="Opening chunk files could damage them, resulting in a loss of progress."
-                Description="VoxelGame chunk file" Icon="ChunkIcon">
-          <Extension Id="chunk" Advertise="yes">
-            <MIME ContentType="application/voxelchunk" Default="yes"/>
-          </Extension>
-        </ProgId>
-      </Component>
-    </ComponentGroup>
-  </Fragment>
+    <Fragment>
+        <ComponentGroup Id="ExecutionEnvironment" Directory="INSTALLFOLDER">
+            <Component Id="Executable" Win64="yes">
+                <File Id="VoxelGameEXE" Name="VoxelGame.exe" Source="$(var.ApplicationPath)" KeyPath="yes">
+                    <Shortcut Id="DesktopEXE" Directory="DesktopFolder" WorkingDirectory="INSTALLFOLDER"
+                              Name="VoxelGame $(var.Version)" Advertise="yes" Icon="DesktopIcon.exe">
+                        <Icon Id="DesktopIcon.exe" SourceFile="$(var.ApplicationPath)"/>
+                    </Shortcut>
+                </File>
+                <ProgId Id="ChunkFile" Advertise="yes"
+                        NoOpen="Opening chunk files could damage them, resulting in a loss of progress."
+                        Description="VoxelGame chunk file" Icon="ChunkIcon">
+                    <Extension Id="chunk" Advertise="yes">
+                        <MIME ContentType="application/voxelchunk" Default="yes"/>
+                    </Extension>
+                </ProgId>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="HelpingFiles" Directory="MANUALFOLDER">
-      <Component Id="ManualFile" Win64="yes">
-        <File Id="ManualPDF" Name="Manual.pdf" Source="$(var.ManualDir)manual.pdf" KeyPath="yes"/>
-      </Component>
-    </ComponentGroup>
-  </Fragment>
+    <Fragment>
+        <ComponentGroup Id="HelpingFiles" Directory="MANUALFOLDER">
+            <Component Id="ManualFile" Win64="yes">
+                <File Id="ManualPDF" Name="Manual.pdf" Source="$(var.ManualDir)manual.pdf" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
 </Wix>

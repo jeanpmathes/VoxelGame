@@ -122,7 +122,3 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         return side.Axis() == (Axis) (block.Data & 0b00_0011);
     }
 }
-
-
-
-

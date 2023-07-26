@@ -102,4 +102,3 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
             (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }
-

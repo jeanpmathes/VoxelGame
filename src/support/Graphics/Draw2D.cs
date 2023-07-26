@@ -86,8 +86,8 @@ public readonly unsafe struct Draw2D
     }
 
     /// <summary>
-    /// Uploads a buffer of vertices to the GPU.
-    /// This replaces the current buffer, meaning that during one frame, only one buffer can be used.
+    ///     Uploads a buffer of vertices to the GPU.
+    ///     This replaces the current buffer, meaning that during one frame, only one buffer can be used.
     /// </summary>
     /// <param name="vertices">The vertices to upload.</param>
     public void UploadBuffer(Span<Vertex> vertices)

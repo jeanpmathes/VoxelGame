@@ -36,5 +36,3 @@ public class PermeableBlock : BasicBlock, IFillable
         return base.GetMeshData(info) with {Tint = info.Fluid.IsFluid ? TintColor.LightGray : TintColor.None};
     }
 }
-
-

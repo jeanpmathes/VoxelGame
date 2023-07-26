@@ -14,4 +14,3 @@ namespace VoxelGame.UI.UserInterfaces;
 /// <param name="Description">The description of the follow-up action.</param>
 /// <param name="Action">The action to execute.</param>
 public sealed record FollowUp(string Description, Action Action);
-

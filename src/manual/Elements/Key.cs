@@ -25,4 +25,3 @@ internal class Key : IElement
         writer.WriteLine(@$" \keys{{{key}}} ");
     }
 }
-

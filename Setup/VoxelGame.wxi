@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <!--NAMES-->
-  <?define ProductName = "VoxelGame"?>
-  <?define Manufacturer = "jeanpmathes"?>
-  <?define Version = "1.3.0"?>
-  <!--VOXELGAME PROJECT-->
-  <?define ApplicationPath = "..\Publish\$(var.ProductName).Client.exe"?>
-  <!--RESOURCES-->
-  <?define ResourcesDir = "Resources\"?>
-  <?define ImagesDir = "$(var.ResourcesDir)Images\"?>
-  <?define IconsDir = "$(var.ResourcesDir)Icons\" ?>
-  <?define ManualDir = "$(var.ResourcesDir)Manual\" ?>
-  <?define License = "$(var.ResourcesDir)license.rtf"?>
+    <!--NAMES-->
+    <?define ProductName = "VoxelGame"?>
+    <?define Manufacturer = "jeanpmathes"?>
+    <?define Version = "1.3.0"?>
+    <!--VOXELGAME PROJECT-->
+    <?define ApplicationPath = "..\Publish\$(var.ProductName).Client.exe"?>
+    <!--RESOURCES-->
+    <?define ResourcesDir = "Resources\"?>
+    <?define ImagesDir = "$(var.ResourcesDir)Images\"?>
+    <?define IconsDir = "$(var.ResourcesDir)Icons\" ?>
+    <?define ManualDir = "$(var.ResourcesDir)Manual\" ?>
+    <?define License = "$(var.ResourcesDir)license.rtf"?>
 </Include>

@@ -178,5 +178,3 @@ public class WorldData
         return directory.GetFile(MetaFileName).Exists;
     }
 }
-
-

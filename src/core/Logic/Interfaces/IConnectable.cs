@@ -49,4 +49,3 @@ public interface IConnectable : IBlockBase
         return data;
     }
 }
-

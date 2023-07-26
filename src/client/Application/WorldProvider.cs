@@ -49,7 +49,6 @@ public class WorldProvider : IWorldProvider
         worlds.Clear();
 
         foreach (DirectoryInfo directory in worldsDirectory.EnumerateDirectories())
-        {
             if (WorldData.IsWorldDirectory(directory))
             {
                 WorldInformation information = WorldData.LoadInformation(directory);
@@ -64,7 +63,6 @@ public class WorldProvider : IWorldProvider
                     "Directory has no meta file and is ignored: {Directory}",
                     directory);
             }
-        }
 
         logger.LogInformation(
             Events.WorldIO,
@@ -135,5 +133,3 @@ public class WorldProvider : IWorldProvider
     /// </summary>
     public event EventHandler<World> WorldActivation = null!;
 }
-
-

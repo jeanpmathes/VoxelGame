@@ -179,4 +179,3 @@ public sealed class ChunkSet : IDisposable
 
     #endregion IDisposable Support
 }
-

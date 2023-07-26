@@ -142,4 +142,3 @@ public class ShaderLoader
         return source.ToString();
     }
 }
-

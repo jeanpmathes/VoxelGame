@@ -65,4 +65,3 @@ public static class FluidLevelExtensions
         return (int) level * 2 + 1;
     }
 }
-

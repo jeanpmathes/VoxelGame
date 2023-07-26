@@ -64,4 +64,3 @@ public static class Qualities
         return quality.ToString();
     }
 }
-

@@ -126,10 +126,7 @@ public partial class Chunk : Core.Logic.Chunk
     {
         ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this);
 
-        for (var s = 0; s < SectionCount; s++)
-        {
-            GetSection(s).RecreateIncompleteMesh(context);
-        }
+        for (var s = 0; s < SectionCount; s++) GetSection(s).RecreateIncompleteMesh(context);
     }
 
     /// <summary>
@@ -148,10 +145,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         var sectionMeshes = new SectionMeshData[SectionCount];
 
-        for (var s = 0; s < SectionCount; s++)
-        {
-            sectionMeshes[s] = GetSection(s).CreateMeshData(context);
-        }
+        for (var s = 0; s < SectionCount; s++) sectionMeshes[s] = GetSection(s).CreateMeshData(context);
 
         meshDataIndex = 0;
 
@@ -190,7 +184,7 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <summary>
-    /// Enable and disable section renderers based on the frustum.
+    ///     Enable and disable section renderers based on the frustum.
     /// </summary>
     /// <param name="frustum">The view frustum to use for culling.</param>
     public void CullSections(Frustum frustum)

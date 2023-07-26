@@ -126,7 +126,7 @@ namespace nv_helpers_dx12
         /// \param updateOnly If true, simply refit the existing acceleration
         /// \param previousResult Optional previous acceleration structure, used if
         void Generate(
-            ID3D12GraphicsCommandList4* commandList, 
+            ID3D12GraphicsCommandList4* commandList,
             ID3D12Resource* scratchBuffer,
             ID3D12Resource* resultBuffer,
             ID3D12Resource* descriptorsBuffer,

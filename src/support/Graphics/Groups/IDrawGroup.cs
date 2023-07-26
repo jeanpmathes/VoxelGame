@@ -26,5 +26,3 @@ public interface IDrawGroup
     /// </summary>
     public void Draw();
 }
-
-

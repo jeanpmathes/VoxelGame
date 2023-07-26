@@ -140,4 +140,3 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
         return $"({X}|{Y}|{Z})";
     }
 }
-

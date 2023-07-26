@@ -152,4 +152,3 @@ public readonly struct Plane : IEquatable<Plane>
         return !left.Equals(right);
     }
 }
-

@@ -177,4 +177,3 @@ public class GameUserInterface : UserInterface
         AnyOverlayClosed(this, EventArgs.Empty);
     }
 }
-

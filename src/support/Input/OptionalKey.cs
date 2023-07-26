@@ -46,4 +46,3 @@ public static class OptionalKeyExtensions
         return isDefault ? OptionalKey.DefaultValue : new OptionalKey {Default = false, Key = key};
     }
 }
-

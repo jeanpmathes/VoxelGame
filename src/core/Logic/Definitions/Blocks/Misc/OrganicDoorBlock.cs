@@ -21,4 +21,3 @@ public class OrganicDoorBlock : DoorBlock, ICombustible
             closed,
             open) {}
 }
-

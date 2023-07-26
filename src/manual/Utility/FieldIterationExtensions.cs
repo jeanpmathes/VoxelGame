@@ -38,4 +38,3 @@ public static class FieldIterationExtensions
             .Select(info => ((T) info.GetValue(obj)!, documentation.GetPropertySummary(info)));
     }
 }
-

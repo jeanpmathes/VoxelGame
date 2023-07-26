@@ -41,4 +41,3 @@ public class ObjectPool<T> where T : class, new()
         objects.Add(obj);
     }
 }
-

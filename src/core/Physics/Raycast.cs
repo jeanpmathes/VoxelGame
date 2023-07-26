@@ -195,5 +195,3 @@ public static class Raycast
         return positions;
     }
 }
-
-

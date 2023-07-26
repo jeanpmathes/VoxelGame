@@ -104,5 +104,3 @@ public class GameConsole : IConsoleProvider
         return invoker;
     }
 }
-
-

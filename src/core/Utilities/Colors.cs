@@ -53,4 +53,3 @@ public static class Colors
             (int) (MathHelper.Clamp(b, min: 0, max: 1) * 255));
     }
 }
-

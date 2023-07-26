@@ -241,4 +241,3 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
-

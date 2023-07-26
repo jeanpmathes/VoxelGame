@@ -47,4 +47,3 @@ public abstract class Button : InputAction
         Key = keyOrButton;
     }
 }
-

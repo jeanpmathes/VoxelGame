@@ -131,4 +131,3 @@ public class KeyState
         return !IsKeyDown(key) && keysPrevious[(int) key];
     }
 }
-

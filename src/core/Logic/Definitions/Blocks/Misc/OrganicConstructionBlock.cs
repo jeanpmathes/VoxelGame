@@ -21,4 +21,3 @@ public class OrganicConstructionBlock : ConstructionBlock, ICombustible
             namedId,
             layout) {}
 }
-

@@ -286,4 +286,3 @@ public class CommandInvoker
 
     private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
 }
-

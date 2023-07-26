@@ -22,4 +22,3 @@ public class GlassBlock : BasicBlock, IThinConnectable
             BlockFlags.Basic with {IsOpaque = false},
             layout) {}
 }
-

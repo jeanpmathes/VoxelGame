@@ -43,4 +43,3 @@ public sealed class FluidMeshData
         return new FluidMeshData(textureIndex, tint);
     }
 }
-

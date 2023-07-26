@@ -142,7 +142,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         internal bool IsAnimated { get; init; }
 
         /// <summary>
-        /// Whether the block is actually animated, meaning animation is safe.
+        ///     Whether the block is actually animated, meaning animation is safe.
         /// </summary>
         internal bool IsActuallyAnimated => IsAnimated && TextureIndex != 0;
 

@@ -22,4 +22,3 @@ public class OrganicTintedBlock : TintedBlock, ICombustible
             BlockFlags.Basic,
             layout) {}
 }
-

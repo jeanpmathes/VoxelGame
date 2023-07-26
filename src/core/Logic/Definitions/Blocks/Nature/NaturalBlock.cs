@@ -46,4 +46,3 @@ public class NaturalBlock : BasicBlock, ICombustible
         return mesh;
     }
 }
-

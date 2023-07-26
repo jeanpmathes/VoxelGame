@@ -76,6 +76,3 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
             : new Content(block, fluid);
     }
 }
-
-
-

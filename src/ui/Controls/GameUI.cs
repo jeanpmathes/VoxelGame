@@ -202,4 +202,3 @@ internal class GameUI : ControlBase
         // Parent is informed when the console close event is invoked.
     }
 }
-

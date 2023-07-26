@@ -159,9 +159,9 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
 {
     const float3 worldOrigin = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();
     const float3 dirToLight = -gLightDir;
-    
+
     float3 color = baseColor;
-    
+
     RayDesc ray;
     ray.Origin = worldOrigin;
     ray.Direction = dirToLight;

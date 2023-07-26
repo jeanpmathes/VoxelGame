@@ -40,7 +40,7 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
         hInstance,
         pApp);
     m_app = pApp;
-    
+
     pApp->Init();
     pApp->Tick(DXApp::ALLOW_BOTH);
 
@@ -371,7 +371,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
             TRY_DO(DestroyWindow(hWnd));
         }
         return 0;
-        
+
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;

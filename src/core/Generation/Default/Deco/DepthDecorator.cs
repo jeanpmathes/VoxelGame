@@ -37,4 +37,3 @@ public class DepthDecorator : Decorator
         return context.Depth >= minDepth && context.Depth <= maxDepth;
     }
 }
-

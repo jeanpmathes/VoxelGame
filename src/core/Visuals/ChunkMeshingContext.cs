@@ -96,7 +96,7 @@ public class ChunkMeshingContext
     /// <param name="chunk">The chunk to get the sides of.</param>
     /// <param name="used">The sides which where used the last time the chunk was meshed.</param>
     /// <returns>
-    /// The sides that should be used. Is empty if no improvements are necessary or possible.
+    ///     The sides that should be used. Is empty if no improvements are necessary or possible.
     /// </returns>
     public static BlockSides DetermineImprovementSides(Chunk chunk, BlockSides used)
     {
@@ -150,4 +150,3 @@ public class ChunkMeshingContext
         neighbors = null!;
     }
 }
-

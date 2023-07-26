@@ -29,4 +29,3 @@ public abstract class Decorator
     /// <returns>True if the decoration should be placed, false otherwise.</returns>
     public abstract bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid);
 }
-

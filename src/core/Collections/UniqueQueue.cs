@@ -101,4 +101,3 @@ public class UniqueQueue<T> : IEnumerable<T>
         queue.Clear();
     }
 }
-

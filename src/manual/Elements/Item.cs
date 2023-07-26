@@ -27,4 +27,3 @@ internal class Item : IElement
         writer.Write(" ");
     }
 }
-

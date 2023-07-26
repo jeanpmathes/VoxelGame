@@ -25,4 +25,3 @@ internal class Boolean : IElement
         writer.Write(Value ? @" \Checkmark " : @" \XSolidBrush ");
     }
 }
-

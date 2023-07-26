@@ -30,4 +30,3 @@ public interface IGrassSpreadable : IBlockBase
         return true;
     }
 }
-

@@ -41,5 +41,3 @@ public class MudBlock : BasicBlock, IFillable
         entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
     }
 }
-
-

@@ -66,4 +66,3 @@ internal class ColorSettings : Setting
         return new Gwen.Net.Color(color.A, color.R, color.G, color.B);
     }
 }
-

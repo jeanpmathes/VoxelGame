@@ -61,14 +61,8 @@ public partial class Chunk
             {
                 guard.Dispose();
 
-                if (task.IsFaulted)
-                {
-                    HandleFaultedTask(task);
-                }
-                else
-                {
-                    HandleSuccessfulTask(task);
-                }
+                if (task.IsFaulted) HandleFaultedTask(task);
+                else HandleSuccessfulTask(task);
             }
         }
 
@@ -427,5 +421,3 @@ public partial class Chunk
         }
     }
 }
-
-

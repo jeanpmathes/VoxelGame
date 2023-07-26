@@ -156,8 +156,8 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
             Vector3i otherPosition = side.Offset(position);
             BlockInstance? otherBlock = world.GetBlock(otherPosition);
 
-            if (otherBlock?.Block == this || otherBlock?.Block is TConnect connectable &&
-                connectable.IsConnectable(world, side, otherPosition)) sides |= side.ToFlag();
+            if (otherBlock?.Block == this || (otherBlock?.Block is TConnect connectable &&
+                                              connectable.IsConnectable(world, side, otherPosition))) sides |= side.ToFlag();
         }
 
         return (uint) sides;
@@ -181,8 +181,3 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         return side.IsSet((BlockSides) block.Data);
     }
 }
-
-
-
-
-

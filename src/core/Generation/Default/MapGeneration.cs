@@ -764,5 +764,3 @@ public partial class Map
         public Vector2i position;
     }
 }
-
-

@@ -49,4 +49,3 @@ public class CrossBlock : Block, IFillable, IComplex
         (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
     }
 }
-

@@ -22,4 +22,3 @@ public class ConstructionBlock : BasicBlock, IWideConnectable, IThinConnectable
             BlockFlags.Basic,
             layout) {}
 }
-

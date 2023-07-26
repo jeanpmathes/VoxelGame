@@ -110,4 +110,3 @@ public class MemorizingTextBox : TextBox
         return true;
     }
 }
-

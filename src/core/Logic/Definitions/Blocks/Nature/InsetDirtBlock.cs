@@ -110,5 +110,3 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
-
-

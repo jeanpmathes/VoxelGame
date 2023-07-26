@@ -166,7 +166,8 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the description.
+    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the
+    ///     description.
     ///     This is a strong activation.
     /// </summary>
     protected void SetNextReady(TransitionDescription description = new())
@@ -300,7 +301,7 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    /// Deactivate the chunk.
+    ///     Deactivate the chunk.
     /// </summary>
     protected void Deactivate()
     {
@@ -342,30 +343,12 @@ public abstract class ChunkState
 
         Debug.Assert(next.Value.transition != null);
 
-        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested)
-        {
-            nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
-        }
-        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null)
-        {
-            nextState = requestedState;
-        }
-        else if (next.Value.transition.Value.isRequired)
-        {
-            nextState = next.Value.transition.Value.state;
-        }
-        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null)
-        {
-            nextState = requestedState;
-        }
-        else if (!Chunk.IsRequested)
-        {
-            nextState = CreateFinalState();
-        }
-        else
-        {
-            nextState = next.Value.transition.Value.state;
-        }
+        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested) nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
+        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null) nextState = requestedState;
+        else if (next.Value.transition.Value.isRequired) nextState = next.Value.transition.Value.state;
+        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null) nextState = requestedState;
+        else if (!Chunk.IsRequested) nextState = CreateFinalState();
+        else nextState = next.Value.transition.Value.state;
 
         if (nextState != next.Value.transition.Value.state)
             next.Value.description.Cleanup?.Invoke();
@@ -378,7 +361,7 @@ public abstract class ChunkState
     #pragma warning restore S1871
 
     /// <summary>
-    /// Update the state of a chunk.
+    ///     Update the state of a chunk.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
     public static void Update(ref ChunkState state)
@@ -435,8 +418,8 @@ public abstract class ChunkState
 
         if (!state.CanStealAccess) return null;
 
-        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: {}});
-        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: {}});
+        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: not null});
+        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: not null});
 
         Guard? core = state.coreGuard;
         Guard? extended = state.extendedGuard;

@@ -61,7 +61,7 @@ namespace nv_helpers_dx12
         const DirectX::XMFLOAT4X4& transform,
         UINT instanceID,
         UINT hitGroupIndex,
-        D3D12_RAYTRACING_INSTANCE_FLAGS flags 
+        D3D12_RAYTRACING_INSTANCE_FLAGS flags
     )
     {
         m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, flags));
@@ -72,7 +72,7 @@ namespace nv_helpers_dx12
         bool allowUpdate,
         UINT64* scratchSizeInBytes,
         UINT64* resultSizeInBytes,
-        UINT64* descriptorsSizeInBytes 
+        UINT64* descriptorsSizeInBytes
     )
     {
         // The generated AS can support iterative updates. This may change the final

@@ -57,4 +57,3 @@ public class SetBlock : Command
         Context.Player.World.SetBlock(block.AsInstance((uint) data), position);
     }
 }
-

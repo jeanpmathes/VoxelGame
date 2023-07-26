@@ -71,4 +71,3 @@ public static class LoggingHelper
         return LoggerFactory.CreateLogger("Mock");
     }
 }
-

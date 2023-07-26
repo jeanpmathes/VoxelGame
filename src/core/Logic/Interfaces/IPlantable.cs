@@ -31,4 +31,3 @@ public interface IPlantable : IBlockBase
         return fluid.TryTakeExact(world, position, level);
     }
 }
-

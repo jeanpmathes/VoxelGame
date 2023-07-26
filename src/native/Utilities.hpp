@@ -118,7 +118,7 @@ namespace util
         resource.resource->Unmap(0, nullptr);
         return result;
     }
-    
+
     inline std::wstring FormatDRED(
         const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& breadcrumbs,
         const D3D12_DRED_PAGE_FAULT_OUTPUT2& pageFaults,
@@ -310,7 +310,7 @@ namespace util
                         }
                     }
                 }
-                
+
                 node = node->pNext;
             }
         }

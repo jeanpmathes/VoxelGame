@@ -43,6 +43,3 @@ public class ConcreteFluid : BasicFluid
         Logic.Blocks.Instance.Specials.Concrete.Place(world, level, position);
     }
 }
-
-
-

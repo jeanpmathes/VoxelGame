@@ -17,8 +17,7 @@ class NativeClient;
     name& operator=(const name&) = delete; \
     name& operator=(name&&) = delete; \
     private: \
-    constexpr static const wchar_t* const ClassName = L#name; \
-
+    constexpr static const wchar_t* const ClassName = L#name;
 // ReSharper disable once CppInconsistentNaming
 #define NAME_D3D12_OBJECT_WITH_ID(object) \
     do \

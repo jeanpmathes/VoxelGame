@@ -1,402 +1,408 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
+    <!-- 
+      Microsoft ResX Schema 
+      
+      Version 2.0
+      
+      The primary goals of this format is to allow a simple XML format 
+      that is mostly human readable. The generation and parsing of the 
+      various data types are done through the TypeConverter classes 
+      associated with the data types.
+      
+      Example:
+      
+      ... ado.net/XML headers & schema ...
+      <resheader name="resmimetype">text/microsoft-resx</resheader>
+      <resheader name="version">2.0</resheader>
+      <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+      <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+      <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+      <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+      <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+          <value>[base64 mime encoded serialized .NET Framework object]</value>
+      </data>
+      <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+          <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+          <comment>This is a comment</comment>
+      </data>
+                  
+      There are any number of "resheader" rows that contain simple 
+      name/value pairs.
+      
+      Each data row contains a name, and value. The row also contains a 
+      type or mimetype. Type corresponds to a .NET class that support 
+      text/value conversion through the TypeConverter architecture. 
+      Classes that don't support this are serialized and stored with the 
+      mimetype set.
+      
+      The mimetype is used for serialized objects, and tells the 
+      ResXResourceReader how to depersist the object. This is currently not 
+      extensible. For a given mimetype the value must be set accordingly:
+      
+      Note - application/x-microsoft.net.object.binary.base64 is the format 
+      that the ResXResourceWriter will generate, however the reader can 
+      read any of the formats listed below.
+      
+      mimetype: application/x-microsoft.net.object.binary.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+              : and then encoded with base64 encoding.
+      
+      mimetype: application/x-microsoft.net.object.soap.base64
+      value   : The object must be serialized with 
+              : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+              : and then encoded with base64 encoding.
+  
+      mimetype: application/x-microsoft.net.object.bytearray.base64
+      value   : The object must be serialized into a byte array 
+              : using a System.ComponentModel.TypeConverter
+              : and then encoded with base64 encoding.
+      -->
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"
+                id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
             </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="Air" xml:space="preserve">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="Air" xml:space="preserve">
     <value>Air</value>
   </data>
-  <data name="Ash" xml:space="preserve">
+    <data name="Ash" xml:space="preserve">
     <value>Ash</value>
   </data>
-  <data name="AshCoveredDirt" xml:space="preserve">
+    <data name="AshCoveredDirt" xml:space="preserve">
     <value>Ash-covered Dirt</value>
   </data>
-  <data name="Barrier" xml:space="preserve">
+    <data name="Barrier" xml:space="preserve">
     <value>Barrier</value>
   </data>
-  <data name="Bars" xml:space="preserve">
+    <data name="Bars" xml:space="preserve">
     <value>Bars</value>
   </data>
-  <data name="Bed" xml:space="preserve">
+    <data name="Bed" xml:space="preserve">
     <value>Bed</value>
   </data>
-  <data name="Beer" xml:space="preserve">
+    <data name="Beer" xml:space="preserve">
     <value>Beer</value>
   </data>
-  <data name="Block" xml:space="preserve">
+    <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>
-  <data name="Bricks" xml:space="preserve">
+    <data name="Bricks" xml:space="preserve">
     <value>Bricks</value>
   </data>
-  <data name="BrickWall" xml:space="preserve">
+    <data name="BrickWall" xml:space="preserve">
     <value>Brick Wall</value>
   </data>
-  <data name="Cactus" xml:space="preserve">
+    <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>
-  <data name="Carpet" xml:space="preserve">
+    <data name="Carpet" xml:space="preserve">
     <value>Carpet</value>
   </data>
-  <data name="CheckerboardTilesBlack" xml:space="preserve">
+    <data name="CheckerboardTilesBlack" xml:space="preserve">
     <value>Black Checkerboard Tiles</value>
   </data>
-  <data name="CheckerboardTilesWhite" xml:space="preserve">
+    <data name="CheckerboardTilesWhite" xml:space="preserve">
     <value>White Checkerboard Tiles</value>
   </data>
-  <data name="CoalOre" xml:space="preserve">
+    <data name="CoalOre" xml:space="preserve">
     <value>Coal Ore</value>
   </data>
-  <data name="Concrete" xml:space="preserve">
+    <data name="Concrete" xml:space="preserve">
     <value>Concrete</value>
   </data>
-  <data name="CrudeOil" xml:space="preserve">
+    <data name="CrudeOil" xml:space="preserve">
     <value>Crude Oil</value>
   </data>
-  <data name="DecoratedCarpet" xml:space="preserve">
+    <data name="DecoratedCarpet" xml:space="preserve">
     <value>Decorated Carpet</value>
   </data>
-  <data name="DecoratedWool" xml:space="preserve">
+    <data name="DecoratedWool" xml:space="preserve">
     <value>Decorated Wool</value>
   </data>
-  <data name="Dirt" xml:space="preserve">
+    <data name="Dirt" xml:space="preserve">
     <value>Dirt</value>
   </data>
-  <data name="EternalFlame" xml:space="preserve">
+    <data name="EternalFlame" xml:space="preserve">
     <value>Eternal Flame</value>
   </data>
-  <data name="Farmland" xml:space="preserve">
+    <data name="Farmland" xml:space="preserve">
     <value>Farmland</value>
   </data>
-  <data name="Fire" xml:space="preserve">
+    <data name="Fire" xml:space="preserve">
     <value>Fire</value>
   </data>
-  <data name="Flax" xml:space="preserve">
+    <data name="Flax" xml:space="preserve">
     <value>Flax</value>
   </data>
-  <data name="Flower" xml:space="preserve">
+    <data name="Flower" xml:space="preserve">
     <value>Flower</value>
   </data>
-  <data name="Glass" xml:space="preserve">
+    <data name="Glass" xml:space="preserve">
     <value>Glass</value>
   </data>
-  <data name="GlassPane" xml:space="preserve">
+    <data name="GlassPane" xml:space="preserve">
     <value>Glass Pane</value>
   </data>
-  <data name="GoldOre" xml:space="preserve">
+    <data name="GoldOre" xml:space="preserve">
     <value>Gold Ore</value>
   </data>
-  <data name="Grass" xml:space="preserve">
+    <data name="Grass" xml:space="preserve">
     <value>Grass</value>
   </data>
-  <data name="Gravel" xml:space="preserve">
+    <data name="Gravel" xml:space="preserve">
     <value>Gravel</value>
   </data>
-  <data name="Honey" xml:space="preserve">
+    <data name="Honey" xml:space="preserve">
     <value>Honey</value>
   </data>
-  <data name="InputNotValid" xml:space="preserve">
+    <data name="InputNotValid" xml:space="preserve">
     <value>Input not valid!</value>
   </data>
-  <data name="IronOre" xml:space="preserve">
+    <data name="IronOre" xml:space="preserve">
     <value>Iron Ore</value>
   </data>
-  <data name="Ladder" xml:space="preserve">
+    <data name="Ladder" xml:space="preserve">
     <value>Ladder</value>
   </data>
-  <data name="LargeTiles" xml:space="preserve">
+    <data name="LargeTiles" xml:space="preserve">
     <value>Large Tiles</value>
   </data>
-  <data name="Lava" xml:space="preserve">
+    <data name="Lava" xml:space="preserve">
     <value>Lava</value>
   </data>
-  <data name="Leaves" xml:space="preserve">
+    <data name="Leaves" xml:space="preserve">
     <value>Leaves</value>
   </data>
-  <data name="Fluid" xml:space="preserve">
+    <data name="Fluid" xml:space="preserve">
     <value>Fluid</value>
   </data>
-  <data name="Log" xml:space="preserve">
+    <data name="Log" xml:space="preserve">
     <value>Log</value>
   </data>
-  <data name="Maize" xml:space="preserve">
+    <data name="Maize" xml:space="preserve">
     <value>Maize</value>
   </data>
-  <data name="Melon" xml:space="preserve">
+    <data name="Melon" xml:space="preserve">
     <value>Melon</value>
   </data>
-  <data name="MelonPlant" xml:space="preserve">
+    <data name="MelonPlant" xml:space="preserve">
     <value>Melon Plant</value>
   </data>
-  <data name="Milk" xml:space="preserve">
+    <data name="Milk" xml:space="preserve">
     <value>Milk</value>
   </data>
-  <data name="Mud" xml:space="preserve">
+    <data name="Mud" xml:space="preserve">
     <value>Mud</value>
   </data>
-  <data name="NaturalGas" xml:space="preserve">
+    <data name="NaturalGas" xml:space="preserve">
     <value>Natural Gas</value>
   </data>
-  <data name="NoFluid" xml:space="preserve">
+    <data name="NoFluid" xml:space="preserve">
     <value>No Fluid</value>
   </data>
-  <data name="Obsidian" xml:space="preserve">
+    <data name="Obsidian" xml:space="preserve">
     <value>Obsidian</value>
   </data>
-  <data name="Onions" xml:space="preserve">
+    <data name="Onions" xml:space="preserve">
     <value>Onions</value>
   </data>
-  <data name="Path" xml:space="preserve">
+    <data name="Path" xml:space="preserve">
     <value>Path</value>
   </data>
-  <data name="PavingStone" xml:space="preserve">
+    <data name="PavingStone" xml:space="preserve">
     <value>Paving Stone</value>
   </data>
-  <data name="Petrol" xml:space="preserve">
+    <data name="Petrol" xml:space="preserve">
     <value>Petrol</value>
   </data>
-  <data name="Potatoes" xml:space="preserve">
+    <data name="Potatoes" xml:space="preserve">
     <value>Potatoes</value>
   </data>
-  <data name="PulsatingBlock" xml:space="preserve">
+    <data name="PulsatingBlock" xml:space="preserve">
     <value>Pulsating Block</value>
   </data>
-  <data name="Pumice" xml:space="preserve">
+    <data name="Pumice" xml:space="preserve">
     <value>Pumice</value>
   </data>
-  <data name="Pump" xml:space="preserve">
+    <data name="Pump" xml:space="preserve">
     <value>Pump</value>
   </data>
-  <data name="Pumpkin" xml:space="preserve">
+    <data name="Pumpkin" xml:space="preserve">
     <value>Pumpkin</value>
   </data>
-  <data name="PumpkinPlant" xml:space="preserve">
+    <data name="PumpkinPlant" xml:space="preserve">
     <value>Pumpkin Plant</value>
   </data>
-  <data name="RedPlastic" xml:space="preserve">
+    <data name="RedPlastic" xml:space="preserve">
     <value>Red Plastic</value>
   </data>
-  <data name="Rubble" xml:space="preserve">
+    <data name="Rubble" xml:space="preserve">
     <value>Rubble</value>
   </data>
-  <data name="RubbleWall" xml:space="preserve">
+    <data name="RubbleWall" xml:space="preserve">
     <value>Rubble Wall</value>
   </data>
-  <data name="Sand" xml:space="preserve">
+    <data name="Sand" xml:space="preserve">
     <value>Sand</value>
   </data>
-  <data name="SmallTiles" xml:space="preserve">
+    <data name="SmallTiles" xml:space="preserve">
     <value>Small Tiles</value>
   </data>
-  <data name="Snow" xml:space="preserve">
+    <data name="Snow" xml:space="preserve">
     <value>Snow</value>
   </data>
-  <data name="SpiderWeb" xml:space="preserve">
+    <data name="SpiderWeb" xml:space="preserve">
     <value>Spider Web</value>
   </data>
-  <data name="Steam" xml:space="preserve">
+    <data name="Steam" xml:space="preserve">
     <value>Steam</value>
   </data>
-  <data name="Steel" xml:space="preserve">
+    <data name="Steel" xml:space="preserve">
     <value>Steel</value>
   </data>
-  <data name="SteelDoor" xml:space="preserve">
+    <data name="SteelDoor" xml:space="preserve">
     <value>Steel Door</value>
   </data>
-  <data name="SteelPipe" xml:space="preserve">
+    <data name="SteelPipe" xml:space="preserve">
     <value>Steel Pipe</value>
   </data>
-  <data name="SteelPipeStraight" xml:space="preserve">
+    <data name="SteelPipeStraight" xml:space="preserve">
     <value>Straight Steelpipe</value>
   </data>
-  <data name="StoneFace" xml:space="preserve">
+    <data name="StoneFace" xml:space="preserve">
     <value>Stone Face</value>
   </data>
-  <data name="TallFlower" xml:space="preserve">
+    <data name="TallFlower" xml:space="preserve">
     <value>Tall Flower</value>
   </data>
-  <data name="TallGrass" xml:space="preserve">
+    <data name="TallGrass" xml:space="preserve">
     <value>Tall Grass</value>
   </data>
-  <data name="TiledGlass" xml:space="preserve">
+    <data name="TiledGlass" xml:space="preserve">
     <value>Tiled Glass</value>
   </data>
-  <data name="ValvePipe" xml:space="preserve">
+    <data name="ValvePipe" xml:space="preserve">
     <value>Valve Pipe</value>
   </data>
-  <data name="Vase" xml:space="preserve">
+    <data name="Vase" xml:space="preserve">
     <value>Vase</value>
   </data>
-  <data name="VeryTallGrass" xml:space="preserve">
+    <data name="VeryTallGrass" xml:space="preserve">
     <value>Very Tall Grass</value>
   </data>
-  <data name="Vines" xml:space="preserve">
+    <data name="Vines" xml:space="preserve">
     <value>Vines</value>
   </data>
-  <data name="VoxelGame" xml:space="preserve">
+    <data name="VoxelGame" xml:space="preserve">
     <value>VoxelGame</value>
   </data>
-  <data name="Wheat" xml:space="preserve">
+    <data name="Wheat" xml:space="preserve">
     <value>Wheat</value>
   </data>
-  <data name="Wine" xml:space="preserve">
+    <data name="Wine" xml:space="preserve">
     <value>Wine</value>
   </data>
-  <data name="Wood" xml:space="preserve">
+    <data name="Wood" xml:space="preserve">
     <value>Wood</value>
   </data>
-  <data name="WoodenDoor" xml:space="preserve">
+    <data name="WoodenDoor" xml:space="preserve">
     <value>Wooden Door</value>
   </data>
-  <data name="WoodenFence" xml:space="preserve">
+    <data name="WoodenFence" xml:space="preserve">
     <value>Wooden Fence</value>
   </data>
-  <data name="WoodenGate" xml:space="preserve">
+    <data name="WoodenGate" xml:space="preserve">
     <value>Wooden Gate</value>
   </data>
-  <data name="WoodenPipe" xml:space="preserve">
+    <data name="WoodenPipe" xml:space="preserve">
     <value>Wooden Pipe</value>
   </data>
-  <data name="Wool" xml:space="preserve">
+    <data name="Wool" xml:space="preserve">
     <value>Wool</value>
   </data>
-  <data name="WorkedStone" xml:space="preserve">
+    <data name="WorkedStone" xml:space="preserve">
     <value>Worked Stone</value>
   </data>
-  <data name="Worlds" xml:space="preserve">
+    <data name="Worlds" xml:space="preserve">
     <value>Worlds</value>
   </data>
-  <data name="Exit" xml:space="preserve">
+    <data name="Exit" xml:space="preserve">
     <value>Exit</value>
   </data>
-  <data name="Back" xml:space="preserve">
+    <data name="Back" xml:space="preserve">
     <value>Back</value>
   </data>
-  <data name="Load" xml:space="preserve">
+    <data name="Load" xml:space="preserve">
     <value>Load</value>
   </data>
-  <data name="CreateNewWorld" xml:space="preserve">
+    <data name="CreateNewWorld" xml:space="preserve">
     <value>Create New World</value>
   </data>
-  <data name="Options" xml:space="preserve">
+    <data name="Options" xml:space="preserve">
     <value>Options</value>
   </data>
-  <data name="Create" xml:space="preserve">
+    <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
     <data name="EnterWorldName" xml:space="preserve">
@@ -459,52 +465,52 @@
     <data name="KeyPlacementMode" xml:space="preserve">
     <value>Placement Mode</value>
   </data>
-  <data name="KeyNextPlacement" xml:space="preserve">
+    <data name="KeyNextPlacement" xml:space="preserve">
     <value>Next Placement</value>
   </data>
-  <data name="KeyPreviousPlacement" xml:space="preserve">
+    <data name="KeyPreviousPlacement" xml:space="preserve">
     <value>Previous Placement</value>
   </data>
-  <data name="PressAnyKeyOrButton" xml:space="preserve">
+    <data name="PressAnyKeyOrButton" xml:space="preserve">
     <value>Press any key or button...</value>
   </data>
-  <data name="Graphics" xml:space="preserve">
+    <data name="Graphics" xml:space="preserve">
     <value>Graphics</value>
   </data>
-  <data name="GraphicsSampleCount" xml:space="preserve">
+    <data name="GraphicsSampleCount" xml:space="preserve">
     <value>Sample Count (MSAA)</value>
   </data>
-  <data name="GraphicsSettingsDescription" xml:space="preserve">
+    <data name="GraphicsSettingsDescription" xml:space="preserve">
     <value>Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply.</value>
   </data>
-  <data name="KeybindsSettingsDescription" xml:space="preserve">
+    <data name="KeybindsSettingsDescription" xml:space="preserve">
     <value>Bind keys for different actions.</value>
   </data>
-  <data name="General" xml:space="preserve">
+    <data name="General" xml:space="preserve">
     <value>General</value>
   </data>
-  <data name="GeneralSettingsDescription" xml:space="preserve">
+    <data name="GeneralSettingsDescription" xml:space="preserve">
     <value>Change general settings.</value>
   </data>
-  <data name="CrosshairColor" xml:space="preserve">
+    <data name="CrosshairColor" xml:space="preserve">
     <value>Crosshair Color</value>
   </data>
     <data name="Select" xml:space="preserve">
     <value>Select</value>
   </data>
-  <data name="MouseSensitivity" xml:space="preserve">
+    <data name="MouseSensitivity" xml:space="preserve">
     <value>Mouse Sensitivity</value>
   </data>
     <data name="CrosshairScale" xml:space="preserve">
     <value>Crosshair Scale</value>
   </data>
-  <data name="Reset" xml:space="preserve">
+    <data name="Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
-  <data name="Credits" xml:space="preserve">
+    <data name="Credits" xml:space="preserve">
     <value>Credits</value>
   </data>
-  <data name="Resume" xml:space="preserve">
+    <data name="Resume" xml:space="preserve">
     <value>Resume</value>
   </data>
     <data name="KeyConsole" xml:space="preserve">
@@ -513,40 +519,40 @@
     <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
-  <data name="KeyDebugView" xml:space="preserve">
+    <data name="KeyDebugView" xml:space="preserve">
     <value>Debug View</value>
   </data>
-  <data name="GraphicsFoliageQuality" xml:space="preserve">
+    <data name="GraphicsFoliageQuality" xml:space="preserve">
     <value>Foliage Quality</value>
   </data>
     <data name="KeySelectTargeted" xml:space="preserve">
     <value>Select Targeted</value>
   </data>
-  <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
+    <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
     <value>Anisotropic Filtering</value>
   </data>
-  <data name="KeyCrouch" xml:space="preserve">
+    <data name="KeyCrouch" xml:space="preserve">
     <value>Crouch</value>
   </data>
-  <data name="Core" xml:space="preserve">
+    <data name="Core" xml:space="preserve">
     <value>Core</value>
   </data>
-  <data name="Granite" xml:space="preserve">
+    <data name="Granite" xml:space="preserve">
     <value>Granite</value>
   </data>
-  <data name="Sandstone" xml:space="preserve">
+    <data name="Sandstone" xml:space="preserve">
     <value>Sandstone</value>
   </data>
-  <data name="Limestone" xml:space="preserve">
+    <data name="Limestone" xml:space="preserve">
     <value>Limestone</value>
   </data>
-  <data name="Marble" xml:space="preserve">
+    <data name="Marble" xml:space="preserve">
     <value>Marble</value>
   </data>
-  <data name="Clay" xml:space="preserve">
+    <data name="Clay" xml:space="preserve">
     <value>Clay</value>
   </data>
-  <data name="Permafrost" xml:space="preserve">
+    <data name="Permafrost" xml:space="preserve">
     <value>Permafrost</value>
   </data>
     <data name="Ice" xml:space="preserve">
@@ -573,13 +579,13 @@
     <data name="No" xml:space="preserve">
     <value>No</value>
   </data>
-  <data name="Yes" xml:space="preserve">
+    <data name="Yes" xml:space="preserve">
     <value>Yes</value>
   </data>
-  <data name="Ok" xml:space="preserve">
+    <data name="Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
-  <data name="Retry" xml:space="preserve">
+    <data name="Retry" xml:space="preserve">
     <value>Retry</value>
   </data>
     <data name="SeaWater" xml:space="preserve">

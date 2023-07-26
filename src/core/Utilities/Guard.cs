@@ -83,4 +83,3 @@ public sealed class Guard : IDisposable
 
     #endregion IDisposable Support
 }
-

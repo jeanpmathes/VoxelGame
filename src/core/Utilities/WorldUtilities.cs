@@ -86,4 +86,3 @@ public static class WorldExtensions
                && block.GetHeight(below.Value.Data) == IHeightVariable.MaximumHeight - 1;
     }
 }
-

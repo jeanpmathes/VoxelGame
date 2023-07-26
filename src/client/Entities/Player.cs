@@ -110,7 +110,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     public override BlockSide TargetSide => targetSide;
 
     /// <summary>
-    /// Get the view of this player.
+    ///     Get the view of this player.
     /// </summary>
     public IView View => camera;
 

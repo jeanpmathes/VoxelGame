@@ -224,7 +224,8 @@ public static class Events // todo: go trough all events and make sure they are 
     public const int ShaderError = 3006;
 
     /// <summary>
-    ///     Occurs when wrapper objects are incorrectly disposed and their native objects are not deleted. This causes memory leaks.
+    ///     Occurs when wrapper objects are incorrectly disposed and their native objects are not deleted. This causes memory
+    ///     leaks.
     /// </summary>
     public const int LeakedNativeObject = 3010;
 

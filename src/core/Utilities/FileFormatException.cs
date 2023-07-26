@@ -31,4 +31,3 @@ public class FileFormatException : Exception
         return message;
     }
 }
-

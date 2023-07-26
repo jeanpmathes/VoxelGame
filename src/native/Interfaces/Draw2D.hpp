@@ -57,7 +57,7 @@ namespace draw2d
 
     private:
         static void Initialize(Pipeline* ctx);
-        
+
         RasterPipeline* m_raster;
         Callback m_callback;
         NativeClient& m_client;

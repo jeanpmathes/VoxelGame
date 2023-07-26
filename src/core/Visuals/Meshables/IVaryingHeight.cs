@@ -36,14 +36,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
             bool isModified = side != BlockSide.Bottom && !isFullHeight;
 
-            if (isModified)
-            {
-                MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
-            }
-            else
-            {
-                MeshLikeSimple(position, side, mesh, context);
-            }
+            if (isModified) MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
+            else MeshLikeSimple(position, side, mesh, context);
         }
 
         MeshVaryingHeightSide(BlockSide.Front);

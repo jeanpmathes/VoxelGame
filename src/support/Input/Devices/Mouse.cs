@@ -70,4 +70,3 @@ public class Mouse
         input.Window.MousePosition = storedPosition.Value;
     }
 }
-

@@ -182,7 +182,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     protected virtual void OnSetup(ITextureIndexProvider indexProvider) {}
 
     /// <summary>
-    /// Create the mesh for this fluid.
+    ///     Create the mesh for this fluid.
     /// </summary>
     /// <param name="position">The position of the fluid.</param>
     /// <param name="info">Info about the fluid.</param>
@@ -271,7 +271,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     }
 
     /// <summary>
-    /// Get the mesh data for this fluid.
+    ///     Get the mesh data for this fluid.
     /// </summary>
     protected abstract FluidMeshData GetMeshData(FluidMeshInfo info);
 
@@ -606,5 +606,3 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
-
-

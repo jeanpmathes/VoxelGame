@@ -18,7 +18,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
         1,
         0,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    
+
     Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
         textureDesc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
 
@@ -87,6 +87,6 @@ void Texture::CreateUsabilityBarrier(
         resource.Get(),
         D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    
+
     commandList->ResourceBarrier(1, &barrier);
 }

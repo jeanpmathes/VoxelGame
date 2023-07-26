@@ -59,4 +59,3 @@ public class OrientedBlock : BasicBlock
             isTextureRotated: false);
     }
 }
-

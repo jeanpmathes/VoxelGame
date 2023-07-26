@@ -114,7 +114,7 @@ public abstract class World : IDisposable, IGrid
     private WorldInformation Information { get; }
 
     /// <summary>
-    /// Get the stored world data.
+    ///     Get the stored world data.
     /// </summary>
     public WorldData Data { get; }
 
@@ -124,7 +124,7 @@ public abstract class World : IDisposable, IGrid
     public (int upper, int lower) Seed => (Information.UpperSeed, Information.LowerSeed);
 
     /// <summary>
-    /// Get whether the world is active.
+    ///     Get whether the world is active.
     /// </summary>
     protected bool IsActive => CurrentState == State.Active;
 
@@ -650,7 +650,7 @@ public abstract class World : IDisposable, IGrid
     public event EventHandler<EventArgs> Ready;
 
     /// <summary>
-    /// The world state.
+    ///     The world state.
     /// </summary>
     protected enum State
     {
@@ -706,4 +706,3 @@ public abstract class World : IDisposable, IGrid
 
     #endregion IDisposable Support
 }
-

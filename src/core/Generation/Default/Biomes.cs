@@ -485,4 +485,3 @@ public class Biomes
         foreach (Biome biome in biomes) biome.SetupBiome(factory, palette);
     }
 }
-

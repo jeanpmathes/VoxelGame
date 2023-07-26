@@ -108,5 +108,3 @@ public sealed class Game : IDisposable
 
     #endregion IDisposable Support
 }
-
-

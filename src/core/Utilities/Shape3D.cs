@@ -136,4 +136,3 @@ public sealed class Cone : Shape3D
         return height is >= 0 and <= 1 && distanceSquared <= radiusSquared;
     }
 }
-

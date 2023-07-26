@@ -158,7 +158,7 @@ public class Client : IDisposable
     }
 
     /// <summary>
-    /// Set the mouse cursor.
+    ///     Set the mouse cursor.
     /// </summary>
     public void SetCursor(MouseCursor cursor)
     {
@@ -465,10 +465,7 @@ public class Client : IDisposable
     {
         ReleaseUnmanagedResources();
 
-        if (disposing)
-        {
-            config = new Config();
-        }
+        if (disposing) config = new Config();
     }
 
     /// <summary>

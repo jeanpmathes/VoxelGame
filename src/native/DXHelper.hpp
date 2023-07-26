@@ -117,7 +117,7 @@ inline std::wstring GetNameIndexed(const LPCWSTR name, const UINT index)
 inline void SetName(const ComPtr<ID3D12Object>& object, const LPCWSTR name)
 {
     TRY_DO(object->SetName(name));
-} 
+}
 
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.

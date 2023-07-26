@@ -40,5 +40,3 @@ public interface IHeightVariable : IBlockBase
     /// <returns>The block height.</returns>
     int GetHeight(uint data);
 }
-
-

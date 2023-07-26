@@ -276,10 +276,7 @@ public partial class Map : IMap
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
-        if (reader != null)
-        {
-            Load(reader);
-        }
+        if (reader != null) Load(reader);
 
         SetupGeneratingNoise(factory);
 
@@ -644,7 +641,7 @@ public partial class Map : IMap
         public float Height { get; init; }
 
         /// <summary>
-        ///     The temperature of the sample. Use <see cref="GetTemperatureInCelsius"/> to retrieve the temperature.
+        ///     The temperature of the sample. Use <see cref="GetTemperatureInCelsius" /> to retrieve the temperature.
         /// </summary>
         public float Temperature { private get; init; }
 

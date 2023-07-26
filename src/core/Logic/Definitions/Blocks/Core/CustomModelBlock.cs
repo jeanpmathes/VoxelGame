@@ -66,5 +66,3 @@ public class CustomModelBlock : Block, IFillable, IComplex
         return mesh.GetMeshData();
     }
 }
-
-

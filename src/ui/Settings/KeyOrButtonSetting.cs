@@ -97,4 +97,3 @@ internal class KeyOrButtonSetting : Setting
         rebind.TextColorOverride = valid ? Color.White : Color.Red;
     }
 }
-

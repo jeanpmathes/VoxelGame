@@ -94,6 +94,3 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
-
-
-

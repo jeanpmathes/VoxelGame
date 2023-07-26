@@ -116,10 +116,7 @@ public abstract class UserInterface : IDisposable
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            Root.DeleteAllChildren();
-        }
+        if (disposing) Root.DeleteAllChildren();
 
         disposed = true;
     }

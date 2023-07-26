@@ -34,7 +34,8 @@ internal class D3D12Debug
     }
 
     /// <summary>
-    ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the native configuration.
+    ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the
+    ///     native configuration.
     /// </summary>
     internal static Definition.Native.D3D12MessageFunc Enable(Client client)
     {

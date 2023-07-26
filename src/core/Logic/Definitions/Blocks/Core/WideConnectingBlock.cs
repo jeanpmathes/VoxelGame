@@ -88,4 +88,3 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
         return meshes[(int) info.Data & 0b00_1111].GetMeshData();
     }
 }
-

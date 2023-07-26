@@ -129,6 +129,3 @@ internal sealed class PlayerInput
         return movement;
     }
 }
-
-
-

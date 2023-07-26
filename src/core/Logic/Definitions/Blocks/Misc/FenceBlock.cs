@@ -121,4 +121,3 @@ public class FenceBlock : WideConnectingBlock, ICombustible
         return volumes[(int) data & 0b00_1111];
     }
 }
-

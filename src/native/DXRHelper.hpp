@@ -65,8 +65,8 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
     // Compile
     ComPtr<IDxcOperationResult> pResult;
     TRY_DO(pCompiler->Compile(pTextBlob.Get(), fileName, L"", L"lib_6_3",
-        args.data(), args.size(),
-        defines.data(), defines.size(),
+        args.data(), static_cast<UINT32>(args.size()),
+        defines.data(), static_cast<UINT32>(defines.size()),
         dxcIncludeHandler.Get(), &pResult));
 
     // Verify the result

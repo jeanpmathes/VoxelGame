@@ -179,4 +179,3 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         Dead
     }
 }
-

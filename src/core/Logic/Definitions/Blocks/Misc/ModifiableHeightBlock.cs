@@ -33,4 +33,3 @@ public class ModifiableHeightBlock : VaryingHeightBlock
         if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this.AsInstance(height), position);
     }
 }
-

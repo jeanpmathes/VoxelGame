@@ -37,5 +37,3 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
             Destroy(world, position);
     }
 }
-
-

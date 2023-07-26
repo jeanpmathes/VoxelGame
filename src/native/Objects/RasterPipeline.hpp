@@ -101,6 +101,6 @@ private:
     ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
-    
+
     std::unique_ptr<ShaderBuffer> m_shaderBuffer = nullptr;
 };

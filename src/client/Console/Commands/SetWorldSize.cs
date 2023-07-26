@@ -27,4 +27,3 @@ public class SetWorldSize : Command
         Context.Player.World.SizeInBlocks = size;
     }
 }
-

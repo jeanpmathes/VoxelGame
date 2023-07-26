@@ -101,4 +101,3 @@ public class Structures
         return structure?.Search(start, maxDistance, generator);
     }
 }
-

@@ -27,4 +27,3 @@ public struct SpatialObjectData
     /// </summary>
     public Vector4 Rotation;
 }
-

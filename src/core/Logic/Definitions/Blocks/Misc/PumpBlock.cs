@@ -44,5 +44,3 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         Fluid.Elevate(entity.World, position, pumpDistance);
     }
 }
-
-

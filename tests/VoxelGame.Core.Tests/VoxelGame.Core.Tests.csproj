@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
+        <IsPackable>false</IsPackable>
 
-    <Version>1.3.0</Version>
+        <Version>1.3.0</Version>
 
-      <Authors>jeanpmathes</Authors>
+        <Authors>jeanpmathes</Authors>
 
-      <Company>jeanpmathes</Company>
-  </PropertyGroup>
+        <Company>jeanpmathes</Company>
+    </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <PlatformTarget>x64</PlatformTarget>

@@ -43,7 +43,7 @@ void MeshObject::SetEnabledState(const bool enabled)
 void MeshObject::SetNewMesh(const SpatialVertex* vertices, const UINT vertexCount)
 {
     REQUIRE(!m_uploadEnqueued);
-    
+
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
 
     m_vertexCount = vertexCount;
@@ -55,7 +55,7 @@ void MeshObject::SetNewMesh(const SpatialVertex* vertices, const UINT vertexCoun
         m_vertexBufferUpload = {};
         return;
     }
-    
+
     m_vertexBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                                 D3D12_RESOURCE_FLAG_NONE,
                                                 D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -91,7 +91,7 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
     }
 
     const auto vertexBufferSize = m_vertexBufferUpload.resource->GetDesc().Width;
-    
+
     m_vertexBuffer = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                           D3D12_RESOURCE_FLAG_NONE,
                                           D3D12_RESOURCE_STATE_COPY_DEST,
@@ -112,7 +112,7 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
 void MeshObject::CleanupMeshUpload()
 {
     REQUIRE(!m_uploadRequired);
-    
+
     m_vertexBufferUpload = {};
 
     m_modified = false;
@@ -128,9 +128,9 @@ void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt
                                StandardShaderArguments& shaderArguments) const
 {
     REQUIRE(!m_uploadRequired);
-    
+
     const Material& material = GetClient().GetSpace()->GetMaterial(m_materialIndex);
-    
+
     sbt.AddHitGroup(material.normalHitGroup,
                     {
                         reinterpret_cast<void*>(m_vertexBuffer.resource->GetGPUVirtualAddress()),
@@ -157,7 +157,7 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
         m_blas = {};
         return;
     }
-    
+
     m_blas = CreateBottomLevelAS(commandList,
                                  {{m_vertexBuffer, m_vertexCount}},
                                  {{m_usedIndexBuffer, m_usedIndexCount}});
@@ -166,7 +166,7 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
 Allocation<ID3D12Resource> MeshObject::GetBLAS()
 {
     REQUIRE(!m_uploadRequired);
-    
+
     return m_blas.result;
 }
 
@@ -179,7 +179,7 @@ void MeshObject::AssociateWithHandle(Handle handle)
 void MeshObject::Free() const
 {
     REQUIRE(!m_uploadEnqueued);
-    
+
     REQUIRE(m_handle.has_value());
     GetClient().GetSpace()->FreeMeshObject(m_handle.value());
 }
@@ -214,7 +214,7 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
 
     const bool committed = GetClient().SupportPIX();
-    
+
     AccelerationStructureBuffers buffers;
     buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,

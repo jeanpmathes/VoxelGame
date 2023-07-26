@@ -81,17 +81,12 @@ public sealed class SectionRenderer : IDisposable
         if (disposed)
             return;
 
-        if (disposing)
-        {
-            simple.Free();
-            // todo: free other mesh objects
-        }
+        if (disposing) simple.Free();
+        // todo: free other mesh objects
         else
-        {
             logger.LogWarning(
                 Events.LeakedNativeObject,
                 "Renderer disposed by GC without freeing storage");
-        }
 
         disposed = true;
     }

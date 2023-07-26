@@ -111,4 +111,3 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
         return volumes[(int) data & 0b00_1111];
     }
 }
-

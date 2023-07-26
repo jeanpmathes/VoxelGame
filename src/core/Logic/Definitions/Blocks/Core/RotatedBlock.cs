@@ -77,4 +77,3 @@ public class RotatedBlock : BasicBlock, ICombustible
         return index;
     }
 }
-

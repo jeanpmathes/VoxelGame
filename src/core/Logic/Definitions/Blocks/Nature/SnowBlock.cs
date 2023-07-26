@@ -37,5 +37,3 @@ public class SnowBlock : GroundedModifiableHeightBlock, IFillable
         if (!content.Fluid.IsEmpty) ScheduleDestroy(world, position);
     }
 }
-
-

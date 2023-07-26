@@ -17,4 +17,3 @@ public interface IIdentifiable<out T>
     /// </summary>
     T ID { get; }
 }
-

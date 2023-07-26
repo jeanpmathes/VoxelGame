@@ -23,7 +23,7 @@ public struct BasicCameraData
     public Vector3 Position;
 
     /// <summary>
-    /// The front vector.
+    ///     The front vector.
     /// </summary>
     public Vector3 Front;
 

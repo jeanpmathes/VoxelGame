@@ -240,4 +240,3 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
         return ToValueTuple() == other.ToValueTuple();
     }
 }
-

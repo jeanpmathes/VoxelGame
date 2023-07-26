@@ -34,7 +34,7 @@ public:
      * Free this texture. This will detach the texture from the client, causing it to be destroyed.
      */
     void Free() const;
-    
+
     /**
      * Get the resource in which the texture is stored.
      */
@@ -53,11 +53,11 @@ public:
 
     static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList,
                                        Allocation<ID3D12Resource> resource);
-    
+
 private:
     Allocation<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
-    
+
     bool m_usable;
     NativeClient::ObjectHandle m_handle{};
 };

@@ -20,4 +20,3 @@ public class PermeableNaturalBlock : NaturalBlock, IFillable
     /// </summary>
     public PermeableNaturalBlock(string name, string namedId, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) : base(name, namedId, hasNeutralTint, flags, layout) {}
 }
-

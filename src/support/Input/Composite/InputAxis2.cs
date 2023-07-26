@@ -32,5 +32,3 @@ public class InputAxis2
     /// </summary>
     public Vector2 Value => new(x.Value, y.Value);
 }
-
-

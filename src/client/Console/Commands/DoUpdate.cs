@@ -41,4 +41,3 @@ public class DoUpdate : Command
         if (!success) Context.Console.WriteError("Cannot update at this position.");
     }
 }
-

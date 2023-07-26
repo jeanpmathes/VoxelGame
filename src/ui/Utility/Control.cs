@@ -22,4 +22,3 @@ public static class Control
         // Intentionally left empty.
     }
 }
-

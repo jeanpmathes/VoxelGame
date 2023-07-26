@@ -43,10 +43,7 @@ public class Space
     {
         get
         {
-            if (camera == null)
-            {
-                camera = Native.GetCamera(Client);
-            }
+            if (camera == null) camera = Native.GetCamera(Client);
 
             return camera;
         }

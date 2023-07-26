@@ -40,7 +40,7 @@ public:
     void OnWindowMoved(int xPos, int yPos) override;
 
     void InitRaytracingPipeline(const SpacePipeline& pipeline);
-    
+
     /**
      * Toggle fullscreen mode.
      */
@@ -50,7 +50,7 @@ public:
      * Load a texture from a file.
      */
     Texture* LoadTexture(std::byte** data, const TextureDescription& description) const;
-    
+
     /**
      * Set the mouse position in client coordinates.
      */
@@ -86,23 +86,23 @@ public:
     void MoveToNextFrame();
 
     std::wstring GetDRED() const;
-    
-   private:
+
+private:
     static const float CLEAR_COLOR[4];
     static const float LETTERBOX_COLOR[4];
-    
+
     struct PostVertex
     {
         DirectX::XMFLOAT4 position;
         DirectX::XMFLOAT2 uv;
     };
-    
+
     ComPtr<ID3D12Device5> m_device;
     ComPtr<D3D12MA::Allocator> m_allocator;
     ComPtr<IDXGISwapChain3> m_swapChain;
     ComPtr<ID3D12InfoQueue1> m_infoQueue;
     ComPtr<ID3D12CommandQueue> m_commandQueue;
-    
+
     Resolution m_resolution;
 
     D3D12MessageFunc m_debugCallback;
@@ -137,7 +137,7 @@ public:
     bool m_intermediateRenderTargetInitialized = false;
     CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
     ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
- 
+
     UINT m_rtvDescriptorSize;
     UINT m_srvDescriptorSize;
 

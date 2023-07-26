@@ -185,9 +185,7 @@ public class World : Core.Logic.World
         {
             foreach (BlockSide side in BlockSide.All.Sides())
                 if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
-                {
                     neighbor.Cast().BeginMeshing();
-                }
 
             return new Chunk.Meshing();
         }

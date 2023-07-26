@@ -21,4 +21,3 @@ public interface IPerformanceProvider
     /// </summary>
     public double UPS { get; }
 }
-

@@ -15,15 +15,15 @@ static ComPtr<ID3DBlob> CompileShader(
 #endif
 
     const auto result = D3DCompileFromFile(
-            path,
-            nullptr,
-            D3D_COMPILE_STANDARD_FILE_INCLUDE,
-            entryPoint,
-            target,
-            compileFlags,
-            0,
-            &shaderBlob,
-            &errorBlob);
+        path,
+        nullptr,
+        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        entryPoint,
+        target,
+        compileFlags,
+        0,
+        &shaderBlob,
+        &errorBlob);
 
     if (FAILED(result))
     {
@@ -107,7 +107,7 @@ static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device
     sampler.ShaderRegister = 0;
     sampler.RegisterSpace = 0;
     sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    
+
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
     rootSignatureDesc.Init_1_1(parameter, rootParameters, 1, &sampler,
                                D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -157,7 +157,7 @@ static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5
     rootParameters[parameter].InitAsDescriptorTable(1, &ranges[parameter], D3D12_SHADER_VISIBILITY_PIXEL);
 
     parameter++;
-    
+
     D3D12_STATIC_SAMPLER_DESC sampler;
     sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
     sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -354,7 +354,7 @@ void RasterPipeline::CreateResourceViews(
     {
         m_shaderBuffer->CreateResourceView(m_descriptorHeap);
     }
-    
+
     UINT slot = 0;
 
     for (size_t index = 0; index < cbuffers.size(); index++)

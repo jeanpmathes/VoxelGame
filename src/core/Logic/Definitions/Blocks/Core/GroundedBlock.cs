@@ -38,5 +38,3 @@ public class GroundedBlock : BasicBlock, ICombustible
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) ScheduleDestroy(world, position);
     }
 }
-
-

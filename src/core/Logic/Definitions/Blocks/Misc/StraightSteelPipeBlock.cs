@@ -104,7 +104,3 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
         return side.Axis() == (Axis) (block.Data & 0b00_0011);
     }
 }
-
-
-
-

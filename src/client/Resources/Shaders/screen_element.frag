@@ -9,12 +9,12 @@ uniform sampler2D tex;
 
 void main()
 {
-	vec4 texColor = texture(tex, texCoord);
+    vec4 texColor = texture(tex, texCoord);
 
-	if (texColor.a == 0.0)
-	{
-		discard;
-	}
+    if (texColor.a == 0.0)
+    {
+        discard;
+    }
 
-	outputColor = vec4(color, 1.0) * texColor;
+    outputColor = vec4(color, 1.0) * texColor;
 }

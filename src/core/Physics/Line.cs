@@ -31,7 +31,7 @@ public readonly struct Line : IEquatable<Line>
     /// <param name="direction">The direction of the line.</param>
     public Line(Vector3d point, Vector3d direction)
     {
-        this.Any = point;
+        Any = point;
         Direction = direction.Normalized();
     }
 
@@ -69,4 +69,3 @@ public readonly struct Line : IEquatable<Line>
         return !left.Equals(right);
     }
 }
-

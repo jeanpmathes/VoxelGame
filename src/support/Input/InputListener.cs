@@ -51,4 +51,3 @@ public class InputListener
         callbackListForAnyPress.Add(callback);
     }
 }
-

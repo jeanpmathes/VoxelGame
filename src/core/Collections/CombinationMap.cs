@@ -86,4 +86,3 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
         return this[a, b];
     }
 }
-

@@ -103,13 +103,13 @@ private:
 
     Allocation<ID3D12Resource> m_usedIndexBuffer = {};
     UINT m_usedIndexCount = 0;
-    
+
     AccelerationStructureBuffers m_blas = {};
 
     std::optional<Handle> m_handle = std::nullopt;
     bool m_enabled = true;
     bool m_modified = false;
-    
+
     bool m_uploadRequired = false;
     bool m_uploadEnqueued = false;
 };

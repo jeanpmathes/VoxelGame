@@ -182,4 +182,3 @@ public abstract class Decoration
     /// <param name="Palette">The palette of the world generation.</param>
     public record struct PlacementContext(float Random, int Depth, Map.StoneType StoneType, Palette Palette);
 }
-

@@ -102,7 +102,7 @@ public sealed class PlayerVisualization : IDisposable
     }
 
     /// <summary>
-    /// Build the overlay, considering the given positions.
+    ///     Build the overlay, considering the given positions.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
     public void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
@@ -204,5 +204,3 @@ public sealed class PlayerVisualization : IDisposable
 
     #endregion IDisposable Support
 }
-
-

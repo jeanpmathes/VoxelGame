@@ -179,10 +179,7 @@ public sealed class DirectXRenderer : RendererBase
             sysFont = (System.Drawing.Font) font.RendererData;
         }
 
-        if (textCache.GetTexture(font, text) is {} texture)
-        {
-            return new Size(texture.Width, texture.Height);
-        }
+        if (textCache.GetTexture(font, text) is {} texture) return new Size(texture.Width, texture.Height);
 
         Debug.Assert(sysFont != null);
 
@@ -236,10 +233,7 @@ public sealed class DirectXRenderer : RendererBase
     {
         TextureList.Handle handle = TextureList.Handle.Invalid;
 
-        if (preloadNameToPath.TryGetValue(texture.Name, out string? path))
-        {
-            handle = renderPipeline.Textures.GetTexture(path);
-        }
+        if (preloadNameToPath.TryGetValue(texture.Name, out string? path)) handle = renderPipeline.Textures.GetTexture(path);
 
         if (!handle.IsValid) handle = renderPipeline.Textures.GetTexture(texture.Name);
 
@@ -255,14 +249,8 @@ public sealed class DirectXRenderer : RendererBase
             if (exception != null) errorCallback(exception);
         }
 
-        if (handle.IsValid)
-        {
-            SetTextureProperties(texture, handle);
-        }
-        else
-        {
-            SetFailedTextureProperties(texture);
-        }
+        if (handle.IsValid) SetTextureProperties(texture, handle);
+        else SetFailedTextureProperties(texture);
     }
 
     /// <inheritdoc />

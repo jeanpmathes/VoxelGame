@@ -115,5 +115,3 @@ internal class PlacementSelection
         return true;
     }
 }
-
-

@@ -138,4 +138,3 @@ public class WallBlock : WideConnectingBlock
         return base.GetMeshData(info);
     }
 }
-

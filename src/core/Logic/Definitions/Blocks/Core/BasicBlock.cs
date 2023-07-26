@@ -58,4 +58,3 @@ public class BasicBlock : Block, ISimple
         return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
     }
 }
-

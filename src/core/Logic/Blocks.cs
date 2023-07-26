@@ -648,7 +648,7 @@ public class Blocks
     public int Count => blockList.Count;
 
     /// <summary>
-    /// Get special blocks as their actual block type.
+    ///     Get special blocks as their actual block type.
     /// </summary>
     internal SpecialBlocks Specials { get; }
 
