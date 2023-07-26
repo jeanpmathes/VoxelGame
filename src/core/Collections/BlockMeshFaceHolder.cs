@@ -206,7 +206,8 @@ public class BlockMeshFaceHolder : MeshFaceHolder
         {
             return position + length + 1 == extension.position &&
                    height == extension.height &&
-                   isRotated == extension.isRotated;
+                   isRotated == extension.isRotated &&
+                   data == extension.data;
         }
 
         public bool IsCombinable(MeshFace addition)

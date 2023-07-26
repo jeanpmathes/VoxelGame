@@ -71,8 +71,6 @@ public:
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     Allocation<ID3D12Resource> GetBLAS();
 
-    [[nodiscard]] UINT GetMaterialIndex() const;
-
     using Handle = std::list<std::unique_ptr<MeshObject>>::iterator;
 
     /**

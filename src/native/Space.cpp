@@ -71,26 +71,18 @@ void Space::Reset(const UINT frameIndex) const
 
 void Space::EnqueueRenderSetup()
 {
-    bool modified = false;
-
     for (const auto& mesh : m_meshes)
     {
         if (mesh->IsMeshModified())
         {
             mesh->EnqueueMeshUpload(m_commandGroup.commandList);
             mesh->CreateBLAS(m_commandGroup.commandList);
-
-            modified = true;
         }
     }
 
     CreateTopLevelAS();
     UpdateShaderResourceHeap();
-
-    if (modified)
-    {
-        CreateShaderBindingTable();
-    }
+    CreateShaderBindingTable();
 }
 
 void Space::CleanupRenderSetup()
@@ -510,8 +502,10 @@ void Space::CreateTopLevelAS()
             // The CCW flag is used because DirectX uses left-handed coordinates.
             
             topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
-                                            instanceID++, 2 * mesh->GetMaterialIndex(),
+                                            instanceID, 2 * instanceID,
                                             D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
+
+            instanceID++;
         }
     }
 

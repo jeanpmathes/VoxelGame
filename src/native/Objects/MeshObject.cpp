@@ -170,11 +170,6 @@ Allocation<ID3D12Resource> MeshObject::GetBLAS()
     return m_blas.result;
 }
 
-UINT MeshObject::GetMaterialIndex() const
-{
-    return m_materialIndex;
-}
-
 void MeshObject::AssociateWithHandle(Handle handle)
 {
     REQUIRE(!m_handle.has_value());

@@ -66,7 +66,7 @@ namespace nv_helpers_dx12
         // identify this specific instance
         UINT hitGroupIndex, // Hit group index, corresponding the the index of the
         // hit group in the Shader Binding Table that will be
-        // invocated upon hitting the geometry,
+        // invoked upon hitting the geometry,
         D3D12_RAYTRACING_INSTANCE_FLAGS flags // Instance flags, e.g. concerning the winding order
     )
     {

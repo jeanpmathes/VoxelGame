@@ -60,7 +60,7 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;
 
-    normal = normalize(cross(e1, e2)); //mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz;
+    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz * -1.0;
     normal = normalize(normal);
 
     data = uint4(
@@ -87,14 +87,14 @@ float2 GetQuadInterpolation(float3 barycentric)
     if (isFirst)
     {
         uv = barycentric.x * a
-            + barycentric.y * c
-            + barycentric.z * b;
+            + barycentric.y * b
+            + barycentric.z * c;
     }
     else
     {
         uv = barycentric.x * a
-            + barycentric.y * d
-            + barycentric.z * c;
+            + barycentric.y * c
+            + barycentric.z * d;
     }
 
     return uv;
@@ -171,12 +171,12 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
     ShadowHitInfo shadowPayload;
     shadowPayload.isHit = false;
 
-    //TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
+    TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
 
     const float visibility = shadowPayload.isHit ? 0.0f : 1.0f;
 
-    //const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
-    //color *= lightIntensity;
+    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
+    color *= lightIntensity;
 
-    return normal * 0.5f + 0.5f;
+    return color;
 }
