@@ -18,10 +18,9 @@ namespace VoxelGame.Support.Objects;
 public class Texture : NativeObject
 {
     /// <summary>
-    ///     The maximum number of entries in an array texture.
-    ///     See D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION, and note that some devices may have a higher limit.
+    /// The maximum depth of an array texture.
     /// </summary>
-    public const int MaxArrayTextureDepth = 2048; // todo: get this value from C++ side (maybe return value of init)
+    public static readonly int MaxArrayTextureDepth = Native.SystemInformation.MaxTextureArrayAxisDimension;
 
     private readonly Vector2i size;
 

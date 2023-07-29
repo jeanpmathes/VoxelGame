@@ -25,6 +25,7 @@ namespace VoxelGame.Client.Rendering;
 public sealed class ArrayTexture : ITextureIndexProvider
 {
     // todo: ensure that no texture units are mentioned in the wiki
+    // todo: move the actual ArrayTexture into VG.Support and keep only the loading logic with a TexturesResource : ITextureIndexProvider in VG.Client
 
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
@@ -35,7 +36,7 @@ public sealed class ArrayTexture : ITextureIndexProvider
 
     private readonly Texture[] parts;
 
-    private readonly Dictionary<string, int> textureIndices = new();
+    private readonly Dictionary<string, int> textureIndices;
 
     private LoadingContext? loadingContext;
 
@@ -46,11 +47,6 @@ public sealed class ArrayTexture : ITextureIndexProvider
 
         Count = count;
     }
-
-    /// <summary>
-    ///     The size of a single array texture unit.
-    /// </summary>
-    public static int UnitSize => 2048;
 
     /// <summary>
     ///     Get the number of textures in the array.

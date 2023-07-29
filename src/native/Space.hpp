@@ -19,6 +19,7 @@ struct GlobalConstantBuffer
     float time;
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
+    int maxArrayTextureSize;
 };
 
 struct MaterialDescription

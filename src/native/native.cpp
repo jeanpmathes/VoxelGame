@@ -9,6 +9,17 @@
 static NativeErrorFunc onError;
 static NativeErrorMessageFunc onErrorMessage;
 
+NATIVE SystemInformation NativeGetSystemInformation()
+{
+    TRY
+    {
+        return {
+            .maxTextureArrayAxisDimension = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION
+        };
+    }
+    CATCH();
+}
+
 NATIVE void NativeShowErrorBox(const LPCWSTR message, const LPCWSTR caption)
 {
     // No try-catch because the catch might call this function again.

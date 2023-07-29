@@ -256,7 +256,13 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 
 void Space::CreateGlobalConstBuffer()
 {
-    m_globalConstantBufferData = {.time = 0.0f, .minLight = 0.4f};
+    m_globalConstantBufferData = {
+        .time = 0.0f,
+        .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
+        .minLight = 0.4f,
+        .maxArrayTextureSize = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION
+    };
+    
     m_globalConstantBufferSize = sizeof m_globalConstantBufferData;
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);

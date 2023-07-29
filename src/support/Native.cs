@@ -19,15 +19,40 @@ namespace VoxelGame.Support;
 /// <summary>
 ///     The bindings for all native functions.
 /// </summary>
+#pragma warning disable S3242 // The specific types are matched on the native side.
+#pragma warning disable S1200 // This class intentionally contains all native functions.
 public static class Native
 {
     private const string DllFilePath = @".\Native.dll";
+
+    private static SystemInformation? systemInformation;
+
+    private static readonly Dictionary<IntPtr, Camera> cameras = new();
+
+    private static readonly Dictionary<IntPtr, Light> lights = new();
+
+    private static readonly Dictionary<RasterPipeline, object> draw2DCallbacks = new();
+
+    /// <summary>
+    ///     Get the system information.
+    /// </summary>
+    public static SystemInformation SystemInformation
+    {
+        get
+        {
+            [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+            static extern SystemInformation NativeGetSystemInformation();
+
+            systemInformation ??= NativeGetSystemInformation();
+
+            return systemInformation.Value;
+        }
+    }
 
     /// <summary>
     ///     Show an error message box.
     /// </summary>
     /// <param name="message">The error message.</param>
-    #pragma warning disable S3242 // The specific types are matched on the native side.
     public static void ShowErrorBox(string message)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
@@ -194,8 +219,6 @@ public static class Native
         NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.Description);
     }
 
-    private static readonly Dictionary<IntPtr, Camera> cameras = new();
-
     /// <summary>
     ///     Get the camera of the native client.
     /// </summary>
@@ -209,9 +232,9 @@ public static class Native
         IntPtr camera = NativeGetCamera(client.Native);
         Camera cameraObject;
 
-        if (cameras.ContainsKey(camera))
+        if (cameras.TryGetValue(camera, out Camera? @object))
         {
-            cameraObject = cameras[camera];
+            cameraObject = @object;
         }
         else
         {
@@ -221,8 +244,6 @@ public static class Native
 
         return cameraObject;
     }
-
-    private static readonly Dictionary<IntPtr, Light> lights = new();
 
     /// <summary>
     ///     Get the light of the native client.
@@ -237,9 +258,9 @@ public static class Native
         IntPtr light = NativeGetLight(client.Native);
         Light lightObject;
 
-        if (lights.ContainsKey(light))
+        if (lights.TryGetValue(light, out Light? @object))
         {
-            lightObject = lights[light];
+            lightObject = @object;
         }
         else
         {
@@ -430,8 +451,6 @@ public static class Native
         T* dataPtr = &data;
         NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
     }
-
-    private static readonly Dictionary<RasterPipeline, object> draw2DCallbacks = new();
 
     /// <summary>
     ///     Add a draw 2D pipeline.

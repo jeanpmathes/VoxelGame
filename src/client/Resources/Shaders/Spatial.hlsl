@@ -18,6 +18,7 @@ cbuffer GlobalCB : register(b0) {
 float gTime;
 float3 gLightDir;
 float gMinLight;
+int gMaxArrayTextureSize;
 }
 
 cbuffer InstanceCB : register(b1) {
