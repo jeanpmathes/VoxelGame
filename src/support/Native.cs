@@ -490,9 +490,10 @@ public static class Native
     ///     Load a texture from a bitmap.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="bitmaps">All bitmaps used to build the texture.</param>
+    /// <param name="bitmaps">All bitmaps used to build the texture. All mipmaps follow their respective base image.</param>
+    /// <param name="mipLevels">The number of mip levels the array contains.</param>
     /// <returns>The loaded texture.</returns>
-    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> bitmaps)
+    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> bitmaps, int mipLevels)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr* data, TextureDescription description);
@@ -503,7 +504,8 @@ public static class Native
         {
             Width = (uint) bitmaps[index: 0].Width,
             Height = (uint) bitmaps[index: 0].Height,
-            Depth = (uint) bitmaps.Length
+            Depth = (uint) (bitmaps.Length / mipLevels),
+            MipLevels = (uint) mipLevels
         };
 
         List<IntPtr> subresources = new(bitmaps.Length);

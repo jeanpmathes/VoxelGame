@@ -415,17 +415,18 @@ public class Client : IDisposable
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Bitmap bitmap)
     {
-        return Support.Native.LoadTexture(this, new[] {bitmap});
+        return Support.Native.LoadTexture(this, new[] {bitmap}, mipLevels: 1);
     }
 
     /// <summary>
     ///     Load a texture from a bitmap array.
     /// </summary>
     /// <param name="bitmaps">The bitmaps to load from.</param>
+    /// <param name="mipLevels">The number of mip levels that are included in the span.</param>
     /// <returns>The loaded texture.</returns>
-    public Texture LoadTexture(Span<Bitmap> bitmaps)
+    public Texture LoadTexture(Span<Bitmap> bitmaps, int mipLevels)
     {
-        return Support.Native.LoadTexture(this, bitmaps);
+        return Support.Native.LoadTexture(this, bitmaps, mipLevels);
     }
 
     /// <summary>

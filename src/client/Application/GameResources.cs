@@ -34,14 +34,14 @@ public class GameResources
     }
 
     /// <summary>
-    ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+    ///     Gets the <see cref="TextureBundle" /> that contains all block textures.
     /// </summary>
-    public ArrayTexture BlockTextureArray { get; private set; } = null!;
+    private TextureBundle BlockTextures { get; set; } = null!;
 
     /// <summary>
-    ///     Gets the <see cref="ArrayTexture" /> that contains all fluid textures. It is bound to unit 5.
+    ///     Gets the <see cref="TextureBundle" /> that contains all fluid textures.
     /// </summary>
-    public ArrayTexture FluidTextureArray { get; private set; } = null!;
+    private TextureBundle FluidTextures { get; set; } = null!;
 
     /// <summary>
     ///     Get the shaders of the game.
@@ -78,7 +78,7 @@ public class GameResources
         {
             using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
             {
-                BlockTextureArray = ArrayTexture.Load(Client.Instance,
+                BlockTextures = TextureBundle.Load(Client.Instance,
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
@@ -87,7 +87,7 @@ public class GameResources
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
             {
-                FluidTextureArray = ArrayTexture.Load(Client.Instance,
+                FluidTextures = TextureBundle.Load(Client.Instance,
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
@@ -99,27 +99,27 @@ public class GameResources
 
         Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, loadingContext);
 
-        TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
-        BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
+        TextureLayout.SetProviders(BlockTextures, FluidTextures);
+        BlockModel.SetBlockTextureIndexProvider(BlockTextures);
 
-        BlockTextureArray.EnableLoading(loadingContext);
-        FluidTextureArray.EnableLoading(loadingContext);
+        BlockTextures.EnableLoading(loadingContext);
+        FluidTextures.EnableLoading(loadingContext);
 
-        Blocks.Load(BlockTextureArray, loadingContext);
+        Blocks.Load(BlockTextures, loadingContext);
 
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
-            BlockTextureArray.Count / (double) Blocks.Instance.Count);
+            BlockTextures.Count / (double) Blocks.Instance.Count);
 
-        Fluids.Load(FluidTextureArray, loadingContext);
+        Fluids.Load(FluidTextures, loadingContext);
 
         PlayerResources.Load(loadingContext);
 
         Generator.Prepare(loadingContext);
 
-        BlockTextureArray.DisableLoading();
-        FluidTextureArray.DisableLoading();
+        BlockTextures.DisableLoading();
+        FluidTextures.DisableLoading();
     }
 
     /// <summary>

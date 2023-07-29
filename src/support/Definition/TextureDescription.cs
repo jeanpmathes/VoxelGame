@@ -30,4 +30,9 @@ public struct TextureDescription
     ///     The depth of the texture, which is the number of layers in an array texture.
     /// </summary>
     public uint Depth;
+
+    /// <summary>
+    ///     The number of mip-levels in the texture.
+    /// </summary>
+    public uint MipLevels;
 }

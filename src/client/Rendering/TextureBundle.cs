@@ -1,6 +1,6 @@
-﻿// <copyright file="TextureAtlas.cs" company="VoxelGame">
+﻿// <copyright file="TextureBundle.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -15,43 +15,39 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
-///     Represents an array texture.
+///     A list of textures that can be used by shaders.
+///     Each texture has a name and index.
 /// </summary>
-public sealed class ArrayTexture : ITextureIndexProvider
+public sealed class TextureBundle : ITextureIndexProvider
 {
-    // todo: ensure that no texture units are mentioned in the wiki
-    // todo: move the actual ArrayTexture into VG.Support and keep only the loading logic with a TexturesResource : ITextureIndexProvider in VG.Client
-
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
-    public const string MissingTextureName = "missing_texture";
+    private const string MissingTextureName = "missing_texture";
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
-
-    private readonly Texture[] parts;
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
+    private readonly ArrayTexture array;
 
     private readonly Dictionary<string, int> textureIndices;
 
     private LoadingContext? loadingContext;
 
-    private ArrayTexture(Texture[] parts, Dictionary<string, int> textureIndices, int count)
+    private TextureBundle(ArrayTexture array, Dictionary<string, int> textureIndices)
     {
-        this.parts = parts;
+        this.array = array;
         this.textureIndices = textureIndices;
-
-        Count = count;
     }
 
     /// <summary>
-    ///     Get the number of textures in the array.
+    ///     Get the number of textures in the bundle.
     /// </summary>
-    public int Count { get; private set; }
+    public int Count => array.Count;
 
     /// <inheritdoc />
     public int GetTextureIndex(string name)
@@ -73,14 +69,14 @@ public sealed class ArrayTexture : ITextureIndexProvider
     }
 
     /// <summary>
-    ///     Load a new array texture. It will be filled with all textures found in the given directory.
+    ///     Load a new texture bundle. It will be filled with all textures found in the given directory.
     /// </summary>
     /// <param name="client">The client that will own the texture.</param>
     /// <param name="loadingContext">The context in which loading is performed.</param>
     /// <param name="textureDirectory">The directory to load textures from.</param>
-    /// <param name="resolution">The resolution of the array. Textures that do not fit are excluded.</param>
+    /// <param name="resolution">The resolution of the textures. Textures that do not fit are excluded.</param>
     /// <param name="maxTextures">The maximum number of textures to load.</param>
-    public static ArrayTexture Load(Support.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures)
+    public static TextureBundle Load(Support.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
@@ -97,51 +93,40 @@ public sealed class ArrayTexture : ITextureIndexProvider
             loadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
         }
 
-        List<Bitmap> textures = new();
-
         // Create fallback texture.
+        List<Bitmap> extraTextures = new();
         Bitmap fallback = Texture.CreateFallback(resolution);
-        textures.Add(fallback);
+        extraTextures.Add(fallback);
 
         // Load all textures, preprocess them and add them to the list.
-        Dictionary<string, int> indices = LoadBitmaps(resolution, texturePaths, textures);
-        Span<Bitmap> subresources = CollectionsMarshal.AsSpan(textures);
-
-        int requiredParts = (maxTextures - 1) / Texture.MaxArrayTextureDepth + 1;
+        using LoadingResult result = LoadBitmaps(resolution, texturePaths, extraTextures);
+        Span<Bitmap> textures = CollectionsMarshal.AsSpan(result.Bitmaps);
 
         // Check if the arrays could hold all textures.
-        if (textures.Count > maxTextures) // todo: divide by mipmap count here and in log, consider it in the slicing below (or find more elegant solution like second list)
+        if (result.Count > maxTextures)
         {
             logger.LogCritical(
-                "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this ArrayTexture",
-                textures.Count,
+                "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle",
+                extraTextures.Count,
                 maxTextures);
 
-            subresources = subresources[..maxTextures];
+            textures = textures[..maxTextures];
+
+            int maxIndex = maxTextures - 1;
+
+            foreach ((string key, int index) in result.Indices)
+                if (index > maxIndex)
+                    result.Indices[key] = 0;
         }
 
-        int count = subresources.Length; // todo: divide by mipmap count here too
-
-        // Split the full texture list into parts and create the array textures.
-        var data = new Texture[requiredParts];
-        var currentPart = 0;
-        var added = 0;
-
-        while (added < subresources.Length) // todo: consider mipmaps here too
-        {
-            int next = Math.Min(added + Texture.MaxArrayTextureDepth, subresources.Length);
-            data[currentPart] = client.LoadTexture(subresources[added..next]);
-
-            added = next;
-            currentPart++;
-        }
+        ArrayTexture loadedArray = ArrayTexture.Load(client, textures, Math.Min(result.Count, maxTextures), result.Mips);
 
         // Cleanup.
-        foreach (Bitmap bitmap in textures) bitmap.Dispose();
+        foreach (Bitmap bitmap in extraTextures) bitmap.Dispose();
 
         loadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
 
-        return new ArrayTexture(data, indices, count);
+        return new TextureBundle(loadedArray, result.Indices);
     }
 
     /// <summary>
@@ -199,20 +184,33 @@ public sealed class ArrayTexture : ITextureIndexProvider
     }
 
     /// <summary>
-    ///     Loads all bitmaps specified by the paths into the list. The bitmaps are split into smaller parts that are all sized
+    ///     Loads all bitmaps specified by the paths into a. The bitmaps are split into smaller parts that are all sized
     ///     according to the resolution.
     /// </summary>
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private static Dictionary<string, int> LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, IList<Bitmap> bitmaps)
+    private static LoadingResult LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, List<Bitmap> extraTextures)
     {
         Dictionary<string, int> indices = new();
+        var count = 0;
+        var mips = (int) Math.Log(resolution, newBase: 2);
 
-        if (paths.Count == 0) return indices;
+        List<Bitmap> bitmaps = new();
 
-        var levels = (int) Math.Log(resolution, newBase: 2);
-        var texIndex = 1;
+        void AddTexture(Bitmap texture)
+        {
+            bitmaps.Add(texture);
+
+            count++;
+
+            PreprocessBitmap(bitmaps[^1]);
+
+            List<Bitmap> mipmap = GenerateMipmap(bitmaps[^1], mips);
+            bitmaps.AddRange(mipmap);
+        }
+
+        foreach (Bitmap texture in extraTextures) AddTexture(texture);
 
         foreach (FileInfo path in paths)
             try
@@ -223,19 +221,15 @@ public sealed class ArrayTexture : ITextureIndexProvider
                     bitmap.Height == resolution) // Check if image consists of correctly sized textures
                 {
                     int textureCount = bitmap.Width / resolution;
-                    indices.Add(path.GetFileNameWithoutExtension(), texIndex);
+                    indices.Add(path.GetFileNameWithoutExtension(), count);
 
                     for (var j = 0; j < textureCount; j++)
                     {
-                        bitmaps.Add(
-                            bitmap.Clone(
-                                new Rectangle(j * resolution, y: 0, resolution, resolution),
-                                PixelFormat.Format32bppArgb));
+                        Bitmap texture = bitmap.Clone(
+                            new Rectangle(j * resolution, y: 0, resolution, resolution),
+                            PixelFormat.Format32bppArgb);
 
-                        texIndex++;
-
-                        PreprocessBitmap(bitmaps[^1]);
-                        GenerateMipmapWithoutTransparencyMixing(bitmaps[^1], levels); // todo: upload the mipmaps to the GPU (description must be adapted)
+                        AddTexture(texture);
                     }
                 }
                 else
@@ -251,34 +245,30 @@ public sealed class ArrayTexture : ITextureIndexProvider
                 logger.LogError(e, "The image could not be loaded: {Path}", path);
             }
 
-        return indices;
+        return new LoadingResult(indices, bitmaps, count, mips);
     }
 
-    private static void GenerateMipmapWithoutTransparencyMixing(Bitmap baseLevel, int levels)
+    private static List<Bitmap> GenerateMipmap(Bitmap baseLevel, int levels)
     {
         Bitmap upperLevel = baseLevel;
+        List<Bitmap> mipmap = new();
 
         for (var lod = 1; lod < levels; lod++)
         {
-#pragma warning disable CA2000 // Dispose objects before losing scope
             Bitmap lowerLevel = new(upperLevel.Width / 2, upperLevel.Height / 2);
-#pragma warning restore CA2000 // Dispose objects before losing scope
 
             // Create the lower level by averaging the upper level
-            CreateLowerLevel(ref upperLevel, ref lowerLevel);
+            // todo: allow selecting which mipmap generation algorithm to use, and add a transparency mixing one (essentially default OpenGL behaviour)
+            CreateLowerLevelWithoutTransparencyMixing(ref upperLevel, ref lowerLevel);
 
-            // Upload pixel data to array
-            // todo: here was the upload before, but what now? pass all data at once, in correct order according to subresource indexing
-
-            if (!upperLevel.Equals(baseLevel)) upperLevel.Dispose();
-
+            mipmap.Add(lowerLevel);
             upperLevel = lowerLevel;
         }
 
-        if (!upperLevel.Equals(baseLevel)) upperLevel.Dispose();
+        return mipmap;
     }
 
-    private static void CreateLowerLevel(ref Bitmap upperLevel, ref Bitmap lowerLevel)
+    private static void CreateLowerLevelWithoutTransparencyMixing(ref Bitmap upperLevel, ref Bitmap lowerLevel)
     {
         for (var w = 0; w < lowerLevel.Width; w++)
         for (var h = 0; h < lowerLevel.Height; h++)
@@ -323,5 +313,13 @@ public sealed class ArrayTexture : ITextureIndexProvider
         int s4 = c4 * c4 * f4;
 
         return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
+    }
+
+    private sealed record LoadingResult(Dictionary<string, int> Indices, List<Bitmap> Bitmaps, int Count, int Mips) : IDisposable
+    {
+        public void Dispose()
+        {
+            foreach (Bitmap bitmap in Bitmaps) bitmap.Dispose();
+        }
     }
 }

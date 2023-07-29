@@ -23,7 +23,7 @@ public:
     /**
      * Upload a texture to the GPU.
      */
-    void UploadTexture(std::byte** data, UINT subresources,
+    void UploadTexture(std::byte** data,
                        const TextureDescription& description, Allocation<ID3D12Resource> destination);
 
     /**

@@ -6,6 +6,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     REQUIRE(description.width > 0);
     REQUIRE(description.height > 0);
     REQUIRE(description.depth > 0);
+    REQUIRE(description.mipLevels > 0);
 
     REQUIRE(description.depth < D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION);
 
@@ -14,7 +15,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
         description.width,
         description.height,
         static_cast<UINT16>(description.depth),
-        1,
+        static_cast<UINT16>(description.mipLevels),
         1,
         0,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
@@ -24,8 +25,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     NAME_D3D12_OBJECT(texture);
 
-    UINT subresources = description.depth;
-    uploader.UploadTexture(data, subresources, description, texture);
+    uploader.UploadTexture(data, description, texture);
 
     D3D12_SRV_DIMENSION dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     if (description.depth > 1)

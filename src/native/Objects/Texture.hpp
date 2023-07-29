@@ -11,6 +11,7 @@ struct TextureDescription
     UINT width;
     UINT height;
     UINT depth;
+    UINT mipLevels;
 };
 
 /**

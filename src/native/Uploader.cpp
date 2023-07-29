@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 
+#undef max
+
 Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList> optionalCommandList)
     : m_client(client), m_commandList(optionalCommandList), m_ownsCommandList(optionalCommandList == nullptr)
 {
@@ -15,9 +17,11 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
 }
 
 void Uploader::UploadTexture(
-    std::byte** data, UINT subresources,
-    const TextureDescription& description, const Allocation<ID3D12Resource> destination)
+    std::byte** data,
+    const TextureDescription& description,
+    const Allocation<ID3D12Resource> destination)
 {
+    const UINT subresources = description.mipLevels * description.depth;
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
     const Allocation<ID3D12Resource> textureUploadBuffer = util::AllocateBuffer(
@@ -31,11 +35,22 @@ void Uploader::UploadTexture(
     m_uploadBuffers.push_back(textureUploadBuffer);
 
     std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
-    for (UINT subresource = 0; subresource < subresources; subresource++)
+    for (UINT layer = 0; layer < description.depth; layer++)
     {
-        uploadDescription[subresource].pData = data[subresource];
-        uploadDescription[subresource].RowPitch = static_cast<LONG_PTR>(description.width) * 4;
-        uploadDescription[subresource].SlicePitch = uploadDescription[subresource].RowPitch * description.height;
+        UINT width = description.width;
+        UINT height = description.height;
+
+        for (UINT mip = 0; mip < description.mipLevels; mip++)
+        {
+            const UINT subresource = mip + layer * description.mipLevels;
+
+            uploadDescription[subresource].pData = data[subresource];
+            uploadDescription[subresource].RowPitch = static_cast<LONG_PTR>(width) * 4;
+            uploadDescription[subresource].SlicePitch = uploadDescription[subresource].RowPitch * height;
+
+            width = std::max(1u, width / 2);
+            height = std::max(1u, height / 2);
+        }
     }
 
     UpdateSubresources(m_commandList.Get(), destination.Get(), textureUploadBuffer.Get(),
