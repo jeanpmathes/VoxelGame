@@ -36,6 +36,11 @@ public sealed class ArrayTexture
     public int Count { get; private set; }
 
     /// <summary>
+    ///     Get the number of parts that make up this array texture.
+    /// </summary>
+    internal uint PartCount => (uint) parts.Length;
+
+    /// <summary>
     ///     Load a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
     /// <param name="client">The client that will own the texture.</param>
@@ -63,5 +68,15 @@ public sealed class ArrayTexture
         }
 
         return new ArrayTexture(data, count);
+    }
+
+    /// <summary>
+    ///     Get the pointers to the sub-units of the array texture.
+    ///     Note that the pointers each point to an array texture, not every single texture contained in the array.
+    /// </summary>
+    /// <returns>The pointers.</returns>
+    internal IEnumerable<IntPtr> GetTexturePointers()
+    {
+        return parts.Select(p => p.Self);
     }
 }

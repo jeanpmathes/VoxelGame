@@ -14,9 +14,9 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, const UINT size)
     m_cbvDesc.SizeInBytes = m_size;
 }
 
-void ShaderBuffer::CreateResourceView(const ComPtr<ID3D12DescriptorHeap> heap) const
+void ShaderBuffer::CreateResourceView(const DescriptorHeap& heap) const
 {
-    GetClient().GetDevice()->CreateConstantBufferView(&m_cbvDesc, heap->GetCPUDescriptorHandleForHeapStart());
+    GetClient().GetDevice()->CreateConstantBufferView(&m_cbvDesc, heap.GetDescriptorHandleCPU(0));
 }
 
 void ShaderBuffer::SetData(const void* data) const

@@ -26,8 +26,6 @@ public:
 
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
-    [[nodiscard]] UINT GetRtvHeapIncrement() const;
-    [[nodiscard]] UINT GetCbvSrvUavHeapIncrement() const;
 
     void OnInit() override;
     void OnPostInit() override;
@@ -136,12 +134,9 @@ private:
     Allocation<ID3D12Resource> m_intermediateRenderTarget;
     bool m_intermediateRenderTargetInitialized = false;
     CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
-    ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+    DescriptorHeap m_rtvHeap;
 
-    UINT m_rtvDescriptorSize;
-    UINT m_srvDescriptorSize;
-
-    ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
+    DescriptorHeap m_dsvHeap;
     Allocation<ID3D12Resource> m_depthStencilBuffer;
     bool m_depthStencilBufferInitialized = false;
 

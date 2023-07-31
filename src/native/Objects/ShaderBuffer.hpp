@@ -21,7 +21,7 @@ public:
     /**
      * Create a resource view for the buffer.
      */
-    void CreateResourceView(ComPtr<ID3D12DescriptorHeap> heap) const;
+    void CreateResourceView(const DescriptorHeap& heap) const;
 
     /**
      * Set the data of the buffer.

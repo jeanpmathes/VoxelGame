@@ -14,6 +14,8 @@
 #include "Objects/Light.hpp"
 #include "Objects/MeshObject.hpp"
 
+class Texture;
+
 struct GlobalConstantBuffer
 {
     float time;
@@ -41,6 +43,9 @@ struct SpacePipelineDescription
     UINT shaderCount;
     UINT materialCount;
 
+    UINT textureCountFirstSlot;
+    UINT textureCountSecondSlot;
+
     NativeErrorMessageFunc onShaderLoadingError;
 };
 
@@ -50,6 +55,7 @@ public:
     ShaderFileDescription* shaderFiles;
     LPWSTR* symbols;
     MaterialDescription* materials;
+    Texture* textures;
     SpacePipelineDescription description;
 };
 
@@ -123,8 +129,10 @@ private:
 
     void CreateGlobalConstBuffer();
     void UpdateGlobalConstBuffer() const;
-    void CreateShaderResourceHeap();
-    void UpdateShaderResourceHeap() const;
+    void CreateShaderResourceHeaps();
+    void InitializeCommonShaderResourceHeap();
+    void UpdateOutputResourceView();
+    void UpdateAccelerationStructureView() const;
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     void CreateRaytracingOutputBuffer();
 
@@ -159,9 +167,11 @@ private:
     ComPtr<ID3D12StateObject> m_rtStateObject;
     ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
     ComPtr<ID3D12RootSignature> m_rtGlobalRootSignature;
+    
     Allocation<ID3D12Resource> m_outputResource;
+    bool m_outputResourceFresh = false;
 
-    ComPtr<ID3D12DescriptorHeap> m_srvUavHeap;
+    DescriptorHeap m_commonShaderResourceHeap;
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 

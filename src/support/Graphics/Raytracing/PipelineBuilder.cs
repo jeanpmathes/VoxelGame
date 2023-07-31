@@ -16,8 +16,10 @@ namespace VoxelGame.Support.Graphics.Raytracing;
 public class PipelineBuilder
 {
     private readonly List<MaterialConfig> materials = new();
-
     private readonly List<ShaderFile> shaderFiles = new();
+
+    private ArrayTexture? firstTextureSlot;
+    private ArrayTexture? secondTextureSlot;
 
     /// <summary>
     ///     Add a shader file to the pipeline.
@@ -45,13 +47,31 @@ public class PipelineBuilder
     }
 
     /// <summary>
+    ///     Set which textures should be used in the first texture slot.
+    /// </summary>
+    /// <param name="texture">The texture array.</param>
+    public void SetFirstTextureSlot(ArrayTexture texture)
+    {
+        firstTextureSlot = texture;
+    }
+
+    /// <summary>
+    ///     Set which textures should be used in the second texture slot.
+    /// </summary>
+    /// <param name="texture">The texture array.</param>
+    public void SetSecondTextureSlot(ArrayTexture texture)
+    {
+        secondTextureSlot = texture;
+    }
+
+    /// <summary>
     ///     Build the pipeline.
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
     public bool Build(Client client, LoadingContext loadingContext)
     {
-        (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions) = BuildDescriptions();
+        (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, IntPtr[] texturePointers) = BuildDescriptions();
 
         var success = true;
 
@@ -60,10 +80,13 @@ public class PipelineBuilder
             ShaderFiles = files,
             Symbols = symbols,
             Materials = materialDescriptions,
+            TexturePointers = texturePointers,
             Description = new SpacePipelineDescription
             {
                 shaderCount = (uint) files.Length,
                 materialCount = (uint) materialDescriptions.Length,
+                textureCountFirstSlot = firstTextureSlot?.PartCount ?? 0,
+                textureCountSecondSlot = secondTextureSlot?.PartCount ?? 0,
                 onShaderLoadingError = message =>
                 {
                     ReportFailure(loadingContext, message);
@@ -79,7 +102,7 @@ public class PipelineBuilder
         return true;
     }
 
-    private (ShaderFileDescription[], string[], MaterialDescription[]) BuildDescriptions()
+    private (ShaderFileDescription[], string[], MaterialDescription[], IntPtr[]) BuildDescriptions()
     {
         List<string> symbols = new();
         List<ShaderFileDescription> shaderFileDescriptions = new();
@@ -102,7 +125,10 @@ public class PipelineBuilder
             shadowHitSymbol = material.ShadowHitSymbol
         }).ToArray();
 
-        return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions);
+        IEnumerable<IntPtr> firstSlot = firstTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();
+        IEnumerable<IntPtr> secondSlot = secondTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();
+
+        return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
     private static void ReportFailure(LoadingContext loadingContext, string message)

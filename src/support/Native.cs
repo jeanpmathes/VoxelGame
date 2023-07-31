@@ -206,6 +206,8 @@ public static class Native
     /// <param name="pipeline">A description of the raytracing pipeline.</param>
     public static void InitializeRaytracing(Client client, SpacePipeline pipeline)
     {
+        // Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
+
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeInitializeRaytracing(IntPtr native,
             [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
@@ -214,9 +216,11 @@ public static class Native
             string[] symbols,
             [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
             MaterialDescription[] materials,
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStruct)]
+            IntPtr[] textures,
             SpacePipelineDescription description);
 
-        NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.Description);
+        NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
     }
 
     /// <summary>

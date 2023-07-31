@@ -16,6 +16,7 @@ public sealed record SpacePipeline
     internal ShaderFileDescription[] ShaderFiles { get; init; } = null!;
     internal string[] Symbols { get; init; } = null!;
     internal MaterialDescription[] Materials { get; init; } = null!;
+    internal IntPtr[] TexturePointers { get; init; } = null!;
     internal SpacePipelineDescription Description { get; init; }
 }
 
@@ -29,6 +30,9 @@ internal struct SpacePipelineDescription
 {
     internal uint shaderCount;
     internal uint materialCount;
+
+    internal uint textureCountFirstSlot;
+    internal uint textureCountSecondSlot;
 
     internal Native.NativeErrorMessageFunc onShaderLoadingError;
 }

@@ -20,8 +20,6 @@ NativeClient::NativeClient(const Configuration configuration) :
     m_postScissorRect(0, 0, 0, 0),
     m_draw2DViewport(0.0f, 0.0f, 0.0f, 0.0f),
     m_draw2DScissorRect(0, 0, 0, 0),
-    m_rtvDescriptorSize(0),
-    m_srvDescriptorSize(0),
     m_frameIndex(0),
     m_fenceValues{},
     m_windowVisible(true),
@@ -37,16 +35,6 @@ ComPtr<ID3D12Device5> NativeClient::GetDevice() const
 ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const
 {
     return m_allocator;
-}
-
-UINT NativeClient::GetRtvHeapIncrement() const
-{
-    return m_rtvDescriptorSize;
-}
-
-UINT NativeClient::GetCbvSrvUavHeapIncrement() const
-{
-    return m_srvDescriptorSize;
 }
 
 void NativeClient::OnInit()
@@ -200,13 +188,10 @@ void NativeClient::LoadDevice()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     {
-        m_rtvHeap = CreateDescriptorHeap(m_device.Get(), FRAME_COUNT + 1,
-                                         D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+        m_rtvHeap.Create(m_device, FRAME_COUNT + 1,
+                         D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
 
         NAME_D3D12_OBJECT(m_rtvHeap);
-
-        m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        m_srvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 }
 
@@ -238,7 +223,7 @@ void NativeClient::LoadRasterPipeline()
 
 void NativeClient::CreateDepthBuffer()
 {
-    m_dsvHeap = CreateDescriptorHeap(m_device.Get(), 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+    m_dsvHeap.Create(m_device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
     NAME_D3D12_OBJECT(m_dsvHeap);
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
@@ -265,7 +250,7 @@ void NativeClient::CreateDepthBuffer()
     dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
     m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), &dsvDesc,
-                                     m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+                                     m_dsvHeap.GetDescriptorHandleCPU(0));
 }
 
 void NativeClient::EnsureValidDepthBuffer(const ComPtr<ID3D12GraphicsCommandList4> commandList)
@@ -289,13 +274,10 @@ void NativeClient::SetupSizeDependentResources()
     }
 
     {
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
         for (UINT n = 0; n < FRAME_COUNT; n++)
         {
             TRY_DO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
-            m_device->CreateRenderTargetView(m_renderTargets[n].Get(), nullptr, rtvHandle);
-            rtvHandle.Offset(1, m_rtvDescriptorSize);
+            m_device->CreateRenderTargetView(m_renderTargets[n].Get(), nullptr, m_rtvHeap.GetDescriptorHandleCPU(n));
 
             NAME_D3D12_OBJECT_INDEXED(m_renderTargets, n);
         }
@@ -329,10 +311,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
             D3D12_TEXTURE_LAYOUT_UNKNOWN, 0u);
 
-        m_intermediateRenderTargetView = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(),
-                                                                       FRAME_COUNT,
-                                                                       m_rtvDescriptorSize);
-
+        m_intermediateRenderTargetView = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
         m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
             *this,
             renderTargetDesc,
@@ -602,9 +581,9 @@ void NativeClient::PopulatePostProcessingCommandList() const
         m_2dGroup.commandList->RSSetViewports(1, &m_postViewport);
         m_2dGroup.commandList->RSSetScissorRects(1, &m_postScissorRect);
 
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
-                                                      m_rtvDescriptorSize);
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+        const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+        
         m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
@@ -628,9 +607,9 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
         m_2dGroup.commandList->RSSetViewports(1, &m_draw2DViewport);
         m_2dGroup.commandList->RSSetScissorRects(1, &m_draw2DScissorRect);
 
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
-                                                      m_rtvDescriptorSize);
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+        const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+        
         m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);

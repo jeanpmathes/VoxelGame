@@ -95,7 +95,7 @@ internal class D3D12Debug
 
             Debugger.Break();
         }
-        else if (level >= LogLevel.Error)
+        else if (level >= LogLevel.Warning)
         {
             Debugger.Break();
         }

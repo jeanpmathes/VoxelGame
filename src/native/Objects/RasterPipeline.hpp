@@ -46,7 +46,7 @@ public:
     RasterPipeline(
         NativeClient& client, ShaderPreset preset,
         std::unique_ptr<ShaderBuffer> shaderBuffer,
-        ComPtr<ID3D12DescriptorHeap> descriptorHeap,
+        DescriptorHeap descriptorHeap,
         ComPtr<ID3D12RootSignature> rootSignature,
         ComPtr<ID3D12PipelineState> pipelineState);
 
@@ -98,7 +98,7 @@ public:
 
 private:
     ShaderPreset m_preset;
-    ComPtr<ID3D12DescriptorHeap> m_descriptorHeap;
+    DescriptorHeap m_descriptorHeap;
     ComPtr<ID3D12RootSignature> m_rootSignature;
     ComPtr<ID3D12PipelineState> m_pipelineState;
 

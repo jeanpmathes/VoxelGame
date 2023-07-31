@@ -67,6 +67,7 @@
 
 #include "Tools/D3D12MemAlloc.hpp"
 #include "Tools/Allocation.hpp"
+#include "Tools/DescriptorHeap.hpp"
 
 // Custom
 

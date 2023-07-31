@@ -157,6 +157,7 @@ NATIVE void NativeInitializeRaytracing(NativeClient* client,
                                        ShaderFileDescription* shaderFiles,
                                        LPWSTR* symbols,
                                        MaterialDescription* materials,
+                                       Texture* textures,
                                        const SpacePipelineDescription description)
 {
     TRY
@@ -167,6 +168,7 @@ NATIVE void NativeInitializeRaytracing(NativeClient* client,
             shaderFiles,
             symbols,
             materials,
+            textures,
             description
         });
     }

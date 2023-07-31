@@ -22,19 +22,19 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
     m_nativeClient.WaitForGPU();
+
+    m_camera.Initialize();
 }
 
 void Space::PerformResolutionDependentSetup(const Resolution& resolution)
 {
     m_resolution = resolution;
-
     CreateRaytracingOutputBuffer();
-    m_camera.Initialize();
 }
 
 bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 {
-    CreateShaderResourceHeap();
+    CreateShaderResourceHeaps();
     if (!CreateRaytracingPipeline(pipeline)) return false;
 
     CreateGlobalConstBuffer();
@@ -81,7 +81,7 @@ void Space::EnqueueRenderSetup()
     }
 
     CreateTopLevelAS();
-    UpdateShaderResourceHeap();
+    UpdateAccelerationStructureView();
     CreateShaderBindingTable();
 }
 
@@ -164,7 +164,7 @@ void Space::DispatchRays() const
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     m_commandGroup.commandList->ResourceBarrier(1, &barrier);
 
-    const std::vector heaps = {m_srvUavHeap.Get()};
+    const std::vector heaps = {m_commonShaderResourceHeap.Get()};
     m_commandGroup.commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
                                                    heaps.data());
 
@@ -275,41 +275,68 @@ void Space::UpdateGlobalConstBuffer() const
     TRY_DO(util::MapAndWrite(m_globalConstantBuffer, m_globalConstantBufferData));
 }
 
-void Space::CreateShaderResourceHeap()
+static constexpr UINT OUTPUT_DESCRIPTOR_OFFSET = 0;
+static constexpr UINT BVH_DESCRIPTOR_OFFSET = 1;
+static constexpr UINT CAMERA_DATA_DESCRIPTOR_OFFSET = 2;
+
+void Space::CreateShaderResourceHeaps()
 {
-    m_srvUavHeap = CreateDescriptorHeap(
-        GetDevice().Get(),
+    m_commonShaderResourceHeap.Create(
+        GetDevice(),
         3,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
         true);
+    NAME_D3D12_OBJECT(m_commonShaderResourceHeap);
 
-    NAME_D3D12_OBJECT(m_srvUavHeap);
-
-    UpdateShaderResourceHeap();
+    InitializeCommonShaderResourceHeap();
 }
 
-void Space::UpdateShaderResourceHeap() const
+void Space::InitializeCommonShaderResourceHeap()
 {
-    if (m_srvUavHeap == nullptr) return;
+    REQUIRE(m_commonShaderResourceHeap.IsCreated());
 
-    D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_srvUavHeap->GetCPUDescriptorHandleForHeapStart();
+    UpdateOutputResourceView();
+    UpdateAccelerationStructureView();
 
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-    GetDevice()->CreateUnorderedAccessView(m_outputResource.Get(), nullptr, &uavDesc, srvHandle);
+    {
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDescription = {};
+        m_camera.SetBufferViewDescription(&cbvDescription);
+        GetDevice()->CreateConstantBufferView(&cbvDescription,
+                                              m_commonShaderResourceHeap.GetDescriptorHandleCPU(
+                                                  CAMERA_DATA_DESCRIPTOR_OFFSET));
+    }
+}
 
-    srvHandle.ptr += GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->GetGPUVirtualAddress();
-    GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, srvHandle);
+void Space::UpdateOutputResourceView()
+{
+    if (!m_commonShaderResourceHeap.IsCreated()) return;
 
-    srvHandle.ptr += GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-    m_camera.SetBufferViewDescription(&cbvDesc);
-    GetDevice()->CreateConstantBufferView(&cbvDesc, srvHandle);
+    if (!m_outputResourceFresh) return;
+    m_outputResourceFresh = false;
+
+    {
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        GetDevice()->CreateUnorderedAccessView(m_outputResource.Get(), nullptr, &uavDesc,
+                                               m_commonShaderResourceHeap.GetDescriptorHandleCPU(
+                                                   OUTPUT_DESCRIPTOR_OFFSET));
+    }
+}
+
+void Space::UpdateAccelerationStructureView() const
+{
+    REQUIRE(m_commonShaderResourceHeap.IsCreated());
+
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
+        srvDescription.Format = DXGI_FORMAT_UNKNOWN;
+        srvDescription.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+        srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
+            GetGPUVirtualAddress();
+        GetDevice()->CreateShaderResourceView(nullptr, &srvDescription,
+                                              m_commonShaderResourceHeap.GetDescriptorHandleCPU(BVH_DESCRIPTOR_OFFSET));
+    }
 }
 
 bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
@@ -415,8 +442,10 @@ void Space::CreateRaytracingOutputBuffer()
         outputDescription,
         D3D12_HEAP_TYPE_DEFAULT,
         D3D12_RESOURCE_STATE_COPY_SOURCE);
-
     NAME_D3D12_OBJECT(m_outputResource);
+
+    m_outputResourceFresh = true;
+    UpdateOutputResourceView();
 }
 
 ComPtr<ID3D12RootSignature> Space::CreateRayGenSignature() const
@@ -424,9 +453,9 @@ ComPtr<ID3D12RootSignature> Space::CreateRayGenSignature() const
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
     rsc.AddHeapRangesParameter({
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0}, // Output Texture
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1}, // BVH
-        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2} // Camera Data
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, OUTPUT_DESCRIPTOR_OFFSET}, // Output Texture
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET}, // BVH
+        {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, CAMERA_DATA_DESCRIPTOR_OFFSET} // Camera Data
     });
 
     return rsc.Generate(GetDevice().Get(), true);
@@ -445,7 +474,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
 
     rsc.AddHeapRangesParameter({
-        {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1} // BVH
+        {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET} // BVH
     });
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Global Data
@@ -458,18 +487,18 @@ void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
 
-    const auto [srvUavHeapHandlePtr] =
-        m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
+    REQUIRE(m_commonShaderResourceHeap.IsCreated());
+    REQUIRE(!m_outputResourceFresh);
+    const auto [common] = m_commonShaderResourceHeap.GetDescriptorHandleGPU(0);
+    auto commonHeapPointer = reinterpret_cast<UINT64*>(common);
 
-    auto heapPointer = reinterpret_cast<UINT64*>(srvUavHeapHandlePtr);
-
-    m_sbtHelper.AddRayGenerationProgram(L"RayGen", {heapPointer});
+    m_sbtHelper.AddRayGenerationProgram(L"RayGen", {commonHeapPointer});
 
     m_sbtHelper.AddMissProgram(L"Miss", {});
     m_sbtHelper.AddMissProgram(L"ShadowMiss", {});
 
     StandardShaderArguments arguments = {
-        .heap = heapPointer,
+        .heap = commonHeapPointer,
         .globalBuffer = reinterpret_cast<void*>(m_globalConstantBuffer.resource->GetGPUVirtualAddress()),
         .instanceBuffer = nullptr // Will be set per instance.
     };
