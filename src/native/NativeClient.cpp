@@ -305,7 +305,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
             swapChainDesc.Format,
             m_resolution.width,
             m_resolution.height,
-            1u, 1u,
+            1, 1,
             swapChainDesc.SampleDesc.Count,
             swapChainDesc.SampleDesc.Quality,
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,

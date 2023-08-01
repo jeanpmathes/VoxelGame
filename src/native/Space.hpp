@@ -22,6 +22,7 @@ struct GlobalConstantBuffer
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
     int maxArrayTextureSize;
+    DirectX::XMUINT2 textureSize;
 };
 
 struct MaterialDescription
@@ -55,7 +56,7 @@ public:
     ShaderFileDescription* shaderFiles;
     LPWSTR* symbols;
     MaterialDescription* materials;
-    Texture* textures;
+    Texture** textures;
     SpacePipelineDescription description;
 };
 
@@ -129,8 +130,8 @@ private:
 
     void CreateGlobalConstBuffer();
     void UpdateGlobalConstBuffer() const;
-    void CreateShaderResourceHeaps();
-    void InitializeCommonShaderResourceHeap();
+    void CreateShaderResourceHeap(const SpacePipeline& pipeline);
+    void InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline);
     void UpdateOutputResourceView();
     void UpdateAccelerationStructureView() const;
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
@@ -171,7 +172,18 @@ private:
     Allocation<ID3D12Resource> m_outputResource;
     bool m_outputResourceFresh = false;
 
+    struct TextureSlot
+    {
+        UINT size;
+        UINT offset;
+    };
+
     DescriptorHeap m_commonShaderResourceHeap;
+    Allocation<ID3D12Resource> m_sentinelTexture;
+    D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
+    TextureSlot m_firstTextureSlot = {0, 0};
+    TextureSlot m_secondTextureSlot = {0, 0};
+    std::optional<DirectX::XMUINT2> m_textureSize = {};
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 

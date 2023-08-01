@@ -216,7 +216,7 @@ public static class Native
             string[] symbols,
             [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
             MaterialDescription[] materials,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStruct)]
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
             IntPtr[] textures,
             SpacePipelineDescription description);
 

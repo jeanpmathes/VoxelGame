@@ -28,8 +28,11 @@ public:
      */
     static Texture* Create(Uploader& uploader, std::byte** data, TextureDescription description);
 
-    explicit Texture(NativeClient& client, Allocation<ID3D12Resource> resource,
-                     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
+    Texture(
+        NativeClient& client,
+        Allocation<ID3D12Resource> resource,
+        DirectX::XMUINT2 size,
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 
     /**
      * Free this texture. This will detach the texture from the client, causing it to be destroyed.
@@ -44,7 +47,12 @@ public:
     /**
      * Get the shader resource view description.
      */
-    [[nodiscard]] D3D12_SHADER_RESOURCE_VIEW_DESC GetView() const;
+    [[nodiscard]] const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
+
+    /**
+     * Get the size of the texture.
+     */
+    [[nodiscard]] DirectX::XMUINT2 GetSize() const;
 
     /**
      * Create a transition to the usable state (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) for fresh textures.
@@ -58,6 +66,7 @@ public:
 private:
     Allocation<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
+    DirectX::XMUINT2 m_size;
 
     bool m_usable;
     NativeClient::ObjectHandle m_handle{};

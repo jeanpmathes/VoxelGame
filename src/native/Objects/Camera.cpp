@@ -11,18 +11,7 @@ void Camera::Initialize()
     m_spaceCameraBuffer = util::AllocateBuffer(GetClient(), m_spaceCameraBufferSize,
                                                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                                                D3D12_HEAP_TYPE_UPLOAD);
-    m_spaceCameraHeap.Create(GetClient().GetDevice(), 1,
-                             D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true); // todo: check if removing the heap is ok
-
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
-    NAME_D3D12_OBJECT(m_spaceCameraHeap);
-
-    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-    cbvDesc.BufferLocation = m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
-    cbvDesc.SizeInBytes = m_spaceCameraBufferSize;
-
-    const D3D12_CPU_DESCRIPTOR_HANDLE srvHandle = m_spaceCameraHeap.GetDescriptorHandleCPU(0);
-    GetClient().GetDevice()->CreateConstantBufferView(&cbvDesc, srvHandle);
 }
 
 void Camera::Update() const

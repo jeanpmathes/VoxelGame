@@ -10,7 +10,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     REQUIRE(description.depth < D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION);
 
-    const D3D12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_B8G8R8A8_UNORM,
         description.width,
         description.height,
@@ -21,7 +21,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
     Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
-        textureDesc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
+        textureDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
 
     NAME_D3D12_OBJECT(texture);
 
@@ -35,11 +35,20 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = textureDesc.Format;
+    srvDesc.Format = textureDescription.Format;
     srvDesc.ViewDimension = dimension;
-    srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+    if (dimension == D3D12_SRV_DIMENSION_TEXTURE2DARRAY)
+    {
+        srvDesc.Texture2DArray.ArraySize = textureDescription.DepthOrArraySize;
+        srvDesc.Texture2DArray.MipLevels = textureDescription.MipLevels;
+    }
+    else
+    {
+        srvDesc.Texture2D.MipLevels = textureDescription.MipLevels;
+    }
 
-    auto result = std::make_unique<Texture>(uploader.GetClient(), texture, srvDesc);
+    auto result = std::make_unique<Texture>(uploader.GetClient(), texture,
+                                            DirectX::XMUINT2{description.width, description.height}, srvDesc);
     auto ptr = result.get();
 
     // With an individual upload, the texture will be in safe (non-fresh) state and can be used without transition.
@@ -49,9 +58,12 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     return ptr;
 }
 
-Texture::Texture(NativeClient& client, const Allocation<ID3D12Resource> resource,
-                 D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
-    : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_usable(true)
+Texture::Texture(
+    NativeClient& client,
+    const Allocation<ID3D12Resource> resource,
+    DirectX::XMUINT2 size,
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
+    : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_size(size), m_usable(true)
 {
     NAME_D3D12_OBJECT_WITH_ID(m_resource);
 }
@@ -66,9 +78,14 @@ Allocation<ID3D12Resource> Texture::GetResource() const
     return m_resource;
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC Texture::GetView() const
+const D3D12_SHADER_RESOURCE_VIEW_DESC& Texture::GetView() const
 {
     return m_srvDesc;
+}
+
+DirectX::XMUINT2 Texture::GetSize() const
+{
+    return m_size;
 }
 
 void Texture::TransitionToUsable(const ComPtr<ID3D12GraphicsCommandList> commandList)

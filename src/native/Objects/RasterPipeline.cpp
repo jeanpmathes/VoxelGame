@@ -99,7 +99,7 @@ static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device
     sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.MipLODBias = 0;
-    sampler.MaxAnisotropy = 0;
+    sampler.MaxAnisotropy = 1;
     sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
     sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
     sampler.MinLOD = 0.0f;
@@ -164,7 +164,7 @@ static Preset GetPostProcessingPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5
     sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.MipLODBias = 0;
-    sampler.MaxAnisotropy = 0;
+    sampler.MaxAnisotropy = 1;
     sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
     sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
     sampler.MinLOD = 0.0f;
@@ -340,7 +340,7 @@ void RasterPipeline::CreateResourceView(const Allocation<ID3D12Resource> resourc
 
 void RasterPipeline::CreateResourceViews(
     const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-    const std::vector<std::tuple<Allocation<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>>& textures)
+    const std::vector<std::tuple<Allocation<ID3D12Resource>, const D3D12_SHADER_RESOURCE_VIEW_DESC*>>& textures)
 {
     REQUIRE(m_preset == ShaderPreset::DRAW_2D);
 
@@ -370,7 +370,7 @@ void RasterPipeline::CreateResourceViews(
     for (size_t index = 0; index < textures.size(); index++)
     {
         const auto& [resource, desc] = textures[index];
-        GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), &desc, GetCpuResourceHandle(slot));
+        GetClient().GetDevice()->CreateShaderResourceView(resource.Get(), desc, GetCpuResourceHandle(slot));
         slot++;
     }
 }

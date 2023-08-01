@@ -94,7 +94,7 @@ namespace nv_helpers_dx12
                                                   UINT registerSpace /*= 0*/,
                                                   UINT numRootConstants /*= 1*/)
     {
-        D3D12_ROOT_PARAMETER param = {};
+        D3D12_ROOT_PARAMETER param;
         param.ParameterType = type;
         // The descriptor is an union, so specific values need to be set in case the parameter is a
         // constant instead of a buffer.
@@ -110,7 +110,7 @@ namespace nv_helpers_dx12
             param.Descriptor.ShaderRegister = shaderRegister;
         }
 
-        // We default the visibility to all shaders
+        // We default the visibility to all shaders.
         param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
         // Add the root parameter to the set of parameters,
@@ -123,7 +123,7 @@ namespace nv_helpers_dx12
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(ID3D12Device* device, bool isLocal)
     {
         // Go through all the parameters, and set the actual addresses of the heap range descriptors based
-        // on their indices in the range set array
+        // on their indices in the range set array.
         for (size_t i = 0; i < m_parameters.size(); i++)
         {
             if (m_parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
@@ -131,16 +131,19 @@ namespace nv_helpers_dx12
                 m_parameters[i].DescriptorTable.pDescriptorRanges = m_ranges[m_rangeLocations[i]].data();
             }
         }
-        // Specify the root signature with its set of parameters
-        D3D12_ROOT_SIGNATURE_DESC rootDesc = {};
+        // Specify the root signature with its set of parameters and static samplers.
+        D3D12_ROOT_SIGNATURE_DESC rootDesc;
         rootDesc.NumParameters = static_cast<UINT>(m_parameters.size());
         rootDesc.pParameters = m_parameters.data();
+        rootDesc.NumStaticSamplers = static_cast<UINT>(m_staticSamplers.size());
+        rootDesc.pStaticSamplers = m_staticSamplers.data();
+        
         // Set the flags of the signature. By default root signatures are global, for example for vertex
         // and pixel shaders. For raytracing shaders the root signatures are local.
         rootDesc.Flags =
             isLocal ? D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE : D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
-        // Create the root signature from its descriptor
+        // Create the root signature from its descriptor.
         Microsoft::WRL::ComPtr<ID3DBlob> pSigBlob;
         Microsoft::WRL::ComPtr<ID3DBlob> pErrorBlob;
         HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSigBlob,

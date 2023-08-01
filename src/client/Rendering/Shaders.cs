@@ -10,6 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Graphics.Objects;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Graphics.Utility;
@@ -119,15 +120,16 @@ public sealed class Shaders // todo: delete all GLSL shaders
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
     /// <param name="client">The client to use.</param>
+    /// <param name="textureSlots">The textures for the two texture slots.</param>
     /// <param name="loadingContext">The loader to use.</param>
     /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(DirectoryInfo directory, Support.Client client, LoadingContext loadingContext)
+    internal static Shaders Load(DirectoryInfo directory, Support.Client client, (ArrayTexture, ArrayTexture) textureSlots, LoadingContext loadingContext)
     {
         Shaders shaders = new(directory, loadingContext);
 
         using (loadingContext.BeginStep(Events.ShaderSetup, "Shader Setup"))
         {
-            shaders.LoadAll(client);
+            shaders.LoadAll(client, textureSlots);
         }
 
         return shaders;
@@ -156,12 +158,12 @@ public sealed class Shaders // todo: delete all GLSL shaders
         loaded = false;
     }
 
-    private void LoadAll(Support.Client client)
+    private void LoadAll(Support.Client client, (ArrayTexture, ArrayTexture) textureSlots)
     {
         loaded = true;
 
         LoadRasterPipelines(client);
-        LoadRaytracingPipeline(client);
+        LoadRaytracingPipeline(client, textureSlots);
 
         if (!loaded) return;
 
@@ -232,7 +234,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
     }
 
-    private void LoadRaytracingPipeline(Support.Client client)
+    private void LoadRaytracingPipeline(Support.Client client, (ArrayTexture, ArrayTexture) textureSlots)
     {
         PipelineBuilder builder = new();
 
@@ -245,6 +247,9 @@ public sealed class Shaders // todo: delete all GLSL shaders
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowClosestHit, "ShadowMiss"});
 
         SimpleSectionMaterial = builder.AddMaterial(nameof(SimpleSectionMaterial), simpleSectionClosestHit, defaultShadowClosestHit);
+
+        builder.SetFirstTextureSlot(textureSlots.Item1);
+        builder.SetSecondTextureSlot(textureSlots.Item2);
 
         loaded &= builder.Build(client, loadingContext);
     }

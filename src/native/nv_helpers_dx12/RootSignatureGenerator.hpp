@@ -72,8 +72,8 @@ namespace nv_helpers_dx12
         /// register of a UAV with BaseShaderRegister==0 is defined in the HLSL code
         /// as register(u0)
         /// - UINT NumDescriptors: number of descriptors in the range. Those will be
-        /// mapped to BaseShaderRegister, BaseShaderRegister+1 etc. UINT
-        /// RegisterSpace: Allows using the same register numbers multiple times by
+        /// mapped to BaseShaderRegister, BaseShaderRegister+1 etc.
+        /// - UINT RegisterSpace: Allows using the same register numbers multiple times by
         /// specifying a space where they are defined, similarly to a namespace. For
         /// example, a UAV with BaseShaderRegister==0 and RegisterSpace==1 is accessed
         /// in HLSL using the syntax register(u0, space1)
@@ -101,19 +101,20 @@ namespace nv_helpers_dx12
         /// will be bound.
         void AddRootParameter(D3D12_ROOT_PARAMETER_TYPE type, UINT shaderRegister = 0,
                               UINT registerSpace = 0, UINT numRootConstants = 1);
-
+        
         /// Create the root signature from the set of parameters, in the order of the addition calls
         Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(ID3D12Device* device, bool isLocal);
 
     private:
         /// Heap range descriptors
-        std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges;
+        std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges = {};
         /// Root parameter descriptors
-        std::vector<D3D12_ROOT_PARAMETER> m_parameters;
-
+        std::vector<D3D12_ROOT_PARAMETER> m_parameters = {};
         /// For each entry of m_parameter, indicate the index of the range array in m_ranges, and ~0u if
         /// the parameter is not a heap range descriptor
-        std::vector<UINT> m_rangeLocations;
+        std::vector<UINT> m_rangeLocations = {};
+        /// Static samplers
+        std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers = {};
 
         enum
         {

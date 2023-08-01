@@ -32,22 +32,26 @@ public sealed class TextureBundle : ITextureIndexProvider
     private const string MissingTextureName = "missing_texture";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
-    private readonly ArrayTexture array;
-
-    private readonly Dictionary<string, int> textureIndices;
 
     private LoadingContext? loadingContext;
 
     private TextureBundle(ArrayTexture array, Dictionary<string, int> textureIndices)
     {
-        this.array = array;
-        this.textureIndices = textureIndices;
+        Array = array;
+        TextureIndices = textureIndices;
     }
+
+    /// <summary>
+    ///     The array that stores all textures.
+    /// </summary>
+    public ArrayTexture Array { get; }
+
+    private Dictionary<string, int> TextureIndices { get; }
 
     /// <summary>
     ///     Get the number of textures in the bundle.
     /// </summary>
-    public int Count => array.Count;
+    public int Count => Array.Count;
 
     /// <inheritdoc />
     public int GetTextureIndex(string name)
@@ -61,7 +65,7 @@ public sealed class TextureBundle : ITextureIndexProvider
             return 0;
         }
 
-        if (textureIndices.TryGetValue(name, out int value)) return value;
+        if (TextureIndices.TryGetValue(name, out int value)) return value;
 
         loadingContext.ReportWarning(Events.MissingResource, "TextureIndex", name, "Texture not found");
 
@@ -88,7 +92,7 @@ public sealed class TextureBundle : ITextureIndexProvider
         }
         catch (DirectoryNotFoundException)
         {
-            texturePaths = Array.Empty<FileInfo>();
+            texturePaths = System.Array.Empty<FileInfo>();
 
             loadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
         }

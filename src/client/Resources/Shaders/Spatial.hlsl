@@ -19,6 +19,7 @@ float gTime;
 float3 gLightDir;
 float gMinLight;
 int gMaxArrayTextureSize;
+uint2 gTextureSize;
 }
 
 cbuffer InstanceCB : register(b1) {
@@ -26,7 +27,16 @@ float4x4 iWorld;
 float4x4 iWorldNormal;
 }
 
+Texture2DArray gTextureSlotOne[] : register(t0, space1);
+Texture2DArray gTextureSlotTwo[] : register(t0, space2);
+
 RaytracingAccelerationStructure spaceBVH : register(t1);
+
+void SplitTextureIndex(const uint combinedIndex, out uint arrayIndex, out uint subArrayIndex)
+{
+    arrayIndex = combinedIndex / gMaxArrayTextureSize;
+    subArrayIndex = combinedIndex % gMaxArrayTextureSize;
+}
 
 /**
  * Read the mesh data.

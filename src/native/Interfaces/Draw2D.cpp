@@ -56,7 +56,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             for (UINT i = 0; i < textureCount; i++)
             {
                 Texture& texture = *textures[i];
-                ctx->m_textures.push_back(std::make_tuple(texture.GetResource(), texture.GetView()));
+                ctx->m_textures.push_back(std::make_tuple(texture.GetResource(), &texture.GetView()));
 
                 texture.TransitionToUsable(ctx->m_currentCommandList);
             }

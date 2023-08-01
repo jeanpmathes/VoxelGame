@@ -64,7 +64,7 @@ namespace draw2d
 
         std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
         std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC> m_constantBufferViews = {};
-        std::vector<std::tuple<Allocation<ID3D12Resource>, D3D12_SHADER_RESOURCE_VIEW_DESC>> m_textures = {};
+        std::vector<std::tuple<Allocation<ID3D12Resource>, const D3D12_SHADER_RESOURCE_VIEW_DESC*>> m_textures = {};
 
         Allocation<ID3D12Resource> m_vertexBuffer = {};
         Allocation<ID3D12Resource> m_uploadBuffer = {};

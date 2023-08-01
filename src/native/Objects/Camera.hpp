@@ -55,6 +55,5 @@ private:
     float m_far = 0.0f;
 
     Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
-    DescriptorHeap m_spaceCameraHeap = {};
     uint32_t m_spaceCameraBufferSize = 0;
 };

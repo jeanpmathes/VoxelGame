@@ -1,5 +1,8 @@
 ﻿#include "stdafx.h"
 
+#undef min
+#undef max
+
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
     m_camera(nativeClient),
@@ -24,6 +27,21 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     m_nativeClient.WaitForGPU();
 
     m_camera.Initialize();
+
+    const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
+        DXGI_FORMAT_B8G8R8A8_UNORM, 1, 1,
+        1, 1,
+        1, 0,
+        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    m_sentinelTexture = util::AllocateResource<ID3D12Resource>(
+        m_nativeClient, textureDescription,
+        D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+    m_sentinelTextureViewDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    m_sentinelTextureViewDescription.Format = textureDescription.Format;
+    m_sentinelTextureViewDescription.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    m_sentinelTextureViewDescription.Texture2DArray.ArraySize = textureDescription.DepthOrArraySize;
+    m_sentinelTextureViewDescription.Texture2DArray.MipLevels = textureDescription.MipLevels;
 }
 
 void Space::PerformResolutionDependentSetup(const Resolution& resolution)
@@ -34,7 +52,7 @@ void Space::PerformResolutionDependentSetup(const Resolution& resolution)
 
 bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 {
-    CreateShaderResourceHeaps();
+    CreateShaderResourceHeap(pipeline);
     if (!CreateRaytracingPipeline(pipeline)) return false;
 
     CreateGlobalConstBuffer();
@@ -256,13 +274,16 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 
 void Space::CreateGlobalConstBuffer()
 {
+    REQUIRE(m_textureSize.has_value());
+    
     m_globalConstantBufferData = {
         .time = 0.0f,
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
-        .maxArrayTextureSize = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION
+        .maxArrayTextureSize = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION,
+        .textureSize = m_textureSize.value()
     };
-    
+
     m_globalConstantBufferSize = sizeof m_globalConstantBufferData;
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
@@ -278,20 +299,25 @@ void Space::UpdateGlobalConstBuffer() const
 static constexpr UINT OUTPUT_DESCRIPTOR_OFFSET = 0;
 static constexpr UINT BVH_DESCRIPTOR_OFFSET = 1;
 static constexpr UINT CAMERA_DATA_DESCRIPTOR_OFFSET = 2;
+static constexpr UINT TEXTURE_BASE_DESCRIPTOR_OFFSET = 3; // Has to be last as many textures are bound here.
 
-void Space::CreateShaderResourceHeaps()
+void Space::CreateShaderResourceHeap(const SpacePipeline& pipeline)
 {
+    m_firstTextureSlot.size = std::max(pipeline.description.textureCountFirstSlot, 1u);
+    m_secondTextureSlot.size = std::max(pipeline.description.textureCountSecondSlot, 1u);
+    const UINT descriptorCount = 3 + m_firstTextureSlot.size + m_secondTextureSlot.size;
+
     m_commonShaderResourceHeap.Create(
         GetDevice(),
-        3,
+        descriptorCount,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
         true);
     NAME_D3D12_OBJECT(m_commonShaderResourceHeap);
 
-    InitializeCommonShaderResourceHeap();
+    InitializeCommonShaderResourceHeap(pipeline);
 }
 
-void Space::InitializeCommonShaderResourceHeap()
+void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
 {
     REQUIRE(m_commonShaderResourceHeap.IsCreated());
 
@@ -304,6 +330,57 @@ void Space::InitializeCommonShaderResourceHeap()
         GetDevice()->CreateConstantBufferView(&cbvDescription,
                                               m_commonShaderResourceHeap.GetDescriptorHandleCPU(
                                                   CAMERA_DATA_DESCRIPTOR_OFFSET));
+    }
+
+    {
+        auto getTexturesCountInSlot = [&](UINT count) -> std::optional<UINT>
+        {
+            if (count == 0) return std::nullopt;
+            return count;
+        };
+        auto fillSlots = [&](const UINT base, const std::optional<UINT> count, UINT* offset)
+        {
+            if (count.has_value())
+            {
+                m_textureSize = m_textureSize.value_or(pipeline.textures[base]->GetSize());
+
+                for (UINT index = base; index < count.value(); index++)
+                {
+                    const Texture* texture = pipeline.textures[index];
+                    REQUIRE(texture != nullptr);
+                    REQUIRE(texture->GetSize().x == m_textureSize.value().x);
+                    REQUIRE(texture->GetSize().y == m_textureSize.value().y);
+
+                    GetDevice()->CreateShaderResourceView(
+                        texture->GetResource().Get(),
+                        &texture->GetView(),
+                        m_commonShaderResourceHeap.GetDescriptorHandleCPU((*offset)++));
+                }
+            }
+            else
+            {
+                GetDevice()->CreateShaderResourceView(
+                    m_sentinelTexture.Get(),
+                    &m_sentinelTextureViewDescription,
+                    m_commonShaderResourceHeap.GetDescriptorHandleCPU((*offset)++));
+            }
+        };
+
+
+        UINT offset = TEXTURE_BASE_DESCRIPTOR_OFFSET;
+        const UINT firstSlotArraySize = pipeline.description.textureCountFirstSlot;
+        const UINT secondSlotArraySize = pipeline.description.textureCountSecondSlot;
+
+        m_firstTextureSlot.offset = offset;
+        fillSlots(0, getTexturesCountInSlot(firstSlotArraySize), &offset);
+
+        m_secondTextureSlot.offset = offset;
+        fillSlots(firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize), &offset);
+
+        std::cout << "First slot: " << m_firstTextureSlot.size << " textures, offset " << m_firstTextureSlot.offset <<
+            std::endl;
+        std::cout << "Second slot: " << m_secondTextureSlot.size << " textures, offset " << m_secondTextureSlot.offset
+            << std::endl;
     }
 }
 
@@ -334,6 +411,7 @@ void Space::UpdateAccelerationStructureView() const
         srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
             GetGPUVirtualAddress();
+
         GetDevice()->CreateShaderResourceView(nullptr, &srvDescription,
                                               m_commonShaderResourceHeap.GetDescriptorHandleCPU(BVH_DESCRIPTOR_OFFSET));
     }
@@ -474,7 +552,9 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
 
     rsc.AddHeapRangesParameter({
-        {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET} // BVH
+        {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET}, // BVH
+        {0, m_firstTextureSlot.size + 1, 1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_firstTextureSlot.offset},
+        {0, m_secondTextureSlot.size + 1, 2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_secondTextureSlot.offset}
     });
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Global Data
