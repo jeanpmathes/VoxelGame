@@ -22,7 +22,7 @@ struct Attributes
 float3 GetBarycentrics(in Attributes attributes)
 {
     return float3(
-        1.f - attributes.barycentrics.x - attributes.barycentrics.y,
+        1.0 - attributes.barycentrics.x - attributes.barycentrics.y,
         attributes.barycentrics.x,
         attributes.barycentrics.y);
 }
@@ -35,5 +35,5 @@ float3 HUEtoRGB(const in float h)
     return saturate(float3(r, g, b));
 }
 
-#define VG_RAY_DISTANCE 100000.0f
-#define VG_RAY_EPSILON 0.01f
+#define VG_RAY_DISTANCE 100000.0
+#define VG_RAY_EPSILON 0.005

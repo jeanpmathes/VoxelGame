@@ -71,7 +71,7 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;
 
-    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.f)).xyz * -1.0;
+    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.0)).xyz * -1.0;
     normal = normalize(normal);
 
     data = uint4(
@@ -184,9 +184,9 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
 
     TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
 
-    const float visibility = shadowPayload.isHit ? 0.0f : 1.0f;
+    const float visibility = shadowPayload.isHit ? 0.0 : 1.0;
 
-    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0f);
+    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0);
     color *= lightIntensity;
 
     return color;

@@ -23,7 +23,7 @@ void RayGen()
 
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dimensions = float2(DispatchRaysDimensions().xy);
-    float2 d = (((launchIndex.xy + 0.5f) / dimensions.xy) * 2.f - 1.f);
+    float2 d = (((launchIndex.xy + 0.5) / dimensions.xy) * 2.0 - 1.0);
     float4 target = mul(projectionI, float4(d.x, d.y, 1, 1));
 
     RayDesc ray;
@@ -34,5 +34,5 @@ void RayGen()
 
     TraceRay(gSpaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 0, 0, 0, ray, payload);
 
-    gColorOutput[launchIndex] = float4(payload.colorAndDistance.rgb, 1.f);
+    gColorOutput[launchIndex] = float4(payload.colorAndDistance.rgb, 1.0);
 }

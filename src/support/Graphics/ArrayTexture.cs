@@ -58,6 +58,8 @@ public sealed class ArrayTexture
 
         int step = Texture.MaxArrayTextureDepth * mips;
 
+        foreach (Bitmap texture in textures) texture.RotateFlip(RotateFlipType.Rotate180FlipX);
+
         while (added < textures.Length)
         {
             int next = Math.Min(added + step, textures.Length);

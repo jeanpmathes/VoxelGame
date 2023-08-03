@@ -135,13 +135,15 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
             while (currentFace != null)
             {
-                if (side is BlockSide.Left or BlockSide.Right)
+                if (side is not BlockSide.Left and not BlockSide.Right)
                     currentFace.isRotated = !currentFace.isRotated;
 
                 Meshing.SetTextureRepetition(ref currentFace.data,
                     currentFace.isRotated,
                     currentFace.height,
                     currentFace.length);
+
+                Meshing.SetFlag(ref currentFace.data, Meshing.QuadFlag.IsTextureRotated, currentFace.isRotated);
 
                 (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
 
@@ -175,7 +177,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
             BlockSide.Right => (v11, v10, v00, v01),
             BlockSide.Bottom => (v01, v11, v10, v00),
             BlockSide.Top => (v11, v01, v00, v10),
-            BlockSide.All or _ => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
     }
 

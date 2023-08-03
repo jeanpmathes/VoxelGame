@@ -56,7 +56,7 @@ public class MeshFaceHolder
             BlockSide.Right => (0, 0, 1),
             BlockSide.Bottom => (0, 0, 1),
             BlockSide.Top => (0, 0, 1),
-            BlockSide.All or _ => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
     }
 
@@ -70,7 +70,7 @@ public class MeshFaceHolder
             BlockSide.Right => (0, -1, 0),
             BlockSide.Bottom => (-1, 0, 0),
             BlockSide.Top => (-1, 0, 0),
-            BlockSide.All or _ => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
     }
 
@@ -84,7 +84,7 @@ public class MeshFaceHolder
             BlockSide.Right => (1, 1, 0),
             BlockSide.Bottom => (1, 0, 0),
             BlockSide.Top => (1, 1, 0),
-            BlockSide.All or _ => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
     }
 
@@ -141,7 +141,7 @@ public class MeshFaceHolder
             BlockSide.Right => new Vector3i(layer, row, position),
             BlockSide.Bottom => new Vector3i(row, layer, position),
             BlockSide.Top => new Vector3i(row, layer, position),
-            BlockSide.All or _ => throw new InvalidOperationException()
+            _ => throw new InvalidOperationException()
         };
     }
 }
