@@ -14,13 +14,15 @@ void SimpleSectionClosestHit(inout HitInfo payload, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
 
-    float2 repetition = decode::GetTextureRepetition(info.data);
-    if (decode::GetTextureRotationFlag(info.data)) repetition = repetition.yx;
-    const float2 uv = info.uv * repetition;
+    float2 uv = info.uv;
+    if (decode::GetTextureRotationFlag(info.data)) uv = RotateUV(uv);
+    uv *= decode::GetTextureRepetition(info.data);
 
-    const uint textureIndex = decode::GetTextureIndex(info.data);
+    uint textureIndex = decode::GetTextureIndex(info.data);
     const float4 tint = decode::GetTintColor(info.data);
-    bool animated = decode::GetAnimationFlag(info.data);
+
+    const bool animated = decode::GetAnimationFlag(info.data);
+    if (animated) textureIndex = GetAnimatedBlockTextureIndex(textureIndex);
 
     const float2 ts = float2(gTextureSize.x, gTextureSize.y) * frac(uv);
     uint2 texel = uint2(ts.x, ts.y);

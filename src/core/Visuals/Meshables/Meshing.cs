@@ -112,6 +112,6 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetFlag(ref (uint a, uint b, uint c, uint d) data, QuadFlag flag, bool value)
     {
-        data.d |= value.ToUInt() << (int) flag;
+        data.b |= value.ToUInt() << (int) flag;
     }
 }

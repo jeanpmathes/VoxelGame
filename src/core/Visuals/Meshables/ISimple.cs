@@ -74,6 +74,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
 
         Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsActuallyAnimated);
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
 
         context.GetSimpleBlockMeshFaceHolder(side).AddFace(
             position,

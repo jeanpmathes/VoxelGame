@@ -159,6 +159,32 @@ Info GetCurrentInfo(const in Attributes attributes)
     return info;
 }
 
+float2 RotateUV(float2 uv)
+{
+    float2 rotatedUV;
+
+    rotatedUV.x = uv.y;
+    rotatedUV.y = abs(uv.x - 1.0);
+
+    return rotatedUV;
+}
+
+uint GetAnimatedIndex(const uint index, const uint frameCount, const float quadFactor)
+{
+    const uint quadID = PrimitiveIndex() / 2;
+    return index + uint(fmod(gTime * frameCount + quadID * quadFactor, frameCount));
+}
+
+uint GetAnimatedBlockTextureIndex(const uint index)
+{
+    return GetAnimatedIndex(index, 8, 0.125);
+}
+
+uint GetAnimatedFluidTextureIndex(const uint index)
+{
+    return GetAnimatedIndex(index, 16, 0.00);
+}
+
 float3 CalculateShading(const float3 normal, const float3 baseColor)
 {
     const float3 worldOrigin = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();

@@ -375,11 +375,6 @@ void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
 
         m_secondTextureSlot.offset = offset;
         fillSlots(firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize), &offset);
-
-        std::cout << "First slot: " << m_firstTextureSlot.size << " textures, offset " << m_firstTextureSlot.offset <<
-            std::endl;
-        std::cout << "Second slot: " << m_secondTextureSlot.size << " textures, offset " << m_secondTextureSlot.offset
-            << std::endl;
     }
 }
 

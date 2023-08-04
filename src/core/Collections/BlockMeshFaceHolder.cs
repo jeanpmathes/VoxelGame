@@ -143,8 +143,6 @@ public class BlockMeshFaceHolder : MeshFaceHolder
                     currentFace.height,
                     currentFace.length);
 
-                Meshing.SetFlag(ref currentFace.data, Meshing.QuadFlag.IsTextureRotated, currentFace.isRotated);
-
                 (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
 
                 Meshing.PushQuad(vertices, positions, currentFace.data);
