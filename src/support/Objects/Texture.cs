@@ -17,11 +17,6 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class Texture : NativeObject
 {
-    /// <summary>
-    /// The maximum depth of an array texture.
-    /// </summary>
-    public static readonly int MaxArrayTextureDepth = Native.SystemInformation.MaxTextureArrayAxisDimension;
-
     private readonly Vector2i size;
 
     /// <summary>

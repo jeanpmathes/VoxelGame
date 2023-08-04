@@ -21,7 +21,7 @@ void Uploader::UploadTexture(
     const TextureDescription& description,
     const Allocation<ID3D12Resource> destination)
 {
-    const UINT subresources = description.mipLevels * description.depth;
+    const UINT subresources = description.mipLevels;
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
     const Allocation<ID3D12Resource> textureUploadBuffer = util::AllocateBuffer(
@@ -35,7 +35,7 @@ void Uploader::UploadTexture(
     m_uploadBuffers.push_back(textureUploadBuffer);
 
     std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
-    for (UINT layer = 0; layer < description.depth; layer++)
+    for (UINT layer = 0; layer < 1; layer++) // Loop over array layers.
     {
         UINT width = description.width;
         UINT height = description.height;

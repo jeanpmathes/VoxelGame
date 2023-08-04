@@ -1,29 +1,25 @@
-﻿// <copyright file="ArrayTexture.cs" company="VoxelGame">
+﻿// <copyright file="TextureArray.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics;
 using System.Drawing;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support.Graphics;
 
 /// <summary>
-///     Represents an array texture of arbitrary size.
-///     To achieve this, the texture is split into multiple textures.
+///     Represents an array of textures, where all textures are the same size.
 /// </summary>
-public sealed class ArrayTexture
+public sealed class TextureArray
 {
     // todo: ensure that no texture units are mentioned in the wiki
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ArrayTexture>();
-
     private readonly Texture[] parts;
 
-    private ArrayTexture(Texture[] parts, int count)
+    private TextureArray(Texture[] parts, int count)
     {
         this.parts = parts;
 
@@ -44,32 +40,32 @@ public sealed class ArrayTexture
     ///     Load a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
     /// <param name="client">The client that will own the texture.</param>
-    /// <param name="textures">The textures to load. Mip-levels are grouped together.</param>
+    /// <param name="bitmaps">The textures to load. Mip-levels are grouped together.</param>
     /// <param name="count">The number of textures in the array, excluding mip-levels.</param>
     /// <param name="mips">The number of mip-levels that are included per base texture.</param>
-    public static ArrayTexture Load(Client client, Span<Bitmap> textures, int count, int mips)
+    public static TextureArray Load(Client client, Span<Bitmap> bitmaps, int count, int mips)
     {
-        int requiredParts = count / Texture.MaxArrayTextureDepth + 1;
+        Debug.Assert(bitmaps.Length > 0);
+        Debug.Assert(bitmaps.Length % mips == 0);
+        Debug.Assert(bitmaps.Length == mips * count);
 
         // Split the full texture list into parts and create the array textures.
-        var data = new Texture[requiredParts];
-        var currentPart = 0;
-        var added = 0;
+        var data = new Texture[count];
 
-        int step = Texture.MaxArrayTextureDepth * mips;
+        foreach (Bitmap texture in bitmaps) texture.RotateFlip(RotateFlipType.Rotate180FlipX);
 
-        foreach (Bitmap texture in textures) texture.RotateFlip(RotateFlipType.Rotate180FlipX);
+        Size size = bitmaps[index: 0].Size;
 
-        while (added < textures.Length)
+        for (var index = 0; index < count; index++)
         {
-            int next = Math.Min(added + step, textures.Length);
-            data[currentPart] = client.LoadTexture(textures[added..next], mips);
+            int begin = index * mips;
+            int end = begin + mips;
 
-            added = next;
-            currentPart++;
+            Debug.Assert(bitmaps[begin].Size == size);
+            data[index] = client.LoadTexture(bitmaps[begin..end]);
         }
 
-        return new ArrayTexture(data, count);
+        return new TextureArray(data, count);
     }
 
     /// <summary>

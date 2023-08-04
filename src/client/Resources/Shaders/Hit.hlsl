@@ -22,14 +22,11 @@ void SimpleSectionClosestHit(inout HitInfo payload, const Attributes attributes)
     const float4 tint = decode::GetTintColor(info.data);
     bool animated = decode::GetAnimationFlag(info.data);
 
-    uint2 index;
-    SplitTextureIndex(textureIndex, index.x, index.y);
-
     const float2 ts = float2(gTextureSize.x, gTextureSize.y) * frac(uv);
     uint2 texel = uint2(ts.x, ts.y);
     const uint mip = 0;
 
-    float4 baseColor = gTextureSlotOne[index.x].Load(int4(texel, index.y, mip));
+    float4 baseColor = gTextureSlotOne[textureIndex].Load(int3(texel, mip));
     if (baseColor.a >= 0.3) baseColor *= tint;
     baseColor.a = 1.0;
 

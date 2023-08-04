@@ -35,23 +35,23 @@ public sealed class TextureBundle : ITextureIndexProvider
 
     private LoadingContext? loadingContext;
 
-    private TextureBundle(ArrayTexture array, Dictionary<string, int> textureIndices)
+    private TextureBundle(TextureArray textureArray, Dictionary<string, int> textureIndices)
     {
-        Array = array;
+        TextureArray = textureArray;
         TextureIndices = textureIndices;
     }
 
     /// <summary>
     ///     The array that stores all textures.
     /// </summary>
-    public ArrayTexture Array { get; }
+    public TextureArray TextureArray { get; }
 
     private Dictionary<string, int> TextureIndices { get; }
 
     /// <summary>
     ///     Get the number of textures in the bundle.
     /// </summary>
-    public int Count => Array.Count;
+    public int Count => TextureArray.Count;
 
     /// <inheritdoc />
     public int GetTextureIndex(string name)
@@ -92,9 +92,9 @@ public sealed class TextureBundle : ITextureIndexProvider
         }
         catch (DirectoryNotFoundException)
         {
-            texturePaths = System.Array.Empty<FileInfo>();
+            texturePaths = Array.Empty<FileInfo>();
 
-            loadingContext.ReportWarning(Events.MissingDepository, nameof(ArrayTexture), textureDirectory, "Texture directory not found");
+            loadingContext.ReportWarning(Events.MissingDepository, nameof(TextureArray), textureDirectory, "Texture directory not found");
         }
 
         // Create fallback texture.
@@ -123,14 +123,14 @@ public sealed class TextureBundle : ITextureIndexProvider
                     result.Indices[key] = 0;
         }
 
-        ArrayTexture loadedArray = ArrayTexture.Load(client, textures, Math.Min(result.Count, maxTextures), result.Mips);
+        TextureArray loadedTextureArray = TextureArray.Load(client, textures, Math.Min(result.Count, maxTextures), result.Mips);
 
         // Cleanup.
         foreach (Bitmap bitmap in extraTextures) bitmap.Dispose();
 
-        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(ArrayTexture), textureDirectory);
+        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(TextureArray), textureDirectory);
 
-        return new TextureBundle(loadedArray, result.Indices);
+        return new TextureBundle(loadedTextureArray, result.Indices);
     }
 
     /// <summary>

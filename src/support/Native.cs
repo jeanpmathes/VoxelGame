@@ -25,29 +25,11 @@ public static class Native
 {
     private const string DllFilePath = @".\Native.dll";
 
-    private static SystemInformation? systemInformation;
-
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
 
     private static readonly Dictionary<IntPtr, Light> lights = new();
 
     private static readonly Dictionary<RasterPipeline, object> draw2DCallbacks = new();
-
-    /// <summary>
-    ///     Get the system information.
-    /// </summary>
-    public static SystemInformation SystemInformation
-    {
-        get
-        {
-            [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-            static extern SystemInformation NativeGetSystemInformation();
-
-            systemInformation ??= NativeGetSystemInformation();
-
-            return systemInformation.Value;
-        }
-    }
 
     /// <summary>
     ///     Show an error message box.
@@ -494,28 +476,26 @@ public static class Native
     ///     Load a texture from a bitmap.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="bitmaps">All bitmaps used to build the texture. All mipmaps follow their respective base image.</param>
-    /// <param name="mipLevels">The number of mip levels the array contains.</param>
+    /// <param name="texture">The texture, consisting of a bitmap for each mip level.</param>
     /// <returns>The loaded texture.</returns>
-    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> bitmaps, int mipLevels)
+    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> texture)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr* data, TextureDescription description);
 
-        Debug.Assert(bitmaps.Length > 0);
+        Debug.Assert(texture.Length > 0);
 
         TextureDescription description = new()
         {
-            Width = (uint) bitmaps[index: 0].Width,
-            Height = (uint) bitmaps[index: 0].Height,
-            Depth = (uint) (bitmaps.Length / mipLevels),
-            MipLevels = (uint) mipLevels
+            Width = (uint) texture[index: 0].Width,
+            Height = (uint) texture[index: 0].Height,
+            MipLevels = (uint) texture.Length
         };
 
-        List<IntPtr> subresources = new(bitmaps.Length);
-        List<BitmapData> locks = new(bitmaps.Length);
+        List<IntPtr> subresources = new(texture.Length);
+        List<BitmapData> locks = new(texture.Length);
 
-        foreach (Bitmap bitmap in bitmaps)
+        foreach (Bitmap bitmap in texture)
         {
             BitmapData data = bitmap.LockBits(new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
@@ -523,16 +503,16 @@ public static class Native
             locks.Add(data);
         }
 
-        IntPtr texture;
+        IntPtr result;
 
         fixed (IntPtr* subresourcesPtr = CollectionsMarshal.AsSpan(subresources))
         {
-            texture = NativeLoadTexture(client.Native, subresourcesPtr, description);
+            result = NativeLoadTexture(client.Native, subresourcesPtr, description);
         }
 
-        for (var i = 0; i < bitmaps.Length; i++) bitmaps[i].UnlockBits(locks[i]);
+        for (var i = 0; i < texture.Length; i++) texture[i].UnlockBits(locks[i]);
 
-        return new Texture(texture, client, new Vector2i((int) description.Width, (int) description.Height));
+        return new Texture(result, client, new Vector2i((int) description.Width, (int) description.Height));
     }
 
     /// <summary>

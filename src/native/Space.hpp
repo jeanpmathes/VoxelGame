@@ -21,7 +21,6 @@ struct GlobalConstantBuffer
     float time;
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
-    int maxArrayTextureSize;
     DirectX::XMUINT2 textureSize;
 };
 

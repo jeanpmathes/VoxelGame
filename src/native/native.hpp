@@ -52,11 +52,6 @@ struct Configuration
     BOOL supportPIX;
 };
 
-struct SystemInformation
-{
-    INT maxTextureArrayAxisDimension;
-};
-
 #define TRY try
 #define CATCH() \
     catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } \

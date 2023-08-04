@@ -18,8 +18,8 @@ public class PipelineBuilder
     private readonly List<MaterialConfig> materials = new();
     private readonly List<ShaderFile> shaderFiles = new();
 
-    private ArrayTexture? firstTextureSlot;
-    private ArrayTexture? secondTextureSlot;
+    private TextureArray? firstTextureSlot;
+    private TextureArray? secondTextureSlot;
 
     /// <summary>
     ///     Add a shader file to the pipeline.
@@ -50,7 +50,7 @@ public class PipelineBuilder
     ///     Set which textures should be used in the first texture slot.
     /// </summary>
     /// <param name="texture">The texture array.</param>
-    public void SetFirstTextureSlot(ArrayTexture texture)
+    public void SetFirstTextureSlot(TextureArray texture)
     {
         firstTextureSlot = texture;
     }
@@ -59,7 +59,7 @@ public class PipelineBuilder
     ///     Set which textures should be used in the second texture slot.
     /// </summary>
     /// <param name="texture">The texture array.</param>
-    public void SetSecondTextureSlot(ArrayTexture texture)
+    public void SetSecondTextureSlot(TextureArray texture)
     {
         secondTextureSlot = texture;
     }

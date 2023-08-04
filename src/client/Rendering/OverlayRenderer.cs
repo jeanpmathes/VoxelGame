@@ -10,7 +10,6 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Graphics.Groups;
-using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -72,8 +71,8 @@ public sealed class OverlayRenderer : IDisposable
     /// <param name="texture">The texture to use.</param>
     public void SetBlockTexture(OverlayTexture texture)
     {
-        samplerId = texture.TextureIdentifier / Texture.MaxArrayTextureDepth + 1;
-        textureId = texture.TextureIdentifier % Texture.MaxArrayTextureDepth;
+        samplerId = 0; // todo: remove as no longer needed
+        textureId = texture.TextureIdentifier;
 
         mode = BlockMode;
 

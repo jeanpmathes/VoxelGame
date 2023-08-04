@@ -123,7 +123,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
     /// <param name="textureSlots">The textures for the two texture slots.</param>
     /// <param name="loadingContext">The loader to use.</param>
     /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(DirectoryInfo directory, Support.Client client, (ArrayTexture, ArrayTexture) textureSlots, LoadingContext loadingContext)
+    internal static Shaders Load(DirectoryInfo directory, Support.Client client, (TextureArray, TextureArray) textureSlots, LoadingContext loadingContext)
     {
         Shaders shaders = new(directory, loadingContext);
 
@@ -158,7 +158,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
         loaded = false;
     }
 
-    private void LoadAll(Support.Client client, (ArrayTexture, ArrayTexture) textureSlots)
+    private void LoadAll(Support.Client client, (TextureArray, TextureArray) textureSlots)
     {
         loaded = true;
 
@@ -234,7 +234,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
     }
 
-    private void LoadRaytracingPipeline(Support.Client client, (ArrayTexture, ArrayTexture) textureSlots)
+    private void LoadRaytracingPipeline(Support.Client client, (TextureArray, TextureArray) textureSlots)
     {
         PipelineBuilder builder = new();
 

@@ -39,7 +39,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
 
     m_sentinelTextureViewDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     m_sentinelTextureViewDescription.Format = textureDescription.Format;
-    m_sentinelTextureViewDescription.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+    m_sentinelTextureViewDescription.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     m_sentinelTextureViewDescription.Texture2DArray.ArraySize = textureDescription.DepthOrArraySize;
     m_sentinelTextureViewDescription.Texture2DArray.MipLevels = textureDescription.MipLevels;
 }
@@ -280,7 +280,6 @@ void Space::CreateGlobalConstBuffer()
         .time = 0.0f,
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
-        .maxArrayTextureSize = D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION,
         .textureSize = m_textureSize.value()
     };
 

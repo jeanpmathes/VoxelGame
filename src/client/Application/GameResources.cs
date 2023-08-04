@@ -97,7 +97,7 @@ public class GameResources
 
         UIResources.Load(window, loadingContext);
 
-        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, (BlockTextures.Array, FluidTextures.Array), loadingContext);
+        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, (BlockTextures.TextureArray, FluidTextures.TextureArray), loadingContext);
 
         TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
