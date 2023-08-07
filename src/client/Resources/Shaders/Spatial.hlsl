@@ -201,7 +201,7 @@ float3 CalculateShading(const float3 normal, const float3 baseColor)
     ShadowHitInfo shadowPayload;
     shadowPayload.isHit = false;
 
-    TraceRay(spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 1, 0, 1, ray, shadowPayload);
+    TraceRay(spaceBVH, RAY_FLAG_NONE, 0xFF, 1, 0, 1, ray, shadowPayload);
 
     const float visibility = shadowPayload.isHit ? 0.0 : 1.0;
 

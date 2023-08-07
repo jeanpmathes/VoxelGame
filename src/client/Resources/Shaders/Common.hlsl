@@ -36,4 +36,4 @@ float3 HUEtoRGB(const in float h)
 }
 
 #define VG_RAY_DISTANCE 100000.0
-#define VG_RAY_EPSILON 0.005
+#define VG_RAY_EPSILON 0.01
