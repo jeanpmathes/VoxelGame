@@ -150,7 +150,11 @@ namespace nv_helpers_dx12
                                                  &pErrorBlob);
         if (FAILED(hr))
         {
-            throw std::logic_error("Cannot serialize root signature");
+            std::vector<char> infoLog(pErrorBlob->GetBufferSize() + 1);
+            memcpy(infoLog.data(), pErrorBlob->GetBufferPointer(), pErrorBlob->GetBufferSize());
+            infoLog[pErrorBlob->GetBufferSize()] = 0;
+
+            throw std::logic_error("Cannot serialize root signature: " + std::string(infoLog.data()));
         }
 
         Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSig;

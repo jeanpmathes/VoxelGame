@@ -680,7 +680,7 @@
         <None Update="Resources\Shaders\Common.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Shaders\Hit.hlsl">
+        <None Update="Resources\Shaders\BasicOpaque.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Shaders\Miss.hlsl">
@@ -705,6 +705,18 @@
 
     <ItemGroup>
         <None Include="Resources\Shaders\Decoding.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Resources\Shaders\BasicTransparent.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Resources\Shaders\Basic.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

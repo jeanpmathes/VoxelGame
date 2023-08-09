@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+// todo: write data layout descriptions in wiki
+
 #define BITMASK(x) ( (1 << (x)) - 1 )
 
 /**

@@ -19,7 +19,7 @@ float4x4 view; float4x4 projection; float4x4 viewI; float4x4 projectionI;
 void RayGen()
 {
     HitInfo payload;
-    payload.colorAndDistance = float4(0, 0, 0, 0);
+    payload.colorAndDistance = float4(0, 0, 0, VG_RAY_DISTANCE);
 
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dimensions = float2(DispatchRaysDimensions().xy);

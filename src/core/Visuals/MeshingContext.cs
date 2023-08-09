@@ -20,8 +20,6 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
-    private readonly BlockMeshFaceHolder[] blockMeshFaceHolders;
-
     private readonly PooledList<uint> complexIndices = new(capacity: 16);
     private readonly PooledList<int> complexVertexData = new(capacity: 32);
 
@@ -32,10 +30,12 @@ public class MeshingContext
 
     private readonly Section current;
     private readonly Section?[] neighbors;
+    private readonly BlockMeshFaceHolder[] opaqueBlockMeshFaceHolders;
 
     private readonly VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders;
 
     private readonly (TintColor block, TintColor fluid)[,] tintColors;
+    private readonly BlockMeshFaceHolder[] transparentBlockMeshFaceHolders;
     private readonly VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders;
     private readonly VaryingHeightMeshFaceHolder[] varyingHeightMeshFaceHolders;
 
@@ -53,7 +53,8 @@ public class MeshingContext
         neighbors = GetNeighborSections(position, context);
         tintColors = GetTintColors(position, context);
 
-        blockMeshFaceHolders = CreateBlockMeshFaceHolders();
+        opaqueBlockMeshFaceHolders = CreateBlockMeshFaceHolders();
+        transparentBlockMeshFaceHolders = CreateBlockMeshFaceHolders();
         varyingHeightMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
         opaqueFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
         transparentFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
@@ -131,11 +132,12 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get the block mesh face holder for simple faces, given a block side.
+    ///     Get the block mesh face holder for (full) blocks.
+    ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public BlockMeshFaceHolder GetSimpleBlockMeshFaceHolder(BlockSide side)
+    public BlockMeshFaceHolder GetBlockMeshFaceHolder(BlockSide side, bool isOpaque)
     {
-        return blockMeshFaceHolders[(int) side];
+        return isOpaque ? opaqueBlockMeshFaceHolders[(int) side] : transparentBlockMeshFaceHolders[(int) side];
     }
 
     /// <summary>
@@ -237,8 +239,10 @@ public class MeshingContext
 
         // todo: evaluate all initial capacities
 
-        PooledList<SpatialVertex> simpleMesh = new(capacity: 2048);
-        GenerateMesh(blockMeshFaceHolders, simpleMesh);
+        PooledList<SpatialVertex> basicOpaqueMesh = new(capacity: 2048);
+        GenerateMesh(opaqueBlockMeshFaceHolders, basicOpaqueMesh);
+        PooledList<SpatialVertex> basicTransparentMesh = new(capacity: 2048);
+        GenerateMesh(transparentBlockMeshFaceHolders, basicTransparentMesh);
 
         PooledList<int> varyingHeightVertexData = new(capacity: 8);
         PooledList<uint> varyingHeightIndices = new(capacity: 8);
@@ -272,7 +276,7 @@ public class MeshingContext
             transparentFluidIndices);
 
         return new SectionMeshData(
-            simpleMesh,
+            (basicOpaqueMesh, basicTransparentMesh),
             complexVertexPositions,
             complexVertexData,
             complexIndices,
@@ -291,7 +295,8 @@ public class MeshingContext
     /// </summary>
     public void ReturnToPool()
     {
-        ReturnToPool(blockMeshFaceHolders);
+        ReturnToPool(opaqueBlockMeshFaceHolders);
+        ReturnToPool(transparentBlockMeshFaceHolders);
         ReturnToPool(varyingHeightMeshFaceHolders);
         ReturnToPool(opaqueFluidMeshFaceHolders);
         ReturnToPool(transparentFluidMeshFaceHolders);

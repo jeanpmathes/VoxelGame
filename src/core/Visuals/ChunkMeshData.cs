@@ -41,7 +41,7 @@ public class SectionMeshData
 {
     private bool isReturnedToPool;
 
-    internal SectionMeshData(PooledList<SpatialVertex> simpleMesh,
+    internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
         PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
         PooledList<uint> complexIndices,
         PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
@@ -50,7 +50,7 @@ public class SectionMeshData
         PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
         PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
-        SimpleMesh = simpleMesh;
+        BasicMesh = basicMesh;
 
         this.complexVertexPositions = complexVertexPositions;
         this.complexVertexData = complexVertexData;
@@ -72,7 +72,7 @@ public class SectionMeshData
 
     private SectionMeshData()
     {
-        SimpleMesh = new PooledList<SpatialVertex>();
+        BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
 
         complexVertexPositions = new PooledList<float>();
         complexVertexData = new PooledList<int>();
@@ -100,15 +100,19 @@ public class SectionMeshData
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => SimpleMesh.Count != 0 || complexVertexPositions.Count != 0 ||
+    public bool IsFilled => BasicMesh.opaque.Count != 0 || BasicMesh.transparent.Count != 0 ||
+                            complexVertexPositions.Count != 0 ||
                             varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
                             cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
 
     /// <summary>
-    ///     The simple mesh data, corresponding to <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />.
+    ///     The basic mesh data.
+    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple"/>,
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex"/>, and
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight"/> meshables.
     /// </summary>
-    public PooledList<SpatialVertex> SimpleMesh { get; }
+    public (PooledList<SpatialVertex> opaque, PooledList<SpatialVertex> transparent) BasicMesh { get; }
 
     /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
@@ -117,7 +121,8 @@ public class SectionMeshData
     {
         Debug.Assert(!isReturnedToPool);
 
-        SimpleMesh.ReturnToPool();
+        BasicMesh.opaque.ReturnToPool();
+        BasicMesh.transparent.ReturnToPool();
 
         complexVertexPositions.ReturnToPool();
         complexVertexData.ReturnToPool();

@@ -27,9 +27,13 @@ struct GlobalConstantBuffer
 struct MaterialDescription
 {
     LPWSTR debugName;
+    BOOL opaque;
 
-    LPWSTR closestHitSymbol;
-    LPWSTR shadowHitSymbol;
+    LPWSTR normalClosestHitSymbol;
+    LPWSTR normalAnyHitSymbol;
+
+    LPWSTR shadowClosestHitSymbol;
+    LPWSTR shadowAnyHitSymbol;
 };
 
 struct ShaderFileDescription
@@ -62,6 +66,9 @@ public:
 class Material
 {
 public:
+    std::wstring name;
+    bool isOpaque = false;
+    
     std::wstring normalHitGroup;
     ComPtr<ID3D12RootSignature> normalRootSignature;
 

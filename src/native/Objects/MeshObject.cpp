@@ -200,7 +200,8 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelAS(ComPtr<ID3D12Graphi
         auto& [vertexBuffer, vertexCount] = vertexBuffers[i];
         auto& [indexBuffer, indexCount] = indexBuffers[i];
 
-        constexpr bool isOpaque = false;
+        const bool isOpaque = GetClient().GetSpace()->GetMaterial(m_materialIndex).isOpaque;
+        
         bottomLevelAS.AddVertexBuffer(
             vertexBuffer.Get(), 0, vertexCount,
             sizeof(SpatialVertex),

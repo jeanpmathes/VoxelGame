@@ -20,14 +20,14 @@ namespace VoxelGame.Client.Rendering;
 public sealed class SectionRenderer : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
+
+    private readonly (MeshObject opaque, MeshObject transparent) basic;
     private readonly MeshObject complex;
     private readonly MeshObject cropPlant;
 
     private readonly MeshObject crossPlant;
-
     private readonly MeshObject opaqueFluid;
 
-    private readonly MeshObject simple;
     private readonly MeshObject transparentFluid;
     private readonly MeshObject varyingHeight;
 
@@ -36,7 +36,11 @@ public sealed class SectionRenderer : IDisposable
     /// </summary>
     public SectionRenderer(Space space, Vector3d position)
     {
-        simple = space.CreateMeshObject(Shaders.SimpleSectionMaterial, position);
+        basic = (
+            space.CreateMeshObject(Shaders.BasicOpaqueSectionMaterial, position),
+            space.CreateMeshObject(Shaders.BasicTransparentSectionMaterial, position)
+        );
+
         complex = null!;
         varyingHeight = null!;
 
@@ -57,7 +61,8 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        simple.SetMesh(meshData.SimpleMesh.AsSpan());
+        basic.opaque.SetMesh(meshData.BasicMesh.opaque.AsSpan());
+        basic.transparent.SetMesh(meshData.BasicMesh.transparent.AsSpan());
 
         meshData.ReturnPooled();
     }
@@ -69,7 +74,8 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        simple.IsEnabled = enabled;
+        basic.opaque.IsEnabled = enabled;
+        basic.transparent.IsEnabled = enabled;
     }
 
     #region IDisposable Support
@@ -81,8 +87,13 @@ public sealed class SectionRenderer : IDisposable
         if (disposed)
             return;
 
-        if (disposing) simple.Free();
-        // todo: free other mesh objects
+        if (disposing)
+        {
+            basic.opaque.Free();
+            basic.transparent.Free();
+
+            // todo: free other mesh objects
+        }
         else
             logger.LogWarning(
                 Events.LeakedNativeObject,

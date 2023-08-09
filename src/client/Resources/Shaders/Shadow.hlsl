@@ -6,12 +6,6 @@
 
 #include "Common.hlsl"
 
-[shader("closesthit")]
-void ShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
-{
-    hitInfo.isHit = true;
-}
-
 [shader("miss")]
 void ShadowMiss(inout ShadowHitInfo hitInfo : SV_RayPayload)
 {

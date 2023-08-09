@@ -275,7 +275,7 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 void Space::CreateGlobalConstBuffer()
 {
     REQUIRE(m_textureSize.has_value());
-    
+
     m_globalConstantBufferData = {
         .time = 0.0f,
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
@@ -447,23 +447,28 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     {
         auto m = std::make_unique<Material>();
 
-        auto addHitGroup = [&](const std::wstring& closestHitSymbol)
+        auto addHitGroup = [&](const std::wstring& closestHitSymbol, const std::wstring& anyHitSymbol)
             -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
         {
             ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
             std::wstring hitGroup = std::to_wstring(currentHitGroupIndex++);
 
-            pipeline.AddHitGroup(hitGroup, closestHitSymbol);
+            pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol);
             pipeline.AddRootSignatureAssociation(rootSignature.Get(), {hitGroup});
 
             return {hitGroup, rootSignature};
         };
 
+        const MaterialDescription& description = pipelineDescription.materials[material];
+
+        m->name = description.debugName;
+        m->isOpaque = description.opaque;
+
         std::tie(m->normalHitGroup, m->normalRootSignature)
-            = addHitGroup(pipelineDescription.materials[material].closestHitSymbol);
+            = addHitGroup(description.normalClosestHitSymbol, description.normalAnyHitSymbol);
 
         std::tie(m->shadowHitGroup, m->shadowRootSignature)
-            = addHitGroup(pipelineDescription.materials[material].shadowHitSymbol);
+            = addHitGroup(description.shadowClosestHitSymbol, description.shadowAnyHitSymbol);
 
 #if defined(VG_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
@@ -619,7 +624,7 @@ void Space::CreateTopLevelAS()
     }
 
     UINT64 scratchSize, resultSize, instanceDescriptionSize;
-    topLevelASGenerator.ComputeASBufferSizes(GetDevice().Get(), true, &scratchSize, &resultSize,
+    topLevelASGenerator.ComputeASBufferSizes(GetDevice().Get(), false, &scratchSize, &resultSize,
                                              &instanceDescriptionSize);
 
     const bool committed = m_nativeClient.SupportPIX();

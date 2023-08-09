@@ -111,9 +111,14 @@ public sealed class Shaders // todo: delete all GLSL shaders
     public Shader ScreenElement { get; private set; } = null!;
 
     /// <summary>
-    ///     The default raytracing material.
+    ///     The basic raytracing material for opaque section parts.
     /// </summary>
-    public Material SimpleSectionMaterial { get; private set; } = null!;
+    public Material BasicOpaqueSectionMaterial { get; private set; } = null!;
+
+    /// <summary>
+    ///     The basic raytracing material for transparent section parts.
+    /// </summary>
+    public Material BasicTransparentSectionMaterial { get; private set; } = null!;
 
     /// <summary>
     ///     Load all shaders in the given directory.
@@ -238,15 +243,29 @@ public sealed class Shaders // todo: delete all GLSL shaders
     {
         PipelineBuilder builder = new();
 
-        const string simpleSectionClosestHit = "SimpleSectionClosestHit";
-        const string defaultShadowClosestHit = "ShadowClosestHit";
+        PipelineBuilder.HitGroup basicOpaqueSectionHitGroup = new("BasicOpaqueSectionClosestHit");
+        PipelineBuilder.HitGroup basicOpaqueShadowHitGroup = new("BasicOpaqueShadowClosestHit");
 
-        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), new[] {"RayGen"});
-        builder.AddShaderFile(directory.GetFile("Miss.hlsl"), new[] {"Miss"});
-        builder.AddShaderFile(directory.GetFile("Hit.hlsl"), new[] {simpleSectionClosestHit});
-        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), new[] {defaultShadowClosestHit, "ShadowMiss"});
+        PipelineBuilder.HitGroup basicTransparentSectionHitGroup = new("BasicTransparentSectionClosestHit", "BasicTransparentSectionAnyHit");
+        PipelineBuilder.HitGroup basicTransparentShadowHitGroup = new("BasicTransparentShadowClosestHit", "BasicTransparentShadowAnyHit");
 
-        SimpleSectionMaterial = builder.AddMaterial(nameof(SimpleSectionMaterial), simpleSectionClosestHit, defaultShadowClosestHit);
+        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: new[] {"RayGen"});
+        builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
+        builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), new[] {basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup});
+        builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), new[] {basicTransparentSectionHitGroup, basicTransparentShadowHitGroup});
+        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
+
+        BasicOpaqueSectionMaterial = builder.AddMaterial(
+            nameof(BasicOpaqueSectionMaterial),
+            isOpaque: true,
+            basicOpaqueSectionHitGroup,
+            basicOpaqueShadowHitGroup);
+
+        BasicTransparentSectionMaterial = builder.AddMaterial(
+            nameof(BasicTransparentSectionMaterial),
+            isOpaque: false,
+            basicTransparentSectionHitGroup,
+            basicTransparentShadowHitGroup);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);

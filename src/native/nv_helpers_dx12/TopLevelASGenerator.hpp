@@ -85,11 +85,11 @@ namespace nv_helpers_dx12
         /// represented by a bottom-level AS, a transform, an instance ID and the
         /// index of the hit group indicating which shaders are executed upon hitting
         /// any geometry within the instance
-        /// \param bottomLevelAS Bottom-level acceleration structure containing the
-        /// \param transform Transform matrix to apply to the instance, allowing the
-        /// \param instanceID Instance ID, which can be used in the shaders to
-        /// \param hitGroupIndex Hit group index, corresponding the the index of the
-        /// \param flags Instance flags, such as
+        /// \param bottomLevelAS Bottom-level acceleration structure containing the actual geometric data of the instance
+        /// \param transform Transform matrix to apply to the instance, allowing the same bottom-level AS to be used at several world-space positions
+        /// \param instanceID Instance ID, which can be used in the shaders to identify this specific instance
+        /// \param hitGroupIndex Hit group index, corresponding the the index of the hit group in the Shader Binding Table that will be called upon hitting the geometry
+        /// \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
         void
         AddInstance(ID3D12Resource* bottomLevelAS,
                     const DirectX::XMFLOAT4X4& transform,
@@ -102,10 +102,10 @@ namespace nv_helpers_dx12
         /// structure, as well as the size of the resulting structure. The allocation
         /// of the buffers is then left to the application
         /// \param device Device on which the build will be performed
-        /// \param allowUpdate If true, the resulting acceleration structure will
-        /// \param scratchSizeInBytes Required scratch memory on the GPU to build the
-        /// \param resultSizeInBytes Required GPU memory to store the acceleration
-        /// \param descriptorsSizeInBytes Required GPU memory to store instance
+        /// \param allowUpdate If true, the resulting acceleration structure will allow iterative updates
+        /// \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure
+        /// \param resultSizeInBytes Required GPU memory to store the acceleration structure
+        /// \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
         void ComputeASBufferSizes(
             ID3D12Device5* device,
             bool allowUpdate,
@@ -120,11 +120,11 @@ namespace nv_helpers_dx12
         /// can be done in place: the result and previousResult pointers can be the
         /// same.
         /// \param commandList Command list on which the build will be enqueued
-        /// \param scratchBuffer Scratch buffer used by the builder to store temporary
+        /// \param scratchBuffer Scratch buffer used by the builder to store temporary data
         /// \param resultBuffer Result buffer storing the acceleration structure
-        /// \param descriptorsBuffer Auxiliary result buffer containing the instance
+        /// \param descriptorsBuffer Auxiliary result buffer containing the instance descriptors, has to be in upload heap
         /// \param updateOnly If true, simply refit the existing acceleration
-        /// \param previousResult Optional previous acceleration structure, used if
+        /// \param previousResult Optional previous acceleration structure, used if an iterative update is requested
         void Generate(
             ID3D12GraphicsCommandList4* commandList,
             ID3D12Resource* scratchBuffer,

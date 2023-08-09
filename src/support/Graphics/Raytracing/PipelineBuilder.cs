@@ -25,23 +25,39 @@ public class PipelineBuilder
     ///     Add a shader file to the pipeline.
     /// </summary>
     /// <param name="file">The file to add.</param>
-    /// <param name="exports">The exports in the file.</param>
-    public void AddShaderFile(FileInfo file, string[] exports)
+    /// <param name="groups">The hit groups in the file.</param>
+    /// <param name="names">The ungrouped symbols in the file.</param>
+    public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, string[]? names = null)
     {
-        shaderFiles.Add(new ShaderFile(file, exports));
+        List<string> exports = new(names ?? Array.Empty<string>());
+
+        void AddIfNotEmpty(string? name)
+        {
+            if (!string.IsNullOrEmpty(name)) exports.Add(name);
+        }
+
+        foreach (HitGroup group in groups ?? Array.Empty<HitGroup>())
+        {
+            AddIfNotEmpty(group.ClosestHitSymbol);
+            AddIfNotEmpty(group.AnyHitSymbol);
+            AddIfNotEmpty(group.IntersectionSymbol);
+        }
+
+        shaderFiles.Add(new ShaderFile(file, exports.ToArray()));
     }
 
     /// <summary>
     ///     Add a material to the pipeline.
     /// </summary>
     /// <param name="name">The name of the material, for debugging purposes.</param>
-    /// <param name="closestHitSymbol">The name of the symbol for the closest hit shader.</param>
-    /// <param name="shadowSymbol">The name of the symbol for the shadow (closest hit) shader.</param>
+    /// <param name="isOpaque">Whether the material is opaque.</param>
+    /// <param name="normal">The hit group for normal rendering.</param>
+    /// <param name="shadow">The hit group for shadows.</param>
     /// <returns>The material.</returns>
-    public Material AddMaterial(string name, string closestHitSymbol, string shadowSymbol)
+    public Material AddMaterial(string name, bool isOpaque, HitGroup normal, HitGroup shadow)
     {
         int index = materials.Count;
-        materials.Add(new MaterialConfig(name, closestHitSymbol, shadowSymbol));
+        materials.Add(new MaterialConfig(name, isOpaque, normal, shadow));
 
         return new Material((uint) index);
     }
@@ -121,8 +137,11 @@ public class PipelineBuilder
         MaterialDescription[] materialDescriptions = materials.Select(material => new MaterialDescription
         {
             debugName = material.Name,
-            closestHitSymbol = material.ClosestHitSymbol,
-            shadowHitSymbol = material.ShadowHitSymbol
+            isOpaque = material.IsOpaque,
+            normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
+            normalAnyHitSymbol = material.Normal.AnyHitSymbol,
+            shadowClosestHitSymbol = material.Shadow.ClosestHitSymbol,
+            shadowAnyHitSymbol = material.Shadow.AnyHitSymbol
         }).ToArray();
 
         IEnumerable<IntPtr> firstSlot = firstTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();
@@ -143,5 +162,12 @@ public class PipelineBuilder
 
     private sealed record ShaderFile(FileInfo File, string[] Exports);
 
-    private sealed record MaterialConfig(string Name, string ClosestHitSymbol, string ShadowHitSymbol);
+    private sealed record MaterialConfig(string Name, bool IsOpaque, HitGroup Normal, HitGroup Shadow);
+
+    /// <summary>
+    ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.
+    /// </summary>
+    /// <param name="ClosestHitSymbol">The name of the closest hit shader.</param>
+    /// <param name="AnyHitSymbol">The name of the any hit shader.</param>
+    public sealed record HitGroup(string ClosestHitSymbol, string AnyHitSymbol = "", string IntersectionSymbol = "");
 }

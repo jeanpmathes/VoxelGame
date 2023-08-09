@@ -37,7 +37,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
             bool isModified = side != BlockSide.Bottom && !isFullHeight;
 
             if (isModified) MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
-            else MeshLikeSimple(position, side, mesh, context);
+            else MeshLikeSimple(position, side, mesh, IsOpaque, context);
         }
 
         MeshVaryingHeightSide(BlockSide.Front);
@@ -66,7 +66,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void MeshLikeSimple(Vector3i position, BlockSide side, MeshData mesh, MeshingContext context)
+    private static void MeshLikeSimple(
+        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, MeshingContext context)
     {
         ISimple.AddSimpleMesh(position,
             side,
@@ -77,6 +78,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
                 Tint = mesh.Tint,
                 IsAnimated = false
             },
+            isOpaque,
             context);
     }
 

@@ -59,8 +59,11 @@ internal struct MaterialDescription
 #pragma warning restore S3898 // No equality comparison used.
 {
     [MarshalAs(UnmanagedType.LPWStr)] internal string debugName;
+    [MarshalAs(UnmanagedType.Bool)] internal bool isOpaque;
 
-    [MarshalAs(UnmanagedType.LPWStr)] internal string closestHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string normalClosestHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string normalAnyHitSymbol;
 
-    [MarshalAs(UnmanagedType.LPWStr)] internal string shadowHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string shadowClosestHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string shadowAnyHitSymbol;
 }
