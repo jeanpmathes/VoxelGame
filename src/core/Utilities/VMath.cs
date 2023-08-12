@@ -524,6 +524,22 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static float MaxComponent(this Vector4 v)
+    {
+        return Math.Max(Math.Max(Math.Max(v.X, v.Y), v.Z), v.W);
+    }
+
+    /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector4 v)
+    {
+        return Math.Min(Math.Min(Math.Min(v.X, v.Y), v.Z), v.W);
+    }
+
+    /// <summary>
     ///     Get the corner of a box by its index.
     /// </summary>
     /// <param name="box">The box.</param>

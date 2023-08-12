@@ -43,7 +43,7 @@ public sealed class OverlayRenderer : IDisposable
     {
         // todo: port to DirectX
 
-        (float[] vertices, uint[] indices) = BlockModels.CreatePlaneModel();
+        (float[] vertices, uint[] indices) = BlockMeshes.CreatePlaneModel();
 
         drawGroup = ElementDrawGroup.Create();
         drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);

@@ -42,8 +42,6 @@ public class SectionMeshData
     private bool isReturnedToPool;
 
     internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
-        PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
-        PooledList<uint> complexIndices,
         PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
         PooledList<int> crossPlantVertexData,
         PooledList<int> cropPlantVertexData,
@@ -51,10 +49,6 @@ public class SectionMeshData
         PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
         BasicMesh = basicMesh;
-
-        this.complexVertexPositions = complexVertexPositions;
-        this.complexVertexData = complexVertexData;
-        this.complexIndices = complexIndices;
 
         this.varyingHeightVertexData = varyingHeightVertexData;
         this.varyingHeightIndices = varyingHeightIndices;
@@ -73,10 +67,6 @@ public class SectionMeshData
     private SectionMeshData()
     {
         BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
-
-        complexVertexPositions = new PooledList<float>();
-        complexVertexData = new PooledList<int>();
-        complexIndices = new PooledList<uint>();
 
         varyingHeightVertexData = new PooledList<int>();
         varyingHeightIndices = new PooledList<uint>();
@@ -101,7 +91,6 @@ public class SectionMeshData
     ///     Get whether this mesh data is empty.
     /// </summary>
     public bool IsFilled => BasicMesh.opaque.Count != 0 || BasicMesh.transparent.Count != 0 ||
-                            complexVertexPositions.Count != 0 ||
                             varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
                             cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
@@ -123,10 +112,6 @@ public class SectionMeshData
 
         BasicMesh.opaque.ReturnToPool();
         BasicMesh.transparent.ReturnToPool();
-
-        complexVertexPositions.ReturnToPool();
-        complexVertexData.ReturnToPool();
-        complexIndices.ReturnToPool();
 
         varyingHeightVertexData.ReturnToPool();
         varyingHeightIndices.ReturnToPool();
@@ -155,11 +140,6 @@ public class SectionMeshData
     }
 
     #pragma warning disable
-
-    public readonly PooledList<uint> complexIndices;
-    public readonly PooledList<int> complexVertexData;
-
-    public readonly PooledList<float> complexVertexPositions;
 
     public readonly PooledList<int> cropPlantVertexData;
 

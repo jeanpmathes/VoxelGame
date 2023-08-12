@@ -19,9 +19,7 @@ public class CrossBlock : Block, IFillable, IComplex
 {
     private readonly string texture;
 
-    private uint[] indices = null!;
-    private int[] textureIndices = null!;
-    private float[] vertices = null!;
+    private BlockMesh mesh = null!;
 
     /// <summary>
     ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
@@ -40,12 +38,12 @@ public class CrossBlock : Block, IFillable, IComplex
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        return IComplex.CreateData(vertexCount: 8, vertices, textureIndices, indices);
+        return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider)
     {
-        (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
+        mesh = BlockMeshes.CreateCrossMesh(indexProvider.GetTextureIndex(texture));
     }
 }

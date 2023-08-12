@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -42,8 +43,8 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void PushQuad(
         PooledList<SpatialVertex> mesh,
-        (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
-        (uint a, uint b, uint c, uint d) data)
+        in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
+        in (uint a, uint b, uint c, uint d) data)
     {
         mesh.Add(new SpatialVertex
         {
@@ -68,6 +69,91 @@ public static class Meshing
             Position = positions.d,
             Data = data.d
         });
+    }
+
+    /// <summary>
+    ///     Push a quad to a mesh, while applying modifications to the positions and data.
+    /// </summary>
+    /// <param name="mesh">The mesh, defined by vertices.</param>
+    /// <param name="positions">The four positions of the quad, in clockwise order.</param>
+    /// <param name="data">The data of the quad.</param>
+    /// <param name="offset">The offset to apply to the positions.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void PushQuadWithOffset(
+        PooledList<SpatialVertex> mesh,
+        in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
+        in (uint a, uint b, uint c, uint d) data,
+        Vector3 offset)
+    {
+        mesh.Add(new SpatialVertex
+        {
+            Position = positions.a + offset,
+            Data = data.a
+        });
+
+        mesh.Add(new SpatialVertex
+        {
+            Position = positions.b + offset,
+            Data = data.b
+        });
+
+        mesh.Add(new SpatialVertex
+        {
+            Position = positions.c + offset,
+            Data = data.c
+        });
+
+        mesh.Add(new SpatialVertex
+        {
+            Position = positions.d + offset,
+            Data = data.d
+        });
+    }
+
+    /// <summary>
+    ///     Encode a vector in base 17, assuming all components are in the range [0, 1].
+    /// </summary>
+    private static uint EncodeInBase17(Vector4 vector)
+    {
+        var x = (uint) (vector.X * 16);
+        var y = (uint) (vector.Y * 16);
+        var z = (uint) (vector.Z * 16);
+        var w = (uint) (vector.W * 16);
+
+        return w * 17 * 17 * 17 +
+               z * 17 * 17 +
+               y * 17 +
+               x;
+    }
+
+    /// <summary>
+    ///     Set the UV coordinates for a quad.
+    /// </summary>
+    /// <param name="data">The data of the quad.</param>
+    /// <param name="uv0">The UV coordinate of the first vertex.</param>
+    /// <param name="uv1">The UV coordinate of the second vertex.</param>
+    /// <param name="uv2">The UV coordinate of the third vertex.</param>
+    /// <param name="uv3">The UV coordinate of the fourth vertex.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SetUVs(ref (uint a, uint b, uint c, uint d) data,
+        Vector2 uv0, Vector2 uv1, Vector2 uv2, Vector2 uv3)
+    {
+        const int uvShift = 15;
+
+        data.c |= EncodeInBase17((uv0.X, uv1.X, uv2.X, uv3.X)) << uvShift;
+        data.d |= EncodeInBase17((uv0.Y, uv1.Y, uv2.Y, uv3.Y)) << uvShift;
+    }
+
+    /// <summary>
+    ///     Set full UV coordinates for a quad, meaning that the quad will use the whole texture.
+    /// </summary>
+    /// <param name="data">The data of the quad.</param>
+    /// <param name="mirror">Whether the texture should be mirrored along the U axis.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SetFullUVs(ref (uint a, uint b, uint c, uint d) data, bool mirror = false)
+    {
+        if (mirror) SetUVs(ref data, (1, 0), (1, 1), (0, 1), (0, 0));
+        else SetUVs(ref data, (0, 0), (0, 1), (1, 1), (1, 0));
     }
 
     /// <summary>
@@ -102,6 +188,8 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetTint(ref (uint a, uint b, uint c, uint d) data, TintColor tint)
     {
+        Debug.Assert(!tint.IsNeutral);
+
         const int tintShift = 23;
         data.b |= tint.ToBits << tintShift;
     }

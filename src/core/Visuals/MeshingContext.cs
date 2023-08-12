@@ -20,10 +20,10 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
-    private readonly PooledList<uint> complexIndices = new(capacity: 16);
-    private readonly PooledList<int> complexVertexData = new(capacity: 32);
+    // todo: evaluate initial capacity
 
-    private readonly PooledList<float> complexVertexPositions = new(capacity: 64);
+    private readonly PooledList<SpatialVertex> basicOpaqueMesh = new(capacity: 2048);
+    private readonly PooledList<SpatialVertex> basicTransparentMesh = new(capacity: 2048);
 
     private readonly PooledList<int> cropPlantVertexData = new(capacity: 16);
     private readonly PooledList<int> crossPlantVertexData = new(capacity: 16);
@@ -59,11 +59,6 @@ public class MeshingContext
         opaqueFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
         transparentFluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
     }
-
-    /// <summary>
-    ///     Get or set the complex vertex count.
-    /// </summary>
-    public uint ComplexVertexCount { get; set; }
 
     /// <summary>
     ///     Get current block tint, used when the tint is set to neutral.
@@ -124,11 +119,13 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get the lists that can be filled with complex mesh data.
+    /// Get the list containing the basic mesh data.
     /// </summary>
-    public (PooledList<float> positions, PooledList<int> data, PooledList<uint> indices) GetComplexMeshLists()
+    /// <param name="isOpaque">Whether the mesh is opaque or not.</param>
+    /// <returns>The list containing the basic mesh data.</returns>
+    public PooledList<SpatialVertex> GetBasicMesh(bool isOpaque)
     {
-        return (complexVertexPositions, complexVertexData, complexIndices);
+        return isOpaque ? basicOpaqueMesh : basicTransparentMesh;
     }
 
     /// <summary>
@@ -237,11 +234,7 @@ public class MeshingContext
     {
         // We build the mesh data for everything except complex meshes, as they are already in the correct format.
 
-        // todo: evaluate all initial capacities
-
-        PooledList<SpatialVertex> basicOpaqueMesh = new(capacity: 2048);
         GenerateMesh(opaqueBlockMeshFaceHolders, basicOpaqueMesh);
-        PooledList<SpatialVertex> basicTransparentMesh = new(capacity: 2048);
         GenerateMesh(transparentBlockMeshFaceHolders, basicTransparentMesh);
 
         PooledList<int> varyingHeightVertexData = new(capacity: 8);
@@ -277,9 +270,6 @@ public class MeshingContext
 
         return new SectionMeshData(
             (basicOpaqueMesh, basicTransparentMesh),
-            complexVertexPositions,
-            complexVertexData,
-            complexIndices,
             varyingHeightVertexData,
             varyingHeightIndices,
             crossPlantVertexData,

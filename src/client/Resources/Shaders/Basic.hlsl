@@ -1,12 +1,27 @@
 ﻿#include "Spatial.hlsl"
 #include "Decoding.hlsl"
 
-float4 GetBasicBaseColor(const in Info info)
+float2 GetUV(const in Info info)
 {
-    float2 uv = info.uv;
-    if (decode::GetTextureRotationFlag(info.data)) uv = RotateUV(uv);
+    const float4x2 uvs = decode::GetUVs(info.data);
+
+    const float2 uvX = uvs[info.indices.x];
+    const float2 uvY = uvs[info.indices.y];
+    const float2 uvZ = uvs[info.indices.z];
+
+    float2 uv = uvX * info.barycentric.x + uvY * info.barycentric.y + uvZ * info.barycentric.z;
+
+    if (decode::GetTextureRotationFlag(info.data))
+        uv = RotateUV(uv);
+    
     uv *= decode::GetTextureRepetition(info.data);
 
+    return uv;
+}
+
+float4 GetBasicBaseColor(const in Info info)
+{
+    const float2 uv = GetUV(info);
     uint textureIndex = decode::GetTextureIndex(info.data);
 
     const bool animated = decode::GetAnimationFlag(info.data);

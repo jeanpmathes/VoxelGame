@@ -41,7 +41,8 @@ RaytracingAccelerationStructure spaceBVH : register(t1);
  * - The mesh must be a quad mesh.
  * - The vertex order is CW.
  */
-void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC, out float3 normal, out uint4 data)
+void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3 posC, out float3 normal,
+                  out uint4 data)
 {
     // A quad looks like this:
     // 1 -- 2
@@ -54,12 +55,12 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
     const bool isFirst = (primitiveIndex % 2) == 0;
     const uint vertexIndex = (primitiveIndex / 2) * 4;
 
-    vi = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
-    vi += vertexIndex;
+    indices = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
+    const int3 i = indices + vertexIndex;
 
-    posA = vertices[vi[0]].vertex;
-    posB = vertices[vi[1]].vertex;
-    posC = vertices[vi[2]].vertex;
+    posA = vertices[i[0]].vertex;
+    posB = vertices[i[1]].vertex;
+    posC = vertices[i[2]].vertex;
 
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;
@@ -74,43 +75,8 @@ void ReadMeshData(out int3 vi, out float3 posA, out float3 posB, out float3 posC
         vertices[vertexIndex + 3].data);
 }
 
-/**
- * Get the interpolation factors for the quad.
- */
-float2 GetQuadInterpolation(float3 barycentric)
-{
-    const bool isFirst = (PrimitiveIndex() % 2) == 0;
-
-    const float2 a = float2(0.0, 0.0);
-    const float2 b = float2(0.0, 1.0);
-    const float2 c = float2(1.0, 1.0);
-    const float2 d = float2(1.0, 0.0);
-
-    float2 uv;
-
-    if (isFirst)
-    {
-        uv = barycentric.x * a
-            + barycentric.y * b
-            + barycentric.z * c;
-    }
-    else
-    {
-        uv = barycentric.x * a
-            + barycentric.y * c
-            + barycentric.z * d;
-    }
-
-    return uv;
-}
-
 struct Info
 {
-    /**
-     * The three vertex indices of the current triangle.
-     */
-    int3 vi;
-
     /**
      * The a position of the current triangle.
      */
@@ -127,6 +93,12 @@ struct Info
     float3 c;
 
     /**
+     * The indices of the current triangle, relative only to the current quad.
+     * This means that the indices are in the range [0, 3].
+     */
+    int3 indices;
+
+    /**
      * The normal of the current triangle.
      */
     float3 normal;
@@ -135,11 +107,6 @@ struct Info
      * The interpolation factors of the current triangle.
      */
     float3 barycentric;
-
-    /**
-     * The interpolation factors of the current quad.
-     */
-    float2 uv;
 
     /**
      * The current quad data.
@@ -151,10 +118,9 @@ Info GetCurrentInfo(const in Attributes attributes)
 {
     Info info;
 
-    ReadMeshData(info.vi, info.a, info.b, info.c, info.normal, info.data);
+    ReadMeshData(info.indices, info.a, info.b, info.c, info.normal, info.data);
 
     info.barycentric = GetBarycentrics(attributes);
-    info.uv = GetQuadInterpolation(info.barycentric);
 
     return info;
 }
@@ -171,6 +137,8 @@ float2 RotateUV(float2 uv)
 
 uint GetAnimatedIndex(const uint index, const uint frameCount, const float quadFactor)
 {
+    if (index == 0) return 0;
+    
     const uint quadID = PrimitiveIndex() / 2;
     return index + uint(fmod(gTime * frameCount + quadID * quadFactor, frameCount));
 }
