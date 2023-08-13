@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using OpenTK.Mathematics;
+
 namespace VoxelGame.Core.Logic.Interfaces;
 
 /// <summary>
@@ -31,6 +33,39 @@ public interface IHeightVariable : IBlockBase
         int height = GetHeight(data);
 
         return height == MaximumHeight;
+    }
+
+    /// <summary>
+    ///     Get the size of a face with a given height, in world units.
+    /// </summary>
+    /// <param name="height">The height of the face.</param>
+    /// <returns>The size of the face.</returns>
+    public static float GetSize(int height)
+    {
+        return (height + 1) / (float) (MaximumHeight + 1);
+    }
+
+    /// <summary>
+    ///     Get the gap of a face, which is the space between the end of the face and the end of the block, in world units.
+    /// </summary>
+    /// <param name="height">The height of the face.</param>
+    /// <returns>The gap of the face.</returns>
+    public static float GetGap(int height)
+    {
+        return 1 - GetSize(height);
+    }
+
+    /// <summary>
+    ///     Get the bounds of a face with a given height.
+    ///     The bounds can be used as texture coordinates.
+    /// </summary>
+    /// <param name="height">The height of the face.</param>
+    /// <returns>The bounds of the face.</returns>
+    public static (Vector2 min, Vector2 max) GetBounds(int height)
+    {
+        float size = GetSize(height);
+
+        return (new Vector2(x: 0, y: 0), new Vector2(x: 1, size));
     }
 
     /// <summary>

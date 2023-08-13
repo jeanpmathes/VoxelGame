@@ -4,26 +4,20 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Buffers;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
-///     A specialized class used to compact varying height block faces and fluid faces while meshing.
+///     A specialized class used to compact varying height faces while meshing.
 /// </summary>
-public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the same refactoring here as in BlockMeshFaceHolder
+public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 {
-    private static readonly uint[] indices =
-    {
-        0, 2, 1,
-        0, 3, 2,
-        0, 1, 2,
-        0, 2, 3
-    };
-
     private readonly MeshFace?[][] lastFaces;
 
     private int count;
@@ -50,27 +44,26 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
     ///     Add a face to the holder.
     /// </summary>
     /// <param name="pos">The position of the face, in section block coordinates.</param>
-    /// <param name="vertexData">The encoded data to use for this face.</param>
-    /// <param name="vertices">The encoded data for each vertex.</param>
+    /// <param name="size">The size of the face.</param>
+    /// <param name="direction">The direction of the face. True for upwards (default), false for downwards.</param>
+    /// <param name="data">The binary encoded data of the face.</param>
     /// <param name="isSingleSided">True if this face is single sided, false if double sided.</param>
     /// <param name="isFull">True if this face is full, filling a complete block side.</param>
-    public void AddFace(Vector3i pos, int vertexData, (int vertA, int vertB, int vertC, int vertD) vertices,
+    public void AddFace(Vector3i pos, int size, bool direction, (uint a, uint b, uint c, uint d) data,
         bool isSingleSided, bool isFull)
     {
         ExtractIndices(pos, out int layer, out int row, out int position);
 
         // Build current face.
         MeshFace currentFace = MeshFace.Get(
-            vertices.vertA,
-            vertices.vertB,
-            vertices.vertC,
-            vertices.vertD,
-            vertexData,
+            size,
+            direction,
+            data,
             position,
             isSingleSided);
 
-        // Front and Back faces cannot be extended (along the y axis) when the fluid is not all full level.
-        bool levelPermitsExtending = !(side is BlockSide.Front or BlockSide.Back && !isFull);
+        // Front and Back faces cannot be extended (along the y axis) when the face is not all full level.
+        bool levelPermitsExtending = side is not (BlockSide.Front or BlockSide.Back) || isFull;
 
         // Check if an already existing face can be extended.
         if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
@@ -78,7 +71,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
             currentFace.Return();
             currentFace = lastFaces[layer][row]!;
 
-            ExtendFace(currentFace, vertices);
+            ExtendFace(currentFace);
         }
         else
         {
@@ -93,7 +86,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
         MeshFace? combinationRowFace = lastFaces[layer][row - 1];
         MeshFace? lastCombinationRowFace = null;
 
-        // Left and right faces cannot be combined (along the y axis) when the fluid is not all full level.
+        // Left and right faces cannot be combined (along the y axis) when the face is not all full level.
         if (side is BlockSide.Left or BlockSide.Right && !isFull) return;
 
         // Check if the current face can be combined with a face in the previous row.
@@ -122,84 +115,25 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
         }
     }
 
-    private void CombineFace(MeshFace face, MeshFace combinationFace)
+    private static void ExtendFace(MeshFace face)
     {
-        switch (side)
-        {
-            case BlockSide.Front:
-            case BlockSide.Bottom:
-            case BlockSide.Top:
-                face.vertexA = combinationFace.vertexA;
-                face.vertexB = combinationFace.vertexB;
-
-                break;
-
-            case BlockSide.Back:
-                face.vertexC = combinationFace.vertexC;
-                face.vertexD = combinationFace.vertexD;
-
-                break;
-
-            case BlockSide.Left:
-            case BlockSide.Right:
-                face.vertexA = combinationFace.vertexA;
-                face.vertexD = combinationFace.vertexD;
-
-                break;
-
-            default: throw new InvalidCastException();
-        }
-
-        face.height = combinationFace.height + 1;
+        face.length++;
     }
 
-    private void ExtendFace(MeshFace face, (int vertA, int vertB, int vertC, int vertD) vertices)
+    private static void CombineFace(MeshFace face, MeshFace combinationFace)
     {
-        switch (side)
-        {
-            case BlockSide.Front:
-            case BlockSide.Back:
-            case BlockSide.Bottom:
-                face.vertexB = vertices.vertB;
-                face.vertexC = vertices.vertC;
-
-                break;
-
-            case BlockSide.Left:
-                face.vertexC = vertices.vertC;
-                face.vertexD = vertices.vertD;
-
-                break;
-
-            case BlockSide.Right:
-                face.vertexA = vertices.vertA;
-                face.vertexB = vertices.vertB;
-
-                break;
-
-            case BlockSide.Top:
-                face.vertexA = vertices.vertA;
-                face.vertexD = vertices.vertD;
-
-                break;
-
-            default: throw new InvalidCastException();
-        }
-
-        face.length++;
+        face.height = combinationFace.height + 1;
     }
 
     /// <summary>
     ///     Generate the mesh with all held faces.
     /// </summary>
-    /// <param name="vertexCount">The current vertex count, will be incremented for all added vertices.</param>
-    /// <param name="meshData">The list that will be filled with mesh data.</param>
-    /// <param name="meshIndices">The list that will be filled with indices.</param>
-    public void GenerateMesh(ref uint vertexCount, PooledList<int> meshData, PooledList<uint> meshIndices)
+    /// <param name="vertices">The mesh list to which all new vertices will be added.</param>
+    public void GenerateMesh(PooledList<SpatialVertex> vertices)
     {
         if (count == 0) return;
 
-        meshData.Capacity += count;
+        vertices.EnsureCapacity(vertices.Count + count * 4);
 
         for (var l = 0; l < Section.Size; l++)
         for (var r = 0; r < Section.Size; r++)
@@ -208,26 +142,17 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
 
             while (currentFace != null)
             {
-                int vertexTexRepetition = BuildVertexTextureRepetition(currentFace.height, currentFace.length);
+                bool isRotated = side is not (BlockSide.Left or BlockSide.Right);
 
-                meshData.Add(vertexTexRepetition | currentFace.vertexA);
-                meshData.Add(currentFace.vertexData);
+                Meshing.SetTextureRepetition(ref currentFace.data,
+                    isRotated,
+                    currentFace.height,
+                    currentFace.length);
 
-                meshData.Add(vertexTexRepetition | currentFace.vertexB);
-                meshData.Add(currentFace.vertexData);
+                (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
+                ApplyVaryingHeight(ref positions, currentFace);
 
-                meshData.Add(vertexTexRepetition | currentFace.vertexC);
-                meshData.Add(currentFace.vertexData);
-
-                meshData.Add(vertexTexRepetition | currentFace.vertexD);
-                meshData.Add(currentFace.vertexData);
-
-                int newIndices = currentFace.isSingleSided ? 6 : 12;
-                meshIndices.AddRange(indices, newIndices);
-
-                for (var i = 0; i < newIndices; i++) meshIndices[meshIndices.Count - newIndices + i] += vertexCount;
-
-                vertexCount += 4;
+                PushQuads(vertices, positions, currentFace);
 
                 MeshFace? next = currentFace.previous;
                 currentFace.Return();
@@ -236,14 +161,66 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
         }
     }
 
-    private int BuildVertexTextureRepetition(int height, int length)
+    private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, MeshFace face)
     {
-        const int heightShift = 24;
-        const int lengthShift = 20;
+        return GetPositions(layer, row, (face.position, face.length, face.height));
+    }
 
-        return !(side is BlockSide.Left or BlockSide.Right)
-            ? (height << heightShift) | (length << lengthShift)
-            : (length << heightShift) | (height << lengthShift);
+    private void ApplyVaryingHeight(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    {
+        if (side is BlockSide.Top or BlockSide.Bottom) ApplyVaryingHeightToVerticalSide(ref positions, face);
+        else ApplyVaryingHeightToLateralSide(ref positions, face);
+    }
+
+    private static void ApplyVaryingHeightToLateralSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    {
+        Vector3 bottomOffset;
+        Vector3 topOffset;
+
+        float gap = IHeightVariable.GetGap(face.size);
+
+        if (face.direction)
+        {
+            bottomOffset = (0, 0, 0);
+            topOffset = (0, -gap, 0);
+        }
+        else
+        {
+            bottomOffset = (0, gap, 0);
+            topOffset = (0, 0, 0);
+        }
+
+        positions.a += bottomOffset;
+        positions.b += topOffset;
+        positions.c += topOffset;
+        positions.d += bottomOffset;
+    }
+
+    private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    {
+        float gap = IHeightVariable.GetGap(face.size);
+        Vector3 offset = (0, 0, 0);
+
+        if (face.direction && side == BlockSide.Top) offset = (0, -gap, 0);
+
+        if (!face.direction && side == BlockSide.Bottom) offset = (0, gap, 0);
+
+        positions.a += offset;
+        positions.b += offset;
+        positions.c += offset;
+        positions.d += offset;
+    }
+
+    private static void PushQuads(PooledList<SpatialVertex> vertices, (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    {
+        Meshing.PushQuad(vertices, positions, face.data);
+
+        if (face.isSingleSided) return;
+
+        positions = (positions.d, positions.c, positions.b, positions.a);
+        Meshing.MirrorUVs(ref face.data);
+
+        Meshing.PushQuad(vertices, positions, face.data);
     }
 
     /// <summary>
@@ -260,26 +237,37 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
 
     private sealed class MeshFace
     {
-        public int height;
+        public (uint a, uint b, uint c, uint d) data;
+
+        /// <summary>
+        ///     The direction of the face, either up (true) or down (false).
+        ///     A face that goes up starts at the bottom of the block and goes up according to the size.
+        ///     A face that goes down starts at the top of the block and goes down according to the size.
+        /// </summary>
+        public bool direction;
+
+        public uint height;
 
         public bool isSingleSided;
-        public int length;
+        public uint length;
 
-        private int position;
+        public int position;
         public MeshFace? previous;
 
-        public int vertexA;
-        public int vertexB;
-        public int vertexC;
-        public int vertexD;
+        /// <summary>
+        ///     The size of the face, in the units used by <see cref="IHeightVariable" />.
+        ///     Is referred to as the height of the face outside of this class.
+        /// </summary>
+        public int size;
 
-        public int vertexData;
-
+        #pragma warning disable S1067
         public bool IsExtendable(MeshFace extension)
         {
             return position + length + 1 == extension.position &&
                    height == extension.height &&
-                   vertexData == extension.vertexData &&
+                   size == extension.size &&
+                   direction == extension.direction &&
+                   data == extension.data &&
                    isSingleSided == extension.isSingleSided;
         }
 
@@ -287,25 +275,25 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder // todo: do all the sa
         {
             return position == addition.position &&
                    length == addition.length &&
-                   vertexData == addition.vertexData &&
+                   size == addition.size &&
+                   direction == addition.direction &&
+                   data == addition.data &&
                    isSingleSided == addition.isSingleSided;
         }
+        #pragma warning restore S1067
 
         #region POOLING
 
-        public static MeshFace Get(int vert00, int vert01, int vert11, int vert10, int vertData, int position,
-            bool isSingleSided)
+        public static MeshFace Get(int size, bool direction, (uint a, uint b, uint c, uint d) data,
+            int position, bool isSingleSided)
         {
             MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
 
             instance.previous = null;
 
-            instance.vertexA = vert00;
-            instance.vertexB = vert01;
-            instance.vertexC = vert11;
-            instance.vertexD = vert10;
-
-            instance.vertexData = vertData;
+            instance.size = size;
+            instance.direction = direction;
+            instance.data = data;
 
             instance.position = position;
             instance.length = 0;

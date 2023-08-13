@@ -1,10 +1,9 @@
-﻿// <copyright file="CompactedMeshFaceHolder.cs" company="VoxelGame">
+﻿// <copyright file="FullMeshFaceHolder.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Buffers;
 using System.Diagnostics;
 using OpenTK.Mathematics;
@@ -15,19 +14,19 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
-///     A specialized class used to compact block faces when meshing.
+///     A specialized class used to compact (full) faces when meshing.
 /// </summary>
-public class BlockMeshFaceHolder : MeshFaceHolder
+public class FullMeshFaceHolder : MeshFaceHolder
 {
     private readonly MeshFace?[][] lastFaces;
 
     private int count;
 
     /// <summary>
-    ///     Create a new instance of the <see cref="BlockMeshFaceHolder" /> class for a given block side.
+    ///     Create a new instance of the <see cref="FullMeshFaceHolder" /> class for a given block side.
     /// </summary>
     /// <param name="side">The block side that the faces will correspond too.</param>
-    public BlockMeshFaceHolder(BlockSide side) : base(side)
+    public FullMeshFaceHolder(BlockSide side) : base(side)
     {
         Debug.Assert(side != BlockSide.All);
 
@@ -126,7 +125,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
     {
         if (count == 0) return;
 
-        vertices.Capacity += count * 4;
+        vertices.EnsureCapacity(vertices.Count + count * 4);
 
         for (var l = 0; l < Section.Size; l++)
         for (var r = 0; r < Section.Size; r++)
@@ -156,27 +155,7 @@ public class BlockMeshFaceHolder : MeshFaceHolder
 
     private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, MeshFace face)
     {
-        Vector3 position = RestorePosition(layer, row, face.position) + SideDependentOffset;
-
-        // Both height and lenght are given in additional distance to the normal height and lenght of a quad, so we add 1.
-        Vector3 lenght = LengthAxis.ToVector3() * (face.length + 1);
-        Vector3 height = HeightAxis.ToVector3() * (face.height + 1);
-
-        Vector3 v00 = position;
-        Vector3 v01 = position + height;
-        Vector3 v10 = position + lenght;
-        Vector3 v11 = position + lenght + height;
-
-        return side switch
-        {
-            BlockSide.Front => (v01, v11, v10, v00),
-            BlockSide.Back => (v00, v10, v11, v01),
-            BlockSide.Left => (v01, v00, v10, v11),
-            BlockSide.Right => (v11, v10, v00, v01),
-            BlockSide.Bottom => (v01, v11, v10, v00),
-            BlockSide.Top => (v11, v01, v00, v10),
-            _ => throw new InvalidOperationException()
-        };
+        return GetPositions(layer, row, (face.position, face.length, face.height));
     }
 
     /// <summary>

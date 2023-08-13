@@ -235,8 +235,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            bool singleSided = !blockToCheck.IsOpaqueAndFull &&
-                               blockToCheck.IsSolidAndFull;
+            bool singleSided = blockToCheck is {IsOpaqueAndFull: false, IsSolidAndFull: true}; // todo: check whether this is correct, maybe it can be simplified
 
             (int x, int y, int z) = position;
             side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
@@ -261,12 +260,13 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
                             (info.IsStatic ? 1 << 7 : 0 << 7) |
                             ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
 
-            fluidMeshFaceHolders[(int) side].AddFace(
+            // todo: uncomment
+            /*fluidMeshFaceHolders[(int) side].AddFace(
                 position,
                 lowerData,
                 (upperDataA, upperDataB, upperDataC, upperDataD),
                 singleSided,
-                info.Level == FluidLevel.Eight);
+                info.Level == FluidLevel.Eight);*/
         }
     }
 

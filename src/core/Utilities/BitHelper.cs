@@ -58,4 +58,12 @@ public static class BitHelper
     {
         return bools.Sum(b => b.ToInt());
     }
+
+    /// <summary>
+    ///     Get a bit-mask of a given size.
+    /// </summary>
+    public static uint GetMask(int size)
+    {
+        return (uint) (1 << size) - 1;
+    }
 }

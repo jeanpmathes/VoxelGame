@@ -270,7 +270,12 @@ public class PooledList<T> : IEnumerable<T>
         items[Count] = default!;
     }
 
-    private void EnsureCapacity(int min)
+    /// <summary>
+    ///     Ensures that the <see cref="PooledList{T}" /> can hold at least <paramref name="min" /> elements without resizing.
+    ///     This operation can cause the <see cref="PooledList{T}" /> to be resized.
+    /// </summary>
+    /// <param name="min">The minimum amount of elements the <see cref="PooledList{T}" /> should be able to hold.</param>
+    public void EnsureCapacity(int min)
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 

@@ -85,39 +85,33 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MeshLikeFluid(Vector3i position, BlockSide side, [DisallowNull] BlockInstance? blockToCheck, BlockMeshInfo info, MeshData mesh, MeshingContext context)
     {
-        side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-        (int x, int y, int z) = position;
-
         int height = GetHeight(info.Data);
 
         if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
             toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
-        // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
-        // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
-        int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |
-                         (y << 5) | (z + a[2]);
+        (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 
-        int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) |
-                         (y << 5) | (z + b[2]);
+        Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+        Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
 
-        int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) |
-                         (y << 5) | (z + c[2]);
+        if (side is not (BlockSide.Top or BlockSide.Bottom))
+        {
+            (Vector2 min, Vector2 max) bounds = GetBounds(height);
+            Meshing.SetUVs(ref data, bounds.min, (bounds.min.X, bounds.max.Y), bounds.max, (bounds.max.X, bounds.min.Y));
+        }
+        else
+        {
+            Meshing.SetFullUVs(ref data);
+        }
 
-        int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) |
-                         (y << 5) | (z + d[2]);
-
-        // todo: link to wiki instead of this comment, and maybe refactor to common utility, add inline attribute
-        // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
-        int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 20) |
-                        (height << 16) | mesh.TextureIndex;
-
-        context.GetVaryingHeightMeshFaceHolder(side).AddFace(
+        context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
-            lowerData,
-            (upperDataA, upperDataB, upperDataC, upperDataD),
+            height,
+            direction: true,
+            data,
             isSingleSided: true,
-            isFull: false);
+            height == MaximumHeight);
     }
 
     /// <summary>

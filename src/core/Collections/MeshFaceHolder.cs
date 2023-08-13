@@ -144,4 +144,32 @@ public class MeshFaceHolder
             _ => throw new InvalidOperationException()
         };
     }
+
+    /// <summary>
+    ///     Get the positions of the full face.
+    /// </summary>
+    protected (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, (int position, uint length, uint height) face)
+    {
+        Vector3 position = RestorePosition(layer, row, face.position) + SideDependentOffset;
+
+        // Both height and lenght are given in additional distance to the normal height and lenght of a quad, so we add 1.
+        Vector3 lenght = LengthAxis.ToVector3() * (face.length + 1);
+        Vector3 height = HeightAxis.ToVector3() * (face.height + 1);
+
+        Vector3 v00 = position;
+        Vector3 v01 = position + height;
+        Vector3 v10 = position + lenght;
+        Vector3 v11 = position + lenght + height;
+
+        return side switch
+        {
+            BlockSide.Front => (v01, v11, v10, v00),
+            BlockSide.Back => (v00, v10, v11, v01),
+            BlockSide.Left => (v01, v00, v10, v11),
+            BlockSide.Right => (v11, v10, v00, v01),
+            BlockSide.Bottom => (v01, v11, v10, v00),
+            BlockSide.Top => (v11, v01, v00, v10),
+            _ => throw new InvalidOperationException()
+        };
+    }
 }

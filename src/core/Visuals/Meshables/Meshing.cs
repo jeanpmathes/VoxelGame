@@ -34,6 +34,8 @@ public static class Meshing
         IsTextureRotated = 1
     }
 
+    private const int UVShift = 15;
+
     /// <summary>
     ///     Push a quad to a mesh.
     /// </summary>
@@ -126,6 +128,16 @@ public static class Meshing
                x;
     }
 
+    private static Vector4 DecodeFromBase17(uint value)
+    {
+        uint x = value % 17;
+        uint y = value / 17 % 17;
+        uint z = value / (17 * 17) % 17;
+        uint w = value / (17 * 17 * 17) % 17;
+
+        return new Vector4(x / 16f, y / 16f, z / 16f, w / 16f);
+    }
+
     /// <summary>
     ///     Set the UV coordinates for a quad.
     /// </summary>
@@ -138,10 +150,22 @@ public static class Meshing
     public static void SetUVs(ref (uint a, uint b, uint c, uint d) data,
         Vector2 uv0, Vector2 uv1, Vector2 uv2, Vector2 uv3)
     {
-        const int uvShift = 15;
+        data.c |= EncodeInBase17((uv0.X, uv1.X, uv2.X, uv3.X)) << UVShift;
+        data.d |= EncodeInBase17((uv0.Y, uv1.Y, uv2.Y, uv3.Y)) << UVShift;
+    }
 
-        data.c |= EncodeInBase17((uv0.X, uv1.X, uv2.X, uv3.X)) << uvShift;
-        data.d |= EncodeInBase17((uv0.Y, uv1.Y, uv2.Y, uv3.Y)) << uvShift;
+    /// <summary>
+    ///     Mirror UVs that are already set on the U axis.
+    /// </summary>
+    /// <param name="data">The data of the quad.</param>
+    public static void MirrorUVs(ref (uint a, uint b, uint c, uint d) data)
+    {
+        uint uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
+
+        Vector4 u = DecodeFromBase17(data.c >> UVShift);
+
+        data.c &= ~uvMask;
+        data.c |= EncodeInBase17((u.W, u.Z, u.Y, u.X)) << UVShift;
     }
 
     /// <summary>

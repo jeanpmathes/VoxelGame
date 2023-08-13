@@ -42,16 +42,12 @@ public class SectionMeshData
     private bool isReturnedToPool;
 
     internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
-        PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
         PooledList<int> crossPlantVertexData,
         PooledList<int> cropPlantVertexData,
         PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
         PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
         BasicMesh = basicMesh;
-
-        this.varyingHeightVertexData = varyingHeightVertexData;
-        this.varyingHeightIndices = varyingHeightIndices;
 
         this.crossPlantVertexData = crossPlantVertexData;
 
@@ -67,9 +63,6 @@ public class SectionMeshData
     private SectionMeshData()
     {
         BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
-
-        varyingHeightVertexData = new PooledList<int>();
-        varyingHeightIndices = new PooledList<uint>();
 
         crossPlantVertexData = new PooledList<int>();
 
@@ -91,8 +84,9 @@ public class SectionMeshData
     ///     Get whether this mesh data is empty.
     /// </summary>
     public bool IsFilled => BasicMesh.opaque.Count != 0 || BasicMesh.transparent.Count != 0 ||
-                            varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
-                            cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
+                            crossPlantVertexData.Count != 0 ||
+                            cropPlantVertexData.Count != 0 ||
+                            opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
 
     /// <summary>
@@ -112,9 +106,6 @@ public class SectionMeshData
 
         BasicMesh.opaque.ReturnToPool();
         BasicMesh.transparent.ReturnToPool();
-
-        varyingHeightVertexData.ReturnToPool();
-        varyingHeightIndices.ReturnToPool();
 
         crossPlantVertexData.ReturnToPool();
 
@@ -151,8 +142,6 @@ public class SectionMeshData
     public readonly PooledList<uint> transparentFluidIndices;
 
     public readonly PooledList<int> transparentFluidVertexData;
-    public readonly PooledList<uint> varyingHeightIndices;
 
-    public readonly PooledList<int> varyingHeightVertexData;
     #pragma warning restore
 }

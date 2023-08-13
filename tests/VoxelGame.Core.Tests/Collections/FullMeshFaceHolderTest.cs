@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockMeshFaceHolderTest.cs" company="VoxelGame">
+﻿// <copyright file="FullMeshFaceHolderTest.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -14,11 +14,11 @@ using Xunit;
 
 namespace VoxelGame.Core.Tests.Collections;
 
-public class BlockMeshFaceHolderTest
+public class FullMeshFaceHolderTest
 {
     private static readonly (uint, uint, uint, uint) emptyData = (0, 0, 0, 0);
 
-    private static void FillHolder(BlockMeshFaceHolder holder, Vector3i direction)
+    private static void FillHolder(FullMeshFaceHolder holder, Vector3i direction)
     {
         bool IsSkippedIndex(int index, int component)
         {
@@ -61,7 +61,7 @@ public class BlockMeshFaceHolderTest
 
     private static void TestSide(BlockSide side)
     {
-        BlockMeshFaceHolder holder = new(side);
+        FullMeshFaceHolder holder = new(side);
 
         FillHolder(holder, side.Direction());
 
