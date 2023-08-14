@@ -30,12 +30,13 @@ public class WallBlock : WideConnectingBlock
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal WallBlock(string name, string namedId, string texture, string postModel, string extensionModel,
+    internal WallBlock(string name, string namedID, string texture, string postModel, string extensionModel,
         string extensionStraight) :
         base(
             name,
-            namedId,
+            namedID,
             texture,
+            isOpaque: true,
             postModel,
             extensionModel,
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.5f, z: 0.25f)))

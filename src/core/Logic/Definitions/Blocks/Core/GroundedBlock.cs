@@ -19,10 +19,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GroundedBlock : BasicBlock, ICombustible
 {
-    internal GroundedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
+    internal GroundedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags,
             layout) {}
 

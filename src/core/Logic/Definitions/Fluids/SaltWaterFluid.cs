@@ -18,10 +18,10 @@ public class SaltWaterFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="SaltWaterFluid" />.
     /// </summary>
-    public SaltWaterFluid(string name, string namedId, float density, int viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
+    public SaltWaterFluid(string name, string namedID, float density, int viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
         base(
             name,
-            namedId,
+            namedID,
             density,
             viscosity,
             hasNeutralTint: true,

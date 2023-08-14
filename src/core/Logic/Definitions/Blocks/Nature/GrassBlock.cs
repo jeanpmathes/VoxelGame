@@ -17,10 +17,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GrassBlock : CoveredDirtBlock, ICombustible
 {
-    internal GrassBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+    internal GrassBlock(string name, string namedID, TextureLayout normal, TextureLayout wet) :
         base(
             name,
-            namedId,
+            namedID,
             normal,
             wet,
             hasNeutralTint: true,

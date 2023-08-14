@@ -20,10 +20,10 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     private readonly TextureLayout wet;
     private int[] wetTextureIndices = null!;
 
-    internal DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+    internal DirtBlock(string name, string namedID, TextureLayout normal, TextureLayout wet) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             normal)
     {

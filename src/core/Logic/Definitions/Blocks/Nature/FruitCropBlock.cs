@@ -30,10 +30,10 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
 
     private (int dead, int initial, int last) textureIndex;
 
-    internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
+    internal FruitCropBlock(string name, string namedID, string texture, Block fruit) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f)))
     {

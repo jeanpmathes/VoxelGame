@@ -25,10 +25,10 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal GateBlock(string name, string namedId, string closedModel, string openModel) :
+    internal GateBlock(string name, string namedID, string closedModel, string openModel) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Functional,
             BoundingVolume.Block)
     {

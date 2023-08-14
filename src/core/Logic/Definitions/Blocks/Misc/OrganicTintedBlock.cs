@@ -15,10 +15,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class OrganicTintedBlock : TintedBlock, ICombustible
 {
-    internal OrganicTintedBlock(string name, string namedId, TextureLayout layout) :
+    internal OrganicTintedBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             layout) {}
 }

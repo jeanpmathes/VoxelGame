@@ -28,14 +28,20 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
     private readonly List<BoundingVolume> volumes = new();
 
     /// <inheritdoc />
-    internal ThinConnectingBlock(string name, string namedId, string postModel, string sideModel,
+    internal ThinConnectingBlock(
+        string name,
+        string namedID,
+        bool isOpaque,
+        string postModel,
+        string sideModel,
         string extensionModel) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags
             {
-                IsSolid = true
+                IsSolid = true,
+                IsOpaque = isOpaque
             },
             new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),

@@ -27,11 +27,11 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     private readonly List<BlockMesh> meshes = new(capacity: 3);
     private readonly List<BoundingVolume> volumes = new();
 
-    internal StraightSteelPipeBlock(string name, string namedId, float diameter, string model) :
+    internal StraightSteelPipeBlock(string name, string namedID, float diameter, string model) :
         base(
             name,
-            namedId,
-            BlockFlags.Solid,
+            namedID,
+            BlockFlags.Basic,
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(diameter, diameter, z: 0.5f)))
     {
         this.diameter = diameter;

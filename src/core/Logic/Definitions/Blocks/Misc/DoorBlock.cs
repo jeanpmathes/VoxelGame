@@ -37,11 +37,11 @@ public class DoorBlock : Block, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal DoorBlock(string name, string namedId, string closedModel, string openModel) :
+    internal DoorBlock(string name, string namedID, string closedModel, string openModel) :
         base(
             name,
-            namedId,
-            BlockFlags.Functional,
+            namedID,
+            BlockFlags.Functional with {IsOpaque = true},
             new BoundingVolume(new Vector3d(x: 0.5f, y: 1f, z: 0.5f), new Vector3d(x: 0.5f, y: 1f, z: 0.5f)))
     {
         BlockModel.Load(closedModel).PlaneSplit(

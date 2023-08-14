@@ -30,11 +30,11 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
     private int[] stageTextureIndices = null!;
 
-    internal CropBlock(string name, string namedId, string texture, int second, int third, int fourth, int fifth,
+    internal CropBlock(string name, string namedID, string texture, int second, int third, int fourth, int fifth,
         int sixth, int final, int dead) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {

@@ -21,11 +21,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // c: color
 public class TintedCustomModelBlock : CustomModelBlock, ICombustible
 {
-    internal TintedCustomModelBlock(string name, string namedId, BlockFlags flags, string modelName,
+    internal TintedCustomModelBlock(string name, string namedID, BlockFlags flags, string modelName,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsInteractable = true},
             modelName,
             boundingVolume) {}

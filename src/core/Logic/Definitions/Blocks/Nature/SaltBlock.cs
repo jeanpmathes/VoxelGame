@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class SaltBlock : GroundedModifiableHeightBlock, IFillable
 {
-    internal SaltBlock(string name, string namedId, TextureLayout layout) : base(name, namedId, layout) {}
+    internal SaltBlock(string name, string namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
     public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)

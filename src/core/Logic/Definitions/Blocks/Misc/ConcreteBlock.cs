@@ -28,10 +28,10 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     private readonly List<BoundingVolume> volumes = new();
     private int[] textures = null!;
 
-    internal ConcreteBlock(string name, string namedId, TextureLayout layout) :
+    internal ConcreteBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Functional with {IsOpaque = true},
             BoundingVolume.Block)
     {

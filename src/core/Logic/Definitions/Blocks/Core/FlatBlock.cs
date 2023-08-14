@@ -35,14 +35,14 @@ public class FlatBlock : Block, IFillable, IComplex
     ///     use neutral tints.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The texture to use for the block.</param>
     /// <param name="climbingVelocity">The velocity of players climbing the block.</param>
     /// <param name="slidingVelocity">The velocity of players sliding along the block.</param>
-    internal FlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
+    internal FlatBlock(string name, string namedID, string texture, float climbingVelocity, float slidingVelocity) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Trigger,
             BoundingVolume.Block)
     {

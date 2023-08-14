@@ -32,12 +32,12 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal PipeBlock(string name, string namedId, float diameter, string centerModel, string connectorModel,
+    internal PipeBlock(string name, string namedID, float diameter, string centerModel, string connectorModel,
         string surfaceModel) :
         base(
             name,
-            namedId,
-            BlockFlags.Solid,
+            namedID,
+            BlockFlags.Basic,
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(diameter, diameter, diameter)))
     {
         this.diameter = diameter;

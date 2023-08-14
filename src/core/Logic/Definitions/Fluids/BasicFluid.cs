@@ -28,18 +28,18 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     ///     Create a new basic fluid.
     /// </summary>
     /// <param name="name">The name of the basic fluid.</param>
-    /// <param name="namedId">The named ID of the fluid.</param>
+    /// <param name="namedID">The named ID of the fluid.</param>
     /// <param name="density">The density of the fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid.</param>
     /// <param name="hasNeutralTint">Whether this fluid has a neutral tint.</param>
     /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
     /// <param name="staticLayout">The texture layout when this fluid is static.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    public BasicFluid(string name, string namedId, float density, int viscosity, bool hasNeutralTint,
+    public BasicFluid(string name, string namedID, float density, int viscosity, bool hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
         base(
             name,
-            namedId,
+            namedID,
             density,
             viscosity,
             checkContact: true,

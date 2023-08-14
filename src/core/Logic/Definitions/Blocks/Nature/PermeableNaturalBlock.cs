@@ -18,5 +18,5 @@ public class PermeableNaturalBlock : NaturalBlock, IFillable
     /// <summary>
     ///     Creates a new permeable natural block.
     /// </summary>
-    public PermeableNaturalBlock(string name, string namedId, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) : base(name, namedId, hasNeutralTint, flags, layout) {}
+    public PermeableNaturalBlock(string name, string namedID, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) : base(name, namedID, hasNeutralTint, flags, layout) {}
 }

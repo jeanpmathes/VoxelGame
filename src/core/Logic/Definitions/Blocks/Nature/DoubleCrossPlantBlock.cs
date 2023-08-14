@@ -28,11 +28,11 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     private int bottomTextureIndex;
     private int topTextureIndex;
 
-    internal DoubleCrossPlantBlock(string name, string namedId, string bottomTexture, int topTexOffset,
+    internal DoubleCrossPlantBlock(string name, string namedID, string bottomTexture, int topTexOffset,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             boundingVolume)
     {

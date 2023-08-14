@@ -388,7 +388,7 @@ public class Blocks
             Vase = Register(new CustomModelBlock(
                 Language.Vase,
                 nameof(Vase),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "vase",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f))));
 
@@ -407,20 +407,21 @@ public class Blocks
             Carpet = Register(new TintedCustomModelBlock(
                 Language.Carpet,
                 nameof(Carpet),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "carpet",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             CarpetDecorated = Register(new TintedCustomModelBlock(
                 Language.DecoratedCarpet,
                 nameof(CarpetDecorated),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "carpet_decorated",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             GlassPane = Register(new ThinConnectingBlock(
                 Language.GlassPane,
                 nameof(GlassPane),
+                isOpaque: false,
                 "pane_glass_post",
                 "pane_glass_side",
                 "pane_glass_extension"));
@@ -428,6 +429,7 @@ public class Blocks
             Bars = Register(new ThinConnectingBlock(
                 Language.Bars,
                 nameof(Bars),
+                isOpaque: true,
                 "bars_post",
                 "bars_side",
                 "bars_extension"));
@@ -674,11 +676,11 @@ public class Blocks
     /// <summary>
     ///     Translate a named ID to the block that has that ID.
     /// </summary>
-    /// <param name="namedId">The named ID to translate.</param>
+    /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The block, or null if no block with the ID exists.</returns>
-    public Block? TranslateNamedID(string namedId)
+    public Block? TranslateNamedID(string namedID)
     {
-        namedBlockDictionary.TryGetValue(namedId, out Block? block);
+        namedBlockDictionary.TryGetValue(namedID, out Block? block);
 
         return block;
     }

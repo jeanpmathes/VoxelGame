@@ -25,13 +25,13 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     ///     Create a new block.
     /// </summary>
     /// <param name="name">The name of the block. Can be localized.</param>
-    /// <param name="namedId">The named ID of the block. A unique and unlocalized identifier.</param>
+    /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
     /// <param name="flags">The block flags setting specific options.</param>
     /// <param name="boundingVolume">The base bounding volume for this block. Is used for placement checks.</param>
-    protected Block(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume)
+    protected Block(string name, string namedID, BlockFlags flags, BoundingVolume boundingVolume)
     {
         Name = name;
-        NamedID = namedId;
+        NamedID = namedID;
 
         IsFull = flags.IsFull;
         IsOpaque = flags.IsOpaque;

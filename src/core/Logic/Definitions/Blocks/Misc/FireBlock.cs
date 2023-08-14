@@ -35,10 +35,10 @@ public class FireBlock : Block, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal FireBlock(string name, string namedId, string completeModel, string sideModel, string topModel) :
+    internal FireBlock(string name, string namedID, string completeModel, string sideModel, string topModel) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Replaceable,
             BoundingVolume.Block)
     {

@@ -20,10 +20,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // a: axis
 public class RotatedBlock : BasicBlock, ICombustible
 {
-    internal RotatedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
+    internal RotatedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags,
             layout) {}
 

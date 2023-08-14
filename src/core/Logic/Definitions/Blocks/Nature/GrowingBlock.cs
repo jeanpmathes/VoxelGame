@@ -22,10 +22,10 @@ public class GrowingBlock : BasicBlock, ICombustible
     private readonly int maxHeight;
     private readonly Block requiredGround;
 
-    internal GrowingBlock(string name, string namedId, TextureLayout layout, Block ground, int maxHeight) :
+    internal GrowingBlock(string name, string namedID, TextureLayout layout, Block ground, int maxHeight) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             layout)
     {

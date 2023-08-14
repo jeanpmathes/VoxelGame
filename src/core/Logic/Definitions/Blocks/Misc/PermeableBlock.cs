@@ -17,10 +17,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class PermeableBlock : BasicBlock, IFillable
 {
-    internal PermeableBlock(string name, string namedId, TextureLayout layout) :
+    internal PermeableBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             layout) {}
 

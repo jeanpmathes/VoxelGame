@@ -22,14 +22,14 @@ public class NaturalBlock : BasicBlock, ICombustible
     ///     Creates a new instance of the <see cref="NaturalBlock" /> class.
     /// </summary>
     /// <param name="name">The internal block name.</param>
-    /// <param name="namedId">The named id of the block.</param>
+    /// <param name="namedID">The named id of the block.</param>
     /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="layout">The texture layout.</param>
-    public NaturalBlock(string name, string namedId, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) :
+    public NaturalBlock(string name, string namedID, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags,
             layout)
     {

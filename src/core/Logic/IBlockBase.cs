@@ -62,8 +62,9 @@ public interface IBlockBase
     public bool IsFull { get; }
 
     /// <summary>
-    ///     Gets whether it is possible to see through this block. If an block is not full, it is possible to see
-    ///     trough the position of the block, no matter the visuals. Thus, this property must be false for non-full blocks.
+    ///     Gets whether it is possible to see through this block.
+    ///     Note that this only indicates whether the actual filled portion of the block is opaque.
+    ///     If the block is not full, it is possible to see around the block.
     /// </summary>
     public bool IsOpaque { get; }
 

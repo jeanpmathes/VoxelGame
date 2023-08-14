@@ -22,10 +22,10 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     private readonly TextureLayout open;
     private int[] openTextureIndices = null!;
 
-    internal FluidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
+    internal FluidBarrierBlock(string name, string namedID, TextureLayout closed, TextureLayout open) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic with {IsInteractable = true},
             closed)
     {

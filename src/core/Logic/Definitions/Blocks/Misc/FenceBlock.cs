@@ -29,15 +29,16 @@ public class FenceBlock : WideConnectingBlock, ICombustible
     ///     Create a new <see cref="FenceBlock" />.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The named ID of the block.</param>
+    /// <param name="namedID">The named ID of the block.</param>
     /// <param name="texture">The texture to apply to the model.</param>
     /// <param name="postModel">The name of the post model. All model textures are ignored.</param>
     /// <param name="extensionModel">The name of the extension model. All model textures are ignored.</param>
-    internal FenceBlock(string name, string namedId, string texture, string postModel, string extensionModel) :
+    internal FenceBlock(string name, string namedID, string texture, string postModel, string extensionModel) :
         base(
             name,
-            namedId,
+            namedID,
             texture,
+            isOpaque: true,
             postModel,
             extensionModel,
             new BoundingVolume(

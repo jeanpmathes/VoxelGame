@@ -28,15 +28,15 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     ///     Initializes a new instance of a cross plant.
     /// </summary>
     /// <param name="name">The name of this block.</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The name of the texture of this block.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="boundingVolume">The bounding box of this block.</param>
-    internal CrossPlantBlock(string name, string namedId, string texture, BlockFlags flags,
+    internal CrossPlantBlock(string name, string namedID, string texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = false, IsOpaque = false},
             boundingVolume)
     {

@@ -279,11 +279,11 @@ public class Fluids
     /// <summary>
     ///     Translate a named ID to the fluid with that ID.
     /// </summary>
-    /// <param name="namedId">The named ID to translate.</param>
+    /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The fluid, or null.</returns>
-    public Fluid? TranslateNamedID(string namedId)
+    public Fluid? TranslateNamedID(string namedID)
     {
-        namedFluidDictionary.TryGetValue(namedId, out Fluid? fluid);
+        namedFluidDictionary.TryGetValue(namedID, out Fluid? fluid);
 
         return fluid;
     }

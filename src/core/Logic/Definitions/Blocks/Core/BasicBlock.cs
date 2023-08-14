@@ -25,13 +25,13 @@ public class BasicBlock : Block, ISimple
     ///     A <see cref="BasicBlock" /> is a block that is completely filled and cannot be replaced.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The named ID.</param>
+    /// <param name="namedID">The named ID.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="layout">The texture layout.</param>
-    internal BasicBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
+    internal BasicBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = true, IsReplaceable = false},
             BoundingVolume.Block)
     {

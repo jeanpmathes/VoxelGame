@@ -36,12 +36,12 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     private int[] stageTextureIndicesLow = null!;
     private int[] stageTextureIndicesTop = null!;
 
-    internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second,
+    internal DoubleCropBlock(string name, string namedID, string texture, int dead, int first, int second,
         int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth,
         (int low, int top) final) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {

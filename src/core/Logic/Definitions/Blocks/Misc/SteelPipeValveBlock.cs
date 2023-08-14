@@ -29,12 +29,12 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal SteelPipeValveBlock(string name, string namedId, float diameter, string openModel,
+    internal SteelPipeValveBlock(string name, string namedID, float diameter, string openModel,
         string closedModel) :
         base(
             name,
-            namedId,
-            BlockFlags.Functional,
+            namedID,
+            BlockFlags.Functional with {IsOpaque = true},
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(diameter, diameter, z: 0.5f)))
     {
         this.diameter = diameter;

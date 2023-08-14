@@ -25,11 +25,11 @@ public class CrossBlock : Block, IFillable, IComplex
     ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
     ///     Cross blocks are never full, solid, or opaque.
     /// </summary>
-    protected CrossBlock(string name, string namedId, string texture, BlockFlags flags,
+    protected CrossBlock(string name, string namedID, string texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = false, IsOpaque = false, IsSolid = false},
             boundingVolume)
     {

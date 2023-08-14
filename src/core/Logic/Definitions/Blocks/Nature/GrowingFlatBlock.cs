@@ -20,11 +20,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // a: age
 public class GrowingFlatBlock : FlatBlock, ICombustible
 {
-    internal GrowingFlatBlock(string name, string namedId, string texture, float climbingVelocity,
+    internal GrowingFlatBlock(string name, string namedID, string texture, float climbingVelocity,
         float slidingVelocity) :
         base(
             name,
-            namedId,
+            namedID,
             texture,
             climbingVelocity,
             slidingVelocity) {}

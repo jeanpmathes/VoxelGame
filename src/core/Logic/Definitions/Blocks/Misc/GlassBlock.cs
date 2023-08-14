@@ -15,10 +15,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GlassBlock : BasicBlock, IThinConnectable
 {
-    internal GlassBlock(string name, string namedId, TextureLayout layout) :
+    internal GlassBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic with {IsOpaque = false},
             layout) {}
 }

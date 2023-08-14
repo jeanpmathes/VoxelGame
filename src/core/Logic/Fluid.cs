@@ -37,19 +37,19 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     ///     Create a new fluid.
     /// </summary>
     /// <param name="name">The name of the fluid. Can be localized.</param>
-    /// <param name="namedId">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
+    /// <param name="namedID">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
     /// <param name="density">The density of the fluid. This determines whether this is a gas or a fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid. This determines the flow speed.</param>
     /// <param name="checkContact">Whether entity contact must be checked.</param>
     /// <param name="receiveContact">Whether entity contact should be passed to the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    protected Fluid(string name, string namedId, double density, int viscosity,
+    protected Fluid(string name, string namedID, double density, int viscosity,
         bool checkContact, bool receiveContact, RenderType renderType)
     {
         Debug.Assert(density > 0);
 
         Name = name;
-        NamedID = namedId;
+        NamedID = namedID;
 
         Density = density;
 

@@ -20,10 +20,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class OrientedBlock : BasicBlock
 {
-    internal OrientedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
+    internal OrientedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags,
             layout) {}
 
