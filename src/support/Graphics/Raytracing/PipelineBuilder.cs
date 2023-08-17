@@ -140,8 +140,10 @@ public class PipelineBuilder
             isOpaque = material.IsOpaque,
             normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
             normalAnyHitSymbol = material.Normal.AnyHitSymbol,
+            normalIntersectionSymbol = material.Normal.IntersectionSymbol,
             shadowClosestHitSymbol = material.Shadow.ClosestHitSymbol,
-            shadowAnyHitSymbol = material.Shadow.AnyHitSymbol
+            shadowAnyHitSymbol = material.Shadow.AnyHitSymbol,
+            shadowIntersectionSymbol = material.Shadow.IntersectionSymbol
         }).ToArray();
 
         IEnumerable<IntPtr> firstSlot = firstTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();

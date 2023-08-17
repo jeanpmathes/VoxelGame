@@ -63,7 +63,9 @@ internal struct MaterialDescription
 
     [MarshalAs(UnmanagedType.LPWStr)] internal string normalClosestHitSymbol;
     [MarshalAs(UnmanagedType.LPWStr)] internal string normalAnyHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string normalIntersectionSymbol;
 
     [MarshalAs(UnmanagedType.LPWStr)] internal string shadowClosestHitSymbol;
     [MarshalAs(UnmanagedType.LPWStr)] internal string shadowAnyHitSymbol;
+    [MarshalAs(UnmanagedType.LPWStr)] internal string shadowIntersectionSymbol;
 }

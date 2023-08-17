@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#include "Basic.hlsl"
+#include "Section.hlsl"
 
 [shader("closesthit")]
 void BasicOpaqueSectionClosestHit(inout HitInfo payload, const Attributes attributes)

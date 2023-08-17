@@ -121,6 +121,11 @@ public sealed class Shaders // todo: delete all GLSL shaders
     public Material BasicTransparentSectionMaterial { get; private set; } = null!;
 
     /// <summary>
+    ///     The raytracing material used for foliage.
+    /// </summary>
+    public Material FoliageSectionMaterial { get; private set; } = null!;
+
+    /// <summary>
     ///     Load all shaders in the given directory.
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
@@ -249,10 +254,14 @@ public sealed class Shaders // todo: delete all GLSL shaders
         PipelineBuilder.HitGroup basicTransparentSectionHitGroup = new("BasicTransparentSectionClosestHit", "BasicTransparentSectionAnyHit");
         PipelineBuilder.HitGroup basicTransparentShadowHitGroup = new("BasicTransparentShadowClosestHit", "BasicTransparentShadowAnyHit");
 
+        PipelineBuilder.HitGroup foliageSectionHitGroup = new("FoliageSectionClosestHit", "FoliageSectionAnyHit");
+        PipelineBuilder.HitGroup foliageShadowHitGroup = new("FoliageShadowClosestHit", "FoliageShadowAnyHit");
+
         builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: new[] {"RayGen"});
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
         builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), new[] {basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), new[] {basicTransparentSectionHitGroup, basicTransparentShadowHitGroup});
+        builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), new[] {foliageSectionHitGroup, foliageShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
 
         BasicOpaqueSectionMaterial = builder.AddMaterial(
@@ -266,6 +275,12 @@ public sealed class Shaders // todo: delete all GLSL shaders
             isOpaque: false,
             basicTransparentSectionHitGroup,
             basicTransparentShadowHitGroup);
+
+        FoliageSectionMaterial = builder.AddMaterial(
+            nameof(FoliageSectionMaterial),
+            isOpaque: false,
+            foliageSectionHitGroup,
+            foliageShadowHitGroup);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);

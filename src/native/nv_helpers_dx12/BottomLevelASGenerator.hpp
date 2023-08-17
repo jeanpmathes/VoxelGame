@@ -121,6 +121,17 @@ namespace nv_helpers_dx12
                              bool isOpaque = true
         );
 
+        /// Add a buffer containing axis-aligned bounding boxes in GPU memory into the acceleration structure.
+        /// \param boundsBuffer Buffer containing the bounding boxes, as an array of float3 min and float3 max
+        /// \param boundsOffsetInBytes Offset of the first bounding box in the buffer
+        /// \param boundsCount Number of bounding boxes to consider in the buffer
+        /// \param boundsSizeInBytes Size of a bounding box, used to stride in the buffer
+        void AddBoundsBuffer(ID3D12Resource* boundsBuffer,
+                             UINT64 boundsOffsetInBytes,
+                             uint32_t boundsCount,
+                             UINT boundsSizeInBytes
+        );
+
         /// Compute the size of the scratch space required to build the acceleration structure, as well as
         /// the size of the resulting structure. The allocation of the buffers is then left to the
         /// application

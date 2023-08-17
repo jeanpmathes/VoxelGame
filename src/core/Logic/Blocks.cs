@@ -38,7 +38,7 @@ public class Blocks
     private readonly List<Block> blockList = new();
     private readonly Dictionary<string, Block> namedBlockDictionary = new();
 
-    private Blocks(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
         {
@@ -630,7 +630,7 @@ public class Blocks
 
                 var id = (uint) (blockList.Count - 1);
 
-                block.Setup(id, indexProvider);
+                block.Setup(id, indexProvider, visuals);
 
                 loadingContext.ReportSuccess(Events.BlockLoad, nameof(Block), block.NamedID);
             }
@@ -688,9 +688,9 @@ public class Blocks
     /// <summary>
     ///     Loads all blocks and sets them up.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
-        Instance = new Blocks(indexProvider, loadingContext);
+        Instance = new Blocks(indexProvider, visuals, loadingContext);
     }
 
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]

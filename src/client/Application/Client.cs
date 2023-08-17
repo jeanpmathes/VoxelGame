@@ -98,7 +98,7 @@ internal class Client : Support.Client, IPerformanceProvider
 
             LoadingContext loadingContext = new();
 
-            Resources.Load(loadingContext);
+            Resources.Load(Graphics.GetVisualConfiguration(), loadingContext);
 
             IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
             sceneManager.Load(startScene);

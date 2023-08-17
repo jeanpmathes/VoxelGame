@@ -695,6 +695,9 @@
         <None Update="Resources\Shaders\Post.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Shaders\Foliage.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -716,7 +719,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Resources\Shaders\Basic.hlsl">
+        <None Include="Resources\Shaders\Section.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

@@ -1,4 +1,4 @@
-﻿// <copyright file="IComplex.cs" company="VoxelGame">
+﻿// <copyright file="IFoliage.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,9 +11,9 @@ using VoxelGame.Core.Collections;
 namespace VoxelGame.Core.Visuals.Meshables;
 
 /// <summary>
-///     A meshable for complex meshes that have few constraints.
+///     Defines how foliage is meshed.
 /// </summary>
-public interface IComplex : IBlockMeshable
+public interface IFoliage : IBlockMeshable
 {
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
@@ -21,7 +21,7 @@ public interface IComplex : IBlockMeshable
 
         MeshData mesh = GetMeshData(info);
         BlockMesh.Quad[] quads = mesh.Quads;
-        PooledList<SpatialVertex> vertices = context.GetBasicMesh(IsOpaque);
+        PooledList<SpatialVertex> vertices = context.GetFoliageMesh();
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
@@ -29,6 +29,9 @@ public interface IComplex : IBlockMeshable
 
             Meshing.SetTint(ref quad.data, mesh.Tint.Select(context.GetBlockTint(position)));
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
+
+            Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsDoublePlant, mesh.IsDoublePlant);
+            Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsUpperPart, mesh.IsUpperPart);
 
             Meshing.PushQuadWithOffset(vertices, quad.Positions, quad.data, offset);
         }
@@ -40,23 +43,24 @@ public interface IComplex : IBlockMeshable
     protected MeshData GetMeshData(BlockMeshInfo info);
 
     /// <summary>
-    ///     The data that blocks have to provide for complex meshing.
+    ///     The data that blocks have to provide for foliage meshing.
     /// </summary>
     public readonly struct MeshData : IEquatable<MeshData>
     {
         private readonly BlockMesh.Quad[] quads;
+        private readonly uint quadCount;
 
         /// <summary>
         ///     Create the mesh data.
         /// </summary>
-        public MeshData(BlockMesh.Quad[] quads)
+        public MeshData(BlockMesh mesh)
         {
-            this.quads = quads;
-
-            QuadCount = (uint) quads.Length;
+            quads = mesh.GetMeshData(out quadCount);
 
             Tint = TintColor.None;
             IsAnimated = false;
+            IsUpperPart = false;
+            IsDoublePlant = false;
         }
 
         /// <summary>
@@ -67,7 +71,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     Get the quad count of the mesh.
         /// </summary>
-        public uint QuadCount { get; }
+        public uint QuadCount => quadCount;
 
         /// <summary>
         ///     The block tint.
@@ -79,11 +83,22 @@ public interface IComplex : IBlockMeshable
         /// </summary>
         public bool IsAnimated { get; init; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     Get whether this block is the upper part.
+        /// </summary>
+        public bool IsUpperPart { get; init; }
+
+        /// <summary>
+        ///     Get whether this block is a double plant.
+        /// </summary>
+        public bool IsDoublePlant { get; init; }
+
+        /// <summary>
+        ///     Check equality.
+        /// </summary>
         public bool Equals(MeshData other)
         {
-            return (Tint, IsAnimated, quads) ==
-                   (other.Tint, other.IsAnimated, quads);
+            return (quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant) == (other.quads, other.Tint, other.IsAnimated, other.IsUpperPart, other.IsDoublePlant);
         }
 
         /// <inheritdoc />
@@ -95,11 +110,11 @@ public interface IComplex : IBlockMeshable
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(quads, Tint, IsAnimated);
+            return HashCode.Combine(quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant);
         }
 
         /// <summary>
-        ///     The equality operator.
+        ///     Check equality.
         /// </summary>
         public static bool operator ==(MeshData left, MeshData right)
         {
@@ -107,7 +122,7 @@ public interface IComplex : IBlockMeshable
         }
 
         /// <summary>
-        ///     The inequality operator.
+        ///     Check inequality.
         /// </summary>
         public static bool operator !=(MeshData left, MeshData right)
         {

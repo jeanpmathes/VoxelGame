@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -117,6 +118,119 @@ public static class BlockMeshes
         }
 
         return new BlockMesh(quads);
+    }
+
+    /// <summary>
+    ///     Create a cross plant mesh for a given quality level.
+    /// </summary>
+    /// <param name="quality">The quality level.</param>
+    /// <param name="textureIndex">The texture index to use.</param>
+    /// <param name="lowered">Whether the plant is lowered by one 16th of a block.</param>
+    /// <returns>The model data.</returns>
+    public static BlockMesh CreateCrossPlantMesh(Quality quality, int textureIndex, bool lowered)
+    {
+        Vector3 offset = lowered ? new Vector3(x: 0, -1 * (1 / 16f), z: 0) : Vector3.Zero;
+
+        return quality switch
+        {
+            Quality.Low => CreateCrossMesh(textureIndex).WithOffset(offset),
+            Quality.Medium => CreateCrossMesh(textureIndex).WithOffset(offset),
+            Quality.High => CreateCrossMesh(textureIndex).WithOffset(offset).SubdivideV(),
+            Quality.Ultra => CreateCrossMesh(textureIndex).WithOffset(offset).SubdivideU().SubdivideV(),
+            _ => throw new NotSupportedException()
+        };
+    }
+
+    /// <summary>
+    ///     Create a crop plant model for a given quality level.
+    /// </summary>
+    /// <param name="quality">The quality level.</param>
+    /// <param name="createMiddlePiece">Whether to create a middle piece.</param>
+    /// <param name="textureIndex">The texture index to use.</param>
+    /// <param name="lowered">Whether the plant is lowered.</param>
+    /// <returns>The model data.</returns>
+    public static BlockMesh CreateCropPlantMesh(Quality quality, bool createMiddlePiece, int textureIndex, bool lowered)
+    {
+        Vector3 offset = lowered ? new Vector3(x: 0, -1 * (1 / 16f), z: 0) : Vector3.Zero;
+
+        return quality switch
+        {
+            Quality.Low => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset),
+            Quality.Medium => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset),
+            Quality.High => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset).SubdivideV(),
+            Quality.Ultra => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset).SubdivideU().SubdivideV(),
+            _ => throw new NotSupportedException()
+        };
+    }
+
+    private static BlockMesh CreateCropPlantMesh(int textureIndex, bool addMiddlePiece)
+    {
+        BlockMesh.Quad[] quads = CreateCropPlantQuads(addMiddlePiece);
+
+        quads = CreateDoubleSidedQuads(quads);
+
+        for (var quad = 0; quad < quads.Length; quad++)
+        {
+            Meshing.SetTextureIndex(ref quads[quad].data, textureIndex);
+            Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
+        }
+
+        return new BlockMesh(quads);
+    }
+
+    private static BlockMesh.Quad[] CreateCropPlantQuads(bool addMiddlePiece)
+    {
+        List<BlockMesh.Quad> list = new()
+        {
+            new BlockMesh.Quad
+            {
+                A = new Vector3(x: 0.25f, y: 0f, z: 0.0f),
+                B = new Vector3(x: 0.25f, y: 1f, z: 0.0f),
+                C = new Vector3(x: 0.25f, y: 1f, z: 1.0f),
+                D = new Vector3(x: 0.25f, y: 0f, z: 1.0f)
+            },
+            new BlockMesh.Quad
+            {
+                A = new Vector3(x: 0.0f, y: 0f, z: 0.25f),
+                B = new Vector3(x: 0.0f, y: 1f, z: 0.25f),
+                C = new Vector3(x: 1.0f, y: 1f, z: 0.25f),
+                D = new Vector3(x: 1.0f, y: 0f, z: 0.25f)
+            },
+            new BlockMesh.Quad
+            {
+                A = new Vector3(x: 0.75f, y: 0f, z: 0.0f),
+                B = new Vector3(x: 0.75f, y: 1f, z: 0.0f),
+                C = new Vector3(x: 0.75f, y: 1f, z: 1.0f),
+                D = new Vector3(x: 0.75f, y: 0f, z: 1.0f)
+            },
+            new BlockMesh.Quad
+            {
+                A = new Vector3(x: 0.0f, y: 0f, z: 0.75f),
+                B = new Vector3(x: 0.0f, y: 1f, z: 0.75f),
+                C = new Vector3(x: 1.0f, y: 1f, z: 0.75f),
+                D = new Vector3(x: 1.0f, y: 0f, z: 0.75f)
+            }
+        };
+
+        if (!addMiddlePiece) return list.ToArray();
+
+        list.Add(new BlockMesh.Quad
+        {
+            A = new Vector3(x: 0.5f, y: 0f, z: 0.0f),
+            B = new Vector3(x: 0.5f, y: 1f, z: 0.0f),
+            C = new Vector3(x: 0.5f, y: 1f, z: 1.0f),
+            D = new Vector3(x: 0.5f, y: 0f, z: 1.0f)
+        });
+
+        list.Add(new BlockMesh.Quad
+        {
+            A = new Vector3(x: 0.0f, y: 0f, z: 0.5f),
+            B = new Vector3(x: 0.0f, y: 1f, z: 0.5f),
+            C = new Vector3(x: 1.0f, y: 1f, z: 0.5f),
+            D = new Vector3(x: 1.0f, y: 0f, z: 0.5f)
+        });
+
+        return list.ToArray();
     }
 
     /// <summary>

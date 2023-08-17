@@ -37,9 +37,9 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider);
+        base.OnSetup(indexProvider, visuals);
 
         wetTextureIndices = wet.GetTexIndexArray();
     }

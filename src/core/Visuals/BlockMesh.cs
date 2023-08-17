@@ -28,6 +28,123 @@ public class BlockMesh
     }
 
     /// <summary>
+    ///     Get a copy of the mesh with the given offset applied.
+    /// </summary>
+    /// <param name="offset">The offset to apply.</param>
+    /// <returns>The new mesh.</returns>
+    public BlockMesh WithOffset(Vector3 offset)
+    {
+        BlockMesh mesh = new(new Quad[quads.Length]);
+
+        for (var quad = 0; quad < quads.Length; quad++)
+            mesh.quads[quad] = new Quad
+            {
+                A = quads[quad].A + offset,
+                B = quads[quad].B + offset,
+                C = quads[quad].C + offset,
+                D = quads[quad].D + offset,
+                data = quads[quad].data
+            };
+
+        return mesh;
+    }
+
+    /// <summary>
+    ///     Subdivide the mesh in the U direction, which is the horizontal direction.
+    /// </summary>
+    /// <returns>The new mesh.</returns>
+    public BlockMesh SubdivideU()
+    {
+        return Subdivide(DivideAlongU);
+    }
+
+    /// <summary>
+    ///     Subdivide the mesh in the V direction, which is the vertical direction.
+    /// </summary>
+    /// <returns>The new mesh.</returns>
+    public BlockMesh SubdivideV()
+    {
+        return Subdivide(DivideAlongV);
+    }
+
+    private BlockMesh Subdivide(Action<int, BlockMesh> divider)
+    {
+        BlockMesh mesh = new(new Quad[quads.Length * 2]);
+
+        for (var quad = 0; quad < quads.Length; quad++)
+        {
+            int first = quad * 2;
+            int second = quad * 2 + 1;
+
+            mesh.quads[first] = new Quad
+            {
+                A = quads[quad].A,
+                B = quads[quad].B,
+                C = quads[quad].C,
+                D = quads[quad].D,
+                data = quads[quad].data
+            };
+
+            mesh.quads[second] = new Quad
+            {
+                A = quads[quad].A,
+                B = quads[quad].B,
+                C = quads[quad].C,
+                D = quads[quad].D,
+                data = quads[quad].data
+            };
+
+            divider(quad, mesh);
+        }
+
+        return mesh;
+    }
+
+    private void DivideAlongU(int quad, BlockMesh mesh)
+    {
+        int first = quad * 2;
+        int second = quad * 2 + 1;
+
+        Vector3 midLeftPosition = (quads[quad].A + quads[quad].B) / 2;
+        Vector3 midRightPosition = (quads[quad].D + quads[quad].C) / 2;
+
+        mesh.quads[first].B = midLeftPosition;
+        mesh.quads[first].C = midRightPosition;
+
+        mesh.quads[second].A = midLeftPosition;
+        mesh.quads[second].D = midRightPosition;
+
+        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref quads[quad].data);
+        Vector2 midLeftUV = (uv.a + uv.b) / 2;
+        Vector2 midRightUV = (uv.d + uv.c) / 2;
+
+        Meshing.SetUVs(ref mesh.quads[first].data, uv.a, midLeftUV, midRightUV, uv.d);
+        Meshing.SetUVs(ref mesh.quads[second].data, midLeftUV, uv.b, uv.c, midRightUV);
+    }
+
+    private void DivideAlongV(int quad, BlockMesh mesh)
+    {
+        int first = quad * 2;
+        int second = quad * 2 + 1;
+
+        Vector3 midTopPosition = (quads[quad].A + quads[quad].D) / 2;
+        Vector3 midBottomPosition = (quads[quad].B + quads[quad].C) / 2;
+
+        mesh.quads[first].A = midTopPosition;
+        mesh.quads[first].D = midBottomPosition;
+
+        mesh.quads[second].B = midBottomPosition;
+        mesh.quads[second].C = midTopPosition;
+
+        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref quads[quad].data);
+        Vector2 midTopUV = (uv.a + uv.d) / 2;
+        Vector2 midBottomUV = (uv.b + uv.c) / 2;
+
+        Meshing.SetUVs(ref mesh.quads[first].data, midTopUV, uv.b, uv.c, midBottomUV);
+        Meshing.SetUVs(ref mesh.quads[second].data, uv.a, midTopUV, midBottomUV, uv.d);
+    }
+
+    /// <summary>
     ///     Get the mesh as mesh data for complex meshing.
     /// </summary>
     /// <param name="tint">An optional tint.</param>
@@ -40,6 +157,18 @@ public class BlockMesh
             Tint = tint ?? TintColor.None,
             IsAnimated = isAnimated
         };
+    }
+
+    /// <summary>
+    ///     Get the mesh data.
+    /// </summary>
+    /// <param name="count">The number of quads, will be set to the length of the array.</param>
+    /// <returns>The mesh data.</returns>
+    public Quad[] GetMeshData(out uint count)
+    {
+        count = (uint) quads.Length;
+
+        return quads;
     }
 
     /// <summary>
@@ -105,7 +234,7 @@ public class BlockMesh
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(A, B, C, D, data);
+            return HashCode.Combine(A, B, C, D);
         }
 
         /// <summary>

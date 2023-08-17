@@ -351,20 +351,38 @@ public static class Native
     }
 
     /// <summary>
-    ///     Set the mesh data of an indexed mesh object.
+    ///     Set the vertices of a mesh object.
     /// </summary>
-    /// <param name="meshObject">The indexed mesh object.</param>
+    /// <param name="meshObject">The mesh object.</param>
     /// <param name="vertices">The vertices.</param>
-    public static unsafe void SetMeshObjectData(MeshObject meshObject, Span<SpatialVertex> vertices)
+    public static unsafe void SetMeshObjectVertices(MeshObject meshObject, Span<SpatialVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshObjectMesh(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength);
+        static extern void NativeSetMeshObjectVertices(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength);
 
         Debug.Assert(vertices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
         {
-            NativeSetMeshObjectMesh(meshObject.Self, vertexData, vertices.Length);
+            NativeSetMeshObjectVertices(meshObject.Self, vertexData, vertices.Length);
+        }
+    }
+
+    /// <summary>
+    ///     Set the bounds of a mesh object.
+    /// </summary>
+    /// <param name="meshObject">The mesh object.</param>
+    /// <param name="bounds">The bounds.</param>
+    public static unsafe void SetMeshObjectBounds(MeshObject meshObject, Span<SpatialBounds> bounds)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetMeshObjectVertices(IntPtr indexedMeshObject, SpatialBounds* vertices, int vertexLength);
+
+        Debug.Assert(bounds.Length >= 0);
+
+        fixed (SpatialBounds* boundsData = bounds)
+        {
+            NativeSetMeshObjectVertices(meshObject.Self, boundsData, bounds.Length);
         }
     }
 

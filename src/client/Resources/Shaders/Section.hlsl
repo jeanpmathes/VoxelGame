@@ -1,7 +1,7 @@
 ﻿#include "Spatial.hlsl"
 #include "Decoding.hlsl"
 
-float2 GetUV(const in Info info)
+float2 GetUV(const in Info info, const bool useTextureRepetition)
 {
     const float4x2 uvs = decode::GetUVs(info.data);
 
@@ -13,15 +13,16 @@ float2 GetUV(const in Info info)
 
     if (decode::GetTextureRotationFlag(info.data))
         uv = RotateUV(uv);
-    
-    uv *= decode::GetTextureRepetition(info.data);
+
+    if (useTextureRepetition)
+        uv *= decode::GetTextureRepetition(info.data);
 
     return uv;
 }
 
-float4 GetBasicBaseColor(const in Info info)
+float4 GetBaseColor(const in Info info, const bool useTextureRepetition)
 {
-    const float2 uv = GetUV(info);
+    const float2 uv = GetUV(info, useTextureRepetition);
     uint textureIndex = decode::GetTextureIndex(info.data);
 
     const bool animated = decode::GetAnimationFlag(info.data);
@@ -32,4 +33,14 @@ float4 GetBasicBaseColor(const in Info info)
     const uint mip = 0;
 
     return gTextureSlotOne[textureIndex].Load(int3(texel, mip));
+}
+
+float4 GetBasicBaseColor(const in Info info)
+{
+    return GetBaseColor(info, true);
+}
+
+float4 GetFoliageBaseColor(const in Info info)
+{
+    return GetBaseColor(info, false);
 }

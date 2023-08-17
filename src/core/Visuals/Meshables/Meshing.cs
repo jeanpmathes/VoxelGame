@@ -19,6 +19,23 @@ namespace VoxelGame.Core.Visuals.Meshables;
 public static class Meshing
 {
     /// <summary>
+    ///     Special flags that are only used for foliage.
+    /// </summary>
+    public enum FoliageQuadFlag
+    {
+        /// <summary>
+        ///     Whether the current quad is in the upper part of a double plant.
+        ///     If this is not a double plant, this flag must be set to false.
+        /// </summary>
+        IsUpperPart = 0,
+
+        /// <summary>
+        ///     Whether the current quad is part of a double plant.
+        /// </summary>
+        IsDoublePlant = 1
+    }
+
+    /// <summary>
     ///     Different flags for a quad.
     /// </summary>
     public enum QuadFlag
@@ -142,16 +159,30 @@ public static class Meshing
     ///     Set the UV coordinates for a quad.
     /// </summary>
     /// <param name="data">The data of the quad.</param>
-    /// <param name="uv0">The UV coordinate of the first vertex.</param>
-    /// <param name="uv1">The UV coordinate of the second vertex.</param>
-    /// <param name="uv2">The UV coordinate of the third vertex.</param>
-    /// <param name="uv3">The UV coordinate of the fourth vertex.</param>
+    /// <param name="uvA">The UV coordinate of the first vertex.</param>
+    /// <param name="uvB">The UV coordinate of the second vertex.</param>
+    /// <param name="uvC">The UV coordinate of the third vertex.</param>
+    /// <param name="uvD">The UV coordinate of the fourth vertex.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetUVs(ref (uint a, uint b, uint c, uint d) data,
-        Vector2 uv0, Vector2 uv1, Vector2 uv2, Vector2 uv3)
+        Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD)
     {
-        data.c |= EncodeInBase17((uv0.X, uv1.X, uv2.X, uv3.X)) << UVShift;
-        data.d |= EncodeInBase17((uv0.Y, uv1.Y, uv2.Y, uv3.Y)) << UVShift;
+        data.c |= EncodeInBase17((uvA.X, uvB.X, uvC.X, uvD.X)) << UVShift;
+        data.d |= EncodeInBase17((uvA.Y, uvB.Y, uvC.Y, uvD.Y)) << UVShift;
+    }
+
+    /// <summary>
+    ///     Get the UV coordinates for a quad.
+    /// </summary>
+    /// <param name="data">The data of the quad.</param>
+    /// <returns>The UV coordinates of the quad.</returns>
+    public static (Vector2 a, Vector2 b, Vector2 c, Vector2 d) GetUVs(
+        ref (uint a, uint b, uint c, uint d) data)
+    {
+        Vector4 u = DecodeFromBase17(data.c >> UVShift);
+        Vector4 v = DecodeFromBase17(data.d >> UVShift);
+
+        return (new Vector2(u.X, v.X), new Vector2(u.Y, v.Y), new Vector2(u.Z, v.Z), new Vector2(u.W, v.W));
     }
 
     /// <summary>
@@ -194,6 +225,15 @@ public static class Meshing
             : (length << heightShift) | (height << lengthShift);
 
         data.c |= repetition;
+    }
+
+    /// <summary>
+    ///     Set a foliage flag for a quad.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SetFoliageFlag(ref (uint a, uint b, uint c, uint d) data, FoliageQuadFlag flag, bool value)
+    {
+        data.c |= value.ToUInt() << (int) flag;
     }
 
     /// <summary>

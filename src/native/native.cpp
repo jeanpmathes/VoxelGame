@@ -262,13 +262,24 @@ NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabl
     CATCH();
 }
 
-NATIVE void NativeSetMeshObjectMesh(MeshObject* object, const SpatialVertex* vertexData, const UINT vertexCount)
+NATIVE void NativeSetMeshObjectVertices(MeshObject* object, const SpatialVertex* vertexData, const UINT vertexCount)
 {
     TRY
     {
         REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
 
-        object->SetNewMesh(vertexData, vertexCount);
+        object->SetNewVertices(vertexData, vertexCount);
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetMeshObjectBounds(MeshObject* object, const SpatialBounds* boundsData, const UINT boundsCount)
+{
+    TRY
+    {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+
+        object->SetNewBounds(boundsData, boundsCount);
     }
     CATCH();
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -20,13 +21,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // l: lowered
 // h: height
-public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
+public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string bottomTexture;
     private readonly int topTexOffset;
 
-    private int bottomTextureIndex;
-    private int topTextureIndex;
+    private readonly List<BlockMesh> meshes = new();
 
     internal DoubleCrossPlantBlock(string name, string namedID, string bottomTexture, int topTexOffset,
         BoundingVolume boundingVolume) :
@@ -40,17 +40,15 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
         this.topTexOffset = topTexOffset;
     }
 
-    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
         bool isUpper = (info.Data & 0b01) != 0;
-        bool isLowered = (info.Data & 0b10) != 0;
 
-        return new ICrossPlant.MeshData(isUpper ? topTextureIndex : bottomTextureIndex)
+        return new IFoliage.MeshData(meshes[(int) (info.Data & 0b00_0011)])
         {
             Tint = TintColor.Neutral,
-            HasUpper = true,
-            IsLowered = isLowered,
-            IsUpper = isUpper
+            IsDoublePlant = true,
+            IsUpperPart = isUpper
         };
     }
 
@@ -61,10 +59,20 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
-        topTextureIndex = bottomTextureIndex + topTexOffset;
+        int bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
+        int topTextureIndex = bottomTextureIndex + topTexOffset;
+
+        for (uint data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, bottomTextureIndex, topTextureIndex, visuals));
+    }
+
+    private static BlockMesh CreateMesh(uint data, int bottomTextureIndex, int topTextureIndex, VisualConfiguration visuals)
+    {
+        bool isUpper = (data & 0b01) != 0;
+        bool isLowered = (data & 0b10) != 0;
+
+        return BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, isUpper ? topTextureIndex : bottomTextureIndex, isLowered);
     }
 
     /// <inheritdoc />

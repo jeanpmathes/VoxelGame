@@ -139,19 +139,21 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="id">The ID of the block.</param>
     /// <param name="indexProvider">The index provider for the block textures.</param>
-    public void Setup(uint id, ITextureIndexProvider indexProvider)
+    /// <param name="visuals">The visual configuration of the game.</param>
+    public void Setup(uint id, ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Debug.Assert(ID == InvalidID);
         ID = id;
 
-        OnSetup(indexProvider);
+        OnSetup(indexProvider, visuals);
     }
 
     /// <summary>
     ///     Called when loading blocks, meant to setup vertex data, indices etc.
     /// </summary>
     /// <param name="indexProvider">A texture index provider.</param>
-    protected virtual void OnSetup(ITextureIndexProvider indexProvider) {}
+    /// <param name="visuals">The visual configuration of the game.</param>
+    protected virtual void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals) {}
 
     /// <summary>
     ///     Returns the collider for a given position.

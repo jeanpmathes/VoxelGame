@@ -24,21 +24,20 @@ public class MeshingContext
 
     private readonly PooledList<SpatialVertex> basicOpaqueMesh = new(capacity: 2048);
     private readonly PooledList<SpatialVertex> basicTransparentMesh = new(capacity: 2048);
-
-    private readonly PooledList<int> cropPlantVertexData = new(capacity: 16);
-    private readonly PooledList<int> crossPlantVertexData = new(capacity: 16);
+    private readonly PooledList<SpatialVertex> foliageMesh = new(capacity: 2048);
 
     private readonly Section current;
     private readonly Section?[] neighbors;
 
+    private readonly FullMeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
+    private readonly FullMeshFaceHolder[] transparentFullBlockMeshFaceHolders;
+
     private readonly VaryingHeightMeshFaceHolder[] opaqueFluidMeshFaceHolders;
 
-    private readonly FullMeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
+    private readonly (TintColor block, TintColor fluid)[,] tintColors;
 
     private readonly VaryingHeightMeshFaceHolder[] opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly (TintColor block, TintColor fluid)[,] tintColors;
     private readonly VaryingHeightMeshFaceHolder[] transparentFluidMeshFaceHolders;
-    private readonly FullMeshFaceHolder[] transparentFullBlockMeshFaceHolders;
     private readonly VaryingHeightMeshFaceHolder[] transparentVaryingHeightBlockMeshFaceHolders;
 
     /// <summary>
@@ -124,7 +123,7 @@ public class MeshingContext
     }
 
     /// <summary>
-    /// Get the list containing the basic mesh data.
+    ///     Get the list containing the basic mesh data.
     /// </summary>
     /// <param name="isOpaque">Whether the mesh is opaque or not.</param>
     /// <returns>The list containing the basic mesh data.</returns>
@@ -160,19 +159,11 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get the crop plant vertex data list.
+    ///     Get the foliage mesh.
     /// </summary>
-    public PooledList<int> GetCropPlantVertexData()
+    public PooledList<SpatialVertex> GetFoliageMesh()
     {
-        return cropPlantVertexData;
-    }
-
-    /// <summary>
-    ///     Get the cross plant vertex data list.
-    /// </summary>
-    public PooledList<int> GetCrossPlantVertexData()
-    {
-        return crossPlantVertexData;
+        return foliageMesh;
     }
 
     /// <summary>
@@ -270,8 +261,7 @@ public class MeshingContext
 
         return new SectionMeshData(
             (basicOpaqueMesh, basicTransparentMesh),
-            crossPlantVertexData,
-            cropPlantVertexData,
+            foliageMesh,
             opaqueFluidVertexData,
             opaqueFluidIndices,
             transparentFluidVertexData,

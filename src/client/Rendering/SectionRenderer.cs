@@ -22,14 +22,7 @@ public sealed class SectionRenderer : IDisposable
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
     private readonly (MeshObject opaque, MeshObject transparent) basic;
-    private readonly MeshObject complex;
-    private readonly MeshObject cropPlant;
-
-    private readonly MeshObject crossPlant;
-    private readonly MeshObject opaqueFluid;
-
-    private readonly MeshObject transparentFluid;
-    private readonly MeshObject varyingHeight;
+    private readonly MeshObject foliage;
 
     /// <summary>
     ///     Creates a new <see cref="SectionRenderer" />.
@@ -41,14 +34,7 @@ public sealed class SectionRenderer : IDisposable
             space.CreateMeshObject(Shaders.BasicTransparentSectionMaterial, position)
         );
 
-        complex = null!;
-        varyingHeight = null!;
-
-        opaqueFluid = null!;
-        transparentFluid = null!;
-
-        crossPlant = null!;
-        cropPlant = null!;
+        foliage = space.CreateMeshObject(Shaders.FoliageSectionMaterial, position);
     }
 
     private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
@@ -61,8 +47,10 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        basic.opaque.SetMesh(meshData.BasicMesh.opaque.AsSpan());
-        basic.transparent.SetMesh(meshData.BasicMesh.transparent.AsSpan());
+        basic.opaque.SetVertices(meshData.BasicMesh.opaque.AsSpan());
+        basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
+
+        foliage.SetVertices(meshData.FoliageMesh.AsSpan());
 
         meshData.ReturnPooled();
     }
@@ -91,6 +79,7 @@ public sealed class SectionRenderer : IDisposable
         {
             basic.opaque.Free();
             basic.transparent.Free();
+            foliage.Free();
 
             // todo: free other mesh objects
         }

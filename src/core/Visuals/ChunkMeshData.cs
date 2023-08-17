@@ -42,16 +42,12 @@ public class SectionMeshData
     private bool isReturnedToPool;
 
     internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
-        PooledList<int> crossPlantVertexData,
-        PooledList<int> cropPlantVertexData,
+        PooledList<SpatialVertex> foliageMesh,
         PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
         PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
     {
         BasicMesh = basicMesh;
-
-        this.crossPlantVertexData = crossPlantVertexData;
-
-        this.cropPlantVertexData = cropPlantVertexData;
+        FoliageMesh = foliageMesh;
 
         this.opaqueFluidVertexData = opaqueFluidVertexData;
         this.opaqueFluidIndices = opaqueFluidIndices;
@@ -63,10 +59,7 @@ public class SectionMeshData
     private SectionMeshData()
     {
         BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
-
-        crossPlantVertexData = new PooledList<int>();
-
-        cropPlantVertexData = new PooledList<int>();
+        FoliageMesh = new PooledList<SpatialVertex>();
 
         opaqueFluidVertexData = new PooledList<int>();
         opaqueFluidIndices = new PooledList<uint>();
@@ -84,8 +77,7 @@ public class SectionMeshData
     ///     Get whether this mesh data is empty.
     /// </summary>
     public bool IsFilled => BasicMesh.opaque.Count != 0 || BasicMesh.transparent.Count != 0 ||
-                            crossPlantVertexData.Count != 0 ||
-                            cropPlantVertexData.Count != 0 ||
+                            FoliageMesh.Count != 0 ||
                             opaqueFluidVertexData.Count != 0 ||
                             transparentFluidVertexData.Count != 0;
 
@@ -98,6 +90,12 @@ public class SectionMeshData
     public (PooledList<SpatialVertex> opaque, PooledList<SpatialVertex> transparent) BasicMesh { get; }
 
     /// <summary>
+    ///     The foliage mesh data.
+    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
+    /// </summary>
+    public PooledList<SpatialVertex> FoliageMesh { get; }
+
+    /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
     /// </summary>
     public void ReturnPooled()
@@ -107,9 +105,7 @@ public class SectionMeshData
         BasicMesh.opaque.ReturnToPool();
         BasicMesh.transparent.ReturnToPool();
 
-        crossPlantVertexData.ReturnToPool();
-
-        cropPlantVertexData.ReturnToPool();
+        FoliageMesh.ReturnToPool();
 
         opaqueFluidVertexData.ReturnToPool();
         opaqueFluidIndices.ReturnToPool();
@@ -132,9 +128,6 @@ public class SectionMeshData
 
     #pragma warning disable
 
-    public readonly PooledList<int> cropPlantVertexData;
-
-    public readonly PooledList<int> crossPlantVertexData;
     public readonly PooledList<uint> opaqueFluidIndices;
 
     public readonly PooledList<int> opaqueFluidVertexData;

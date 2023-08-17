@@ -447,13 +447,14 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     {
         auto m = std::make_unique<Material>();
 
-        auto addHitGroup = [&](const std::wstring& closestHitSymbol, const std::wstring& anyHitSymbol)
+        auto addHitGroup = [&](const std::wstring& closestHitSymbol, const std::wstring& anyHitSymbol,
+                               const std::wstring& intersectionSymbol)
             -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
         {
             ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
             std::wstring hitGroup = std::to_wstring(currentHitGroupIndex++);
 
-            pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol);
+            pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol, intersectionSymbol);
             pipeline.AddRootSignatureAssociation(rootSignature.Get(), {hitGroup});
 
             return {hitGroup, rootSignature};
@@ -465,10 +466,20 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         m->isOpaque = description.opaque;
 
         std::tie(m->normalHitGroup, m->normalRootSignature)
-            = addHitGroup(description.normalClosestHitSymbol, description.normalAnyHitSymbol);
+            = addHitGroup(description.normalClosestHitSymbol, description.normalAnyHitSymbol,
+                          description.normalIntersectionSymbol);
 
         std::tie(m->shadowHitGroup, m->shadowRootSignature)
-            = addHitGroup(description.shadowClosestHitSymbol, description.shadowAnyHitSymbol);
+            = addHitGroup(description.shadowClosestHitSymbol, description.shadowAnyHitSymbol,
+                          description.shadowIntersectionSymbol);
+
+        std::wstring normalIntersectionSymbol = description.normalIntersectionSymbol;
+        std::wstring shadowIntersectionSymbol = description.shadowIntersectionSymbol;
+        REQUIRE(normalIntersectionSymbol.empty() == shadowIntersectionSymbol.empty());
+
+        m->geometryType = normalIntersectionSymbol.empty()
+                              ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
+                              : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
 
 #if defined(VG_DEBUG)
         std::wstring debugName = pipelineDescription.materials[material].debugName;
@@ -548,7 +559,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
 {
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Vertex Buffer
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 0); // Geometry Buffer
 
     rsc.AddHeapRangesParameter({
         {1, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET}, // BVH

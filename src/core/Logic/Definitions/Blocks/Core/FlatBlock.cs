@@ -95,7 +95,7 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         int textureIndex = indexProvider.GetTextureIndex(texture);
 

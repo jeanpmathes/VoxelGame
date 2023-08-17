@@ -1,10 +1,10 @@
 ﻿#include "Section.hlsl"
 
 [shader("anyhit")]
-void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attributes)
+void FoliageSectionAnyHit(inout HitInfo payload, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
-    float4 baseColor = GetBasicBaseColor(info);
+    float4 baseColor = GetFoliageBaseColor(info);
 
     if (baseColor.a >= 0.1)
     {
@@ -25,7 +25,7 @@ void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attri
 }
 
 [shader("closesthit")]
-void BasicTransparentSectionClosestHit(inout HitInfo payload, const Attributes attributes)
+void FoliageSectionClosestHit(inout HitInfo payload, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
     const float3 baseColor = payload.colorAndDistance.rgb;
@@ -34,10 +34,10 @@ void BasicTransparentSectionClosestHit(inout HitInfo payload, const Attributes a
 }
 
 [shader("anyhit")]
-void BasicTransparentShadowAnyHit(inout ShadowHitInfo, const Attributes attributes)
+void FoliageShadowAnyHit(inout ShadowHitInfo, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
-    float4 baseColor = GetBasicBaseColor(info);
+    float4 baseColor = GetFoliageBaseColor(info);
 
     const bool isHittingFront = dot(info.normal, WorldRayDirection()) > 0.0;
 
@@ -46,7 +46,7 @@ void BasicTransparentShadowAnyHit(inout ShadowHitInfo, const Attributes attribut
 }
 
 [shader("closesthit")]
-void BasicTransparentShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
+void FoliageShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
 {
     hitInfo.isHit = true;
 }

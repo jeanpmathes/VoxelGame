@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
@@ -18,11 +19,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     Data bit usage: <c>-----l</c>
 /// </summary>
 // l: lowered
-public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
+public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
-    private int textureIndex;
+    private readonly List<BlockMesh> meshes = new();
 
     /// <summary>
     ///     Initializes a new instance of a cross plant.
@@ -43,12 +44,11 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
         this.texture = texture;
     }
 
-    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        return new ICrossPlant.MeshData(textureIndex)
+        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_0001])
         {
-            Tint = TintColor.Neutral,
-            IsLowered = (info.Data & 0b1) == 1
+            Tint = TintColor.Neutral
         };
     }
 
@@ -59,9 +59,11 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        textureIndex = indexProvider.GetTextureIndex(texture);
+        int textureIndex = indexProvider.GetTextureIndex(texture);
+
+        for (var data = 0; data <= 0b00_0001; data++) meshes.Add(BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, (data & 0b1) != 0));
     }
 
     /// <inheritdoc />

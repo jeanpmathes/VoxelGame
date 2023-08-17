@@ -31,9 +31,11 @@ struct MaterialDescription
 
     LPWSTR normalClosestHitSymbol;
     LPWSTR normalAnyHitSymbol;
+    LPWSTR normalIntersectionSymbol;
 
     LPWSTR shadowClosestHitSymbol;
     LPWSTR shadowAnyHitSymbol;
+    LPWSTR shadowIntersectionSymbol;
 };
 
 struct ShaderFileDescription
@@ -67,7 +69,8 @@ class Material
 {
 public:
     std::wstring name;
-    bool isOpaque = false;
+    bool isOpaque{};
+    D3D12_RAYTRACING_GEOMETRY_TYPE geometryType{};
     
     std::wstring normalHitGroup;
     ComPtr<ID3D12RootSignature> normalRootSignature;

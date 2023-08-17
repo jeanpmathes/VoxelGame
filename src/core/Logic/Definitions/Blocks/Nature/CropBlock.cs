@@ -22,13 +22,14 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // l: lowered
 // s: stage
-public class CropBlock : Block, ICombustible, IFillable, ICropPlant
+public class CropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
     private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BlockMesh> meshes = new();
+
     private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
-    private int[] stageTextureIndices = null!;
 
     internal CropBlock(string name, string namedID, string texture, int second, int third, int fourth, int fifth,
         int sixth, int final, int dead) :
@@ -45,15 +46,9 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
-    ICropPlant.MeshData ICropPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        int textureIndex = stageTextureIndices[info.Data & 0b00_0111];
-        bool isLowered = (info.Data & 0b00_1000) != 0;
-
-        return new ICropPlant.MeshData(textureIndex)
-        {
-            IsLowered = isLowered
-        };
+        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_1111]);
     }
 
     /// <inheritdoc />
@@ -63,13 +58,13 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         int baseIndex = indexProvider.GetTextureIndex(texture);
 
         if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
 
-        stageTextureIndices = new[]
+        int[] stageTextureIndices =
         {
             baseIndex,
             baseIndex + stages.second,
@@ -80,6 +75,8 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
             baseIndex + stages.final,
             baseIndex + stages.dead
         };
+
+        for (uint data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, stageTextureIndices, data));
     }
 
     private static BoundingVolume CreateVolume(uint data)
@@ -110,6 +107,14 @@ public class CropBlock : Block, ICombustible, IFillable, ICropPlant
 
             default: throw new InvalidOperationException();
         }
+    }
+
+    private static BlockMesh CreateMesh(Quality quality, int[] stageTextureIndices, uint data)
+    {
+        int textureIndex = stageTextureIndices[data & 0b00_0111];
+        bool isLowered = (data & 0b00_1000) != 0;
+
+        return BlockMeshes.CreateCropPlantMesh(quality, createMiddlePiece: true, textureIndex, isLowered);
     }
 
     /// <inheritdoc />

@@ -72,7 +72,7 @@ namespace nv_helpers_dx12
     )
     {
         // Create the DX12 descriptor representing the input data, assumed to be
-        // opaque triangles, with 3xf32 vertex coordinates and 32-bit indices
+        // triangles, with 3xf32 vertex coordinates and 32-bit indices
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
         descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
         descriptor.Triangles.VertexBuffer.StartAddress =
@@ -94,6 +94,24 @@ namespace nv_helpers_dx12
         descriptor.Flags = isOpaque
                                ? D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE
                                : D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
+
+        m_vertexBuffers.push_back(descriptor);
+    }
+
+    void BottomLevelASGenerator::AddBoundsBuffer(
+        ID3D12Resource* boundsBuffer,
+        const UINT64 boundsOffsetInBytes,
+        const uint32_t boundsCount,
+        const UINT boundsSizeInBytes)
+    {
+        // Create the DX12 descriptor representing the input data, assumed to be
+        // AABBs, with 2x3xf32 coordinates
+        D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
+        descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+        descriptor.AABBs.AABBs.StartAddress =
+            boundsBuffer->GetGPUVirtualAddress() + boundsOffsetInBytes;
+        descriptor.AABBs.AABBs.StrideInBytes = boundsSizeInBytes;
+        descriptor.AABBs.AABBCount = boundsCount;
 
         m_vertexBuffers.push_back(descriptor);
     }

@@ -36,12 +36,23 @@ public class MeshObject : SpatialObject
     }
 
     /// <summary>
-    ///     Set the mesh of this object.
+    ///     Set the vertices that define this mesh.
+    ///     Only valid if the material uses the default intersection shader.
     /// </summary>
     /// <param name="vertices">The vertices.</param>
-    public void SetMesh(Span<SpatialVertex> vertices)
+    public void SetVertices(Span<SpatialVertex> vertices)
     {
-        Native.SetMeshObjectData(this, vertices);
+        Native.SetMeshObjectVertices(this, vertices);
+    }
+
+    /// <summary>
+    ///     Set the bounds that define this mesh.
+    ///     Only valid if the material uses a custom intersection shader.
+    /// </summary>
+    /// <param name="bounds">The bounds.</param>
+    public void SetBounds(Span<SpatialBounds> bounds)
+    {
+        Native.SetMeshObjectBounds(this, bounds);
     }
 
     /// <summary>

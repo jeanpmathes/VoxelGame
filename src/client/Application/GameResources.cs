@@ -61,18 +61,18 @@ public class GameResources
     /// <summary>
     ///     Load the resources. This requires a valid OpenGL context.
     /// </summary>
-    public void Load(LoadingContext loadingContext)
+    public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
     {
         BlockModel.EnableLoading(loadingContext);
         StaticStructure.SetLoadingContext(loadingContext);
 
-        PerformLoading(loadingContext);
+        PerformLoading(visuals, loadingContext);
 
         StaticStructure.ClearLoadingContext();
         BlockModel.DisableLoading();
     }
 
-    private void PerformLoading(LoadingContext loadingContext)
+    private void PerformLoading(VisualConfiguration visuals, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "World Textures"))
         {
@@ -105,7 +105,7 @@ public class GameResources
         BlockTextures.EnableLoading(loadingContext);
         FluidTextures.EnableLoading(loadingContext);
 
-        Blocks.Load(BlockTextures, loadingContext);
+        Blocks.Load(BlockTextures, visuals, loadingContext);
 
         logger.LogDebug(
             Events.ResourceLoad,

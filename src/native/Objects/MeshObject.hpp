@@ -17,6 +17,12 @@ struct SpatialVertex
     DirectX::XMFLOAT3 position;
     UINT data;
 };
+
+struct SpatialBounds
+{
+    D3D12_RAYTRACING_AABB aabb;
+    DirectX::XMUINT4 data;
+};
 #pragma pack(pop)
 
 struct InstanceConstantBuffer
@@ -32,6 +38,8 @@ struct StandardShaderArguments
     void* instanceBuffer;
 };
 
+class Material;
+
 /**
  * \brief An object that has a mesh of any kind.
  */
@@ -45,7 +53,8 @@ public:
     void Update();
 
     void SetEnabledState(bool enabled);
-    void SetNewMesh(const SpatialVertex* vertices, UINT vertexCount);
+    void SetNewVertices(const SpatialVertex* vertices, UINT vertexCount);
+    void SetNewBounds(const SpatialBounds* bounds, UINT boundsCount);
 
     [[nodiscard]] bool IsMeshModified() const;
     [[nodiscard]] bool IsEnabled() const;
@@ -85,21 +94,26 @@ public:
 
 protected:
     [[nodiscard]] AccelerationStructureBuffers
-    CreateBottomLevelAS(
+    CreateBottomLevelASFromVertices(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers) const;
 
+    [[nodiscard]] AccelerationStructureBuffers
+    CreateBottomLevelASFromBounds(
+        ComPtr<ID3D12GraphicsCommandList4> commandList,
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers) const;
+
 private:
-    UINT m_materialIndex;
+    const Material& m_material;
 
     Allocation<ID3D12Resource> m_instanceConstantBuffer = {};
     UINT64 m_instanceConstantBufferAlignedSize = 0;
     InstanceConstantBuffer m_instanceConstantBufferData = {};
 
-    Allocation<ID3D12Resource> m_vertexBufferUpload = {};
-    Allocation<ID3D12Resource> m_vertexBuffer = {};
-    UINT m_vertexCount = 0;
+    Allocation<ID3D12Resource> m_geometryBufferUpload = {};
+    Allocation<ID3D12Resource> m_geometryBuffer = {};
+    UINT m_geometryElementCount = 0;
 
     Allocation<ID3D12Resource> m_usedIndexBuffer = {};
     UINT m_usedIndexCount = 0;
