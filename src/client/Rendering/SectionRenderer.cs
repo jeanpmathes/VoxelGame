@@ -23,6 +23,7 @@ public sealed class SectionRenderer : IDisposable
 
     private readonly (MeshObject opaque, MeshObject transparent) basic;
     private readonly MeshObject foliage;
+    private readonly MeshObject fluid;
 
     /// <summary>
     ///     Creates a new <see cref="SectionRenderer" />.
@@ -35,6 +36,7 @@ public sealed class SectionRenderer : IDisposable
         );
 
         foliage = space.CreateMeshObject(Shaders.FoliageSectionMaterial, position);
+        fluid = space.CreateMeshObject(Shaders.FluidSectionMaterial, position);
     }
 
     private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
@@ -51,6 +53,7 @@ public sealed class SectionRenderer : IDisposable
         basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
 
         foliage.SetVertices(meshData.FoliageMesh.AsSpan());
+        fluid.SetVertices(meshData.FluidMesh.AsSpan());
 
         meshData.ReturnPooled();
     }
@@ -64,6 +67,9 @@ public sealed class SectionRenderer : IDisposable
 
         basic.opaque.IsEnabled = enabled;
         basic.transparent.IsEnabled = enabled;
+
+        foliage.IsEnabled = enabled;
+        fluid.IsEnabled = enabled;
     }
 
     #region IDisposable Support
@@ -79,9 +85,9 @@ public sealed class SectionRenderer : IDisposable
         {
             basic.opaque.Free();
             basic.transparent.Free();
-            foliage.Free();
 
-            // todo: free other mesh objects
+            foliage.Free();
+            fluid.Free();
         }
         else
             logger.LogWarning(

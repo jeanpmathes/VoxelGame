@@ -20,27 +20,44 @@ float2 GetUV(const in Info info, const bool useTextureRepetition)
     return uv;
 }
 
-float4 GetBaseColor(const in Info info, const bool useTextureRepetition)
+int4 GetBaseColorIndex(const in Info info, const bool useTextureRepetition, const bool isBlock)
 {
     const float2 uv = GetUV(info, useTextureRepetition);
     uint textureIndex = decode::GetTextureIndex(info.data);
 
     const bool animated = decode::GetAnimationFlag(info.data);
-    if (animated) textureIndex = GetAnimatedBlockTextureIndex(textureIndex);
+    if (animated && isBlock) textureIndex = GetAnimatedBlockTextureIndex(textureIndex);
+    if (animated && !isBlock) textureIndex = GetAnimatedFluidTextureIndex(textureIndex);
 
     const float2 ts = float2(gTextureSize.x, gTextureSize.y) * frac(uv);
     uint2 texel = uint2(ts.x, ts.y);
     const uint mip = 0;
 
-    return gTextureSlotOne[textureIndex].Load(int3(texel, mip));
+    return int4(textureIndex, texel.x, texel.y, mip);
 }
 
 float4 GetBasicBaseColor(const in Info info)
 {
-    return GetBaseColor(info, true);
+    int4 index = GetBaseColorIndex(info, true, true);
+    return gTextureSlotOne[index.x].Load(index.yzw);
 }
 
 float4 GetFoliageBaseColor(const in Info info)
 {
-    return GetBaseColor(info, false);
+    int4 index = GetBaseColorIndex(info, false, true);
+    return gTextureSlotOne[index.x].Load(index.yzw);
+}
+
+float4 GetFluidBaseColor(const in Info info)
+{
+    int4 index = GetBaseColorIndex(info, true, false);
+    return gTextureSlotTwo[index.x].Load(index.yzw);
+}
+
+void SetHitInfo(inout HitInfo payload, const Info info, const float3 color)
+{
+    payload.distance = RayTCurrent();
+    payload.normal = info.normal;
+    payload.color = color;
+    payload.alpha = 1.0;
 }

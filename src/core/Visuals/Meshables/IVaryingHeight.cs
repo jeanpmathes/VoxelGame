@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -108,7 +109,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
             height,
-            direction: true,
+            VaryingHeightMeshFaceHolder.NoSkip,
+            VaryingHeightMeshFaceHolder.DefaultDirection,
             data,
             isSingleSided: true,
             height == MaximumHeight);

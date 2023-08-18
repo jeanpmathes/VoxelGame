@@ -4,6 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Interfaces;
+
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
@@ -63,5 +66,17 @@ public static class FluidLevelExtensions
     public static int GetBlockHeight(this FluidLevel level)
     {
         return (int) level * 2 + 1;
+    }
+
+    public static (Vector2 min, Vector2 max) GetUVs(this FluidLevel level, int skip, VerticalFlow flow)
+    {
+        (Vector2 min, Vector2 max) uvs = (Vector2.Zero, Vector2.Zero);
+
+        float size = IHeightVariable.GetSize(level.GetBlockHeight());
+        float skipped = IHeightVariable.GetSize(skip);
+
+        return flow != VerticalFlow.Upwards
+            ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))
+            : (new Vector2(x: 0, 1 - size), new Vector2(x: 1, 1 - skipped));
     }
 }

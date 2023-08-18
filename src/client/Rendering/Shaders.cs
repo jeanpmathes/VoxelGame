@@ -126,6 +126,11 @@ public sealed class Shaders // todo: delete all GLSL shaders
     public Material FoliageSectionMaterial { get; private set; } = null!;
 
     /// <summary>
+    ///     The raytracing material used for opaque fluids.
+    /// </summary>
+    public Material FluidSectionMaterial { get; private set; } = null!;
+
+    /// <summary>
     ///     Load all shaders in the given directory.
     /// </summary>
     /// <param name="directory">The directory containing all shaders.</param>
@@ -257,11 +262,15 @@ public sealed class Shaders // todo: delete all GLSL shaders
         PipelineBuilder.HitGroup foliageSectionHitGroup = new("FoliageSectionClosestHit", "FoliageSectionAnyHit");
         PipelineBuilder.HitGroup foliageShadowHitGroup = new("FoliageShadowClosestHit", "FoliageShadowAnyHit");
 
+        PipelineBuilder.HitGroup fluidSectionHitGroup = new("FluidSectionClosestHit");
+        PipelineBuilder.HitGroup fluidShadowHitGroup = new("FluidShadowClosestHit");
+
         builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: new[] {"RayGen"});
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
         builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), new[] {basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), new[] {basicTransparentSectionHitGroup, basicTransparentShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), new[] {foliageSectionHitGroup, foliageShadowHitGroup});
+        builder.AddShaderFile(directory.GetFile("Fluid.hlsl"), new[] {fluidSectionHitGroup, fluidShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
 
         BasicOpaqueSectionMaterial = builder.AddMaterial(
@@ -281,6 +290,12 @@ public sealed class Shaders // todo: delete all GLSL shaders
             isOpaque: false,
             foliageSectionHitGroup,
             foliageShadowHitGroup);
+
+        FluidSectionMaterial = builder.AddMaterial(
+            nameof(FluidSectionMaterial),
+            isOpaque: true, // Despite having transparency, no no any-hit shader is used, so it is opaque.
+            fluidSectionHitGroup,
+            fluidShadowHitGroup);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);

@@ -9,7 +9,7 @@ void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attri
     if (baseColor.a >= 0.1)
     {
         const float currentRayT = RayTCurrent();
-        const float storedRayT = payload.colorAndDistance.w;
+        const float storedRayT = payload.distance;
 
         if (currentRayT < storedRayT)
         {
@@ -18,7 +18,7 @@ void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attri
                 baseColor *= decode::GetTintColor(info.data);
             }
 
-            payload.colorAndDistance = float4(baseColor.rgb, RayTCurrent());
+            SetHitInfo(payload, info, baseColor.rgb);
         }
     }
     else IgnoreHit();
@@ -28,9 +28,9 @@ void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attri
 void BasicTransparentSectionClosestHit(inout HitInfo payload, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
-    const float3 baseColor = payload.colorAndDistance.rgb;
+    const float3 baseColor = payload.color;
 
-    payload.colorAndDistance = float4(CalculateShading(info.normal, baseColor), RayTCurrent());
+    SetHitInfo(payload, info, CalculateShading(info.normal, baseColor.rgb));
 }
 
 [shader("anyhit")]

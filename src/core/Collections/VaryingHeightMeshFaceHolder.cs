@@ -18,6 +18,17 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 {
+    /// <summary>
+    ///     The skip value that indicates no skip.
+    /// </summary>
+    public const int NoSkip = -1;
+
+    /// <summary>
+    ///     The direction value that indicates a normal direction, meaning a downwards flow.
+    ///     The bottom of the face touches the ground, the top is as high as the size.
+    /// </summary>
+    public const bool DefaultDirection = true;
+
     private readonly MeshFace?[][] lastFaces;
 
     private int count;
@@ -45,11 +56,12 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     /// </summary>
     /// <param name="pos">The position of the face, in section block coordinates.</param>
     /// <param name="size">The size of the face.</param>
+    /// <param name="skip">The portion of the face that is skipped, in size units. This means <c>0</c> is one step and <c>-1</c> is no skip.</param>
     /// <param name="direction">The direction of the face. True for upwards (default), false for downwards.</param>
     /// <param name="data">The binary encoded data of the face.</param>
     /// <param name="isSingleSided">True if this face is single sided, false if double sided.</param>
     /// <param name="isFull">True if this face is full, filling a complete block side.</param>
-    public void AddFace(Vector3i pos, int size, bool direction, (uint a, uint b, uint c, uint d) data,
+    public void AddFace(Vector3i pos, int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
         bool isSingleSided, bool isFull)
     {
         ExtractIndices(pos, out int layer, out int row, out int position);
@@ -57,6 +69,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
         // Build current face.
         MeshFace currentFace = MeshFace.Get(
             size,
+            skip,
             direction,
             data,
             position,
@@ -178,16 +191,17 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
         Vector3 topOffset;
 
         float gap = IHeightVariable.GetGap(face.size);
+        float skip = IHeightVariable.GetSize(face.skip);
 
         if (face.direction)
         {
-            bottomOffset = (0, 0, 0);
+            bottomOffset = (0, skip, 0);
             topOffset = (0, -gap, 0);
         }
         else
         {
             bottomOffset = (0, gap, 0);
-            topOffset = (0, 0, 0);
+            topOffset = (0, -skip, 0);
         }
 
         positions.a += bottomOffset;
@@ -260,12 +274,19 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
         /// </summary>
         public int size;
 
+        /// <summary>
+        ///     The portion of the face that is skipped, in size units.
+        ///     This can be the height of a neighboring block.
+        /// </summary>
+        public int skip;
+
         #pragma warning disable S1067
         public bool IsExtendable(MeshFace extension)
         {
             return position + length + 1 == extension.position &&
                    height == extension.height &&
                    size == extension.size &&
+                   skip == extension.skip &&
                    direction == extension.direction &&
                    data == extension.data &&
                    isSingleSided == extension.isSingleSided;
@@ -276,6 +297,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
             return position == addition.position &&
                    length == addition.length &&
                    size == addition.size &&
+                   skip == addition.skip &&
                    direction == addition.direction &&
                    data == addition.data &&
                    isSingleSided == addition.isSingleSided;
@@ -284,7 +306,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 
         #region POOLING
 
-        public static MeshFace Get(int size, bool direction, (uint a, uint b, uint c, uint d) data,
+        public static MeshFace Get(int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
             int position, bool isSingleSided)
         {
             MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
@@ -292,6 +314,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
             instance.previous = null;
 
             instance.size = size;
+            instance.skip = skip;
             instance.direction = direction;
             instance.data = data;
 

@@ -497,7 +497,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), {L"Miss", L"ShadowMiss"});
 
-    pipeline.SetMaxPayloadSize(4 * sizeof(float));
+    pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
 

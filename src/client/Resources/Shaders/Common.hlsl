@@ -6,7 +6,10 @@
 
 struct HitInfo
 {
-    float4 colorAndDistance;
+    float3 color;
+    float alpha;
+    float3 normal;
+    float distance;
 };
 
 struct ShadowHitInfo

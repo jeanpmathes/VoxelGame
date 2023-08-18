@@ -9,5 +9,8 @@
 [shader("miss")]
 void Miss(inout HitInfo payload : SV_RayPayload)
 {
-    payload.colorAndDistance = float4(0.5, 0.8, 0.9, -1.0);
+    payload.color = float3(0.5, 0.8, 0.9);
+    payload.distance = VG_RAY_DISTANCE;
+    payload.normal = float3(0.0, 0.0, 0.0);
+    payload.alpha = 1.0;
 }

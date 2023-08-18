@@ -7,23 +7,17 @@
 #include "Section.hlsl"
 
 [shader("closesthit")]
-void BasicOpaqueSectionClosestHit(inout HitInfo payload, const Attributes attributes)
+void FluidSectionClosestHit(inout HitInfo payload, const Attributes attributes)
 {
     const Info info = GetCurrentInfo(attributes);
-    float4 baseColor = GetBasicBaseColor(info);
-
-    if (baseColor.a >= 0.3)
-    {
-        baseColor *= decode::GetTintColor(info.data);
-    }
-    
-    baseColor.a = 1.0;
+    const float4 baseColor = GetFluidBaseColor(info) * decode::GetTintColor(info.data);
 
     SetHitInfo(payload, info, CalculateShading(info.normal, baseColor.rgb));
+    payload.alpha = baseColor.a;
 }
 
 [shader("closesthit")]
-void BasicOpaqueShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
+void FluidShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
 {
     hitInfo.isHit = true;
 }

@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic;
 
@@ -192,8 +193,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {IsFluidRendered: true} &&
                                                      (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
 
-        VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders =
-            context.GetFluidMeshFaceHolders(RenderType == RenderType.Opaque);
+        VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
         MeshFluidSide(BlockSide.Front);
         MeshFluidSide(BlockSide.Back);
@@ -237,36 +237,31 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             bool singleSided = blockToCheck is {IsOpaqueAndFull: false, IsSolidAndFull: true}; // todo: check whether this is correct, maybe it can be simplified
 
-            (int x, int y, int z) = position;
-            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+            (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 
-            // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-            int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) | (y << 5) |
-                             (z + a[2]);
+            Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+            Meshing.SetTint(ref data, mesh.Tint.Select(context.GetFluidTint(position)));
 
-            int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) | (y << 5) |
-                             (z + b[2]);
+            if (side is not (BlockSide.Top or BlockSide.Bottom))
+            {
+                (Vector2 min, Vector2 max) uvs = info.Level.GetUVs(sideHeight, Direction);
+                Meshing.SetUVs(ref data, uvs.min, (uvs.min.X, uvs.max.Y), uvs.max, (uvs.max.X, uvs.min.Y));
+            }
+            else
+            {
+                Meshing.SetFullUVs(ref data);
+            }
 
-            int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) | (y << 5) |
-                             (z + c[2]);
+            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, value: true);
 
-            int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) | (y << 5) |
-                             (z + d[2]);
-
-            // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.GetFluidTint(position)) << 23) | ((int) side << 16) |
-                            ((sideHeight + 1) << 12) |
-                            (Direction.GetBit() << 11) | ((int) info.Level << 8) |
-                            (info.IsStatic ? 1 << 7 : 0 << 7) |
-                            ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
-
-            // todo: uncomment
-            /*fluidMeshFaceHolders[(int) side].AddFace(
+            fluidMeshFaceHolders[(int) side].AddFace(
                 position,
-                lowerData,
-                (upperDataA, upperDataB, upperDataC, upperDataD),
+                info.Level.GetBlockHeight(),
+                sideHeight,
+                Direction != VerticalFlow.Upwards,
+                data,
                 singleSided,
-                info.Level == FluidLevel.Eight);*/
+                info.Level == FluidLevel.Eight);
         }
     }
 

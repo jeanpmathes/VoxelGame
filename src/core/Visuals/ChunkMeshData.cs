@@ -43,29 +43,18 @@ public class SectionMeshData
 
     internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
         PooledList<SpatialVertex> foliageMesh,
-        PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
-        PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
+        PooledList<SpatialVertex> fluidMesh)
     {
         BasicMesh = basicMesh;
         FoliageMesh = foliageMesh;
-
-        this.opaqueFluidVertexData = opaqueFluidVertexData;
-        this.opaqueFluidIndices = opaqueFluidIndices;
-
-        this.transparentFluidVertexData = transparentFluidVertexData;
-        this.transparentFluidIndices = transparentFluidIndices;
+        FluidMesh = fluidMesh;
     }
 
     private SectionMeshData()
     {
         BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
         FoliageMesh = new PooledList<SpatialVertex>();
-
-        opaqueFluidVertexData = new PooledList<int>();
-        opaqueFluidIndices = new PooledList<uint>();
-
-        transparentFluidVertexData = new PooledList<int>();
-        transparentFluidIndices = new PooledList<uint>();
+        FluidMesh = new PooledList<SpatialVertex>();
     }
 
     /// <summary>
@@ -76,10 +65,7 @@ public class SectionMeshData
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => BasicMesh.opaque.Count != 0 || BasicMesh.transparent.Count != 0 ||
-                            FoliageMesh.Count != 0 ||
-                            opaqueFluidVertexData.Count != 0 ||
-                            transparentFluidVertexData.Count != 0;
+    public bool IsFilled => GetTotalSize() > 0;
 
     /// <summary>
     ///     The basic mesh data.
@@ -96,6 +82,24 @@ public class SectionMeshData
     public PooledList<SpatialVertex> FoliageMesh { get; }
 
     /// <summary>
+    ///     The fluid mesh data.
+    /// </summary>
+    public PooledList<SpatialVertex> FluidMesh { get; }
+
+    private int GetTotalSize()
+    {
+        var size = 0;
+
+        size += BasicMesh.opaque.Count;
+        size += BasicMesh.transparent.Count;
+
+        size += FoliageMesh.Count;
+        size += FluidMesh.Count;
+
+        return size;
+    }
+
+    /// <summary>
     ///     Return all pooled lists to the pool. The data can only be returned once.
     /// </summary>
     public void ReturnPooled()
@@ -106,12 +110,7 @@ public class SectionMeshData
         BasicMesh.transparent.ReturnToPool();
 
         FoliageMesh.ReturnToPool();
-
-        opaqueFluidVertexData.ReturnToPool();
-        opaqueFluidIndices.ReturnToPool();
-
-        transparentFluidVertexData.ReturnToPool();
-        transparentFluidIndices.ReturnToPool();
+        FluidMesh.ReturnToPool();
 
         isReturnedToPool = true;
     }
@@ -125,16 +124,4 @@ public class SectionMeshData
 
         ReturnPooled();
     }
-
-    #pragma warning disable
-
-    public readonly PooledList<uint> opaqueFluidIndices;
-
-    public readonly PooledList<int> opaqueFluidVertexData;
-
-    public readonly PooledList<uint> transparentFluidIndices;
-
-    public readonly PooledList<int> transparentFluidVertexData;
-
-    #pragma warning restore
 }
