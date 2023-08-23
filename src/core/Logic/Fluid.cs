@@ -124,7 +124,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     Gets the <see cref="Visuals.RenderType" /> of this fluid.
     /// </summary>
-    public RenderType RenderType { get; }
+    private RenderType RenderType { get; }
 
     /// <summary>
     ///     Get whether this fluids is a fluid.
@@ -235,7 +235,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            bool singleSided = blockToCheck is {IsOpaqueAndFull: false, IsSolidAndFull: true}; // todo: check whether this is correct, maybe it can be simplified
+            bool singleSided = blockToCheck is {IsSolidAndFull: true};
 
             (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 

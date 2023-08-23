@@ -30,6 +30,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     public const bool DefaultDirection = true;
 
     private readonly MeshFace?[][] lastFaces;
+    private readonly Vector3 inset;
 
     private int count;
 
@@ -37,7 +38,8 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
     ///     Create a new <see cref="VaryingHeightMeshFaceHolder" /> for a given block side.
     /// </summary>
     /// <param name="side">The side the faces held belong too.</param>
-    public VaryingHeightMeshFaceHolder(BlockSide side) : base(side)
+    /// <param name="insetScale">How much to move the faces inwards.</param>
+    public VaryingHeightMeshFaceHolder(BlockSide side, float insetScale) : base(side)
     {
         // Initialize layers.
         lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.Size);
@@ -49,6 +51,8 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
 
             for (var j = 0; j < Section.Size; j++) lastFaces[i][j] = null;
         }
+
+        inset = side.Direction().ToVector3() * insetScale * -1.0f;
     }
 
     /// <summary>
@@ -185,7 +189,7 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
         else ApplyVaryingHeightToLateralSide(ref positions, face);
     }
 
-    private static void ApplyVaryingHeightToLateralSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    private void ApplyVaryingHeightToLateralSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
         Vector3 bottomOffset;
         Vector3 topOffset;
@@ -204,20 +208,19 @@ public class VaryingHeightMeshFaceHolder : MeshFaceHolder
             topOffset = (0, -skip, 0);
         }
 
-        positions.a += bottomOffset;
-        positions.b += topOffset;
-        positions.c += topOffset;
-        positions.d += bottomOffset;
+        positions.a += bottomOffset + inset;
+        positions.b += topOffset + inset;
+        positions.c += topOffset + inset;
+        positions.d += bottomOffset + inset;
     }
 
     private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
         float gap = IHeightVariable.GetGap(face.size);
-        Vector3 offset = (0, 0, 0);
+        Vector3 offset = inset;
 
-        if (face.direction && side == BlockSide.Top) offset = (0, -gap, 0);
-
-        if (!face.direction && side == BlockSide.Bottom) offset = (0, gap, 0);
+        if (face.direction && side == BlockSide.Top) offset += (0, -gap, 0);
+        if (!face.direction && side == BlockSide.Bottom) offset += (0, gap, 0);
 
         positions.a += offset;
         positions.b += offset;

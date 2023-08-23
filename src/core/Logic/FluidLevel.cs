@@ -68,10 +68,15 @@ public static class FluidLevelExtensions
         return (int) level * 2 + 1;
     }
 
+    /// <summary>
+    ///     Get the texture coordinates for the fluid level.
+    /// </summary>
+    /// <param name="level">The fluid level.</param>
+    /// <param name="skip">How much of the face to skip, in block height units.</param>
+    /// <param name="flow">The flow direction.</param>
+    /// <returns>The texture coordinates.</returns>
     public static (Vector2 min, Vector2 max) GetUVs(this FluidLevel level, int skip, VerticalFlow flow)
     {
-        (Vector2 min, Vector2 max) uvs = (Vector2.Zero, Vector2.Zero);
-
         float size = IHeightVariable.GetSize(level.GetBlockHeight());
         float skipped = IHeightVariable.GetSize(skip);
 

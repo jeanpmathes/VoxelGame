@@ -59,7 +59,7 @@ public class MeshingContext
         opaqueVaryingHeightBlockMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
         transparentVaryingHeightBlockMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
 
-        fluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        fluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders(inset: 0.001f);
     }
 
     /// <summary>
@@ -111,11 +111,11 @@ public class MeshingContext
         return holders;
     }
 
-    private static VaryingHeightMeshFaceHolder[] CreateVaryingHeightMeshFaceHolders()
+    private static VaryingHeightMeshFaceHolder[] CreateVaryingHeightMeshFaceHolders(float inset = 0.0f)
     {
         var holders = new VaryingHeightMeshFaceHolder[6];
 
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new VaryingHeightMeshFaceHolder(side);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new VaryingHeightMeshFaceHolder(side, inset);
 
         return holders;
     }
