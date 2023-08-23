@@ -275,24 +275,28 @@ public sealed class Shaders // todo: delete all GLSL shaders
 
         BasicOpaqueSectionMaterial = builder.AddMaterial(
             nameof(BasicOpaqueSectionMaterial),
+            PipelineBuilder.Groups.Default,
             isOpaque: true,
             basicOpaqueSectionHitGroup,
             basicOpaqueShadowHitGroup);
 
         BasicTransparentSectionMaterial = builder.AddMaterial(
             nameof(BasicTransparentSectionMaterial),
+            PipelineBuilder.Groups.Default,
             isOpaque: false,
             basicTransparentSectionHitGroup,
             basicTransparentShadowHitGroup);
 
         FoliageSectionMaterial = builder.AddMaterial(
             nameof(FoliageSectionMaterial),
+            PipelineBuilder.Groups.Default,
             isOpaque: false,
             foliageSectionHitGroup,
             foliageShadowHitGroup);
 
         FluidSectionMaterial = builder.AddMaterial(
             nameof(FluidSectionMaterial),
+            PipelineBuilder.Groups.NoShadow,
             isOpaque: true, // Despite having transparency, no no any-hit shader is used, so it is opaque.
             fluidSectionHitGroup,
             fluidShadowHitGroup);

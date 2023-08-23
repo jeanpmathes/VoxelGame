@@ -164,11 +164,9 @@ namespace nv_helpers_dx12
     }
 
     void BottomLevelASGenerator::Generate(
-        ID3D12GraphicsCommandList4
-        * commandList,
+        ID3D12GraphicsCommandList4* commandList,
         ID3D12Resource* scratchBuffer,
-        ID3D12Resource
-        * resultBuffer,
+        ID3D12Resource* resultBuffer,
         bool updateOnly,
         ID3D12Resource* previousResult
     )

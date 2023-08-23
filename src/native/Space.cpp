@@ -465,6 +465,9 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         m->name = description.debugName;
         m->isOpaque = description.opaque;
 
+        if (description.visible) m->flags |= MaterialFlags::VISIBLE;
+        if (description.shadowCaster) m->flags |= MaterialFlags::SHADOW_CASTER;
+
         std::tie(m->normalHitGroup, m->normalRootSignature)
             = addHitGroup(description.normalClosestHitSymbol, description.normalAnyHitSymbol,
                           description.normalIntersectionSymbol);
@@ -628,6 +631,7 @@ void Space::CreateTopLevelAS()
 
             topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
                                             instanceID, 2 * instanceID,
+                                            static_cast<BYTE>(mesh->GetMaterial().flags),
                                             D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
 
             instanceID++;

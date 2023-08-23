@@ -43,7 +43,7 @@ void RayGen()
     while (color.a < 1.0 && iteration < 10)
     {
         ResetHitInfo(payload);
-        TraceRay(gSpaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF, 0, 0, 0, ray, payload);
+        TraceRay(gSpaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, VG_MASK_VISIBLE, VG_HIT_ARG(0), ray, payload);
 
         const float a = color.a + (1.0 - color.a) * payload.alpha;
         const float3 rgb = (color.rgb * color.a + payload.color * (1.0 - color.a) * payload.alpha) / a;

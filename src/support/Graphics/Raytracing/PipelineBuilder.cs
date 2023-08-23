@@ -15,6 +15,33 @@ namespace VoxelGame.Support.Graphics.Raytracing;
 /// </summary>
 public class PipelineBuilder
 {
+    /// <summary>
+    ///     Groups in which objects with a material can be.
+    /// </summary>
+    [Flags]
+    public enum Groups
+    {
+        /// <summary>
+        ///     The group of objects that are visible.
+        /// </summary>
+        Visible = 1 << 0,
+
+        /// <summary>
+        ///     The group of objects that cast shadows.
+        /// </summary>
+        ShadowCaster = 1 << 1,
+
+        /// <summary>
+        ///     The default group.
+        /// </summary>
+        Default = Visible | ShadowCaster,
+
+        /// <summary>
+        ///     The group of objects that do not cast shadows but are otherwise like <see cref="Default" />.
+        /// </summary>
+        NoShadow = Visible
+    }
+
     private readonly List<MaterialConfig> materials = new();
     private readonly List<ShaderFile> shaderFiles = new();
 
@@ -50,14 +77,15 @@ public class PipelineBuilder
     ///     Add a material to the pipeline.
     /// </summary>
     /// <param name="name">The name of the material, for debugging purposes.</param>
+    /// <param name="groups">The groups in which objects with this material should be.</param>
     /// <param name="isOpaque">Whether the material is opaque.</param>
     /// <param name="normal">The hit group for normal rendering.</param>
     /// <param name="shadow">The hit group for shadows.</param>
     /// <returns>The material.</returns>
-    public Material AddMaterial(string name, bool isOpaque, HitGroup normal, HitGroup shadow)
+    public Material AddMaterial(string name, Groups groups, bool isOpaque, HitGroup normal, HitGroup shadow)
     {
         int index = materials.Count;
-        materials.Add(new MaterialConfig(name, isOpaque, normal, shadow));
+        materials.Add(new MaterialConfig(name, groups, isOpaque, normal, shadow));
 
         return new Material((uint) index);
     }
@@ -137,6 +165,8 @@ public class PipelineBuilder
         MaterialDescription[] materialDescriptions = materials.Select(material => new MaterialDescription
         {
             debugName = material.Name,
+            isVisible = material.Groups.HasFlag(Groups.Visible),
+            isShadowCaster = material.Groups.HasFlag(Groups.ShadowCaster),
             isOpaque = material.IsOpaque,
             normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
             normalAnyHitSymbol = material.Normal.AnyHitSymbol,
@@ -164,7 +194,7 @@ public class PipelineBuilder
 
     private sealed record ShaderFile(FileInfo File, string[] Exports);
 
-    private sealed record MaterialConfig(string Name, bool IsOpaque, HitGroup Normal, HitGroup Shadow);
+    private sealed record MaterialConfig(string Name, Groups Groups, bool IsOpaque, HitGroup Normal, HitGroup Shadow);
 
     /// <summary>
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.

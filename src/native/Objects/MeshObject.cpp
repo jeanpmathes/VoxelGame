@@ -102,6 +102,11 @@ bool MeshObject::IsEnabled() const
     return m_enabled && m_geometryElementCount > 0;
 }
 
+const Material& MeshObject::GetMaterial() const
+{
+    return m_material;
+}
+
 void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     REQUIRE(IsMeshModified());

@@ -89,12 +89,14 @@ namespace nv_helpers_dx12
         /// \param transform Transform matrix to apply to the instance, allowing the same bottom-level AS to be used at several world-space positions
         /// \param instanceID Instance ID, which can be used in the shaders to identify this specific instance
         /// \param hitGroupIndex Hit group index, corresponding the the index of the hit group in the Shader Binding Table that will be called upon hitting the geometry
+        /// \param inclusionMask Instance mask, which can be used in the shaders to hide instances.
         /// \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
         void
         AddInstance(ID3D12Resource* bottomLevelAS,
                     const DirectX::XMFLOAT4X4& transform,
                     UINT instanceID,
                     UINT hitGroupIndex,
+                    BYTE inclusionMask,
                     D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE
         );
 
@@ -138,7 +140,7 @@ namespace nv_helpers_dx12
         /// Helper struct storing the instance data
         struct Instance
         {
-            Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId,
+            Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId, BYTE mask,
                      D3D12_RAYTRACING_INSTANCE_FLAGS f);
             /// Bottom-level AS
             Microsoft::WRL::ComPtr<ID3D12Resource> bottomLevelAS;
@@ -150,6 +152,8 @@ namespace nv_helpers_dx12
             UINT hitGroupIndex;
             /// Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
             D3D12_RAYTRACING_INSTANCE_FLAGS flags;
+            /// Instance mask, which can be used in the shaders to hide instances.
+            BYTE inclusionMask;
         };
 
         /// Construction flags, indicating whether the AS supports iterative updates

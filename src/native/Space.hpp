@@ -27,6 +27,8 @@ struct GlobalConstantBuffer
 struct MaterialDescription
 {
     LPWSTR debugName;
+    BOOL visible;
+    BOOL shadowCaster;
     BOOL opaque;
 
     LPWSTR normalClosestHitSymbol;
@@ -65,12 +67,21 @@ public:
     SpacePipelineDescription description;
 };
 
+enum class MaterialFlags : BYTE
+{
+    VISIBLE = 1 << 0,
+    SHADOW_CASTER = 1 << 1,
+};
+
+DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
+
 class Material
 {
 public:
     std::wstring name;
     bool isOpaque{};
     D3D12_RAYTRACING_GEOMETRY_TYPE geometryType{};
+    MaterialFlags flags{};
     
     std::wstring normalHitGroup;
     ComPtr<ID3D12RootSignature> normalRootSignature;

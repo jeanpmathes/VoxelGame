@@ -59,6 +59,8 @@ public:
     [[nodiscard]] bool IsMeshModified() const;
     [[nodiscard]] bool IsEnabled() const;
 
+    [[nodiscard]] const Material& GetMaterial() const;
+
     /**
      * Enqueues commands to upload the mesh to the GPU.
      * Should only be called when the mesh is modified.

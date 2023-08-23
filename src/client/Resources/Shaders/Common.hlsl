@@ -40,3 +40,8 @@ float3 HUEtoRGB(const in float h)
 
 #define VG_RAY_DISTANCE 100000.0
 #define VG_RAY_EPSILON 0.01
+
+#define VG_MASK_VISIBLE (1 << 0)
+#define VG_MASK_SHADOW (1 << 1)
+
+#define VG_HIT_ARG(index) index, 0, index

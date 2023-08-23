@@ -61,10 +61,11 @@ namespace nv_helpers_dx12
         const DirectX::XMFLOAT4X4& transform,
         UINT instanceID,
         UINT hitGroupIndex,
+        BYTE inclusionMask,
         D3D12_RAYTRACING_INSTANCE_FLAGS flags
     )
     {
-        m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, flags));
+        m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags));
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
@@ -165,9 +166,8 @@ namespace nv_helpers_dx12
             memcpy(instanceDescs[i].Transform, &m, sizeof instanceDescs[i].Transform);
             // Get access to the bottom level
             instanceDescs[i].AccelerationStructure = m_instances[i].bottomLevelAS->GetGPUVirtualAddress();
-            // Visibility mask, always visible here - TODO: should be accessible from
-            // outside
-            instanceDescs[i].InstanceMask = 0xFF;
+            // Visibility mask.
+            instanceDescs[i].InstanceMask = m_instances[i].inclusionMask;
         }
 
         descriptorsBuffer->Unmap(0, nullptr);
@@ -228,8 +228,9 @@ namespace nv_helpers_dx12
         const DirectX::XMFLOAT4X4& tr,
         UINT iID,
         UINT hgId,
+        BYTE mask,
         D3D12_RAYTRACING_INSTANCE_FLAGS f)
-        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId), flags(f)
+        : bottomLevelAS(blAS), transform(tr), instanceID(iID), hitGroupIndex(hgId), flags(f), inclusionMask(mask)
     {
     }
 } // namespace nv_helpers_dx12
