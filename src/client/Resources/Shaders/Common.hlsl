@@ -38,6 +38,11 @@ float3 HUEtoRGB(const in float h)
     return saturate(float3(r, g, b));
 }
 
+#define POW2(x) ((x) * (x))
+#define POW3(x) (POW2(x) * (x))
+#define POW4(x) (POW2(x) * POW2(x))
+#define POW5(x) (POW3(x) * POW2(x))
+
 #define VG_RAY_DISTANCE 100000.0
 #define VG_RAY_EPSILON 0.01
 
