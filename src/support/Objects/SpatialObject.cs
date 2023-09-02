@@ -13,6 +13,11 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class SpatialObject : NativeObject
 {
+    private bool dirty = true;
+
+    private Vector3d position = Vector3d.Zero;
+    private Quaterniond rotation = Quaterniond.Identity;
+
     /// <summary>
     ///     Create a new native spatial object.
     /// </summary>
@@ -31,15 +36,33 @@ public class SpatialObject : NativeObject
     /// <summary>
     ///     Get or set the spatial object position.
     /// </summary>
-    public Vector3d Position { get; set; }
+    public Vector3d Position
+    {
+        get => position;
+        set
+        {
+            position = value;
+            dirty = true;
+        }
+    }
 
     /// <summary>
     ///     Get or set the spatial object rotation.
     /// </summary>
-    public Quaterniond Rotation { get; set; }
+    public Quaterniond Rotation
+    {
+        get => rotation;
+        set
+        {
+            rotation = value;
+            dirty = true;
+        }
+    }
 
     internal override void Synchronize()
     {
-        Native.UpdateSpatialObjectData(this, Space.GetAdjustedData(this));
+        if (dirty || Space.HasAdjustmentChanged) Native.UpdateSpatialObjectData(this, Space.GetAdjustedData(this));
+
+        dirty = false;
     }
 }

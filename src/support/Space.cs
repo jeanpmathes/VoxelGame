@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
@@ -43,7 +44,7 @@ public class Space
     {
         get
         {
-            if (camera == null) camera = Native.GetCamera(Client);
+            camera ??= Native.GetCamera(Client);
 
             return camera;
         }
@@ -56,6 +57,11 @@ public class Space
     {
         get { return light ??= Native.GetLight(Client); }
     }
+
+    /// <summary>
+    ///     Check whether the adjustment has changed since the last set.
+    /// </summary>
+    public bool HasAdjustmentChanged { get; private set; }
 
     /// <summary>
     ///     Create a new indexed mesh object.
@@ -80,7 +86,15 @@ public class Space
     /// <param name="newAdjustment">The new adjustment.</param>
     public void SetAdjustment(Vector3d newAdjustment)
     {
-        adjustment = newAdjustment;
+        if (VMath.NearlyEqual(adjustment, newAdjustment))
+        {
+            HasAdjustmentChanged = false;
+        }
+        else
+        {
+            HasAdjustmentChanged = true;
+            adjustment = newAdjustment;
+        }
     }
 
     /// <summary>

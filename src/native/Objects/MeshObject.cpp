@@ -6,9 +6,11 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
-    m_instanceConstantBufferAlignedSize = sizeof m_instanceConstantBufferData;
+    m_instanceConstantBufferAlignedSize = sizeof InstanceConstantBuffer;
     m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantBuffer);
+
+    TRY_DO(util::Map(m_instanceConstantBuffer, &m_instanceConstantBufferPointer));
 
     Update();
 }
@@ -17,22 +19,18 @@ void MeshObject::Update()
 {
     if (!ClearTransformDirty()) return;
 
-    {
-        const DirectX::XMFLOAT4X4 objectToWorld = GetTransform();
+    const DirectX::XMFLOAT4X4 objectToWorld = GetTransform();
 
-        const DirectX::XMMATRIX transform = XMLoadFloat4x4(&objectToWorld);
-        const DirectX::XMMATRIX transformNormal = XMMatrixToNormal(transform);
+    const DirectX::XMMATRIX transform = XMLoadFloat4x4(&objectToWorld);
+    const DirectX::XMMATRIX transformNormal = XMMatrixToNormal(transform);
 
-        DirectX::XMFLOAT4X4 objectToWorldNormal = {};
-        XMStoreFloat4x4(&objectToWorldNormal, transformNormal);
+    DirectX::XMFLOAT4X4 objectToWorldNormal = {};
+    XMStoreFloat4x4(&objectToWorldNormal, transformNormal);
 
-        m_instanceConstantBufferData = {
-            .objectToWorld = objectToWorld,
-            .objectToWorldNormal = objectToWorldNormal
-        };
-    }
-
-    TRY_DO(util::MapAndWrite(m_instanceConstantBuffer, m_instanceConstantBufferData));
+    *m_instanceConstantBufferPointer = {
+        .objectToWorld = objectToWorld,
+        .objectToWorldNormal = objectToWorldNormal
+    };
 }
 
 void MeshObject::SetEnabledState(const bool enabled)

@@ -287,12 +287,14 @@ void Space::CreateGlobalConstBuffer()
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
+    TRY_DO(util::Map(m_globalConstantBuffer, &m_mappedGlobalConstantBuffer));
+
     UpdateGlobalConstBuffer();
 }
 
 void Space::UpdateGlobalConstBuffer() const
 {
-    TRY_DO(util::MapAndWrite(m_globalConstantBuffer, m_globalConstantBufferData));
+    *m_mappedGlobalConstantBuffer = m_globalConstantBufferData;
 }
 
 static constexpr UINT OUTPUT_DESCRIPTOR_OFFSET = 0;

@@ -173,6 +173,7 @@ private:
     Allocation<ID3D12Resource> m_globalConstantBuffer;
     UINT64 m_globalConstantBufferSize = 0;
     GlobalConstantBuffer m_globalConstantBufferData = {};
+    GlobalConstantBuffer* m_mappedGlobalConstantBuffer = nullptr;
 
     std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
     std::vector<std::unique_ptr<Material>> m_materials = {};
