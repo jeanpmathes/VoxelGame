@@ -10,9 +10,9 @@ namespace VoxelGame.Support.Objects;
 ///     Base class for all native objects, which are objects that are created by the native API and used over a pointer.
 ///     The lifetime of the native object is bound to the native client.
 /// </summary>
-public abstract class NativeObject
+public class NativeObject
 {
-    private readonly int index;
+    private readonly Synchronizer.Handle handle;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="NativeObject" /> class.
@@ -24,7 +24,7 @@ public abstract class NativeObject
         Self = nativePointer;
         Client = client;
 
-        index = client.RegisterObject(this);
+        handle = client.Sync.RegisterObject(this);
     }
 
     /// <summary>
@@ -42,16 +42,22 @@ public abstract class NativeObject
     /// </summary>
     protected void Deregister()
     {
-        Client.DeRegisterObject(index);
+        Client.Sync.DeRegisterObject(handle);
     }
 
     /// <summary>
     ///     Synchronizes the native object with the managed object.
     /// </summary>
-    internal abstract void Synchronize();
+    internal virtual void Synchronize()
+    {
+        Client.Sync.DisableSync(handle);
+    }
 
     /// <summary>
     ///     Called before the native object is synchronized.
     /// </summary>
-    internal virtual void PrepareSynchronization() {}
+    internal virtual void PrepareSynchronization()
+    {
+        Client.Sync.DisablePreSync(handle);
+    }
 }

@@ -10,8 +10,6 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core;
-using VoxelGame.Core.Collections;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -36,8 +34,6 @@ public class Client : IDisposable // todo: get type usage count down
         VirtualKeys.ExtraButton1,
         VirtualKeys.ExtraButton2
     };
-
-    private readonly GappedList<NativeObject?> objects = new(gapValue: null);
 
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
@@ -64,9 +60,7 @@ public class Client : IDisposable // todo: get type usage count down
 
                 OnUpdate(delta);
 
-                foreach (NativeObject? nativeObject in objects.AsSpan()) nativeObject?.PrepareSynchronization();
-                foreach (NativeObject? nativeObject in objects.AsSpan()) nativeObject?.Synchronize();
-
+                Sync.Update();
                 KeyState.Update();
             },
             onRender = OnRender,
@@ -100,6 +94,8 @@ public class Client : IDisposable // todo: get type usage count down
         Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc, config.ErrorMessageFunc);
         Space = new Space(this);
     }
+
+    internal Synchronizer Sync { get; } = new();
 
     /// <summary>
     ///     Get the total elapsed time.
@@ -163,25 +159,6 @@ public class Client : IDisposable // todo: get type usage count down
     public void SetCursor(MouseCursor cursor)
     {
         Support.Native.SetCursor(this, cursor);
-    }
-
-    /// <summary>
-    ///     Register a new native object.
-    /// </summary>
-    internal int RegisterObject(NativeObject nativeObject)
-    {
-        ApplicationInformation.Instance.EnsureMainThread(objects);
-
-        return objects.Add(nativeObject);
-    }
-
-    /// <summary>
-    ///     De-register a native object.
-    /// </summary>
-    public void DeRegisterObject(int index)
-    {
-        ApplicationInformation.Instance.EnsureMainThread(objects);
-        objects.RemoveAt(index);
     }
 
     private static string FormatErrorMessage(int hr, string message)

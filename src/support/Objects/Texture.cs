@@ -86,11 +86,6 @@ public class Texture : NativeObject
         return fallback;
     }
 
-    internal override void Synchronize()
-    {
-        // Nothing to do here.
-    }
-
     /// <summary>
     ///     Frees the texture.
     /// </summary>

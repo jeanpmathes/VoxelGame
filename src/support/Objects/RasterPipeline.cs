@@ -15,9 +15,4 @@ public class RasterPipeline : NativeObject
     ///     Creates a new <see cref="RasterPipeline" />.
     /// </summary>
     public RasterPipeline(IntPtr nativePointer, Client client) : base(nativePointer, client) {}
-
-    internal override void Synchronize()
-    {
-        // Nothing to do here.
-    }
 }
