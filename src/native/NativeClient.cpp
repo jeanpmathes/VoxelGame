@@ -489,12 +489,12 @@ void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback 
 
 NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)
 {
-    return m_objects.insert(m_objects.end(), std::move(object));
+    return m_objects.Push(std::move(object));
 }
 
 void NativeClient::DeleteObject(const ObjectHandle handle)
 {
-    m_objects.erase(handle);
+    m_objects.Pop(handle);
 }
 
 void NativeClient::WaitForGPU()
@@ -642,7 +642,7 @@ void NativeClient::PopulateCommandLists()
             PopulatePostProcessingCommandList();
         }
     }
-
+    
     for (size_t i = 0; i < m_draw2DPipelines.size(); ++i)
     {
         PopulateDraw2DCommandList(i);

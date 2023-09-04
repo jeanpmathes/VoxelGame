@@ -24,7 +24,7 @@ namespace VoxelGame.Support;
 /// <summary>
 ///     A proxy class for the native client.
 /// </summary>
-public class Client : IDisposable
+public class Client : IDisposable // todo: get type usage count down
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 

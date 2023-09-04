@@ -82,7 +82,7 @@ public:
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     Allocation<ID3D12Resource> GetBLAS();
 
-    using Handle = std::list<std::unique_ptr<MeshObject>>::iterator;
+    using Handle = size_t;
 
     /**
      * Associate this object with a handle. This is performed by the space automatically.

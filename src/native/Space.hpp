@@ -208,7 +208,7 @@ private:
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 
-    std::list<std::unique_ptr<MeshObject>> m_meshes = {};
+    GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
 
     std::vector<UINT> m_indices = {};
     Allocation<ID3D12Resource> m_sharedIndexBuffer = {};

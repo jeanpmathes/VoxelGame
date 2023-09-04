@@ -12,7 +12,7 @@ Space::Space(NativeClient& nativeClient) :
 
 void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQueue)
 {
-    REQUIRE(m_meshes.empty());
+    REQUIRE(m_meshes.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -66,7 +66,7 @@ MeshObject& Space::CreateMeshObject(UINT materialIndex)
     auto object = std::make_unique<MeshObject>(m_nativeClient, materialIndex);
     auto& indexedMeshObject = *object;
 
-    const auto handle = m_meshes.insert(m_meshes.end(), std::move(object));
+    const auto handle = m_meshes.Push(std::move(object));
     indexedMeshObject.AssociateWithHandle(handle);
 
     return indexedMeshObject;
@@ -74,7 +74,7 @@ MeshObject& Space::CreateMeshObject(UINT materialIndex)
 
 void Space::FreeMeshObject(const MeshObject::Handle handle)
 {
-    m_meshes.erase(handle);
+    m_meshes.Pop(handle);
 }
 
 const Material& Space::GetMaterial(const UINT index) const

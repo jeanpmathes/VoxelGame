@@ -75,7 +75,7 @@ public:
      */
     void AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback);
 
-    using ObjectHandle = std::list<std::unique_ptr<Object>>::iterator;
+    using ObjectHandle = size_t;
 
     ObjectHandle StoreObject(std::unique_ptr<Object> object);
     void DeleteObject(ObjectHandle handle);
@@ -107,7 +107,7 @@ private:
     DWORD m_callbackCookie{};
 
     std::unique_ptr<Uploader> m_uploader = nullptr;
-    std::list<std::unique_ptr<Object>> m_objects = {};
+    GappedList<std::unique_ptr<Object>> m_objects = {};
 
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;

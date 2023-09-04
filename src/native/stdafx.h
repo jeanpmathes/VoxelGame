@@ -67,9 +67,13 @@
 
 #include "Tools/D3D12MemAlloc.hpp"
 #include "Tools/Allocation.hpp"
-#include "Tools/DescriptorHeap.hpp"
 
-// Custom
+// Tools
+
+#include "Tools/DescriptorHeap.hpp"
+#include "Tools/GappedList.hpp"
+
+// General
 
 #include "DXApp.hpp"
 #include "native.hpp"
@@ -81,6 +85,8 @@
 #include "Common.hpp"
 #include "Uploader.hpp"
 
+// Objects
+
 #include "Objects/Object.hpp"
 #include "Objects/SpatialObject.hpp"
 #include "Objects/Camera.hpp"
@@ -89,6 +95,8 @@
 #include "Objects/RasterPipeline.hpp"
 #include "Objects/ShaderBuffer.hpp"
 #include "Objects/Texture.hpp"
+
+// Interfaces
 
 #include "Interfaces/Draw2D.hpp"
 

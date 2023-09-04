@@ -164,6 +164,7 @@
         <ClInclude Include="Tools\Allocation.hpp"/>
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
+        <ClInclude Include="Tools\GappedList.hpp"/>
         <ClInclude Include="Uploader.hpp"/>
         <ClInclude Include="Utilities.hpp"/>
         <ClInclude Include="Win32Application.hpp"/>
