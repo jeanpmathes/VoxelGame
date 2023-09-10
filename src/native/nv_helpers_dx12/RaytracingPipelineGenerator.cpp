@@ -62,7 +62,7 @@ namespace nv_helpers_dx12
     void RayTracingPipelineGenerator::AddLibrary(IDxcBlob* dxilLibrary,
                                                  const std::vector<std::wstring>& symbolExports)
     {
-        m_libraries.emplace_back(Library(dxilLibrary, symbolExports));
+        m_libraries.emplace_back(dxilLibrary, symbolExports);
     }
 
     void RayTracingPipelineGenerator::AddHitGroup(const std::wstring& hitGroupName,
@@ -70,27 +70,26 @@ namespace nv_helpers_dx12
                                                   const std::wstring& anyHitSymbol /*= L""*/,
                                                   const std::wstring& intersectionSymbol /*= L""*/)
     {
-        m_hitGroups.emplace_back(
-            HitGroup(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol));
+        m_hitGroups.emplace_back(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol);
     }
 
     void RayTracingPipelineGenerator::AddRootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, const std::vector<std::wstring>& symbols)
+        ID3D12RootSignature* rootSignature, const bool local, const std::vector<std::wstring>& symbols)
     {
-        m_rootSignatureAssociations.emplace_back(RootSignatureAssociation(rootSignature, symbols));
+        m_rootSignatureAssociations.emplace_back(rootSignature, local, symbols);
     }
 
-    void RayTracingPipelineGenerator::SetMaxPayloadSize(UINT sizeInBytes)
+    void RayTracingPipelineGenerator::SetMaxPayloadSize(const UINT sizeInBytes)
     {
         m_maxPayLoadSizeInBytes = sizeInBytes;
     }
 
-    void RayTracingPipelineGenerator::SetMaxAttributeSize(UINT sizeInBytes)
+    void RayTracingPipelineGenerator::SetMaxAttributeSize(const UINT sizeInBytes)
     {
         m_maxAttributeSizeInBytes = sizeInBytes;
     }
 
-    void RayTracingPipelineGenerator::SetMaxRecursionDepth(UINT maxDepth)
+    void RayTracingPipelineGenerator::SetMaxRecursionDepth(const UINT maxDepth)
     {
         m_maxRecursionDepth = maxDepth;
     }
@@ -180,7 +179,9 @@ namespace nv_helpers_dx12
         {
             // Add a subobject to declare the root signature
             D3D12_STATE_SUBOBJECT rootSigObject = {};
-            rootSigObject.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
+            rootSigObject.Type = assoc.m_local
+                                     ? D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE
+                                     : D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
             rootSigObject.pDesc = assoc.m_rootSignature.GetAddressOf();
 
             subobjects[currentIndex++] = rootSigObject;
@@ -190,7 +191,7 @@ namespace nv_helpers_dx12
             assoc.m_association.NumExports = static_cast<UINT>(assoc.m_symbolPointers.size());
             assoc.m_association.pExports = assoc.m_symbolPointers.data();
             assoc.m_association.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
-
+            
             D3D12_STATE_SUBOBJECT rootSigAssociationObject = {};
             rootSigAssociationObject.Type = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
             rootSigAssociationObject.pDesc = &assoc.m_association;
@@ -238,11 +239,6 @@ namespace nv_helpers_dx12
             throw std::logic_error("Could not create the raytracing state object.");
         }
         return rtStateObject;
-    }
-
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> RayTracingPipelineGenerator::GetGlobalRootSignature() const
-    {
-        return m_dummyGlobalRootSignature;
     }
 
     void RayTracingPipelineGenerator::CreateDummyRootSignatures()
@@ -448,8 +444,8 @@ namespace nv_helpers_dx12
     }
 
     RayTracingPipelineGenerator::RootSignatureAssociation::RootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, const std::vector<std::wstring>& symbols)
-        : m_rootSignature(rootSignature), m_symbols(symbols), m_symbolPointers(symbols.size())
+        ID3D12RootSignature* rootSignature, const bool local, const std::vector<std::wstring>& symbols)
+        : m_rootSignature(rootSignature), m_local(local), m_symbols(symbols), m_symbolPointers(symbols.size())
     {
         for (size_t i = 0; i < m_symbols.size(); i++)
         {
@@ -460,7 +456,7 @@ namespace nv_helpers_dx12
 
     RayTracingPipelineGenerator::RootSignatureAssociation::RootSignatureAssociation(
         const RootSignatureAssociation& source)
-        : RootSignatureAssociation(source.m_rootSignature.Get(), source.m_symbols)
+        : RootSignatureAssociation(source.m_rootSignature.Get(), source.m_local, source.m_symbols)
     {
     }
 } // namespace nv_helpers_dx12

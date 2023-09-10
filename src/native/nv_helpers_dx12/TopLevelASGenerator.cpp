@@ -136,44 +136,44 @@ namespace nv_helpers_dx12
     )
     {
         // Copy the descriptors in the target descriptor buffer
-        D3D12_RAYTRACING_INSTANCE_DESC* instanceDescs;
-        descriptorsBuffer->Map(0, nullptr, reinterpret_cast<void**>(&instanceDescs));
-        if (!instanceDescs)
+        D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
+        descriptorsBuffer->Map(0, nullptr, reinterpret_cast<void**>(&instanceDescription));
+        if (!instanceDescription)
         {
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
         }
 
-        auto instanceCount = static_cast<UINT>(m_instances.size());
+        const auto instanceCount = static_cast<UINT>(m_instances.size());
 
         // Initialize the memory to zero on the first time only
         if (!updateOnly)
         {
-            ZeroMemory(instanceDescs, m_instanceDescriptionsSizeInBytes);
+            ZeroMemory(instanceDescription, m_instanceDescriptionsSizeInBytes);
         }
 
         // Create the description for each instance
         for (uint32_t i = 0; i < instanceCount; i++)
         {
             // Instance ID visible in the shader in InstanceID()
-            instanceDescs[i].InstanceID = m_instances[i].instanceID;
+            instanceDescription[i].InstanceID = m_instances[i].instanceID;
             // Index of the hit group invoked upon intersection
-            instanceDescs[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
+            instanceDescription[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
             // Instance flags, including backface culling, winding, etc
-            instanceDescs[i].Flags = m_instances[i].flags;
+            instanceDescription[i].Flags = m_instances[i].flags;
             // Instance transform matrix
             const DirectX::XMMATRIX instance = XMLoadFloat4x4(&m_instances[i].transform);
             DirectX::XMMATRIX m = XMMatrixTranspose(instance);
-            memcpy(instanceDescs[i].Transform, &m, sizeof instanceDescs[i].Transform);
+            memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
             // Get access to the bottom level
-            instanceDescs[i].AccelerationStructure = m_instances[i].bottomLevelAS->GetGPUVirtualAddress();
+            instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS->GetGPUVirtualAddress();
             // Visibility mask.
-            instanceDescs[i].InstanceMask = m_instances[i].inclusionMask;
+            instanceDescription[i].InstanceMask = m_instances[i].inclusionMask;
         }
 
         descriptorsBuffer->Unmap(0, nullptr);
 
         // If this in an update operation we need to provide the source buffer
-        D3D12_GPU_VIRTUAL_ADDRESS pSourceAS = updateOnly ? previousResult->GetGPUVirtualAddress() : 0;
+        const D3D12_GPU_VIRTUAL_ADDRESS sourceAS = updateOnly ? previousResult->GetGPUVirtualAddress() : 0;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
         // The stored flags represent whether the AS has been built for updates or
@@ -207,7 +207,7 @@ namespace nv_helpers_dx12
         buildDesc.ScratchAccelerationStructureData = {
             scratchBuffer->GetGPUVirtualAddress()
         };
-        buildDesc.SourceAccelerationStructureData = pSourceAS;
+        buildDesc.SourceAccelerationStructureData = sourceAS;
         buildDesc.Inputs.Flags = flags;
 
         // Build the top-level AS

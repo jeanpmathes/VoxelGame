@@ -51,7 +51,7 @@ namespace nv_helpers_dx12
     void ShaderBindingTableGenerator::AddRayGenerationProgram(const std::wstring& entryPoint,
                                                               const std::vector<void*>& inputData)
     {
-        m_rayGen.emplace_back(SBTEntry(entryPoint, inputData));
+        m_rayGen.emplace_back(entryPoint, inputData);
     }
 
     void ShaderBindingTableGenerator::AddMissProgram(const std::wstring& entryPoint,
@@ -83,7 +83,7 @@ namespace nv_helpers_dx12
         const uint32_t totalSize = ROUND_UP(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) +
             ROUND_UP(missSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) +
             ROUND_UP(hitGroupSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
-
+        
         // The total SBT size is the sum of the entries for ray generation, miss and hit groups, aligned
         // on 256 bytes
         const uint32_t sbtSize = ROUND_UP(totalSize, 256);

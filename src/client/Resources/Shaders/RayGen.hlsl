@@ -6,14 +6,16 @@
 
 #include "Common.hlsl"
 
+cbuffer CameraParams : register(b0) {
+float4x4 view;
+float4x4 projection;
+float4x4 viewI;
+float4x4 projectionI;
+}
+
 RWTexture2D<float4> gColorOutput : register(u0);
 
 RaytracingAccelerationStructure gSpaceBVH : register(t0);
-
-cbuffer CameraParams : register(b0)
-{
-float4x4 view; float4x4 projection; float4x4 viewI; float4x4 projectionI;
-}
 
 HitInfo GetEmptyHitInfo()
 {
@@ -38,8 +40,9 @@ void Trace(const float3 origin, const float3 direction, const float min, inout H
     TraceRay(gSpaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, VG_MASK_VISIBLE, VG_HIT_ARG(0), ray, payload);
 }
 
-float GetReflectance(const float3 normal, const float3 incident, const float3 transmission, const float n1,
-                     const float n2)
+float GetReflectance(
+    const float3 normal, const float3 incident, const float3 transmission,
+    const float n1, const float n2)
 {
     if (!any(transmission)) return 1.0;
 

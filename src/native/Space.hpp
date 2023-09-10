@@ -157,6 +157,7 @@ private:
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     void CreateRaytracingOutputBuffer();
 
+    [[nodiscard]] ComPtr<ID3D12RootSignature> CreateGlobalRootSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMaterialSignature() const;
@@ -180,6 +181,7 @@ private:
 
     CommandAllocatorGroup m_commandGroup;
 
+    ComPtr<ID3D12RootSignature> m_globalRootSignature;
     ComPtr<ID3D12RootSignature> m_rayGenSignature;
     ComPtr<ID3D12RootSignature> m_missSignature;
 
@@ -188,7 +190,6 @@ private:
 
     ComPtr<ID3D12StateObject> m_rtStateObject;
     ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
-    ComPtr<ID3D12RootSignature> m_rtGlobalRootSignature;
     
     Allocation<ID3D12Resource> m_outputResource;
     bool m_outputResourceFresh = false;
@@ -204,7 +205,6 @@ private:
     D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
     TextureSlot m_firstTextureSlot = {0, 0};
     TextureSlot m_secondTextureSlot = {0, 0};
-    std::optional<DirectX::XMUINT2> m_textureSize = {};
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 

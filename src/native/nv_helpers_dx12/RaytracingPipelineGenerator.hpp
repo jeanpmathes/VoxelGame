@@ -100,6 +100,7 @@ namespace nv_helpers_dx12
         /// signature to one or more symbols. All imported symbols must be associated to one root
         /// signature.
         void AddRootSignatureAssociation(ID3D12RootSignature* rootSignature,
+                                         bool local,
                                          const std::vector<std::wstring>& symbols);
 
         /// The payload is the way hit or miss shaders can exchange data with the shader that called
@@ -122,14 +123,11 @@ namespace nv_helpers_dx12
         /// Compiles the raytracing state object
         Microsoft::WRL::ComPtr<ID3D12StateObject> Generate();
 
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> GetGlobalRootSignature() const;
-
     private:
         /// Storage for DXIL libraries and their exported symbols
         struct Library
         {
             Library(IDxcBlob* dxil, const std::vector<std::wstring>& exportedSymbols);
-
             Library(const Library& source);
 
             IDxcBlob* m_dxil;
@@ -145,7 +143,6 @@ namespace nv_helpers_dx12
         {
             HitGroup(std::wstring hitGroupName, std::wstring closestHitSymbol,
                      std::wstring anyHitSymbol = L"", std::wstring intersectionSymbol = L"");
-
             HitGroup(const HitGroup& source);
 
             std::wstring m_hitGroupName;
@@ -159,12 +156,13 @@ namespace nv_helpers_dx12
         struct RootSignatureAssociation
         {
             RootSignatureAssociation(ID3D12RootSignature* rootSignature,
+                                     bool local,
                                      const std::vector<std::wstring>& symbols);
-
             RootSignatureAssociation(const RootSignatureAssociation& source);
 
             Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
             Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignaturePointer;
+            bool m_local;
             std::vector<std::wstring> m_symbols;
             std::vector<LPCWSTR> m_symbolPointers;
             D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION m_association = {};

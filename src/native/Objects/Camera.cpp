@@ -8,9 +8,7 @@ void Camera::Initialize()
 {
     constexpr uint32_t matrixCount = 4;
     m_spaceCameraBufferSize = matrixCount * sizeof(DirectX::XMMATRIX);
-    m_spaceCameraBuffer = util::AllocateBuffer(GetClient(), m_spaceCameraBufferSize,
-                                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                               D3D12_HEAP_TYPE_UPLOAD);
+    m_spaceCameraBuffer = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
 }
 
@@ -35,6 +33,7 @@ void Camera::Update() const
     XMStoreFloat4x4(&matrices[3], projectionI);
 
     TRY_DO(util::MapAndWrite(m_spaceCameraBuffer, matrices.data(), static_cast<UINT>(matrices.size())));
+    // todo: map once, use struct
 }
 
 void Camera::SetPosition(const DirectX::XMFLOAT3& position)
@@ -68,5 +67,5 @@ void Camera::SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) 
     REQUIRE(cbvDesc);
 
     cbvDesc->BufferLocation = m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
-    cbvDesc->SizeInBytes = m_spaceCameraBufferSize;
+    cbvDesc->SizeInBytes = static_cast<UINT>(m_spaceCameraBufferSize);
 }

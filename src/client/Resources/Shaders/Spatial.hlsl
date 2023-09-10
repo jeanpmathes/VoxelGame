@@ -12,24 +12,23 @@ struct SpatialVertex
     uint data;
 };
 
-StructuredBuffer<SpatialVertex> vertices : register(t0);
-
-cbuffer GlobalCB : register(b0) {
+cbuffer GlobalCB : register(b1) {
 float gTime;
 float3 gLightDir;
 float gMinLight;
 uint2 gTextureSize;
 }
 
-cbuffer InstanceCB : register(b1) {
+cbuffer InstanceCB : register(b2) {
 float4x4 iWorld;
 float4x4 iWorldNormal;
 }
 
+RaytracingAccelerationStructure spaceBVH : register(t0);
+StructuredBuffer<SpatialVertex> vertices : register(t1);
+
 Texture2D gTextureSlotOne[] : register(t0, space1);
 Texture2D gTextureSlotTwo[] : register(t0, space2);
-
-RaytracingAccelerationStructure spaceBVH : register(t1);
 
 /**
  * Read the mesh data.

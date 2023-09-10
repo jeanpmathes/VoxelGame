@@ -24,8 +24,8 @@ public:
     DescriptorHeap& operator=(DescriptorHeap&&) = default;
     ~DescriptorHeap() = default;
 
-    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandleCPU(UINT index) const;
-    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHandleGPU(UINT index) const;
+    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandleCPU(UINT index = 0) const;
+    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHandleGPU(UINT index = 0) const;
     [[nodiscard]] ID3D12DescriptorHeap* Get() const;
     [[nodiscard]] bool IsCreated() const;
 

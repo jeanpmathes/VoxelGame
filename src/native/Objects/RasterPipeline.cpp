@@ -50,6 +50,7 @@ static ComPtr<ID3DBlob> CompileShader(
 using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>, UINT>;
 
 static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
+// todo: check if maybe the root signature generator can be adapted to simplify this
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> space3dInput =
     {

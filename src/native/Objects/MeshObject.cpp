@@ -152,29 +152,19 @@ void MeshObject::CleanupMeshUpload()
     m_uploadEnqueued = false;
 }
 
-void MeshObject::FillArguments(StandardShaderArguments& shaderArguments) const
-{
-    shaderArguments.instanceBuffer = reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress());
-}
-
-void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt,
-                               StandardShaderArguments& shaderArguments) const
+void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt) const
 {
     REQUIRE(!m_uploadRequired);
 
     sbt.AddHitGroup(m_material.normalHitGroup,
                     {
-                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress()),
-                        shaderArguments.heap,
-                        shaderArguments.globalBuffer,
-                        shaderArguments.instanceBuffer
+                        reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress())
                     });
     sbt.AddHitGroup(m_material.shadowHitGroup,
                     {
-                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress()),
-                        shaderArguments.heap,
-                        shaderArguments.globalBuffer,
-                        shaderArguments.instanceBuffer
+                        reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress()),
+                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress())
                     });
 }
 

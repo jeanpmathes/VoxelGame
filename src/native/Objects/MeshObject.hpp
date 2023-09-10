@@ -31,13 +31,6 @@ struct InstanceConstantBuffer
     DirectX::XMFLOAT4X4 objectToWorldNormal;
 };
 
-struct StandardShaderArguments
-{
-    void* heap;
-    void* globalBuffer;
-    void* instanceBuffer;
-};
-
 class Material;
 
 /**
@@ -73,11 +66,7 @@ public:
      */
     void CleanupMeshUpload();
 
-    void FillArguments(StandardShaderArguments& shaderArguments) const;
-
-    void SetupHitGroup(
-        nv_helpers_dx12::ShaderBindingTableGenerator& sbt,
-        StandardShaderArguments& shaderArguments) const;
+    void SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt) const;
 
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     Allocation<ID3D12Resource> GetBLAS();
