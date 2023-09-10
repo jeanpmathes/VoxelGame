@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 
 namespace VoxelGame.Support.Definition;
 
+#pragma warning disable S1104
+
 /// <summary>
 ///     Describes a texture.
 /// </summary>

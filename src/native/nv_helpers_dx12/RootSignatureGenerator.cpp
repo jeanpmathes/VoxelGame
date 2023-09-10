@@ -62,13 +62,16 @@ namespace nv_helpers_dx12
         // The descriptor table descriptor ranges require a pointer to the descriptor ranges. Since new
         // ranges can be dynamically added in the vector, we separately store the index of the range set.
         // The actual address will be solved when generating the actual root signature
-        m_rangeLocations.push_back(m_ranges.size() - 1);
+        m_rangeLocations.push_back(static_cast<unsigned>(m_ranges.size() - 1));
     }
 
     void RootSignatureGenerator::AddHeapRangesParameter(
-        std::vector<std::tuple<UINT, /* BaseShaderRegister, */ UINT, /* NumDescriptors */ UINT,
-                               /* RegisterSpace */ D3D12_DESCRIPTOR_RANGE_TYPE,
-                               /* RangeType */ UINT /* OffsetInDescriptorsFromTableStart */>>
+        std::vector<std::tuple<
+            UINT, /* BaseShaderRegister, */
+            UINT, /* NumDescriptors */
+            UINT, /* RegisterSpace */
+            D3D12_DESCRIPTOR_RANGE_TYPE, /* RangeType */
+            UINT /* OffsetInDescriptorsFromTableStart */>>
         ranges)
     {
         // Build and store the set of descriptors for the ranges

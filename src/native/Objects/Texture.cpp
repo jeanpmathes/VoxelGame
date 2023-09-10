@@ -84,12 +84,13 @@ void Texture::TransitionToUsable(const ComPtr<ID3D12GraphicsCommandList> command
 }
 
 void Texture::CreateUsabilityBarrier(
-    const ComPtr<ID3D12GraphicsCommandList> commandList, const Allocation<ID3D12Resource> resource)
+    const ComPtr<ID3D12GraphicsCommandList> commandList,
+    const Allocation<ID3D12Resource> resource)
 {
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(),
         D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &barrier);
 }

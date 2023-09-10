@@ -54,11 +54,11 @@ public:
     [[nodiscard]] DirectX::XMUINT2 GetSize() const;
 
     /**
-     * Create a transition to the usable state (D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) for fresh textures.
+     * Create a transition to the usable state for fresh textures.
      * This is a no-op for usable textures.
      */
     void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
-
+    
     static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList,
                                        Allocation<ID3D12Resource> resource);
 

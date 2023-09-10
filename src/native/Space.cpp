@@ -341,9 +341,9 @@ void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
             {
                 textureSize = textureSize.value_or(pipeline.textures[base]->GetSize());
 
-                for (UINT index = base; index < count.value(); index++)
+                for (UINT index = 0; index < count.value(); index++)
                 {
-                    const Texture* texture = pipeline.textures[index];
+                    const Texture* texture = pipeline.textures[base + index];
                     REQUIRE(texture != nullptr);
                     REQUIRE(texture->GetSize().x == textureSize.value().x);
                     REQUIRE(texture->GetSize().y == textureSize.value().y);
@@ -556,16 +556,26 @@ ComPtr<ID3D12RootSignature> Space::CreateGlobalRootSignature() const
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1); // Global Data (b1, space0)
 
     rsc.AddHeapRangesParameter({
-        // #### Constant Buffer Views:
+        // Constant Buffer Views:
         /* none */
-        // #### Unordered Access Views:
-        /* Output Texture (u0, space0) */ {0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, OUTPUT_DESCRIPTOR_OFFSET},
-        // #### Shader Resource Views:
-        /* BVH (t0, space0) */{0, 1, 0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET},
-        /* First Texture Slot (t0, space1) */
-        {0, m_textureSlot1.size + 1, 1, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot1.offset},
-        /* Second Texture Slot (t0, space2) */
-        {0, m_textureSlot2.size + 1, 2, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot2.offset}
+        // Unordered Access Views:
+        /* Output Texture (u0, space0) */ {
+            0, 1, 0,
+            D3D12_DESCRIPTOR_RANGE_TYPE_UAV, OUTPUT_DESCRIPTOR_OFFSET
+        },
+        // Shader Resource Views:
+        /* BVH (t0, space0) */ {
+            0, 1, 0,
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET
+        },
+        /* First Texture Slot (t0, space1) */ {
+            0, m_textureSlot1.size, 1,
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot1.offset
+        },
+        /* Second Texture Slot (t0, space2) */ {
+            0, m_textureSlot2.size, 2,
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot2.offset
+        }
     });
 
     return rsc.Generate(GetDevice().Get(), false);
