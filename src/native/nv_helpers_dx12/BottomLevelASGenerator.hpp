@@ -161,7 +161,7 @@ namespace nv_helpers_dx12
             ID3D12Resource* resultBuffer,
             bool updateOnly = false,
             ID3D12Resource* previousResult = nullptr
-        );
+        ) const;
 
     private:
         /// Vertex buffer descriptors used to generate the AS

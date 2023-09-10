@@ -131,6 +131,7 @@ namespace nv_helpers_dx12
                 m_parameters[i].DescriptorTable.pDescriptorRanges = m_ranges[m_rangeLocations[i]].data();
             }
         }
+        
         // Specify the root signature with its set of parameters and static samplers.
         D3D12_ROOT_SIGNATURE_DESC rootDesc;
         rootDesc.NumParameters = static_cast<UINT>(m_parameters.size());

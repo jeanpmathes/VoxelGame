@@ -61,11 +61,7 @@ void Camera::SetPlanes(const float nearDistance, const float farDistance)
     m_far = farDistance;
 }
 
-
-void Camera::SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) const
+D3D12_GPU_VIRTUAL_ADDRESS Camera::GetCameraBufferAddress() const
 {
-    REQUIRE(cbvDesc);
-
-    cbvDesc->BufferLocation = m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
-    cbvDesc->SizeInBytes = static_cast<UINT>(m_spaceCameraBufferSize);
+    return m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
 }

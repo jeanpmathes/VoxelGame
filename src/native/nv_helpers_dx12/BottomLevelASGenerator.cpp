@@ -73,7 +73,7 @@ namespace nv_helpers_dx12
     {
         // Create the DX12 descriptor representing the input data, assumed to be
         // triangles, with 3xf32 vertex coordinates and 32-bit indices
-        D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
+        D3D12_RAYTRACING_GEOMETRY_DESC descriptor;
         descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
         descriptor.Triangles.VertexBuffer.StartAddress =
             vertexBuffer->GetGPUVirtualAddress() + vertexOffsetInBytes;
@@ -167,9 +167,9 @@ namespace nv_helpers_dx12
         ID3D12GraphicsCommandList4* commandList,
         ID3D12Resource* scratchBuffer,
         ID3D12Resource* resultBuffer,
-        bool updateOnly,
+        const bool updateOnly,
         ID3D12Resource* previousResult
-    )
+    ) const
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
         // The stored flags represent whether the AS has been built for updates or

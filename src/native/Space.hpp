@@ -203,8 +203,8 @@ private:
     DescriptorHeap m_commonShaderResourceHeap;
     Allocation<ID3D12Resource> m_sentinelTexture;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
-    TextureSlot m_firstTextureSlot = {0, 0};
-    TextureSlot m_secondTextureSlot = {0, 0};
+    TextureSlot m_textureSlot1 = {0, 0};
+    TextureSlot m_textureSlot2 = {0, 0};
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 

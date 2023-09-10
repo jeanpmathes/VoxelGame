@@ -43,7 +43,7 @@ public:
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
 
-    void SetBufferViewDescription(D3D12_CONSTANT_BUFFER_VIEW_DESC* cbvDesc) const;
+    [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
 private:
     DirectX::XMFLOAT3 m_position = {};
