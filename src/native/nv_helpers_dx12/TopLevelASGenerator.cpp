@@ -194,6 +194,8 @@ namespace nv_helpers_dx12
             throw std::logic_error("Top-level hierarchy update requires the previous hierarchy");
         }
 
+        flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+
         // Create a descriptor of the requested builder work, to generate a top-level
         // AS from the input parameters
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
