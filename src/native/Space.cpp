@@ -10,7 +10,8 @@ static constexpr UINT TEXTURE_BASE_DESCRIPTOR_OFFSET = 2; // Has to be last as m
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
     m_camera(nativeClient),
-    m_light(nativeClient)
+    m_light(nativeClient),
+    m_indexBuffer(*this)
 {
 }
 
@@ -71,15 +72,31 @@ MeshObject& Space::CreateMeshObject(UINT materialIndex)
     auto object = std::make_unique<MeshObject>(m_nativeClient, materialIndex);
     auto& indexedMeshObject = *object;
 
-    const auto handle = m_meshes.Push(std::move(object));
-    indexedMeshObject.AssociateWithHandle(handle);
+    const size_t index = m_meshes.Push(std::move(object));
+    indexedMeshObject.AssociateWithHandle(static_cast<MeshObject::Handle>(index));
 
     return indexedMeshObject;
 }
 
+size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
+{
+    MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+    REQUIRE(!mesh->GetActiveIndex());
+
+    size_t index = m_activeMeshes.Push(mesh);
+    m_activatedMeshes.emplace(index);
+
+    return index;
+}
+
+void Space::DeactivateMeshObject(const size_t index)
+{
+    m_activeMeshes.Pop(index);
+}
+
 void Space::FreeMeshObject(const MeshObject::Handle handle)
 {
-    m_meshes.Pop(handle);
+    m_meshes.Pop(static_cast<size_t>(handle));
 }
 
 const Material& Space::GetMaterial(const UINT index) const
@@ -106,6 +123,8 @@ void Space::EnqueueRenderSetup()
     CreateTopLevelAS();
     UpdateAccelerationStructureView();
     CreateShaderBindingTable();
+
+    m_activatedMeshes.clear();
 }
 
 void Space::CleanupRenderSetup()
@@ -115,69 +134,12 @@ void Space::CleanupRenderSetup()
         mesh->CleanupMeshUpload();
     }
 
-    m_indexBufferUploads.clear();
+    m_indexBuffer.CleanupRenderSetup();
 }
 
 std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT vertexCount)
 {
-    REQUIRE(vertexCount > 0);
-    REQUIRE(vertexCount % 4 == 0);
-
-    const UINT requiredQuadCount = vertexCount / 4;
-    const UINT requiredIndexCount = requiredQuadCount * 6;
-
-    if (requiredIndexCount > m_sharedIndexCount)
-    {
-        const UINT requiredIndexBufferSize = requiredIndexCount * sizeof(UINT);
-
-        Allocation<ID3D12Resource> sharedIndexUpload = util::AllocateBuffer(m_nativeClient, requiredIndexBufferSize,
-                                                                            D3D12_RESOURCE_FLAG_NONE,
-                                                                            D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                            D3D12_HEAP_TYPE_UPLOAD);
-        NAME_D3D12_OBJECT(sharedIndexUpload);
-
-        const UINT availableQuadCount = m_sharedIndexCount / 6;
-        for (UINT quad = availableQuadCount; quad < requiredQuadCount; quad++)
-        {
-            // The shaders operate on quad basis, so the index winding order does not matter there.
-            // The quads itself are defined in CW order.
-
-            // DirectX also uses CW order for triangles, but in a left-handed coordinate system.
-            // Because VoxelGame uses a right-handed coordinate system, the BLAS creation requires special handling.
-
-            m_indices.push_back(quad * 4 + 0);
-            m_indices.push_back(quad * 4 + 1);
-            m_indices.push_back(quad * 4 + 2);
-
-            m_indices.push_back(quad * 4 + 0);
-            m_indices.push_back(quad * 4 + 2);
-            m_indices.push_back(quad * 4 + 3);
-        }
-
-        TRY_DO(util::MapAndWrite(sharedIndexUpload, m_indices.data(), requiredIndexCount));
-
-        m_sharedIndexBuffer = util::AllocateBuffer(m_nativeClient, requiredIndexBufferSize,
-                                                   D3D12_RESOURCE_FLAG_NONE,
-                                                   D3D12_RESOURCE_STATE_COPY_DEST,
-                                                   D3D12_HEAP_TYPE_DEFAULT);
-        NAME_D3D12_OBJECT(m_sharedIndexBuffer);
-
-        m_commandGroup.commandList->CopyBufferRegion(m_sharedIndexBuffer.Get(), 0,
-                                                     sharedIndexUpload.resource.Get(), 0,
-                                                     requiredIndexBufferSize);
-
-        const D3D12_RESOURCE_BARRIER transitionCopyDestToShaderResource = {
-            CD3DX12_RESOURCE_BARRIER::Transition(m_sharedIndexBuffer.Get(),
-                                                 D3D12_RESOURCE_STATE_COPY_DEST,
-                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
-        };
-        m_commandGroup.commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
-
-        m_sharedIndexCount = requiredIndexCount;
-        m_indexBufferUploads.emplace_back(m_sharedIndexBuffer, sharedIndexUpload);
-    }
-
-    return {m_sharedIndexBuffer, requiredIndexCount};
+    return m_indexBuffer.GetIndexBuffer(vertexCount);
 }
 
 void Space::DispatchRays() const
@@ -259,6 +221,11 @@ void Space::Update(const double delta)
     m_camera.Update();
 
     UpdateGlobalConstBuffer();
+}
+
+NativeClient& Space::GetNativeClient() const
+{
+    return m_nativeClient;
 }
 
 Camera* Space::GetCamera()
@@ -615,15 +582,10 @@ void Space::CreateShaderBindingTable()
     m_sbtHelper.AddMissProgram(L"Miss", {});
     m_sbtHelper.AddMissProgram(L"ShadowMiss", {});
 
-    for (const auto& mesh : m_meshes)
+    for (const auto& mesh : m_activeMeshes)
     {
-        if (mesh->IsEnabled())
-        {
-            mesh->SetupHitGroup(m_sbtHelper);
-        }
+        mesh->SetupHitGroup(m_sbtHelper);
     }
-
-    // todo: add a proxy hit group if we have no meshes to make PIX happy (check if it still complains first) 
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
@@ -640,20 +602,18 @@ void Space::CreateTopLevelAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
 
-    UINT instanceID = 0;
-    for (const auto& mesh : m_meshes)
+    UINT uglyCounter = 0;
+
+    for (const auto& mesh : m_activeMeshes)
     {
-        if (mesh->IsEnabled())
-        {
-            // The CCW flag is used because DirectX uses left-handed coordinates.
+        // The CCW flag is used because DirectX uses left-handed coordinates.
 
-            topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
-                                            instanceID, 2 * instanceID,
-                                            static_cast<BYTE>(mesh->GetMaterial().flags),
-                                            D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
-
-            instanceID++;
-        }
+        UINT instanceID = static_cast<UINT>(*mesh->GetActiveIndex());
+        instanceID = uglyCounter++;
+        topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
+                                        instanceID, 2 * instanceID,
+                                        static_cast<BYTE>(mesh->GetMaterial().flags),
+                                        D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
     }
 
     UINT64 scratchSize, resultSize, instanceDescriptionSize;

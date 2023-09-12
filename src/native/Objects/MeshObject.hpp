@@ -43,6 +43,10 @@ class MeshObject final : public SpatialObject
 public:
     explicit MeshObject(NativeClient& client, UINT materialIndex);
 
+    enum class Handle : size_t
+    {
+    };
+    
     void Update();
 
     void SetEnabledState(bool enabled);
@@ -50,8 +54,7 @@ public:
     void SetNewBounds(const SpatialBounds* bounds, UINT boundsCount);
 
     [[nodiscard]] bool IsMeshModified() const;
-    [[nodiscard]] bool IsEnabled() const;
-
+    [[nodiscard]] std::optional<size_t> GetActiveIndex() const;
     [[nodiscard]] const Material& GetMaterial() const;
 
     /**
@@ -71,8 +74,6 @@ public:
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     Allocation<ID3D12Resource> GetBLAS();
 
-    using Handle = size_t;
-
     /**
      * Associate this object with a handle. This is performed by the space automatically.
      */
@@ -81,7 +82,7 @@ public:
     /**
      * Free this object.
      */
-    void Free() const;
+    void Free();
 
 protected:
     [[nodiscard]] AccelerationStructureBuffers
@@ -96,6 +97,8 @@ protected:
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers) const;
 
 private:
+    void UpdateActiveState();
+    
     const Material& m_material;
 
     Allocation<ID3D12Resource> m_instanceConstantBuffer = {};
@@ -112,6 +115,7 @@ private:
     AccelerationStructureBuffers m_blas = {};
 
     std::optional<Handle> m_handle = std::nullopt;
+    std::optional<size_t> m_active = std::nullopt;
     bool m_enabled = true;
     bool m_modified = false;
 

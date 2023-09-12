@@ -103,6 +103,8 @@ public:
     bool PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
 
     MeshObject& CreateMeshObject(UINT materialIndex);
+    size_t ActivateMeshObject(MeshObject::Handle handle);
+    void DeactivateMeshObject(size_t index);
     void FreeMeshObject(MeshObject::Handle handle);
 
     [[nodiscard]] const Material& GetMaterial(UINT index) const;
@@ -137,6 +139,11 @@ public:
 
     void Update(double delta);
 
+    /**
+     * Get the native client.
+     */
+    NativeClient& GetNativeClient() const;
+    
     Camera* GetCamera();
     Light* GetLight();
 
@@ -209,9 +216,8 @@ private:
     AccelerationStructureBuffers m_topLevelASBuffers;
 
     GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
+    GappedList<MeshObject*> m_activeMeshes = {};
+    std::set<size_t> m_activatedMeshes = {};
 
-    std::vector<UINT> m_indices = {};
-    Allocation<ID3D12Resource> m_sharedIndexBuffer = {};
-    UINT m_sharedIndexCount = 0;
-    std::vector<std::pair<Allocation<ID3D12Resource>, Allocation<ID3D12Resource>>> m_indexBufferUploads = {};
+    SharedIndexBuffer m_indexBuffer;
 };

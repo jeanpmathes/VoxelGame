@@ -165,6 +165,7 @@
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
         <ClInclude Include="Tools\GappedList.hpp"/>
+        <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
         <ClInclude Include="Uploader.hpp"/>
         <ClInclude Include="Utilities.hpp"/>
         <ClInclude Include="Win32Application.hpp"/>
@@ -224,6 +225,7 @@
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Tools\DescriptorHeap.cpp"/>
+        <ClCompile Include="Tools\SharedIndexBuffer.cpp"/>
         <ClCompile Include="Uploader.cpp"/>
         <ClCompile Include="Win32Application.cpp"/>
         <ClCompile Include="NativeClient.cpp"/>

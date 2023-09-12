@@ -36,6 +36,7 @@ void MeshObject::Update()
 void MeshObject::SetEnabledState(const bool enabled)
 {
     m_enabled = enabled;
+    UpdateActiveState();
 }
 
 void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertexCount)
@@ -48,6 +49,8 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     m_geometryElementCount = vertexCount;
     m_modified = true;
     m_uploadRequired = true;
+
+    UpdateActiveState();
 
     if (m_geometryElementCount == 0)
     {
@@ -75,6 +78,8 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
     m_modified = true;
     m_uploadRequired = true;
 
+    UpdateActiveState();
+
     if (m_geometryElementCount == 0)
     {
         m_geometryBufferUpload = {};
@@ -95,9 +100,9 @@ bool MeshObject::IsMeshModified() const
     return m_modified;
 }
 
-bool MeshObject::IsEnabled() const
+std::optional<size_t> MeshObject::GetActiveIndex() const
 {
-    return m_enabled && m_geometryElementCount > 0;
+    return m_active;
 }
 
 const Material& MeshObject::GetMaterial() const
@@ -206,11 +211,12 @@ void MeshObject::AssociateWithHandle(Handle handle)
     m_handle = handle;
 }
 
-void MeshObject::Free() const
+void MeshObject::Free()
 {
     REQUIRE(!m_uploadEnqueued);
-
     REQUIRE(m_handle.has_value());
+
+    SetEnabledState(false);
     GetClient().GetSpace()->FreeMeshObject(m_handle.value());
 }
 
@@ -304,4 +310,20 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelASFromBounds(ComPtr<ID
     bottomLevelAS.Generate(commandList.Get(), buffers.scratch.Get(), buffers.result.Get(),
                            false, nullptr);
     return buffers;
+}
+
+void MeshObject::UpdateActiveState()
+{
+    const bool shouldBeActive = m_enabled && m_geometryElementCount > 0;
+    if (m_active.has_value() == shouldBeActive) return;
+
+    if (shouldBeActive) // NOLINT(bugprone-branch-clone)
+    {
+        m_active = GetClient().GetSpace()->ActivateMeshObject(m_handle.value());
+    }
+    else
+    {
+        GetClient().GetSpace()->DeactivateMeshObject(m_active.value());
+        m_active = std::nullopt;
+    }
 }

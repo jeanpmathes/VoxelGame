@@ -240,7 +240,7 @@ NATIVE MeshObject* NativeCreateMeshObject(const NativeClient* client, const UINT
     CATCH();
 }
 
-NATIVE void NativeFreeMeshObject(const MeshObject* object)
+NATIVE void NativeFreeMeshObject(MeshObject* object)
 {
     TRY
     {
