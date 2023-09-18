@@ -39,7 +39,7 @@ void CommandAllocatorGroup::Initialize(
     TRY_DO(group->commandList->Close());
 }
 
-void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12PipelineState> pipelineState) const
+void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12PipelineState> pipelineState)
 {
     ID3D12PipelineState* pipelineStatePtr = nullptr;
     if (pipelineState != nullptr)
@@ -59,9 +59,14 @@ void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12Pipe
     TRY_DO(commandAllocators[frameIndex]->SetName(commandAllocatorName.c_str()));
     TRY_DO(commandList->SetName(commandListName.c_str()));
 #endif
+
+    m_open = true;
 }
 
-void CommandAllocatorGroup::Close() const
+void CommandAllocatorGroup::Close()
 {
+    REQUIRE(m_open);
+    m_open = false;
+    
     TRY_DO(commandList->Close());
 }

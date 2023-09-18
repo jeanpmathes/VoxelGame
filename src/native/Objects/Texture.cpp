@@ -31,14 +31,13 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     srvDesc.Format = textureDescription.Format;
     srvDesc.ViewDimension = dimension;
     srvDesc.Texture2D.MipLevels = textureDescription.MipLevels;
-
-
+    
     auto result = std::make_unique<Texture>(uploader.GetClient(), texture,
                                             DirectX::XMUINT2{description.width, description.height}, srvDesc);
     auto ptr = result.get();
 
     // With an individual upload, the texture will be in safe (non-fresh) state and can be used without transition.
-    ptr->m_usable = !uploader.IsUploadingIndividually();
+    ptr->m_usable = uploader.IsUploadingIndividually();
     ptr->m_handle = uploader.GetClient().StoreObject(std::move(result));
 
     return ptr;
@@ -49,7 +48,7 @@ Texture::Texture(
     const Allocation<ID3D12Resource> resource,
     DirectX::XMUINT2 size,
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
-    : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_size(size), m_usable(true)
+    : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_size(size), m_usable(false)
 {
     NAME_D3D12_OBJECT_WITH_ID(m_resource);
 }
@@ -76,11 +75,11 @@ DirectX::XMUINT2 Texture::GetSize() const
 
 void Texture::TransitionToUsable(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-    if (!m_usable) return;
+    if (m_usable) return;
 
     CreateUsabilityBarrier(commandList, m_resource);
 
-    m_usable = false;
+    m_usable = true;
 }
 
 void Texture::CreateUsabilityBarrier(

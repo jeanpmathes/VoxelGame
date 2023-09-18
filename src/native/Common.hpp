@@ -45,8 +45,11 @@ struct CommandAllocatorGroup
 
     static void Initialize(ComPtr<ID3D12Device> device, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE type);
 
-    void Reset(UINT frameIndex, ComPtr<ID3D12PipelineState> pipelineState = nullptr) const;
-    void Close() const;
+    void Reset(UINT frameIndex, ComPtr<ID3D12PipelineState> pipelineState = nullptr);
+    void Close();
+
+private:
+    bool m_open = false;
 };
 
 #define INITIALIZE_COMMAND_ALLOCATOR_GROUP(device, group, type) \

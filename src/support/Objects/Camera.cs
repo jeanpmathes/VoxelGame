@@ -140,7 +140,7 @@ public class Camera : NativeObject, IView
 
     internal override void PrepareSynchronization()
     {
-        const float maxDistance = 10.0f;
+        const float maxDistance = 1000.0f;
 
         Vector3d adaptedPosition = new(
             Position.X % maxDistance,

@@ -112,7 +112,7 @@ public:
     /**
      * Resets the command allocator and command list for the given frame.
      */
-    void Reset(UINT frameIndex) const;
+    void Reset(UINT frameIndex);
 
     /**
      * Adds commands that setup rendering to the command list.
@@ -156,7 +156,7 @@ private:
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
 
     void CreateGlobalConstBuffer();
-    void UpdateGlobalConstBuffer() const;
+    void UpdateGlobalConstBuffer();
     void CreateShaderResourceHeap(const SpacePipeline& pipeline);
     void InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline);
     void UpdateOutputResourceView();
@@ -178,10 +178,10 @@ private:
     Camera m_camera;
     Light m_light;
 
-    Allocation<ID3D12Resource> m_globalConstantBuffer;
+    Allocation<ID3D12Resource> m_globalConstantBuffer = {};
     UINT64 m_globalConstantBufferSize = 0;
     GlobalConstantBuffer m_globalConstantBufferData = {};
-    GlobalConstantBuffer* m_mappedGlobalConstantBuffer = nullptr;
+    Mapping<ID3D12Resource, GlobalConstantBuffer> m_globalConstantBufferMapping = {};
 
     std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
     std::vector<std::unique_ptr<Material>> m_materials = {};

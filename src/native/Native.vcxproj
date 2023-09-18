@@ -105,7 +105,7 @@
         <ClCompile>
             <WarningLevel>Level4</WarningLevel>
             <PrecompiledHeader>Use</PrecompiledHeader>
-            <Optimization>MaxSpeed</Optimization>
+            <Optimization>Disabled</Optimization>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <PreprocessorDefinitions>VG_DEBUG;USE_PIX;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <SDLCheck>true</SDLCheck>

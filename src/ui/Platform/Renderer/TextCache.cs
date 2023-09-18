@@ -94,7 +94,7 @@ public sealed class TextCache : IDisposable
         Dictionary<(string, Font), Entry> newStrings = new();
 
         foreach (KeyValuePair<(string, Font), Entry> pair in strings)
-            if (pair.Value.Accessed)
+            if (pair.Value.Accessed) // todo: experiment with giving textures points that decay over time (or increase when used) - current system is essentially just one point max
             {
                 pair.Value.Accessed = false;
                 newStrings.Add(pair.Key, pair.Value);

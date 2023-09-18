@@ -10,14 +10,14 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
     m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantBuffer);
 
-    TRY_DO(util::Map(m_instanceConstantBuffer, &m_instanceConstantBufferPointer));
+    TRY_DO(m_instanceConstantBuffer.Map(&m_instanceConstantBufferMapping));
 
     Update();
 }
 
 void MeshObject::Update()
 {
-    if (!ClearTransformDirty()) return;
+    if (const bool transformDirty = ClearTransformDirty(); !transformDirty) return;
 
     const DirectX::XMFLOAT4X4 objectToWorld = GetTransform();
 
@@ -27,10 +27,10 @@ void MeshObject::Update()
     DirectX::XMFLOAT4X4 objectToWorldNormal = {};
     XMStoreFloat4x4(&objectToWorldNormal, transformNormal);
 
-    *m_instanceConstantBufferPointer = {
+    m_instanceConstantBufferMapping.Write({
         .objectToWorld = objectToWorld,
         .objectToWorldNormal = objectToWorldNormal
-    };
+    });
 }
 
 void MeshObject::SetEnabledState(const bool enabled)

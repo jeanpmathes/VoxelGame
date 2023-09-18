@@ -28,6 +28,9 @@ DXApp::~DXApp() = default;
 
 void DXApp::Tick(const CycleFlags flags)
 {
+    if (m_inTick) return;
+    m_inTick = true;
+    
     if (flags & ALLOW_UPDATE)
     {
         m_updateTimer.Tick([&]
@@ -43,6 +46,8 @@ void DXApp::Tick(const CycleFlags flags)
             Render(m_renderTimer);
         });
     }
+
+    m_inTick = false;
 }
 
 void DXApp::Init()

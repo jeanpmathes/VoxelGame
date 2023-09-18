@@ -71,7 +71,7 @@ void NativeClient::OnPostInit()
     m_uploader->ExecuteUploads(m_commandQueue);
 
     WaitForGPU();
-    m_uploader.reset();
+    m_uploader = nullptr;
 }
 
 void NativeClient::LoadDevice()

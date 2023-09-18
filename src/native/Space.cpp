@@ -104,7 +104,7 @@ const Material& Space::GetMaterial(const UINT index) const
     return *m_materials[index];
 }
 
-void Space::Reset(const UINT frameIndex) const
+void Space::Reset(const UINT frameIndex)
 {
     m_commandGroup.Reset(frameIndex);
 }
@@ -261,14 +261,14 @@ void Space::CreateGlobalConstBuffer()
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
-    TRY_DO(util::Map(m_globalConstantBuffer, &m_mappedGlobalConstantBuffer));
-
+    TRY_DO(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping));
+    
     UpdateGlobalConstBuffer();
 }
 
-void Space::UpdateGlobalConstBuffer() const
+void Space::UpdateGlobalConstBuffer()
 {
-    *m_mappedGlobalConstantBuffer = m_globalConstantBufferData;
+    m_globalConstantBufferMapping.Write(m_globalConstantBufferData);
 }
 
 void Space::CreateShaderResourceHeap(const SpacePipeline& pipeline)

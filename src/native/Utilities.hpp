@@ -80,16 +80,6 @@ namespace util
         return AllocateBuffer(client, *size,
                               D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     }
-
-    /**
-     * Map a resource and set a pointer to it.
-     */
-    template <typename D>
-    [[nodiscard]] HRESULT Map(const Allocation<ID3D12Resource> resource, D** dataPointer)
-    {
-        constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
-        return resource.resource->Map(0, &readRange, reinterpret_cast<void**>(dataPointer));
-    }
     
     /**
      * Map a resource and write the given data to it.

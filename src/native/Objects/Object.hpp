@@ -47,7 +47,7 @@ class NativeClient;
     } while (false)
 
 /**
- * \brief A basic object base class, represents things that can be passed over the native-to-managed boundary.
+ * A basic object base class, represents things that can be passed over the native-to-managed boundary.
  */
 class Object
 {

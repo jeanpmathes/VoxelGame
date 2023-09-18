@@ -87,7 +87,7 @@ public class Texture : NativeObject
     }
 
     /// <summary>
-    ///     Frees the texture.
+    ///     Frees the texture. Not allowed in same frame as creation.
     /// </summary>
     public void Free()
     {

@@ -158,6 +158,8 @@ private:
 
     std::optional<Cycle> m_cycle = std::nullopt;
     std::thread::id m_mainThreadId;
+
+    bool m_inTick = false;
 };
 
 #define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)

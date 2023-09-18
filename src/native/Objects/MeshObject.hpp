@@ -103,7 +103,7 @@ private:
 
     Allocation<ID3D12Resource> m_instanceConstantBuffer = {};
     UINT64 m_instanceConstantBufferAlignedSize = 0;
-    InstanceConstantBuffer* m_instanceConstantBufferPointer = {};
+    Mapping<ID3D12Resource, InstanceConstantBuffer> m_instanceConstantBufferMapping = {};
 
     Allocation<ID3D12Resource> m_geometryBufferUpload = {};
     Allocation<ID3D12Resource> m_geometryBuffer = {};

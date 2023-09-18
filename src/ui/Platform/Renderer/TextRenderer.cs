@@ -21,9 +21,6 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class TextRenderer : IDisposable
 {
-    private readonly Bitmap bitmap;
-    private readonly Graphics graphics;
-
     private readonly DirectXRenderer renderer;
     private bool disposed;
 
@@ -37,10 +34,6 @@ public sealed class TextRenderer : IDisposable
 
         this.renderer = renderer;
 
-        bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-        graphics = Graphics.FromImage(bitmap);
-        graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-        graphics.Clear(Color.Transparent);
         Texture = new Texture(renderer) {Width = width, Height = height};
     }
 
@@ -71,6 +64,12 @@ public sealed class TextRenderer : IDisposable
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
     public void SetString(string text, Font font, Brush brush, Point point, StringFormat format)
     {
+        using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
+
+        using Graphics graphics = Graphics.FromImage(bitmap);
+        graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+        graphics.Clear(Color.Transparent);
+
         graphics.DrawString(
             text,
             font,
@@ -87,8 +86,6 @@ public sealed class TextRenderer : IDisposable
 
         if (manual)
         {
-            bitmap.Dispose();
-            graphics.Dispose();
             Texture.Dispose();
         }
 
