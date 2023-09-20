@@ -29,6 +29,8 @@ public:
     [[nodiscard]] ID3D12DescriptorHeap* Get() const;
     [[nodiscard]] bool IsCreated() const;
 
+    [[nodiscard]] ID3D12DescriptorHeap** GetAddressOf();
+    
     friend void SetName(const DescriptorHeap&, LPCWSTR);
 
 private:

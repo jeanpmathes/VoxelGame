@@ -56,3 +56,8 @@ bool DescriptorHeap::IsCreated() const
 {
     return m_heap != nullptr;
 }
+
+ID3D12DescriptorHeap** DescriptorHeap::GetAddressOf()
+{
+    return m_heap.GetAddressOf();
+}

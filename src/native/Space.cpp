@@ -142,19 +142,17 @@ std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT ver
     return m_indexBuffer.GetIndexBuffer(vertexCount);
 }
 
-void Space::DispatchRays() const
+void Space::DispatchRays()
 {
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     m_commandGroup.commandList->ResourceBarrier(1, &barrier);
 
-    const std::vector heaps = {m_commonShaderResourceHeap.Get()};
-    m_commandGroup.commandList->SetDescriptorHeaps(static_cast<UINT>(heaps.size()),
-                                                   heaps.data());
-    m_commandGroup.commandList->SetPipelineState1(m_rtStateObject.Get());
-
     m_commandGroup.commandList->SetComputeRootSignature(m_globalRootSignature.Get());
+
+    m_commandGroup.commandList->SetDescriptorHeaps(1, m_commonShaderResourceHeap.GetAddressOf());
+    
     m_commandGroup.commandList->SetComputeRootConstantBufferView(0, m_camera.GetCameraBufferAddress());
     m_commandGroup.commandList->SetComputeRootConstantBufferView(
         1, m_globalConstantBuffer.resource->GetGPUVirtualAddress());
@@ -183,6 +181,7 @@ void Space::DispatchRays() const
     desc.Height = m_resolution.height;
     desc.Depth = 1;
 
+    m_commandGroup.commandList->SetPipelineState1(m_rtStateObject.Get());
     m_commandGroup.commandList->DispatchRays(&desc);
 }
 
@@ -380,7 +379,10 @@ void Space::UpdateAccelerationStructureView() const
 
 bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 {
-    nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice().Get());
+    m_globalRootSignature = CreateGlobalRootSignature();
+    NAME_D3D12_OBJECT(m_globalRootSignature);
+
+    nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice(), m_globalRootSignature);
     m_shaderBlobs = std::vector<ComPtr<IDxcBlob>>(pipelineDescription.description.shaderCount);
 
     UINT currentSymbolIndex = 0;
@@ -404,17 +406,17 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
         pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
     }
-
-    m_globalRootSignature = CreateGlobalRootSignature();
+    
     m_rayGenSignature = CreateRayGenSignature();
+    NAME_D3D12_OBJECT(m_rayGenSignature);
+    
     m_missSignature = CreateMissSignature();
-
-    std::set<std::wstring> symbols;
+    NAME_D3D12_OBJECT(m_missSignature);
+    
     auto addLocalRootSignatureAssociation = [&](const ComPtr<ID3D12RootSignature>& rootSignature,
                                                 const std::vector<std::wstring>& associatedSymbols)
     {
         pipeline.AddRootSignatureAssociation(rootSignature.Get(), true, associatedSymbols);
-        symbols.insert(associatedSymbols.begin(), associatedSymbols.end());
     };
 
     UINT currentHitGroupIndex = 0;
@@ -469,15 +471,9 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         m_materials.push_back(std::move(m));
     }
 
-    NAME_D3D12_OBJECT(m_globalRootSignature);
-    NAME_D3D12_OBJECT(m_rayGenSignature);
-    NAME_D3D12_OBJECT(m_missSignature);
-
     addLocalRootSignatureAssociation(m_rayGenSignature, {L"RayGen"});
     addLocalRootSignatureAssociation(m_missSignature, {L"Miss", L"ShadowMiss"});
-
-    pipeline.AddRootSignatureAssociation(m_globalRootSignature.Get(), false, {symbols.begin(), symbols.end()});
-
+    
     pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);

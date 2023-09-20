@@ -77,7 +77,9 @@ namespace nv_helpers_dx12
     public:
         /// The pipeline helper requires access to the device, as well as the
         /// raytracing device prior to Windows 10 RS5.
-        RayTracingPipelineGenerator(ID3D12Device5* device);
+        RayTracingPipelineGenerator(
+            Microsoft::WRL::ComPtr<ID3D12Device5> device,
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> globalRootSignature);
 
         /// Add a DXIL library to the pipeline. Note that this library has to be
         /// compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the
@@ -170,7 +172,7 @@ namespace nv_helpers_dx12
 
         /// The pipeline creation requires having at least one empty global and local root signatures, so
         /// we systematically create both
-        void CreateDummyRootSignatures();
+        void CreateDummyRootSignature();
 
         /// Build a list containing the export symbols for the ray generation shaders, miss shaders, and
         /// hit group names
@@ -188,7 +190,7 @@ namespace nv_helpers_dx12
         UINT m_maxRecursionDepth = 1;
 
         Microsoft::WRL::ComPtr<ID3D12Device5> m_device;
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_globalRootSignature;
         Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyGlobalRootSignature;
     };
 } // namespace nv_helpers_dx12

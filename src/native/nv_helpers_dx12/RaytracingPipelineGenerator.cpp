@@ -51,12 +51,14 @@ compiling in debug mode.
 
 namespace nv_helpers_dx12
 {
-    RayTracingPipelineGenerator::RayTracingPipelineGenerator(ID3D12Device5* device)
-        : m_device(device)
+    RayTracingPipelineGenerator::RayTracingPipelineGenerator(
+        Microsoft::WRL::ComPtr<ID3D12Device5> device,
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> globalRootSignature)
+        : m_device(std::move(device)), m_globalRootSignature(std::move(globalRootSignature))
     {
         // The pipeline creation requires having at least one empty global and local root signatures, so
         // we systematically create both, as this does not incur any overhead
-        CreateDummyRootSignatures();
+        CreateDummyRootSignature();
     }
 
     void RayTracingPipelineGenerator::AddLibrary(IDxcBlob* dxilLibrary,
@@ -98,7 +100,7 @@ namespace nv_helpers_dx12
     {
         // The pipeline is made of a set of sub-objects, representing the DXIL libraries, hit group
         // declarations, root signature associations, plus some configuration objects
-        UINT64 subobjectCount =
+        const UINT64 subObjectCount =
             m_libraries.size() + // DXIL libraries
             m_hitGroups.size() + // Hit group declarations
             1 + // Shader configuration
@@ -110,7 +112,7 @@ namespace nv_helpers_dx12
         // Initialize a vector with the target object count. It is necessary to make the allocation before
         // adding subobjects as some subobjects reference other subobjects by pointer. Using push_back may
         // reallocate the array and invalidate those pointers.
-        std::vector<D3D12_STATE_SUBOBJECT> subobjects(subobjectCount);
+        std::vector<D3D12_STATE_SUBOBJECT> subobjects(subObjectCount);
 
         UINT currentIndex = 0;
 
@@ -202,7 +204,7 @@ namespace nv_helpers_dx12
         // The pipeline construction always requires an empty global root signature
         D3D12_STATE_SUBOBJECT globalRootSig;
         globalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-        ID3D12RootSignature* dgSig = m_dummyGlobalRootSignature.Get();
+        ID3D12RootSignature* dgSig = m_globalRootSignature.Get();
         globalRootSig.pDesc = &dgSig;
 
         subobjects[currentIndex++] = globalRootSig;
@@ -241,64 +243,34 @@ namespace nv_helpers_dx12
         return rtStateObject;
     }
 
-    void RayTracingPipelineGenerator::CreateDummyRootSignatures()
+    void RayTracingPipelineGenerator::CreateDummyRootSignature()
     {
-        // Creation of the global root signature
         D3D12_ROOT_SIGNATURE_DESC rootDesc = {};
         rootDesc.NumParameters = 0;
         rootDesc.pParameters = nullptr;
-        // A global root signature is the default, hence this flag
-        rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
+        Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSignature;
+        Microsoft::WRL::ComPtr<ID3DBlob> error;
+
+        // Create the local root signature, reusing the same descriptor but altering the creation flag
+        rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+        HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+                                                 &serializedRootSignature, &error);
+        if (FAILED(hr))
         {
-            Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSignature;
-            Microsoft::WRL::ComPtr<ID3DBlob> error;
-
-            // Create the empty global root signature
-            HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                                     &serializedRootSignature, &error);
-            if (FAILED(hr))
-            {
-                throw std::logic_error("Could not serialize the global root signature");
-            }
-            hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
-                                               serializedRootSignature->GetBufferSize(),
-                                               IID_PPV_ARGS(&m_dummyGlobalRootSignature));
-
-#if defined(VG_DEBUG)
-            m_dummyGlobalRootSignature->SetName(L"Global Root Signature");
-#endif
-
-            if (FAILED(hr))
-            {
-                throw std::logic_error("Could not create the global root signature");
-            }
+            throw std::logic_error("Could not serialize the local root signature");
         }
-
-        {
-            Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSignature;
-            Microsoft::WRL::ComPtr<ID3DBlob> error;
-
-            // Create the local root signature, reusing the same descriptor but altering the creation flag
-            rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-            HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                                     &serializedRootSignature, &error);
-            if (FAILED(hr))
-            {
-                throw std::logic_error("Could not serialize the local root signature");
-            }
-            hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
-                                               serializedRootSignature->GetBufferSize(),
-                                               IID_PPV_ARGS(&m_dummyLocalRootSignature));
+        hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
+                                           serializedRootSignature->GetBufferSize(),
+                                           IID_PPV_ARGS(&m_dummyLocalRootSignature));
 
 #if defined(VG_DEBUG)
-            m_dummyLocalRootSignature->SetName(L"Local Root Signature");
+        m_dummyLocalRootSignature->SetName(L"Local Root Signature");
 #endif
 
-            if (FAILED(hr))
-            {
-                throw std::logic_error("Could not create the local root signature");
-            }
+        if (FAILED(hr))
+        {
+            throw std::logic_error("Could not create the local root signature");
         }
     }
 

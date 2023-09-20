@@ -130,7 +130,7 @@ public:
     /**
      * Dispatches rays into the space.
      */
-    void DispatchRays() const;
+    void DispatchRays();
 
     /**
      * Copies the raytracing output to the given buffer.
