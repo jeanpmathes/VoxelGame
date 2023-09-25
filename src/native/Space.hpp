@@ -16,17 +16,9 @@
 
 class Texture;
 
-struct GlobalConstantBuffer
-{
-    float time;
-    DirectX::XMFLOAT3 lightDirection;
-    float minLight;
-    DirectX::XMUINT2 textureSize;
-};
-
 struct MaterialDescription
 {
-    LPWSTR debugName;
+    LPWSTR name;
     BOOL visible;
     BOOL shadowCaster;
     BOOL opaque;
@@ -75,10 +67,26 @@ enum class MaterialFlags : BYTE
 
 DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
 
+#pragma pack(push, 4)
+struct GlobalConstantBuffer
+{
+    float time;
+    DirectX::XMFLOAT3 lightDirection;
+    float minLight;
+    DirectX::XMUINT2 textureSize;
+};
+
+struct MaterialConstantBuffer
+{
+    UINT index;
+};
+#pragma pack(pop)
+
 class Material
 {
 public:
     std::wstring name;
+    UINT index;
     bool isOpaque{};
     D3D12_RAYTRACING_GEOMETRY_TYPE geometryType{};
     MaterialFlags flags{};
@@ -88,6 +96,8 @@ public:
 
     std::wstring shadowHitGroup;
     ComPtr<ID3D12RootSignature> shadowRootSignature;
+
+    Allocation<ID3D12Resource> materialConstantBuffer;
 };
 
 /**
@@ -158,12 +168,20 @@ private:
     void CreateGlobalConstBuffer();
     void UpdateGlobalConstBuffer();
     void CreateShaderResourceHeap(const SpacePipeline& pipeline);
-    void InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline);
+    void InitializePipelineResourceHeap(const SpacePipeline& pipeline);
+
+    void UpdateGlobalShaderResourceHeap();
+    void UpdateGSRHeapSize();
+    void UpdateGSRHeapContents();
+    void UpdateGSRHeapBase() const;
+    std::pair<UINT, UINT> GetTextureSlotIndices(const MeshObject* mesh, UINT offset) const;
+    std::pair<UINT, UINT> GetTextureSlotIndices(UINT slot, UINT offset) const;
+    
     void UpdateOutputResourceView();
     void UpdateAccelerationStructureView() const;
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     void CreateRaytracingOutputBuffer();
-
+    
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateGlobalRootSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
@@ -207,17 +225,23 @@ private:
         UINT offset;
     };
 
-    DescriptorHeap m_commonShaderResourceHeap;
     Allocation<ID3D12Resource> m_sentinelTexture;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
     TextureSlot m_textureSlot1 = {0, 0};
     TextureSlot m_textureSlot2 = {0, 0};
+
+    DescriptorHeap m_commonPipelineResourceHeap;
+    DescriptorHeap m_globalShaderResourceHeap;
+    UINT m_globalShaderResourceHeapSlots = 0;
+    D3D12_GPU_DESCRIPTOR_HANDLE m_instanceDataHeap{};
+    D3D12_GPU_DESCRIPTOR_HANDLE m_geometryDataHeap{};
 
     AccelerationStructureBuffers m_topLevelASBuffers;
 
     GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
     GappedList<MeshObject*> m_activeMeshes = {};
     std::set<size_t> m_activatedMeshes = {};
+    std::set<size_t> m_deactivatedMeshes = {};
 
     SharedIndexBuffer m_indexBuffer;
 };

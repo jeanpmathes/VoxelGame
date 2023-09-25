@@ -32,16 +32,16 @@ NATIVE void NativeFinalize(const NativeClient* client)
 {
     TRY
     {
-        REQUIRE(CALL_OUTSIDE_CYCLE(client));
-
         delete client;
 
 #if defined(VG_DEBUG)
-        IDXGIDebug1* pDebug = nullptr;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&pDebug))))
+        IDXGIDebug1* debug = nullptr;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
-            pDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-            pDebug->Release();
+            const HRESULT result = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+            debug->Release();
+
+            (void)result;
         }
 #endif
     }

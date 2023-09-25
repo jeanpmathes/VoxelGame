@@ -69,7 +69,7 @@ rtStateObject = pipeline.Generate();
 #include <vector>
 #include <wrl/client.h>
 
-namespace nv_helpers_dx12
+namespace nv_helpers_dx12 // todo: fix all style warnings here and in other nv_helpers_dx12 files
 {
     /// Helper class to create raytracing pipelines
     class RayTracingPipelineGenerator

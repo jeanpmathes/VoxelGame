@@ -24,6 +24,10 @@ template <Nullable E>
 class GappedList
 {
 public:
+    /**
+     * Push an element to the list, filling a gap if possible.
+     * This returns the index of the element, which can be used to remove it.
+     */
     size_t Push(E element)
     {
         REQUIRE(element != nullptr);
@@ -45,6 +49,9 @@ public:
         return index;
     }
 
+    /**
+     * Remove an element from the list.
+     */
     void Pop(size_t index)
     {
         REQUIRE(index < m_elements.size());
@@ -56,12 +63,17 @@ public:
         m_size--;
     }
 
-    size_t GetSize() const
+    [[nodiscard]] size_t GetCount() const
     {
         return m_size;
     }
 
-    bool IsEmpty() const
+    [[nodiscard]] size_t GetCapacity() const
+    {
+        return m_elements.size();
+    }
+
+    [[nodiscard]] bool IsEmpty() const
     {
         return m_size == 0;
     }
@@ -113,7 +125,6 @@ public:
             while (m_iterator != m_end && *m_iterator == nullptr);
         }
 
-    private:
         typename std::vector<E>::iterator m_iterator;
         typename std::vector<E>::iterator m_end;
     };

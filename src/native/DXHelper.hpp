@@ -26,9 +26,9 @@ inline std::string HResultToString(const HRESULT hr)
 class HResultException final : public std::runtime_error
 {
 public:
-    explicit HResultException(const HRESULT hr, const std::string info) : std::runtime_error(
-                                                                              HResultToString(hr) + "\nInfo: " + info),
-                                                                          m_hr(hr), m_info(info)
+    explicit HResultException(const HRESULT hr, const std::string& info) : std::runtime_error(
+                                                                               HResultToString(hr) + "\nInfo: " + info),
+                                                                           m_hr(hr), m_info(info)
     {
     }
 
@@ -43,7 +43,7 @@ private:
 class NativeException final : public std::runtime_error
 {
 public:
-    explicit NativeException(const std::string msg) : std::runtime_error(msg)
+    explicit NativeException(const std::string& msg) : std::runtime_error(msg)
     {
     }
 };
@@ -59,45 +59,48 @@ constexpr bool IS_DEBUG_BUILD = false;
         if (!(expression)) \
         { \
             if (!IS_DEBUG_BUILD) break; \
-            std::string message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
-            throw NativeException(message); \
+            std::string TRY_DO_message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
+            if (IsDebuggerPresent()) DebugBreak(); \
+            throw NativeException(TRY_DO_message); \
         } \
     } while (false)
 
 #define TRY_DO(expression) \
     do { \
-        auto result = (expression); \
-        std::string errorMessage; \
+        auto TRY_DO_result = (expression); \
+        std::string TRY_DO_errorMessage; \
         if (IS_DEBUG_BUILD) \
-            errorMessage = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
+            TRY_DO_errorMessage = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
-            errorMessage = "throwing from " #expression; \
-        ThrowIfFailed(result, errorMessage); \
+            TRY_DO_errorMessage = "throwing from " #expression; \
+        ThrowIfFailed(TRY_DO_result, TRY_DO_errorMessage); \
     } while (false)
 
 #define CHECK_RETURN(value) \
     do { \
-        std::string errorMessage; \
+        std::string TRY_DO_errorMessage; \
         if (IS_DEBUG_BUILD) \
-            errorMessage = "error with " #value " at " __FILE__ ":" + std::to_string(__LINE__); \
+            TRY_DO_errorMessage = "error with " #value " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
-            errorMessage = "error with " #value; \
-        BOOL ok = (value) != NULL; \
-        ThrowIfFailed(ok, errorMessage); \
+            TRY_DO_errorMessage = "error with " #value; \
+        BOOL TRY_DO_ok = (value) != NULL; \
+        ThrowIfFailed(TRY_DO_ok, TRY_DO_errorMessage); \
     } while (false)
 
-inline void ThrowIfFailed(const BOOL b, const std::string message)
+inline void ThrowIfFailed(const BOOL b, const std::string& message)
 {
     if (!b)
     {
+        if (IsDebuggerPresent()) DebugBreak();
         throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
     }
 }
 
-inline void ThrowIfFailed(const HRESULT hr, const std::string message)
+inline void ThrowIfFailed(const HRESULT hr, const std::string& message)
 {
     if (FAILED(hr))
     {
+        if (IsDebuggerPresent()) DebugBreak();
         throw HResultException(hr, message);
     }
 }

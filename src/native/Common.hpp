@@ -25,7 +25,7 @@ struct AccelerationStructureBuffers
 {
     Allocation<ID3D12Resource> scratch;
     Allocation<ID3D12Resource> result;
-    Allocation<ID3D12Resource> instanceDesc;
+    Allocation<ID3D12Resource> instanceDescription;
 };
 
 inline constexpr UINT FRAME_COUNT = 2;

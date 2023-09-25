@@ -20,24 +20,22 @@
 #define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
 #endif
 
-// Compile a HLSL file into a DXIL library
+// Compile a HLSL file into a DXIL library.
 inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<void(const char*)> errorCallback)
 {
-    static ComPtr<IDxcCompiler> pCompiler = nullptr;
-    static ComPtr<IDxcUtils> pUtils = nullptr;
+    static ComPtr<IDxcCompiler> compiler = nullptr;
+    static ComPtr<IDxcUtils> utils = nullptr;
     static ComPtr<IDxcIncludeHandler> dxcIncludeHandler;
 
-    HRESULT hr;
-
-    // Initialize the DXC compiler and compiler helper
-    if (!pCompiler)
+    // Initialize the DXC compiler and compiler helper.
+    if (!compiler)
     {
-        TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
-        TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils)));
-        TRY_DO(pUtils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
+        TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
+        TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils)));
+        TRY_DO(utils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
     }
 
-    // Open and read the file
+    // Open and read the file.
     std::ifstream shaderFile(fileName);
     if (not shaderFile.good())
     {
@@ -51,8 +49,8 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
     std::string sShader = strStream.str();
 
     // Create blob from the string
-    ComPtr<IDxcBlobEncoding> pTextBlob;
-    TRY_DO(pUtils->CreateBlobFromPinned(sShader.c_str(), static_cast<UINT32>(sShader.size()), CP_UTF8, &pTextBlob));
+    ComPtr<IDxcBlobEncoding> textBlob;
+    TRY_DO(utils->CreateBlobFromPinned(sShader.c_str(), static_cast<UINT32>(sShader.size()), CP_UTF8, &textBlob));
 
     std::vector<LPCWSTR> args;
     std::vector<DxcDefine> defines;
@@ -60,31 +58,29 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
 #if defined(VG_DEBUG)
     args.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
     args.push_back(DXC_ARG_DEBUG);
+    args.push_back(L"-Qembed_debug");
 #endif
+    // todo: try passing optimization 3 as argument when not in debug mode
 
-    // Compile
-    ComPtr<IDxcOperationResult> pResult;
-    TRY_DO(pCompiler->Compile(pTextBlob.Get(), fileName, L"", L"lib_6_3",
+    // Compile.
+    ComPtr<IDxcOperationResult> result;
+    TRY_DO(compiler->Compile(textBlob.Get(), fileName, L"", L"lib_6_7",
         args.data(), static_cast<UINT32>(args.size()),
         defines.data(), static_cast<UINT32>(defines.size()),
-        dxcIncludeHandler.Get(), &pResult));
+        dxcIncludeHandler.Get(), &result));
 
-    // Verify the result
+    // Verify the result.
     HRESULT resultCode;
-    TRY_DO(pResult->GetStatus(&resultCode));
+    TRY_DO(result->GetStatus(&resultCode));
     if (FAILED(resultCode))
     {
-        IDxcBlobEncoding* pError;
-        hr = pResult->GetErrorBuffer(&pError);
-        if (FAILED(hr))
-        {
-            throw NativeException("Failed to get shader compiler error.");
-        }
+        IDxcBlobEncoding* error;
+        TRY_DO(result->GetErrorBuffer(&error));
 
-        // Convert error blob to a string
-        std::vector<char> infoLog(pError->GetBufferSize() + 1);
-        memcpy(infoLog.data(), pError->GetBufferPointer(), pError->GetBufferSize());
-        infoLog[pError->GetBufferSize()] = 0;
+        // Convert error blob to a string.
+        std::vector<char> infoLog(error->GetBufferSize() + 1);
+        memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
+        infoLog[error->GetBufferSize()] = 0;
 
         std::string errorMsg = "Shader Compilation Error:\n";
         errorMsg.append(infoLog.data());
@@ -93,7 +89,8 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
         return nullptr;
     }
 
-    ComPtr<IDxcBlob> pBlob;
-    TRY_DO(pResult->GetResult(&pBlob));
-    return pBlob;
+    ComPtr<IDxcBlob> blob;
+    TRY_DO(result->GetResult(&blob));
+
+    return blob;
 }

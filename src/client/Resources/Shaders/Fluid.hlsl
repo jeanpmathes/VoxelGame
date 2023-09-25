@@ -12,7 +12,7 @@ void FluidSectionClosestHit(inout HitInfo payload, const Attributes attributes)
     const Info info = GetCurrentInfo(attributes);
     const float4 baseColor = GetFluidBaseColor(info) * decode::GetTintColor(info.data);
 
-    SetHitInfo(payload, info, CalculateShading(info.normal, baseColor.rgb));
+    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor.rgb));
     payload.alpha = baseColor.a;
 }
 

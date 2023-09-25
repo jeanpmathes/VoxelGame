@@ -84,7 +84,9 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
     REQUIRE(!mesh->GetActiveIndex());
 
     size_t index = m_activeMeshes.Push(mesh);
+    
     m_activatedMeshes.emplace(index);
+    m_deactivatedMeshes.erase(index);
 
     return index;
 }
@@ -92,10 +94,16 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
 void Space::DeactivateMeshObject(const size_t index)
 {
     m_activeMeshes.Pop(index);
+
+    m_activatedMeshes.erase(index);
+    m_deactivatedMeshes.emplace(index);
 }
 
 void Space::FreeMeshObject(const MeshObject::Handle handle)
 {
+    const auto index = static_cast<size_t>(handle);
+    REQUIRE(!m_meshes[index]->GetActiveIndex());
+    
     m_meshes.Pop(static_cast<size_t>(handle));
 }
 
@@ -111,7 +119,7 @@ void Space::Reset(const UINT frameIndex)
 
 void Space::EnqueueRenderSetup()
 {
-    for (const auto& mesh : m_meshes)
+    for (const auto& mesh : m_meshes) // todo: iterate only over meshes that need this, same for cleanup
     {
         if (mesh->IsMeshModified())
         {
@@ -122,9 +130,10 @@ void Space::EnqueueRenderSetup()
 
     CreateTopLevelAS();
     UpdateAccelerationStructureView();
-    CreateShaderBindingTable();
+    UpdateGlobalShaderResourceHeap();
 
     m_activatedMeshes.clear();
+    m_deactivatedMeshes.clear();
 }
 
 void Space::CleanupRenderSetup()
@@ -147,17 +156,19 @@ void Space::DispatchRays()
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
+    GetCommandList()->ResourceBarrier(1, &barrier);
 
-    m_commandGroup.commandList->SetComputeRootSignature(m_globalRootSignature.Get());
+    GetCommandList()->SetComputeRootSignature(m_globalRootSignature.Get());
 
-    m_commandGroup.commandList->SetDescriptorHeaps(1, m_commonShaderResourceHeap.GetAddressOf());
-    
-    m_commandGroup.commandList->SetComputeRootConstantBufferView(0, m_camera.GetCameraBufferAddress());
-    m_commandGroup.commandList->SetComputeRootConstantBufferView(
+    GetCommandList()->SetDescriptorHeaps(1, m_globalShaderResourceHeap.GetAddressOf());
+
+    GetCommandList()->SetComputeRootConstantBufferView(0, m_camera.GetCameraBufferAddress());
+    GetCommandList()->SetComputeRootConstantBufferView(
         1, m_globalConstantBuffer.resource->GetGPUVirtualAddress());
-    m_commandGroup.commandList->SetComputeRootDescriptorTable(2, m_commonShaderResourceHeap.GetDescriptorHandleGPU());
-
+    GetCommandList()->SetComputeRootDescriptorTable(2, m_globalShaderResourceHeap.GetDescriptorHandleGPU());
+    GetCommandList()->SetComputeRootDescriptorTable(3, m_instanceDataHeap);
+    GetCommandList()->SetComputeRootDescriptorTable(4, m_geometryDataHeap);
+    
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
     desc.RayGenerationShaderRecord.StartAddress
@@ -181,8 +192,8 @@ void Space::DispatchRays()
     desc.Height = m_resolution.height;
     desc.Depth = 1;
 
-    m_commandGroup.commandList->SetPipelineState1(m_rtStateObject.Get());
-    m_commandGroup.commandList->DispatchRays(&desc);
+    GetCommandList()->SetPipelineState1(m_rtStateObject.Get());
+    GetCommandList()->DispatchRays(&desc);
 }
 
 void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
@@ -276,19 +287,20 @@ void Space::CreateShaderResourceHeap(const SpacePipeline& pipeline)
     m_textureSlot2.size = std::max(pipeline.description.textureCountSecondSlot, 1u);
     const UINT descriptorCount = TEXTURE_BASE_DESCRIPTOR_OFFSET + m_textureSlot1.size + m_textureSlot2.size;
 
-    m_commonShaderResourceHeap.Create(
+    m_commonPipelineResourceHeap.Create(
         GetDevice(),
         descriptorCount,
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        true);
-    NAME_D3D12_OBJECT(m_commonShaderResourceHeap);
+        false);
+    NAME_D3D12_OBJECT(m_commonPipelineResourceHeap);
 
-    InitializeCommonShaderResourceHeap(pipeline);
+    InitializePipelineResourceHeap(pipeline);
+    UpdateGlobalShaderResourceHeap();
 }
 
-void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
+void Space::InitializePipelineResourceHeap(const SpacePipeline& pipeline)
 {
-    REQUIRE(m_commonShaderResourceHeap.IsCreated());
+    REQUIRE(m_commonPipelineResourceHeap.IsCreated());
 
     UpdateOutputResourceView();
     UpdateAccelerationStructureView();
@@ -317,7 +329,7 @@ void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
                     GetDevice()->CreateShaderResourceView(
                         texture->GetResource().Get(),
                         &texture->GetView(),
-                        m_commonShaderResourceHeap.GetDescriptorHandleCPU((*offset)++));
+                        m_commonPipelineResourceHeap.GetDescriptorHandleCPU((*offset)++));
                 }
             }
             else
@@ -325,7 +337,7 @@ void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
                 GetDevice()->CreateShaderResourceView(
                     m_sentinelTexture.Get(),
                     &m_sentinelTextureViewDescription,
-                    m_commonShaderResourceHeap.GetDescriptorHandleCPU((*offset)++));
+                    m_commonPipelineResourceHeap.GetDescriptorHandleCPU((*offset)++));
             }
         };
 
@@ -344,9 +356,89 @@ void Space::InitializeCommonShaderResourceHeap(const SpacePipeline& pipeline)
     }
 }
 
+void Space::UpdateGlobalShaderResourceHeap()
+{
+    if (m_globalShaderResourceHeapSlots < m_activeMeshes.GetCapacity() || !m_globalShaderResourceHeap.IsCreated())
+    {
+        UpdateGSRHeapSize();
+    }
+    else if (m_activatedMeshes.size() > 0)
+    {
+        UpdateGSRHeapContents();
+    }
+
+    UpdateGSRHeapBase();
+}
+
+void Space::UpdateGSRHeapSize()
+{
+    do
+    {
+        m_globalShaderResourceHeapSlots = std::max(4u, m_globalShaderResourceHeapSlots * 2u);
+    }
+    while (m_globalShaderResourceHeapSlots < m_activeMeshes.GetCapacity());
+
+    m_globalShaderResourceHeap.Create(
+        GetDevice(),
+        m_commonPipelineResourceHeap.GetDescriptorCount() + 2 * m_globalShaderResourceHeapSlots,
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+        true);
+    NAME_D3D12_OBJECT(m_globalShaderResourceHeap);
+
+    const UINT offset = m_commonPipelineResourceHeap.GetDescriptorCount();
+
+    for (const MeshObject* mesh : m_activeMeshes)
+    {
+        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
+        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
+    }
+
+    m_instanceDataHeap = m_globalShaderResourceHeap.GetDescriptorHandleGPU(offset);
+    m_geometryDataHeap = m_globalShaderResourceHeap.GetDescriptorHandleGPU(offset + m_globalShaderResourceHeapSlots);
+}
+
+void Space::UpdateGSRHeapContents()
+{
+    const UINT offset = m_commonPipelineResourceHeap.GetDescriptorCount();
+
+    for (const size_t activated : m_activatedMeshes)
+    {
+        const MeshObject* mesh = m_activeMeshes[activated];
+        REQUIRE(mesh != nullptr);
+
+        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
+        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
+    }
+}
+
+void Space::UpdateGSRHeapBase() const
+{
+    GetDevice()->CopyDescriptorsSimple(
+        m_commonPipelineResourceHeap.GetDescriptorCount(),
+        m_globalShaderResourceHeap.GetDescriptorHandleCPU(),
+        m_commonPipelineResourceHeap.GetDescriptorHandleCPU(),
+        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+std::pair<UINT, UINT> Space::GetTextureSlotIndices(const MeshObject* mesh, const UINT offset) const
+{
+    REQUIRE(mesh->GetActiveIndex());
+
+    const UINT index = static_cast<UINT>(*mesh->GetActiveIndex());
+    return GetTextureSlotIndices(index, offset);
+}
+
+std::pair<UINT, UINT> Space::GetTextureSlotIndices(const UINT slot, const UINT offset) const
+{
+    const UINT data = offset + slot;
+    const UINT geometry = offset + m_globalShaderResourceHeapSlots + slot;
+
+    return {data, geometry};
+}
+
 void Space::UpdateOutputResourceView()
 {
-    if (!m_commonShaderResourceHeap.IsCreated()) return;
+    if (!m_commonPipelineResourceHeap.IsCreated()) return;
 
     if (!m_outputResourceFresh) return;
     m_outputResourceFresh = false;
@@ -355,14 +447,14 @@ void Space::UpdateOutputResourceView()
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
         uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
         GetDevice()->CreateUnorderedAccessView(m_outputResource.Get(), nullptr, &uavDesc,
-                                               m_commonShaderResourceHeap.GetDescriptorHandleCPU(
+                                               m_commonPipelineResourceHeap.GetDescriptorHandleCPU(
                                                    OUTPUT_DESCRIPTOR_OFFSET));
     }
 }
 
 void Space::UpdateAccelerationStructureView() const
 {
-    REQUIRE(m_commonShaderResourceHeap.IsCreated());
+    REQUIRE(m_commonPipelineResourceHeap.IsCreated());
 
     {
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
@@ -373,7 +465,8 @@ void Space::UpdateAccelerationStructureView() const
             GetGPUVirtualAddress();
 
         GetDevice()->CreateShaderResourceView(nullptr, &srvDescription,
-                                              m_commonShaderResourceHeap.GetDescriptorHandleCPU(BVH_DESCRIPTOR_OFFSET));
+                                              m_commonPipelineResourceHeap.
+                                              GetDescriptorHandleCPU(BVH_DESCRIPTOR_OFFSET));
     }
 }
 
@@ -419,17 +512,27 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         pipeline.AddRootSignatureAssociation(rootSignature.Get(), true, associatedSymbols);
     };
 
-    UINT currentHitGroupIndex = 0;
-    for (UINT material = 0; material < pipelineDescription.description.materialCount; material++)
+    for (UINT index = 0; index < pipelineDescription.description.materialCount; index++)
     {
-        auto m = std::make_unique<Material>();
+        auto material = std::make_unique<Material>();
 
-        auto addHitGroup = [&](const std::wstring& closestHitSymbol, const std::wstring& anyHitSymbol,
+        const MaterialDescription& description = pipelineDescription.materials[index];
+
+        material->name = description.name;
+        material->index = index * 2;
+        material->isOpaque = description.opaque;
+
+        if (description.visible) material->flags |= MaterialFlags::VISIBLE;
+        if (description.shadowCaster) material->flags |= MaterialFlags::SHADOW_CASTER;
+
+        auto addHitGroup = [&](const std::wstring& prefix,
+                               const std::wstring& closestHitSymbol,
+                               const std::wstring& anyHitSymbol,
                                const std::wstring& intersectionSymbol)
             -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
         {
             ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
-            std::wstring hitGroup = std::to_wstring(currentHitGroupIndex++);
+            std::wstring hitGroup = prefix + L"_" + description.name;
 
             pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol, intersectionSymbol);
             addLocalRootSignatureAssociation(rootSignature, {hitGroup});
@@ -437,38 +540,41 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
             return {hitGroup, rootSignature};
         };
 
-        const MaterialDescription& description = pipelineDescription.materials[material];
-
-        m->name = description.debugName;
-        m->isOpaque = description.opaque;
-
-        if (description.visible) m->flags |= MaterialFlags::VISIBLE;
-        if (description.shadowCaster) m->flags |= MaterialFlags::SHADOW_CASTER;
-
-        std::tie(m->normalHitGroup, m->normalRootSignature)
-            = addHitGroup(description.normalClosestHitSymbol, description.normalAnyHitSymbol,
+        std::tie(material->normalHitGroup, material->normalRootSignature)
+            = addHitGroup(L"N",
+                          description.normalClosestHitSymbol,
+                          description.normalAnyHitSymbol,
                           description.normalIntersectionSymbol);
 
-        std::tie(m->shadowHitGroup, m->shadowRootSignature)
-            = addHitGroup(description.shadowClosestHitSymbol, description.shadowAnyHitSymbol,
+        std::tie(material->shadowHitGroup, material->shadowRootSignature)
+            = addHitGroup(L"S",
+                          description.shadowClosestHitSymbol,
+                          description.shadowAnyHitSymbol,
                           description.shadowIntersectionSymbol);
 
         std::wstring normalIntersectionSymbol = description.normalIntersectionSymbol;
         std::wstring shadowIntersectionSymbol = description.shadowIntersectionSymbol;
         REQUIRE(normalIntersectionSymbol.empty() == shadowIntersectionSymbol.empty());
 
-        m->geometryType = normalIntersectionSymbol.empty()
-                              ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
-                              : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+        material->geometryType = normalIntersectionSymbol.empty()
+                                     ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
+                                     : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+
+        UINT64 materialConstantBufferSize = sizeof MaterialConstantBuffer;
+        material->materialConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &materialConstantBufferSize);
+        NAME_D3D12_OBJECT(material->materialConstantBuffer);
+
+        MaterialConstantBuffer materialConstantBufferData = {.index = index};
+        TRY_DO(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
 
 #if defined(VG_DEBUG)
-        std::wstring debugName = pipelineDescription.materials[material].debugName;
+        std::wstring debugName = pipelineDescription.materials[index].name;
         // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
-        TRY_DO(m->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
-        TRY_DO(m->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+        TRY_DO(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+        TRY_DO(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
 #endif
 
-        m_materials.push_back(std::move(m));
+        m_materials.push_back(std::move(material));
     }
 
     addLocalRootSignatureAssociation(m_rayGenSignature, {L"RayGen"});
@@ -517,7 +623,7 @@ ComPtr<ID3D12RootSignature> Space::CreateGlobalRootSignature() const
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Camera Data (b0, space0)
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1); // Global Data (b1, space0)
-
+    
     rsc.AddHeapRangesParameter({
         // Constant Buffer Views:
         /* none */
@@ -541,6 +647,20 @@ ComPtr<ID3D12RootSignature> Space::CreateGlobalRootSignature() const
         }
     });
 
+    rsc.AddHeapRangesParameter({
+        /* Instance Data (b3, space0) */ {
+            3, UINT_MAX, 0,
+            D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0
+        },
+    });
+
+    rsc.AddHeapRangesParameter({
+        /* Geometry Buffer (t1, space0) */ {
+            1, UINT_MAX, 0,
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0
+        },
+    });
+
     return rsc.Generate(GetDevice().Get(), false);
 }
 
@@ -560,9 +680,8 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
 {
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 2); // Instance Data (b2, space0)
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, 1); // Geometry Buffer (t1, space0)
-
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 2); // Material Data (b2, space0)
+    
     return rsc.Generate(GetDevice().Get(), true);
 }
 
@@ -570,7 +689,7 @@ void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
 
-    REQUIRE(m_commonShaderResourceHeap.IsCreated());
+    REQUIRE(m_globalShaderResourceHeap.IsCreated());
     REQUIRE(!m_outputResourceFresh);
 
     m_sbtHelper.AddRayGenerationProgram(L"RayGen", {});
@@ -578,9 +697,11 @@ void Space::CreateShaderBindingTable()
     m_sbtHelper.AddMissProgram(L"Miss", {});
     m_sbtHelper.AddMissProgram(L"ShadowMiss", {});
 
-    for (const auto& mesh : m_activeMeshes)
+    for (const auto& material : m_materials)
     {
-        mesh->SetupHitGroup(m_sbtHelper);
+        auto* materialCB = reinterpret_cast<void*>(material->materialConstantBuffer.resource->GetGPUVirtualAddress());
+        m_sbtHelper.AddHitGroup(material->normalHitGroup, {materialCB});
+        m_sbtHelper.AddHitGroup(material->shadowHitGroup, {materialCB});
     }
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
@@ -588,7 +709,6 @@ void Space::CreateShaderBindingTable()
     m_sbtStorage = util::AllocateBuffer(
         m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -598,16 +718,15 @@ void Space::CreateTopLevelAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
 
-    UINT uglyCounter = 0;
-
     for (const auto& mesh : m_activeMeshes)
     {
         // The CCW flag is used because DirectX uses left-handed coordinates.
 
-        UINT instanceID = static_cast<UINT>(*mesh->GetActiveIndex());
-        instanceID = uglyCounter++;
+        REQUIRE(mesh->GetActiveIndex());
+        const UINT instanceID = static_cast<UINT>(*mesh->GetActiveIndex());
+        
         topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
-                                        instanceID, 2 * instanceID,
+                                        instanceID, mesh->GetMaterial().index,
                                         static_cast<BYTE>(mesh->GetMaterial().flags),
                                         D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
     }
@@ -628,18 +747,18 @@ void Space::CreateTopLevelAS()
                                                       D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
                                                       D3D12_HEAP_TYPE_DEFAULT,
                                                       committed);
-    m_topLevelASBuffers.instanceDesc = util::AllocateBuffer(m_nativeClient, instanceDescriptionSize,
-                                                            D3D12_RESOURCE_FLAG_NONE,
-                                                            D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                            D3D12_HEAP_TYPE_UPLOAD,
-                                                            committed);
+    m_topLevelASBuffers.instanceDescription = util::AllocateBuffer(m_nativeClient, instanceDescriptionSize,
+                                                                   D3D12_RESOURCE_FLAG_NONE,
+                                                                   D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                   D3D12_HEAP_TYPE_UPLOAD,
+                                                                   committed);
 
     NAME_D3D12_OBJECT(m_topLevelASBuffers.scratch);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
-    NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDesc);
+    NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDescription);
 
     topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
                                  m_topLevelASBuffers.scratch.Get(),
                                  m_topLevelASBuffers.result.Get(),
-                                 m_topLevelASBuffers.instanceDesc.Get());
+                                 m_topLevelASBuffers.instanceDescription.Get());
 }

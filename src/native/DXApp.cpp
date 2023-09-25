@@ -288,7 +288,7 @@ void DXApp::CheckTearingSupport()
 {
     ComPtr<IDXGIFactory6> factory;
     HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
-
+    
     BOOL allowTearing = FALSE;
     if (SUCCEEDED(hr))
     {

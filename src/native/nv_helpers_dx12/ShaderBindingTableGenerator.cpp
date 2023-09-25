@@ -37,6 +37,7 @@ dispatch rays description.
 #include "ShaderBindingTableGenerator.hpp"
 
 #include <algorithm>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <stdexcept>
@@ -192,22 +193,22 @@ namespace nv_helpers_dx12
         for (const auto& shader : shaders)
         {
             // Get the shader identifier, and check whether that identifier is known
-            void* id = raytracingPipeline->GetShaderIdentifier(shader.m_entryPoint.c_str());
+            const void* id = raytracingPipeline->GetShaderIdentifier(shader.m_entryPoint.c_str());
             if (!id)
             {
-                std::wstring errMsg(std::wstring(L"Unknown shader identifier used in the SBT: ") +
-                    shader.m_entryPoint);
-
-                std::string transformedErrMsg;
-                std::ranges::transform(errMsg, std::back_inserter(transformedErrMsg),
+                std::string transformedIdentifier;
+                std::ranges::transform(shader.m_entryPoint, std::back_inserter(transformedIdentifier),
                                        [](const wchar_t c) { return static_cast<char>(c); });
 
-                throw std::logic_error(transformedErrMsg);
+                throw std::logic_error("Unknown shader identifier used in the SBT: " + transformedIdentifier);
             }
+
+            static_assert(sizeof(void*) == 8);
+            
             // Copy the shader identifier
             memcpy(pData, id, m_programIdSize);
             // Copy all its resources pointers or values in bulk
-            memcpy(pData + m_programIdSize, shader.m_inputData.data(), shader.m_inputData.size() * 8);
+            memcpy(pData + m_programIdSize, shader.m_inputData.data(), shader.m_inputData.size() * sizeof(void*));
 
             pData += entrySize;
         }

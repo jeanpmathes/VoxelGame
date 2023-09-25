@@ -4,10 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#include "Common.hlsl"
+#include "Payloads.hlsl"
 
 [shader("miss")]
-void ShadowMiss(inout ShadowHitInfo hitInfo : SV_RayPayload)
+void ShadowMiss(inout ShadowHitInfo hitInfo)
 {
     hitInfo.isHit = false;
 }

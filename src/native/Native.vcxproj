@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.props')"/>
     <ItemGroup Label="ProjectConfigurations">
         <ProjectConfiguration Include="Debug|x64">
             <Configuration>Debug</Configuration>
@@ -92,12 +93,8 @@
         <FxCompile>
             <EntryPointName/>
         </FxCompile>
-        <PreBuildEvent>
-            <Command>(robocopy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64" "$(TargetDir)\" dxcompiler.dll dxil.dll) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
-            <Message>Copy some DLLs to target folder.</Message>
-        </PreBuildEvent>
         <PostBuildEvent>
-            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" /E) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
             <Message>Copy all dependecies to C# project.</Message>
         </PostBuildEvent>
     </ItemDefinitionGroup>
@@ -133,12 +130,8 @@
             <EntryPointName>
             </EntryPointName>
         </FxCompile>
-        <PreBuildEvent>
-            <Command>(robocopy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64" "$(TargetDir)\" dxcompiler.dll dxil.dll) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
-            <Message>Copy some DLLs to target folder.</Message>
-        </PreBuildEvent>
         <PostBuildEvent>
-            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" *.*) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native") ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
             <Message>Copy all dependecies to C# project.</Message>
         </PostBuildEvent>
     </ItemDefinitionGroup>
@@ -242,6 +235,7 @@
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
     <ImportGroup Label="ExtensionTargets">
         <Import Project="..\..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets" Condition="Exists('..\..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')"/>
+        <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.targets')"/>
     </ImportGroup>
     <Import Project="..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets" Condition="Exists('..\packages\WinPixEventRuntime.1.0.220810001\build\WinPixEventRuntime.targets')"/>
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -249,5 +243,7 @@
             <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
         </PropertyGroup>
         <Error Condition="!Exists('..\..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets'))"/>
+        <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.props'))"/>
+        <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\Microsoft.Direct3D.DXC.targets'))"/>
     </Target>
 </Project>

@@ -73,6 +73,11 @@ public class PipelineBuilder
         shaderFiles.Add(new ShaderFile(file, exports.ToArray()));
     }
 
+    private static string CleanUpName(string name)
+    {
+        return name.Replace(nameof(Material), "", StringComparison.InvariantCulture);
+    }
+
     /// <summary>
     ///     Add a material to the pipeline.
     /// </summary>
@@ -85,7 +90,8 @@ public class PipelineBuilder
     public Material AddMaterial(string name, Groups groups, bool isOpaque, HitGroup normal, HitGroup shadow)
     {
         int index = materials.Count;
-        materials.Add(new MaterialConfig(name, groups, isOpaque, normal, shadow));
+
+        materials.Add(new MaterialConfig(CleanUpName(name), groups, isOpaque, normal, shadow));
 
         return new Material((uint) index);
     }
@@ -164,7 +170,7 @@ public class PipelineBuilder
 
         MaterialDescription[] materialDescriptions = materials.Select(material => new MaterialDescription
         {
-            debugName = material.Name,
+            name = material.Name,
             isVisible = material.Groups.HasFlag(Groups.Visible),
             isShadowCaster = material.Groups.HasFlag(Groups.ShadowCaster),
             isOpaque = material.IsOpaque,

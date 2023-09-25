@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 #include "Common.hlsl"
+#include "Payloads.hlsl"
 
 struct SpatialVertex
 {
@@ -19,13 +20,20 @@ float gMinLight;
 uint2 gTextureSize;
 }
 
-cbuffer InstanceCB : register(b2) {
-float4x4 iWorld;
-float4x4 iWorldNormal;
+cbuffer MaterialCB : register(b2) {
+uint gMaterialIndex;
 }
 
+struct Instance
+{
+    float4x4 world;
+    float4x4 worldNormal;
+};
+
+ConstantBuffer<Instance> instances[] : register(b3);
+
 RaytracingAccelerationStructure spaceBVH : register(t0);
-StructuredBuffer<SpatialVertex> vertices : register(t1);
+StructuredBuffer<SpatialVertex> vertices[] : register(t1);
 
 Texture2D gTextureSlotOne[] : register(t0, space1);
 Texture2D gTextureSlotTwo[] : register(t0, space2);
@@ -50,6 +58,8 @@ void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3
     // 0 -- 3
     // The top left triangle is the first one, the bottom right triangle is the second one.
 
+    const uint instance = InstanceID();
+    
     const uint primitiveIndex = PrimitiveIndex();
     const bool isFirst = (primitiveIndex % 2) == 0;
     const uint vertexIndex = (primitiveIndex / 2) * 4;
@@ -57,21 +67,21 @@ void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3
     indices = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
     const int3 i = indices + vertexIndex;
 
-    posA = vertices[i[0]].vertex;
-    posB = vertices[i[1]].vertex;
-    posC = vertices[i[2]].vertex;
+    posA = vertices[instance][i[0]].vertex;
+    posB = vertices[instance][i[1]].vertex;
+    posC = vertices[instance][i[2]].vertex;
 
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;
 
-    normal = mul(iWorldNormal, float4(normalize(cross(e1, e2)), 0.0)).xyz * -1.0;
+    normal = mul(instances[instance].worldNormal, float4(normalize(cross(e1, e2)), 0.0)).xyz * -1.0;
     normal = normalize(normal);
 
     data = uint4(
-        vertices[vertexIndex + 0].data,
-        vertices[vertexIndex + 1].data,
-        vertices[vertexIndex + 2].data,
-        vertices[vertexIndex + 3].data);
+        vertices[instance][vertexIndex + 0].data,
+        vertices[instance][vertexIndex + 1].data,
+        vertices[instance][vertexIndex + 2].data,
+        vertices[instance][vertexIndex + 3].data);
 }
 
 struct Info

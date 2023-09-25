@@ -28,6 +28,7 @@ public:
     [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHandleGPU(UINT index = 0) const;
     [[nodiscard]] ID3D12DescriptorHeap* Get() const;
     [[nodiscard]] bool IsCreated() const;
+    [[nodiscard]] UINT GetDescriptorCount() const;
 
     [[nodiscard]] ID3D12DescriptorHeap** GetAddressOf();
     
@@ -40,6 +41,7 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE m_startCPU{};
     D3D12_GPU_DESCRIPTOR_HANDLE m_startGPU{};
     UINT m_increment{};
+    UINT m_numDescriptors{};
 };
 
 inline void SetName(const DescriptorHeap& heap, const LPCWSTR name)

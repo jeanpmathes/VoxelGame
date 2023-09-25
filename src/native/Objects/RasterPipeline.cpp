@@ -1,9 +1,11 @@
 ﻿#include "stdafx.h"
 
+#include <utility>
+
 static ComPtr<ID3DBlob> CompileShader(
     const wchar_t* path,
     const char* entryPoint, const char* target,
-    NativeErrorFunc callback)
+    const NativeErrorFunc callback)
 {
     ComPtr<ID3DBlob> shaderBlob;
     ComPtr<ID3DBlob> errorBlob;
@@ -301,16 +303,17 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         pipelineState);
 }
 
-RasterPipeline::RasterPipeline(NativeClient& client, ShaderPreset preset, std::unique_ptr<ShaderBuffer> buffer,
+RasterPipeline::RasterPipeline(NativeClient& client, const ShaderPreset preset,
+                               std::unique_ptr<ShaderBuffer> shaderBuffer,
                                DescriptorHeap descriptorHeap,
                                ComPtr<ID3D12RootSignature> rootSignature,
                                ComPtr<ID3D12PipelineState> pipelineState)
     : Object(client)
       , m_preset(preset)
       , m_descriptorHeap(std::move(descriptorHeap))
-      , m_rootSignature(rootSignature)
-      , m_pipelineState(pipelineState)
-      , m_shaderBuffer(std::move(buffer))
+      , m_rootSignature(std::move(rootSignature))
+      , m_pipelineState(std::move(pipelineState))
+      , m_shaderBuffer(std::move(shaderBuffer))
 {
     NAME_D3D12_OBJECT_WITH_ID(m_descriptorHeap);
     NAME_D3D12_OBJECT_WITH_ID(m_rootSignature);

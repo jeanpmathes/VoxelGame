@@ -6,11 +6,14 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
-    m_instanceConstantBufferAlignedSize = sizeof InstanceConstantBuffer;
-    m_instanceConstantBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantBufferAlignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantBuffer);
+    m_instanceDataBufferAlignedSize = sizeof InstanceConstantBuffer;
+    m_instanceDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
+    NAME_D3D12_OBJECT_WITH_ID(m_instanceDataBuffer);
 
-    TRY_DO(m_instanceConstantBuffer.Map(&m_instanceConstantBufferMapping));
+    m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.resource->GetGPUVirtualAddress();
+    m_instanceDataBufferView.SizeInBytes = static_cast<UINT>(m_instanceDataBufferAlignedSize);
+
+    TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping));
 
     Update();
 }
@@ -51,6 +54,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     m_uploadRequired = true;
 
     UpdateActiveState();
+    UpdateGeometryBufferView(sizeof(SpatialVertex));
 
     if (m_geometryElementCount == 0)
     {
@@ -79,6 +83,7 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
     m_uploadRequired = true;
 
     UpdateActiveState();
+    UpdateGeometryBufferView(sizeof(SpatialBounds));
 
     if (m_geometryElementCount == 0)
     {
@@ -157,20 +162,16 @@ void MeshObject::CleanupMeshUpload()
     m_uploadEnqueued = false;
 }
 
-void MeshObject::SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt) const
+void MeshObject::CreateInstanceResourceViews(const DescriptorHeap& heap, const UINT data, const UINT geometry) const
 {
-    REQUIRE(!m_uploadRequired);
+    GetClient().GetDevice()->CreateConstantBufferView(
+        &m_instanceDataBufferView,
+        heap.GetDescriptorHandleCPU(data));
 
-    sbt.AddHitGroup(m_material.normalHitGroup,
-                    {
-                        reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress()),
-                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress())
-                    });
-    sbt.AddHitGroup(m_material.shadowHitGroup,
-                    {
-                        reinterpret_cast<void*>(m_instanceConstantBuffer.resource->GetGPUVirtualAddress()),
-                        reinterpret_cast<void*>(m_geometryBuffer.resource->GetGPUVirtualAddress())
-                    });
+    GetClient().GetDevice()->CreateShaderResourceView(
+        m_geometryBuffer.Get(),
+        &m_geometryBufferView,
+        heap.GetDescriptorHandleCPU(geometry));
 }
 
 void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
@@ -319,11 +320,26 @@ void MeshObject::UpdateActiveState()
 
     if (shouldBeActive) // NOLINT(bugprone-branch-clone)
     {
+        REQUIRE(!m_active.has_value());
+        
         m_active = GetClient().GetSpace()->ActivateMeshObject(m_handle.value());
     }
     else
     {
+        REQUIRE(m_active.has_value());
+        
         GetClient().GetSpace()->DeactivateMeshObject(m_active.value());
         m_active = std::nullopt;
     }
+}
+
+void MeshObject::UpdateGeometryBufferView(const UINT stride)
+{
+    m_geometryBufferView.Format = DXGI_FORMAT_UNKNOWN;
+    m_geometryBufferView.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+    m_geometryBufferView.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    m_geometryBufferView.Buffer.FirstElement = 0;
+    m_geometryBufferView.Buffer.NumElements = m_geometryElementCount;
+    m_geometryBufferView.Buffer.StructureByteStride = stride;
+    m_geometryBufferView.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 }

@@ -54,10 +54,10 @@ float4 GetFluidBaseColor(const in Info info)
     return gTextureSlotTwo[index.x].Load(index.yzw);
 }
 
-void SetHitInfo(inout HitInfo payload, const Info info, const float3 color)
-{
-    payload.distance = RayTCurrent();
-    payload.normal = info.normal;
-    payload.color = color;
-    payload.alpha = 1.0;
-}
+#define SET_HIT_INFO(payload, info, shading) \
+    { \
+        payload.distance = RayTCurrent(); \
+        payload.normal = info.normal; \
+        payload.color = shading; \
+        payload.alpha = 1.0; \
+    } (void)0

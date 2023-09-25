@@ -18,7 +18,7 @@ void FoliageSectionAnyHit(inout HitInfo payload, const Attributes attributes)
                 baseColor *= decode::GetTintColor(info.data);
             }
 
-            SetHitInfo(payload, info, baseColor.rgb);
+            SET_HIT_INFO(payload, info, baseColor.rgb);
         }
     }
     else IgnoreHit();
@@ -30,7 +30,7 @@ void FoliageSectionClosestHit(inout HitInfo payload, const Attributes attributes
     const Info info = GetCurrentInfo(attributes);
     const float3 baseColor = payload.color;
 
-    SetHitInfo(payload, info, CalculateShading(info.normal, baseColor));
+    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor));
 }
 
 [shader("anyhit")]

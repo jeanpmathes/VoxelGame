@@ -18,7 +18,7 @@ void BasicTransparentSectionAnyHit(inout HitInfo payload, const Attributes attri
                 baseColor *= decode::GetTintColor(info.data);
             }
 
-            SetHitInfo(payload, info, baseColor.rgb);
+            SET_HIT_INFO(payload, info, baseColor.rgb);
         }
     }
     else IgnoreHit();
@@ -30,7 +30,7 @@ void BasicTransparentSectionClosestHit(inout HitInfo payload, const Attributes a
     const Info info = GetCurrentInfo(attributes);
     const float3 baseColor = payload.color;
 
-    SetHitInfo(payload, info, CalculateShading(info.normal, baseColor.rgb));
+    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor.rgb));
 }
 
 [shader("anyhit")]

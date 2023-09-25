@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 #include "Common.hlsl"
+#include "Payloads.hlsl"
 
 cbuffer CameraParams : register(b0) {
 float4x4 view;

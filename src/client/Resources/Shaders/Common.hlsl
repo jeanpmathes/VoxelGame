@@ -4,19 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-struct HitInfo
-{
-    float3 color;
-    float alpha;
-    float3 normal;
-    float distance;
-};
-
-struct ShadowHitInfo
-{
-    bool isHit;
-};
-
 struct Attributes
 {
     float2 barycentrics;

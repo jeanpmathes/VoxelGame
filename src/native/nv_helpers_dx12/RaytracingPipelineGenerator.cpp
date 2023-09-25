@@ -49,6 +49,8 @@ compiling in debug mode.
 #include <stdexcept>
 #include <wrl/client.h>
 
+#define STRING_OR_NULL(str) ((str).empty() ? nullptr : (str).c_str())
+
 namespace nv_helpers_dx12
 {
     RayTracingPipelineGenerator::RayTracingPipelineGenerator(
@@ -119,7 +121,7 @@ namespace nv_helpers_dx12
         // Add all the DXIL libraries
         for (const Library& lib : m_libraries)
         {
-            D3D12_STATE_SUBOBJECT libSubobject = {};
+            D3D12_STATE_SUBOBJECT libSubobject;
             libSubobject.Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
             libSubobject.pDesc = &lib.m_libDesc;
 
@@ -328,9 +330,9 @@ namespace nv_helpers_dx12
         // unknown shader or hit group name
         for (const auto& assoc : m_rootSignatureAssociations)
         {
-            for (const auto& symb : assoc.m_symbols)
+            for (const auto& symbol : assoc.m_symbols)
             {
-                if (!symb.empty() && !all_exports.contains(symb))
+                if (!symbol.empty() && !all_exports.contains(symbol))
                 {
                     throw std::logic_error("Root association symbol not found in the "
                         "imported DXIL libraries and hit group names");
@@ -397,16 +399,21 @@ namespace nv_helpers_dx12
                                                     std::wstring closestHitSymbol,
                                                     std::wstring anyHitSymbol /*= L""*/,
                                                     std::wstring intersectionSymbol /*= L""*/)
-        : m_hitGroupName(std::move(hitGroupName)), m_closestHitSymbol(std::move(closestHitSymbol)),
-          m_anyHitSymbol(std::move(anyHitSymbol)), m_intersectionSymbol(std::move(intersectionSymbol))
+        : m_hitGroupName(std::move(hitGroupName))
+          , m_closestHitSymbol(std::move(closestHitSymbol))
+          , m_anyHitSymbol(std::move(anyHitSymbol))
+          , m_intersectionSymbol(std::move(intersectionSymbol))
     {
         // Indicate which shader program is used for closest hit, leave the other
         // ones undefined (default behavior), export the name of the group
         m_desc.HitGroupExport = m_hitGroupName.c_str();
-        m_desc.ClosestHitShaderImport = m_closestHitSymbol.empty() ? nullptr : m_closestHitSymbol.c_str();
-        m_desc.AnyHitShaderImport = m_anyHitSymbol.empty() ? nullptr : m_anyHitSymbol.c_str();
-        m_desc.IntersectionShaderImport =
-            m_intersectionSymbol.empty() ? nullptr : m_intersectionSymbol.c_str();
+        m_desc.ClosestHitShaderImport = STRING_OR_NULL(m_closestHitSymbol);
+        m_desc.AnyHitShaderImport = STRING_OR_NULL(m_anyHitSymbol);
+        m_desc.IntersectionShaderImport = STRING_OR_NULL(m_intersectionSymbol);
+
+        m_desc.Type = m_intersectionSymbol.empty()
+                          ? D3D12_HIT_GROUP_TYPE_TRIANGLES
+                          : D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE;
     }
 
     RayTracingPipelineGenerator::HitGroup::HitGroup(const HitGroup& source)

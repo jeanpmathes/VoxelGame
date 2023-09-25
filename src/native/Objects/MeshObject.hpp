@@ -23,13 +23,13 @@ struct SpatialBounds
     D3D12_RAYTRACING_AABB aabb;
     DirectX::XMUINT4 data;
 };
-#pragma pack(pop)
 
 struct InstanceConstantBuffer
 {
     DirectX::XMFLOAT4X4 objectToWorld;
     DirectX::XMFLOAT4X4 objectToWorldNormal;
 };
+#pragma pack(pop)
 
 class Material;
 
@@ -69,7 +69,10 @@ public:
      */
     void CleanupMeshUpload();
 
-    void SetupHitGroup(nv_helpers_dx12::ShaderBindingTableGenerator& sbt) const;
+    /**
+     * Create views for the instance data and geometry buffers on a given descriptor heap.
+     */
+    void CreateInstanceResourceViews(const DescriptorHeap& heap, UINT data, UINT geometry) const;
 
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
     Allocation<ID3D12Resource> GetBLAS();
@@ -98,15 +101,18 @@ protected:
 
 private:
     void UpdateActiveState();
+    void UpdateGeometryBufferView(UINT stride);
     
     const Material& m_material;
 
-    Allocation<ID3D12Resource> m_instanceConstantBuffer = {};
-    UINT64 m_instanceConstantBufferAlignedSize = 0;
+    Allocation<ID3D12Resource> m_instanceDataBuffer = {};
+    UINT64 m_instanceDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC m_instanceDataBufferView = {};
     Mapping<ID3D12Resource, InstanceConstantBuffer> m_instanceConstantBufferMapping = {};
 
     Allocation<ID3D12Resource> m_geometryBufferUpload = {};
     Allocation<ID3D12Resource> m_geometryBuffer = {};
+    D3D12_SHADER_RESOURCE_VIEW_DESC m_geometryBufferView = {};
     UINT m_geometryElementCount = 0;
 
     Allocation<ID3D12Resource> m_usedIndexBuffer = {};

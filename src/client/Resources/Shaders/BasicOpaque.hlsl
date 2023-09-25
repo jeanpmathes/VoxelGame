@@ -19,7 +19,7 @@ void BasicOpaqueSectionClosestHit(inout HitInfo payload, const Attributes attrib
     
     baseColor.a = 1.0;
 
-    SetHitInfo(payload, info, CalculateShading(info.normal, baseColor.rgb));
+    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor.rgb));
 }
 
 [shader("closesthit")]
