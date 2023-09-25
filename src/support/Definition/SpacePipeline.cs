@@ -34,7 +34,7 @@ internal struct SpacePipelineDescription
     internal uint textureCountFirstSlot;
     internal uint textureCountSecondSlot;
 
-    internal Native.NativeErrorMessageFunc onShaderLoadingError;
+    internal Native.NativeErrorFunc onShaderLoadingError;
 }
 
 /// <summary>

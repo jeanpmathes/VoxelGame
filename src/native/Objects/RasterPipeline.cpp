@@ -2,53 +2,6 @@
 
 #include <utility>
 
-static ComPtr<ID3DBlob> CompileShader(
-    const wchar_t* path,
-    const char* entryPoint, const char* target,
-    const NativeErrorFunc callback)
-{
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ID3DBlob> errorBlob;
-
-#if defined(VG_DEBUG)
-    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-#else
-    UINT compileFlags = 0;
-#endif
-
-    const auto result = D3DCompileFromFile(
-        path,
-        nullptr,
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,
-        entryPoint,
-        target,
-        compileFlags,
-        0,
-        &shaderBlob,
-        &errorBlob);
-
-    if (FAILED(result))
-    {
-        std::stringstream formattedMessage;
-        formattedMessage << "Failed to compile shader";
-
-        if (errorBlob != nullptr && errorBlob->GetBufferPointer() != nullptr)
-        {
-            std::vector<char> message(errorBlob->GetBufferSize() + 1);
-            memcpy(message.data(), errorBlob->GetBufferPointer(), errorBlob->GetBufferSize());
-            message[errorBlob->GetBufferSize()] = 0;
-
-            formattedMessage << ": " << message.data();
-        }
-
-        callback(result, formattedMessage.str().c_str());
-
-        return nullptr;
-    }
-
-    return shaderBlob;
-}
-
 using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>, UINT>;
 
 static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
@@ -234,19 +187,25 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     const PipelineDescription& description,
     NativeErrorFunc callback)
 {
-    ComPtr<ID3DBlob> vertexShader = CompileShader(
+    ComPtr<IDxcBlob> vertexShader = CompileShader(
         description.vertexShaderPath,
-        "VSMain",
-        "vs_5_0",
+        L"VSMain",
+        L"vs_6_0",
         callback);
     if (vertexShader == nullptr) return nullptr;
 
-    ComPtr<ID3DBlob> pixelShader = CompileShader(
+    ComPtr<ID3DBlob> vertexShaderBlob;
+    TRY_DO(vertexShader->QueryInterface(IID_PPV_ARGS(&vertexShaderBlob)));
+
+    ComPtr<IDxcBlob> pixelShader = CompileShader(
         description.pixelShaderPath,
-        "PSMain",
-        "ps_5_0",
+        L"PSMain",
+        L"ps_6_0",
         callback);
     if (pixelShader == nullptr) return nullptr;
+
+    ComPtr<ID3DBlob> pixelShaderBlob;
+    TRY_DO(pixelShader->QueryInterface(IID_PPV_ARGS(&pixelShaderBlob)));
 
     ComPtr<ID3D12RootSignature> rootSignature;
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
@@ -259,8 +218,8 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.pRootSignature = rootSignature.Get();
     psoDesc.InputLayout = {inputLayout.data(), static_cast<UINT>(inputLayout.size())};
-    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-    psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
+    psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

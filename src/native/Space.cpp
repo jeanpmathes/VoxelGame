@@ -482,8 +482,9 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
-        m_shaderBlobs[shader] = CompileShaderLibrary(
+        m_shaderBlobs[shader] = CompileShader(
             pipelineDescription.shaderFiles[shader].path,
+            L"", L"lib_6_7",
             pipelineDescription.description.onShaderLoadingError);
         if (m_shaderBlobs[shader] == nullptr) return false;
 

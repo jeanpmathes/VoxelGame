@@ -9,19 +9,22 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include <d3d12.h>
 #include <dxcapi.h>
 
 #include "DXHelper.hpp"
+#include "native.hpp"
 
 #ifndef ROUND_UP
 #define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
 #endif
 
 // Compile a HLSL file into a DXIL library.
-inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<void(const char*)> errorCallback)
+inline ComPtr<IDxcBlob> CompileShader(
+    LPCWSTR fileName,
+    const std::wstring& entry, const std::wstring& target,
+    NativeErrorFunc errorCallback)
 {
     static ComPtr<IDxcCompiler> compiler = nullptr;
     static ComPtr<IDxcUtils> utils = nullptr;
@@ -40,7 +43,7 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
     if (not shaderFile.good())
     {
         std::string errorMsg = "Failed to open shader file";
-        errorCallback(errorMsg.c_str());
+        errorCallback(E_FAIL, errorMsg.c_str());
         return nullptr;
     }
 
@@ -64,7 +67,8 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
 
     // Compile.
     ComPtr<IDxcOperationResult> result;
-    TRY_DO(compiler->Compile(textBlob.Get(), fileName, L"", L"lib_6_7",
+    TRY_DO(compiler->Compile(textBlob.Get(), fileName,
+        entry.c_str(), target.c_str(),
         args.data(), static_cast<UINT32>(args.size()),
         defines.data(), static_cast<UINT32>(defines.size()),
         dxcIncludeHandler.Get(), &result));
@@ -85,7 +89,7 @@ inline ComPtr<IDxcBlob> CompileShaderLibrary(LPCWSTR fileName, std::function<voi
         std::string errorMsg = "Shader Compilation Error:\n";
         errorMsg.append(infoLog.data());
 
-        errorCallback(errorMsg.c_str());
+        errorCallback(resultCode, errorMsg.c_str());
         return nullptr;
     }
 

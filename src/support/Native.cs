@@ -48,14 +48,13 @@ public static class Native
     /// </summary>
     /// <param name="configuration">The configuration to use.</param>
     /// <param name="onError">The callback for any errors.</param>
-    /// <param name="onErrorMessage">The callback for any error messages.</param>
     /// <returns>A pointer to the native client.</returns>
-    public static IntPtr Initialize(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError, Definition.Native.NativeErrorMessageFunc onErrorMessage)
+    public static IntPtr Initialize(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeConfigure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError, Definition.Native.NativeErrorMessageFunc onErrorMessage);
+        static extern IntPtr NativeConfigure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
 
-        return NativeConfigure(configuration, onError, onErrorMessage);
+        return NativeConfigure(configuration, onError);
     }
 
     /// <summary>

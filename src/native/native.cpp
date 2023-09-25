@@ -7,7 +7,6 @@
 #include "stdafx.h"
 
 static NativeErrorFunc onError;
-static NativeErrorMessageFunc onErrorMessage;
 
 NATIVE void NativeShowErrorBox(const LPCWSTR message, const LPCWSTR caption)
 {
@@ -15,11 +14,9 @@ NATIVE void NativeShowErrorBox(const LPCWSTR message, const LPCWSTR caption)
     Win32Application::ShowErrorMessage(message, caption);
 }
 
-NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErrorFunc errorCallback,
-                                     const NativeErrorMessageFunc errorMessageCallback)
+NATIVE NativeClient* NativeConfigure(const Configuration config, const NativeErrorFunc errorCallback)
 {
     onError = errorCallback;
-    onErrorMessage = errorMessageCallback;
 
     TRY
     {

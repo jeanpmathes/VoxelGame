@@ -46,7 +46,7 @@ struct SpacePipelineDescription
     UINT textureCountFirstSlot;
     UINT textureCountSecondSlot;
 
-    NativeErrorMessageFunc onShaderLoadingError;
+    NativeErrorFunc onShaderLoadingError;
 };
 
 class SpacePipeline

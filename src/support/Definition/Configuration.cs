@@ -40,11 +40,6 @@ public static partial class Native
     public delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
 
     /// <summary>
-    ///     A callback that receives an error message indicating a fatal error.
-    /// </summary>
-    public delegate void NativeErrorMessageFunc([MarshalAs(UnmanagedType.LPStr)] string message);
-
-    /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
     public delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] byte arg);

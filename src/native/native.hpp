@@ -19,7 +19,6 @@ using NativeResizeFunc = void(*)(UINT, UINT);
 using NativeBoolFunc = void(*)(BOOL);
 using NativeWStringFunc = void(*)(LPCWSTR);
 using NativeErrorFunc = void(*)(HRESULT, const char*);
-using NativeErrorMessageFunc = void(*)(const char*);
 
 struct Configuration
 {
@@ -55,6 +54,6 @@ struct Configuration
 #define TRY try
 #define CATCH() \
     catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } \
-    catch (const NativeException& e) { onErrorMessage(e.what()); exit(1); } \
-    catch (const std::exception& e) { onErrorMessage(e.what()); exit(1); } \
-    catch (...) { onErrorMessage("Unknown error."); exit(1); }
+    catch (const NativeException& e) { onError(E_FAIL, e.what()); exit(1); } \
+    catch (const std::exception& e) { onError(E_FAIL, e.what()); exit(1); } \
+    catch (...) { onError(E_FAIL, "Unknown error."); exit(1); }

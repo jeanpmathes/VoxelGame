@@ -89,9 +89,9 @@ public class Client : IDisposable // todo: get type usage count down
             supportPIX = windowSettings.SupportPIX
         };
 
-        config = new Config(configuration, OnError, OnErrorMessage);
+        config = new Config(configuration, OnError);
 
-        Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc, config.ErrorMessageFunc);
+        Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc);
         Space = new Space(this);
     }
 
@@ -177,16 +177,6 @@ public class Client : IDisposable // todo: get type usage count down
         logger.LogCritical(exception, "Fatal error ({HR}): {Message}", hex, message);
 
         throw exception;
-    }
-
-    private static void OnErrorMessage(string message)
-    {
-        Debugger.Break();
-
-        Support.Native.ShowErrorBox($"Fatal error: {message}");
-        logger.LogCritical("Fatal error: {Message}", message);
-
-        throw new InvalidOperationException(message);
     }
 
     internal string GetDRED()
@@ -424,8 +414,7 @@ public class Client : IDisposable // todo: get type usage count down
 
     private record struct Config(
         Definition.Native.NativeConfiguration Configuration,
-        Definition.Native.NativeErrorFunc ErrorFunc,
-        Definition.Native.NativeErrorMessageFunc ErrorMessageFunc);
+        Definition.Native.NativeErrorFunc ErrorFunc);
 
     #region IDisposable Support
 

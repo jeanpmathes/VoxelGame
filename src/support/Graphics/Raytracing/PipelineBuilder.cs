@@ -137,7 +137,7 @@ public class PipelineBuilder
                 materialCount = (uint) materialDescriptions.Length,
                 textureCountFirstSlot = firstTextureSlot?.PartCount ?? 0,
                 textureCountSecondSlot = secondTextureSlot?.PartCount ?? 0,
-                onShaderLoadingError = message =>
+                onShaderLoadingError = (_, message) =>
                 {
                     ReportFailure(loadingContext, message);
                     success = false;
