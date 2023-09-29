@@ -11,8 +11,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
-using VoxelGame.Client.Entities;
 using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -31,6 +31,8 @@ public class World : Core.Logic.World
 
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
+    private static readonly int minLoadedChunks = VMath.Cube(Player.LoadDistance * 2 + 1);
+
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
     /// <summary>
@@ -41,7 +43,7 @@ public class World : Core.Logic.World
 
     private readonly Space space;
 
-    private Player? player;
+    private Entities.Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -85,7 +87,7 @@ public class World : Core.Logic.World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Player newPlayer)
+    public void AddPlayer(Entities.Player newPlayer)
     {
         player = newPlayer;
 
@@ -105,9 +107,9 @@ public class World : Core.Logic.World
         PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
 
         // Perform culling on all active chunks.
-        for (int x = -Core.Entities.Player.LoadDistance; x <= Core.Entities.Player.LoadDistance; x++)
-        for (int y = -Core.Entities.Player.LoadDistance; y <= Core.Entities.Player.LoadDistance; y++)
-        for (int z = -Core.Entities.Player.LoadDistance; z <= Core.Entities.Player.LoadDistance; z++)
+        for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+        for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
+        for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
         {
             Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
             chunk?.Cast().CullSections(context.Frustum);
@@ -130,7 +132,7 @@ public class World : Core.Logic.World
 
         void HandleActivating()
         {
-            if (ActiveChunkCount < 3 * 3 * 3) return;
+            if (ActiveChunkCount < minLoadedChunks) return;
 
             readyStopwatch.Stop();
             double readyTime = readyStopwatch.Elapsed.TotalSeconds;

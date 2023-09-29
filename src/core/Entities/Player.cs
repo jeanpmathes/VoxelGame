@@ -39,10 +39,10 @@ public abstract class Player : PhysicsEntity
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static int LoadDistance => 2;
+    public static int LoadDistance => 0;
 
     /// <summary>
-    ///     The position the current chunk this player is in.
+    ///     The position of the current chunk this player is in.
     /// </summary>
     public ChunkPosition Chunk { get; private set; }
 

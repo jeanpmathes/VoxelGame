@@ -78,6 +78,11 @@ MeshObject& Space::CreateMeshObject(UINT materialIndex)
     return indexedMeshObject;
 }
 
+void Space::MarkMeshObjectModified(MeshObject::Handle handle)
+{
+    m_modifiedMeshes.emplace(handle);
+}
+
 size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
 {
     MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
@@ -86,7 +91,6 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
     size_t index = m_activeMeshes.Push(mesh);
     
     m_activatedMeshes.emplace(index);
-    m_deactivatedMeshes.erase(index);
 
     return index;
 }
@@ -94,9 +98,7 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
 void Space::DeactivateMeshObject(const size_t index)
 {
     m_activeMeshes.Pop(index);
-
     m_activatedMeshes.erase(index);
-    m_deactivatedMeshes.emplace(index);
 }
 
 void Space::FreeMeshObject(const MeshObject::Handle handle)
@@ -119,30 +121,33 @@ void Space::Reset(const UINT frameIndex)
 
 void Space::EnqueueRenderSetup()
 {
-    for (const auto& mesh : m_meshes) // todo: iterate only over meshes that need this, same for cleanup
+    for (const auto handle : m_modifiedMeshes)
     {
-        if (mesh->IsMeshModified())
-        {
-            mesh->EnqueueMeshUpload(m_commandGroup.commandList);
-            mesh->CreateBLAS(m_commandGroup.commandList);
-        }
-    }
+        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
 
+        mesh->EnqueueMeshUpload(GetCommandList());
+        mesh->CreateBLAS(GetCommandList());
+    }
+    
     CreateTopLevelAS();
     UpdateAccelerationStructureView();
     UpdateGlobalShaderResourceHeap();
 
     m_activatedMeshes.clear();
-    m_deactivatedMeshes.clear();
 }
 
 void Space::CleanupRenderSetup()
 {
-    for (const auto& mesh : m_meshes)
+    for (const auto handle : m_modifiedMeshes)
     {
+        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+        
         mesh->CleanupMeshUpload();
     }
-
+    m_modifiedMeshes.clear();
+    
     m_indexBuffer.CleanupRenderSetup();
 }
 
@@ -362,7 +367,7 @@ void Space::UpdateGlobalShaderResourceHeap()
     {
         UpdateGSRHeapSize();
     }
-    else if (m_activatedMeshes.size() > 0)
+    else if (!m_activatedMeshes.empty() || !m_modifiedMeshes.empty())
     {
         UpdateGSRHeapContents();
     }
@@ -409,12 +414,25 @@ void Space::UpdateGSRHeapContents()
         auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
         mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
     }
+
+    for (const auto handle : m_modifiedMeshes)
+    {
+        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+
+        if (std::optional<size_t> index = mesh->GetActiveIndex(); !index.has_value() || m_activatedMeshes.
+            contains(index.value())) continue;
+
+        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
+        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
+    }
 }
 
 void Space::UpdateGSRHeapBase() const
 {
     GetDevice()->CopyDescriptorsSimple(
         m_commonPipelineResourceHeap.GetDescriptorCount(),
+        // todo: use two heaps (one for the changing stuff, one for textures), only copy textures after resize
         m_globalShaderResourceHeap.GetDescriptorHandleCPU(),
         m_commonPipelineResourceHeap.GetDescriptorHandleCPU(),
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

@@ -50,9 +50,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
 
     m_geometryElementCount = vertexCount;
-    m_modified = true;
-    m_uploadRequired = true;
-
+    
     UpdateActiveState();
     UpdateGeometryBufferView(sizeof(SpatialVertex));
 
@@ -62,6 +60,9 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
         return;
     }
 
+    GetClient().GetSpace()->MarkMeshObjectModified(m_handle.value());
+    m_uploadRequired = true;
+    
     m_geometryBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                                   D3D12_RESOURCE_FLAG_NONE,
                                                   D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -71,7 +72,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, vertices, vertexCount));
 }
 
-void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
+void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCount)
 {
     REQUIRE(!m_uploadEnqueued);
     REQUIRE(m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
@@ -79,8 +80,6 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
     const auto vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
 
     m_geometryElementCount = boundsCount;
-    m_modified = true;
-    m_uploadRequired = true;
 
     UpdateActiveState();
     UpdateGeometryBufferView(sizeof(SpatialBounds));
@@ -91,6 +90,9 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
         return;
     }
 
+    GetClient().GetSpace()->MarkMeshObjectModified(m_handle.value());
+    m_uploadRequired = true;
+
     m_geometryBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
                                                   D3D12_RESOURCE_FLAG_NONE,
                                                   D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -98,11 +100,6 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, UINT boundsCount)
     NAME_D3D12_OBJECT_WITH_ID(m_geometryBufferUpload);
 
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, bounds, boundsCount));
-}
-
-bool MeshObject::IsMeshModified() const
-{
-    return m_modified;
 }
 
 std::optional<size_t> MeshObject::GetActiveIndex() const
@@ -117,7 +114,6 @@ const Material& MeshObject::GetMaterial() const
 
 void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-    REQUIRE(IsMeshModified());
     REQUIRE(m_uploadRequired);
     REQUIRE(!m_uploadEnqueued);
 
@@ -157,8 +153,7 @@ void MeshObject::CleanupMeshUpload()
     REQUIRE(!m_uploadRequired);
 
     m_geometryBufferUpload = {};
-
-    m_modified = false;
+    
     m_uploadEnqueued = false;
 }
 
@@ -176,7 +171,6 @@ void MeshObject::CreateInstanceResourceViews(const DescriptorHeap& heap, const U
 
 void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
-    REQUIRE(IsMeshModified());
     REQUIRE(!m_uploadRequired);
 
     if (m_geometryElementCount == 0)
@@ -318,7 +312,7 @@ void MeshObject::UpdateActiveState()
     const bool shouldBeActive = m_enabled && m_geometryElementCount > 0;
     if (m_active.has_value() == shouldBeActive) return;
 
-    if (shouldBeActive) // NOLINT(bugprone-branch-clone)
+    if (shouldBeActive)
     {
         REQUIRE(!m_active.has_value());
         

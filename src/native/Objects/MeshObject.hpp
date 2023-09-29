@@ -52,8 +52,7 @@ public:
     void SetEnabledState(bool enabled);
     void SetNewVertices(const SpatialVertex* vertices, UINT vertexCount);
     void SetNewBounds(const SpatialBounds* bounds, UINT boundsCount);
-
-    [[nodiscard]] bool IsMeshModified() const;
+    
     [[nodiscard]] std::optional<size_t> GetActiveIndex() const;
     [[nodiscard]] const Material& GetMaterial() const;
 
@@ -123,7 +122,6 @@ private:
     std::optional<Handle> m_handle = std::nullopt;
     std::optional<size_t> m_active = std::nullopt;
     bool m_enabled = true;
-    bool m_modified = false;
 
     bool m_uploadRequired = false;
     bool m_uploadEnqueued = false;

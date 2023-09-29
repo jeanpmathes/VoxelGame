@@ -555,4 +555,20 @@ public static class VMath
             index / 4 % 2 == 0 ? box.Min.Z : box.Max.Z
         );
     }
+
+    /// <summary>
+    ///     Simply gets the square of a number.
+    /// </summary>
+    public static int Square(int x)
+    {
+        return x * x;
+    }
+
+    /// <summary>
+    ///     Simply gets the cube of a number.
+    /// </summary>
+    public static int Cube(int x)
+    {
+        return x * x * x;
+    }
 }

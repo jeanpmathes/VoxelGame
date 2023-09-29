@@ -112,9 +112,25 @@ public:
     void PerformResolutionDependentSetup(const Resolution& resolution);
     bool PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
 
+    /**
+     * Create a new mesh object with a given material. 
+     */
     MeshObject& CreateMeshObject(UINT materialIndex);
+    /**
+     * Mark a mesh object as modified, so that instance data can be updated.
+     */
+    void MarkMeshObjectModified(MeshObject::Handle handle);
+    /**
+     * Activate a mesh object for rendering. It must have a valid mesh.
+     */
     size_t ActivateMeshObject(MeshObject::Handle handle);
+    /**
+     * Deactivate a mesh object.
+     */
     void DeactivateMeshObject(size_t index);
+    /**
+     * Free a mesh object.
+     */
     void FreeMeshObject(MeshObject::Handle handle);
 
     [[nodiscard]] const Material& GetMaterial(UINT index) const;
@@ -239,9 +255,9 @@ private:
     AccelerationStructureBuffers m_topLevelASBuffers;
 
     GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
+    std::set<MeshObject::Handle> m_modifiedMeshes = {};
     GappedList<MeshObject*> m_activeMeshes = {};
     std::set<size_t> m_activatedMeshes = {};
-    std::set<size_t> m_deactivatedMeshes = {};
 
     SharedIndexBuffer m_indexBuffer;
 };
