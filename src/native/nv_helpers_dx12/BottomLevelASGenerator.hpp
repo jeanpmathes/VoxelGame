@@ -157,10 +157,10 @@ namespace nv_helpers_dx12
         /// \param previousResult Optional previous acceleration structure, used if an iterative update is requested
         void Generate(
             ID3D12GraphicsCommandList4* commandList,
-            ID3D12Resource* scratchBuffer,
-            ID3D12Resource* resultBuffer,
+            D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
+            D3D12_GPU_VIRTUAL_ADDRESS resultBuffer,
             bool updateOnly = false,
-            ID3D12Resource* previousResult = nullptr
+            D3D12_GPU_VIRTUAL_ADDRESS previousResult = 0
         ) const;
 
     private:

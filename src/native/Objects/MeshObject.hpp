@@ -9,7 +9,7 @@
 #include <optional>
 
 #include "SpatialObject.hpp"
-#include "../Common.hpp"
+#include "Tools/InBufferAllocator.hpp"
 
 #pragma pack(push, 4)
 struct SpatialVertex
@@ -73,8 +73,8 @@ public:
      */
     void CreateInstanceResourceViews(const DescriptorHeap& heap, UINT data, UINT geometry) const;
 
-    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    Allocation<ID3D12Resource> GetBLAS();
+    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs);
+    const BLAS& GetBLAS();
 
     /**
      * Associate this object with a handle. This is performed by the space automatically.
@@ -87,13 +87,13 @@ public:
     void Free();
 
 protected:
-    [[nodiscard]] AccelerationStructureBuffers
+    [[nodiscard]] BLAS
     CreateBottomLevelASFromVertices(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers) const;
 
-    [[nodiscard]] AccelerationStructureBuffers
+    [[nodiscard]] BLAS
     CreateBottomLevelASFromBounds(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers) const;
@@ -117,7 +117,7 @@ private:
     Allocation<ID3D12Resource> m_usedIndexBuffer = {};
     UINT m_usedIndexCount = 0;
 
-    AccelerationStructureBuffers m_blas = {};
+    BLAS m_blas = {};
 
     std::optional<Handle> m_handle = std::nullopt;
     std::optional<size_t> m_active = std::nullopt;

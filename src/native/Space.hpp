@@ -178,7 +178,19 @@ public:
      */
     [[nodiscard]] ComPtr<ID3D12GraphicsCommandList4> GetCommandList() const;
 
+    /**
+     * Allocate a BLAS. 
+     */
+    BLAS AllocateBLAS(UINT64 resultSize, UINT64 scratchSize);
+
 private:
+    struct TLAS
+    {
+        Allocation<ID3D12Resource> scratch;
+        Allocation<ID3D12Resource> result;
+        Allocation<ID3D12Resource> instanceDescription;
+    };
+    
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
 
     void CreateGlobalConstBuffer();
@@ -252,8 +264,11 @@ private:
     D3D12_GPU_DESCRIPTOR_HANDLE m_instanceDataHeap{};
     D3D12_GPU_DESCRIPTOR_HANDLE m_geometryDataHeap{};
 
-    AccelerationStructureBuffers m_topLevelASBuffers;
+    TLAS m_topLevelASBuffers;
 
+    InBufferAllocator m_resultBufferAllocator;
+    InBufferAllocator m_scratchBufferAllocator;
+    
     GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
     std::set<MeshObject::Handle> m_modifiedMeshes = {};
     GappedList<MeshObject*> m_activeMeshes = {};

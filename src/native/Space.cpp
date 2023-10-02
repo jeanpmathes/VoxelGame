@@ -11,6 +11,8 @@ Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
     m_camera(nativeClient),
     m_light(nativeClient),
+    m_resultBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE),
+    m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
     m_indexBuffer(*this)
 {
 }
@@ -121,15 +123,19 @@ void Space::Reset(const UINT frameIndex)
 
 void Space::EnqueueRenderSetup()
 {
+    std::vector<ID3D12Resource*> uavs;
+    
     for (const auto handle : m_modifiedMeshes)
     {
         MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
 
         mesh->EnqueueMeshUpload(GetCommandList());
-        mesh->CreateBLAS(GetCommandList());
+        mesh->CreateBLAS(GetCommandList(), &uavs);
     }
-    
+
+    m_resultBufferAllocator.CreateBarriers(GetCommandList(), std::move(uavs));
+
     CreateTopLevelAS();
     UpdateAccelerationStructureView();
     UpdateGlobalShaderResourceHeap();
@@ -256,6 +262,14 @@ Light* Space::GetLight()
 ComPtr<ID3D12GraphicsCommandList4> Space::GetCommandList() const
 {
     return m_commandGroup.commandList;
+}
+
+BLAS Space::AllocateBLAS(const UINT64 resultSize, const UINT64 scratchSize)
+{
+    return {
+        .result = m_resultBufferAllocator.Allocate(resultSize),
+        .scratch = m_scratchBufferAllocator.Allocate(scratchSize)
+    };
 }
 
 ComPtr<ID3D12Device5> Space::GetDevice() const
@@ -743,8 +757,8 @@ void Space::CreateTopLevelAS()
 
         REQUIRE(mesh->GetActiveIndex());
         const UINT instanceID = static_cast<UINT>(*mesh->GetActiveIndex());
-        
-        topLevelASGenerator.AddInstance(mesh->GetBLAS().Get(), mesh->GetTransform(),
+
+        topLevelASGenerator.AddInstance(mesh->GetBLAS().result.GetAddress(), mesh->GetTransform(),
                                         instanceID, mesh->GetMaterial().index,
                                         static_cast<BYTE>(mesh->GetMaterial().flags),
                                         D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);

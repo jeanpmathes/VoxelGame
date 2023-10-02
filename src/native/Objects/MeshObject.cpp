@@ -169,9 +169,10 @@ void MeshObject::CreateInstanceResourceViews(const DescriptorHeap& heap, const U
         heap.GetDescriptorHandleCPU(geometry));
 }
 
-void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
+void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs)
 {
     REQUIRE(!m_uploadRequired);
+    REQUIRE(uavs != nullptr);
 
     if (m_geometryElementCount == 0)
     {
@@ -191,13 +192,14 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
         m_blas = CreateBottomLevelASFromBounds(commandList,
                                                {{m_geometryBuffer, m_geometryElementCount}});
     }
+
+    if (ID3D12Resource* resource = m_blas.result.GetResource(); resource != nullptr) uavs->push_back(resource);
 }
 
-Allocation<ID3D12Resource> MeshObject::GetBLAS()
+const BLAS& MeshObject::GetBLAS()
 {
     REQUIRE(!m_uploadRequired);
-
-    return m_blas.result;
+    return m_blas;
 }
 
 void MeshObject::AssociateWithHandle(Handle handle)
@@ -215,13 +217,10 @@ void MeshObject::Free()
     GetClient().GetSpace()->FreeMeshObject(m_handle.value());
 }
 
-AccelerationStructureBuffers MeshObject::CreateBottomLevelASFromVertices(ComPtr<ID3D12GraphicsCommandList4> commandList,
-                                                                         std::vector<std::pair<
-                                                                             Allocation<ID3D12Resource>, uint32_t>>
-                                                                         vertexBuffers,
-                                                                         std::vector<std::pair<
-                                                                             Allocation<ID3D12Resource>, uint32_t>>
-                                                                         indexBuffers) const
+BLAS MeshObject::CreateBottomLevelASFromVertices(
+    ComPtr<ID3D12GraphicsCommandList4> commandList,
+    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
+    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers) const
 {
     nv_helpers_dx12::BottomLevelASGenerator bottomLevelAS;
 
@@ -245,31 +244,20 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelASFromVertices(ComPtr<
     UINT64 resultSizeInBytes = 0;
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
 
-    const bool committed = GetClient().SupportPIX();
+    BLAS blas = GetClient().GetSpace()->AllocateBLAS(resultSizeInBytes, scratchSizeInBytes);
 
-    AccelerationStructureBuffers buffers;
-    buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
-                                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                           D3D12_RESOURCE_STATE_COMMON,
-                                           D3D12_HEAP_TYPE_DEFAULT);
-    buffers.result = util::AllocateBuffer(GetClient(), resultSizeInBytes,
-                                          D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                          D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                          D3D12_HEAP_TYPE_DEFAULT,
-                                          committed);
+    NAME_D3D12_OBJECT_WITH_ID(blas.scratch);
+    NAME_D3D12_OBJECT_WITH_ID(blas.result);
 
-    NAME_D3D12_OBJECT_WITH_ID(buffers.scratch);
-    NAME_D3D12_OBJECT_WITH_ID(buffers.result);
+    bottomLevelAS.Generate(commandList.Get(),
+                           blas.scratch.GetAddress(), blas.result.GetAddress(), false);
 
-    bottomLevelAS.Generate(commandList.Get(), buffers.scratch.Get(), buffers.result.Get(),
-                           false, nullptr);
-    return buffers;
+    return blas;
 }
 
-AccelerationStructureBuffers MeshObject::CreateBottomLevelASFromBounds(ComPtr<ID3D12GraphicsCommandList4> commandList,
-                                                                       std::vector<std::pair<
-                                                                           Allocation<ID3D12Resource>, uint32_t>>
-                                                                       boundsBuffers) const
+BLAS MeshObject::CreateBottomLevelASFromBounds(
+    ComPtr<ID3D12GraphicsCommandList4> commandList,
+    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers) const
 {
     nv_helpers_dx12::BottomLevelASGenerator bottomLevelAS;
 
@@ -286,25 +274,15 @@ AccelerationStructureBuffers MeshObject::CreateBottomLevelASFromBounds(ComPtr<ID
     UINT64 resultSizeInBytes = 0;
     bottomLevelAS.ComputeASBufferSizes(GetClient().GetDevice().Get(), false, &scratchSizeInBytes, &resultSizeInBytes);
 
-    const bool committed = GetClient().SupportPIX();
+    BLAS blas = GetClient().GetSpace()->AllocateBLAS(resultSizeInBytes, scratchSizeInBytes);
 
-    AccelerationStructureBuffers buffers;
-    buffers.scratch = util::AllocateBuffer(GetClient(), scratchSizeInBytes,
-                                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                           D3D12_RESOURCE_STATE_COMMON,
-                                           D3D12_HEAP_TYPE_DEFAULT);
-    buffers.result = util::AllocateBuffer(GetClient(), resultSizeInBytes,
-                                          D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                          D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                          D3D12_HEAP_TYPE_DEFAULT,
-                                          committed);
+    NAME_D3D12_OBJECT_WITH_ID(blas.scratch);
+    NAME_D3D12_OBJECT_WITH_ID(blas.result);
 
-    NAME_D3D12_OBJECT_WITH_ID(buffers.scratch);
-    NAME_D3D12_OBJECT_WITH_ID(buffers.result);
+    bottomLevelAS.Generate(commandList.Get(),
+                           blas.scratch.GetAddress(), blas.result.GetAddress(), false);
 
-    bottomLevelAS.Generate(commandList.Get(), buffers.scratch.Get(), buffers.result.Get(),
-                           false, nullptr);
-    return buffers;
+    return blas;
 }
 
 void MeshObject::UpdateActiveState()

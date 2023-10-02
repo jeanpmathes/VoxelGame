@@ -92,7 +92,7 @@ namespace nv_helpers_dx12
         /// \param inclusionMask Instance mask, which can be used in the shaders to hide instances.
         /// \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
         void
-        AddInstance(ID3D12Resource* bottomLevelAS,
+        AddInstance(D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS,
                     const DirectX::XMFLOAT4X4& transform,
                     UINT instanceID,
                     UINT hitGroupIndex,
@@ -140,10 +140,10 @@ namespace nv_helpers_dx12
         /// Helper struct storing the instance data
         struct Instance
         {
-            Instance(ID3D12Resource* blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId, BYTE mask,
+            Instance(D3D12_GPU_VIRTUAL_ADDRESS blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId, BYTE mask,
                      D3D12_RAYTRACING_INSTANCE_FLAGS f);
             /// Bottom-level AS
-            Microsoft::WRL::ComPtr<ID3D12Resource> bottomLevelAS;
+            D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS;
             /// Transform matrix
             const DirectX::XMFLOAT4X4& transform;
             /// Instance ID visible in the shader

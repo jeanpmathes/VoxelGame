@@ -165,10 +165,10 @@ namespace nv_helpers_dx12
 
     void BottomLevelASGenerator::Generate(
         ID3D12GraphicsCommandList4* commandList,
-        ID3D12Resource* scratchBuffer,
-        ID3D12Resource* resultBuffer,
+        D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
+        D3D12_GPU_VIRTUAL_ADDRESS resultBuffer,
         const bool updateOnly,
-        ID3D12Resource* previousResult
+        D3D12_GPU_VIRTUAL_ADDRESS previousResult
     ) const
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
@@ -190,7 +190,7 @@ namespace nv_helpers_dx12
             throw std::logic_error(
                 "Cannot update a bottom-level AS not originally built for updates");
         }
-        if (updateOnly && previousResult == nullptr)
+        if (updateOnly && previousResult == 0)
         {
             throw std::logic_error(
                 "Bottom-level hierarchy update requires the previous hierarchy");
@@ -208,27 +208,12 @@ namespace nv_helpers_dx12
         buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
         buildDesc.Inputs.NumDescs = static_cast<UINT>(m_vertexBuffers.size());
         buildDesc.Inputs.pGeometryDescs = m_vertexBuffers.data();
-        buildDesc.DestAccelerationStructureData = {
-            resultBuffer->GetGPUVirtualAddress()
-        };
-        buildDesc.ScratchAccelerationStructureData = {
-            scratchBuffer->GetGPUVirtualAddress()
-        };
-        buildDesc.SourceAccelerationStructureData =
-            previousResult ? previousResult->GetGPUVirtualAddress() : 0;
+        buildDesc.DestAccelerationStructureData = resultBuffer;
+        buildDesc.ScratchAccelerationStructureData = scratchBuffer;
+        buildDesc.SourceAccelerationStructureData = previousResult;
         buildDesc.Inputs.Flags = flags;
 
         // Build the AS
         commandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
-
-        // Wait for the builder to complete by setting a barrier on the resulting
-        // buffer. This is particularly important as the construction of the top-level
-        // hierarchy may be called right afterwards, before executing the command
-        // list.
-        D3D12_RESOURCE_BARRIER uavBarrier;
-        uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        uavBarrier.UAV.pResource = resultBuffer;
-        uavBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        commandList->ResourceBarrier(1, &uavBarrier);
     }
 } // namespace nv_helpers_dx12

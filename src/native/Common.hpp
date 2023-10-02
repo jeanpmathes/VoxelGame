@@ -18,16 +18,6 @@ struct Resolution
 bool operator==(const Resolution& lhs, const Resolution& rhs);
 bool operator!=(const Resolution& lhs, const Resolution& rhs);
 
-/**
- * All resources required to build an acceleration structure.
- */
-struct AccelerationStructureBuffers
-{
-    Allocation<ID3D12Resource> scratch;
-    Allocation<ID3D12Resource> result;
-    Allocation<ID3D12Resource> instanceDescription;
-};
-
 inline constexpr UINT FRAME_COUNT = 2;
 
 /**

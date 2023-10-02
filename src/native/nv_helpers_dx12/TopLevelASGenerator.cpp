@@ -57,7 +57,7 @@ buffer needs to be kept until the command list execution is finished.
 namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::AddInstance(
-        ID3D12Resource* bottomLevelAS,
+        D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS,
         const DirectX::XMFLOAT4X4& transform,
         UINT instanceID,
         UINT hitGroupIndex,
@@ -165,7 +165,7 @@ namespace nv_helpers_dx12
             DirectX::XMMATRIX m = XMMatrixTranspose(instance);
             memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
             // Get access to the bottom level
-            instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS->GetGPUVirtualAddress();
+            instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS;
             // Visibility mask.
             instanceDescription[i].InstanceMask = m_instances[i].inclusionMask;
         }
@@ -226,7 +226,7 @@ namespace nv_helpers_dx12
     }
 
     TopLevelASGenerator::Instance::Instance(
-        ID3D12Resource* blAS,
+        D3D12_GPU_VIRTUAL_ADDRESS blAS,
         const DirectX::XMFLOAT4X4& tr,
         UINT iID,
         UINT hgId,
