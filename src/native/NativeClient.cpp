@@ -213,7 +213,7 @@ void NativeClient::LoadRasterPipeline()
     m_uploader->UploadBuffer(reinterpret_cast<const std::byte*>(&quadVertices), vertexBufferSize,
                              m_postVertexBuffer);
 
-    m_postVertexBufferView.BufferLocation = m_postVertexBuffer.resource->GetGPUVirtualAddress();
+    m_postVertexBufferView.BufferLocation = m_postVertexBuffer.GetGPUVirtualAddress();
     m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
     m_postVertexBufferView.SizeInBytes = vertexBufferSize;
 

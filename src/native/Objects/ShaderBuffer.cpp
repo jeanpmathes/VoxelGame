@@ -10,7 +10,7 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, const UINT size)
     REQUIRE(alignedSize <= UINT_MAX);
     m_size = static_cast<UINT>(alignedSize);
 
-    m_cbvDesc.BufferLocation = m_constantBuffer.resource->GetGPUVirtualAddress();
+    m_cbvDesc.BufferLocation = m_constantBuffer.GetGPUVirtualAddress();
     m_cbvDesc.SizeInBytes = m_size;
 }
 
@@ -27,5 +27,5 @@ void ShaderBuffer::SetData(const void* data) const
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const
 {
-    return m_constantBuffer.resource->GetGPUVirtualAddress();
+    return m_constantBuffer.GetGPUVirtualAddress();
 }

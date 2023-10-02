@@ -13,7 +13,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const C
             m_client, &alignedSize);
 
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-        cbvDesc.BufferLocation = booleanConstantBuffer.resource->GetGPUVirtualAddress();
+        cbvDesc.BufferLocation = booleanConstantBuffer.GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = static_cast<UINT>(alignedSize);
 
         NAME_D3D12_OBJECT(booleanConstantBuffer);
@@ -101,7 +101,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
             D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-            vertexBufferView.BufferLocation = ctx->m_vertexBuffer.resource->GetGPUVirtualAddress();
+            vertexBufferView.BufferLocation = ctx->m_vertexBuffer.GetGPUVirtualAddress();
             vertexBufferView.StrideInBytes = sizeof(Vertex);
             vertexBufferView.SizeInBytes = vertexBufferSize;
 

@@ -175,7 +175,7 @@ void Space::DispatchRays()
 
     GetCommandList()->SetComputeRootConstantBufferView(0, m_camera.GetCameraBufferAddress());
     GetCommandList()->SetComputeRootConstantBufferView(
-        1, m_globalConstantBuffer.resource->GetGPUVirtualAddress());
+        1, m_globalConstantBuffer.GetGPUVirtualAddress());
     GetCommandList()->SetComputeRootDescriptorTable(2, m_globalShaderResourceHeap.GetDescriptorHandleGPU());
     GetCommandList()->SetComputeRootDescriptorTable(3, m_instanceDataHeap);
     GetCommandList()->SetComputeRootDescriptorTable(4, m_geometryDataHeap);
@@ -183,18 +183,18 @@ void Space::DispatchRays()
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
     desc.RayGenerationShaderRecord.StartAddress
-        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        = m_sbtStorage.GetGPUVirtualAddress()
         + m_sbtHelper.GetRayGenSectionOffset();
     desc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
 
     desc.MissShaderTable.StartAddress
-        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        = m_sbtStorage.GetGPUVirtualAddress()
         + m_sbtHelper.GetMissSectionOffset();
     desc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
     desc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
 
     desc.HitGroupTable.StartAddress
-        = m_sbtStorage.resource->GetGPUVirtualAddress()
+        = m_sbtStorage.GetGPUVirtualAddress()
         + m_sbtHelper.GetHitGroupSectionOffset();
     desc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
     desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
@@ -732,7 +732,7 @@ void Space::CreateShaderBindingTable()
 
     for (const auto& material : m_materials)
     {
-        auto* materialCB = reinterpret_cast<void*>(material->materialConstantBuffer.resource->GetGPUVirtualAddress());
+        auto* materialCB = reinterpret_cast<void*>(material->materialConstantBuffer.GetGPUVirtualAddress());
         m_sbtHelper.AddHitGroup(material->normalHitGroup, {materialCB});
         m_sbtHelper.AddHitGroup(material->shadowHitGroup, {materialCB});
     }

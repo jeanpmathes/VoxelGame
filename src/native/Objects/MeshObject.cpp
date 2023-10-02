@@ -10,7 +10,7 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
     m_instanceDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceDataBuffer);
 
-    m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.resource->GetGPUVirtualAddress();
+    m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.GetGPUVirtualAddress();
     m_instanceDataBufferView.SizeInBytes = static_cast<UINT>(m_instanceDataBufferAlignedSize);
 
     TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping));

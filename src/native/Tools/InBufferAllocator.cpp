@@ -108,7 +108,7 @@ std::optional<AddressableBuffer> InBufferAllocator::Block::Allocate(const D3D12M
     {
         std::cout << "Allocated " << description->Size << " bytes at offset " << offset << " in block " << m_index <<
             std::endl;
-        return AddressableBuffer(memory.resource->GetGPUVirtualAddress() + offset, allocation, this);
+        return AddressableBuffer(memory.GetGPUVirtualAddress() + offset, allocation, this);
     }
 
     m_limit = description->Size;
@@ -140,7 +140,7 @@ InBufferAllocator::Block::Block(
 
 AddressableBuffer::AddressableBuffer(Allocation<ID3D12Resource>&& resource)
 {
-    m_address = resource.resource->GetGPUVirtualAddress();
+    m_address = resource.GetGPUVirtualAddress();
     m_resource = std::move(resource);
 }
 

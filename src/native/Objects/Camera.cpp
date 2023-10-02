@@ -63,5 +63,5 @@ void Camera::SetPlanes(const float nearDistance, const float farDistance)
 
 D3D12_GPU_VIRTUAL_ADDRESS Camera::GetCameraBufferAddress() const
 {
-    return m_spaceCameraBuffer.resource->GetGPUVirtualAddress();
+    return m_spaceCameraBuffer.GetGPUVirtualAddress();
 }

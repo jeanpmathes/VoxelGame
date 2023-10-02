@@ -99,6 +99,13 @@ struct Allocation
         *mapping = Mapping<R, S>(*this, &result);
         return result;
     }
+
+    template <typename = std::nullopt_t>
+        requires std::is_same_v<R, ID3D12Resource>
+    [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const
+    {
+        return resource->GetGPUVirtualAddress();
+    }
 };
 
 template <typename T>
