@@ -106,8 +106,6 @@ std::optional<AddressableBuffer> InBufferAllocator::Block::Allocate(const D3D12M
 
     if (const HRESULT hr = block->Allocate(description, &allocation, &offset); SUCCEEDED(hr))
     {
-        std::cout << "Allocated " << description->Size << " bytes at offset " << offset << " in block " << m_index <<
-            std::endl;
         return AddressableBuffer(memory.GetGPUVirtualAddress() + offset, allocation, this);
     }
 

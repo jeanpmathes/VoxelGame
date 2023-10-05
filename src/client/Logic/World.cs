@@ -183,18 +183,16 @@ public class World : Core.Logic.World
     /// <inheritdoc />
     protected override ChunkState ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
     {
-        if (activatedChunk.IsFullyDecorated)
-        {
-            foreach (BlockSide side in BlockSide.All.Sides())
-                if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
-                    neighbor.Cast().BeginMeshing();
-
-            return new Chunk.Meshing();
-        }
-
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
-        return decoration ?? new Core.Logic.Chunk.Hidden();
+        if (decoration != null) return decoration;
+        if (!activatedChunk.IsFullyDecorated) return new Core.Logic.Chunk.Hidden();
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+            if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
+                neighbor.Cast().BeginMeshing();
+
+        return new Chunk.Meshing();
     }
 
     /// <inheritdoc />

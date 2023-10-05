@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -587,36 +588,29 @@ public partial class Chunk : IDisposable
     /// <returns>The next state, if the chunk needs decoration.</returns>
     public ChunkState? ProcessDecorationOption()
     {
-        if (IsFullyDecorated) return null;
+        if (!CanAcquireCore(Access.Write)) return null;
+
+        bool allAvailableChunksAreFullyDecorated = IsFullyDecorated;
+        Neighborhood<Chunk?> available = FindAvailableNeighbors(ref allAvailableChunksAreFullyDecorated);
+
+        if (allAvailableChunksAreFullyDecorated) return null;
+
+        var isAnyDecorationPossible = false;
+        Neighborhood<bool> needed = FindNeededNeighbors(available, ref isAnyDecorationPossible);
+
+        if (!isAnyDecorationPossible) return null;
 
         Guard? access = AcquireCore(Access.Write);
 
         if (access == null) return null;
 
-        Vector3i center = (1, 1, 1);
-
-        Neighborhood<bool> available = FindAvailableNeighbors();
-
-        var needed = new Neighborhood<bool>();
-
-        bool isAnyDecorationPossible = CheckCornerDecorations(available, needed);
-
-        if (!isAnyDecorationPossible)
-        {
-            access.Dispose();
-
-            return null;
-        }
-
         var neighbors = new Neighborhood<(Chunk, Guard)?>();
 
         foreach ((int x, int y, int z) in Neighborhood.Indices)
         {
-            if ((x, y, z) == center || !needed[x, y, z]) continue;
+            if ((x, y, z) == Neighborhood.Center || !needed[x, y, z]) continue;
 
-            Debug.Assert(available[x, y, z]);
-
-            Chunk? chunk = World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) ? neighbor : null;
+            Chunk? chunk = available[x, y, z];
             Debug.Assert(chunk != null);
 
             Guard? guard = chunk.AcquireCore(Access.Write);
@@ -628,66 +622,85 @@ public partial class Chunk : IDisposable
         return new Decorating(access, neighbors);
     }
 
-    private bool CheckCornerDecorations(Array3D<bool> available, Array3D<bool> needed)
+    private Neighborhood<bool> FindNeededNeighbors(Array3D<Chunk?> available, ref bool isAnyDecorationPossible)
     {
-        var isAnyDecorationPossible = false;
+        Neighborhood<bool> needed = new();
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
+        foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
         {
-            if (decoration.HasFlag(GetFlagForCorner(x, y, z))) continue;
+            if (decoration.HasFlag(GetFlagForCorner(corner))) continue;
 
             var isCornerAvailable = true;
 
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
-            {
-                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                isCornerAvailable &= available.GetAt(neededNeighbor);
-            }
+            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
+                isCornerAvailable &= available.GetAt(corner + offset) != null;
 
             if (!isCornerAvailable) continue;
 
             isAnyDecorationPossible = true;
 
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
-            {
-                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                needed.SetAt(neededNeighbor, value: true);
-            }
+            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
+                needed.SetAt(corner + offset, value: true);
         }
 
-        return isAnyDecorationPossible;
+        return needed;
     }
 
-    private Neighborhood<bool> FindAvailableNeighbors()
+    private static bool IsCornerDecorated(Vector3i corner, Array3D<Chunk?> chunks)
     {
-        Vector3i center = (1, 1, 1);
+        var decorated = false;
 
-        var available = new Neighborhood<bool>();
+        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
+            // Use true as default because chunks that do not exist are considered decorated for the purpose of this method.
+            // This is because chunks that do not exist could not be used for decoration anyway.
+            decorated &= chunks.GetAt(position)?.decoration.HasFlag(flag) ?? true;
+
+        return decorated;
+    }
+
+    private Neighborhood<Chunk?> FindAvailableNeighbors(ref bool isFullyDecorated)
+    {
+        var available = new Neighborhood<Chunk?>();
 
         foreach ((int x, int y, int z) in Neighborhood.Indices)
-            available[x, y, z] = (x, y, z) == center
-                                 || (World.TryGetChunk(Position.Offset((x, y, z) - center), out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write));
+            if ((x, y, z) == Neighborhood.Center)
+            {
+                available[x, y, z] = this;
+            }
+            else
+            {
+                bool neighborExists = World.TryGetChunk(Position.Offset((x, y, z) - Neighborhood.Center), out Chunk? neighbor);
+
+                if (neighborExists)
+                {
+                    Debug.Assert(neighbor != null);
+
+                    isFullyDecorated &= neighbor.IsFullyDecorated;
+                    available[x, y, z] = neighbor.CanAcquireCore(Access.Write) ? neighbor : null;
+                }
+                else
+                {
+                    available[x, y, z] = null;
+                }
+            }
 
         return available;
     }
 
-    private void Decorate(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
+    private static void Decorate(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
-        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2))
+        foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
         {
-            if (decoration.HasFlag(GetFlagForCorner(x, y, z))) continue;
+            if (IsCornerDecorated(corner, neighbors)) continue;
 
             var isCornerAvailable = true;
 
-            foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
-            {
-                Vector3i neededNeighbor = (x + dx, y + dy, z + dz);
-                isCornerAvailable &= neighbors.GetAt(neededNeighbor) != null;
-            }
+            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
+                isCornerAvailable &= neighbors.GetAt(corner + offset) != null;
 
             if (!isCornerAvailable) continue;
 
-            DecorateCorner(generator, neighbors, x, y, z);
+            DecorateCorner(generator, neighbors, corner);
         }
     }
 
@@ -699,6 +712,8 @@ public partial class Chunk : IDisposable
     /// <returns>The task that decorates the chunk.</returns>
     public Task DecorateAsync(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
+        Debug.Assert(ReferenceEquals(neighbors.Center, this));
+
         return Task.Run(() => Decorate(generator, neighbors));
     }
 
@@ -725,9 +740,9 @@ public partial class Chunk : IDisposable
         foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
     }
 
-    private static DecorationLevels GetFlagForCorner(int x, int y, int z)
+    private static DecorationLevels GetFlagForCorner(Vector3i corner)
     {
-        return (x, y, z) switch
+        return (corner.X, corner.Y, corner.Z) switch
         {
             (0, 0, 0) => DecorationLevels.Corner000,
             (0, 0, 1) => DecorationLevels.Corner001,
@@ -737,63 +752,73 @@ public partial class Chunk : IDisposable
             (1, 0, 1) => DecorationLevels.Corner101,
             (1, 1, 0) => DecorationLevels.Corner110,
             (1, 1, 1) => DecorationLevels.Corner111,
-            _ => throw new ArgumentOutOfRangeException(nameof(x), x, message: null)
+            _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, message: null)
         };
     }
 
-    #pragma warning disable S3242 // Type carries semantic meaning.
-    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, int x, int y, int z)
-    #pragma warning restore S3242
+    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, Vector3i corner)
     {
-        Vector3i center = (1, 1, 1);
+        Neighborhood<bool> decorated = new();
 
-        Debug.Assert(!chunks[center.X, center.Y, center.Z]!.decoration.HasFlag(GetFlagForCorner(x, y, z)));
-
-        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 2, y: 2, z: 2))
+        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
         {
-            Vector3i position = (x + dx, y + dy, z + dz);
-
             Chunk? chunk = chunks.GetAt(position);
             Debug.Assert(chunk != null);
 
-            chunk.decoration |= GetFlagForCorner(center.X - dx, center.Y - dy, center.Z - dz);
+            decorated.SetAt(position, chunk.decoration.HasFlag(flag));
+            chunk.decoration |= flag;
         }
 
         // Go trough all sections on the selected corner.
         // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
         // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
-        ChunkPosition first = chunks[x: 1, y: 1, z: 1]!.Position.Offset(x: -1, y: -1, z: -1);
+        ChunkPosition first = chunks.Center!.Position.Offset(x: -1, y: -1, z: -1);
 
         Section GetSection(SectionPosition sectionPosition)
         {
             Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
 
-            return chunks[offset.X, offset.Y, offset.Z]!.GetSection(sectionPosition);
+            return chunks.GetAt(offset)!.GetSection(sectionPosition);
         }
 
-        var neighbors = new Neighborhood<Section>();
-
-        void SetNeighbors(SectionPosition sectionPosition)
+        bool IsDecorated(SectionPosition sectionPosition)
         {
-            Debug.Assert(neighbors != null);
+            Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
+
+            return decorated.GetAt(offset);
+        }
+
+        Neighborhood<Section> GetNeighbors(SectionPosition sectionPosition)
+        {
+            Neighborhood<Section> neighbors = new();
+
             foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
+
+            return neighbors;
         }
 
         void DecorateSection(SectionPosition sectionPosition)
         {
-            SetNeighbors(sectionPosition);
+            Neighborhood<Section> neighbors = GetNeighbors(sectionPosition);
             generator.DecorateSection(sectionPosition, neighbors);
         }
 
-        SectionPosition lowCorner = SectionPosition.From(chunks[x, y, z]!.Position, (Size - 2, Size - 2, Size - 2));
+        SectionPosition lowCorner = SectionPosition.From(chunks.GetAt(corner)!.Position, (Size - 2, Size - 2, Size - 2));
 
         foreach ((int dx, int dy, int dz) in VMath.Range3(x: 4, y: 4, z: 4))
         {
             if (IsCorner(dx, dy, dz)) continue;
+            if (IsDecorated(lowCorner.Offset(dx, dy, dz))) continue;
 
             DecorateSection(lowCorner.Offset(dx, dy, dz));
         }
+    }
+
+    private static IEnumerable<(Vector3i, DecorationLevels)> GetCornerPositions(Vector3i corner)
+    {
+        foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
+            yield return (corner + offset, GetFlagForCorner(Neighborhood.Center - offset));
     }
 
     private static bool IsCorner(int dx, int dy, int dz)
@@ -842,6 +867,7 @@ public partial class Chunk : IDisposable
 
     /// <summary>
     ///     Called when a neighbor chunk was activated.
+    ///     Note that this method is called only on the six direct neighbors and not on the diagonal neighbors.
     /// </summary>
     protected virtual void OnNeighborActivation(Chunk neighbor) {}
 

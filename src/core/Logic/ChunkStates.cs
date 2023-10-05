@@ -223,7 +223,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnEnter()
         {
-            chunks[x: 1, y: 1, z: 1] = Chunk;
+            chunks.Center = Chunk;
         }
 
         /// <inheritdoc />
