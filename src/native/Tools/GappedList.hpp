@@ -52,15 +52,18 @@ public:
     /**
      * Remove an element from the list.
      */
-    void Pop(size_t index)
+    E Pop(size_t index)
     {
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 
+        auto element = std::move(m_elements[index]);
         m_elements[index] = nullptr;
+        
         m_gaps.push(index);
-
         m_size--;
+
+        return element;
     }
 
     [[nodiscard]] size_t GetCount() const

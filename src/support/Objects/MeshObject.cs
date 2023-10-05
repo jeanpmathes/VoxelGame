@@ -58,9 +58,9 @@ public class MeshObject : SpatialObject
     /// <summary>
     ///     Frees the native object.
     /// </summary>
-    public void Free()
+    public void Return()
     {
         Deregister();
-        Native.FreeMeshObject(this);
+        Native.ReturnMeshObject(this);
     }
 }

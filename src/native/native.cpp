@@ -237,13 +237,13 @@ NATIVE MeshObject* NativeCreateMeshObject(const NativeClient* client, const UINT
     CATCH();
 }
 
-NATIVE void NativeFreeMeshObject(MeshObject* object)
+NATIVE void NativeReturnMeshObject(MeshObject* object)
 {
     TRY
     {
         REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
 
-        object->Free();
+        object->Return();
     }
     CATCH();
 }

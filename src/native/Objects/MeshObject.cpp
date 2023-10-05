@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
 #include "MeshObject.hpp"
 
-MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
-    : SpatialObject(client), m_material(client.GetSpace()->GetMaterial(materialIndex))
+MeshObject::MeshObject(NativeClient& client)
+    : SpatialObject(client)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
@@ -14,7 +14,12 @@ MeshObject::MeshObject(NativeClient& client, const UINT materialIndex)
     m_instanceDataBufferView.SizeInBytes = static_cast<UINT>(m_instanceDataBufferAlignedSize);
 
     TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping));
+}
 
+void MeshObject::Initialize(UINT materialIndex)
+{
+    m_material = &GetClient().GetSpace()->GetMaterial(materialIndex);
+    
     Update();
 }
 
@@ -45,7 +50,7 @@ void MeshObject::SetEnabledState(const bool enabled)
 void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertexCount)
 {
     REQUIRE(!m_uploadEnqueued);
-    REQUIRE(m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
+    REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
 
     const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
 
@@ -75,7 +80,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
 void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCount)
 {
     REQUIRE(!m_uploadEnqueued);
-    REQUIRE(m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
+    REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
 
     const auto vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
 
@@ -109,7 +114,8 @@ std::optional<size_t> MeshObject::GetActiveIndex() const
 
 const Material& MeshObject::GetMaterial() const
 {
-    return m_material;
+    REQUIRE(m_material != nullptr);
+    return *m_material;
 }
 
 void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
@@ -142,7 +148,7 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
     };
     commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
 
-    if (m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
     {
         std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(m_geometryElementCount);
     }
@@ -180,14 +186,14 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std:
         return;
     }
 
-    if (m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
     {
         m_blas = CreateBottomLevelASFromVertices(commandList,
                                                  {{m_geometryBuffer, m_geometryElementCount}},
                                                  {{m_usedIndexBuffer, m_usedIndexCount}});
     }
 
-    if (m_material.geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
     {
         m_blas = CreateBottomLevelASFromBounds(commandList,
                                                {{m_geometryBuffer, m_geometryElementCount}});
@@ -208,13 +214,41 @@ void MeshObject::AssociateWithHandle(Handle handle)
     m_handle = handle;
 }
 
-void MeshObject::Free()
+void MeshObject::Return()
 {
     REQUIRE(!m_uploadEnqueued);
     REQUIRE(m_handle.has_value());
 
     SetEnabledState(false);
-    GetClient().GetSpace()->FreeMeshObject(m_handle.value());
+
+    const auto handle = m_handle.value();
+
+    {
+        m_material = nullptr;
+
+        // Instance buffer is intentionally not reset, because it is reused.
+
+        m_geometryBuffer = {};
+        m_geometryBufferUpload = {};
+        m_geometryBufferView = {};
+        m_geometryElementCount = 0;
+
+        m_usedIndexBuffer = {};
+        m_usedIndexCount = 0;
+
+        m_blas = {};
+
+        m_handle = std::nullopt;
+        m_active = std::nullopt;
+        m_enabled = true;
+
+        m_uploadRequired = false;
+        m_uploadEnqueued = false;
+    }
+
+    GetClient().GetSpace()->ReturnMeshObject(handle);
+
+    // No code here, because space is allowed to delete this object.
 }
 
 BLAS MeshObject::CreateBottomLevelASFromVertices(
@@ -230,7 +264,7 @@ BLAS MeshObject::CreateBottomLevelASFromVertices(
         auto& [vertexBuffer, vertexCount] = vertexBuffers[index];
         auto& [indexBuffer, indexCount] = indexBuffers[index];
 
-        const bool isOpaque = m_material.isOpaque;
+        const bool isOpaque = GetMaterial().isOpaque;
         
         bottomLevelAS.AddVertexBuffer(
             vertexBuffer.Get(), 0, vertexCount,

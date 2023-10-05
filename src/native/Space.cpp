@@ -69,15 +69,27 @@ bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
     return true;
 }
 
-MeshObject& Space::CreateMeshObject(UINT materialIndex)
+MeshObject& Space::CreateMeshObject(const UINT materialIndex)
 {
-    auto object = std::make_unique<MeshObject>(m_nativeClient, materialIndex);
-    auto& indexedMeshObject = *object;
+    std::unique_ptr<MeshObject> stored;
 
-    const size_t index = m_meshes.Push(std::move(object));
-    indexedMeshObject.AssociateWithHandle(static_cast<MeshObject::Handle>(index));
+    if (m_meshPool.empty())
+    {
+        stored = std::make_unique<MeshObject>(m_nativeClient);
+    }
+    else
+    {
+        stored = std::move(m_meshPool.back());
+        m_meshPool.pop_back();
+    }
 
-    return indexedMeshObject;
+    auto& object = *stored;
+    object.Initialize(materialIndex);
+
+    const size_t index = m_meshes.Push(std::move(stored));
+    object.AssociateWithHandle(static_cast<MeshObject::Handle>(index));
+
+    return object;
 }
 
 void Space::MarkMeshObjectModified(MeshObject::Handle handle)
@@ -103,12 +115,9 @@ void Space::DeactivateMeshObject(const size_t index)
     m_activatedMeshes.erase(index);
 }
 
-void Space::FreeMeshObject(const MeshObject::Handle handle)
+void Space::ReturnMeshObject(const MeshObject::Handle handle)
 {
-    const auto index = static_cast<size_t>(handle);
-    REQUIRE(!m_meshes[index]->GetActiveIndex());
-    
-    m_meshes.Pop(static_cast<size_t>(handle));
+    m_meshPool.push_back(m_meshes.Pop(static_cast<size_t>(handle)));
 }
 
 const Material& Space::GetMaterial(const UINT index) const

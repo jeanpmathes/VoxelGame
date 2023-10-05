@@ -21,22 +21,20 @@ public sealed class SectionRenderer : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 
-    private readonly (MeshObject opaque, MeshObject transparent) basic;
-    private readonly MeshObject foliage;
-    private readonly MeshObject fluid;
+    private readonly Space space;
+    private readonly Vector3d position;
+
+    private (MeshObject? opaque, MeshObject? transparent) basic;
+    private MeshObject? foliage;
+    private MeshObject? fluid;
 
     /// <summary>
     ///     Creates a new <see cref="SectionRenderer" />.
     /// </summary>
     public SectionRenderer(Space space, Vector3d position)
     {
-        basic = (
-            space.CreateMeshObject(Shaders.BasicOpaqueSectionMaterial, position),
-            space.CreateMeshObject(Shaders.BasicTransparentSectionMaterial, position)
-        );
-
-        foliage = space.CreateMeshObject(Shaders.FoliageSectionMaterial, position);
-        fluid = space.CreateMeshObject(Shaders.FluidSectionMaterial, position);
+        this.space = space;
+        this.position = position;
     }
 
     private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
@@ -49,11 +47,29 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        basic.opaque.SetVertices(meshData.BasicMesh.opaque.AsSpan());
-        basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
+        if (meshData.BasicMesh.opaque.Count > 0 || basic.opaque != null)
+        {
+            basic.opaque ??= space.CreateMeshObject(Shaders.BasicOpaqueSectionMaterial, position);
+            basic.opaque.SetVertices(meshData.BasicMesh.opaque.AsSpan());
+        }
 
-        foliage.SetVertices(meshData.FoliageMesh.AsSpan());
-        fluid.SetVertices(meshData.FluidMesh.AsSpan());
+        if (meshData.BasicMesh.transparent.Count > 0 || basic.transparent != null)
+        {
+            basic.transparent ??= space.CreateMeshObject(Shaders.BasicTransparentSectionMaterial, position);
+            basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
+        }
+
+        if (meshData.FoliageMesh.Count > 0 || foliage != null)
+        {
+            foliage ??= space.CreateMeshObject(Shaders.FoliageSectionMaterial, position);
+            foliage.SetVertices(meshData.FoliageMesh.AsSpan());
+        }
+
+        if (meshData.FluidMesh.Count > 0 || fluid != null)
+        {
+            fluid ??= space.CreateMeshObject(Shaders.FluidSectionMaterial, position);
+            fluid.SetVertices(meshData.FluidMesh.AsSpan());
+        }
 
         meshData.ReturnPooled();
     }
@@ -65,11 +81,17 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        basic.opaque.IsEnabled = enabled;
-        basic.transparent.IsEnabled = enabled;
+        if (basic.opaque != null)
+            basic.opaque.IsEnabled = enabled;
 
-        foliage.IsEnabled = enabled;
-        fluid.IsEnabled = enabled;
+        if (basic.transparent != null)
+            basic.transparent.IsEnabled = enabled;
+
+        if (foliage != null)
+            foliage.IsEnabled = enabled;
+
+        if (fluid != null)
+            fluid.IsEnabled = enabled;
     }
 
     #region IDisposable Support
@@ -83,11 +105,11 @@ public sealed class SectionRenderer : IDisposable
 
         if (disposing)
         {
-            basic.opaque.Free();
-            basic.transparent.Free();
+            basic.opaque?.Return();
+            basic.transparent?.Return();
 
-            foliage.Free();
-            fluid.Free();
+            foliage?.Return();
+            fluid?.Return();
         }
         else
             logger.LogWarning(

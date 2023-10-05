@@ -129,9 +129,9 @@ public:
      */
     void DeactivateMeshObject(size_t index);
     /**
-     * Free a mesh object.
+     * Return a mesh object.
      */
-    void FreeMeshObject(MeshObject::Handle handle);
+    void ReturnMeshObject(MeshObject::Handle handle);
 
     [[nodiscard]] const Material& GetMaterial(UINT index) const;
 
@@ -270,6 +270,7 @@ private:
     InBufferAllocator m_scratchBufferAllocator;
     
     GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
+    std::vector<std::unique_ptr<MeshObject>> m_meshPool = {};
     std::set<MeshObject::Handle> m_modifiedMeshes = {};
     GappedList<MeshObject*> m_activeMeshes = {};
     std::set<size_t> m_activatedMeshes = {};

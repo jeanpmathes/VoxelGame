@@ -41,7 +41,8 @@ class MeshObject final : public SpatialObject
     DECLARE_OBJECT_SUBCLASS(MeshObject)
 
 public:
-    explicit MeshObject(NativeClient& client, UINT materialIndex);
+    explicit MeshObject(NativeClient& client);
+    void Initialize(UINT materialIndex);
 
     enum class Handle : size_t
     {
@@ -82,9 +83,9 @@ public:
     void AssociateWithHandle(Handle handle);
 
     /**
-     * Free this object.
+     * Return this object to the space. This will allow the space to reuse the object later.
      */
-    void Free();
+    void Return();
 
 protected:
     [[nodiscard]] BLAS
@@ -101,8 +102,8 @@ protected:
 private:
     void UpdateActiveState();
     void UpdateGeometryBufferView(UINT stride);
-    
-    const Material& m_material;
+
+    const Material* m_material = nullptr;
 
     Allocation<ID3D12Resource> m_instanceDataBuffer = {};
     UINT64 m_instanceDataBufferAlignedSize = 0;

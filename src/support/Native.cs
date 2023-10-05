@@ -325,15 +325,16 @@ public static class Native
     }
 
     /// <summary>
-    ///     Free a mesh object.
+    ///     Return a mesh object to the space pool.
+    ///     Using the mesh object after this call is not allowed.
     /// </summary>
-    /// <param name="meshObject">The mesh object to delete.</param>
-    public static void FreeMeshObject(MeshObject meshObject)
+    /// <param name="meshObject">The mesh object to return.</param>
+    public static void ReturnMeshObject(MeshObject meshObject)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeFreeMeshObject(IntPtr native);
+        static extern void NativeReturnMeshObject(IntPtr native);
 
-        NativeFreeMeshObject(meshObject.Self);
+        NativeReturnMeshObject(meshObject.Self);
     }
 
     /// <summary>
