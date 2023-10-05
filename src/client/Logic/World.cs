@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,7 +32,7 @@ public class World : Core.Logic.World
 
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
-    private static readonly int minLoadedChunks = VMath.Cube(Player.LoadDistance * 2 + 1);
+    private static readonly int minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
 
     private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
 
@@ -132,7 +133,7 @@ public class World : Core.Logic.World
 
         void HandleActivating()
         {
-            if (ActiveChunkCount < minLoadedChunks) return;
+            if (ActiveChunkCount < minLoadedChunksAtStart) return;
 
             readyStopwatch.Stop();
             double readyTime = readyStopwatch.Elapsed.TotalSeconds;

@@ -622,13 +622,15 @@ public partial class Chunk : IDisposable
         return new Decorating(access, neighbors);
     }
 
-    private Neighborhood<bool> FindNeededNeighbors(Array3D<Chunk?> available, ref bool isAnyDecorationPossible)
+    private static Neighborhood<bool> FindNeededNeighbors(Neighborhood<Chunk?> available, ref bool isAnyDecorationPossible)
     {
+        Debug.Assert(available.Center != null);
+
         Neighborhood<bool> needed = new();
 
         foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
         {
-            if (decoration.HasFlag(GetFlagForCorner(corner))) continue;
+            if (IsCornerDecorated(corner, available)) continue;
 
             var isCornerAvailable = true;
 
@@ -648,7 +650,7 @@ public partial class Chunk : IDisposable
 
     private static bool IsCornerDecorated(Vector3i corner, Array3D<Chunk?> chunks)
     {
-        var decorated = false;
+        var decorated = true;
 
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
             // Use true as default because chunks that do not exist are considered decorated for the purpose of this method.
@@ -695,8 +697,8 @@ public partial class Chunk : IDisposable
 
             var isCornerAvailable = true;
 
-            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
-                isCornerAvailable &= neighbors.GetAt(corner + offset) != null;
+            foreach ((Vector3i position, _) in GetCornerPositions(corner))
+                isCornerAvailable &= neighbors.GetAt(position) != null;
 
             if (!isCornerAvailable) continue;
 
@@ -813,6 +815,8 @@ public partial class Chunk : IDisposable
 
             DecorateSection(lowCorner.Offset(dx, dy, dz));
         }
+
+        Debug.Assert(IsCornerDecorated(corner, chunks));
     }
 
     private static IEnumerable<(Vector3i, DecorationLevels)> GetCornerPositions(Vector3i corner)
