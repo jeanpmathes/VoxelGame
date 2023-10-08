@@ -117,6 +117,7 @@ void Space::DeactivateMeshObject(const size_t index)
 
 void Space::ReturnMeshObject(const MeshObject::Handle handle)
 {
+    m_modifiedMeshes.erase(handle);
     m_meshPool.push_back(m_meshes.Pop(static_cast<size_t>(handle)));
 }
 

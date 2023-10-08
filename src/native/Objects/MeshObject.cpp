@@ -216,8 +216,8 @@ void MeshObject::AssociateWithHandle(Handle handle)
 
 void MeshObject::Return()
 {
-    REQUIRE(!m_uploadEnqueued);
     REQUIRE(m_handle.has_value());
+    REQUIRE(!m_uploadEnqueued);
 
     SetEnabledState(false);
 
