@@ -81,7 +81,8 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         context.GetFullBlockMeshFaceHolder(side, isOpaque).AddFace(
             position,
             data,
-            mesh.IsTextureRotated);
+            mesh.IsTextureRotated,
+            isSingleSided: true);
     }
 
     /// <summary>

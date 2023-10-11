@@ -30,12 +30,12 @@ public class MeshingContext
     private readonly Section current;
     private readonly Section?[] neighbors;
 
-    private readonly FullMeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
-    private readonly FullMeshFaceHolder[] transparentFullBlockMeshFaceHolders;
+    private readonly MeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
+    private readonly MeshFaceHolder[] transparentFullBlockMeshFaceHolders;
 
-    private readonly VaryingHeightMeshFaceHolder[] opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly VaryingHeightMeshFaceHolder[] transparentVaryingHeightBlockMeshFaceHolders;
-    private readonly VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders;
+    private readonly MeshFaceHolder[] opaqueVaryingHeightBlockMeshFaceHolders;
+    private readonly MeshFaceHolder[] transparentVaryingHeightBlockMeshFaceHolders;
+    private readonly MeshFaceHolder[] fluidMeshFaceHolders;
 
     private readonly (TintColor block, TintColor fluid)[,] tintColors;
 
@@ -53,13 +53,13 @@ public class MeshingContext
         neighbors = GetNeighborSections(position, context);
         tintColors = GetTintColors(position, context);
 
-        opaqueFullBlockMeshFaceHolders = CreateFullMeshFaceHolders();
-        transparentFullBlockMeshFaceHolders = CreateFullMeshFaceHolders();
+        opaqueFullBlockMeshFaceHolders = CreateMeshFaceHolders();
+        transparentFullBlockMeshFaceHolders = CreateMeshFaceHolders();
 
-        opaqueVaryingHeightBlockMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
-        transparentVaryingHeightBlockMeshFaceHolders = CreateVaryingHeightMeshFaceHolders();
+        opaqueVaryingHeightBlockMeshFaceHolders = CreateMeshFaceHolders();
+        transparentVaryingHeightBlockMeshFaceHolders = CreateMeshFaceHolders();
 
-        fluidMeshFaceHolders = CreateVaryingHeightMeshFaceHolders(inset: 0.001f);
+        fluidMeshFaceHolders = CreateMeshFaceHolders(inset: 0.001f);
     }
 
     /// <summary>
@@ -102,20 +102,11 @@ public class MeshingContext
         return colors;
     }
 
-    private static FullMeshFaceHolder[] CreateFullMeshFaceHolders()
+    private static MeshFaceHolder[] CreateMeshFaceHolders(float inset = 0.0f)
     {
-        var holders = new FullMeshFaceHolder[6];
+        var holders = new MeshFaceHolder[6];
 
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new FullMeshFaceHolder(side);
-
-        return holders;
-    }
-
-    private static VaryingHeightMeshFaceHolder[] CreateVaryingHeightMeshFaceHolders(float inset = 0.0f)
-    {
-        var holders = new VaryingHeightMeshFaceHolder[6];
-
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new VaryingHeightMeshFaceHolder(side, inset);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new MeshFaceHolder(side, inset);
 
         return holders;
     }
@@ -134,7 +125,7 @@ public class MeshingContext
     ///     Get the block mesh face holder for (full) blocks.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public FullMeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, bool isOpaque)
+    public MeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, bool isOpaque)
     {
         return isOpaque ? opaqueFullBlockMeshFaceHolders[(int) side] : transparentFullBlockMeshFaceHolders[(int) side];
     }
@@ -143,7 +134,7 @@ public class MeshingContext
     ///     Get the block mesh face holder for varying height faces, given a block side.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public VaryingHeightMeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, bool isOpaque)
+    public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, bool isOpaque)
     {
         return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[(int) side] : transparentVaryingHeightBlockMeshFaceHolders[(int) side];
     }
@@ -151,7 +142,7 @@ public class MeshingContext
     /// <summary>
     ///     Get the fluid mesh face holders for varying height faces.
     /// </summary>
-    public VaryingHeightMeshFaceHolder[] GetFluidMeshFaceHolders()
+    public MeshFaceHolder[] GetFluidMeshFaceHolders()
     {
         return fluidMeshFaceHolders;
     }
@@ -190,7 +181,7 @@ public class MeshingContext
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
-            result = block != null && fluid != null ? (block.Value, fluid.Value) : null;
+            result = neighbor != null ? (block!.Value, fluid!.Value) : null;
         }
 
         return result;
@@ -257,24 +248,13 @@ public class MeshingContext
         ReturnToPool(fluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(FullMeshFaceHolder[] holders, PooledList<SpatialVertex> mesh)
+    private static void GenerateMesh(MeshFaceHolder[] holders, PooledList<SpatialVertex> mesh)
     {
-        foreach (FullMeshFaceHolder holder in holders) holder.GenerateMesh(mesh);
+        foreach (MeshFaceHolder holder in holders) holder.GenerateMesh(mesh);
     }
 
-    private static void GenerateMesh(VaryingHeightMeshFaceHolder[] holders, PooledList<SpatialVertex> mesh)
+    private static void ReturnToPool(MeshFaceHolder[] holders)
     {
-        foreach (VaryingHeightMeshFaceHolder holder in holders)
-            holder.GenerateMesh(mesh);
-    }
-
-    private static void ReturnToPool(FullMeshFaceHolder[] holders)
-    {
-        foreach (FullMeshFaceHolder holder in holders) holder.ReturnToPool();
-    }
-
-    private static void ReturnToPool(VaryingHeightMeshFaceHolder[] holders)
-    {
-        foreach (VaryingHeightMeshFaceHolder holder in holders) holder.ReturnToPool();
+        foreach (MeshFaceHolder holder in holders) holder.ReturnToPool();
     }
 }

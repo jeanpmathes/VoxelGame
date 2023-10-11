@@ -109,8 +109,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
             height,
-            VaryingHeightMeshFaceHolder.NoSkip,
-            VaryingHeightMeshFaceHolder.DefaultDirection,
+            MeshFaceHolder.NoSkip,
+            MeshFaceHolder.DefaultDirection,
             data,
             isSingleSided: true,
             height == MaximumHeight);

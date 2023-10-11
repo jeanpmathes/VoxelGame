@@ -193,7 +193,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {IsFluidRendered: true} &&
                                                      (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
 
-        VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
+        MeshFaceHolder[] fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
         MeshFluidSide(BlockSide.Front);
         MeshFluidSide(BlockSide.Back);
