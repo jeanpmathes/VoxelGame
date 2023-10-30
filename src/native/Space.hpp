@@ -13,6 +13,7 @@
 #include "Objects/Camera.hpp"
 #include "Objects/Light.hpp"
 #include "Objects/MeshObject.hpp"
+#include "Tools/ShaderResources.hpp"
 
 class Texture;
 
@@ -195,22 +196,16 @@ private:
 
     void CreateGlobalConstBuffer();
     void UpdateGlobalConstBuffer();
-    void CreateShaderResourceHeap(const SpacePipeline& pipeline);
-    void InitializePipelineResourceHeap(const SpacePipeline& pipeline);
 
-    void UpdateGlobalShaderResourceHeap();
-    void UpdateGSRHeapSize();
-    void UpdateGSRHeapContents();
-    void UpdateGSRHeapBase() const;
-    std::pair<UINT, UINT> GetTextureSlotIndices(const MeshObject* mesh, UINT offset) const;
-    std::pair<UINT, UINT> GetTextureSlotIndices(UINT slot, UINT offset) const;
+    void InitializePipelineResourceViews(const SpacePipeline& pipeline);
     
     void UpdateOutputResourceView();
-    void UpdateAccelerationStructureView() const;
+    void UpdateAccelerationStructureView();
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
+    void SetupStaticResourceLayout(ShaderResources::Description* description);
+    void SetupDynamicResourceLayout(ShaderResources::Description* description);
     void CreateRaytracingOutputBuffer();
     
-    [[nodiscard]] ComPtr<ID3D12RootSignature> CreateGlobalRootSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMaterialSignature() const;
@@ -249,20 +244,22 @@ private:
 
     struct TextureSlot
     {
-        UINT size;
-        UINT offset;
+        UINT size = 0;
+        ShaderResources::Table::Entry entry = ShaderResources::Table::Entry::invalid;
     };
 
     Allocation<ID3D12Resource> m_sentinelTexture;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
-    TextureSlot m_textureSlot1 = {0, 0};
-    TextureSlot m_textureSlot2 = {0, 0};
+    TextureSlot m_textureSlot1 = {};
+    TextureSlot m_textureSlot2 = {};
 
-    DescriptorHeap m_commonPipelineResourceHeap;
-    DescriptorHeap m_globalShaderResourceHeap;
-    UINT m_globalShaderResourceHeapSlots = 0;
-    D3D12_GPU_DESCRIPTOR_HANDLE m_instanceDataHeap{};
-    D3D12_GPU_DESCRIPTOR_HANDLE m_geometryDataHeap{};
+    ShaderResources m_globalShaderResources;
+
+    ShaderResources::TableHandle m_commonResourceTable = ShaderResources::TableHandle::INVALID;
+    ShaderResources::Table::Entry m_outputTextureEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry m_bvhEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::ListHandle m_meshInstanceDataList = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle m_meshGeometryBufferList = ShaderResources::ListHandle::INVALID;
 
     TLAS m_topLevelASBuffers;
 

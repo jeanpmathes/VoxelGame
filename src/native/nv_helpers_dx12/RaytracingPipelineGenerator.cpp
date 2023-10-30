@@ -53,10 +53,8 @@ compiling in debug mode.
 
 namespace nv_helpers_dx12
 {
-    RayTracingPipelineGenerator::RayTracingPipelineGenerator(
-        Microsoft::WRL::ComPtr<ID3D12Device5> device,
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> globalRootSignature)
-        : m_device(std::move(device)), m_globalRootSignature(std::move(globalRootSignature))
+    RayTracingPipelineGenerator::RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device)
+        : m_device(std::move(device))
     {
         // The pipeline creation requires having at least one empty global and local root signatures, so
         // we systematically create both, as this does not incur any overhead
@@ -98,7 +96,8 @@ namespace nv_helpers_dx12
         m_maxRecursionDepth = maxDepth;
     }
 
-    Microsoft::WRL::ComPtr<ID3D12StateObject> RayTracingPipelineGenerator::Generate()
+    Microsoft::WRL::ComPtr<ID3D12StateObject> RayTracingPipelineGenerator::Generate(
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> globalRootSignature)
     {
         // The pipeline is made of a set of sub-objects, representing the DXIL libraries, hit group
         // declarations, root signature associations, plus some configuration objects
@@ -206,7 +205,7 @@ namespace nv_helpers_dx12
         // The pipeline construction always requires an empty global root signature
         D3D12_STATE_SUBOBJECT globalRootSig;
         globalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-        ID3D12RootSignature* dgSig = m_globalRootSignature.Get();
+        ID3D12RootSignature* dgSig = globalRootSignature.Get();
         globalRootSig.pDesc = &dgSig;
 
         subobjects[currentIndex++] = globalRootSig;

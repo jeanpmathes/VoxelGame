@@ -69,10 +69,8 @@ public:
      */
     void CleanupMeshUpload();
 
-    /**
-     * Create views for the instance data and geometry buffers on a given descriptor heap.
-     */
-    void CreateInstanceResourceViews(const DescriptorHeap& heap, UINT data, UINT geometry) const;
+    ShaderResources::ConstantBufferViewDescriptor GetInstanceDataViewDescriptor() const;
+    ShaderResources::ShaderResourceViewDescriptor GetGeometryBufferViewDescriptor() const;
 
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs);
     const BLAS& GetBLAS();

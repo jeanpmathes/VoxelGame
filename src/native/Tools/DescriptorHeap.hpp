@@ -31,6 +31,12 @@ public:
     [[nodiscard]] UINT GetDescriptorCount() const;
 
     [[nodiscard]] ID3D12DescriptorHeap** GetAddressOf();
+
+    /**
+     * Copy the descriptors from this heap to another heap.
+     * They will be copied starting at the given offset.
+     */
+    void CopyTo(const DescriptorHeap& other, UINT offset) const;
     
     friend void SetName(const DescriptorHeap&, LPCWSTR);
 
@@ -42,6 +48,7 @@ private:
     D3D12_GPU_DESCRIPTOR_HANDLE m_startGPU{};
     UINT m_increment{};
     UINT m_numDescriptors{};
+    D3D12_DESCRIPTOR_HEAP_TYPE m_type{};
 };
 
 inline void SetName(const DescriptorHeap& heap, const LPCWSTR name)

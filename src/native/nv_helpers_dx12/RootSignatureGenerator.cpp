@@ -65,14 +65,7 @@ namespace nv_helpers_dx12
         m_rangeLocations.push_back(static_cast<unsigned>(m_ranges.size() - 1));
     }
 
-    void RootSignatureGenerator::AddHeapRangesParameter(
-        std::vector<std::tuple<
-            UINT, /* BaseShaderRegister, */
-            UINT, /* NumDescriptors */
-            UINT, /* RegisterSpace */
-            D3D12_DESCRIPTOR_RANGE_TYPE, /* RangeType */
-            UINT /* OffsetInDescriptorsFromTableStart */>>
-        ranges)
+    void RootSignatureGenerator::AddHeapRangesParameter(const std::vector<HeapRange>& ranges)
     {
         // Build and store the set of descriptors for the ranges
         std::vector<D3D12_DESCRIPTOR_RANGE> rangeStorage;
@@ -123,7 +116,8 @@ namespace nv_helpers_dx12
         m_rangeLocations.push_back(~0u);
     }
 
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(ID3D12Device* device, bool isLocal)
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(
+        Microsoft::WRL::ComPtr<ID3D12Device> device, bool isLocal)
     {
         // Go through all the parameters, and set the actual addresses of the heap range descriptors based
         // on their indices in the range set array.

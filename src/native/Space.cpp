@@ -3,10 +3,6 @@
 #undef min
 #undef max
 
-static constexpr UINT OUTPUT_DESCRIPTOR_OFFSET = 0;
-static constexpr UINT BVH_DESCRIPTOR_OFFSET = 1;
-static constexpr UINT TEXTURE_BASE_DESCRIPTOR_OFFSET = 2; // Has to be last as many textures are bound here.
-
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
     m_camera(nativeClient),
@@ -60,9 +56,11 @@ void Space::PerformResolutionDependentSetup(const Resolution& resolution)
 bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 {
     CreateGlobalConstBuffer();
-    CreateShaderResourceHeap(pipeline);
 
     if (!CreateRaytracingPipeline(pipeline)) return false;
+
+    InitializePipelineResourceViews(pipeline);
+    m_globalShaderResources.Update();
 
     CreateShaderBindingTable();
 
@@ -112,12 +110,14 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
 void Space::DeactivateMeshObject(const size_t index)
 {
     m_activeMeshes.Pop(index);
+    
     m_activatedMeshes.erase(index);
 }
 
 void Space::ReturnMeshObject(const MeshObject::Handle handle)
 {
     m_modifiedMeshes.erase(handle);
+    
     m_meshPool.push_back(m_meshes.Pop(static_cast<size_t>(handle)));
 }
 
@@ -134,7 +134,7 @@ void Space::Reset(const UINT frameIndex)
 void Space::EnqueueRenderSetup()
 {
     std::vector<ID3D12Resource*> uavs;
-    
+
     for (const auto handle : m_modifiedMeshes)
     {
         MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
@@ -148,7 +148,22 @@ void Space::EnqueueRenderSetup()
 
     CreateTopLevelAS();
     UpdateAccelerationStructureView();
-    UpdateGlobalShaderResourceHeap();
+
+    std::set<size_t> meshesToRefresh = m_activatedMeshes;
+    for (const auto handle : m_modifiedMeshes)
+    {
+        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+
+        std::optional<size_t> index = mesh->GetActiveIndex();
+        if (!index.has_value()) continue;
+
+        meshesToRefresh.insert(index.value());
+    }
+
+    m_globalShaderResources.RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
+    m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
+    m_globalShaderResources.Update();
 
     m_activatedMeshes.clear();
 }
@@ -159,11 +174,11 @@ void Space::CleanupRenderSetup()
     {
         MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
-        
+
         mesh->CleanupMeshUpload();
     }
     m_modifiedMeshes.clear();
-    
+
     m_indexBuffer.CleanupRenderSetup();
 }
 
@@ -179,17 +194,8 @@ void Space::DispatchRays()
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     GetCommandList()->ResourceBarrier(1, &barrier);
 
-    GetCommandList()->SetComputeRootSignature(m_globalRootSignature.Get());
+    m_globalShaderResources.Bind(GetCommandList());
 
-    GetCommandList()->SetDescriptorHeaps(1, m_globalShaderResourceHeap.GetAddressOf());
-
-    GetCommandList()->SetComputeRootConstantBufferView(0, m_camera.GetCameraBufferAddress());
-    GetCommandList()->SetComputeRootConstantBufferView(
-        1, m_globalConstantBuffer.GetGPUVirtualAddress());
-    GetCommandList()->SetComputeRootDescriptorTable(2, m_globalShaderResourceHeap.GetDescriptorHandleGPU());
-    GetCommandList()->SetComputeRootDescriptorTable(3, m_instanceDataHeap);
-    GetCommandList()->SetComputeRootDescriptorTable(4, m_geometryDataHeap);
-    
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
     desc.RayGenerationShaderRecord.StartAddress
@@ -301,7 +307,7 @@ void Space::CreateGlobalConstBuffer()
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
     TRY_DO(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping));
-    
+
     UpdateGlobalConstBuffer();
 }
 
@@ -310,27 +316,8 @@ void Space::UpdateGlobalConstBuffer()
     m_globalConstantBufferMapping.Write(m_globalConstantBufferData);
 }
 
-void Space::CreateShaderResourceHeap(const SpacePipeline& pipeline)
+void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
 {
-    m_textureSlot1.size = std::max(pipeline.description.textureCountFirstSlot, 1u);
-    m_textureSlot2.size = std::max(pipeline.description.textureCountSecondSlot, 1u);
-    const UINT descriptorCount = TEXTURE_BASE_DESCRIPTOR_OFFSET + m_textureSlot1.size + m_textureSlot2.size;
-
-    m_commonPipelineResourceHeap.Create(
-        GetDevice(),
-        descriptorCount,
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        false);
-    NAME_D3D12_OBJECT(m_commonPipelineResourceHeap);
-
-    InitializePipelineResourceHeap(pipeline);
-    UpdateGlobalShaderResourceHeap();
-}
-
-void Space::InitializePipelineResourceHeap(const SpacePipeline& pipeline)
-{
-    REQUIRE(m_commonPipelineResourceHeap.IsCreated());
-
     UpdateOutputResourceView();
     UpdateAccelerationStructureView();
 
@@ -342,7 +329,8 @@ void Space::InitializePipelineResourceHeap(const SpacePipeline& pipeline)
             if (count == 0) return std::nullopt;
             return count;
         };
-        auto fillSlots = [&](const UINT base, const std::optional<UINT> count, UINT* offset)
+        auto fillSlots = [&](const ShaderResources::Table::Entry entry, const UINT base,
+                             const std::optional<UINT> count)
         {
             if (count.has_value())
             {
@@ -355,173 +343,65 @@ void Space::InitializePipelineResourceHeap(const SpacePipeline& pipeline)
                     REQUIRE(texture->GetSize().x == textureSize.value().x);
                     REQUIRE(texture->GetSize().y == textureSize.value().y);
 
-                    GetDevice()->CreateShaderResourceView(
-                        texture->GetResource().Get(),
-                        &texture->GetView(),
-                        m_commonPipelineResourceHeap.GetDescriptorHandleCPU((*offset)++));
+                    m_globalShaderResources.CreateShaderResourceView(entry, index,
+                                                                     {texture->GetResource(), &texture->GetView()});
                 }
             }
             else
             {
-                GetDevice()->CreateShaderResourceView(
-                    m_sentinelTexture.Get(),
-                    &m_sentinelTextureViewDescription,
-                    m_commonPipelineResourceHeap.GetDescriptorHandleCPU((*offset)++));
+                m_globalShaderResources.CreateShaderResourceView(entry, 0,
+                                                                 {
+                                                                     m_sentinelTexture,
+                                                                     &m_sentinelTextureViewDescription
+                                                                 });
             }
         };
 
-        UINT offset = TEXTURE_BASE_DESCRIPTOR_OFFSET;
         const UINT firstSlotArraySize = pipeline.description.textureCountFirstSlot;
         const UINT secondSlotArraySize = pipeline.description.textureCountSecondSlot;
 
-        m_textureSlot1.offset = offset;
-        fillSlots(0, getTexturesCountInSlot(firstSlotArraySize), &offset);
-
-        m_textureSlot2.offset = offset;
-        fillSlots(firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize), &offset);
+        fillSlots(m_textureSlot1.entry, 0, getTexturesCountInSlot(firstSlotArraySize));
+        fillSlots(m_textureSlot2.entry, firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize));
 
         m_globalConstantBufferData.textureSize = textureSize.value_or(DirectX::XMUINT2{1, 1});
         UpdateGlobalConstBuffer();
     }
 }
 
-void Space::UpdateGlobalShaderResourceHeap()
-{
-    if (m_globalShaderResourceHeapSlots < m_activeMeshes.GetCapacity() || !m_globalShaderResourceHeap.IsCreated())
-    {
-        UpdateGSRHeapSize();
-    }
-    else if (!m_activatedMeshes.empty() || !m_modifiedMeshes.empty())
-    {
-        UpdateGSRHeapContents();
-    }
-
-    UpdateGSRHeapBase();
-}
-
-void Space::UpdateGSRHeapSize()
-{
-    do
-    {
-        m_globalShaderResourceHeapSlots = std::max(4u, m_globalShaderResourceHeapSlots * 2u);
-    }
-    while (m_globalShaderResourceHeapSlots < m_activeMeshes.GetCapacity());
-
-    m_globalShaderResourceHeap.Create(
-        GetDevice(),
-        m_commonPipelineResourceHeap.GetDescriptorCount() + 2 * m_globalShaderResourceHeapSlots,
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        true);
-    NAME_D3D12_OBJECT(m_globalShaderResourceHeap);
-
-    const UINT offset = m_commonPipelineResourceHeap.GetDescriptorCount();
-
-    for (const MeshObject* mesh : m_activeMeshes)
-    {
-        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
-        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
-    }
-
-    m_instanceDataHeap = m_globalShaderResourceHeap.GetDescriptorHandleGPU(offset);
-    m_geometryDataHeap = m_globalShaderResourceHeap.GetDescriptorHandleGPU(offset + m_globalShaderResourceHeapSlots);
-}
-
-void Space::UpdateGSRHeapContents()
-{
-    const UINT offset = m_commonPipelineResourceHeap.GetDescriptorCount();
-
-    for (const size_t activated : m_activatedMeshes)
-    {
-        const MeshObject* mesh = m_activeMeshes[activated];
-        REQUIRE(mesh != nullptr);
-
-        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
-        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
-    }
-
-    for (const auto handle : m_modifiedMeshes)
-    {
-        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        if (std::optional<size_t> index = mesh->GetActiveIndex(); !index.has_value() || m_activatedMeshes.
-            contains(index.value())) continue;
-
-        auto [data, geometry] = GetTextureSlotIndices(mesh, offset);
-        mesh->CreateInstanceResourceViews(m_globalShaderResourceHeap, data, geometry);
-    }
-}
-
-void Space::UpdateGSRHeapBase() const
-{
-    GetDevice()->CopyDescriptorsSimple(
-        m_commonPipelineResourceHeap.GetDescriptorCount(),
-        // todo: use two heaps (one for the changing stuff, one for textures), only copy textures after resize
-        m_globalShaderResourceHeap.GetDescriptorHandleCPU(),
-        m_commonPipelineResourceHeap.GetDescriptorHandleCPU(),
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-}
-
-std::pair<UINT, UINT> Space::GetTextureSlotIndices(const MeshObject* mesh, const UINT offset) const
-{
-    REQUIRE(mesh->GetActiveIndex());
-
-    const UINT index = static_cast<UINT>(*mesh->GetActiveIndex());
-    return GetTextureSlotIndices(index, offset);
-}
-
-std::pair<UINT, UINT> Space::GetTextureSlotIndices(const UINT slot, const UINT offset) const
-{
-    const UINT data = offset + slot;
-    const UINT geometry = offset + m_globalShaderResourceHeapSlots + slot;
-
-    return {data, geometry};
-}
-
 void Space::UpdateOutputResourceView()
 {
-    if (!m_commonPipelineResourceHeap.IsCreated()) return;
+    if (!m_outputTextureEntry.IsValid()) return;
 
     if (!m_outputResourceFresh) return;
     m_outputResourceFresh = false;
 
-    {
-        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-        GetDevice()->CreateUnorderedAccessView(m_outputResource.Get(), nullptr, &uavDesc,
-                                               m_commonPipelineResourceHeap.GetDescriptorHandleCPU(
-                                                   OUTPUT_DESCRIPTOR_OFFSET));
-    }
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+    m_globalShaderResources.CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
 }
 
-void Space::UpdateAccelerationStructureView() const
+void Space::UpdateAccelerationStructureView()
 {
-    REQUIRE(m_commonPipelineResourceHeap.IsCreated());
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
+    srvDescription.Format = DXGI_FORMAT_UNKNOWN;
+    srvDescription.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+    srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
+        GetGPUVirtualAddress();
 
-    {
-        D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
-        srvDescription.Format = DXGI_FORMAT_UNKNOWN;
-        srvDescription.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-        srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
-            GetGPUVirtualAddress();
-
-        GetDevice()->CreateShaderResourceView(nullptr, &srvDescription,
-                                              m_commonPipelineResourceHeap.
-                                              GetDescriptorHandleCPU(BVH_DESCRIPTOR_OFFSET));
-    }
+    m_globalShaderResources.CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
 }
 
 bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
+// todo: use new methods to shorten this method
 {
-    m_globalRootSignature = CreateGlobalRootSignature();
-    NAME_D3D12_OBJECT(m_globalRootSignature);
+    m_textureSlot1.size = std::max(pipelineDescription.description.textureCountFirstSlot, 1u);
+    m_textureSlot2.size = std::max(pipelineDescription.description.textureCountSecondSlot, 1u);
 
-    nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice(), m_globalRootSignature);
+    nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
     m_shaderBlobs = std::vector<ComPtr<IDxcBlob>>(pipelineDescription.description.shaderCount);
 
     UINT currentSymbolIndex = 0;
-
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
         m_shaderBlobs[shader] = CompileShader(
@@ -542,13 +422,13 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
         pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
     }
-    
+
     m_rayGenSignature = CreateRayGenSignature();
     NAME_D3D12_OBJECT(m_rayGenSignature);
-    
+
     m_missSignature = CreateMissSignature();
     NAME_D3D12_OBJECT(m_missSignature);
-    
+
     auto addLocalRootSignatureAssociation = [&](const ComPtr<ID3D12RootSignature>& rootSignature,
                                                 const std::vector<std::wstring>& associatedSymbols)
     {
@@ -622,17 +502,100 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     addLocalRootSignatureAssociation(m_rayGenSignature, {L"RayGen"});
     addLocalRootSignatureAssociation(m_missSignature, {L"Miss", L"ShadowMiss"});
-    
+
+    m_globalShaderResources.Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
+        [&](auto&)
+        {
+        },
+        [&](auto& compute)
+        {
+            SetupStaticResourceLayout(&compute);
+            SetupDynamicResourceLayout(&compute);
+        },
+        GetDevice());
+
     pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
 
-    m_rtStateObject = pipeline.Generate();
+    NAME_D3D12_OBJECT(m_globalShaderResources.GetComputeRootSignature());
+    NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
+
+    m_rtStateObject = pipeline.Generate(m_globalShaderResources.GetComputeRootSignature());
     NAME_D3D12_OBJECT(m_rtStateObject);
 
     TRY_DO(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProperties)));
 
     return true;
+}
+
+void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
+{
+    description->AddConstantBufferView(m_camera.GetCameraBufferAddress(), {.reg = 0});
+    description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 1});
+
+    m_commonResourceTable = description->AddHeapDescriptorTable([this](auto& table)
+    {
+        m_outputTextureEntry = table.AddUnorderedAccessView({.reg = 0});
+        m_bvhEntry = table.AddShaderResourceView({.reg = 0});
+        m_textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, m_textureSlot1.size);
+        m_textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, m_textureSlot2.size);
+    });
+}
+
+void Space::SetupDynamicResourceLayout(ShaderResources::Description* description)
+{
+    // todo: use templated functions here to reduce duplication
+
+    m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList({.reg = 3, .space = 0},
+                                                                              [this]
+                                                                              {
+                                                                                  return static_cast<UINT>(
+                                                                                      m_activeMeshes.GetCapacity());
+                                                                              },
+                                                                              [this](const UINT index)
+                                                                              {
+                                                                                  return m_activeMeshes[index]->
+                                                                                      GetInstanceDataViewDescriptor();
+                                                                              },
+                                                                              [this](
+                                                                              const
+                                                                              ShaderResources::Description::DescriptorBuilder
+                                                                              & builder)
+                                                                              {
+                                                                                  for (const auto& mesh :
+                                                                                      m_activeMeshes)
+                                                                                  {
+                                                                                      auto index = mesh->
+                                                                                          GetActiveIndex();
+                                                                                      REQUIRE(index.has_value());
+
+                                                                                      builder(
+                                                                                          static_cast<UINT>(index.
+                                                                                              value()));
+                                                                                  }
+                                                                              });
+
+    m_meshGeometryBufferList = description->AddShaderResourceViewDescriptorList({.reg = 1, .space = 0},
+        [this]
+        {
+            return static_cast<UINT>(m_activeMeshes.GetCapacity());
+        },
+        [this](const UINT index)
+        {
+            return m_activeMeshes[index]->
+                GetGeometryBufferViewDescriptor();
+        },
+        [this](const ShaderResources::Description::DescriptorBuilder& builder)
+        {
+            for (const auto& mesh : m_activeMeshes)
+            {
+                auto index = mesh->GetActiveIndex();
+                REQUIRE(index.has_value());
+
+                builder(static_cast<UINT>(index.value()));
+            }
+        });
 }
 
 void Space::CreateRaytracingOutputBuffer()
@@ -660,53 +623,6 @@ void Space::CreateRaytracingOutputBuffer()
     UpdateOutputResourceView();
 }
 
-ComPtr<ID3D12RootSignature> Space::CreateGlobalRootSignature() const
-{
-    nv_helpers_dx12::RootSignatureGenerator rsc;
-
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 0); // Camera Data (b0, space0)
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 1); // Global Data (b1, space0)
-    
-    rsc.AddHeapRangesParameter({
-        // Constant Buffer Views:
-        /* none */
-        // Unordered Access Views:
-        /* Output Texture (u0, space0) */ {
-            0, 1, 0,
-            D3D12_DESCRIPTOR_RANGE_TYPE_UAV, OUTPUT_DESCRIPTOR_OFFSET
-        },
-        // Shader Resource Views:
-        /* BVH (t0, space0) */ {
-            0, 1, 0,
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BVH_DESCRIPTOR_OFFSET
-        },
-        /* First Texture Slot (t0, space1) */ {
-            0, m_textureSlot1.size, 1,
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot1.offset
-        },
-        /* Second Texture Slot (t0, space2) */ {
-            0, m_textureSlot2.size, 2,
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, m_textureSlot2.offset
-        }
-    });
-
-    rsc.AddHeapRangesParameter({
-        /* Instance Data (b3, space0) */ {
-            3, UINT_MAX, 0,
-            D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0
-        },
-    });
-
-    rsc.AddHeapRangesParameter({
-        /* Geometry Buffer (t1, space0) */ {
-            1, UINT_MAX, 0,
-            D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0
-        },
-    });
-
-    return rsc.Generate(GetDevice().Get(), false);
-}
-
 ComPtr<ID3D12RootSignature> Space::CreateRayGenSignature() const
 {
     nv_helpers_dx12::RootSignatureGenerator rsc;
@@ -724,15 +640,14 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
     rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 2); // Material Data (b2, space0)
-    
+
     return rsc.Generate(GetDevice().Get(), true);
 }
 
 void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
-
-    REQUIRE(m_globalShaderResourceHeap.IsCreated());
+    
     REQUIRE(!m_outputResourceFresh);
 
     m_sbtHelper.AddRayGenerationProgram(L"RayGen", {});

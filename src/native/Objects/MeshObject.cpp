@@ -163,16 +163,20 @@ void MeshObject::CleanupMeshUpload()
     m_uploadEnqueued = false;
 }
 
-void MeshObject::CreateInstanceResourceViews(const DescriptorHeap& heap, const UINT data, const UINT geometry) const
+ShaderResources::ConstantBufferViewDescriptor MeshObject::GetInstanceDataViewDescriptor() const
 {
-    GetClient().GetDevice()->CreateConstantBufferView(
-        &m_instanceDataBufferView,
-        heap.GetDescriptorHandleCPU(data));
+    return {
+        .gpuAddress = m_instanceDataBuffer.GetGPUVirtualAddress(),
+        .size = static_cast<UINT>(m_instanceDataBufferAlignedSize)
+    };
+}
 
-    GetClient().GetDevice()->CreateShaderResourceView(
-        m_geometryBuffer.Get(),
-        &m_geometryBufferView,
-        heap.GetDescriptorHandleCPU(geometry));
+ShaderResources::ShaderResourceViewDescriptor MeshObject::GetGeometryBufferViewDescriptor() const
+{
+    return {
+        .resource = m_geometryBuffer,
+        .description = &m_geometryBufferView
+    };
 }
 
 void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs)

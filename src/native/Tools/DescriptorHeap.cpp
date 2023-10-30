@@ -22,6 +22,7 @@ void DescriptorHeap::Create(
     m_device = device;
     m_increment = device->GetDescriptorHandleIncrementSize(type);
     m_numDescriptors = numDescriptors;
+    m_type = type;
 
     D3D12_DESCRIPTOR_HEAP_DESC description = {};
     description.NumDescriptors = numDescriptors;
@@ -67,4 +68,19 @@ UINT DescriptorHeap::GetDescriptorCount() const
 ID3D12DescriptorHeap** DescriptorHeap::GetAddressOf()
 {
     return m_heap.GetAddressOf();
+}
+
+void DescriptorHeap::CopyTo(const DescriptorHeap& other, const UINT offset) const
+{
+    REQUIRE(IsCreated());
+    REQUIRE(other.IsCreated());
+
+    REQUIRE(m_type == other.m_type);
+    REQUIRE(other.GetDescriptorCount() >= GetDescriptorCount() + offset);
+
+    m_device->CopyDescriptorsSimple(
+        GetDescriptorCount(),
+        other.GetDescriptorHandleCPU(offset),
+        GetDescriptorHandleCPU(),
+        m_type);
 }

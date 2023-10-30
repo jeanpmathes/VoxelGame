@@ -5,7 +5,7 @@
 using Preset = std::tuple<ComPtr<ID3D12RootSignature>, std::vector<D3D12_INPUT_ELEMENT_DESC>, UINT>;
 
 static Preset GetDraw2dPreset(uint64_t cbufferSize, ComPtr<ID3D12Device5> device)
-// todo: check if maybe the root signature generator can be adapted to simplify this
+// todo: the ShaderResources class should be used here, and the RootSignatureGenerators might need to be adjusted
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> space3dInput =
     {

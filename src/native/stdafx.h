@@ -73,6 +73,7 @@
 #include "Tools/GappedList.hpp"
 #include "Tools/SharedIndexBuffer.hpp"
 #include "Tools/InBufferAllocator.hpp"
+#include "Tools/ShaderResources.hpp"
 
 // General
 
