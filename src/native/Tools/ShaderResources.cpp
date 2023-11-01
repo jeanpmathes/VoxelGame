@@ -50,28 +50,24 @@ ShaderResources::Table::Table(const UINT heap) : m_heap(heap)
 }
 
 void ShaderResources::Description::AddConstantBufferView(
-    // todo: use templates to reduce duplication, for other methods too
     const D3D12_GPU_VIRTUAL_ADDRESS gpuAddress,
     const ShaderLocation location)
 {
-    m_rootSignatureGenerator.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, location.reg, location.space);
-    m_rootParameters.push_back(RootConstantBufferView{gpuAddress});
+    AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_CBV, RootConstantBufferView{gpuAddress});
 }
 
 void ShaderResources::Description::AddShaderResourceView(
     const D3D12_GPU_VIRTUAL_ADDRESS gpuAddress,
     const ShaderLocation location)
 {
-    m_rootSignatureGenerator.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_SRV, location.reg, location.space);
-    m_rootParameters.push_back(RootShaderResourceView{gpuAddress});
+    AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_SRV, RootShaderResourceView{gpuAddress});
 }
 
 void ShaderResources::Description::AddUnorderedAccessView(
     const D3D12_GPU_VIRTUAL_ADDRESS gpuAddress,
     const ShaderLocation location)
 {
-    m_rootSignatureGenerator.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_UAV, location.reg, location.space);
-    m_rootParameters.push_back(RootUnorderedAccessView{gpuAddress});
+    AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_UAV, RootUnorderedAccessView{gpuAddress});
 }
 
 ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTable(
@@ -159,6 +155,15 @@ ShaderResources::ListHandle ShaderResources::Description::AddUnorderedAccessView
     }, std::move(builder));
 
     return static_cast<ListHandle>(listHandle);
+}
+
+void ShaderResources::Description::AddRootParameter(
+    const ShaderLocation location,
+    const D3D12_ROOT_PARAMETER_TYPE type,
+    RootParameter&& parameter)
+{
+    m_rootSignatureGenerator.AddRootParameter(type, location.reg, location.space);
+    m_rootParameters.emplace_back(std::move(parameter));
 }
 
 ComPtr<ID3D12RootSignature> ShaderResources::Description::GenerateRootSignature(ComPtr<ID3D12Device> device)
@@ -291,96 +296,104 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
     commandList->SetComputeRootSignature(m_computeRootSignature.Get());
     commandList->SetDescriptorHeaps(1, m_descriptorHeap.GetAddressOf());
 
-    // todo: do something against duplication here
-
     for (size_t parameterIndex = 0; parameterIndex < m_graphicsRootParameters.size(); ++parameterIndex)
     {
         auto& parameter = m_graphicsRootParameters[parameterIndex];
 
-        if (std::holds_alternative<RootConstantBufferView>(parameter))
+        std::visit([commandList, parameterIndex]<typename Arg>(Arg& arg)
         {
-            const auto& [gpuAddress] = std::get<RootConstantBufferView>(parameter);
-            commandList->SetGraphicsRootConstantBufferView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootShaderResourceView>(parameter))
-        {
-            const auto& [gpuAddress] = std::get<RootShaderResourceView>(parameter);
-            commandList->SetGraphicsRootShaderResourceView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootUnorderedAccessView>(parameter))
-        {
-            const auto& [gpuAddress] = std::get<RootUnorderedAccessView>(parameter);
-            commandList->SetGraphicsRootUnorderedAccessView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
-        {
-            const auto& [gpuHandle, index] = std::get<RootHeapDescriptorTable>(parameter);
-            commandList->SetGraphicsRootDescriptorTable(
-                static_cast<UINT>(parameterIndex),
-                gpuHandle);
-        }
-        else if (std::holds_alternative<RootHeapDescriptorList>(parameter))
-        {
-            const auto& [gpuHandle, index] = std::get<RootHeapDescriptorList>(parameter);
-            commandList->SetGraphicsRootDescriptorTable(
-                static_cast<UINT>(parameterIndex),
-                gpuHandle);
-        }
-        else
-        {
-            REQUIRE(FALSE);
-        }
+            using T = std::decay_t<Arg>;
+
+            if constexpr (std::is_same_v<T, RootConstantBufferView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetGraphicsRootConstantBufferView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootShaderResourceView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetGraphicsRootShaderResourceView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetGraphicsRootUnorderedAccessView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
+            {
+                const auto& [gpuHandle, index] = arg;
+                commandList->SetGraphicsRootDescriptorTable(
+                    static_cast<UINT>(parameterIndex),
+                    gpuHandle);
+            }
+            else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
+            {
+                const auto& [gpuHandle, index] = arg;
+                commandList->SetGraphicsRootDescriptorTable(
+                    static_cast<UINT>(parameterIndex),
+                    gpuHandle);
+            }
+            else
+            {
+                REQUIRE(FALSE);
+            }
+        }, parameter);
     }
 
     for (size_t parameterIndex = 0; parameterIndex < m_computeRootParameters.size(); ++parameterIndex)
     {
         auto& parameter = m_computeRootParameters[parameterIndex];
 
-        if (std::holds_alternative<RootConstantBufferView>(parameter))
+        std::visit([commandList, parameterIndex]<typename Arg>(Arg& arg)
         {
-            const auto& [gpuAddress] = std::get<RootConstantBufferView>(parameter);
-            commandList->SetComputeRootConstantBufferView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootShaderResourceView>(parameter))
-        {
-            const auto& [gpuAddress] = std::get<RootShaderResourceView>(parameter);
-            commandList->SetComputeRootShaderResourceView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootUnorderedAccessView>(parameter))
-        {
-            const auto& [gpuAddress] = std::get<RootUnorderedAccessView>(parameter);
-            commandList->SetComputeRootUnorderedAccessView(
-                static_cast<UINT>(parameterIndex),
-                gpuAddress);
-        }
-        else if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
-        {
-            const auto& [gpuHandle, index] = std::get<RootHeapDescriptorTable>(parameter);
-            commandList->SetComputeRootDescriptorTable(
-                static_cast<UINT>(parameterIndex),
-                gpuHandle);
-        }
-        else if (std::holds_alternative<RootHeapDescriptorList>(parameter))
-        {
-            const auto& [gpuHandle, index] = std::get<RootHeapDescriptorList>(parameter);
-            commandList->SetComputeRootDescriptorTable(
-                static_cast<UINT>(parameterIndex),
-                gpuHandle);
-        }
-        else
-        {
-            REQUIRE(FALSE);
-        }
+            using T = std::decay_t<Arg>;
+
+            if constexpr (std::is_same_v<T, RootConstantBufferView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetComputeRootConstantBufferView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootShaderResourceView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetComputeRootShaderResourceView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
+            {
+                const auto& [gpuAddress] = arg;
+                commandList->SetComputeRootUnorderedAccessView(
+                    static_cast<UINT>(parameterIndex),
+                    gpuAddress);
+            }
+            else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
+            {
+                const auto& [gpuHandle, index] = arg;
+                commandList->SetComputeRootDescriptorTable(
+                    static_cast<UINT>(parameterIndex),
+                    gpuHandle);
+            }
+            else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
+            {
+                const auto& [gpuHandle, index] = arg;
+                commandList->SetComputeRootDescriptorTable(
+                    static_cast<UINT>(parameterIndex),
+                    gpuHandle);
+            }
+            else
+            {
+                REQUIRE(FALSE);
+            }
+        }, parameter);
     }
 }
 
@@ -410,7 +423,8 @@ void ShaderResources::Update()
             for (const size_t index : list.dirtyIndices)
             {
                 const UINT offset = list.externalOffset + static_cast<UINT>(index);
-                list.descriptorAssigner(m_device.Get(), index, m_descriptorHeap.GetDescriptorHandleCPU(offset));
+                list.descriptorAssigner(m_device.Get(), static_cast<UINT>(index),
+                                        m_descriptorHeap.GetDescriptorHandleCPU(offset));
             }
         }
 
@@ -418,7 +432,7 @@ void ShaderResources::Update()
     }
 }
 
-void ShaderResources::CreateConstantBufferView( // todo: try to use templates to reduce duplication
+void ShaderResources::CreateConstantBufferView(
     Table::Entry entry,
     const UINT offset,
     const ConstantBufferViewDescriptor& descriptor)

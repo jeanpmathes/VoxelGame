@@ -44,7 +44,7 @@ class ShaderResources
 
     using RootParameter = std::variant<RootConstantBufferView, RootShaderResourceView, RootUnorderedAccessView,
                                        RootHeapDescriptorTable, RootHeapDescriptorList>;
-
+    
 public:
     /**
      * Defines a resource binding location in a shader.
@@ -187,6 +187,8 @@ public:
             ListBuilder builder);
 
     private:
+        void AddRootParameter(ShaderLocation location, D3D12_ROOT_PARAMETER_TYPE type, RootParameter&& parameter);
+        
         ComPtr<ID3D12RootSignature> GenerateRootSignature(ComPtr<ID3D12Device> device);
 
         explicit Description(UINT existingRootParameterCount);
@@ -272,3 +274,29 @@ private:
     ComPtr<ID3D12RootSignature> m_computeRootSignature = nullptr;
     std::vector<RootParameter> m_computeRootParameters = {};
 };
+
+template <typename Entry>
+ShaderResources::Description::SizeGetter CreateSizeGetter(GappedList<Entry>* list)
+{
+    REQUIRE(list != nullptr);
+
+    return [list]() -> UINT
+    {
+        return static_cast<UINT>(list->GetCapacity());
+    };
+}
+
+template <typename Entry>
+ShaderResources::Description::ListBuilder CreateListBuilder(GappedList<Entry>* list,
+                                                            std::function<UINT(const Entry&)> indexProvider)
+{
+    REQUIRE(list != nullptr);
+
+    return [list, indexProvider](const ShaderResources::Description::DescriptorBuilder& builder)
+    {
+        for (const auto& entry : *list)
+        {
+            builder(indexProvider(entry));
+        }
+    };
+}

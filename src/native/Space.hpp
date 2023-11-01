@@ -202,6 +202,12 @@ private:
     void UpdateOutputResourceView();
     void UpdateAccelerationStructureView();
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
+    static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
+        const SpacePipeline& pipelineDescription,
+        nv_helpers_dx12::RayTracingPipelineGenerator&
+        pipeline);
+    std::unique_ptr<Material> SetupMaterial(const MaterialDescription& description, UINT index,
+                                            nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
     void SetupStaticResourceLayout(ShaderResources::Description* description);
     void SetupDynamicResourceLayout(ShaderResources::Description* description);
     void CreateRaytracingOutputBuffer();

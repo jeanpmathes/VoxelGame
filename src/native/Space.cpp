@@ -393,35 +393,15 @@ void Space::UpdateAccelerationStructureView()
 }
 
 bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
-// todo: use new methods to shorten this method
 {
     m_textureSlot1.size = std::max(pipelineDescription.description.textureCountFirstSlot, 1u);
     m_textureSlot2.size = std::max(pipelineDescription.description.textureCountSecondSlot, 1u);
 
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
-    m_shaderBlobs = std::vector<ComPtr<IDxcBlob>>(pipelineDescription.description.shaderCount);
 
-    UINT currentSymbolIndex = 0;
-    for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
-    {
-        m_shaderBlobs[shader] = CompileShader(
-            pipelineDescription.shaderFiles[shader].path,
-            L"", L"lib_6_7",
-            pipelineDescription.description.onShaderLoadingError);
-        if (m_shaderBlobs[shader] == nullptr) return false;
-
-        const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
-
-        std::vector<std::wstring> symbols;
-        symbols.reserve(currentSymbolCount);
-
-        for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++)
-        {
-            symbols.push_back(pipelineDescription.symbols[currentSymbolIndex++]);
-        }
-
-        pipeline.AddLibrary(m_shaderBlobs[shader].Get(), symbols);
-    }
+    bool ok = true;
+    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(pipelineDescription, pipeline);
+    if (!ok) return false;
 
     m_rayGenSignature = CreateRayGenSignature();
     NAME_D3D12_OBJECT(m_rayGenSignature);
@@ -429,79 +409,13 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     m_missSignature = CreateMissSignature();
     NAME_D3D12_OBJECT(m_missSignature);
 
-    auto addLocalRootSignatureAssociation = [&](const ComPtr<ID3D12RootSignature>& rootSignature,
-                                                const std::vector<std::wstring>& associatedSymbols)
-    {
-        pipeline.AddRootSignatureAssociation(rootSignature.Get(), true, associatedSymbols);
-    };
-
     for (UINT index = 0; index < pipelineDescription.description.materialCount; index++)
     {
-        auto material = std::make_unique<Material>();
-
-        const MaterialDescription& description = pipelineDescription.materials[index];
-
-        material->name = description.name;
-        material->index = index * 2;
-        material->isOpaque = description.opaque;
-
-        if (description.visible) material->flags |= MaterialFlags::VISIBLE;
-        if (description.shadowCaster) material->flags |= MaterialFlags::SHADOW_CASTER;
-
-        auto addHitGroup = [&](const std::wstring& prefix,
-                               const std::wstring& closestHitSymbol,
-                               const std::wstring& anyHitSymbol,
-                               const std::wstring& intersectionSymbol)
-            -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
-        {
-            ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
-            std::wstring hitGroup = prefix + L"_" + description.name;
-
-            pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol, intersectionSymbol);
-            addLocalRootSignatureAssociation(rootSignature, {hitGroup});
-
-            return {hitGroup, rootSignature};
-        };
-
-        std::tie(material->normalHitGroup, material->normalRootSignature)
-            = addHitGroup(L"N",
-                          description.normalClosestHitSymbol,
-                          description.normalAnyHitSymbol,
-                          description.normalIntersectionSymbol);
-
-        std::tie(material->shadowHitGroup, material->shadowRootSignature)
-            = addHitGroup(L"S",
-                          description.shadowClosestHitSymbol,
-                          description.shadowAnyHitSymbol,
-                          description.shadowIntersectionSymbol);
-
-        std::wstring normalIntersectionSymbol = description.normalIntersectionSymbol;
-        std::wstring shadowIntersectionSymbol = description.shadowIntersectionSymbol;
-        REQUIRE(normalIntersectionSymbol.empty() == shadowIntersectionSymbol.empty());
-
-        material->geometryType = normalIntersectionSymbol.empty()
-                                     ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
-                                     : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
-
-        UINT64 materialConstantBufferSize = sizeof MaterialConstantBuffer;
-        material->materialConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &materialConstantBufferSize);
-        NAME_D3D12_OBJECT(material->materialConstantBuffer);
-
-        MaterialConstantBuffer materialConstantBufferData = {.index = index};
-        TRY_DO(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
-
-#if defined(VG_DEBUG)
-        std::wstring debugName = pipelineDescription.materials[index].name;
-        // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
-        TRY_DO(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
-        TRY_DO(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
-#endif
-
-        m_materials.push_back(std::move(material));
+        m_materials.push_back(SetupMaterial(pipelineDescription.materials[index], index, pipeline));
     }
 
-    addLocalRootSignatureAssociation(m_rayGenSignature, {L"RayGen"});
-    addLocalRootSignatureAssociation(m_missSignature, {L"Miss", L"ShadowMiss"});
+    pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
+    pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
     m_globalShaderResources.Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
         [&](auto&)
@@ -514,12 +428,12 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         },
         GetDevice());
 
+    NAME_D3D12_OBJECT(m_globalShaderResources.GetComputeRootSignature());
+    NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
+
     pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
-
-    NAME_D3D12_OBJECT(m_globalShaderResources.GetComputeRootSignature());
-    NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
 
     m_rtStateObject = pipeline.Generate(m_globalShaderResources.GetComputeRootSignature());
     NAME_D3D12_OBJECT(m_rtStateObject);
@@ -527,6 +441,109 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     TRY_DO(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProperties)));
 
     return true;
+}
+
+std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(const SpacePipeline& pipelineDescription,
+                                                                             nv_helpers_dx12::RayTracingPipelineGenerator
+                                                                             & pipeline)
+{
+    std::vector<ComPtr<IDxcBlob>> shaderBlobs(pipelineDescription.description.shaderCount);
+    
+    UINT currentSymbolIndex = 0;
+    bool ok = true;
+    
+    for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
+    {
+        shaderBlobs[shader] = CompileShader(
+            pipelineDescription.shaderFiles[shader].path,
+            L"", L"lib_6_7",
+            pipelineDescription.description.onShaderLoadingError);
+
+        if (shaderBlobs[shader] != nullptr)
+        {
+            const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
+
+            std::vector<std::wstring> symbols;
+            symbols.reserve(currentSymbolCount);
+
+            for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++)
+            {
+                symbols.push_back(pipelineDescription.symbols[currentSymbolIndex++]);
+            }
+
+            pipeline.AddLibrary(shaderBlobs[shader].Get(), symbols);
+        }
+        else
+        {
+            ok = false;
+        }
+    }
+
+    return {shaderBlobs, ok};
+}
+
+std::unique_ptr<Material> Space::SetupMaterial(const MaterialDescription& description, const UINT index,
+                                               nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const
+{
+    auto material = std::make_unique<Material>();
+
+    material->name = description.name;
+    material->index = index * 2;
+    material->isOpaque = description.opaque;
+
+    if (description.visible) material->flags |= MaterialFlags::VISIBLE;
+    if (description.shadowCaster) material->flags |= MaterialFlags::SHADOW_CASTER;
+
+    auto addHitGroup = [&](const std::wstring& prefix,
+                           const std::wstring& closestHitSymbol,
+                           const std::wstring& anyHitSymbol,
+                           const std::wstring& intersectionSymbol)
+        -> std::tuple<std::wstring, ComPtr<ID3D12RootSignature>>
+    {
+        ComPtr<ID3D12RootSignature> rootSignature = CreateMaterialSignature();
+        std::wstring hitGroup = prefix + L"_" + description.name;
+
+        pipeline.AddHitGroup(hitGroup, closestHitSymbol, anyHitSymbol, intersectionSymbol);
+        pipeline.AddRootSignatureAssociation(rootSignature.Get(), true, {hitGroup});
+
+        return {hitGroup, rootSignature};
+    };
+
+    std::tie(material->normalHitGroup, material->normalRootSignature)
+        = addHitGroup(L"N",
+                      description.normalClosestHitSymbol,
+                      description.normalAnyHitSymbol,
+                      description.normalIntersectionSymbol);
+
+    std::tie(material->shadowHitGroup, material->shadowRootSignature)
+        = addHitGroup(L"S",
+                      description.shadowClosestHitSymbol,
+                      description.shadowAnyHitSymbol,
+                      description.shadowIntersectionSymbol);
+
+    const std::wstring normalIntersectionSymbol = description.normalIntersectionSymbol;
+    const std::wstring shadowIntersectionSymbol = description.shadowIntersectionSymbol;
+    REQUIRE(normalIntersectionSymbol.empty() == shadowIntersectionSymbol.empty());
+
+    material->geometryType = normalIntersectionSymbol.empty()
+                                 ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
+                                 : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+
+    UINT64 materialConstantBufferSize = sizeof MaterialConstantBuffer;
+    material->materialConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &materialConstantBufferSize);
+    NAME_D3D12_OBJECT(material->materialConstantBuffer);
+
+    const MaterialConstantBuffer materialConstantBufferData = {.index = index};
+    TRY_DO(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
+
+#if defined(VG_DEBUG)
+    const std::wstring debugName = description.name;
+    // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
+    TRY_DO(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+    TRY_DO(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+#endif
+
+    return material;
 }
 
 void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
@@ -545,57 +562,32 @@ void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
 
 void Space::SetupDynamicResourceLayout(ShaderResources::Description* description)
 {
-    // todo: use templated functions here to reduce duplication
+    const std::function<UINT(MeshObject* const&)> getIndexOfMesh = [this](auto* mesh)
+    {
+        REQUIRE(mesh != nullptr);
+        REQUIRE(mesh->GetActiveIndex().has_value());
+
+        return static_cast<UINT>(mesh->GetActiveIndex().value());
+    };
 
     m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList({.reg = 3, .space = 0},
-                                                                              [this]
-                                                                              {
-                                                                                  return static_cast<UINT>(
-                                                                                      m_activeMeshes.GetCapacity());
-                                                                              },
+                                                                              CreateSizeGetter(&m_activeMeshes),
                                                                               [this](const UINT index)
                                                                               {
                                                                                   return m_activeMeshes[index]->
                                                                                       GetInstanceDataViewDescriptor();
                                                                               },
-                                                                              [this](
-                                                                              const
-                                                                              ShaderResources::Description::DescriptorBuilder
-                                                                              & builder)
-                                                                              {
-                                                                                  for (const auto& mesh :
-                                                                                      m_activeMeshes)
-                                                                                  {
-                                                                                      auto index = mesh->
-                                                                                          GetActiveIndex();
-                                                                                      REQUIRE(index.has_value());
-
-                                                                                      builder(
-                                                                                          static_cast<UINT>(index.
-                                                                                              value()));
-                                                                                  }
-                                                                              });
+                                                                              CreateListBuilder(
+                                                                                  &m_activeMeshes, getIndexOfMesh));
 
     m_meshGeometryBufferList = description->AddShaderResourceViewDescriptorList({.reg = 1, .space = 0},
-        [this]
-        {
-            return static_cast<UINT>(m_activeMeshes.GetCapacity());
-        },
+        CreateSizeGetter(&m_activeMeshes),
         [this](const UINT index)
         {
             return m_activeMeshes[index]->
                 GetGeometryBufferViewDescriptor();
         },
-        [this](const ShaderResources::Description::DescriptorBuilder& builder)
-        {
-            for (const auto& mesh : m_activeMeshes)
-            {
-                auto index = mesh->GetActiveIndex();
-                REQUIRE(index.has_value());
-
-                builder(static_cast<UINT>(index.value()));
-            }
-        });
+        CreateListBuilder(&m_activeMeshes, getIndexOfMesh));
 }
 
 void Space::CreateRaytracingOutputBuffer()
