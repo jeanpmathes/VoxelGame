@@ -69,7 +69,7 @@ namespace nv_helpers_dx12
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
-        ID3D12Device5* device,
+        ComPtr<ID3D12Device5> device,
         bool allowUpdate,
         UINT64* scratchSizeInBytes,
         UINT64* resultSizeInBytes,
@@ -127,17 +127,17 @@ namespace nv_helpers_dx12
     }
 
     void TopLevelASGenerator::Generate(
-        ID3D12GraphicsCommandList4* commandList,
-        ID3D12Resource* scratchBuffer,
-        ID3D12Resource* resultBuffer,
-        ID3D12Resource* descriptorsBuffer,
+        ComPtr<ID3D12GraphicsCommandList4> commandList,
+        Allocation<ID3D12Resource> scratchBuffer,
+        Allocation<ID3D12Resource> resultBuffer,
+        Allocation<ID3D12Resource> descriptorsBuffer,
         bool updateOnly,
-        ID3D12Resource* previousResult
+        Allocation<ID3D12Resource> previousResult
     )
     {
         // Copy the descriptors in the target descriptor buffer
         D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
-        descriptorsBuffer->Map(0, nullptr, reinterpret_cast<void**>(&instanceDescription));
+        descriptorsBuffer.resource->Map(0, nullptr, reinterpret_cast<void**>(&instanceDescription));
         if (!instanceDescription)
         {
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
@@ -163,17 +163,19 @@ namespace nv_helpers_dx12
             // Instance transform matrix
             const DirectX::XMMATRIX instance = XMLoadFloat4x4(&m_instances[i].transform);
             DirectX::XMMATRIX m = XMMatrixTranspose(instance);
-            memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
+            std::memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
             // Get access to the bottom level
             instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS;
             // Visibility mask.
             instanceDescription[i].InstanceMask = m_instances[i].inclusionMask;
         }
 
-        descriptorsBuffer->Unmap(0, nullptr);
+        descriptorsBuffer.resource->Unmap(0, nullptr);
 
         // If this in an update operation we need to provide the source buffer
-        const D3D12_GPU_VIRTUAL_ADDRESS sourceAS = updateOnly ? previousResult->GetGPUVirtualAddress() : 0;
+        const D3D12_GPU_VIRTUAL_ADDRESS sourceAS = updateOnly
+                                                       ? previousResult.GetGPUVirtualAddress<ID3D12Resource>()
+                                                       : 0;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
         // The stored flags represent whether the AS has been built for updates or
@@ -189,7 +191,7 @@ namespace nv_helpers_dx12
         {
             throw std::logic_error("Cannot update a top-level AS not originally built for updates");
         }
-        if (updateOnly && previousResult == nullptr)
+        if (updateOnly && !previousResult.IsSet())
         {
             throw std::logic_error("Top-level hierarchy update requires the previous hierarchy");
         }
@@ -198,16 +200,16 @@ namespace nv_helpers_dx12
 
         // Create a descriptor of the requested builder work, to generate a top-level
         // AS from the input parameters
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        buildDesc.Inputs.InstanceDescs = descriptorsBuffer->GetGPUVirtualAddress();
+        buildDesc.Inputs.InstanceDescs = descriptorsBuffer.GetGPUVirtualAddress<ID3D12Resource>();
         buildDesc.Inputs.NumDescs = instanceCount;
         buildDesc.DestAccelerationStructureData = {
-            resultBuffer->GetGPUVirtualAddress()
+            resultBuffer.GetGPUVirtualAddress<ID3D12Resource>()
         };
         buildDesc.ScratchAccelerationStructureData = {
-            scratchBuffer->GetGPUVirtualAddress()
+            scratchBuffer.GetGPUVirtualAddress<ID3D12Resource>()
         };
         buildDesc.SourceAccelerationStructureData = sourceAS;
         buildDesc.Inputs.Flags = flags;
@@ -220,7 +222,7 @@ namespace nv_helpers_dx12
         // immediately afterwards, without executing the command list
         D3D12_RESOURCE_BARRIER uavBarrier;
         uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        uavBarrier.UAV.pResource = resultBuffer;
+        uavBarrier.UAV.pResource = resultBuffer.Get();
         uavBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         commandList->ResourceBarrier(1, &uavBarrier);
     }

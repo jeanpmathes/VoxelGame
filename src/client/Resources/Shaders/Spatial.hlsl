@@ -1,4 +1,4 @@
-﻿//  <copyright file="Spatial.hlsl" company="VoxelGame">
+﻿// <copyright file="Spatial.hlsl" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -6,33 +6,15 @@
 
 #include "Common.hlsl"
 #include "Payloads.hlsl"
-
-struct SpatialVertex
-{
-    float3 vertex;
-    uint data;
-};
-
-cbuffer GlobalCB : register(b1) {
-float gTime;
-float3 gLightDir;
-float gMinLight;
-uint2 gTextureSize;
-}
+#include "Space.hlsl"
 
 cbuffer MaterialCB : register(b2) {
 uint gMaterialIndex;
 }
 
-struct Instance
-{
-    float4x4 world;
-    float4x4 worldNormal;
-};
-
 ConstantBuffer<Instance> instances[] : register(b3);
 
-RaytracingAccelerationStructure spaceBVH : register(t0);
+RaytracingAccelerationStructure spaceBVH : register(t0); // todo: rename all shader globals to include g prefix
 StructuredBuffer<SpatialVertex> vertices[] : register(t1);
 
 Texture2D gTextureSlotOne[] : register(t0, space1);
@@ -62,14 +44,14 @@ void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3
     
     const uint primitiveIndex = PrimitiveIndex();
     const bool isFirst = (primitiveIndex % 2) == 0;
-    const uint vertexIndex = (primitiveIndex / 2) * 4;
+    const uint vertexIndex = (primitiveIndex / 2) * VG_VERTICES_PER_QUAD;
 
     indices = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
     const int3 i = indices + vertexIndex;
 
-    posA = vertices[instance][i[0]].vertex;
-    posB = vertices[instance][i[1]].vertex;
-    posC = vertices[instance][i[2]].vertex;
+    posA = vertices[instance][i[0]].position;
+    posB = vertices[instance][i[1]].position;
+    posC = vertices[instance][i[2]].position;
 
     const float3 e1 = posB - posA;
     const float3 e2 = posC - posA;

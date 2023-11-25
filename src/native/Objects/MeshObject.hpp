@@ -31,7 +31,7 @@ struct InstanceConstantBuffer
 };
 #pragma pack(pop)
 
-class Material;
+struct Material;
 
 /**
  * \brief An object that has a mesh of any kind.
@@ -58,6 +58,16 @@ public:
     [[nodiscard]] const Material& GetMaterial() const;
 
     /**
+     * Get the number of units (quads, bounds) in the geometry buffer.
+     */
+    [[nodiscard]] UINT GetGeometryUnitCount() const;
+    /**
+     * Get the geometry buffer.
+     * If this object is animated, this will be the destination buffer.
+     */
+    [[nodiscard]] Allocation<ID3D12Resource> GetGeometryBuffer() const;
+
+    /**
      * Enqueues commands to upload the mesh to the GPU.
      * Should only be called when the mesh is modified.
      */
@@ -69,12 +79,24 @@ public:
      */
     void CleanupMeshUpload();
 
-    ShaderResources::ConstantBufferViewDescriptor GetInstanceDataViewDescriptor() const;
-    ShaderResources::ShaderResourceViewDescriptor GetGeometryBufferViewDescriptor() const;
+    [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor GetInstanceDataViewDescriptor() const;
+    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor GetGeometryBufferViewDescriptor() const;
+    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor GetAnimationSourceBufferViewDescriptor() const;
+    [[nodiscard]] ShaderResources::UnorderedAccessViewDescriptor GetAnimationDestinationBufferViewDescriptor() const;
 
-    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs);
+    /**
+     * \brief Create the BLAS for this mesh.
+     * \param commandList The command list to use.
+     * \param uavs The UAVs to use for the BLAS.
+     * \param isForAnimation Whether the BLAS is created for animation. If true and the mesh is modified and a BLAS will be created later anyway, this call will be ignored.
+     */
+    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs,
+                    bool isForAnimation = false);
     const BLAS& GetBLAS();
 
+    void SetAnimationHandle(AnimationController::Handle handle);
+    [[nodiscard]] AnimationController::Handle GetAnimationHandle() const;
+    
     /**
      * Associate this object with a handle. This is performed by the space automatically.
      */
@@ -85,21 +107,23 @@ public:
      */
     void Return();
 
-protected:
-    [[nodiscard]] BLAS
-    CreateBottomLevelASFromVertices(
+private:
+    void CreateBottomLevelASFromVertices(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers) const;
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers);
 
-    [[nodiscard]] BLAS
-    CreateBottomLevelASFromBounds(
+    void CreateBottomLevelASFromBounds(
         ComPtr<ID3D12GraphicsCommandList4> commandList,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers) const;
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers);
 
-private:
+    void CreateBottomLevelAS(
+        ComPtr<ID3D12GraphicsCommandList4> commandList);
+
+    Allocation<ID3D12Resource>& GeometryBuffer();
+    
     void UpdateActiveState();
-    void UpdateGeometryBufferView(UINT stride);
+    void UpdateGeometryViews(UINT stride);
 
     const Material* m_material = nullptr;
 
@@ -109,18 +133,25 @@ private:
     Mapping<ID3D12Resource, InstanceConstantBuffer> m_instanceConstantBufferMapping = {};
 
     Allocation<ID3D12Resource> m_geometryBufferUpload = {};
-    Allocation<ID3D12Resource> m_geometryBuffer = {};
-    D3D12_SHADER_RESOURCE_VIEW_DESC m_geometryBufferView = {};
+    Allocation<ID3D12Resource> m_sourceGeometryBuffer = {};
+    Allocation<ID3D12Resource> m_destinationGeometryBuffer = {};
     UINT m_geometryElementCount = 0;
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC m_geometrySRV = {};
+    D3D12_UNORDERED_ACCESS_VIEW_DESC m_geometryUAV = {};
 
     Allocation<ID3D12Resource> m_usedIndexBuffer = {};
     UINT m_usedIndexCount = 0;
 
+    nv_helpers_dx12::BottomLevelASGenerator m_bottomLevelASGenerator = {};
     BLAS m_blas = {};
+    bool m_requiresFreshBLAS = false;
 
     std::optional<Handle> m_handle = std::nullopt;
     std::optional<size_t> m_active = std::nullopt;
     bool m_enabled = true;
+
+    AnimationController::Handle m_animationHandle = AnimationController::Handle::INVALID;
 
     bool m_uploadRequired = false;
     bool m_uploadEnqueued = false;

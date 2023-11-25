@@ -11,8 +11,8 @@
 using namespace Microsoft::WRL;
 
 DXApp::DXApp(const Configuration configuration) :
-    m_width(max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH)),
-    m_height(max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT)),
+    m_width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH)),
+    m_height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT)),
     m_aspectRatio(0.0f),
     m_windowBounds{0, 0, 0, 0},
     m_tearingSupport(false),

@@ -30,6 +30,8 @@ float3 HUEtoRGB(const in float h)
 #define POW4(x) (POW2(x) * POW2(x))
 #define POW5(x) (POW3(x) * POW2(x))
 
+// todo: replace the following defines with static const variables
+
 #define VG_RAY_DISTANCE 100000.0
 #define VG_RAY_EPSILON 0.01
 

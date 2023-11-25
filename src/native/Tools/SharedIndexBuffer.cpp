@@ -68,7 +68,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
     return {m_sharedIndexBuffer, requiredIndexCount};
 }
 
-void SharedIndexBuffer::CleanupRenderSetup()
+void SharedIndexBuffer::CleanupRender()
 {
     m_indexBufferUploads.clear();
 }

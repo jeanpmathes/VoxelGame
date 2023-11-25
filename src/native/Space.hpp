@@ -24,6 +24,9 @@ struct MaterialDescription
     BOOL shadowCaster;
     BOOL opaque;
 
+    BOOL isAnimated;
+    UINT animationShaderIndex;
+
     LPWSTR normalClosestHitSymbol;
     LPWSTR normalAnyHitSymbol;
     LPWSTR normalIntersectionSymbol;
@@ -72,8 +75,11 @@ DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
 struct GlobalConstantBuffer
 {
     float time;
+    DirectX::XMFLOAT3 windDirection;
+    
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
+    
     DirectX::XMUINT2 textureSize;
 };
 
@@ -83,22 +89,24 @@ struct MaterialConstantBuffer
 };
 #pragma pack(pop)
 
-class Material
+struct Material
 {
-public:
-    std::wstring name;
-    UINT index;
+    std::wstring name{};
+    UINT index{};
     bool isOpaque{};
+    std::optional<UINT> animationID{};
     D3D12_RAYTRACING_GEOMETRY_TYPE geometryType{};
     MaterialFlags flags{};
-    
-    std::wstring normalHitGroup;
-    ComPtr<ID3D12RootSignature> normalRootSignature;
 
-    std::wstring shadowHitGroup;
-    ComPtr<ID3D12RootSignature> shadowRootSignature;
+    std::wstring normalHitGroup{};
+    ComPtr<ID3D12RootSignature> normalRootSignature{};
 
-    Allocation<ID3D12Resource> materialConstantBuffer;
+    std::wstring shadowHitGroup{};
+    ComPtr<ID3D12RootSignature> shadowRootSignature{};
+
+    Allocation<ID3D12Resource> materialConstantBuffer{};
+
+    [[nodiscard]] bool IsAnimated() const;
 };
 
 /**
@@ -142,29 +150,14 @@ public:
     void Reset(UINT frameIndex);
 
     /**
-     * Adds commands that setup rendering to the command list.
-     * This should be called before each frame.
-     */
-    void EnqueueRenderSetup();
-    void CleanupRenderSetup();
-
-    /**
      * Get a buffer containing indices for the given vertex count.
      * The indices are valid for a vertex buffer that contains a list of quads.
      */
     [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
 
-    /**
-     * Dispatches rays into the space.
-     */
-    void DispatchRays();
-
-    /**
-     * Copies the raytracing output to the given buffer.
-     */
-    void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
-
     void Update(double delta);
+    void Render(double delta, Allocation<ID3D12Resource> outputBuffer);
+    void CleanupRender();
 
     /**
      * Get the native client.
@@ -195,12 +188,9 @@ private:
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
 
     void CreateGlobalConstBuffer();
-    void UpdateGlobalConstBuffer();
 
     void InitializePipelineResourceViews(const SpacePipeline& pipeline);
     
-    void UpdateOutputResourceView();
-    void UpdateAccelerationStructureView();
     bool CreateRaytracingPipeline(const SpacePipeline& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
         const SpacePipeline& pipelineDescription,
@@ -208,8 +198,11 @@ private:
         pipeline);
     std::unique_ptr<Material> SetupMaterial(const MaterialDescription& description, UINT index,
                                             nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
+    void CreateAnimations(const SpacePipeline& pipeline);
     void SetupStaticResourceLayout(ShaderResources::Description* description);
     void SetupDynamicResourceLayout(ShaderResources::Description* description);
+    void SetupAnimationResourceLayout(ShaderResources::Description* description);
+    void InitializeAnimations();
     void CreateRaytracingOutputBuffer();
     
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
@@ -217,7 +210,16 @@ private:
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMaterialSignature() const;
 
     void CreateShaderBindingTable();
-    void CreateTopLevelAS();
+    void EnqueueUploads();
+    void RunAnimations();
+    void BuildAccelerationStructures();
+    void CreateTLAS();
+    void DispatchRays() const;
+    void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
+
+    void UpdateOutputResourceView();
+    void UpdateTopLevelAccelerationStructureView() const;
+    void UpdateGlobalShaderResources();
 
     NativeClient& m_nativeClient;
     Resolution m_resolution{};
@@ -225,9 +227,11 @@ private:
     Camera m_camera;
     Light m_light;
 
+    DirectX::XMFLOAT3 m_windDirection = {0.7f, 0.0f, 0.7f};
+
     Allocation<ID3D12Resource> m_globalConstantBuffer = {};
     UINT64 m_globalConstantBufferSize = 0;
-    GlobalConstantBuffer m_globalConstantBufferData = {};
+    double m_renderTime = 0.0;
     Mapping<ID3D12Resource, GlobalConstantBuffer> m_globalConstantBufferMapping = {};
 
     std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
@@ -277,6 +281,8 @@ private:
     std::set<MeshObject::Handle> m_modifiedMeshes = {};
     GappedList<MeshObject*> m_activeMeshes = {};
     std::set<size_t> m_activatedMeshes = {};
+
+    std::vector<AnimationController> m_animations = {};
 
     SharedIndexBuffer m_indexBuffer;
 };

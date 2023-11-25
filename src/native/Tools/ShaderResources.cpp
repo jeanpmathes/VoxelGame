@@ -1,8 +1,5 @@
 ﻿#include "stdafx.h"
 
-#undef min
-#undef max
-
 ShaderResources::Table::Entry::Entry(const UINT heapParameterIndex, const UINT inHeapIndex) :
     m_heapParameterIndex(heapParameterIndex), m_inHeapIndex(inHeapIndex)
 {
@@ -219,6 +216,8 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
                 tableData.internalOffsets = std::move(internalOffsets[tableIndex]);
                 tableData.externalOffset = *externalOffset;
 
+                NAME_D3D12_OBJECT(tableData.heap);
+
                 *externalOffset += size;
                 tableIndex++;
             }
@@ -257,6 +256,8 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
 
     initializeDescriptorLists(m_graphicsRootParameters, graphicsDescription.m_descriptorListFunctions);
     initializeDescriptorLists(m_computeRootParameters, computeDescription.m_descriptorListFunctions);
+
+    Update();
 }
 
 bool ShaderResources::IsInitialized() const
@@ -401,17 +402,17 @@ void ShaderResources::Update()
 {
     UINT indexOfFirstResizedList, totalListDescriptorCount;
     const bool resized = CheckListSizeUpdate(&indexOfFirstResizedList, &totalListDescriptorCount);
-    if (resized) PerformSizeUpdate(indexOfFirstResizedList, totalListDescriptorCount);
 
-    for (auto& table : m_descriptorTables)
+    if (resized)
     {
-        if (table.dirty || resized)
+        PerformSizeUpdate(indexOfFirstResizedList, totalListDescriptorCount);
+
+        for (auto& table : m_descriptorTables)
         {
             table.heap.CopyTo(m_descriptorHeap, table.externalOffset);
-            table.dirty = false;
         }
     }
-
+    
     const UINT maxIndexOfListsToUpdate =
         resized ? indexOfFirstResizedList : static_cast<UINT>(m_descriptorLists.size());
     for (UINT listIndex = 0; listIndex < maxIndexOfListsToUpdate; ++listIndex)
@@ -435,7 +436,7 @@ void ShaderResources::Update()
 void ShaderResources::CreateConstantBufferView(
     Table::Entry entry,
     const UINT offset,
-    const ConstantBufferViewDescriptor& descriptor)
+    const ConstantBufferViewDescriptor& descriptor) const
 {
     REQUIRE(entry.IsValid());
 
@@ -448,8 +449,10 @@ void ShaderResources::CreateConstantBufferView(
         description.BufferLocation = descriptor.gpuAddress;
         description.SizeInBytes = descriptor.size;
 
-        const D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
-        m_device->CreateConstantBufferView(&description, cpuHandle);
+        auto [primary, secondary] = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
+
+        m_device->CreateConstantBufferView(&description, primary);
+        m_device->CreateConstantBufferView(&description, secondary);
     }
     else
     {
@@ -460,7 +463,7 @@ void ShaderResources::CreateConstantBufferView(
 void ShaderResources::CreateShaderResourceView(
     Table::Entry entry,
     const UINT offset,
-    const ShaderResourceViewDescriptor& descriptor)
+    const ShaderResourceViewDescriptor& descriptor) const
 {
     REQUIRE(entry.IsValid());
 
@@ -469,8 +472,10 @@ void ShaderResources::CreateShaderResourceView(
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
     {
-        const D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
-        m_device->CreateShaderResourceView(descriptor.resource.Get(), descriptor.description, cpuHandle);
+        auto [primary, secondary] = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
+
+        m_device->CreateShaderResourceView(descriptor.resource.Get(), descriptor.description, primary);
+        m_device->CreateShaderResourceView(descriptor.resource.Get(), descriptor.description, secondary);
     }
     else
     {
@@ -481,7 +486,7 @@ void ShaderResources::CreateShaderResourceView(
 void ShaderResources::CreateUnorderedAccessView(
     Table::Entry entry,
     const UINT offset,
-    const UnorderedAccessViewDescriptor& descriptor)
+    const UnorderedAccessViewDescriptor& descriptor) const
 {
     REQUIRE(entry.IsValid());
 
@@ -490,8 +495,10 @@ void ShaderResources::CreateUnorderedAccessView(
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
     {
-        const D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
-        m_device->CreateUnorderedAccessView(descriptor.resource.Get(), nullptr, descriptor.description, cpuHandle);
+        auto [primary, secondary] = GetDescriptorHandleForWrite(parameter, inHeapIndex, offset);
+
+        m_device->CreateUnorderedAccessView(descriptor.resource.Get(), nullptr, descriptor.description, primary);
+        m_device->CreateUnorderedAccessView(descriptor.resource.Get(), nullptr, descriptor.description, secondary);
     }
     else
     {
@@ -508,18 +515,23 @@ const ShaderResources::RootParameter& ShaderResources::GetRootParameter(const UI
                : m_computeRootParameters[index - m_graphicsRootParameters.size()];
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE ShaderResources::GetDescriptorHandleForWrite(
-    const RootParameter& parameter, const UINT inHeapIndex, const UINT offset)
+std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_CPU_DESCRIPTOR_HANDLE> ShaderResources::GetDescriptorHandleForWrite(
+    const RootParameter& parameter, const UINT inHeapIndex, const UINT offset) const
 {
     const UINT descriptorTableIndex = std::get<RootHeapDescriptorTable>(parameter).index;
     auto& table = m_descriptorTables[descriptorTableIndex];
 
-    const UINT baseOffset = table.internalOffsets[inHeapIndex];
-    const UINT totalOffset = baseOffset + offset;
+    const UINT baseOffsetInSecondaryHeap = table.internalOffsets[inHeapIndex];
+    const UINT totalOffsetInSecondaryHeap = baseOffsetInSecondaryHeap + offset;
 
-    table.dirty = true;
+    const UINT totalOffsetInPrimaryHeap = table.externalOffset + totalOffsetInSecondaryHeap;
 
-    return table.heap.GetDescriptorHandleCPU(totalOffset);
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandleToPrimaryHeap = m_descriptorHeap.GetDescriptorHandleCPU(
+        totalOffsetInPrimaryHeap);
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandleToSecondaryHeap = table.heap.GetDescriptorHandleCPU(
+        totalOffsetInSecondaryHeap);
+
+    return {cpuHandleToPrimaryHeap, cpuHandleToSecondaryHeap};
 }
 
 bool ShaderResources::CheckListSizeUpdate(UINT* firstResizedList, UINT* totalListDescriptorCount)
@@ -553,6 +565,7 @@ void ShaderResources::PerformSizeUpdate(const UINT firstResizedListIndex, const 
 {
     const UINT totalDescriptorCount = m_totalTableDescriptorCount + totalListDescriptorCount;
     m_descriptorHeap.Create(m_device, totalDescriptorCount, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+    NAME_D3D12_OBJECT(m_descriptorHeap);
 
     for (const auto& table : m_descriptorTables)
     {

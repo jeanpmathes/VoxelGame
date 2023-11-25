@@ -70,10 +70,12 @@ return buffers;
 
 #include "d3d12.h"
 
-#include <DirectXMath.h>
-
 #include <vector>
+
+#include <DirectXMath.h>
 #include <wrl/client.h>
+
+#include "Tools/Allocation.hpp"
 
 namespace nv_helpers_dx12
 {
@@ -109,7 +111,7 @@ namespace nv_helpers_dx12
         /// \param resultSizeInBytes Required GPU memory to store the acceleration structure
         /// \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
         void ComputeASBufferSizes(
-            ID3D12Device5* device,
+            ComPtr<ID3D12Device5> device,
             bool allowUpdate,
             UINT64* scratchSizeInBytes,
             UINT64* resultSizeInBytes,
@@ -128,12 +130,12 @@ namespace nv_helpers_dx12
         /// \param updateOnly If true, simply refit the existing acceleration
         /// \param previousResult Optional previous acceleration structure, used if an iterative update is requested
         void Generate(
-            ID3D12GraphicsCommandList4* commandList,
-            ID3D12Resource* scratchBuffer,
-            ID3D12Resource* resultBuffer,
-            ID3D12Resource* descriptorsBuffer,
+            ComPtr<ID3D12GraphicsCommandList4> commandList,
+            Allocation<ID3D12Resource> scratchBuffer,
+            Allocation<ID3D12Resource> resultBuffer,
+            Allocation<ID3D12Resource> descriptorsBuffer,
             bool updateOnly = false,
-            ID3D12Resource* previousResult = nullptr
+            Allocation<ID3D12Resource> previousResult = {}
         );
 
     private:

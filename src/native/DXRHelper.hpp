@@ -83,7 +83,7 @@ inline ComPtr<IDxcBlob> CompileShader(
 
         // Convert error blob to a string.
         std::vector<char> infoLog(error->GetBufferSize() + 1);
-        memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
+        std::memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
         infoLog[error->GetBufferSize()] = 0;
 
         std::string errorMsg = "Shader Compilation Error:\n";

@@ -25,7 +25,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
 {
     private const string SectionFragmentShader = "section";
 
-    private const string TimeUniform = "time";
+    private const string TimeUniform = "time"; // todo: delete these constants, all the uniform stuff and the setter methods
     private const string NearPlaneUniform = "nearPlane";
     private const string FarPlaneUniform = "farPlane";
 
@@ -292,12 +292,13 @@ public sealed class Shaders // todo: delete all GLSL shaders
             PipelineBuilder.Groups.Default,
             isOpaque: false,
             foliageSectionHitGroup,
-            foliageShadowHitGroup);
+            foliageShadowHitGroup,
+            builder.AddAnimation(directory.GetFile("FoliageAnimation.hlsl")));
 
         FluidSectionMaterial = builder.AddMaterial(
             nameof(FluidSectionMaterial),
             PipelineBuilder.Groups.NoShadow,
-            isOpaque: true, // Despite having transparency, no no any-hit shader is used, so it is opaque.
+            isOpaque: true, // Despite having transparency, no any-hit shader is used, so it is considered opaque.
             fluidSectionHitGroup,
             fluidShadowHitGroup);
 

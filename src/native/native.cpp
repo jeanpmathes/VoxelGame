@@ -49,7 +49,7 @@ NATIVE void NativeRequestClose(const NativeClient* client)
 {
     TRY
     {
-        REQUIRE(CALL_IN_UPDATE(client));
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
         REQUIRE(Win32Application::IsRunning(client));
 
         PostMessage(Win32Application::GetHwnd(), WM_CLOSE, 0, 0);
@@ -88,7 +88,7 @@ NATIVE void NativePassDRED(const NativeClient* client, const NativeWStringFunc r
 {
     TRY
     {
-        REQUIRE(CALL_IN_RENDER(client));
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
 
         const std::wstring dred = client->GetDRED();
         receiver(const_cast<LPWSTR>(dred.c_str()));

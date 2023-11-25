@@ -136,7 +136,6 @@
         </PostBuildEvent>
     </ItemDefinitionGroup>
     <ItemGroup>
-        <ClInclude Include="Common.hpp"/>
         <ClInclude Include="DXRHelper.hpp"/>
         <ClInclude Include="Interfaces\Draw2D.hpp"/>
         <ClInclude Include="native.hpp"/>
@@ -155,24 +154,25 @@
         <ClInclude Include="Objects\Texture.hpp"/>
         <ClInclude Include="Space.hpp"/>
         <ClInclude Include="Tools\Allocation.hpp"/>
+        <ClInclude Include="Tools\AnimationController.hpp"/>
+        <ClInclude Include="Tools\Common.hpp"/>
         <ClInclude Include="Tools\InBufferAllocator.hpp"/>
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
         <ClInclude Include="Tools\GappedList.hpp"/>
         <ClInclude Include="Tools\ShaderResources.hpp"/>
         <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
-        <ClInclude Include="Uploader.hpp"/>
-        <ClInclude Include="Utilities.hpp"/>
+        <ClInclude Include="Tools\StepTimer.hpp"/>
+        <ClInclude Include="Tools\Uploader.hpp"/>
+        <ClInclude Include="Tools\Utilities.hpp"/>
         <ClInclude Include="Win32Application.hpp"/>
         <ClInclude Include="NativeClient.hpp"/>
-        <ClInclude Include="StepTimer.hpp"/>
         <ClInclude Include="d3dx12.h"/>
         <ClInclude Include="DXApp.hpp"/>
         <ClInclude Include="DXHelper.hpp"/>
         <ClInclude Include="stdafx.h"/>
     </ItemGroup>
     <ItemGroup>
-        <ClCompile Include="Common.cpp"/>
         <ClCompile Include="Interfaces\Draw2D.cpp"/>
         <ClCompile Include="nv_helpers_dx12\BottomLevelASGenerator.cpp">
             <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -204,6 +204,8 @@
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
         </ClCompile>
+        <ClCompile Include="Tools\AnimationController.cpp"/>
+        <ClCompile Include="Tools\Common.cpp"/>
         <ClCompile Include="Tools\InBufferAllocator.cpp"/>
         <ClCompile Include="Tools\D3D12MemAlloc.cpp">
             <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -221,86 +223,9 @@
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Tools\DescriptorHeap.cpp"/>
-        <ClCompile Include="Tools\ShaderResources.cpp">
-            <AssemblerOutput>NoListing</AssemblerOutput>
-            <AssemblerListingLocation>obj\x64\Debug\</AssemblerListingLocation>
-            <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-            <BrowseInformation>false</BrowseInformation>
-            <BrowseInformationFile>obj\x64\Debug\</BrowseInformationFile>
-            <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-            <CompileAs>Default</CompileAs>
-            <ConformanceMode>Default</ConformanceMode>
-            <DiagnosticsFormat>Column</DiagnosticsFormat>
-            <DisableLanguageExtensions>false</DisableLanguageExtensions>
-            <ErrorReporting>Prompt</ErrorReporting>
-            <ExpandAttributedSource>false</ExpandAttributedSource>
-            <ExceptionHandling>Sync</ExceptionHandling>
-            <EnableASAN>false</EnableASAN>
-            <EnableFuzzer>false</EnableFuzzer>
-            <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-            <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-            <FloatingPointModel>Precise</FloatingPointModel>
-            <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-            <GenerateModuleDependencies>false</GenerateModuleDependencies>
-            <GenerateSourceDependencies>false</GenerateSourceDependencies>
-            <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-            <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-            <IntrinsicFunctions>false</IntrinsicFunctions>
-            <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-            <LanguageStandard>stdcpp20</LanguageStandard>
-            <LanguageStandard_C>Default</LanguageStandard_C>
-            <MinimalRebuild>false</MinimalRebuild>
-            <ModuleDependenciesFile>obj\x64\Debug\</ModuleDependenciesFile>
-            <ModuleOutputFile>obj\x64\Debug\</ModuleOutputFile>
-            <OmitDefaultLibName>false</OmitDefaultLibName>
-            <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-            <WholeProgramOptimization>true</WholeProgramOptimization>
-            <Optimization>Disabled</Optimization>
-            <ObjectFileName>obj\x64\Debug\</ObjectFileName>
-            <CallingConvention>Cdecl</CallingConvention>
-            <ProgramDataBaseFileName>obj\x64\Debug\vc143.pdb</ProgramDataBaseFileName>
-            <PrecompiledHeader>Use</PrecompiledHeader>
-            <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-            <PrecompiledHeaderOutputFile>obj\x64\Debug\Native.pch</PrecompiledHeaderOutputFile>
-            <PreprocessToFile>false</PreprocessToFile>
-            <PreprocessKeepComments>false</PreprocessKeepComments>
-            <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-            <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-            <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
-            <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-            <ShowIncludes>false</ShowIncludes>
-            <SourceDependenciesFile>obj\x64\Debug\</SourceDependenciesFile>
-            <SuppressStartupBanner>true</SuppressStartupBanner>
-            <BufferSecurityCheck>true</BufferSecurityCheck>
-            <SmallerTypeCheck>false</SmallerTypeCheck>
-            <SpectreMitigation>false</SpectreMitigation>
-            <StructMemberAlignment>Default</StructMemberAlignment>
-            <SupportJustMyCode>false</SupportJustMyCode>
-            <TrackerLogDirectory>obj\x64\Debug\Native.tlog\</TrackerLogDirectory>
-            <TranslateIncludes>false</TranslateIncludes>
-            <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-            <TreatWarningAsError>false</TreatWarningAsError>
-            <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-            <UseFullPaths>true</UseFullPaths>
-            <WarningLevel>Level4</WarningLevel>
-            <XMLDocumentationFileName>obj\x64\Debug\</XMLDocumentationFileName>
-            <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-            <IntelJCCErratum>false</IntelJCCErratum>
-            <BuildStlModules>false</BuildStlModules>
-            <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-            <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-            <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-            <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-            <PreprocessorDefinitions>VG_DEBUG;USE_PIX;WIN32;NDEBUG;_WINDOWS;_WINDLL;_UNICODE;UNICODE;</PreprocessorDefinitions>
-            <FunctionLevelLinking>true</FunctionLevelLinking>
-            <SDLCheck>true</SDLCheck>
-            <AdditionalIncludeDirectories>C:\Users\jeanp\Documents\c#code\VoxelGame\packages\Microsoft.Direct3D.DXC.1.7.2308.12\build\native\include;C:\Users\jeanp\Documents\c#code\VoxelGame\packages\WinPixEventRuntime.1.0.230302001\build\..\Include\WinPixEventRuntime;C:\Users\jeanp\Documents\c#code\VoxelGame\src\native\;;C:\dev\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
-            <CompileAsWinRT>false</CompileAsWinRT>
-            <MultiProcessorCompilation>true</MultiProcessorCompilation>
-            <LinkCompiled>true</LinkCompiled>
-        </ClCompile>
+        <ClCompile Include="Tools\ShaderResources.cpp"/>
         <ClCompile Include="Tools\SharedIndexBuffer.cpp"/>
-        <ClCompile Include="Uploader.cpp"/>
+        <ClCompile Include="Tools\Uploader.cpp"/>
         <ClCompile Include="Win32Application.cpp"/>
         <ClCompile Include="NativeClient.cpp"/>
         <ClCompile Include="DXApp.cpp"/>

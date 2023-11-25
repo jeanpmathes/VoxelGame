@@ -35,10 +35,12 @@ public:
     explicit Camera(NativeClient& client);
 
     void Initialize();
-    void Update() const;
+    void Update();
 
     void SetPosition(const DirectX::XMFLOAT3& position);
     void SetOrientation(const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& up);
+
+    [[nodiscard]] const DirectX::XMFLOAT3& GetPosition() const;
 
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
@@ -55,5 +57,6 @@ private:
     float m_far = 0.0f;
 
     Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
+    Mapping<ID3D12Resource, DirectX::XMFLOAT4X4> m_spaceCameraBufferMapping = {};
     UINT64 m_spaceCameraBufferSize = 0;
 };

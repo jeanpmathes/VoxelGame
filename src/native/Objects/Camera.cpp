@@ -10,9 +10,11 @@ void Camera::Initialize()
     m_spaceCameraBufferSize = matrixCount * sizeof(DirectX::XMMATRIX);
     m_spaceCameraBuffer = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
+
+    TRY_DO(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, matrixCount));
 }
 
-void Camera::Update() const
+void Camera::Update()
 {
     const DirectX::XMVECTOR eye = DirectX::XMVectorSet(m_position.x, m_position.y, m_position.z, 0.0f);
     const DirectX::XMVECTOR forward = DirectX::XMVectorSet(m_front.x, m_front.y, m_front.z, 0.0f);
@@ -32,8 +34,7 @@ void Camera::Update() const
     XMStoreFloat4x4(&matrices[2], viewI);
     XMStoreFloat4x4(&matrices[3], projectionI);
 
-    TRY_DO(util::MapAndWrite(m_spaceCameraBuffer, matrices.data(), static_cast<UINT>(matrices.size())));
-    // todo: map once, use struct
+    m_spaceCameraBufferMapping.Write(matrices.data(), matrices.size());
 }
 
 void Camera::SetPosition(const DirectX::XMFLOAT3& position)
@@ -45,6 +46,11 @@ void Camera::SetOrientation(const DirectX::XMFLOAT3& front, const DirectX::XMFLO
 {
     m_front = front;
     m_up = up;
+}
+
+const DirectX::XMFLOAT3& Camera::GetPosition() const
+{
+    return m_position;
 }
 
 void Camera::SetFov(const float fov)

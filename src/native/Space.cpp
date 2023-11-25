@@ -1,7 +1,9 @@
 ﻿#include "stdafx.h"
 
-#undef min
-#undef max
+bool Material::IsAnimated() const
+{
+    return animationID.has_value();
+}
 
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
@@ -11,6 +13,9 @@ Space::Space(NativeClient& nativeClient) :
     m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
     m_indexBuffer(*this)
 {
+    DirectX::XMVECTOR windDirection = XMLoadFloat3(&m_windDirection);
+    windDirection = DirectX::XMVector3Normalize(windDirection);
+    XMStoreFloat3(&m_windDirection, windDirection);
 }
 
 void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQueue)
@@ -21,7 +26,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
-    CreateTopLevelAS();
+    CreateTLAS();
 
     m_commandGroup.Close();
     ID3D12CommandList* ppCommandLists[] = {m_commandGroup.commandList.Get()};
@@ -93,6 +98,13 @@ MeshObject& Space::CreateMeshObject(const UINT materialIndex)
 void Space::MarkMeshObjectModified(MeshObject::Handle handle)
 {
     m_modifiedMeshes.emplace(handle);
+
+    const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+
+    if (mesh->GetMaterial().IsAnimated() && mesh->GetActiveIndex().has_value())
+    {
+        m_animations[mesh->GetMaterial().animationID.value()].UpdateMesh(*mesh);
+    }
 }
 
 size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
@@ -104,14 +116,24 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
     
     m_activatedMeshes.emplace(index);
 
+    if (mesh->GetMaterial().IsAnimated())
+    {
+        m_animations[mesh->GetMaterial().animationID.value()].AddMesh(*mesh);
+    }
+
     return index;
 }
 
 void Space::DeactivateMeshObject(const size_t index)
 {
-    m_activeMeshes.Pop(index);
+    MeshObject* mesh = m_activeMeshes.Pop(index);
     
     m_activatedMeshes.erase(index);
+
+    if (mesh->GetMaterial().IsAnimated())
+    {
+        m_animations[mesh->GetMaterial().animationID.value()].RemoveMesh(*mesh);
+    }
 }
 
 void Space::ReturnMeshObject(const MeshObject::Handle handle)
@@ -131,44 +153,44 @@ void Space::Reset(const UINT frameIndex)
     m_commandGroup.Reset(frameIndex);
 }
 
-void Space::EnqueueRenderSetup()
+std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT vertexCount)
 {
-    std::vector<ID3D12Resource*> uavs;
-
-    for (const auto handle : m_modifiedMeshes)
-    {
-        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        mesh->EnqueueMeshUpload(GetCommandList());
-        mesh->CreateBLAS(GetCommandList(), &uavs);
-    }
-
-    m_resultBufferAllocator.CreateBarriers(GetCommandList(), std::move(uavs));
-
-    CreateTopLevelAS();
-    UpdateAccelerationStructureView();
-
-    std::set<size_t> meshesToRefresh = m_activatedMeshes;
-    for (const auto handle : m_modifiedMeshes)
-    {
-        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        std::optional<size_t> index = mesh->GetActiveIndex();
-        if (!index.has_value()) continue;
-
-        meshesToRefresh.insert(index.value());
-    }
-
-    m_globalShaderResources.RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
-    m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
-    m_globalShaderResources.Update();
-
-    m_activatedMeshes.clear();
+    return m_indexBuffer.GetIndexBuffer(vertexCount);
 }
 
-void Space::CleanupRenderSetup()
+void Space::Update(double)
+{
+    m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
+
+    for (const auto& mesh : m_meshes)
+    {
+        mesh->Update();
+    }
+
+    m_camera.Update();
+}
+
+void Space::Render(double delta, Allocation<ID3D12Resource> outputBuffer)
+{
+    m_renderTime += delta;
+    m_globalConstantBufferMapping->time = static_cast<float>(m_renderTime);
+
+    {
+        PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
+
+        EnqueueUploads();
+        UpdateGlobalShaderResources();
+        m_globalShaderResources.Bind(GetCommandList());
+        RunAnimations();
+        BuildAccelerationStructures();
+        DispatchRays();
+        CopyOutputToBuffer(outputBuffer);
+    }
+
+    TRY_DO(GetCommandList()->Close());
+}
+
+void Space::CleanupRender()
 {
     for (const auto handle : m_modifiedMeshes)
     {
@@ -179,85 +201,7 @@ void Space::CleanupRenderSetup()
     }
     m_modifiedMeshes.clear();
 
-    m_indexBuffer.CleanupRenderSetup();
-}
-
-std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(const UINT vertexCount)
-{
-    return m_indexBuffer.GetIndexBuffer(vertexCount);
-}
-
-void Space::DispatchRays()
-{
-    const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
-        D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    GetCommandList()->ResourceBarrier(1, &barrier);
-
-    m_globalShaderResources.Bind(GetCommandList());
-
-    D3D12_DISPATCH_RAYS_DESC desc = {};
-
-    desc.RayGenerationShaderRecord.StartAddress
-        = m_sbtStorage.GetGPUVirtualAddress()
-        + m_sbtHelper.GetRayGenSectionOffset();
-    desc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
-
-    desc.MissShaderTable.StartAddress
-        = m_sbtStorage.GetGPUVirtualAddress()
-        + m_sbtHelper.GetMissSectionOffset();
-    desc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
-    desc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
-
-    desc.HitGroupTable.StartAddress
-        = m_sbtStorage.GetGPUVirtualAddress()
-        + m_sbtHelper.GetHitGroupSectionOffset();
-    desc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
-    desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
-
-    desc.Width = m_resolution.width;
-    desc.Height = m_resolution.height;
-    desc.Depth = 1;
-
-    GetCommandList()->SetPipelineState1(m_rtStateObject.Get());
-    GetCommandList()->DispatchRays(&desc);
-}
-
-void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
-{
-    D3D12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_outputResource.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_COPY_SOURCE),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_COPY_DEST)
-    };
-
-    m_commandGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
-
-    m_commandGroup.commandList->CopyResource(buffer.Get(),
-                                             m_outputResource.Get());
-
-    const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
-}
-
-void Space::Update(const double delta)
-{
-    m_globalConstantBufferData.time += static_cast<float>(delta);
-    m_globalConstantBufferData.lightDirection = m_light.GetDirection();
-
-    for (const auto& mesh : m_meshes)
-    {
-        mesh->Update();
-    }
-
-    m_camera.Update();
-
-    UpdateGlobalConstBuffer();
+    m_indexBuffer.CleanupRender();
 }
 
 NativeClient& Space::GetNativeClient() const
@@ -295,31 +239,25 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 
 void Space::CreateGlobalConstBuffer()
 {
-    m_globalConstantBufferData = {
-        .time = 0.0f,
-        .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
-        .minLight = 0.4f,
-        .textureSize = DirectX::XMUINT2{1, 1}
-    };
-
-    m_globalConstantBufferSize = sizeof m_globalConstantBufferData;
+    m_globalConstantBufferSize = sizeof(GlobalConstantBuffer);
     m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
-    TRY_DO(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping));
+    TRY_DO(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping, 1));
 
-    UpdateGlobalConstBuffer();
-}
-
-void Space::UpdateGlobalConstBuffer()
-{
-    m_globalConstantBufferMapping.Write(m_globalConstantBufferData);
+    m_globalConstantBufferMapping.Write({
+        .time = 0.0f,
+        .windDirection = m_windDirection,
+        .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
+        .minLight = 0.4f,
+        .textureSize = DirectX::XMUINT2{1, 1}
+    });
 }
 
 void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
 {
     UpdateOutputResourceView();
-    UpdateAccelerationStructureView();
+    UpdateTopLevelAccelerationStructureView();
 
     {
         std::optional<DirectX::XMUINT2> textureSize = std::nullopt;
@@ -339,6 +277,7 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
                 for (UINT index = 0; index < count.value(); index++)
                 {
                     const Texture* texture = pipeline.textures[base + index];
+                    
                     REQUIRE(texture != nullptr);
                     REQUIRE(texture->GetSize().x == textureSize.value().x);
                     REQUIRE(texture->GetSize().y == textureSize.value().y);
@@ -363,33 +302,8 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
         fillSlots(m_textureSlot1.entry, 0, getTexturesCountInSlot(firstSlotArraySize));
         fillSlots(m_textureSlot2.entry, firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize));
 
-        m_globalConstantBufferData.textureSize = textureSize.value_or(DirectX::XMUINT2{1, 1});
-        UpdateGlobalConstBuffer();
+        m_globalConstantBufferMapping->textureSize = textureSize.value_or(DirectX::XMUINT2{1, 1});
     }
-}
-
-void Space::UpdateOutputResourceView()
-{
-    if (!m_outputTextureEntry.IsValid()) return;
-
-    if (!m_outputResourceFresh) return;
-    m_outputResourceFresh = false;
-
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-    m_globalShaderResources.CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
-}
-
-void Space::UpdateAccelerationStructureView()
-{
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
-    srvDescription.Format = DXGI_FORMAT_UNKNOWN;
-    srvDescription.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-    srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
-        GetGPUVirtualAddress();
-
-    m_globalShaderResources.CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
 }
 
 bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
@@ -414,6 +328,8 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         m_materials.push_back(SetupMaterial(pipelineDescription.materials[index], index, pipeline));
     }
 
+    CreateAnimations(pipelineDescription);
+    
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
@@ -425,12 +341,19 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         {
             SetupStaticResourceLayout(&compute);
             SetupDynamicResourceLayout(&compute);
+
+            for (auto& animation : m_animations)
+            {
+                animation.SetupResourceLayout(&compute);
+            }
         },
         GetDevice());
 
     NAME_D3D12_OBJECT(m_globalShaderResources.GetComputeRootSignature());
     NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
 
+    InitializeAnimations();
+    
     pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
@@ -454,28 +377,40 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(con
     
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
-        shaderBlobs[shader] = CompileShader(
-            pipelineDescription.shaderFiles[shader].path,
-            L"", L"lib_6_7",
-            pipelineDescription.description.onShaderLoadingError);
-
-        if (shaderBlobs[shader] != nullptr)
+        if (pipelineDescription.shaderFiles[shader].symbolCount > 0)
         {
-            const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
+            shaderBlobs[shader] = CompileShader(
+                pipelineDescription.shaderFiles[shader].path,
+                L"", L"lib_6_7",
+                pipelineDescription.description.onShaderLoadingError);
 
-            std::vector<std::wstring> symbols;
-            symbols.reserve(currentSymbolCount);
-
-            for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++)
+            if (shaderBlobs[shader] != nullptr)
             {
-                symbols.push_back(pipelineDescription.symbols[currentSymbolIndex++]);
-            }
+                const UINT currentSymbolCount = pipelineDescription.shaderFiles[shader].symbolCount;
 
-            pipeline.AddLibrary(shaderBlobs[shader].Get(), symbols);
+                std::vector<std::wstring> symbols;
+                symbols.reserve(currentSymbolCount);
+
+                for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++)
+                {
+                    symbols.push_back(pipelineDescription.symbols[currentSymbolIndex++]);
+                }
+
+                pipeline.AddLibrary(shaderBlobs[shader].Get(), symbols);
+            }
+            else
+            {
+                ok = false;
+            }
         }
         else
         {
-            ok = false;
+            shaderBlobs[shader] = CompileShader(
+                pipelineDescription.shaderFiles[shader].path,
+                L"Main", L"cs_6_7",
+                pipelineDescription.description.onShaderLoadingError);
+
+            ok &= shaderBlobs[shader] != nullptr;
         }
     }
 
@@ -546,6 +481,35 @@ std::unique_ptr<Material> Space::SetupMaterial(const MaterialDescription& descri
     return material;
 }
 
+void Space::CreateAnimations(const SpacePipeline& pipeline)
+{
+    std::map<UINT, UINT> animationShaderIndexToID;
+
+    for (UINT shaderIndex = 0; shaderIndex < pipeline.description.shaderCount; shaderIndex++)
+    {
+        const ShaderFileDescription& shaderFile = pipeline.shaderFiles[shaderIndex];
+        if (shaderFile.symbolCount > 0) continue;
+
+        const UINT animationID = static_cast<UINT>(m_animations.size());
+        const ComPtr<IDxcBlob> blob = m_shaderBlobs[shaderIndex];
+
+        constexpr UINT offset = 3;
+        m_animations.emplace_back(blob, offset + animationID);
+
+        animationShaderIndexToID[shaderIndex] = animationID;
+    }
+
+    for (UINT materialID = 0; materialID < pipeline.description.materialCount; materialID++)
+    {
+        const MaterialDescription& materialDescription = pipeline.materials[materialID];
+        if (materialDescription.isAnimated)
+        {
+            UINT animationID = animationShaderIndexToID[materialDescription.animationShaderIndex];
+            m_materials[materialID]->animationID = animationID;
+        }
+    }
+}
+
 void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
 {
     description->AddConstantBufferView(m_camera.GetCameraBufferAddress(), {.reg = 0});
@@ -588,6 +552,22 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
                 GetGeometryBufferViewDescriptor();
         },
         CreateListBuilder(&m_activeMeshes, getIndexOfMesh));
+}
+
+void Space::SetupAnimationResourceLayout(ShaderResources::Description* description)
+{
+    for (auto& animation : m_animations)
+    {
+        animation.SetupResourceLayout(description);
+    }
+}
+
+void Space::InitializeAnimations()
+{
+    for (auto& animation : m_animations)
+    {
+        animation.Initialize(m_nativeClient, m_globalShaderResources.GetComputeRootSignature());
+    }
 }
 
 void Space::CreateRaytracingOutputBuffer()
@@ -664,16 +644,58 @@ void Space::CreateShaderBindingTable()
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
 }
 
-void Space::CreateTopLevelAS()
+void Space::EnqueueUploads()
+{
+    for (const auto handle : m_modifiedMeshes)
+    {
+        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+
+        mesh->EnqueueMeshUpload(GetCommandList());
+    }
+}
+
+void Space::RunAnimations()
+{
+    for (auto& animation : m_animations)
+    {
+        animation.Run(GetCommandList());
+    }
+}
+
+void Space::BuildAccelerationStructures()
+{
+    std::vector<ID3D12Resource*> uavs;
+
+    for (auto& animation : m_animations)
+    {
+        animation.CreateBLAS(GetCommandList(), &uavs);
+    }
+
+    for (const auto handle : m_modifiedMeshes)
+    {
+        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+
+        mesh->CreateBLAS(GetCommandList(), &uavs);
+    }
+
+    m_resultBufferAllocator.CreateBarriers(GetCommandList(), std::move(uavs));
+
+    CreateTLAS();
+    UpdateTopLevelAccelerationStructureView();
+}
+
+void Space::CreateTLAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
-
+    
     for (const auto& mesh : m_activeMeshes)
     {
         // The CCW flag is used because DirectX uses left-handed coordinates.
 
-        REQUIRE(mesh->GetActiveIndex());
-        const UINT instanceID = static_cast<UINT>(*mesh->GetActiveIndex());
+        REQUIRE(mesh->GetActiveIndex().has_value());
+        const UINT instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
 
         topLevelASGenerator.AddInstance(mesh->GetBLAS().result.GetAddress(), mesh->GetTransform(),
                                         instanceID, mesh->GetMaterial().index,
@@ -708,7 +730,115 @@ void Space::CreateTopLevelAS()
     NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDescription);
 
     topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
-                                 m_topLevelASBuffers.scratch.Get(),
-                                 m_topLevelASBuffers.result.Get(),
-                                 m_topLevelASBuffers.instanceDescription.Get());
+                                 m_topLevelASBuffers.scratch,
+                                 m_topLevelASBuffers.result,
+                                 m_topLevelASBuffers.instanceDescription);
+}
+
+void Space::DispatchRays() const
+{
+    const std::vector barriers = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
+    };
+    GetCommandList()->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
+
+    D3D12_DISPATCH_RAYS_DESC desc = {};
+
+    desc.RayGenerationShaderRecord.StartAddress
+        = m_sbtStorage.GetGPUVirtualAddress()
+        + m_sbtHelper.GetRayGenSectionOffset();
+    desc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
+
+    desc.MissShaderTable.StartAddress
+        = m_sbtStorage.GetGPUVirtualAddress()
+        + m_sbtHelper.GetMissSectionOffset();
+    desc.MissShaderTable.SizeInBytes = m_sbtHelper.GetMissSectionSize();
+    desc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
+
+    desc.HitGroupTable.StartAddress
+        = m_sbtStorage.GetGPUVirtualAddress()
+        + m_sbtHelper.GetHitGroupSectionOffset();
+    desc.HitGroupTable.SizeInBytes = m_sbtHelper.GetHitGroupSectionSize();
+    desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
+
+    desc.Width = m_resolution.width;
+    desc.Height = m_resolution.height;
+    desc.Depth = 1;
+
+    GetCommandList()->SetPipelineState1(m_rtStateObject.Get());
+    GetCommandList()->DispatchRays(&desc);
+}
+
+void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
+{
+    D3D12_RESOURCE_BARRIER barriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_outputResource.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_COPY_SOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_COPY_DEST)
+    };
+
+    m_commandGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
+
+    m_commandGroup.commandList->CopyResource(buffer.Get(),
+                                             m_outputResource.Get());
+
+    const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
+    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
+}
+
+void Space::UpdateOutputResourceView()
+{
+    if (!m_outputTextureEntry.IsValid()) return;
+
+    if (!m_outputResourceFresh) return;
+    m_outputResourceFresh = false;
+
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+    m_globalShaderResources.CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
+}
+
+void Space::UpdateTopLevelAccelerationStructureView() const
+{
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
+    srvDescription.Format = DXGI_FORMAT_UNKNOWN;
+    srvDescription.ViewDimension = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
+    srvDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
+        GetGPUVirtualAddress();
+
+    m_globalShaderResources.CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
+}
+
+void Space::UpdateGlobalShaderResources()
+{
+    std::set<size_t> meshesToRefresh = m_activatedMeshes;
+    for (const auto handle : m_modifiedMeshes)
+    {
+        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        REQUIRE(mesh != nullptr);
+
+        std::optional<size_t> index = mesh->GetActiveIndex();
+        if (!index.has_value()) continue;
+
+        meshesToRefresh.insert(index.value());
+    }
+
+    for (auto& animation : m_animations)
+    {
+        animation.Update(m_globalShaderResources, GetCommandList());
+    }
+
+    m_globalShaderResources.RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
+    m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
+    m_globalShaderResources.Update();
+
+    m_activatedMeshes.clear();
 }

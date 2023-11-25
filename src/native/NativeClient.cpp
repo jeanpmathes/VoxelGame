@@ -355,7 +355,7 @@ void NativeClient::OnPreRender()
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
 
-void NativeClient::OnRender(double)
+void NativeClient::OnRender(const double delta)
 {
     if (!m_windowVisible) return;
 
@@ -364,7 +364,7 @@ void NativeClient::OnRender(double)
 
         m_uploadGroup.Close();
 
-        PopulateCommandLists();
+        PopulateCommandLists(delta);
 
         std::vector<ID3D12CommandList*> commandLists;
         commandLists.reserve(3);
@@ -381,7 +381,7 @@ void NativeClient::OnRender(double)
 
     WaitForGPU();
 
-    if (m_space) m_space->CleanupRenderSetup();
+    if (m_space) m_space->CleanupRender();
 
     MoveToNextFrame();
 }
@@ -547,21 +547,12 @@ void NativeClient::CheckRaytracingSupport() const
             "Raytracing not supported on device.");
 }
 
-void NativeClient::PopulateSpaceCommandList() const
+void NativeClient::PopulateSpaceCommandList(const double delta) const
 {
     REQUIRE(m_space != nullptr);
 
     m_space->Reset(m_frameIndex);
-
-    {
-        PIXScopedEvent(m_space->GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
-
-        m_space->EnqueueRenderSetup();
-        m_space->DispatchRays();
-        m_space->CopyOutputToBuffer(m_intermediateRenderTarget);
-    }
-
-    TRY_DO(m_space->GetCommandList()->Close());
+    m_space->Render(delta, m_intermediateRenderTarget);
 }
 
 void NativeClient::PopulatePostProcessingCommandList() const
@@ -616,7 +607,7 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
     }
 }
 
-void NativeClient::PopulateCommandLists()
+void NativeClient::PopulateCommandLists(const double delta)
 {
     m_2dGroup.Reset(m_frameIndex);
 
@@ -635,7 +626,7 @@ void NativeClient::PopulateCommandLists()
 
     if (m_space)
     {
-        PopulateSpaceCommandList();
+        PopulateSpaceCommandList(delta);
 
         if (m_postProcessingPipeline != nullptr)
         {

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "D3D12MemAlloc.hpp"
+#include "DXHelper.hpp"
 
 template <typename R>
 struct Allocation;
@@ -17,6 +18,7 @@ struct Allocation;
  * Allows writing to the resource.
  */
 template <typename R, typename S>
+// todo: go trough all c++ comments, use \brief, \param, \return, etc. - maybe there is a warning for this
 class Mapping
 {
 public:
@@ -24,22 +26,101 @@ public:
     {
     }
 
-    explicit Mapping(const Allocation<R>& resource, HRESULT* out) : m_resource(resource)
+    /**
+     * \brief Create a new mapping for a given resource.
+     * \param resource The resource to map.
+     * \param out A pointer to a HRESULT that will be set to the result of the mapping operation.
+     * \param size The size of the resource in number of elements.
+     */
+    explicit Mapping(const Allocation<R>& resource, HRESULT* out, const size_t size) : m_resource(resource)
     {
+        REQUIRE(resource.resource != nullptr);
+        REQUIRE(out != nullptr);
+        REQUIRE(size > 0);
+        
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
         *out = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
+
+        m_size = size;
+
+        const size_t requiredSizeInBytes = m_size * sizeof(S);
+        const size_t actualSizeInBytes = m_resource.resource->GetDesc().Width;
+        REQUIRE(requiredSizeInBytes <= actualSizeInBytes);
     }
 
+    /**
+     * \return The size of the mapped resource in number of elements.
+     */
+    [[nodiscard]] size_t GetSize() const
+    {
+        return m_size;
+    }
+
+    /**
+     * \brief Write directly to the resource.
+     * \return A pointer to the resource. Only writing to this pointer is allowed.
+     */
+    S* operator->()
+    {
+        REQUIRE(m_data != nullptr);
+        return m_data;
+    }
+
+    /**
+     * \brief Write data to the resource.
+     * \param data The data to write.
+     */
     void Write(const S& data)
     {
         REQUIRE(m_data != nullptr);
+        
         *m_data = data;
+    }
+
+    /**
+     * \brief Write data to the resource.
+     * \param data Where to read the data from.
+     * \param count How many elements to write.
+     */
+    void Write(const S* data, const size_t count)
+    {
+        REQUIRE(m_data != nullptr);
+        REQUIRE(count <= m_size);
+
+        std::memcpy(m_data, data, count * sizeof(S));
+    }
+
+    /**
+     * \brief Fill the resource with zeros.
+     */
+    void Clear()
+    {
+        REQUIRE(m_data != nullptr);
+
+        std::memset(m_data, 0, m_size * sizeof(S));
+    }
+
+    /**
+     * \brief Write the data. If the data is null or the count is zero, clear the resource.
+     * \param data The data to write.
+     * \param count The number of elements to write.
+     */
+    void WriteOrClear(const S* data, const size_t count)
+    {
+        if (data == nullptr || count == 0) Clear();
+        else Write(data, count);
+    }
+
+    void Unmap()
+    {
+        REQUIRE(m_data != nullptr);
+        m_resource.resource->Unmap(0, nullptr);
+        m_data = nullptr;
     }
 
     ~Mapping()
     {
-        if (m_data != nullptr)
-            m_resource.resource->Unmap(0, nullptr);
+        if (m_data != nullptr) Unmap();
     }
 
     Mapping(const Mapping&) = delete;
@@ -49,14 +130,18 @@ public:
     {
         m_resource = other.m_resource;
         m_data = other.m_data;
+        m_size = other.m_size;
 
         other.m_data = nullptr;
     }
 
     Mapping& operator=(Mapping&& other) noexcept
     {
+        if (m_data != nullptr) Unmap();
+        
         m_resource = other.m_resource;
         m_data = other.m_data;
+        m_size = other.m_size;
 
         other.m_data = nullptr;
 
@@ -65,7 +150,9 @@ public:
 
 private:
     Allocation<R> m_resource;
+    
     S* m_data = nullptr;
+    size_t m_size = 0;
 };
 
 /**
@@ -81,6 +168,11 @@ struct Allocation
     {
     }
 
+    /**
+     * \brief Wrap the pointers of an allocation. 
+     * \param allocation The memory allocation.
+     * \param resource The resource in the allocation.
+     */
     Allocation(ComPtr<D3D12MA::Allocation> allocation, ComPtr<R> resource)
         : allocation(allocation), resource(resource)
     {
@@ -91,12 +183,24 @@ struct Allocation
         return resource.Get();
     }
 
+    [[nodiscard]] bool IsSet() const
+    {
+        return resource != nullptr;
+    }
+
+    /**
+     * \brief Map the resource to memory.
+     * \tparam S The type of the data in the resource.
+     * \param mapping The mapping to create.
+     * \param size The size of the resource in number of elements.
+     * \return The result of the mapping operation.
+     */
     template <typename S>
         requires std::is_same_v<R, ID3D12Resource>
-    [[nodiscard]] HRESULT Map(Mapping<R, S>* mapping) const
+    [[nodiscard]] HRESULT Map(Mapping<R, S>* mapping, size_t size) const
     {
         HRESULT result = S_OK;
-        *mapping = Mapping<R, S>(*this, &result);
+        *mapping = Mapping<R, S>(*this, &result, size);
         return result;
     }
 

@@ -33,7 +33,7 @@ Contacts for feedback:
 
 #include <stdexcept>
 
-// Helper to compute aligned buffer sizes
+// Helper to compute aligned buffer sizes.
 #ifndef ROUND_UP
 #define ROUND_UP(v, powerOf2Alignment)                                         \
   (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
@@ -42,64 +42,68 @@ Contacts for feedback:
 namespace nv_helpers_dx12
 {
     void BottomLevelASGenerator::AddVertexBuffer(
-        ID3D12Resource* vertexBuffer,
+        Allocation<ID3D12Resource> vertexBuffer,
         UINT64
         vertexOffsetInBytes,
         uint32_t vertexCount,
         UINT vertexSizeInBytes,
-        ID3D12Resource* transformBuffer,
+        Allocation<ID3D12Resource> transformBuffer,
         UINT64 transformOffsetInBytes,
         bool isOpaque
     )
     {
         AddVertexBuffer(vertexBuffer, vertexOffsetInBytes, vertexCount,
-                        vertexSizeInBytes, nullptr, 0, 0, transformBuffer,
+                        vertexSizeInBytes, {}, 0, 0, transformBuffer,
                         transformOffsetInBytes, isOpaque);
     }
 
     void BottomLevelASGenerator::AddVertexBuffer(
-        ID3D12Resource* vertexBuffer,
+        Allocation<ID3D12Resource> vertexBuffer,
         UINT64
         vertexOffsetInBytes,
         uint32_t vertexCount,
         UINT vertexSizeInBytes,
-        ID3D12Resource* indexBuffer,
+        Allocation<ID3D12Resource> indexBuffer,
         UINT64 indexOffsetInBytes,
         uint32_t indexCount,
-        ID3D12Resource* transformBuffer,
+        Allocation<ID3D12Resource> transformBuffer,
         UINT64 transformOffsetInBytes,
         bool isOpaque
     )
     {
         // Create the DX12 descriptor representing the input data, assumed to be
-        // triangles, with 3xf32 vertex coordinates and 32-bit indices
+        // triangles, with 3xf32 vertex coordinates and 32-bit indices.
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor;
         descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
         descriptor.Triangles.VertexBuffer.StartAddress =
-            vertexBuffer->GetGPUVirtualAddress() + vertexOffsetInBytes;
+            vertexBuffer.GetGPUVirtualAddress<ID3D12Resource>() + vertexOffsetInBytes;
         descriptor.Triangles.VertexBuffer.StrideInBytes = vertexSizeInBytes;
         descriptor.Triangles.VertexCount = vertexCount;
         descriptor.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
         descriptor.Triangles.IndexBuffer =
-            indexBuffer
-                ? (indexBuffer->GetGPUVirtualAddress() + indexOffsetInBytes)
+            indexBuffer.IsSet()
+                ? (indexBuffer.GetGPUVirtualAddress<ID3D12Resource>() + indexOffsetInBytes)
                 : 0;
         descriptor.Triangles.IndexFormat =
-            indexBuffer ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
+            indexBuffer.IsSet() ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
         descriptor.Triangles.IndexCount = indexCount;
         descriptor.Triangles.Transform3x4 =
-            transformBuffer
-                ? (transformBuffer->GetGPUVirtualAddress() + transformOffsetInBytes)
+            transformBuffer.IsSet()
+                ? (transformBuffer.GetGPUVirtualAddress<ID3D12Resource>() + transformOffsetInBytes)
                 : 0;
         descriptor.Flags = isOpaque
                                ? D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE
                                : D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
 
-        m_vertexBuffers.push_back(descriptor);
+        m_geometryBuffers.push_back(descriptor);
+
+        m_usedResources.push_back(vertexBuffer);
+        if (indexBuffer.IsSet()) m_usedResources.push_back(indexBuffer);
+        if (transformBuffer.IsSet()) m_usedResources.push_back(transformBuffer);
     }
 
     void BottomLevelASGenerator::AddBoundsBuffer(
-        ID3D12Resource* boundsBuffer,
+        Allocation<ID3D12Resource> boundsBuffer,
         const UINT64 boundsOffsetInBytes,
         const uint32_t boundsCount,
         const UINT boundsSizeInBytes)
@@ -109,11 +113,13 @@ namespace nv_helpers_dx12
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
         descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
         descriptor.AABBs.AABBs.StartAddress =
-            boundsBuffer->GetGPUVirtualAddress() + boundsOffsetInBytes;
+            boundsBuffer.GetGPUVirtualAddress<ID3D12Resource>() + boundsOffsetInBytes;
         descriptor.AABBs.AABBs.StrideInBytes = boundsSizeInBytes;
         descriptor.AABBs.AABBCount = boundsCount;
 
-        m_vertexBuffers.push_back(descriptor);
+        m_geometryBuffers.push_back(descriptor);
+
+        m_usedResources.push_back(boundsBuffer);
     }
 
     void BottomLevelASGenerator::ComputeASBufferSizes(
@@ -125,24 +131,24 @@ namespace nv_helpers_dx12
     {
         // The generated AS can support iterative updates. This may change the final
         // size of the AS as well as the temporary memory requirements, and hence has
-        // to be set before the actual build
+        // to be set before the actual build.
         m_flags =
             allowUpdate
                 ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
                 : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         // Describe the work being requested, in this case the construction of a
-        // (possibly dynamic) bottom-level hierarchy, with the given vertex buffers
+        // (possibly dynamic) bottom-level hierarchy, with the given vertex buffers.
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc;
         prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        prebuildDesc.NumDescs = static_cast<UINT>(m_vertexBuffers.size());
-        prebuildDesc.pGeometryDescs = m_vertexBuffers.data();
+        prebuildDesc.NumDescs = static_cast<UINT>(m_geometryBuffers.size());
+        prebuildDesc.pGeometryDescs = m_geometryBuffers.data();
         prebuildDesc.Flags = m_flags;
 
         // This structure is used to hold the sizes of the required scratch memory and
-        // resulting AS
+        // resulting AS.
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
 
         // Building the acceleration structure (AS) requires some scratch space, as
@@ -151,49 +157,44 @@ namespace nv_helpers_dx12
         // geometry size.
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        // Buffer sizes need to be 256-byte-aligned
+        // Buffer sizes need to be 256-byte-aligned.
         *scratchSizeInBytes =
             ROUND_UP(info.ScratchDataSizeInBytes,
                      D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         *resultSizeInBytes = ROUND_UP(info.ResultDataMaxSizeInBytes,
                                       D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        // Store the memory requirements for use during build
+        // Store the memory requirements for use during build.
         m_scratchSizeInBytes = *scratchSizeInBytes;
         m_resultSizeInBytes = *resultSizeInBytes;
     }
 
     void BottomLevelASGenerator::Generate(
         ID3D12GraphicsCommandList4* commandList,
-        D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
-        D3D12_GPU_VIRTUAL_ADDRESS resultBuffer,
+        const D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
+        const D3D12_GPU_VIRTUAL_ADDRESS resultBuffer,
         const bool updateOnly,
-        D3D12_GPU_VIRTUAL_ADDRESS previousResult
+        const D3D12_GPU_VIRTUAL_ADDRESS previousResult
     ) const
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
+        const bool isUpdateAllowed = flags & D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+        
         // The stored flags represent whether the AS has been built for updates or
         // not. If yes and an update is requested, the builder is told to only update
-        // the AS instead of fully rebuilding it
-        if (flags ==
-            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE &&
-            updateOnly)
+        // the AS instead of fully rebuilding it.
+        if (updateOnly && isUpdateAllowed)
         {
-            flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+            flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
         }
 
-        // Sanity checks
-        if (m_flags !=
-            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE &&
-            updateOnly)
+        if (updateOnly && !isUpdateAllowed)
         {
-            throw std::logic_error(
-                "Cannot update a bottom-level AS not originally built for updates");
+            throw std::logic_error("Cannot update a bottom-level AS not built for updates");
         }
         if (updateOnly && previousResult == 0)
         {
-            throw std::logic_error(
-                "Bottom-level hierarchy update requires the previous hierarchy");
+            throw std::logic_error("Bottom-level hierarchy update requires the previous hierarchy");
         }
 
         if (m_resultSizeInBytes == 0 || m_scratchSizeInBytes == 0)
@@ -202,18 +203,18 @@ namespace nv_helpers_dx12
                 "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs to be called before Build");
         }
         // Create a descriptor of the requested builder work, to generate a
-        // bottom-level AS from the input parameters
+        // bottom-level AS from the input parameters.
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        buildDesc.Inputs.NumDescs = static_cast<UINT>(m_vertexBuffers.size());
-        buildDesc.Inputs.pGeometryDescs = m_vertexBuffers.data();
+        buildDesc.Inputs.NumDescs = static_cast<UINT>(m_geometryBuffers.size());
+        buildDesc.Inputs.pGeometryDescs = m_geometryBuffers.data();
         buildDesc.DestAccelerationStructureData = resultBuffer;
         buildDesc.ScratchAccelerationStructureData = scratchBuffer;
         buildDesc.SourceAccelerationStructureData = previousResult;
         buildDesc.Inputs.Flags = flags;
 
-        // Build the AS
+        // Build the AS.
         commandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
     }
 } // namespace nv_helpers_dx12

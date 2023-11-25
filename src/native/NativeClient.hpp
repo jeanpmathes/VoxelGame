@@ -149,7 +149,7 @@ private:
     bool m_windowedMode;
 
     void CheckRaytracingSupport() const;
-    void PopulateSpaceCommandList() const;
+    void PopulateSpaceCommandList(double delta) const;
     void PopulatePostProcessingCommandList() const;
     void PopulateDraw2DCommandList(size_t index);
 
@@ -160,6 +160,6 @@ private:
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    void PopulateCommandLists();
+    void PopulateCommandLists(double delta);
     void UpdatePostViewAndScissor();
 };

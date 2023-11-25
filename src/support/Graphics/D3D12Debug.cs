@@ -94,8 +94,11 @@ internal class D3D12Debug
             OpenInEditor("Allocator", client.GetAllocatorStatistics());
 
             Debugger.Break();
+
+            throw new InvalidOperationException("Device removed.");
         }
-        else if (level >= LogLevel.Warning)
+
+        if (level >= LogLevel.Warning)
         {
             Debugger.Break();
         }

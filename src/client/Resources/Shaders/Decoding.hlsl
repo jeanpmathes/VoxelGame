@@ -70,4 +70,15 @@ namespace decode
 
         return float2(x + 1, y + 1);
     }
+
+    enum Foliage
+    {
+        IS_UPPER_PART = 0,
+        IS_DOUBLE_PLANT = 1,
+    };
+
+    bool GetFoliageFlag(const uint4 data, const Foliage flag)
+    {
+        return (data[2] >> flag) & BITMASK(1);
+    }
 }

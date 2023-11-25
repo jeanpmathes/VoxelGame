@@ -39,7 +39,7 @@ namespace util
             optimizedClearValue,
             &allocation,
             IID_PPV_ARGS(&resource)));
-
+        
         return {allocation, resource};
     }
 
@@ -89,12 +89,12 @@ namespace util
     [[nodiscard]] HRESULT MapAndWrite(const Allocation<ID3D12Resource> resource, const D& data)
     {
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
-        D* dataPointer;
+        D* mapping;
 
-        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&dataPointer));
+        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&mapping));
         if (FAILED(result)) return result;
 
-        *dataPointer = data;
+        *mapping = data;
 
         resource.resource->Unmap(0, nullptr);
         return result;
@@ -111,12 +111,12 @@ namespace util
         REQUIRE(count > 0);
 
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
-        D* dataPointer;
+        D* mapping;
 
-        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&dataPointer));
+        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&mapping));
         if (FAILED(result)) return result;
 
-        memcpy(dataPointer, data, sizeof(D) * count);
+        memcpy(mapping, data, sizeof(D) * count);
 
         resource.resource->Unmap(0, nullptr);
         return result;

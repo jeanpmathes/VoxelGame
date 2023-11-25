@@ -149,7 +149,7 @@ namespace nv_helpers_dx12
         if (FAILED(hr))
         {
             std::vector<char> infoLog(pErrorBlob->GetBufferSize() + 1);
-            memcpy(infoLog.data(), pErrorBlob->GetBufferPointer(), pErrorBlob->GetBufferSize());
+            std::memcpy(infoLog.data(), pErrorBlob->GetBufferPointer(), pErrorBlob->GetBufferSize());
             infoLog[pErrorBlob->GetBufferSize()] = 0;
 
             throw std::logic_error("Cannot serialize root signature: " + std::string(infoLog.data()));

@@ -1,7 +1,5 @@
 ﻿#include "stdafx.h"
 
-#undef max
-
 Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList> optionalCommandList)
     : m_client(client), m_commandList(optionalCommandList), m_ownsCommandList(optionalCommandList == nullptr)
 {

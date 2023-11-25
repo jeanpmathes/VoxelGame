@@ -221,16 +221,31 @@ public:
     void Bind(ComPtr<ID3D12GraphicsCommandList> commandList);
     void Update();
 
-    void CreateConstantBufferView(Table::Entry entry, UINT offset, const ConstantBufferViewDescriptor& descriptor);
-    void CreateShaderResourceView(Table::Entry entry, UINT offset, const ShaderResourceViewDescriptor& descriptor);
-    void CreateUnorderedAccessView(Table::Entry entry, UINT offset, const UnorderedAccessViewDescriptor& descriptor);
+    /**
+     * Creates a constant buffer view at a given table entry.
+     * If the entry contains multiple descriptors, use the offset, else zero.
+     */
+    void CreateConstantBufferView(Table::Entry entry, UINT offset,
+                                  const ConstantBufferViewDescriptor& descriptor) const;
+    /**
+     * Creates a shader resource view at a given table entry.
+     * If the entry contains multiple descriptors, use the offset, else zero.
+     */
+    void CreateShaderResourceView(Table::Entry entry, UINT offset,
+                                  const ShaderResourceViewDescriptor& descriptor) const;
+    /**
+     * Creates an unordered access view at a given table entry.
+     * If the entry contains multiple descriptors, use the offset, else zero.
+     */
+    void CreateUnorderedAccessView(Table::Entry entry, UINT offset,
+                                   const UnorderedAccessViewDescriptor& descriptor) const;
 
 private:
     [[nodiscard]] const RootParameter& GetRootParameter(UINT index) const;
-    D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandleForWrite(
+    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_CPU_DESCRIPTOR_HANDLE> GetDescriptorHandleForWrite(
         const RootParameter& parameter,
         UINT inHeapIndex,
-        UINT offset);
+        UINT offset) const;
 
     bool CheckListSizeUpdate(UINT* firstResizedList, UINT* totalListDescriptorCount);
     void PerformSizeUpdate(UINT firstResizedListIndex, UINT totalListDescriptorCount);
@@ -245,8 +260,6 @@ private:
 
         std::vector<UINT> internalOffsets = {};
         UINT externalOffset = 0;
-
-        bool dirty = false;
     };
 
     std::vector<DescriptorTable> m_descriptorTables = {};

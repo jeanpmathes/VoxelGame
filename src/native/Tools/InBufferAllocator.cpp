@@ -1,8 +1,5 @@
 ﻿#include "stdafx.h"
 
-#undef min
-#undef max
-
 InBufferAllocator::InBufferAllocator(NativeClient& client, const D3D12_RESOURCE_STATES state)
     : m_client(client), m_state(state), m_pix(client.SupportPIX())
 {

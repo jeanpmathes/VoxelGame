@@ -13,6 +13,9 @@
 #include <Windows.h>
 #include <windowsx.h>
 
+#undef min
+#undef max
+
 // DirectX
 
 #include "d3dx12.h"
@@ -74,18 +77,19 @@
 #include "Tools/SharedIndexBuffer.hpp"
 #include "Tools/InBufferAllocator.hpp"
 #include "Tools/ShaderResources.hpp"
+#include "Tools/AnimationController.hpp"
+#include "Tools/StepTimer.hpp"
+#include "Tools/Utilities.hpp"
+#include "Tools/Uploader.hpp"
+#include "Tools/Common.hpp"
 
 // General
 
 #include "DXApp.hpp"
 #include "native.hpp"
-#include "StepTimer.hpp"
-#include "Utilities.hpp"
 #include "Win32Application.hpp"
 #include "NativeClient.hpp"
 #include "Space.hpp"
-#include "Common.hpp"
-#include "Uploader.hpp"
 
 // Objects
 

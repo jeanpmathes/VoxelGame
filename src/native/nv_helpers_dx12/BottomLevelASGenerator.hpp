@@ -71,6 +71,8 @@ return buffers;
 
 #include <vector>
 
+#include "Tools/Allocation.hpp"
+
 namespace nv_helpers_dx12
 {
     /// Helper class to generate bottom-level acceleration structures for raytracing
@@ -87,11 +89,11 @@ namespace nv_helpers_dx12
         /// \param transformBuffer Buffer containing a 4x4 transform matrix in GPU memory, to be applied to the vertices.
         /// \param transformOffsetInBytes Offset of the transform matrix in the transform buffer
         /// \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit
-        void AddVertexBuffer(ID3D12Resource* vertexBuffer,
+        void AddVertexBuffer(Allocation<ID3D12Resource> vertexBuffer,
                              UINT64 vertexOffsetInBytes,
                              uint32_t vertexCount,
                              UINT vertexSizeInBytes,
-                             ID3D12Resource* transformBuffer,
+                             Allocation<ID3D12Resource> transformBuffer,
                              UINT64 transformOffsetInBytes,
                              bool isOpaque = true
         );
@@ -109,14 +111,14 @@ namespace nv_helpers_dx12
         /// \param transformBuffer Buffer containing a 4x4 transform matrix in GPU memory, to be applied to the vertices.
         /// \param transformOffsetInBytes Offset of the transform matrix in the transform buffer
         /// \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit
-        void AddVertexBuffer(ID3D12Resource* vertexBuffer,
+        void AddVertexBuffer(Allocation<ID3D12Resource> vertexBuffer,
                              UINT64 vertexOffsetInBytes,
                              uint32_t vertexCount,
                              UINT vertexSizeInBytes,
-                             ID3D12Resource* indexBuffer,
+                             Allocation<ID3D12Resource> indexBuffer,
                              UINT64 indexOffsetInBytes,
                              uint32_t indexCount,
-                             ID3D12Resource* transformBuffer,
+                             Allocation<ID3D12Resource> transformBuffer,
                              UINT64 transformOffsetInBytes,
                              bool isOpaque = true
         );
@@ -126,7 +128,7 @@ namespace nv_helpers_dx12
         /// \param boundsOffsetInBytes Offset of the first bounding box in the buffer
         /// \param boundsCount Number of bounding boxes to consider in the buffer
         /// \param boundsSizeInBytes Size of a bounding box, used to stride in the buffer
-        void AddBoundsBuffer(ID3D12Resource* boundsBuffer,
+        void AddBoundsBuffer(Allocation<ID3D12Resource> boundsBuffer,
                              UINT64 boundsOffsetInBytes,
                              uint32_t boundsCount,
                              UINT boundsSizeInBytes
@@ -163,18 +165,21 @@ namespace nv_helpers_dx12
             D3D12_GPU_VIRTUAL_ADDRESS previousResult = 0
         ) const;
 
-    private:
-        /// Vertex buffer descriptors used to generate the AS
-        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> m_vertexBuffers = {};
+    private: // todo: fix comment style, add dots at the end of sentences
+        /// Vertex buffer descriptors used to generate the AS.
+        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> m_geometryBuffers = {};
 
-        /// Amount of temporary memory required by the builder
+        /// Buffers used to store the geometry data, to make sure they are not released.
+        std::vector<Allocation<ID3D12Resource>> m_usedResources = {};
+
+        /// Amount of temporary memory required by the builder.
         UINT64 m_scratchSizeInBytes = 0;
 
-        /// Amount of memory required to store the AS
+        /// Amount of memory required to store the AS.
         UINT64 m_resultSizeInBytes = 0;
 
         /// Flags for the builder, specifying whether to allow iterative updates, or
-        /// when to perform an update
+        /// when to perform an update.
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     };

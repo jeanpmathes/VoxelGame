@@ -63,6 +63,9 @@ internal struct MaterialDescription
     [MarshalAs(UnmanagedType.Bool)] internal bool isShadowCaster;
     [MarshalAs(UnmanagedType.Bool)] internal bool isOpaque;
 
+    [MarshalAs(UnmanagedType.Bool)] internal bool isAnimated;
+    [MarshalAs(UnmanagedType.U4)] internal uint animationShaderIndex;
+
     [MarshalAs(UnmanagedType.LPWStr)] internal string normalClosestHitSymbol;
     [MarshalAs(UnmanagedType.LPWStr)] internal string normalAnyHitSymbol;
     [MarshalAs(UnmanagedType.LPWStr)] internal string normalIntersectionSymbol;

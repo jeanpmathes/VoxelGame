@@ -116,7 +116,7 @@ public class World : Core.Logic.World
             chunk?.Cast().CullSections(context.Frustum);
         }
 
-        // Render all players in this world
+        // Render all players in this world.
         player?.Render();
     }
 

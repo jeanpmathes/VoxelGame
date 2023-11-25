@@ -73,6 +73,18 @@ public class PipelineBuilder
         shaderFiles.Add(new ShaderFile(file, exports.ToArray()));
     }
 
+    /// <summary>
+    ///     Add an animation shader to the pipeline.
+    /// </summary>
+    /// <param name="file">The file defining the animation.</param>
+    /// <returns>The animation.</returns>
+    public Animation AddAnimation(FileInfo file)
+    {
+        AddShaderFile(file);
+
+        return new Animation((uint) shaderFiles.Count - 1);
+    }
+
     private static string CleanUpName(string name)
     {
         return name.Replace(nameof(Material), "", StringComparison.InvariantCulture);
@@ -86,12 +98,13 @@ public class PipelineBuilder
     /// <param name="isOpaque">Whether the material is opaque.</param>
     /// <param name="normal">The hit group for normal rendering.</param>
     /// <param name="shadow">The hit group for shadows.</param>
+    /// <param name="animation">An optional animation to be executed before the raytracing.</param>
     /// <returns>The material.</returns>
-    public Material AddMaterial(string name, Groups groups, bool isOpaque, HitGroup normal, HitGroup shadow)
+    public Material AddMaterial(string name, Groups groups, bool isOpaque, HitGroup normal, HitGroup shadow, Animation? animation = null)
     {
         int index = materials.Count;
 
-        materials.Add(new MaterialConfig(CleanUpName(name), groups, isOpaque, normal, shadow));
+        materials.Add(new MaterialConfig(CleanUpName(name), groups, isOpaque, animation?.ShaderFileIndex, normal, shadow));
 
         return new Material((uint) index);
     }
@@ -174,6 +187,8 @@ public class PipelineBuilder
             isVisible = material.Groups.HasFlag(Groups.Visible),
             isShadowCaster = material.Groups.HasFlag(Groups.ShadowCaster),
             isOpaque = material.IsOpaque,
+            isAnimated = material.Animation.HasValue,
+            animationShaderIndex = material.Animation ?? 0,
             normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
             normalAnyHitSymbol = material.Normal.AnyHitSymbol,
             normalIntersectionSymbol = material.Normal.IntersectionSymbol,
@@ -200,7 +215,7 @@ public class PipelineBuilder
 
     private sealed record ShaderFile(FileInfo File, string[] Exports);
 
-    private sealed record MaterialConfig(string Name, Groups Groups, bool IsOpaque, HitGroup Normal, HitGroup Shadow);
+    private sealed record MaterialConfig(string Name, Groups Groups, bool IsOpaque, uint? Animation, HitGroup Normal, HitGroup Shadow);
 
     /// <summary>
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.
@@ -208,4 +223,10 @@ public class PipelineBuilder
     /// <param name="ClosestHitSymbol">The name of the closest hit shader.</param>
     /// <param name="AnyHitSymbol">The name of the any hit shader.</param>
     public sealed record HitGroup(string ClosestHitSymbol, string AnyHitSymbol = "", string IntersectionSymbol = "");
+
+    /// <summary>
+    ///     Defines an animation, which is a compute shader that is executed before the raytracing.
+    /// </summary>
+    /// <param name="ShaderFileIndex">The index of the shader file that contains the animation.</param>
+    public sealed record Animation(uint ShaderFileIndex);
 }
