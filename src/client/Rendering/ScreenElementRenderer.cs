@@ -55,7 +55,7 @@ public sealed class ScreenElementRenderer : IDisposable
         drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
     }
 
-    private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
+    private static Pipelines Shaders => Application.Client.Instance.Resources.Pipelines;
 
     /// <summary>
     ///     Set the texture to use for rendering.

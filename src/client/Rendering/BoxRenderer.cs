@@ -37,15 +37,15 @@ public sealed class BoxRenderer : IDisposable
 
         return;
 
-        Shaders.Selection.Use();
+        Pipelines.Selection.Use();
 
         drawGroup.VertexArrayBindBuffer(size: 3);
 
-        int vertexLocation = Shaders.Selection.GetAttributeLocation("aPosition");
+        int vertexLocation = Pipelines.Selection.GetAttributeLocation("aPosition");
         drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
     }
 
-    private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
+    private static Pipelines Pipelines => Application.Client.Instance.Resources.Pipelines;
 
     /// <summary>
     ///     Set the bounding box to render.
@@ -154,14 +154,14 @@ public sealed class BoxRenderer : IDisposable
 
         drawGroup.BindVertexArray();
 
-        Shaders.Selection.Use();
+        Pipelines.Selection.Use();
 
         Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position);
         Matrix4d view = Application.Client.Instance.CurrentGame!.Player.View.ViewMatrix;
         Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.View.ProjectionMatrix;
 
         Matrix4d mvp = model * view * projection;
-        Shaders.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
+        Pipelines.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
 
         // GL.Disable(EnableCap.DepthTest);
         // drawGroup.DrawElements(PrimitiveType.Lines);

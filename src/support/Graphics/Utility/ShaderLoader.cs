@@ -62,7 +62,7 @@ public class ShaderLoader
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), file, exception);
+            loadingContext.ReportFailure(Events.RenderPipelineError, nameof(Shader), file, exception);
             includables[name] = string.Empty;
 
             return false;
@@ -94,8 +94,8 @@ public class ShaderLoader
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), vertFile, exception);
-            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), fragFile, exception);
+            loadingContext.ReportFailure(Events.RenderPipelineError, nameof(Shader), vertFile, exception);
+            loadingContext.ReportFailure(Events.RenderPipelineError, nameof(Shader), fragFile, exception);
 
             return null;
         }
@@ -104,7 +104,7 @@ public class ShaderLoader
 
         if (shader == null)
         {
-            loadingContext.ReportFailure(Events.ShaderError, nameof(Shader), name, "Failed to compile and link shader");
+            loadingContext.ReportFailure(Events.RenderPipelineError, nameof(Shader), name, "Failed to compile and link shader");
 
             return null;
         }
@@ -113,7 +113,7 @@ public class ShaderLoader
             if (shader.IsUniformDefined(uniform))
                 set.Add(shader);
 
-        loadingContext.ReportSuccess(Events.ShaderSetup, nameof(Shader), name);
+        loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(Shader), name);
 
         return shader;
     }
@@ -131,7 +131,7 @@ public class ShaderLoader
                 string name = match.Groups[groupnum: 1].Value;
 
                 if (includables.ContainsKey(name)) source.AppendLine(includables[name]);
-                else logger.LogWarning(Events.ShaderError, "Cannot resolve shader include for name: {Name}", name);
+                else logger.LogWarning(Events.RenderPipelineError, "Cannot resolve shader include for name: {Name}", name);
             }
             else
             {

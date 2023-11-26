@@ -52,18 +52,18 @@ public sealed class OverlayRenderer : IDisposable
 
         return; // todo: remove this line when porting to DirectX
 
-        Shaders.Overlay.Use();
+        Pipelines.Overlay.Use();
 
         drawGroup.VertexArrayBindBuffer(size: 5);
 
-        int vertexLocation = Shaders.Overlay.GetAttributeLocation("aPosition");
+        int vertexLocation = Pipelines.Overlay.GetAttributeLocation("aPosition");
         drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
 
-        int texCordLocation = Shaders.Overlay.GetAttributeLocation("aTexCoord");
+        int texCordLocation = Pipelines.Overlay.GetAttributeLocation("aTexCoord");
         drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
     }
 
-    private static Shaders Shaders => Application.Client.Instance.Resources.Shaders;
+    private static Pipelines Pipelines => Application.Client.Instance.Resources.Pipelines;
 
     /// <summary>
     ///     Set the texture to a block texture.
@@ -111,17 +111,17 @@ public sealed class OverlayRenderer : IDisposable
 
         drawGroup.BindVertexArray();
 
-        Shaders.Overlay.Use();
+        Pipelines.Overlay.Use();
 
-        Shaders.Overlay.SetInt("textureId", textureId);
-        Shaders.Overlay.SetInt("sampler", samplerId);
-        Shaders.Overlay.SetInt("mode", mode);
+        Pipelines.Overlay.SetInt("textureId", textureId);
+        Pipelines.Overlay.SetInt("sampler", samplerId);
+        Pipelines.Overlay.SetInt("mode", mode);
 
-        Shaders.Overlay.SetFloat("lowerBound", lowerBound);
-        Shaders.Overlay.SetFloat("upperBound", upperBound);
+        Pipelines.Overlay.SetFloat("lowerBound", lowerBound);
+        Pipelines.Overlay.SetFloat("upperBound", upperBound);
 
-        Shaders.Overlay.SetColor4("tint", tint);
-        Shaders.Overlay.SetInt("isAnimated", isAnimated.ToInt());
+        Pipelines.Overlay.SetColor4("tint", tint);
+        Pipelines.Overlay.SetInt("isAnimated", isAnimated.ToInt());
 
         // drawGroup.DrawElements(PrimitiveType.Triangles);
         //

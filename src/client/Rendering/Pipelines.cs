@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -19,9 +20,9 @@ using VoxelGame.Support.Objects;
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
-///     A utility class for loading, compiling and managing shaders used by the game.
+///     A utility class for loading, compiling and managing graphics pipelines used by the game.
 /// </summary>
-public sealed class Shaders // todo: delete all GLSL shaders
+public sealed class Pipelines // todo: delete all GLSL shaders
 {
     private const string SectionFragmentShader = "section";
 
@@ -42,7 +43,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
     private bool loaded;
     private RasterPipeline postProcessingPipeline = null!;
 
-    private Shaders(DirectoryInfo directory, LoadingContext loadingContext)
+    private Pipelines(DirectoryInfo directory, LoadingContext loadingContext)
     {
         this.directory = directory;
         this.loadingContext = loadingContext;
@@ -131,23 +132,29 @@ public sealed class Shaders // todo: delete all GLSL shaders
     public Material FluidSectionMaterial { get; private set; } = null!;
 
     /// <summary>
-    ///     Load all shaders in the given directory.
+    ///     Load all pipelines required for the game from a given directory.
     /// </summary>
-    /// <param name="directory">The directory containing all shaders.</param>
+    /// <param name="directory">The directory containing all necessary shader code.</param>
     /// <param name="client">The client to use.</param>
     /// <param name="textureSlots">The textures for the two texture slots.</param>
+    /// <param name="visuals">Information on how the visuals are configured, meaning graphics settings.</param>
     /// <param name="loadingContext">The loader to use.</param>
-    /// <returns>An object representing all loaded shaders.</returns>
-    internal static Shaders Load(DirectoryInfo directory, Support.Client client, (TextureArray, TextureArray) textureSlots, LoadingContext loadingContext)
+    /// <returns>An object representing all loaded pipelines.</returns>
+    internal static Pipelines Load(
+        DirectoryInfo directory,
+        Support.Client client,
+        (TextureArray, TextureArray) textureSlots,
+        VisualConfiguration visuals,
+        LoadingContext loadingContext)
     {
-        Shaders shaders = new(directory, loadingContext);
+        Pipelines pipelines = new(directory, loadingContext);
 
-        using (loadingContext.BeginStep(Events.ShaderSetup, "Shader Setup"))
+        using (loadingContext.BeginStep(Events.RenderPipelineSetup, "Shader Setup"))
         {
-            shaders.LoadAll(client, textureSlots);
+            pipelines.LoadAll(client, textureSlots, visuals);
         }
 
-        return shaders;
+        return pipelines;
     }
 
     internal void Delete()
@@ -173,12 +180,12 @@ public sealed class Shaders // todo: delete all GLSL shaders
         loaded = false;
     }
 
-    private void LoadAll(Support.Client client, (TextureArray, TextureArray) textureSlots)
+    private void LoadAll(Support.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
         loaded = true;
 
         LoadRasterPipelines(client);
-        LoadRaytracingPipeline(client, textureSlots);
+        LoadRaytracingPipeline(client, textureSlots, visuals);
 
         if (!loaded) return;
 
@@ -219,11 +226,11 @@ public sealed class Shaders // todo: delete all GLSL shaders
                 PipelineDescription.Create(path, preset),
                 error =>
                 {
-                    loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);
+                    loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
                     loaded = false;
                 });
 
-            if (loaded) loadingContext.ReportSuccess(Events.ShaderSetup, nameof(RasterPipeline), path);
+            if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
 
             return pipeline;
         }
@@ -237,11 +244,11 @@ public sealed class Shaders // todo: delete all GLSL shaders
                 PipelineDescription.Create(path, preset),
                 error =>
                 {
-                    loadingContext.ReportFailure(Events.ShaderError, nameof(RasterPipeline), path, error);
+                    loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
                     loaded = false;
                 });
 
-            if (loaded) loadingContext.ReportSuccess(Events.ShaderSetup, nameof(RasterPipeline), path);
+            if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
 
             return result;
         }
@@ -249,7 +256,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
     }
 
-    private void LoadRaytracingPipeline(Support.Client client, (TextureArray, TextureArray) textureSlots)
+    private void LoadRaytracingPipeline(Support.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
         PipelineBuilder builder = new();
 
@@ -293,7 +300,7 @@ public sealed class Shaders // todo: delete all GLSL shaders
             isOpaque: false,
             foliageSectionHitGroup,
             foliageShadowHitGroup,
-            builder.AddAnimation(directory.GetFile("FoliageAnimation.hlsl")));
+            visuals.FoliageQuality > Quality.Low ? builder.AddAnimation(directory.GetFile("FoliageAnimation.hlsl")) : null);
 
         FluidSectionMaterial = builder.AddMaterial(
             nameof(FluidSectionMaterial),

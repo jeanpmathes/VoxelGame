@@ -107,7 +107,7 @@ public class Shader // todo: delete this class
             return false;
         }*/
 
-        logger.LogDebug(Events.ShaderSetup, "Successfully compiled Shader({Shader})", shader);
+        logger.LogDebug(Events.RenderPipelineSetup, "Successfully compiled Shader({Shader})", shader);
 
         return true;
     }
@@ -129,7 +129,7 @@ public class Shader // todo: delete this class
             return false;
         }*/
 
-        logger.LogDebug(Events.ShaderSetup, "Successfully linked Program({Program})", program);
+        logger.LogDebug(Events.RenderPipelineSetup, "Successfully linked Program({Program})", program);
 
         return true;
     }

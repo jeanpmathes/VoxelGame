@@ -46,7 +46,7 @@ public class GameResources
     /// <summary>
     ///     Get the shaders of the game.
     /// </summary>
-    public Shaders Shaders { get; private set; } = null!;
+    public Pipelines Pipelines { get; private set; } = null!;
 
     /// <summary>
     ///     The player resources.
@@ -97,7 +97,7 @@ public class GameResources
 
         UIResources.Load(window, loadingContext);
 
-        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), window, (BlockTextures.TextureArray, FluidTextures.TextureArray), loadingContext);
+        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), window, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
 
         TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
@@ -127,7 +127,7 @@ public class GameResources
     /// </summary>
     public void Unload()
     {
-        Shaders.Delete();
+        Pipelines.Delete();
         UIResources.Unload();
     }
 }

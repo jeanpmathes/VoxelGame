@@ -119,6 +119,14 @@ public class GraphicsSettings : ISettingsProvider
         }
     }
 
+    /// <summary>
+    ///     Get the visual configuration from the settings.
+    /// </summary>
+    public VisualConfiguration VisualConfiguration => new()
+    {
+        FoliageQuality = FoliageQuality
+    };
+
     /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public string Category => Language.Graphics;
@@ -129,15 +137,4 @@ public class GraphicsSettings : ISettingsProvider
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
-
-    /// <summary>
-    ///     Get the visual configuration from the settings.
-    /// </summary>
-    public VisualConfiguration GetVisualConfiguration()
-    {
-        return new VisualConfiguration
-        {
-            FoliageQuality = FoliageQuality
-        };
-    }
 }

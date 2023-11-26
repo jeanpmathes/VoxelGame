@@ -214,14 +214,14 @@ public static class Events // todo: go trough all events and make sure they are 
     public const int VisualQuality = 3001;
 
     /// <summary>
-    ///     Events related to shader loading and compilation.
+    ///     Events related to render pipeline loading and compilation.
     /// </summary>
-    public const int ShaderSetup = 3005;
+    public const int RenderPipelineSetup = 3005;
 
     /// <summary>
-    ///     Errors that occur during shader setup.
+    ///     Errors that occur during render pipeline setup.
     /// </summary>
-    public const int ShaderError = 3006;
+    public const int RenderPipelineError = 3006;
 
     /// <summary>
     ///     Occurs when wrapper objects are incorrectly disposed and their native objects are not deleted. This causes memory

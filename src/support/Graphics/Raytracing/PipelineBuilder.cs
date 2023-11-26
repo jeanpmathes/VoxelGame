@@ -205,12 +205,12 @@ public class PipelineBuilder
 
     private static void ReportFailure(LoadingContext loadingContext, string message)
     {
-        loadingContext.ReportFailure(Events.ShaderError, nameof(SpacePipeline), "RT_Pipeline", message);
+        loadingContext.ReportFailure(Events.RenderPipelineError, nameof(SpacePipeline), "RT_Pipeline", message);
     }
 
     private void ReportSuccess(LoadingContext loadingContext)
     {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.ShaderSetup, nameof(SpacePipeline), shader.File);
+        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(SpacePipeline), shader.File);
     }
 
     private sealed record ShaderFile(FileInfo File, string[] Exports);

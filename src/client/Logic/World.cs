@@ -104,7 +104,7 @@ public class World : Core.Logic.World
 
         IView view = player!.View;
 
-        Application.Client.Instance.Resources.Shaders.SetPlanes(view.NearClipping, view.FarClipping);
+        Application.Client.Instance.Resources.Pipelines.SetPlanes(view.NearClipping, view.FarClipping);
         PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
 
         // Perform culling on all active chunks.

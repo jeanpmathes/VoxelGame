@@ -98,7 +98,7 @@ internal class Client : Support.Client, IPerformanceProvider
 
             LoadingContext loadingContext = new();
 
-            Resources.Load(Graphics.GetVisualConfiguration(), loadingContext);
+            Resources.Load(Graphics.VisualConfiguration, loadingContext);
 
             IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
             sceneManager.Load(startScene);
@@ -172,7 +172,7 @@ internal class Client : Support.Client, IPerformanceProvider
     /// <inheritdoc />
     protected override void OnResize(Vector2i size)
     {
-        Resources.Shaders.UpdateOrthographicProjection();
+        Resources.Pipelines.UpdateOrthographicProjection();
 
         logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", size);
 
