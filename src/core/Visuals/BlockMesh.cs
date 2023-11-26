@@ -74,25 +74,10 @@ public class BlockMesh
         for (var quad = 0; quad < quads.Length; quad++)
         {
             int first = quad * 2;
+            mesh.quads[first] = quads[quad];
+
             int second = quad * 2 + 1;
-
-            mesh.quads[first] = new Quad
-            {
-                A = quads[quad].A,
-                B = quads[quad].B,
-                C = quads[quad].C,
-                D = quads[quad].D,
-                data = quads[quad].data
-            };
-
-            mesh.quads[second] = new Quad
-            {
-                A = quads[quad].A,
-                B = quads[quad].B,
-                C = quads[quad].C,
-                D = quads[quad].D,
-                data = quads[quad].data
-            };
+            mesh.quads[second] = quads[quad];
 
             divider(quad, mesh);
         }
@@ -127,21 +112,21 @@ public class BlockMesh
         int first = quad * 2;
         int second = quad * 2 + 1;
 
-        Vector3 midTopPosition = (quads[quad].A + quads[quad].D) / 2;
-        Vector3 midBottomPosition = (quads[quad].B + quads[quad].C) / 2;
+        Vector3 midBottomPosition = (quads[quad].A + quads[quad].D) / 2;
+        Vector3 midTopPosition = (quads[quad].B + quads[quad].C) / 2;
 
-        mesh.quads[first].A = midTopPosition;
+        mesh.quads[first].C = midTopPosition;
         mesh.quads[first].D = midBottomPosition;
 
-        mesh.quads[second].B = midBottomPosition;
-        mesh.quads[second].C = midTopPosition;
+        mesh.quads[second].A = midBottomPosition;
+        mesh.quads[second].B = midTopPosition;
 
         (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref quads[quad].data);
-        Vector2 midTopUV = (uv.a + uv.d) / 2;
-        Vector2 midBottomUV = (uv.b + uv.c) / 2;
+        Vector2 midBottomUV = (uv.a + uv.d) / 2;
+        Vector2 midTopUV = (uv.b + uv.c) / 2;
 
-        Meshing.SetUVs(ref mesh.quads[first].data, midTopUV, uv.b, uv.c, midBottomUV);
-        Meshing.SetUVs(ref mesh.quads[second].data, uv.a, midTopUV, midBottomUV, uv.d);
+        Meshing.SetUVs(ref mesh.quads[first].data, uv.a, uv.b, midTopUV, midBottomUV);
+        Meshing.SetUVs(ref mesh.quads[second].data, midBottomUV, midTopUV, uv.c, uv.d);
     }
 
     /// <summary>
