@@ -266,14 +266,14 @@ public class CommandInvoker
             command.SetContext(context);
             method.Invoke(command, parsedArgs);
 
-            logger.LogDebug(Events.Console, "Called command '{Command}'", command.Name);
+            logger.LogDebug(Events.Console, "Invoked command '{Command}'", command.Name);
         }
         catch (TargetInvocationException e)
         {
             logger.LogError(
                 Events.Console,
                 e.InnerException,
-                "Error while executing command '{Command}'",
+                "Error while invoking command '{Command}'",
                 method.Name);
         }
     }

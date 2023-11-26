@@ -46,7 +46,7 @@ public class GameConsole : IConsoleProvider
     {
         Debug.Assert(Application.Client.Instance.CurrentGame != null);
 
-        logger.LogDebug(Events.Console, "Console command: {Command}", input);
+        logger.LogDebug(Events.Console, "Processing console input: {Command}", input);
 
         commandInvoker.InvokeCommand(
             input,
