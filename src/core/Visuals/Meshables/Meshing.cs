@@ -52,6 +52,7 @@ public static class Meshing
     }
 
     private const int UVShift = 15;
+    private static readonly uint uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
 
     /// <summary>
     ///     Push a quad to a mesh.
@@ -134,10 +135,10 @@ public static class Meshing
     /// </summary>
     private static uint EncodeInBase17(Vector4 vector)
     {
-        var x = (uint) (vector.X * 16);
-        var y = (uint) (vector.Y * 16);
-        var z = (uint) (vector.Z * 16);
-        var w = (uint) (vector.W * 16);
+        uint x = VMath.RoundedToUInt(vector.X * 16);
+        uint y = VMath.RoundedToUInt(vector.Y * 16);
+        uint z = VMath.RoundedToUInt(vector.Z * 16);
+        uint w = VMath.RoundedToUInt(vector.W * 16);
 
         return w * 17 * 17 * 17 +
                z * 17 * 17 +
@@ -149,10 +150,10 @@ public static class Meshing
     {
         uint x = value % 17;
         uint y = value / 17 % 17;
-        uint z = value / (17 * 17) % 17;
-        uint w = value / (17 * 17 * 17) % 17;
+        uint z = value / 17 / 17 % 17;
+        uint w = value / 17 / 17 / 17 % 17;
 
-        return new Vector4(x / 16f, y / 16f, z / 16f, w / 16f);
+        return new Vector4(x, y, z, w) / 16;
     }
 
     /// <summary>
@@ -167,7 +168,10 @@ public static class Meshing
     public static void SetUVs(ref (uint a, uint b, uint c, uint d) data,
         Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD)
     {
+        data.c &= ~uvMask;
         data.c |= EncodeInBase17((uvA.X, uvB.X, uvC.X, uvD.X)) << UVShift;
+
+        data.d &= ~uvMask;
         data.d |= EncodeInBase17((uvA.Y, uvB.Y, uvC.Y, uvD.Y)) << UVShift;
     }
 
@@ -179,8 +183,8 @@ public static class Meshing
     public static (Vector2 a, Vector2 b, Vector2 c, Vector2 d) GetUVs(
         ref (uint a, uint b, uint c, uint d) data)
     {
-        Vector4 u = DecodeFromBase17(data.c >> UVShift);
-        Vector4 v = DecodeFromBase17(data.d >> UVShift);
+        Vector4 u = DecodeFromBase17((data.c & uvMask) >> UVShift);
+        Vector4 v = DecodeFromBase17((data.d & uvMask) >> UVShift);
 
         return (new Vector2(u.X, v.X), new Vector2(u.Y, v.Y), new Vector2(u.Z, v.Z), new Vector2(u.W, v.W));
     }
@@ -191,9 +195,7 @@ public static class Meshing
     /// <param name="data">The data of the quad.</param>
     public static void MirrorUVs(ref (uint a, uint b, uint c, uint d) data)
     {
-        uint uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
-
-        Vector4 u = DecodeFromBase17(data.c >> UVShift);
+        Vector4 u = DecodeFromBase17((data.c & uvMask) >> UVShift);
 
         data.c &= ~uvMask;
         data.c |= EncodeInBase17((u.W, u.Z, u.Y, u.X)) << UVShift;

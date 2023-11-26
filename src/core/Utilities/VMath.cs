@@ -181,9 +181,31 @@ public static class VMath
     public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3i(
-            (int) Math.Round(vector.X, digits: 0, midpointRounding),
-            (int) Math.Round(vector.Y, digits: 0, midpointRounding),
-            (int) Math.Round(vector.Z, digits: 0, midpointRounding));
+            RoundedToInt(vector.X, midpointRounding),
+            RoundedToInt(vector.Y, midpointRounding),
+            RoundedToInt(vector.Z, midpointRounding));
+    }
+
+    /// <summary>
+    ///     Rounds a double to an integer.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded value.</returns>
+    private static int RoundedToInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return (int) Math.Round(value, digits: 0, midpointRounding);
+    }
+
+    /// <summary>
+    ///     Rounds a double to an unsigned integer.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded value.</returns>
+    public static uint RoundedToUInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return (uint) Math.Round(value, digits: 0, midpointRounding);
     }
 
     /// <summary>
