@@ -77,7 +77,7 @@ private:
 
     ComPtr<ID3DBlob> m_shader = {};
 
-    GappedList<MeshObject*> m_meshes = {};
+    Bag<MeshObject*> m_meshes = {};
     std::set<size_t> m_changedMeshes = {};
     std::set<size_t> m_removedMeshes = {};
 

@@ -160,7 +160,7 @@
         <ClInclude Include="Tools\InBufferAllocator.hpp"/>
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
-        <ClInclude Include="Tools\GappedList.hpp"/>
+        <ClInclude Include="Tools\Bag.hpp"/>
         <ClInclude Include="Tools\ShaderResources.hpp"/>
         <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
         <ClInclude Include="Tools\StepTimer.hpp"/>

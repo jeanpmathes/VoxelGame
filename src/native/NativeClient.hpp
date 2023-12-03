@@ -111,7 +111,7 @@ private:
     DWORD m_callbackCookie{};
 
     std::unique_ptr<Uploader> m_uploader = nullptr;
-    GappedList<std::unique_ptr<Object>> m_objects = {};
+    Bag<std::unique_ptr<Object>> m_objects = {};
 
     CD3DX12_VIEWPORT m_spaceViewport;
     CD3DX12_RECT m_spaceScissorRect;

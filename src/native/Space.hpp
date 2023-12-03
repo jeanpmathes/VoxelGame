@@ -275,11 +275,11 @@ private:
 
     InBufferAllocator m_resultBufferAllocator;
     InBufferAllocator m_scratchBufferAllocator;
-    
-    GappedList<std::unique_ptr<MeshObject>> m_meshes = {};
+
+    Bag<std::unique_ptr<MeshObject>> m_meshes = {};
     std::vector<std::unique_ptr<MeshObject>> m_meshPool = {};
     std::set<MeshObject::Handle> m_modifiedMeshes = {};
-    GappedList<MeshObject*> m_activeMeshes = {};
+    Bag<MeshObject*> m_activeMeshes = {};
     std::set<size_t> m_activatedMeshes = {};
 
     std::vector<AnimationController> m_animations = {};

@@ -17,11 +17,12 @@ concept Nullable = requires(T t)
 };
 
 /**
- * A list that can have gaps in it.
- * When pushing, it will try to fill the gaps first.
+ * A collection to store elements in.
+ * The collection allows pushing, popping and iterating over the elements.
+ * All elements in the collections are addressed by a unique index.
  */
 template <Nullable E>
-class GappedList
+class Bag
 {
 public:
     /**

@@ -292,7 +292,7 @@ private:
 };
 
 template <typename Entry>
-ShaderResources::Description::SizeGetter CreateSizeGetter(GappedList<Entry>* list)
+ShaderResources::Description::SizeGetter CreateSizeGetter(Bag<Entry>* list)
 {
     REQUIRE(list != nullptr);
 
@@ -303,7 +303,7 @@ ShaderResources::Description::SizeGetter CreateSizeGetter(GappedList<Entry>* lis
 }
 
 template <typename Entry>
-ShaderResources::Description::ListBuilder CreateListBuilder(GappedList<Entry>* list,
+ShaderResources::Description::ListBuilder CreateListBuilder(Bag<Entry>* list,
                                                             std::function<UINT(const Entry&)> indexProvider)
 {
     REQUIRE(list != nullptr);
