@@ -27,15 +27,16 @@ namespace VoxelGame.Core.Logic;
 public abstract class World : IDisposable, IGrid
 {
     /// <summary>
-    ///     The limit of the world size.
-    ///     The actual size of the world can be smaller, but never larger.
+    ///     The highest absolute value of a block position coordinate component.
+    ///     This value also describes the word extents in blocks, thus the world size is two times this value.
+    ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
     public const uint BlockLimit = 50_000_000;
 
     private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
 
     /// <summary>
-    ///     The limit of the world size, in sections.
+    ///     The limit of the world extents, in sections.
     /// </summary>
     public const uint SectionLimit = BlockLimit / Section.Size;
 

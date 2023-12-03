@@ -108,12 +108,29 @@ void NativeClient::LoadDevice()
     ComPtr<IDXGIAdapter1> hardwareAdapter;
     GetHardwareAdapter(factory.Get(), &hardwareAdapter);
 
+#if defined(USE_NSIGHT_AFTERMATH)
+    m_gpuCrashTracker.Initialize();
+#endif
+
     TRY_DO(D3D12CreateDevice(
         hardwareAdapter.Get(),
         D3D_FEATURE_LEVEL_12_2,
         IID_PPV_ARGS(&m_device)
     ));
     NAME_D3D12_OBJECT(m_device);
+
+#if defined(USE_NSIGHT_AFTERMATH)
+    constexpr uint32_t aftermathFlags
+        = GFSDK_Aftermath_FeatureFlags_EnableMarkers
+        | GFSDK_Aftermath_FeatureFlags_EnableResourceTracking
+        | GFSDK_Aftermath_FeatureFlags_CallStackCapturing
+        | GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
+
+    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_Initialize(
+        GFSDK_Aftermath_Version_API,
+        aftermathFlags,
+        m_device.Get()));
+#endif
 
 #if defined(VG_DEBUG)
     auto callback = [](
@@ -129,21 +146,34 @@ void NativeClient::LoadDevice()
         Win32Application::ExitErrorMode();
     };
 
-    TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
-    TRY_DO(m_infoQueue->RegisterMessageCallback(
-        callback,
-        D3D12_MESSAGE_CALLBACK_FLAG_NONE,
-        this,
-        &m_callbackCookie));
-
-    TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
-
-    if (PIXIsAttachedForGpuCapture() && !SupportPIX())
+    HRESULT infoQueueResult = m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue));
+    if (SUCCEEDED(infoQueueResult))
     {
-        TRY_DO(
-            m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING,
-                "PIX detected, consider using the --pix command line argument"));
+        TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
+        TRY_DO(m_infoQueue->RegisterMessageCallback(
+            callback,
+            D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+            this,
+            &m_callbackCookie));
+
+        TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
+
+        if (PIXIsAttachedForGpuCapture() && !SupportPIX())
+        {
+            TRY_DO(
+                m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING,
+                    "PIX detected, consider using the --pix command line argument"));
+        }
     }
+    else
+    {
+        m_debugCallback(
+            D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED,
+            D3D12_MESSAGE_SEVERITY_WARNING,
+            D3D12_MESSAGE_ID_UNKNOWN,
+            "Failed to install debug callback", nullptr);
+    }
+
 #endif
 
     D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
@@ -377,7 +407,42 @@ void NativeClient::OnRender(const double delta)
     }
 
     const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-    TRY_DO(m_swapChain->Present(0, presentFlags));
+    const HRESULT present = m_swapChain->Present(0, presentFlags);
+
+#if defined(USE_NSIGHT_AFTERMATH)
+    if (FAILED(present))
+    {
+        auto tdrTerminationTimeout = std::chrono::seconds(3);
+        auto tStart = std::chrono::steady_clock::now();
+        auto tElapsed = std::chrono::milliseconds::zero();
+
+        GFSDK_Aftermath_CrashDump_Status status = GFSDK_Aftermath_CrashDump_Status_Unknown;
+        AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetCrashDumpStatus(&status));
+
+        while (status != GFSDK_Aftermath_CrashDump_Status_CollectingDataFailed &&
+            status != GFSDK_Aftermath_CrashDump_Status_Finished &&
+            tElapsed < tdrTerminationTimeout)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetCrashDumpStatus(&status));
+
+            auto tEnd = std::chrono::steady_clock::now();
+            tElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart);
+        }
+
+        if (status != GFSDK_Aftermath_CrashDump_Status_Finished)
+        {
+            std::stringstream err_msg;
+            err_msg << "Unexpected crash dump status: " << status;
+            MessageBoxA(nullptr, err_msg.str().c_str(), "Aftermath Error", MB_OK);
+        }
+
+        exit(-1);
+    }
+    m_frameCounter++;
+#else
+    TRY_DO(present); // todo: handle DXGI_ERROR_DEVICE_REMOVED, inform C# side
+#endif
 
     WaitForGPU();
 
@@ -536,13 +601,35 @@ std::wstring NativeClient::GetDRED() const
 
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
+#if defined(USE_NSIGHT_AFTERMATH)
+void NativeClient::SetupCommandListForAftermath(const ComPtr<ID3D12GraphicsCommandList> commandList)
+{
+    GFSDK_Aftermath_ContextHandle contextHandle;
+    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
+}
+
+void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> result)
+{
+    ComPtr<IDxcBlob> objectBlob;
+    TRY_DO(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&objectBlob), nullptr));
+    std::vector<uint8_t> binary(objectBlob->GetBufferSize());
+    std::memcpy(binary.data(), objectBlob->GetBufferPointer(), objectBlob->GetBufferSize());
+
+    ComPtr<IDxcBlob> pdbBlob;
+    TRY_DO(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdbBlob), nullptr));
+    std::vector<uint8_t> pdb(pdbBlob->GetBufferSize());
+    std::memcpy(pdb.data(), pdbBlob->GetBufferPointer(), pdbBlob->GetBufferSize());
+
+    m_shaderDatabase.AddShader(std::move(binary), std::move(pdb));
+}
+#endif
 
 void NativeClient::CheckRaytracingSupport() const
 {
     D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
     TRY_DO(m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
 
-    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_1)
         throw NativeException(
             "Raytracing not supported on device.");
 }
@@ -574,7 +661,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
 
         const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
         const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
-        
+
         m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
@@ -600,7 +687,7 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
 
         const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
         const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
-        
+
         m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
@@ -633,7 +720,7 @@ void NativeClient::PopulateCommandLists(const double delta)
             PopulatePostProcessingCommandList();
         }
     }
-    
+
     for (size_t i = 0; i < m_draw2DPipelines.size(); ++i)
     {
         PopulateDraw2DCommandList(i);

@@ -9,8 +9,12 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
         NAME_D3D12_OBJECT(m_commandAllocator);
 
         TRY_DO(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-            m_commandAllocator.Get(),nullptr, IID_PPV_ARGS(&m_commandList)));
+            m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
         NAME_D3D12_OBJECT(m_commandList);
+
+#if defined(USE_NSIGHT_AFTERMATH)
+        NativeClient::SetupCommandListForAftermath(m_commandList);
+#endif
     }
 }
 

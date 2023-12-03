@@ -13,6 +13,10 @@
 
 #include "Interfaces/Draw2D.hpp"
 
+#if defined(USE_NSIGHT_AFTERMATH)
+#include "nv_aftermath/NsightAftermathGpuCrashTracker.hpp"
+#endif
+
 struct TextureDescription;
 using Microsoft::WRL::ComPtr;
 
@@ -148,6 +152,19 @@ private:
     bool m_windowVisible;
     bool m_windowedMode;
 
+#if defined(USE_NSIGHT_AFTERMATH)
+    UINT64 m_frameCounter = 0;
+    GpuCrashTracker::MarkerMap m_markerMap = {};
+    ShaderDatabase m_shaderDatabase = {};
+    GpuCrashTracker m_gpuCrashTracker = {m_markerMap, m_shaderDatabase};
+
+public:
+    static void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> commandList);
+    void SetupShaderForAftermath(ComPtr<IDxcResult> result);
+
+private:
+#endif
+
     void CheckRaytracingSupport() const;
     void PopulateSpaceCommandList(double delta) const;
     void PopulatePostProcessingCommandList() const;
@@ -163,3 +180,11 @@ private:
     void PopulateCommandLists(double delta);
     void UpdatePostViewAndScissor();
 };
+
+#if defined(USE_NSIGHT_AFTERMATH)
+#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetupShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
+
+
+#else
+#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)
+#endif

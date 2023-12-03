@@ -143,6 +143,7 @@ UINT MeshObject::GetGeometryUnitCount() const
     case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES: return m_geometryElementCount / 4;
     case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS: return m_geometryElementCount;
     default: REQUIRE(false);
+        return 0;
     }
 }
 
@@ -247,7 +248,7 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std:
 {
     REQUIRE(!m_uploadRequired);
     REQUIRE(uavs != nullptr);
-
+    
     if (isForAnimation && m_requiresFreshBLAS) return;
 
     if (m_geometryElementCount == 0)
@@ -275,6 +276,7 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std:
 const BLAS& MeshObject::GetBLAS()
 {
     REQUIRE(!m_uploadRequired);
+    
     return m_blas;
 }
 

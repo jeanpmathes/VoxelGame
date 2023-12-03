@@ -23,7 +23,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     REQUIRE(m_meshes.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient.GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
     CreateTLAS();
@@ -314,7 +314,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
 
     bool ok = true;
-    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(pipelineDescription, pipeline);
+    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(m_nativeClient, pipelineDescription, pipeline);
     if (!ok) return false;
 
     m_rayGenSignature = CreateRayGenSignature();
@@ -366,9 +366,10 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     return true;
 }
 
-std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(const SpacePipeline& pipelineDescription,
-                                                                             nv_helpers_dx12::RayTracingPipelineGenerator
-                                                                             & pipeline)
+std::pair<std::vector<ComPtr<IDxcBlob>>, bool>
+Space::CompileShaderLibraries(NativeClient& nativeClient,
+                              const SpacePipeline& pipelineDescription,
+                              nv_helpers_dx12::RayTracingPipelineGenerator& pipeline)
 {
     std::vector<ComPtr<IDxcBlob>> shaderBlobs(pipelineDescription.description.shaderCount);
     
@@ -382,6 +383,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(con
             shaderBlobs[shader] = CompileShader(
                 pipelineDescription.shaderFiles[shader].path,
                 L"", L"lib_6_7",
+                VG_SHADER_REGISTRY(nativeClient),
                 pipelineDescription.description.onShaderLoadingError);
 
             if (shaderBlobs[shader] != nullptr)
@@ -408,6 +410,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(con
             shaderBlobs[shader] = CompileShader(
                 pipelineDescription.shaderFiles[shader].path,
                 L"Main", L"cs_6_7",
+                VG_SHADER_REGISTRY(nativeClient),
                 pipelineDescription.description.onShaderLoadingError);
 
             ok &= shaderBlobs[shader] != nullptr;
@@ -805,7 +808,7 @@ void Space::UpdateOutputResourceView()
     m_globalShaderResources.CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
 }
 
-void Space::UpdateTopLevelAccelerationStructureView() const
+void Space::UpdateTopLevelAccelerationStructureView()
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
     srvDescription.Format = DXGI_FORMAT_UNKNOWN;

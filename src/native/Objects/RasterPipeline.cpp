@@ -191,6 +191,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         description.vertexShaderPath,
         L"VSMain",
         L"vs_6_0",
+        VG_SHADER_REGISTRY(client),
         callback);
     if (vertexShader == nullptr) return nullptr;
 
@@ -201,6 +202,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         description.pixelShaderPath,
         L"PSMain",
         L"ps_6_0",
+        VG_SHADER_REGISTRY(client),
         callback);
     if (pixelShader == nullptr) return nullptr;
 

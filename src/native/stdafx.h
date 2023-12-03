@@ -52,6 +52,14 @@
 #include <wrl.h>
 #include <shellapi.h>
 
+// nv_aftermath
+
+#if defined(USE_NSIGHT_AFTERMATH)
+#include "nv_aftermath/NsightAftermathHelpers.hpp"
+#include "nv_aftermath/NsightAftermathGpuCrashTracker.hpp"
+#include "nv_aftermath/NsightAftermathShaderDatabase.hpp"
+#endif
+
 // nv_helpers_dx12
 
 #include "nv_helpers_dx12/TopLevelASGenerator.hpp"

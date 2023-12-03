@@ -165,7 +165,7 @@ namespace nv_helpers_dx12
             D3D12_GPU_VIRTUAL_ADDRESS previousResult = 0
         ) const;
 
-    private: // todo: fix comment style, add dots at the end of sentences
+    private: // todo: fix comment style, add dots at the end of sentences (in nv_aftermath too)
         /// Vertex buffer descriptors used to generate the AS.
         std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> m_geometryBuffers = {};
 

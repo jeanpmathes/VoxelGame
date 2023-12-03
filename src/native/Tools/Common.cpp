@@ -24,7 +24,7 @@ std::wstring GetObjectName(const ComPtr<ID3D12Object> object)
 }
 
 void CommandAllocatorGroup::Initialize(
-    const ComPtr<ID3D12Device> device,
+    ComPtr<ID3D12Device> device,
     CommandAllocatorGroup* group,
     const D3D12_COMMAND_LIST_TYPE type)
 {
@@ -35,6 +35,10 @@ void CommandAllocatorGroup::Initialize(
 
     TRY_DO(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
         group->commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&group->commandList)));
+
+#if defined(USE_NSIGHT_AFTERMATH)
+    NativeClient::SetupCommandListForAftermath(group->commandList);
+#endif
 
     TRY_DO(group->commandList->Close());
 }

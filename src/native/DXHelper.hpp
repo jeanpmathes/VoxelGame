@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include <wrl.h>
@@ -53,6 +54,8 @@ constexpr bool IS_DEBUG_BUILD = true;
 #else
 constexpr bool IS_DEBUG_BUILD = false;
 #endif
+
+#define IMPLIES(a, b) (!(a) || (b))
 
 #define REQUIRE(expression) \
     do { \
@@ -166,4 +169,11 @@ void ResetUniquePtrArray(T* uniquePtrArray)
     {
         i.reset();
     }
+}
+
+template <typename T>
+std::vector<T> ReadBlob(const ComPtr<ID3DBlob>& blob)
+{
+    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()),
+                          static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
 }

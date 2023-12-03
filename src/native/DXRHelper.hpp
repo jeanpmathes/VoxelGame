@@ -24,21 +24,20 @@
 inline ComPtr<IDxcBlob> CompileShader(
     LPCWSTR fileName,
     const std::wstring& entry, const std::wstring& target,
+    std::function<void(ComPtr<IDxcResult>)> registry,
     NativeErrorFunc errorCallback)
 {
-    static ComPtr<IDxcCompiler> compiler = nullptr;
+    static ComPtr<IDxcCompiler3> compiler = nullptr;
     static ComPtr<IDxcUtils> utils = nullptr;
     static ComPtr<IDxcIncludeHandler> dxcIncludeHandler;
-
-    // Initialize the DXC compiler and compiler helper.
+    
     if (!compiler)
     {
         TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
         TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils)));
         TRY_DO(utils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
     }
-
-    // Open and read the file.
+    
     std::ifstream shaderFile(fileName);
     if (not shaderFile.good())
     {
@@ -47,44 +46,51 @@ inline ComPtr<IDxcBlob> CompileShader(
         return nullptr;
     }
 
-    std::stringstream strStream;
-    strStream << shaderFile.rdbuf();
-    std::string sShader = strStream.str();
+    std::stringstream shaderStream;
+    shaderStream << shaderFile.rdbuf();
+    std::string shader = shaderStream.str();
 
-    // Create blob from the string
-    ComPtr<IDxcBlobEncoding> textBlob;
-    TRY_DO(utils->CreateBlobFromPinned(sShader.c_str(), static_cast<UINT32>(sShader.size()), CP_UTF8, &textBlob));
+    ComPtr<IDxcBlobEncoding> shaderSourceBlob;
+    TRY_DO(utils->CreateBlobFromPinned(shader.c_str(), static_cast<UINT32>(shader.size()), CP_UTF8, &shaderSourceBlob));
+
+    DxcBuffer sourceBuffer = {
+        .Ptr = shaderSourceBlob->GetBufferPointer(),
+        .Size = shaderSourceBlob->GetBufferSize(),
+        .Encoding = DXC_CP_UTF8
+    };
 
     std::vector<LPCWSTR> args;
     std::vector<DxcDefine> defines;
 
-#if defined(VG_DEBUG)
+#if defined(VG_DEBUG) || defined(USE_NSIGHT_AFTERMATH)
     args.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
     args.push_back(DXC_ARG_DEBUG);
     args.push_back(L"-Qembed_debug");
 #endif
     // todo: try passing optimization 3 as argument when not in debug mode
 
-    // Compile.
-    ComPtr<IDxcOperationResult> result;
-    TRY_DO(compiler->Compile(textBlob.Get(), fileName,
-        entry.c_str(), target.c_str(),
+    ComPtr<IDxcCompilerArgs> compilerArgs;
+    TRY_DO(utils->BuildArguments(
+        fileName, entry.c_str(), target.c_str(),
         args.data(), static_cast<UINT32>(args.size()),
         defines.data(), static_cast<UINT32>(defines.size()),
-        dxcIncludeHandler.Get(), &result));
+        &compilerArgs));
 
-    // Verify the result.
+    ComPtr<IDxcResult> result;
+    TRY_DO(compiler->Compile(
+        &sourceBuffer,
+        compilerArgs->GetArguments(), compilerArgs->GetCount(),
+        dxcIncludeHandler.Get(),
+        IID_PPV_ARGS(&result)));
+
     HRESULT resultCode;
     TRY_DO(result->GetStatus(&resultCode));
     if (FAILED(resultCode))
     {
-        IDxcBlobEncoding* error;
-        TRY_DO(result->GetErrorBuffer(&error));
-
-        // Convert error blob to a string.
-        std::vector<char> infoLog(error->GetBufferSize() + 1);
-        std::memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
-        infoLog[error->GetBufferSize()] = 0;
+        ComPtr<IDxcBlobUtf8> error;
+        TRY_DO(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&error), nullptr));
+        std::vector<char> infoLog(error->GetBufferSize());
+        memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
 
         std::string errorMsg = "Shader Compilation Error:\n";
         errorMsg.append(infoLog.data());
@@ -92,6 +98,8 @@ inline ComPtr<IDxcBlob> CompileShader(
         errorCallback(resultCode, errorMsg.c_str());
         return nullptr;
     }
+
+    registry(result);
 
     ComPtr<IDxcBlob> blob;
     TRY_DO(result->GetResult(&blob));

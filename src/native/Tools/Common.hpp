@@ -42,9 +42,9 @@ private:
     bool m_open = false;
 };
 
-#define INITIALIZE_COMMAND_ALLOCATOR_GROUP(device, group, type) \
+#define INITIALIZE_COMMAND_ALLOCATOR_GROUP(client, group, type) \
     do { \
-        CommandAllocatorGroup::Initialize(device, (group), type); \
+        CommandAllocatorGroup::Initialize(client, (group), type); \
         for (UINT n = 0; n < FRAME_COUNT; n++) \
         { \
             NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, n); \

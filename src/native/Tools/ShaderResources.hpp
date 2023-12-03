@@ -242,7 +242,7 @@ public:
 
 private:
     [[nodiscard]] const RootParameter& GetRootParameter(UINT index) const;
-    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_CPU_DESCRIPTOR_HANDLE> GetDescriptorHandleForWrite(
+    std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> GetDescriptorHandlesForWrite(
         const RootParameter& parameter,
         UINT inHeapIndex,
         UINT offset) const;
@@ -250,7 +250,10 @@ private:
     bool CheckListSizeUpdate(UINT* firstResizedList, UINT* totalListDescriptorCount);
     void PerformSizeUpdate(UINT firstResizedListIndex, UINT totalListDescriptorCount);
 
-    DescriptorHeap m_descriptorHeap = {};
+    DescriptorHeap m_cpuDescriptorHeap = {};
+    DescriptorHeap m_gpuDescriptorHeap = {};
+    bool m_cpuDescriptorHeapDirty = false;
+    
     ComPtr<ID3D12Device5> m_device = nullptr;
 
     struct DescriptorTable
