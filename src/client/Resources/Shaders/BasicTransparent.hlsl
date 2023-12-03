@@ -30,7 +30,7 @@ void BasicTransparentSectionClosestHit(inout HitInfo payload, const Attributes a
     const Info info = GetCurrentInfo(attributes);
     const float3 baseColor = payload.color;
 
-    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor.rgb));
+    SET_HIT_INFO(payload, info, CalculateShading(info, baseColor.rgb));
 }
 
 [shader("anyhit")]

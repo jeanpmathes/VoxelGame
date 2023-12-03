@@ -59,6 +59,10 @@ void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3
     normal = mul(instances[instance].worldNormal, float4(normalize(cross(e1, e2)), 0.0)).xyz * -1.0;
     normal = normalize(normal);
 
+    posA = mul(instances[instance].world, float4(posA, 1.0)).xyz;
+    posB = mul(instances[instance].world, float4(posB, 1.0)).xyz;
+    posC = mul(instances[instance].world, float4(posC, 1.0)).xyz;
+
     data = uint4(
         vertices[instance][vertexIndex + 0].data,
         vertices[instance][vertexIndex + 1].data,
@@ -69,43 +73,51 @@ void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3
 struct Info
 {
     /**
-     * The a position of the current triangle.
+     * \brief The a position of the current triangle.
      */
     float3 a;
 
     /**
-     * The b position of the current triangle.
+     * \brief The b position of the current triangle.
      */
     float3 b;
 
     /**
-     * The c position of the current triangle.
+     * \brief The c position of the current triangle.
      */
     float3 c;
 
     /**
-     * The indices of the current triangle, relative only to the current quad.
-     * This means that the indices are in the range [0, 3].
+     * \brief The indices of the current triangle, relative only to the current quad. This means that the indices are in the range [0, 3].
      */
     int3 indices;
 
     /**
-     * The normal of the current triangle.
+     * \brief The normal of the current triangle.
      */
     float3 normal;
 
     /**
-     * The interpolation factors of the current triangle.
+     * \brief The interpolation factors of the current triangle.
      */
     float3 barycentric;
 
     /**
-     * The current quad data.
+     * \brief The current quad data.
      */
     uint4 data;
+
+    /**
+     * \brief Get the position of the current intersection, using the barycentric coordinates.
+     * \return The position of the current intersection.
+     */
+    float3 GetPosition()
+    {
+        return a * barycentric.x + b * barycentric.y + c * barycentric.z;
+    }
 };
 
-Info GetCurrentInfo(const in Attributes attributes)
+Info GetCurrentInfo(const in Attributes attributes) // todo: write doc-comments for all functions in shaders
 {
     Info info;
 
@@ -144,15 +156,15 @@ uint GetAnimatedFluidTextureIndex(const uint index)
     return GetAnimatedIndex(index, 16, 0.00);
 }
 
-float3 CalculateShading(const float3 normal, const float3 baseColor)
+float3 CalculateShading(in Info info, const float3 baseColor)
 {
-    const float3 worldOrigin = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();
     const float3 dirToLight = -gLightDir;
+    const float3 normal = info.normal;
 
     float3 color = baseColor;
 
     RayDesc ray;
-    ray.Origin = worldOrigin;
+    ray.Origin = info.GetPosition();
     ray.Direction = dirToLight;
     ray.TMin = VG_RAY_EPSILON;
     ray.TMax = VG_RAY_DISTANCE;

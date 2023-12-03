@@ -30,7 +30,7 @@ void FoliageSectionClosestHit(inout HitInfo payload, const Attributes attributes
     const Info info = GetCurrentInfo(attributes);
     const float3 baseColor = payload.color;
 
-    SET_HIT_INFO(payload, info, CalculateShading(info.normal, baseColor));
+    SET_HIT_INFO(payload, info, CalculateShading(info, baseColor));
 }
 
 [shader("anyhit")]

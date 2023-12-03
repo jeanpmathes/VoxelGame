@@ -33,7 +33,7 @@ float3 HUEtoRGB(const in float h)
 // todo: replace the following defines with static const variables
 
 #define VG_RAY_DISTANCE 100000.0
-#define VG_RAY_EPSILON 0.01
+#define VG_RAY_EPSILON 0.0001
 
 #define VG_MASK_VISIBLE (1 << 0)
 #define VG_MASK_SHADOW (1 << 1)
