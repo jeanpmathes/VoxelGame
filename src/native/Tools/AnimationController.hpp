@@ -11,7 +11,7 @@ class MeshObject;
 namespace anim
 {
     constexpr UINT SUBMISSIONS_PER_THREAD_GROUP = 16;
-    constexpr UINT MAX_ELEMENTS_PER_SUBMISSION = 4 * 1024;
+    constexpr UINT MAX_ELEMENTS_PER_SUBMISSION = 4 * 512;
 
 #pragma pack(push, 4)
     struct Submission
