@@ -84,11 +84,12 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     GetClient().GetSpace()->MarkMeshObjectModified(m_handle.value());
     m_requiresFreshBLAS = true;
     m_uploadRequired = true;
-    
-    m_geometryBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
-                                                  D3D12_RESOURCE_FLAG_NONE,
-                                                  D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                  D3D12_HEAP_TYPE_UPLOAD);
+
+    util::ReAllocateBuffer(&m_geometryBufferUpload,
+                           GetClient(), vertexBufferSize,
+                           D3D12_RESOURCE_FLAG_NONE,
+                           D3D12_RESOURCE_STATE_GENERIC_READ,
+                           D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_geometryBufferUpload);
 
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, vertices, vertexCount));
@@ -116,10 +117,11 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCoun
     m_requiresFreshBLAS = true;
     m_uploadRequired = true;
 
-    m_geometryBufferUpload = util::AllocateBuffer(GetClient(), vertexBufferSize,
-                                                  D3D12_RESOURCE_FLAG_NONE,
-                                                  D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                  D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(&m_geometryBufferUpload,
+                           GetClient(), vertexBufferSize,
+                           D3D12_RESOURCE_FLAG_NONE,
+                           D3D12_RESOURCE_STATE_GENERIC_READ,
+                           D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(m_geometryBufferUpload);
 
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, bounds, boundsCount));
@@ -169,18 +171,22 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
 
     const auto geometryBufferSize = m_geometryBufferUpload.resource->GetDesc().Width;
 
-    m_sourceGeometryBuffer = util::AllocateBuffer(GetClient(), geometryBufferSize,
-                                                  D3D12_RESOURCE_FLAG_NONE,
-                                                  D3D12_RESOURCE_STATE_COPY_DEST,
-                                                  D3D12_HEAP_TYPE_DEFAULT);
+    util::ReAllocateBuffer(
+        &m_sourceGeometryBuffer,
+        GetClient(), geometryBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_sourceGeometryBuffer);
 
     if (GetMaterial().IsAnimated())
     {
-        m_destinationGeometryBuffer = util::AllocateBuffer(GetClient(), geometryBufferSize,
-                                                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                           D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                                                           D3D12_HEAP_TYPE_DEFAULT);
+        util::ReAllocateBuffer(
+            &m_destinationGeometryBuffer,
+            GetClient(), geometryBufferSize,
+            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+            D3D12_HEAP_TYPE_DEFAULT);
         NAME_D3D12_OBJECT_WITH_ID(m_destinationGeometryBuffer);
     }
     else

@@ -267,7 +267,8 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
             if (count == 0) return std::nullopt;
             return count;
         };
-        auto fillSlots = [&](const ShaderResources::Table::Entry entry, const UINT base,
+        auto fillSlots = [&](const ShaderResources::Table::Entry entry,
+                             const UINT base,
                              const std::optional<UINT> count)
         {
             if (count.has_value())
@@ -639,9 +640,9 @@ void Space::CreateShaderBindingTable()
 
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
-    m_sbtStorage = util::AllocateBuffer(
-        m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(&m_sbtStorage,
+                           m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
+                           D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -712,21 +713,21 @@ void Space::CreateTLAS()
 
     const bool committed = m_nativeClient.SupportPIX();
 
-    m_topLevelASBuffers.scratch = util::AllocateBuffer(m_nativeClient, scratchSize,
-                                                       D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                       D3D12_RESOURCE_STATE_COMMON,
-                                                       D3D12_HEAP_TYPE_DEFAULT,
-                                                       committed);
-    m_topLevelASBuffers.result = util::AllocateBuffer(m_nativeClient, resultSize,
-                                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                                      D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-                                                      D3D12_HEAP_TYPE_DEFAULT,
-                                                      committed);
-    m_topLevelASBuffers.instanceDescription = util::AllocateBuffer(m_nativeClient, instanceDescriptionSize,
-                                                                   D3D12_RESOURCE_FLAG_NONE,
-                                                                   D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                                   D3D12_HEAP_TYPE_UPLOAD,
-                                                                   committed);
+    util::ReAllocateBuffer(&m_topLevelASBuffers.scratch, m_nativeClient, scratchSize,
+                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                           D3D12_RESOURCE_STATE_COMMON,
+                           D3D12_HEAP_TYPE_DEFAULT,
+                           committed);
+    util::ReAllocateBuffer(&m_topLevelASBuffers.result, m_nativeClient, resultSize,
+                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                           D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+                           D3D12_HEAP_TYPE_DEFAULT,
+                           committed);
+    util::ReAllocateBuffer(&m_topLevelASBuffers.instanceDescription, m_nativeClient, instanceDescriptionSize,
+                           D3D12_RESOURCE_FLAG_NONE,
+                           D3D12_RESOURCE_STATE_GENERIC_READ,
+                           D3D12_HEAP_TYPE_UPLOAD,
+                           committed);
 
     NAME_D3D12_OBJECT(m_topLevelASBuffers.scratch);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);

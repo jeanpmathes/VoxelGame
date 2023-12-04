@@ -72,18 +72,18 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
 
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
-            ctx->m_uploadBuffer = util::AllocateBuffer(
-                ctx->m_client, vertexBufferSize,
-                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-                D3D12_HEAP_TYPE_UPLOAD);
+            util::ReAllocateBuffer(&ctx->m_uploadBuffer,
+                                   ctx->m_client, vertexBufferSize,
+                                   D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                   D3D12_HEAP_TYPE_UPLOAD);
             NAME_D3D12_OBJECT(ctx->m_uploadBuffer);
 
             TRY_DO(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
-            ctx->m_vertexBuffer = util::AllocateBuffer(
-                ctx->m_client, vertexBufferSize,
-                D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
-                D3D12_HEAP_TYPE_DEFAULT);
+            util::ReAllocateBuffer(&ctx->m_vertexBuffer,
+                                   ctx->m_client, vertexBufferSize,
+                                   D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
+                                   D3D12_HEAP_TYPE_DEFAULT);
             NAME_D3D12_OBJECT(ctx->m_vertexBuffer);
 
             auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(),

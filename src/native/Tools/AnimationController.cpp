@@ -186,7 +186,7 @@ void AnimationController::UpdateThreadGroupData()
     }
 }
 
-void AnimationController::UploadThreadGroupData(ShaderResources& resources,
+void AnimationController::UploadThreadGroupData(const ShaderResources& resources,
                                                 ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
     if (m_threadGroupDataMapping.GetSize() < m_threadGroupData.size())
@@ -194,14 +194,18 @@ void AnimationController::UploadThreadGroupData(ShaderResources& resources,
         const UINT sizeInElements = static_cast<UINT>(m_threadGroupData.size());
         const UINT sizeInBytes = static_cast<UINT>(sizeInElements * sizeof(anim::ThreadGroup));
 
-        m_threadGroupDataBuffer = util::AllocateBuffer(*m_client, sizeInBytes,
-                                                       D3D12_RESOURCE_FLAG_NONE,
-                                                       D3D12_RESOURCE_STATE_COPY_DEST,
-                                                       D3D12_HEAP_TYPE_DEFAULT);
-        m_threadGroupDataUploadBuffer = util::AllocateBuffer(*m_client, sizeInBytes,
-                                                             D3D12_RESOURCE_FLAG_NONE,
-                                                             D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                             D3D12_HEAP_TYPE_UPLOAD);
+        util::ReAllocateBuffer(
+            &m_threadGroupDataBuffer,
+            *m_client, sizeInBytes,
+            D3D12_RESOURCE_FLAG_NONE,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_HEAP_TYPE_DEFAULT);
+        util::ReAllocateBuffer(
+            &m_threadGroupDataUploadBuffer,
+            *m_client, sizeInBytes,
+            D3D12_RESOURCE_FLAG_NONE,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            D3D12_HEAP_TYPE_UPLOAD);
 
         m_threadGroupDataViewDescription.Buffer.NumElements = sizeInElements;
         resources.CreateShaderResourceView(m_threadGroupDataEntry, 0, {

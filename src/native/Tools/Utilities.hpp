@@ -71,6 +71,29 @@ namespace util
     }
 
     /**
+     * \brief Allocate a buffer, except when the given allocation is large enough.
+     * \param allocation The allocation to check, may be null. Must have been allocated with the same parameters.
+     * \param client The client to allocate on.
+     * \param size The size of the buffer to allocate.
+     * \param flags The flags of the buffer to allocate.
+     * \param initState The initial state of the buffer to allocate.
+     * \param heapType The heap type of the buffer to allocate.
+     * \param committed Whether the buffer to allocate should be committed or placed.
+     */
+    inline void ReAllocateBuffer(
+        Allocation<ID3D12Resource>* allocation,
+        const NativeClient& client,
+        const UINT64 size,
+        const D3D12_RESOURCE_FLAGS flags,
+        const D3D12_RESOURCE_STATES initState,
+        const D3D12_HEAP_TYPE heapType,
+        const bool committed = false)
+    {
+        if (allocation->IsSet() && allocation->resource->GetDesc().Width >= size) return;
+        *allocation = AllocateBuffer(client, size, flags, initState, heapType, committed);
+    }
+
+    /**
      * Allocate a constant buffer with the given size on the default pool of the client's allocator.
      */
     inline Allocation<ID3D12Resource> AllocateConstantBuffer(const NativeClient& client, UINT64* size)
