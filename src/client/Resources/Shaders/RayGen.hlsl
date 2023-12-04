@@ -70,6 +70,7 @@ void RayGen()
 
     float3 origin = mul(viewI, float4(0, 0, 0, 1)).xyz;
     float3 direction = mul(viewI, float4(target.xyz, 0)).xyz;
+    float3 normal = float3(0, 0, 0);
     float min = 0;
     
     int iteration = 0;
@@ -81,7 +82,7 @@ void RayGen()
     while (color.a < 1.0 && iteration < 10 && any(direction))
     {
         HitInfo hit = GetEmptyHitInfo();
-        Trace(origin, direction, min, hit);
+        Trace(origin - normal * VG_RAY_EPSILON, direction, min, hit);
 
         const bool incoming = dot(direction, hit.normal) < 0;
         const float n1 = incoming ? 1.0 : 1.33;
@@ -99,7 +100,7 @@ void RayGen()
         color.rgb = rgb;
         color.a = a;
 
-        min = VG_RAY_EPSILON;
+        min = 0;
         iteration++;
 
         // The reflection ray is traced now and the result is used next iteration when the refraction ray is traced.
@@ -107,12 +108,13 @@ void RayGen()
         reflectance = hit.alpha < 1.0 ? GetReflectance(hit.normal, direction, refracted, n1, n2) : 0.0;
 
         origin += direction * hit.distance;
+        normal = hit.normal;
         direction = refracted;
 
         if (reflectance > 0.0)
         {
             reflectionHit = GetEmptyHitInfo();
-            Trace(origin, reflected, min, reflectionHit);
+            Trace(origin + normal * VG_RAY_EPSILON, reflected, min, reflectionHit);
         }
     }
 
