@@ -56,6 +56,17 @@ public enum FluidLevel
 }
 
 /// <summary>
+///     Constants for fluid levels.
+/// </summary>
+public static class FluidLevels
+{
+    /// <summary>
+    ///     Indicates that there is no fluid.
+    /// </summary>
+    public const int None = -1;
+}
+
+/// <summary>
 ///     Extension methods for <see cref="FluidLevel" />.
 /// </summary>
 public static class FluidLevelExtensions
@@ -65,7 +76,7 @@ public static class FluidLevelExtensions
     /// </summary>
     public static int GetBlockHeight(this FluidLevel level)
     {
-        return (int) level * 2 + 1;
+        return IHeightVariable.GetBlockHeightFromFluidHeight((int) level);
     }
 
     /// <summary>

@@ -109,7 +109,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
             height,
-            MeshFaceHolder.NoSkip,
+            NoHeight,
             MeshFaceHolder.DefaultDirection,
             data,
             isSingleSided: true,

@@ -218,7 +218,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             var sideHeight = (int) fluidToCheck.Level;
 
-            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = -1;
+            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = FluidLevels.None;
 
             bool flowsTowardsFace = side == BlockSide.Top
                 ? Direction == VerticalFlow.Upwards
@@ -257,7 +257,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
             fluidMeshFaceHolders[(int) side].AddFace(
                 position,
                 info.Level.GetBlockHeight(),
-                sideHeight,
+                IHeightVariable.GetBlockHeightFromFluidHeight(sideHeight),
                 Direction != VerticalFlow.Upwards,
                 data,
                 singleSided,

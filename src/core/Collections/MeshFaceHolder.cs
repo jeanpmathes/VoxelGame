@@ -20,11 +20,6 @@ namespace VoxelGame.Core.Collections;
 public class MeshFaceHolder
 {
     /// <summary>
-    ///     The skip value that indicates no skip.
-    /// </summary>
-    public const int NoSkip = -1;
-
-    /// <summary>
     ///     The direction value that indicates a normal direction, meaning a downwards flow.
     ///     The bottom of the face touches the ground, the top is as high as the size.
     /// </summary>
@@ -188,7 +183,7 @@ public class MeshFaceHolder
     /// <param name="isSingleSided">True if the face is single sided, false if double sided.</param>
     public void AddFace(Vector3i pos, (uint a, uint b, uint c, uint d) data, bool isRotated, bool isSingleSided)
     {
-        AddFace(pos, (IHeightVariable.MaximumHeight, NoSkip), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
+        AddFace(pos, (IHeightVariable.MaximumHeight, IHeightVariable.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
     }
 
     /// <summary>

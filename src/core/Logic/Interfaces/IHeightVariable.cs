@@ -12,6 +12,7 @@ namespace VoxelGame.Core.Logic.Interfaces;
 ///     Allows blocks to have variable height.
 ///     The height varies in steps of 1/16th of a block.
 ///     Height is a number from 0 to <see cref="MaximumHeight" /> inclusive.
+///     Note that the number 0 indicates a block with a height of 1/16th of a block, not a block with no height.
 /// </summary>
 public interface IHeightVariable : IBlockBase
 {
@@ -19,6 +20,12 @@ public interface IHeightVariable : IBlockBase
     ///     The maximum height. A block with this height completely fills a position.
     /// </summary>
     public static int MaximumHeight => 15;
+
+    /// <summary>
+    ///     Special constant to indicate that a block has no height.
+    ///     This is only allowed in certain cases.
+    /// </summary>
+    public static int NoHeight => -1;
 
     /// <summary>
     ///     The half height. A block with this height fills half of a position.
@@ -33,6 +40,16 @@ public interface IHeightVariable : IBlockBase
         int height = GetHeight(data);
 
         return height == MaximumHeight;
+    }
+
+    /// <summary>
+    ///     Convert a fluid height to a block height.
+    /// </summary>
+    /// <param name="fluidHeight">The fluid height, in the range [-1, 7].</param>
+    /// <returns>The block height, in the range [-1, 15].</returns>
+    public static int GetBlockHeightFromFluidHeight(int fluidHeight)
+    {
+        return fluidHeight * 2 + 1;
     }
 
     /// <summary>
