@@ -97,7 +97,7 @@ MeshObject& Space::CreateMeshObject(const UINT materialIndex)
 
 void Space::MarkMeshObjectModified(MeshObject::Handle handle)
 {
-    m_modifiedMeshes.emplace(handle);
+    m_modifiedMeshes.Insert(handle);
 
     const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
 
@@ -112,9 +112,9 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
     MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
     REQUIRE(!mesh->GetActiveIndex());
 
-    size_t index = m_activeMeshes.Push(mesh);
-    
-    m_activatedMeshes.emplace(index);
+    const size_t index = m_activeMeshes.Push(mesh);
+
+    m_activatedMeshes.Insert(index);
 
     if (mesh->GetMaterial().IsAnimated())
     {
@@ -127,8 +127,8 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
 void Space::DeactivateMeshObject(const size_t index)
 {
     MeshObject* mesh = m_activeMeshes.Pop(index);
-    
-    m_activatedMeshes.erase(index);
+
+    m_activatedMeshes.Erase(index);
 
     if (mesh->GetMaterial().IsAnimated())
     {
@@ -138,7 +138,7 @@ void Space::DeactivateMeshObject(const size_t index)
 
 void Space::ReturnMeshObject(const MeshObject::Handle handle)
 {
-    m_modifiedMeshes.erase(handle);
+    m_modifiedMeshes.Erase(handle);
     
     m_meshPool.push_back(m_meshes.Pop(static_cast<size_t>(handle)));
 }
@@ -199,7 +199,7 @@ void Space::CleanupRender()
 
         mesh->CleanupMeshUpload();
     }
-    m_modifiedMeshes.clear();
+    m_modifiedMeshes.Clear();
 
     m_indexBuffer.CleanupRender();
 }
@@ -823,7 +823,7 @@ void Space::UpdateTopLevelAccelerationStructureView()
 
 void Space::UpdateGlobalShaderResources()
 {
-    std::set<size_t> meshesToRefresh = m_activatedMeshes;
+    IntegerSet meshesToRefresh = m_activatedMeshes;
     for (const auto handle : m_modifiedMeshes)
     {
         const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
@@ -832,7 +832,7 @@ void Space::UpdateGlobalShaderResources()
         std::optional<size_t> index = mesh->GetActiveIndex();
         if (!index.has_value()) continue;
 
-        meshesToRefresh.insert(index.value());
+        meshesToRefresh.Insert(index.value());
     }
 
     for (auto& animation : m_animations)
@@ -844,5 +844,5 @@ void Space::UpdateGlobalShaderResources()
     m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
     m_globalShaderResources.Update();
 
-    m_activatedMeshes.clear();
+    m_activatedMeshes.Clear();
 }

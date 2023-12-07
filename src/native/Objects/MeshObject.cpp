@@ -144,7 +144,7 @@ UINT MeshObject::GetGeometryUnitCount() const
     {
     case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES: return m_geometryElementCount / 4;
     case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS: return m_geometryElementCount;
-    default: REQUIRE(false);
+    default: throw NativeException("Unknown geometry type.");
     }
 }
 

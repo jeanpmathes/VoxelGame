@@ -473,7 +473,7 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
         m_swapChain->GetDesc(&desc);
         TRY_DO(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, desc.BufferDesc.Format, desc.Flags));
 
-        BOOL fullscreenState;
+        BOOL fullscreenState; // todo: fullscreen should be on monitor on which window is
         TRY_DO(m_swapChain->GetFullscreenState(&fullscreenState, nullptr));
         m_windowedMode = !fullscreenState;
 

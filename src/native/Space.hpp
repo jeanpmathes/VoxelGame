@@ -221,7 +221,7 @@ private:
     void UpdateTopLevelAccelerationStructureView();
     void UpdateGlobalShaderResources();
 
-    NativeClient& m_nativeClient;
+    NativeClient& m_nativeClient; // todo: make pointer, check other offenders of warning
     Resolution m_resolution{};
 
     Camera m_camera;
@@ -278,9 +278,9 @@ private:
 
     Bag<std::unique_ptr<MeshObject>> m_meshes = {};
     std::vector<std::unique_ptr<MeshObject>> m_meshPool = {};
-    std::set<MeshObject::Handle> m_modifiedMeshes = {};
+    IntegerSet<MeshObject::Handle> m_modifiedMeshes = {};
     Bag<MeshObject*> m_activeMeshes = {};
-    std::set<size_t> m_activatedMeshes = {};
+    IntegerSet<> m_activatedMeshes = {};
 
     std::vector<AnimationController> m_animations = {};
 

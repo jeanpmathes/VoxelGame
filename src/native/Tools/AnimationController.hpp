@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 #pragma once
+#include "IntegerSet.hpp"
 
 class MeshObject;
 
@@ -78,8 +79,8 @@ private:
     ComPtr<ID3DBlob> m_shader = {};
 
     Bag<MeshObject*> m_meshes = {};
-    std::set<size_t> m_changedMeshes = {};
-    std::set<size_t> m_removedMeshes = {};
+    IntegerSet<> m_changedMeshes = {};
+    IntegerSet<> m_removedMeshes = {};
 
     ShaderResources::TableHandle m_resourceTable = ShaderResources::TableHandle::INVALID;
     ShaderResources::Table::Entry m_threadGroupDataEntry = ShaderResources::Table::Entry::invalid;

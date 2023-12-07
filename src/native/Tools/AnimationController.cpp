@@ -70,8 +70,8 @@ void AnimationController::AddMesh(MeshObject& mesh)
     size_t index = m_meshes.Push(&mesh);
     mesh.SetAnimationHandle(static_cast<Handle>(index));
 
-    m_changedMeshes.insert(index);
-    m_removedMeshes.erase(index);
+    m_changedMeshes.Insert(index);
+    m_removedMeshes.Erase(index);
 }
 
 void AnimationController::UpdateMesh(const MeshObject& mesh)
@@ -79,7 +79,7 @@ void AnimationController::UpdateMesh(const MeshObject& mesh)
     REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
     REQUIRE(mesh.GetMaterial().IsAnimated());
 
-    m_changedMeshes.insert(static_cast<size_t>(mesh.GetAnimationHandle()));
+    m_changedMeshes.Insert(static_cast<size_t>(mesh.GetAnimationHandle()));
 }
 
 void AnimationController::RemoveMesh(MeshObject& mesh)
@@ -92,8 +92,8 @@ void AnimationController::RemoveMesh(MeshObject& mesh)
 
     mesh.SetAnimationHandle(Handle::INVALID);
 
-    m_changedMeshes.erase(index);
-    m_removedMeshes.insert(index);
+    m_changedMeshes.Erase(index);
+    m_removedMeshes.Insert(index);
 }
 
 void AnimationController::Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> commandList)
@@ -101,14 +101,14 @@ void AnimationController::Update(ShaderResources& resources, ComPtr<ID3D12Graphi
     resources.RequestListRefresh(m_srcGeometryList, m_changedMeshes);
     resources.RequestListRefresh(m_dstGeometryList, m_changedMeshes);
 
-    if (!m_changedMeshes.empty() || !m_removedMeshes.empty())
+    if (!m_changedMeshes.IsEmpty() || !m_removedMeshes.IsEmpty())
     {
         UpdateThreadGroupData();
         UploadThreadGroupData(resources, commandList);
     }
 
-    m_changedMeshes.clear();
-    m_removedMeshes.clear();
+    m_changedMeshes.Clear();
+    m_removedMeshes.Clear();
 }
 
 void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> commandList)

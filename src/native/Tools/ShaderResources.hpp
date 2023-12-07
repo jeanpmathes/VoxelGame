@@ -9,6 +9,7 @@
 #include <variant>
 
 #include "DescriptorHeap.hpp"
+#include "IntegerSet.hpp"
 
 /**
  * Manages the resources for shaders, including on heap and as direct root parameters.
@@ -216,7 +217,7 @@ public:
      * Each index in the list will be refreshed when update is called.
      * If the list is resized, no duplicate refreshes will be performed.
      */
-    void RequestListRefresh(ListHandle listHandle, const std::set<size_t>& indices);
+    void RequestListRefresh(ListHandle listHandle, const IntegerSet<>& indices);
 
     void Bind(ComPtr<ID3D12GraphicsCommandList> commandList);
     void Update();
@@ -279,7 +280,7 @@ private:
         UINT externalOffset = 0;
 
         UINT size = 0;
-        std::set<size_t> dirtyIndices = {};
+        IntegerSet<> dirtyIndices = {};
     };
 
     std::vector<DescriptorList> m_descriptorLists = {};

@@ -90,6 +90,7 @@
 #include "Tools/Utilities.hpp"
 #include "Tools/Uploader.hpp"
 #include "Tools/Common.hpp"
+#include "Tools/IntegerSet.hpp"
 
 // General
 

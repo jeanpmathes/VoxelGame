@@ -161,6 +161,7 @@
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
         <ClInclude Include="Tools\Bag.hpp"/>
+        <ClInclude Include="Tools\IntegerSet.hpp"/>
         <ClInclude Include="Tools\ShaderResources.hpp"/>
         <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
         <ClInclude Include="Tools\StepTimer.hpp"/>
@@ -224,6 +225,7 @@
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Tools\DescriptorHeap.cpp"/>
+        <ClCompile Include="Tools\IntegerSet.cpp"/>
         <ClCompile Include="Tools\ShaderResources.cpp"/>
         <ClCompile Include="Tools\SharedIndexBuffer.cpp"/>
         <ClCompile Include="Tools\Uploader.cpp"/>

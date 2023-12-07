@@ -275,7 +275,7 @@ ComPtr<ID3D12RootSignature> ShaderResources::GetComputeRootSignature() const
     return m_computeRootSignature;
 }
 
-void ShaderResources::RequestListRefresh(ListHandle listHandle, const std::set<size_t>& indices)
+void ShaderResources::RequestListRefresh(ListHandle listHandle, const IntegerSet<>& indices)
 {
     const UINT parameterIndex = static_cast<UINT>(listHandle);
     const RootParameter& parameter = GetRootParameter(parameterIndex);
@@ -283,6 +283,7 @@ void ShaderResources::RequestListRefresh(ListHandle listHandle, const std::set<s
     if (std::holds_alternative<RootHeapDescriptorList>(parameter))
     {
         auto& list = m_descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
+        size_t count = indices.Count();
         list.dirtyIndices = indices;
     }
     else
@@ -427,7 +428,7 @@ void ShaderResources::Update()
     {
         auto& list = m_descriptorLists[listIndex];
 
-        if (!list.dirtyIndices.empty())
+        if (!list.dirtyIndices.IsEmpty())
         {
             for (const size_t index : list.dirtyIndices)
             {
@@ -439,7 +440,7 @@ void ShaderResources::Update()
             m_cpuDescriptorHeapDirty = true;
         }
 
-        list.dirtyIndices.clear();
+        list.dirtyIndices.Clear();
     }
 }
 
