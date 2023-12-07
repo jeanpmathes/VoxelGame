@@ -15,6 +15,7 @@ float gTime;
 float3 gWindDir;
 float3 gLightDir;
 float gMinLight;
+float gMinShadow;
 uint2 gTextureSize;
 }
 

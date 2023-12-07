@@ -79,6 +79,7 @@ struct GlobalConstantBuffer
     
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
+    float minShadow;
     
     DirectX::XMUINT2 textureSize;
 };

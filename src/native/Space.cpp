@@ -250,6 +250,7 @@ void Space::CreateGlobalConstBuffer()
         .windDirection = m_windDirection,
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
+        .minShadow = 0.2f,
         .textureSize = DirectX::XMUINT2{1, 1}
     });
 }

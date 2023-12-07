@@ -174,10 +174,18 @@ float3 CalculateShading(in Info info, const float3 baseColor)
 
     TraceRay(spaceBVH, RAY_FLAG_NONE, VG_MASK_SHADOW, VG_HIT_ARG(1), ray, shadowPayload);
 
-    const float visibility = shadowPayload.isHit ? 0.0 : 1.0;
+    const float energy = dot(normal, dirToLight);
 
-    const float lightIntensity = clamp(dot(normal, dirToLight) * visibility, gMinLight, 1.0);
-    color *= lightIntensity;
+    float intensity;
 
-    return color;
+    if (!shadowPayload.isHit)
+    {
+        intensity = clamp(energy, gMinLight, 1.0);
+    }
+    else
+    {
+        intensity = lerp(gMinShadow, gMinLight, clamp(energy * -1.0, 0.0, 1.0));
+    }
+
+    return color * intensity;
 }
