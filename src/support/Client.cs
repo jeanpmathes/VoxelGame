@@ -41,6 +41,10 @@ public class Client : IDisposable // todo: get type usage count down
 
     private Vector2i mousePosition;
 
+    private Thread mainThread = null!;
+
+    private Cycle? cycle = new();
+
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
@@ -49,11 +53,20 @@ public class Client : IDisposable // todo: get type usage count down
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
 
+        Size = windowSettings.Size;
+
         Definition.Native.NativeConfiguration configuration = new()
         {
-            onInit = OnInit,
+            onInit = () =>
+            {
+                mainThread = Thread.CurrentThread;
+
+                OnInit();
+            },
             onUpdate = delta =>
             {
+                cycle = Cycle.Update;
+
                 Time += delta;
 
                 mousePosition = Support.Native.GetMousePosition(this);
@@ -62,8 +75,17 @@ public class Client : IDisposable // todo: get type usage count down
 
                 Sync.Update();
                 KeyState.Update();
+
+                cycle = null;
             },
-            onRender = OnRender,
+            onRender = delta =>
+            {
+                cycle = Cycle.Render;
+
+                OnRender(delta);
+
+                cycle = null;
+            },
             onDestroy = OnDestroy,
             canClose = CanClose,
             onKeyDown = OnKeyDown,
@@ -94,6 +116,21 @@ public class Client : IDisposable // todo: get type usage count down
         Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc);
         Space = new Space(this);
     }
+
+    /// <summary>
+    ///     Whether the client is currently in the update cycle.
+    /// </summary>
+    internal bool IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+
+    /// <summary>
+    ///     Whether the client is currently in the render cycle.
+    /// </summary>
+    internal bool IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+
+    /// <summary>
+    ///     Whether the client is currently outside of any cycle but still on the main thread.
+    /// </summary>
+    internal bool IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
 
     internal Synchronizer Sync { get; } = new();
 
@@ -431,7 +468,9 @@ public class Client : IDisposable // todo: get type usage count down
     {
         ReleaseUnmanagedResources();
 
-        if (disposing) config = new Config();
+        if (!disposing) return;
+
+        config = new Config();
     }
 
     /// <summary>

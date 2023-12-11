@@ -50,8 +50,6 @@ public abstract class UserInterface : IDisposable
         Root.ShouldDrawBackground = drawBackground;
 
         Context = new Context(inputListener, resources);
-
-        SetSize(targetSize);
     }
 
     /// <summary>

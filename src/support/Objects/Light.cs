@@ -31,7 +31,7 @@ public class Light : SpatialObject
         {
             if (value == direction) return;
 
-            Native.SetLightDirection(this, value.ToVector3());
+            Native.SetLightDirection(this, value.ToVector3()); // todo: use sync instead of writing directly, but not simple sync as positional mode for light (comes later) does not fit that
             direction = value;
         }
     }

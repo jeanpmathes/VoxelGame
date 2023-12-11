@@ -23,7 +23,7 @@ using Size = Gwen.Net.Size;
 namespace VoxelGame.UI.Platform.Renderer;
 
 /// <summary>
-///     Class for DirectX GUI renderer.
+///     Class for the DirectX-based GUI renderer.
 /// </summary>
 public sealed class DirectXRenderer : RendererBase
 {

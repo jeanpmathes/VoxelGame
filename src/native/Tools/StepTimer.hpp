@@ -16,7 +16,7 @@
 class StepTimer
 {
 public:
-    StepTimer() noexcept(false) :
+    StepTimer() noexcept(false) : // todo: try using std::chrono high performance counter
         m_elapsedTicks(0),
         m_totalTicks(0),
         m_leftOverTicks(0),
@@ -29,7 +29,7 @@ public:
     {
         if (!QueryPerformanceFrequency(&m_qpcFrequency))
         {
-            throw std::exception();
+            throw std::exception(); // todo: use native exception and message here
         }
 
         if (!QueryPerformanceCounter(&m_qpcLastTime))

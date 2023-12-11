@@ -30,7 +30,9 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged
             if (EqualityComparer<T>.Default.Equals(Data, value)) return;
 
             data = value;
-            dirty = true;
+
+            if (Client.IsOutOfCycle) Write();
+            else dirty = true;
         }
     }
 
@@ -38,7 +40,13 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged
     {
         if (!dirty) return;
 
-        Native.SetShaderBufferData(this, data);
+        Write();
+
         dirty = false;
+    }
+
+    private void Write()
+    {
+        Native.SetShaderBufferData(this, data);
     }
 }

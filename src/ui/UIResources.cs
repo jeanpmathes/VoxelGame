@@ -119,7 +119,7 @@ public class UIResources
 
                     foreach ((string _, TexturePreload texture) in textures) settings.TexturePreloads.Add(texture);
 
-                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name ?? ""] = exception;
+                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name] = exception;
                 }));
 
         GUI.Load();
@@ -171,8 +171,6 @@ public class UIResources
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
         {
-            // todo: load the UI raster pipeline (in static method so tests can use it), if it is missing then pass abort: true to the loading context
-
             LoadAttributions(loadingContext);
             LoadGUI(window, loadingContext);
         }

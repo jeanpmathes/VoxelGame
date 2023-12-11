@@ -55,6 +55,7 @@ public class NativeObject
 
     /// <summary>
     ///     Called before the native object is synchronized.
+    ///     Use this for effects that should be considered by other native objects during their synchronization.
     /// </summary>
     internal virtual void PrepareSynchronization()
     {

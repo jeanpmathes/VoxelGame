@@ -129,7 +129,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                 ctx->m_raster->BindDescriptor(ctx->m_currentCommandList,
                                               TEXTURE_SLOT, FIRST_TEXTURE_DESCRIPTOR_INDEX + textureIndex);
             }
-
+            
             ctx->m_currentCommandList->DrawInstanced(vertexCount, 1, firstVertex, 0);
         },
         .ctx = this

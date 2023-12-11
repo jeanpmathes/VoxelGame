@@ -42,11 +42,12 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
     m_app = pApp;
 
     pApp->Init();
-    pApp->Tick(DXApp::ALLOW_BOTH);
+    pApp->Tick(DXApp::ALLOW_UPDATE);
+    pApp->Tick(DXApp::ALLOW_RENDER);
 
     ShowWindow(m_hwnd, nCmdShow);
 
-    pApp->Tick(DXApp::ALLOW_BOTH);
+    pApp->Tick(DXApp::ALLOW_RENDER);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
