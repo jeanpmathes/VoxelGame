@@ -13,14 +13,26 @@ bool operator!=(const Resolution& lhs, const Resolution& rhs)
 std::wstring GetObjectName(const ComPtr<ID3D12Object> object)
 {
     UINT nameSizeInByte = 0;
-    TRY_DO(object->GetPrivateData(WKPDID_D3DDebugObjectNameW, &nameSizeInByte, nullptr));
+    HRESULT ok = object->GetPrivateData(WKPDID_D3DDebugObjectNameW, &nameSizeInByte, nullptr);
 
-    std::wstring name;
-    name.resize(nameSizeInByte / sizeof(wchar_t));
+    if (SUCCEEDED(ok))
+    {
+        std::wstring name;
+        name.resize(nameSizeInByte / sizeof(wchar_t));
+        ok = object->GetPrivateData(WKPDID_D3DDebugObjectNameW, &nameSizeInByte, name.data());
 
-    TRY_DO(object->GetPrivateData(WKPDID_D3DDebugObjectNameW, &nameSizeInByte, name.data()));
+        if (SUCCEEDED(ok))
+        {
+            return name;
+        }
+    }
 
-    return name;
+    return L"";
+}
+
+void SetObjectName(ComPtr<ID3D12Object> object, const std::wstring& name)
+{
+    TRY_DO(object->SetName(name.c_str()));
 }
 
 void CommandAllocatorGroup::Initialize(
@@ -60,8 +72,8 @@ void CommandAllocatorGroup::Reset(const UINT frameIndex, const ComPtr<ID3D12Pipe
     TRY_DO(commandList->Reset(commandAllocators[frameIndex].Get(), pipelineStatePtr));
 
 #if defined(VG_DEBUG)
-    TRY_DO(commandAllocators[frameIndex]->SetName(commandAllocatorName.c_str()));
-    TRY_DO(commandList->SetName(commandListName.c_str()));
+    SetObjectName(commandAllocators[frameIndex], commandAllocatorName);
+    SetObjectName(commandList, commandListName);
 #endif
 
     m_open = true;

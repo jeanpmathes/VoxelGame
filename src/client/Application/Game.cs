@@ -84,7 +84,7 @@ public sealed class Game : IDisposable
     #region IDisposable Support
 
     /// <inheritdoc />
-    public void Dispose()
+    public void Dispose() // todo: go trough all dispose methods and finalizers, ensure that pattern is correct (e.g. here the disposed member is missing)
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);

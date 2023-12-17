@@ -22,8 +22,16 @@ inline constexpr UINT FRAME_COUNT = 2;
 
 /**
  * Get the name of a D3D12 object.
+ * If the object has no name, an empty string is returned.
  */
 std::wstring GetObjectName(ComPtr<ID3D12Object> object);
+
+/**
+ * \brief Set the name of a D3D12 object.
+ * \param object The object to name.
+ * \param name The name to set.
+ */
+void SetObjectName(ComPtr<ID3D12Object> object, const std::wstring& name);
 
 /**
  * A group of command allocators and a command list.

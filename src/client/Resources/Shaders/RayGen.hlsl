@@ -7,7 +7,8 @@
 #include "Common.hlsl"
 #include "Payloads.hlsl"
 
-cbuffer CameraParams : register(b0) {
+cbuffer CameraParameters : register(b0)
+{
 float4x4 view;
 float4x4 projection;
 float4x4 viewI;

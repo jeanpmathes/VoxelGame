@@ -37,7 +37,7 @@ void Uploader::UploadTexture(
     m_uploadBuffers.push_back(textureUploadBuffer);
 
     std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
-    for (UINT layer = 0; layer < 1; layer++) // Loop over array layers.
+    for (UINT layer = 0; layer < 1; layer++)
     {
         UINT width = description.width;
         UINT height = description.height;

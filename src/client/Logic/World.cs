@@ -131,32 +131,6 @@ public class World : Core.Logic.World
     {
         UpdateChunks();
 
-        void HandleActivating()
-        {
-            if (ActiveChunkCount < minLoadedChunksAtStart) return;
-
-            readyStopwatch.Stop();
-            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
-
-            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
-
-            CurrentState = State.Active;
-        }
-
-        void HandleActive()
-        {
-            // Tick objects in world.
-            foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
-
-            player!.Tick(deltaTime);
-
-            // Mesh all listed sections.
-            foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-                chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
-
-            sectionsToMesh.Clear();
-        }
-
         switch (CurrentState)
         {
             case State.Activating:
@@ -179,6 +153,39 @@ public class World : Core.Logic.World
 
                 break;
         }
+
+        void HandleActive()
+        {
+            DoTicksOnEverything(deltaTime);
+            MeshAndClearSectionList();
+        }
+
+        void HandleActivating()
+        {
+            if (ActiveChunkCount < minLoadedChunksAtStart) return;
+
+            readyStopwatch.Stop();
+            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+
+            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+
+            CurrentState = State.Active;
+        }
+    }
+
+    private void DoTicksOnEverything(double deltaTime)
+    {
+        foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
+
+        player!.Tick(deltaTime);
+    }
+
+    private void MeshAndClearSectionList()
+    {
+        foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
+            chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
+
+        sectionsToMesh.Clear();
     }
 
     /// <inheritdoc />

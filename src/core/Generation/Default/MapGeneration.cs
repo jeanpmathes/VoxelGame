@@ -304,7 +304,6 @@ public partial class Map
             }
 
             if (x != 0) CheckForCollision((x - 1, y));
-
             if (y != 0) CheckForCollision((x, y - 1));
         }
 
@@ -392,6 +391,12 @@ public partial class Map
         }
     }
 
+    /// <summary>
+    ///     Handle a convergent boundary between two tectonic plates.
+    ///     A convergent boundary is where two plates move towards each other.
+    ///     If both cells are land, they are pushed upwards.
+    ///     If one cell is land and the other is not, the water cell is pushed under the land cell.
+    /// </summary>
     private static void HandleConvergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
     {
         double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
@@ -435,6 +440,11 @@ public partial class Map
         }
     }
 
+    /// <summary>
+    ///     Handle a transform boundary between two tectonic plates.
+    ///     A transform boundary is where two plates slide past each other.
+    ///     This does not affect the height of the cells, but it does cause seismic activity.
+    /// </summary>
     private static void HandleTransformBoundary(Data data, TectonicCell a, TectonicCell b)
     {
         ref Cell cellA = ref data.GetCell(a.position);
@@ -444,6 +454,13 @@ public partial class Map
         cellB.conditions |= CellConditions.SeismicActivity;
     }
 
+    /// <summary>
+    ///     Handle a divergent boundary between two tectonic plates.
+    ///     A divergent boundary is where two plates move away from each other.
+    ///     Land cells are pushed downwards, water cells are pushed upwards.
+    ///     If both cells are land, a rift is created.
+    ///     If both cells are water, a rift and vulcanism is created.
+    /// </summary>
     private static void HandleDivergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
     {
         double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;

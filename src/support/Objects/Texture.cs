@@ -70,7 +70,7 @@ public class Texture : NativeObject
     /// <summary>
     ///     Creates a fallback image.
     /// </summary>
-    /// <param name="resolution">The resolution of the image to create.</param>
+    /// <param name="resolution">The size of the image to create.</param>
     /// <returns>The created fallback image.</returns>
     public static Bitmap CreateFallback(int resolution)
     {

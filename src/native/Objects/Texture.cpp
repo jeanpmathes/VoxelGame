@@ -19,7 +19,6 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
         textureDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
-
     NAME_D3D12_OBJECT(texture);
 
     uploader.UploadTexture(data, description, texture);
