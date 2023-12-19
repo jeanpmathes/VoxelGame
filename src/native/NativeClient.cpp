@@ -79,30 +79,10 @@ void NativeClient::OnPostInit()
 
 void NativeClient::LoadDevice()
 {
-    UINT dxgiFactoryFlags = 0;
-
 #if defined(VG_DEBUG)
-    {
-        ComPtr<ID3D12Debug5> debugController;
-        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-        {
-            debugController->EnableDebugLayer();
-            debugController->SetEnableAutoName(TRUE);
-
-            // todo: try again to remove the check and test if PIX captures correctly
-            if (!SupportPIX()) debugController->SetEnableGPUBasedValidation(TRUE);
-
-            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-        }
-
-        ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
-        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dredSettings))))
-        {
-            dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-            dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-            dredSettings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-        }
-    }
+    constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
+#else
+    constexpr UINT dxgiFactoryFlags = 0;    
 #endif
 
     ComPtr<IDXGIFactory4> dxgiFactory;
@@ -114,7 +94,26 @@ void NativeClient::LoadDevice()
     ComPtr<ID3D12DeviceFactory> deviceFactory;
     TRY_DO(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
-    TRY_DO(deviceFactory->InitializeFromGlobalState());
+#if defined(VG_DEBUG)
+    ComPtr<ID3D12Debug5> debug;
+    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
+    {
+        debug->EnableDebugLayer();
+        debug->SetEnableAutoName(TRUE);
+
+        // todo: try again to remove the check and test if PIX captures correctly
+        // if (!SupportPIX()) debug->SetEnableGPUBasedValidation(TRUE);
+    }
+
+    ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
+    if (SUCCEEDED(
+        deviceFactory->GetConfigurationInterface(CLSID_D3D12DeviceRemovedExtendedData, IID_PPV_ARGS(&dredSettings))))
+    {
+        dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+        dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+        dredSettings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+    }
+#endif
 
     ComPtr<IDXGIAdapter1> hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 

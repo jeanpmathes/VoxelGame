@@ -15,7 +15,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
         static_cast<UINT16>(description.mipLevels),
         1,
         0,
-        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+        D3D12_RESOURCE_FLAG_NONE);
 
     Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
         textureDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);

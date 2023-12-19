@@ -246,7 +246,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            ComPtr<ID3D12Device> testDevice;
+            ComPtr<ID3D12Device> testDevice; // todo: try to remove, pass nullptr
             if (SUCCEEDED(
                 deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
             {
@@ -267,7 +267,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            ComPtr<ID3D12Device> testDevice;
+            ComPtr<ID3D12Device> testDevice; // todo: try to remove, pass nullptr
             if (SUCCEEDED(
                 deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
             {
