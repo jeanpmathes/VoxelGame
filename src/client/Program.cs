@@ -17,7 +17,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]

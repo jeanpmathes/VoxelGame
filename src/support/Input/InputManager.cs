@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Input.Devices;
 

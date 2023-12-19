@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;

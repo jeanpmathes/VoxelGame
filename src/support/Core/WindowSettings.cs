@@ -6,7 +6,7 @@
 
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Support;
+namespace VoxelGame.Support.Core;
 
 /// <summary>
 ///     The initial window settings.

@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using VoxelGame.Core.Collections;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 

@@ -23,12 +23,12 @@ public class GameResources
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
-    private readonly Support.Client window;
+    private readonly Support.Core.Client window;
 
     /// <summary>
     ///     Create the graphics resources.
     /// </summary>
-    public GameResources(Support.Client window)
+    public GameResources(Support.Core.Client window)
     {
         this.window = window;
     }

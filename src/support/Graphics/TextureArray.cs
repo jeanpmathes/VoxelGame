@@ -6,6 +6,7 @@
 
 using System.Diagnostics;
 using System.Drawing;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support.Graphics;

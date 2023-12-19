@@ -93,6 +93,9 @@ private:
     static const float CLEAR_COLOR[4];
     static const float LETTERBOX_COLOR[4];
 
+    static const UINT AGILITY_SDK_VERSION;
+    static const LPCSTR AGILITY_SDK_PATH;
+
     struct PostVertex
     {
         DirectX::XMFLOAT4 position;

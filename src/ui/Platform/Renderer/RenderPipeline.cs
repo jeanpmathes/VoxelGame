@@ -12,7 +12,7 @@ using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;

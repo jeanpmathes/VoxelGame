@@ -10,7 +10,7 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Input;
 using VoxelGame.Support.Input.Devices;
 using VoxelGame.UI.Providers;
@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal class Client : Support.Client, IPerformanceProvider
+internal class Client : Support.Core.Client, IPerformanceProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 

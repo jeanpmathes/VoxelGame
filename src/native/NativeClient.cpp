@@ -9,6 +9,9 @@
 constexpr float NativeClient::CLEAR_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
+const UINT NativeClient::AGILITY_SDK_VERSION = 711;
+const LPCSTR NativeClient::AGILITY_SDK_PATH = ".\\D3D12\\";
+
 NativeClient::NativeClient(const Configuration configuration) :
     DXApp(configuration),
     m_resolution{configuration.width, configuration.height},
@@ -102,17 +105,24 @@ void NativeClient::LoadDevice()
     }
 #endif
 
-    ComPtr<IDXGIFactory4> factory;
-    TRY_DO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+    ComPtr<IDXGIFactory4> dxgiFactory;
+    TRY_DO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
 
-    ComPtr<IDXGIAdapter1> hardwareAdapter;
-    GetHardwareAdapter(factory.Get(), &hardwareAdapter);
+    ComPtr<ID3D12SDKConfiguration1> sdk;
+    TRY_DO(D3D12GetInterface(CLSID_D3D12SDKConfiguration, IID_PPV_ARGS(&sdk)));
+
+    ComPtr<ID3D12DeviceFactory> deviceFactory;
+    TRY_DO(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
+
+    TRY_DO(deviceFactory->InitializeFromGlobalState());
+
+    ComPtr<IDXGIAdapter1> hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 
 #if defined(USE_NSIGHT_AFTERMATH)
     m_gpuCrashTracker.Initialize();
 #endif
 
-    TRY_DO(D3D12CreateDevice(
+    TRY_DO(deviceFactory->CreateDevice(
         hardwareAdapter.Get(),
         D3D_FEATURE_LEVEL_12_2,
         IID_PPV_ARGS(&m_device)
@@ -203,7 +213,7 @@ void NativeClient::LoadDevice()
     swapChainDesc.Flags = m_tearingSupport ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
     ComPtr<IDXGISwapChain1> swapChain;
-    TRY_DO(factory->CreateSwapChainForHwnd(
+    TRY_DO(dxgiFactory->CreateSwapChainForHwnd(
         m_commandQueue.Get(),
         Win32Application::GetHwnd(),
         &swapChainDesc,
@@ -212,7 +222,7 @@ void NativeClient::LoadDevice()
         &swapChain
     ));
 
-    TRY_DO(factory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
+    TRY_DO(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
 
     TRY_DO(swapChain.As(&m_swapChain));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();

@@ -11,7 +11,7 @@ using System.Linq;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;

@@ -127,10 +127,10 @@ protected:
     virtual void OnSizeChanged(UINT width, UINT height, bool minimized) = 0;
     virtual void OnWindowMoved(int xPos, int yPos) = 0;
 
-    void GetHardwareAdapter(
-        _In_ IDXGIFactory1* pFactory,
-        _Outptr_result_maybenull_ IDXGIAdapter1** ppAdapter,
-        bool requestHighPerformanceAdapter = false) const;
+    static ComPtr<IDXGIAdapter1> GetHardwareAdapter(
+        ComPtr<IDXGIFactory4> dxgiFactory,
+        ComPtr<ID3D12DeviceFactory> deviceFactory,
+        bool requestHighPerformanceAdapter = false);
 
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();

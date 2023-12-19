@@ -162,6 +162,7 @@ void DXApp::UpdateForSizeChange(const UINT clientWidth, const UINT clientHeight)
 }
 
 void DXApp::SetMouseCursor(const MouseCursor cursor) const
+// todo: fix wrong cursor when outside of window - maybe just set it every frame if visible
 {
     const TCHAR* cursorName;
     switch (cursor)
@@ -218,19 +219,15 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
     return Cycle::WORKER;
 }
 
-_Use_decl_annotations_
-
-void DXApp::GetHardwareAdapter(
-    IDXGIFactory1* pFactory,
-    IDXGIAdapter1** ppAdapter,
-    const bool requestHighPerformanceAdapter) const
+ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
+    ComPtr<IDXGIFactory4> dxgiFactory,
+    ComPtr<ID3D12DeviceFactory> deviceFactory,
+    bool requestHighPerformanceAdapter)
 {
-    *ppAdapter = nullptr;
-
     ComPtr<IDXGIAdapter1> adapter;
 
     ComPtr<IDXGIFactory6> factory6;
-    if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
+    if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
     {
         for (
             UINT adapterIndex = 0;
@@ -249,16 +246,18 @@ void DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, _uuidof(ID3D12Device), nullptr)))
+            ComPtr<ID3D12Device> testDevice;
+            if (SUCCEEDED(
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
             {
                 break;
             }
         }
     }
-
+    
     if (adapter.Get() == nullptr)
     {
-        for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
+        for (UINT adapterIndex = 0; SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
@@ -268,14 +267,16 @@ void DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, _uuidof(ID3D12Device), nullptr)))
+            ComPtr<ID3D12Device> testDevice;
+            if (SUCCEEDED(
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
             {
                 break;
             }
         }
     }
 
-    *ppAdapter = adapter.Detach();
+    return adapter;
 }
 
 void DXApp::SetCustomWindowText(const LPCWSTR text) const

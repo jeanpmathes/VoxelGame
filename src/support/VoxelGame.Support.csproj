@@ -22,9 +22,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="obj\native\**">
+        <None Include="obj\native\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>%(Filename)%(Extension)</Link>
+            <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>false</Visible>
         </None>
     </ItemGroup>

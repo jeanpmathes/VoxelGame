@@ -283,7 +283,6 @@ void ShaderResources::RequestListRefresh(ListHandle listHandle, const IntegerSet
     if (std::holds_alternative<RootHeapDescriptorList>(parameter))
     {
         auto& list = m_descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
-        size_t count = indices.Count();
         list.dirtyIndices = indices;
     }
     else

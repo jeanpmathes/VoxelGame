@@ -4,7 +4,7 @@
 // </copyright>
 // <author>Gwen.Net, jeanpmathes</author>
 
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.UI.Platform;
 

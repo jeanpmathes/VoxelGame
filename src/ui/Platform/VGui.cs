@@ -11,7 +11,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.UI.Platform.Input;
 using VoxelGame.UI.Platform.Renderer;

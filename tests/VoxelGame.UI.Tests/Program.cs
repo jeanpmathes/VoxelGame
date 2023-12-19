@@ -10,7 +10,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 
 namespace VoxelGame.UI.Tests;

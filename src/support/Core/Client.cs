@@ -17,7 +17,7 @@ using VoxelGame.Support.Input;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Support;
+namespace VoxelGame.Support.Core;
 
 /// <summary>
 ///     A proxy class for the native client.

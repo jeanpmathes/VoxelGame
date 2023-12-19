@@ -80,7 +80,7 @@ public sealed class TextureBundle : ITextureIndexProvider
     /// <param name="textureDirectory">The directory to load textures from.</param>
     /// <param name="resolution">The resolution of the textures. Textures that do not fit are excluded.</param>
     /// <param name="maxTextures">The maximum number of textures to load.</param>
-    public static TextureBundle Load(Support.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures)
+    public static TextureBundle Load(Support.Core.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 

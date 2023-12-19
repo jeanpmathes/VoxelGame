@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Visuals;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
 

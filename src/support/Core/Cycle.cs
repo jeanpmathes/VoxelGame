@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-namespace VoxelGame.Support;
+namespace VoxelGame.Support.Core;
 
 /// <summary>
 ///     The cycles of a game loop.

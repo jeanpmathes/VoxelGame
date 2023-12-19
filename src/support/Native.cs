@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -21,7 +22,7 @@ namespace VoxelGame.Support;
 /// </summary>
 #pragma warning disable S3242 // The specific types are matched on the native side.
 #pragma warning disable S1200 // This class intentionally contains all native functions.
-public static class Native
+public static class Native // todo: make internal, methods too
 {
     private const string DllFilePath = @".\Native.dll";
 

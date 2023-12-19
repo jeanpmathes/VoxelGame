@@ -142,7 +142,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <returns>An object representing all loaded pipelines.</returns>
     internal static Pipelines Load(
         DirectoryInfo directory,
-        Support.Client client,
+        Support.Core.Client client,
         (TextureArray, TextureArray) textureSlots,
         VisualConfiguration visuals,
         LoadingContext loadingContext)
@@ -180,7 +180,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         loaded = false;
     }
 
-    private void LoadAll(Support.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
+    private void LoadAll(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
         loaded = true;
 
@@ -216,7 +216,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         UpdateOrthographicProjection();
     }
 
-    private void LoadRasterPipelines(Support.Client client)
+    private void LoadRasterPipelines(Support.Core.Client client)
     {
         RasterPipeline LoadPipeline(string name, ShaderPreset preset)
         {
@@ -256,7 +256,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
     }
 
-    private void LoadRaytracingPipeline(Support.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
+    private void LoadRaytracingPipeline(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
         PipelineBuilder builder = new();
 

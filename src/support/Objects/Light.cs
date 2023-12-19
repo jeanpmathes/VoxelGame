@@ -6,6 +6,7 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
 

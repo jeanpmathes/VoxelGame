@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
 

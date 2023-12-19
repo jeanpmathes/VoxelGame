@@ -13,7 +13,7 @@ using System.IO;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
-using VoxelGame.Support;
+using VoxelGame.Support.Core;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
 using Point = Gwen.Net.Point;

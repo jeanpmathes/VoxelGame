@@ -10,7 +10,7 @@ using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Support;
+namespace VoxelGame.Support.Core;
 
 /// <summary>
 ///     Contains all space management for the native client.

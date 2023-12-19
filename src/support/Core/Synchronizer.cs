@@ -9,7 +9,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Support;
+namespace VoxelGame.Support.Core;
 
 /// <summary>
 ///     Holds and synchronizes all <see cref="NativeObject" />s.

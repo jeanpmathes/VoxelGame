@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Graphics;
 

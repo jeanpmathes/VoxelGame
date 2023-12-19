@@ -9,6 +9,7 @@ using System.Drawing.Imaging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
 
