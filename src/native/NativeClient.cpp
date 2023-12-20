@@ -101,8 +101,7 @@ void NativeClient::LoadDevice()
         debug->EnableDebugLayer();
         debug->SetEnableAutoName(TRUE);
 
-        // todo: try again to remove the check and test if PIX captures correctly
-        // if (!SupportPIX()) debug->SetEnableGPUBasedValidation(TRUE);
+        // if (!SupportPIX()) debug->SetEnableGPUBasedValidation(TRUE); // todo: enable after asking in DirectX discord about memory leaking
     }
 
     ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
