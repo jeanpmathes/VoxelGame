@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
-#include "MeshObject.hpp"
+#include "Mesh.hpp"
 
-MeshObject::MeshObject(NativeClient& client)
-    : SpatialObject(client)
+Mesh::Mesh(NativeClient& client)
+    : Spatial(client)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
@@ -32,14 +32,14 @@ MeshObject::MeshObject(NativeClient& client)
     }
 }
 
-void MeshObject::Initialize(UINT materialIndex)
+void Mesh::Initialize(UINT materialIndex)
 {
     m_material = &GetClient().GetSpace()->GetMaterial(materialIndex);
     
     Update();
 }
 
-void MeshObject::Update()
+void Mesh::Update()
 {
     if (const bool transformDirty = ClearTransformDirty(); !transformDirty) return;
 
@@ -57,13 +57,13 @@ void MeshObject::Update()
     });
 }
 
-void MeshObject::SetEnabledState(const bool enabled)
+void Mesh::SetEnabledState(const bool enabled)
 {
     m_enabled = enabled;
     UpdateActiveState();
 }
 
-void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertexCount)
+void Mesh::SetNewVertices(const SpatialVertex* vertices, const UINT vertexCount)
 {
     REQUIRE(!m_uploadEnqueued);
     REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
@@ -81,7 +81,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
         return;
     }
 
-    GetClient().GetSpace()->MarkMeshObjectModified(m_handle.value());
+    GetClient().GetSpace()->MarkMeshModified(m_handle.value());
     m_requiresFreshBLAS = true;
     m_uploadRequired = true;
 
@@ -95,7 +95,7 @@ void MeshObject::SetNewVertices(const SpatialVertex* vertices, const UINT vertex
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, vertices, vertexCount));
 }
 
-void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCount)
+void Mesh::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCount)
 {
     REQUIRE(!m_uploadEnqueued);
     REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
@@ -113,7 +113,7 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCoun
         return;
     }
 
-    GetClient().GetSpace()->MarkMeshObjectModified(m_handle.value());
+    GetClient().GetSpace()->MarkMeshModified(m_handle.value());
     m_requiresFreshBLAS = true;
     m_uploadRequired = true;
 
@@ -127,18 +127,18 @@ void MeshObject::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCoun
     TRY_DO(util::MapAndWrite(m_geometryBufferUpload, bounds, boundsCount));
 }
 
-std::optional<size_t> MeshObject::GetActiveIndex() const
+std::optional<size_t> Mesh::GetActiveIndex() const
 {
     return m_active;
 }
 
-const Material& MeshObject::GetMaterial() const
+const Material& Mesh::GetMaterial() const
 {
     REQUIRE(m_material != nullptr);
     return *m_material;
 }
 
-UINT MeshObject::GetGeometryUnitCount() const
+UINT Mesh::GetGeometryUnitCount() const
 {
     switch (GetMaterial().geometryType)
     {
@@ -148,12 +148,12 @@ UINT MeshObject::GetGeometryUnitCount() const
     }
 }
 
-Allocation<ID3D12Resource> MeshObject::GetGeometryBuffer() const
+Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() const
 {
-    return const_cast<MeshObject*>(this)->GeometryBuffer();
+    return const_cast<Mesh*>(this)->GeometryBuffer();
 }
 
-void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
+void Mesh::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
 {
     REQUIRE(m_uploadRequired);
     REQUIRE(!m_uploadEnqueued);
@@ -207,7 +207,7 @@ void MeshObject::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> comma
     }
 }
 
-void MeshObject::CleanupMeshUpload()
+void Mesh::CleanupMeshUpload()
 {
     REQUIRE(!m_uploadRequired);
 
@@ -216,7 +216,7 @@ void MeshObject::CleanupMeshUpload()
     m_uploadEnqueued = false;
 }
 
-ShaderResources::ConstantBufferViewDescriptor MeshObject::GetInstanceDataViewDescriptor() const
+ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescriptor() const
 {
     return {
         .gpuAddress = m_instanceDataBuffer.GetGPUVirtualAddress(),
@@ -224,7 +224,7 @@ ShaderResources::ConstantBufferViewDescriptor MeshObject::GetInstanceDataViewDes
     };
 }
 
-ShaderResources::ShaderResourceViewDescriptor MeshObject::GetGeometryBufferViewDescriptor() const
+ShaderResources::ShaderResourceViewDescriptor Mesh::GetGeometryBufferViewDescriptor() const
 {
     return {
         .resource = GetGeometryBuffer(),
@@ -232,7 +232,7 @@ ShaderResources::ShaderResourceViewDescriptor MeshObject::GetGeometryBufferViewD
     };
 }
 
-ShaderResources::ShaderResourceViewDescriptor MeshObject::GetAnimationSourceBufferViewDescriptor() const
+ShaderResources::ShaderResourceViewDescriptor Mesh::GetAnimationSourceBufferViewDescriptor() const
 {
     return {
         .resource = m_sourceGeometryBuffer,
@@ -240,7 +240,7 @@ ShaderResources::ShaderResourceViewDescriptor MeshObject::GetAnimationSourceBuff
     };
 }
 
-ShaderResources::UnorderedAccessViewDescriptor MeshObject::GetAnimationDestinationBufferViewDescriptor() const
+ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBufferViewDescriptor() const
 {
     return {
         .resource = m_destinationGeometryBuffer,
@@ -248,8 +248,8 @@ ShaderResources::UnorderedAccessViewDescriptor MeshObject::GetAnimationDestinati
     };
 }
 
-void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs,
-                            bool isForAnimation)
+void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs,
+                      bool isForAnimation)
 {
     REQUIRE(!m_uploadRequired);
     REQUIRE(uavs != nullptr);
@@ -278,30 +278,30 @@ void MeshObject::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std:
     if (ID3D12Resource* resource = m_blas.result.GetResource(); resource != nullptr) uavs->push_back(resource);
 }
 
-const BLAS& MeshObject::GetBLAS()
+const BLAS& Mesh::GetBLAS()
 {
     REQUIRE(!m_uploadRequired);
     
     return m_blas;
 }
 
-void MeshObject::SetAnimationHandle(const AnimationController::Handle handle)
+void Mesh::SetAnimationHandle(const AnimationController::Handle handle)
 {
     m_animationHandle = handle;
 }
 
-AnimationController::Handle MeshObject::GetAnimationHandle() const
+AnimationController::Handle Mesh::GetAnimationHandle() const
 {
     return m_animationHandle;
 }
 
-void MeshObject::AssociateWithHandle(Handle handle)
+void Mesh::AssociateWithHandle(Handle handle)
 {
     REQUIRE(!m_handle.has_value());
     m_handle = handle;
 }
 
-void MeshObject::Return()
+void Mesh::Return()
 {
     REQUIRE(m_handle.has_value());
     REQUIRE(!m_uploadEnqueued);
@@ -336,12 +336,12 @@ void MeshObject::Return()
         m_uploadEnqueued = false;
     }
 
-    GetClient().GetSpace()->ReturnMeshObject(handle);
+    GetClient().GetSpace()->ReturnMesh(handle);
 
     // No code here, because space is allowed to delete this object.
 }
 
-void MeshObject::CreateBottomLevelASFromVertices(
+void Mesh::CreateBottomLevelASFromVertices(
     ComPtr<ID3D12GraphicsCommandList4> commandList,
     std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
     std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers)
@@ -370,7 +370,7 @@ void MeshObject::CreateBottomLevelASFromVertices(
     CreateBottomLevelAS(commandList);
 }
 
-void MeshObject::CreateBottomLevelASFromBounds(
+void Mesh::CreateBottomLevelASFromBounds(
     ComPtr<ID3D12GraphicsCommandList4> commandList,
     std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers)
 {
@@ -391,7 +391,7 @@ void MeshObject::CreateBottomLevelASFromBounds(
     return CreateBottomLevelAS(commandList);
 }
 
-void MeshObject::CreateBottomLevelAS(
+void Mesh::CreateBottomLevelAS(
     ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
     bool updateOnly;
@@ -429,12 +429,12 @@ void MeshObject::CreateBottomLevelAS(
                                       updateOnly, previousResult);
 }
 
-Allocation<ID3D12Resource>& MeshObject::GeometryBuffer()
+Allocation<ID3D12Resource>& Mesh::GeometryBuffer()
 {
     return GetMaterial().IsAnimated() ? m_destinationGeometryBuffer : m_sourceGeometryBuffer;
 }
 
-void MeshObject::UpdateActiveState()
+void Mesh::UpdateActiveState()
 {
     const bool shouldBeActive = m_enabled && m_geometryElementCount > 0;
     if (m_active.has_value() == shouldBeActive) return;
@@ -442,19 +442,19 @@ void MeshObject::UpdateActiveState()
     if (shouldBeActive)
     {
         REQUIRE(!m_active.has_value());
-        
-        m_active = GetClient().GetSpace()->ActivateMeshObject(m_handle.value());
+
+        m_active = GetClient().GetSpace()->ActivateMesh(m_handle.value());
     }
     else
     {
         REQUIRE(m_active.has_value());
-        
-        GetClient().GetSpace()->DeactivateMeshObject(m_active.value());
+
+        GetClient().GetSpace()->DeactivateMesh(m_active.value());
         m_active = std::nullopt;
     }
 }
 
-void MeshObject::UpdateGeometryViews(const UINT stride)
+void Mesh::UpdateGeometryViews(const UINT stride)
 {
     m_geometrySRV.Buffer.NumElements = m_geometryElementCount;
     m_geometrySRV.Buffer.StructureByteStride = stride;

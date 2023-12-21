@@ -18,7 +18,7 @@ AnimationController::AnimationController(const ComPtr<IDxcBlob>& shader, const U
 
 void AnimationController::SetupResourceLayout(ShaderResources::Description* description)
 {
-    const std::function<UINT(MeshObject* const&)> getIndexOfMesh = [this](auto* mesh)
+    const std::function<UINT(Mesh* const&)> getIndexOfMesh = [this](auto* mesh)
     {
         REQUIRE(mesh != nullptr);
         REQUIRE(mesh->GetAnimationHandle() != Handle::INVALID);
@@ -62,7 +62,7 @@ void AnimationController::Initialize(NativeClient& client, const ComPtr<ID3D12Ro
     ;
 }
 
-void AnimationController::AddMesh(MeshObject& mesh)
+void AnimationController::AddMesh(Mesh& mesh)
 {
     REQUIRE(mesh.GetMaterial().IsAnimated());
     REQUIRE(mesh.GetAnimationHandle() == Handle::INVALID);
@@ -74,7 +74,7 @@ void AnimationController::AddMesh(MeshObject& mesh)
     m_removedMeshes.Erase(index);
 }
 
-void AnimationController::UpdateMesh(const MeshObject& mesh)
+void AnimationController::UpdateMesh(const Mesh& mesh)
 {
     REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
     REQUIRE(mesh.GetMaterial().IsAnimated());
@@ -82,7 +82,7 @@ void AnimationController::UpdateMesh(const MeshObject& mesh)
     m_changedMeshes.Insert(static_cast<size_t>(mesh.GetAnimationHandle()));
 }
 
-void AnimationController::RemoveMesh(MeshObject& mesh)
+void AnimationController::RemoveMesh(Mesh& mesh)
 {
     REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
     REQUIRE(mesh.GetMaterial().IsAnimated());

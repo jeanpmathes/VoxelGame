@@ -69,13 +69,13 @@ bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
     return true;
 }
 
-MeshObject& Space::CreateMeshObject(const UINT materialIndex)
+Mesh& Space::CreateMesh(const UINT materialIndex)
 {
-    std::unique_ptr<MeshObject> stored;
+    std::unique_ptr<Mesh> stored;
 
     if (m_meshPool.empty())
     {
-        stored = std::make_unique<MeshObject>(m_nativeClient);
+        stored = std::make_unique<Mesh>(m_nativeClient);
     }
     else
     {
@@ -87,16 +87,16 @@ MeshObject& Space::CreateMeshObject(const UINT materialIndex)
     object.Initialize(materialIndex);
 
     const size_t index = m_meshes.Push(std::move(stored));
-    object.AssociateWithHandle(static_cast<MeshObject::Handle>(index));
+    object.AssociateWithHandle(static_cast<Mesh::Handle>(index));
 
     return object;
 }
 
-void Space::MarkMeshObjectModified(MeshObject::Handle handle)
+void Space::MarkMeshModified(Mesh::Handle handle)
 {
     m_modifiedMeshes.Insert(handle);
 
-    const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+    const Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
 
     if (mesh->GetMaterial().IsAnimated() && mesh->GetActiveIndex().has_value())
     {
@@ -104,9 +104,9 @@ void Space::MarkMeshObjectModified(MeshObject::Handle handle)
     }
 }
 
-size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
+size_t Space::ActivateMesh(const Mesh::Handle handle)
 {
-    MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+    Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
     REQUIRE(!mesh->GetActiveIndex());
 
     const size_t index = m_activeMeshes.Push(mesh);
@@ -121,9 +121,9 @@ size_t Space::ActivateMeshObject(const MeshObject::Handle handle)
     return index;
 }
 
-void Space::DeactivateMeshObject(const size_t index)
+void Space::DeactivateMesh(const size_t index)
 {
-    MeshObject* mesh = m_activeMeshes.Pop(index);
+    Mesh* mesh = m_activeMeshes.Pop(index);
 
     m_activatedMeshes.Erase(index);
 
@@ -133,7 +133,7 @@ void Space::DeactivateMeshObject(const size_t index)
     }
 }
 
-void Space::ReturnMeshObject(const MeshObject::Handle handle)
+void Space::ReturnMesh(const Mesh::Handle handle)
 {
     m_modifiedMeshes.Erase(handle);
     
@@ -191,7 +191,7 @@ void Space::CleanupRender()
 {
     for (const auto handle : m_modifiedMeshes)
     {
-        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
 
         mesh->CleanupMeshUpload();
@@ -542,7 +542,7 @@ void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
 
 void Space::SetupDynamicResourceLayout(ShaderResources::Description* description)
 {
-    const std::function<UINT(MeshObject* const&)> getIndexOfMesh = [this](auto* mesh)
+    const std::function<UINT(Mesh* const&)> getIndexOfMesh = [this](auto* mesh)
     {
         REQUIRE(mesh != nullptr);
         REQUIRE(mesh->GetActiveIndex().has_value());
@@ -664,7 +664,7 @@ void Space::EnqueueUploads()
 {
     for (const auto handle : m_modifiedMeshes)
     {
-        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
 
         mesh->EnqueueMeshUpload(GetCommandList());
@@ -690,7 +690,7 @@ void Space::BuildAccelerationStructures()
 
     for (const auto handle : m_modifiedMeshes)
     {
-        MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
 
         mesh->CreateBLAS(GetCommandList(), &uavs);
@@ -838,7 +838,7 @@ void Space::UpdateGlobalShaderResources()
     IntegerSet meshesToRefresh = m_activatedMeshes;
     for (const auto handle : m_modifiedMeshes)
     {
-        const MeshObject* mesh = m_meshes[static_cast<size_t>(handle)].get();
+        const Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
         REQUIRE(mesh != nullptr);
 
         std::optional<size_t> index = mesh->GetActiveIndex();

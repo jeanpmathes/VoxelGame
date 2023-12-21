@@ -151,11 +151,11 @@
         <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.hpp"/>
         <ClInclude Include="Objects\Camera.hpp"/>
         <ClInclude Include="Objects\Light.hpp"/>
-        <ClInclude Include="Objects\MeshObject.hpp"/>
+        <ClInclude Include="Objects\Mesh.hpp"/>
         <ClInclude Include="Objects\Object.hpp"/>
         <ClInclude Include="Objects\RasterPipeline.hpp"/>
         <ClInclude Include="Objects\ShaderBuffer.hpp"/>
-        <ClInclude Include="Objects\SpatialObject.hpp"/>
+        <ClInclude Include="Objects\Spatial.hpp"/>
         <ClInclude Include="Objects\Texture.hpp"/>
         <ClInclude Include="Space.hpp"/>
         <ClInclude Include="Tools\Allocation.hpp"/>
@@ -220,11 +220,11 @@
         </ClCompile>
         <ClCompile Include="Objects\Camera.cpp"/>
         <ClCompile Include="Objects\Light.cpp"/>
-        <ClCompile Include="Objects\MeshObject.cpp"/>
+        <ClCompile Include="Objects\Mesh.cpp"/>
         <ClCompile Include="Objects\Object.cpp"/>
         <ClCompile Include="Objects\RasterPipeline.cpp"/>
         <ClCompile Include="Objects\ShaderBuffer.cpp"/>
-        <ClCompile Include="Objects\SpatialObject.cpp"/>
+        <ClCompile Include="Objects\Spatial.cpp"/>
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
         <ClCompile Include="Tools\DescriptorHeap.cpp"/>

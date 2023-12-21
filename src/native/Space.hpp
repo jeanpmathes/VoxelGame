@@ -12,7 +12,7 @@
 
 #include "Objects/Camera.hpp"
 #include "Objects/Light.hpp"
-#include "Objects/MeshObject.hpp"
+#include "Objects/Mesh.hpp"
 #include "Tools/ShaderResources.hpp"
 
 class ShaderBuffer;
@@ -125,25 +125,27 @@ public:
     bool PerformInitialSetupStepTwo(const SpacePipeline& pipeline);
 
     /**
-     * Create a new mesh object with a given material. 
+     * Create a new mesh with a given material. 
      */
-    MeshObject& CreateMeshObject(UINT materialIndex);
+    Mesh& CreateMesh(UINT materialIndex);
     /**
-     * Mark a mesh object as modified, so that instance data can be updated.
+     * Mark a mesh as modified, so that instance data can be updated.
      */
-    void MarkMeshObjectModified(MeshObject::Handle handle);
+    void MarkMeshModified(Mesh::Handle handle);
     /**
-     * Activate a mesh object for rendering. It must have a valid mesh.
+     * Activate a mesh for rendering. It must have a valid mesh.
      */
-    size_t ActivateMeshObject(MeshObject::Handle handle);
+    size_t ActivateMesh(Mesh::Handle handle);
     /**
-     * Deactivate a mesh object.
+     * Deactivate a mesh.
      */
-    void DeactivateMeshObject(size_t index);
+    void DeactivateMesh(size_t index);
     /**
-     * Return a mesh object.
+     * Return a mesh to the creator.
+     * The space is allowed to reuse or free the mesh.
+     * Therefore, the object should not be used after this call.
      */
-    void ReturnMeshObject(MeshObject::Handle handle);
+    void ReturnMesh(Mesh::Handle handle);
 
     [[nodiscard]] const Material& GetMaterial(UINT index) const;
 
@@ -280,10 +282,10 @@ private:
     InBufferAllocator m_resultBufferAllocator;
     InBufferAllocator m_scratchBufferAllocator;
 
-    Bag<std::unique_ptr<MeshObject>> m_meshes = {};
-    std::vector<std::unique_ptr<MeshObject>> m_meshPool = {};
-    IntegerSet<MeshObject::Handle> m_modifiedMeshes = {};
-    Bag<MeshObject*> m_activeMeshes = {};
+    Bag<std::unique_ptr<Mesh>> m_meshes = {};
+    std::vector<std::unique_ptr<Mesh>> m_meshPool = {};
+    IntegerSet<Mesh::Handle> m_modifiedMeshes = {};
+    Bag<Mesh*> m_activeMeshes = {};
     IntegerSet<> m_activatedMeshes = {};
 
     std::vector<AnimationController> m_animations = {};

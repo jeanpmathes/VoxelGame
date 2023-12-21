@@ -24,9 +24,9 @@ public sealed class SectionRenderer : IDisposable
     private readonly Space space;
     private readonly Vector3d position;
 
-    private (MeshObject? opaque, MeshObject? transparent) basic;
-    private MeshObject? foliage;
-    private MeshObject? fluid;
+    private (Mesh? opaque, Mesh? transparent) basic;
+    private Mesh? foliage;
+    private Mesh? fluid;
 
     /// <summary>
     ///     Creates a new <see cref="SectionRenderer" />.
@@ -49,25 +49,25 @@ public sealed class SectionRenderer : IDisposable
 
         if (meshData.BasicMesh.opaque.Count > 0 || basic.opaque != null)
         {
-            basic.opaque ??= space.CreateMeshObject(Pipelines.BasicOpaqueSectionMaterial, position);
+            basic.opaque ??= space.CreateMesh(Pipelines.BasicOpaqueSectionMaterial, position);
             basic.opaque.SetVertices(meshData.BasicMesh.opaque.AsSpan());
         }
 
         if (meshData.BasicMesh.transparent.Count > 0 || basic.transparent != null)
         {
-            basic.transparent ??= space.CreateMeshObject(Pipelines.BasicTransparentSectionMaterial, position);
+            basic.transparent ??= space.CreateMesh(Pipelines.BasicTransparentSectionMaterial, position);
             basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
         }
 
         if (meshData.FoliageMesh.Count > 0 || foliage != null)
         {
-            foliage ??= space.CreateMeshObject(Pipelines.FoliageSectionMaterial, position);
+            foliage ??= space.CreateMesh(Pipelines.FoliageSectionMaterial, position);
             foliage.SetVertices(meshData.FoliageMesh.AsSpan());
         }
 
         if (meshData.FluidMesh.Count > 0 || fluid != null)
         {
-            fluid ??= space.CreateMeshObject(Pipelines.FluidSectionMaterial, position);
+            fluid ??= space.CreateMesh(Pipelines.FluidSectionMaterial, position);
             fluid.SetVertices(meshData.FluidMesh.AsSpan());
         }
 

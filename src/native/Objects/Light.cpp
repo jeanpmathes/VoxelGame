@@ -2,7 +2,7 @@
 
 #include "Light.hpp"
 
-Light::Light(NativeClient& client) : SpatialObject(client)
+Light::Light(NativeClient& client) : Spatial(client)
 {
 }
 

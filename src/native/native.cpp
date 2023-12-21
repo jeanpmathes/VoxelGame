@@ -218,7 +218,7 @@ NATIVE void NativeUpdateAdvancedCameraData(Camera* camera, const AdvancedCameraD
     CATCH();
 }
 
-NATIVE void NativeUpdateSpatialObjectData(SpatialObject* object, const SpatialObjectData data)
+NATIVE void NativeUpdateSpatialData(Spatial* object, const SpatialData data)
 {
     TRY
     {
@@ -230,18 +230,18 @@ NATIVE void NativeUpdateSpatialObjectData(SpatialObject* object, const SpatialOb
     CATCH();
 }
 
-NATIVE MeshObject* NativeCreateMeshObject(const NativeClient* client, const UINT materialIndex)
+NATIVE Mesh* NativeCreateMesh(const NativeClient* client, const UINT materialIndex)
 {
     TRY
     {
         REQUIRE(CALL_IN_UPDATE(client));
 
-        return &client->GetSpace()->CreateMeshObject(materialIndex);
+        return &client->GetSpace()->CreateMesh(materialIndex);
     }
     CATCH();
 }
 
-NATIVE void NativeReturnMeshObject(MeshObject* object)
+NATIVE void NativeReturnMesh(Mesh* object)
 {
     TRY
     {
@@ -252,7 +252,7 @@ NATIVE void NativeReturnMeshObject(MeshObject* object)
     CATCH();
 }
 
-NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabled)
+NATIVE void NativeSetMeshEnabledState(Mesh* object, const bool enabled)
 {
     TRY
     {
@@ -263,7 +263,7 @@ NATIVE void NativeSetMeshObjectEnabledState(MeshObject* object, const bool enabl
     CATCH();
 }
 
-NATIVE void NativeSetMeshObjectVertices(MeshObject* object, const SpatialVertex* vertexData, const UINT vertexCount)
+NATIVE void NativeSetMeshVertices(Mesh* object, const SpatialVertex* vertexData, const UINT vertexCount)
 {
     TRY
     {
@@ -274,7 +274,7 @@ NATIVE void NativeSetMeshObjectVertices(MeshObject* object, const SpatialVertex*
     CATCH();
 }
 
-NATIVE void NativeSetMeshObjectBounds(MeshObject* object, const SpatialBounds* boundsData, const UINT boundsCount)
+NATIVE void NativeSetMeshBounds(Mesh* object, const SpatialBounds* boundsData, const UINT boundsCount)
 {
     TRY
     {

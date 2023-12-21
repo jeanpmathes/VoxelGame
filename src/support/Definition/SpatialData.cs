@@ -1,4 +1,4 @@
-﻿// <copyright file="SpatialObjectData.cs" company="VoxelGame">
+﻿// <copyright file="SpatialData.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -14,7 +14,7 @@ namespace VoxelGame.Support.Definition;
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 #pragma warning disable S3898 // No equality comparison used.
-public struct SpatialObjectData
+public struct SpatialData
 #pragma warning restore S3898 // No equality comparison used.
 {
     /// <summary>

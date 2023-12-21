@@ -13,7 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A directional light. The position is ignored.
 /// </summary>
-public class Light : SpatialObject
+public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
 

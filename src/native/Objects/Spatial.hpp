@@ -1,4 +1,4 @@
-﻿// <copyright file="SpatialObject.hpp" company="VoxelGame">
+﻿// <copyright file="Spatial.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -10,7 +10,7 @@
 
 class NativeClient;
 
-struct SpatialObjectData
+struct SpatialData
 {
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT4 rotation;
@@ -19,12 +19,12 @@ struct SpatialObjectData
 /**
  * \brief The base class of all objects in the space that can be observed. This explicitly excludes the camera.
  */
-class SpatialObject : public Object
+class Spatial : public Object
 {
-    DECLARE_OBJECT_SUBCLASS(SpatialObject)
+    DECLARE_OBJECT_SUBCLASS(Spatial)
 
 protected:
-    explicit SpatialObject(NativeClient& client);
+    explicit Spatial(NativeClient& client);
 
     [[nodiscard]] bool ClearTransformDirty();
 

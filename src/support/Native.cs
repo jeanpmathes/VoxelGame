@@ -304,91 +304,91 @@ public static class Native // todo: make internal, methods too
     /// <summary>
     ///     Update the data of a spatial object.
     /// </summary>
-    /// <param name="spatialObject">The spatial object.</param>
+    /// <param name="spatial">The spatial object.</param>
     /// <param name="data">The new data.</param>
-    public static void UpdateSpatialObjectData(SpatialObject spatialObject, SpatialObjectData data)
+    public static void UpdateSpatialData(Spatial spatial, SpatialData data)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeUpdateSpatialObjectData(IntPtr spatialObject, SpatialObjectData data);
+        static extern void NativeUpdateSpatialData(IntPtr spatial, SpatialData data);
 
-        NativeUpdateSpatialObjectData(spatialObject.Self, data);
+        NativeUpdateSpatialData(spatial.Self, data);
     }
 
     /// <summary>
-    ///     Create an indexed mesh object.
+    ///     Create a mesh.
     /// </summary>
     /// <param name="client">The client.</param>
     /// <param name="materialIndex">The material index, as defined in pipeline setup.</param>
-    /// <returns>The indexed mesh object.</returns>
-    public static MeshObject CreateMeshObject(Client client, uint materialIndex)
+    /// <returns>The mesh.</returns>
+    public static Mesh CreateMesh(Client client, uint materialIndex)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateMeshObject(IntPtr native, uint materialIndex);
+        static extern IntPtr NativeCreateMesh(IntPtr native, uint materialIndex);
 
-        IntPtr indexedMeshObject = NativeCreateMeshObject(client.Native, materialIndex);
+        IntPtr mesh = NativeCreateMesh(client.Native, materialIndex);
 
-        return new MeshObject(indexedMeshObject, client.Space);
+        return new Mesh(mesh, client.Space);
     }
 
     /// <summary>
-    ///     Return a mesh object to the space pool.
-    ///     Using the mesh object after this call is not allowed.
+    ///     Return a mesh to the space pool.
+    ///     Using the mesh after this call is not allowed.
     /// </summary>
-    /// <param name="meshObject">The mesh object to return.</param>
-    public static void ReturnMeshObject(MeshObject meshObject)
+    /// <param name="mesh">The mesh to return.</param>
+    public static void ReturnMesh(Mesh mesh)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeReturnMeshObject(IntPtr native);
+        static extern void NativeReturnMesh(IntPtr native);
 
-        NativeReturnMeshObject(meshObject.Self);
+        NativeReturnMesh(mesh.Self);
     }
 
     /// <summary>
-    ///     Set the enabled state of a mesh object.
+    ///     Set the enabled state of a mesh.
     /// </summary>
-    /// <param name="meshObject">The mesh object.</param>
-    /// <param name="enabled">Whether the mesh object should be enabled.</param>
-    public static void SetMeshObjectEnabledState(MeshObject meshObject, bool enabled)
+    /// <param name="mesh">The mesh.</param>
+    /// <param name="enabled">Whether the mesh should be enabled.</param>
+    public static void SetMeshEnabledState(Mesh mesh, bool enabled)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshObjectEnabledState(IntPtr native, bool enabled);
+        static extern void NativeSetMeshEnabledState(IntPtr native, bool enabled);
 
-        NativeSetMeshObjectEnabledState(meshObject.Self, enabled);
+        NativeSetMeshEnabledState(mesh.Self, enabled);
     }
 
     /// <summary>
-    ///     Set the vertices of a mesh object.
+    ///     Set the vertices of a mesh.
     /// </summary>
-    /// <param name="meshObject">The mesh object.</param>
+    /// <param name="mesh">The mesh.</param>
     /// <param name="vertices">The vertices.</param>
-    public static unsafe void SetMeshObjectVertices(MeshObject meshObject, Span<SpatialVertex> vertices)
+    public static unsafe void SetMeshVertices(Mesh mesh, Span<SpatialVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshObjectVertices(IntPtr indexedMeshObject, SpatialVertex* vertices, int vertexLength);
+        static extern void NativeSetMeshVertices(IntPtr mesh, SpatialVertex* vertices, int vertexLength);
 
         Debug.Assert(vertices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
         {
-            NativeSetMeshObjectVertices(meshObject.Self, vertexData, vertices.Length);
+            NativeSetMeshVertices(mesh.Self, vertexData, vertices.Length);
         }
     }
 
     /// <summary>
-    ///     Set the bounds of a mesh object.
+    ///     Set the bounds of a mesh.
     /// </summary>
-    /// <param name="meshObject">The mesh object.</param>
+    /// <param name="mesh">The mesh.</param>
     /// <param name="bounds">The bounds.</param>
-    public static unsafe void SetMeshObjectBounds(MeshObject meshObject, Span<SpatialBounds> bounds)
+    public static unsafe void SetMeshBounds(Mesh mesh, Span<SpatialBounds> bounds)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshObjectVertices(IntPtr indexedMeshObject, SpatialBounds* vertices, int vertexLength);
+        static extern void NativeSetMeshVertices(IntPtr mesh, SpatialBounds* vertices, int vertexLength);
 
         Debug.Assert(bounds.Length >= 0);
 
         fixed (SpatialBounds* boundsData = bounds)
         {
-            NativeSetMeshObjectVertices(meshObject.Self, boundsData, bounds.Length);
+            NativeSetMeshVertices(mesh.Self, boundsData, bounds.Length);
         }
     }
 

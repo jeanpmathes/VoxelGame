@@ -1,4 +1,4 @@
-﻿// <copyright file="SpatialObject.cs" company="VoxelGame">
+﻿// <copyright file="Spatial.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -12,7 +12,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A native object that can be part of a space.
 /// </summary>
-public class SpatialObject : NativeObject
+public class Spatial : NativeObject
 {
     private bool dirty = true;
 
@@ -24,7 +24,7 @@ public class SpatialObject : NativeObject
     /// </summary>
     /// <param name="nativePointer">The native pointer.</param>
     /// <param name="space">The space in which the object is.</param>
-    protected SpatialObject(IntPtr nativePointer, Space space) : base(nativePointer, space.Client)
+    protected Spatial(IntPtr nativePointer, Space space) : base(nativePointer, space.Client)
     {
         Space = space;
     }
@@ -62,7 +62,7 @@ public class SpatialObject : NativeObject
 
     internal override void Synchronize()
     {
-        if (dirty || Space.HasAdjustmentChanged) Native.UpdateSpatialObjectData(this, Space.GetAdjustedData(this));
+        if (dirty || Space.HasAdjustmentChanged) Native.UpdateSpatialData(this, Space.GetAdjustedData(this));
 
         dirty = false;
     }

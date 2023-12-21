@@ -104,10 +104,10 @@
 // Objects
 
 #include "Objects/Object.hpp"
-#include "Objects/SpatialObject.hpp"
+#include "Objects/Spatial.hpp"
 #include "Objects/Camera.hpp"
 #include "Objects/Light.hpp"
-#include "Objects/MeshObject.hpp"
+#include "Objects/Mesh.hpp"
 #include "Objects/RasterPipeline.hpp"
 #include "Objects/ShaderBuffer.hpp"
 #include "Objects/Texture.hpp"

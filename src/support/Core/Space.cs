@@ -64,19 +64,19 @@ public class Space
     public bool HasAdjustmentChanged { get; private set; }
 
     /// <summary>
-    ///     Create a new indexed mesh object.
+    ///     Create a new mesh.
     /// </summary>
     /// <param name="material">The material. It cannot be changed later.</param>
     /// <param name="position">The initial position.</param>
     /// <param name="rotation">The initial rotation.</param>
-    public MeshObject CreateMeshObject(Material material, Vector3d position = default, Quaterniond rotation = default)
+    public Mesh CreateMesh(Material material, Vector3d position = default, Quaterniond rotation = default)
     {
-        MeshObject meshObject = Native.CreateMeshObject(Client, material.Index);
+        Mesh mesh = Native.CreateMesh(Client, material.Index);
 
-        meshObject.Position = position;
-        meshObject.Rotation = rotation;
+        mesh.Position = position;
+        mesh.Rotation = rotation;
 
-        return meshObject;
+        return mesh;
     }
 
     /// <summary>
@@ -100,17 +100,17 @@ public class Space
     /// <summary>
     ///     Get the adjusted data of a spatial object.
     /// </summary>
-    /// <param name="spatialObject">The spatial object.</param>
+    /// <param name="spatial">The spatial object.</param>
     /// <returns>The adjusted data.</returns>
-    public SpatialObjectData GetAdjustedData(SpatialObject spatialObject)
+    public SpatialData GetAdjustedData(Spatial spatial)
     {
-        Vector3d adjustedPosition = spatialObject.Position + adjustment;
-        Quaterniond adjustedRotation = spatialObject.Rotation;
+        Vector3d adjustedPosition = spatial.Position + adjustment;
+        Quaterniond adjustedRotation = spatial.Rotation;
 
         Vector3 adaptedPosition = new((float) adjustedPosition.X, (float) adjustedPosition.Y, (float) adjustedPosition.Z);
         Vector4 adaptedRotation = new((float) adjustedRotation.X, (float) adjustedRotation.Y, (float) adjustedRotation.Z, (float) adjustedRotation.W);
 
-        return new SpatialObjectData
+        return new SpatialData
         {
             Position = adaptedPosition,
             Rotation = adaptedRotation

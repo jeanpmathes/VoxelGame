@@ -6,12 +6,12 @@
 
 #pragma once
 
-#include "SpatialObject.hpp"
+#include "Spatial.hpp"
 
 /**
  * \brief Represents the light of the space. It is an directional light.
  */
-class Light final : public SpatialObject
+class Light final : public Spatial
 {
     DECLARE_OBJECT_SUBCLASS(Light)
 

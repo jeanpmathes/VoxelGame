@@ -7,7 +7,7 @@
 #pragma once
 #include "IntegerSet.hpp"
 
-class MeshObject;
+class Mesh;
 
 namespace anim
 {
@@ -51,9 +51,9 @@ public:
     void SetupResourceLayout(ShaderResources::Description* description);
     void Initialize(NativeClient& client, const ComPtr<ID3D12RootSignature>& rootSignature);
 
-    void AddMesh(MeshObject& mesh);
-    void UpdateMesh(const MeshObject& mesh);
-    void RemoveMesh(MeshObject& mesh);
+    void AddMesh(Mesh& mesh);
+    void UpdateMesh(const Mesh& mesh);
+    void RemoveMesh(Mesh& mesh);
 
     /**
      * Updates shader resource data, must be called before running the animation.
@@ -78,7 +78,7 @@ private:
 
     ComPtr<ID3DBlob> m_shader = {};
 
-    Bag<MeshObject*> m_meshes = {};
+    Bag<Mesh*> m_meshes = {};
     IntegerSet<> m_changedMeshes = {};
     IntegerSet<> m_removedMeshes = {};
 

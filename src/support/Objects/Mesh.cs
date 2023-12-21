@@ -1,4 +1,4 @@
-﻿// <copyright file="MeshObject.cs" company="VoxelGame">
+﻿// <copyright file="Mesh.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -10,16 +10,16 @@ using VoxelGame.Support.Core;
 namespace VoxelGame.Support.Objects;
 
 /// <summary>
-///     A mesh object with an indexed sequence of vertices.
+///     A mesh, positioned in 3D space and target of raytracing.
 /// </summary>
-public class MeshObject : SpatialObject
+public class Mesh : Spatial
 {
     private bool enabled = true;
 
     /// <summary>
-    ///     Create a new native indexed mesh object.
+    ///     Wrap a native mesh pointer.
     /// </summary>
-    public MeshObject(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
+    public Mesh(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
 
     /// <summary>
     ///     Set or get the enabled state of this object. If disabled, the object will not be rendered.
@@ -31,7 +31,7 @@ public class MeshObject : SpatialObject
         {
             if (value == enabled) return;
 
-            Native.SetMeshObjectEnabledState(this, value);
+            Native.SetMeshEnabledState(this, value);
             enabled = value;
         }
     }
@@ -43,7 +43,7 @@ public class MeshObject : SpatialObject
     /// <param name="vertices">The vertices.</param>
     public void SetVertices(Span<SpatialVertex> vertices)
     {
-        Native.SetMeshObjectVertices(this, vertices);
+        Native.SetMeshVertices(this, vertices);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class MeshObject : SpatialObject
     /// <param name="bounds">The bounds.</param>
     public void SetBounds(Span<SpatialBounds> bounds)
     {
-        Native.SetMeshObjectBounds(this, bounds);
+        Native.SetMeshBounds(this, bounds);
     }
 
     /// <summary>
@@ -62,6 +62,6 @@ public class MeshObject : SpatialObject
     public void Return()
     {
         Deregister();
-        Native.ReturnMeshObject(this);
+        Native.ReturnMesh(this);
     }
 }

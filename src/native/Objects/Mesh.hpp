@@ -1,4 +1,4 @@
-﻿// <copyright file="MeshObject.hpp" company="VoxelGame">
+﻿// <copyright file="Mesh.hpp" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -8,7 +8,7 @@
 
 #include <optional>
 
-#include "SpatialObject.hpp"
+#include "Spatial.hpp"
 #include "Tools/InBufferAllocator.hpp"
 
 #pragma pack(push, 4)
@@ -34,14 +34,14 @@ struct InstanceConstantBuffer
 struct Material;
 
 /**
- * \brief An object that has a mesh of any kind.
+ * \brief A mesh, positioned in 3D space and target of raytracing.
  */
-class MeshObject final : public SpatialObject
+class Mesh final : public Spatial
 {
-    DECLARE_OBJECT_SUBCLASS(MeshObject)
+    DECLARE_OBJECT_SUBCLASS(Mesh)
 
 public:
-    explicit MeshObject(NativeClient& client);
+    explicit Mesh(NativeClient& client);
     void Initialize(UINT materialIndex);
 
     enum class Handle : size_t
