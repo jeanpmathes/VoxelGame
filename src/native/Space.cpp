@@ -13,9 +13,6 @@ Space::Space(NativeClient& nativeClient) :
     m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
     m_indexBuffer(*this)
 {
-    DirectX::XMVECTOR windDirection = XMLoadFloat3(&m_windDirection);
-    windDirection = DirectX::XMVector3Normalize(windDirection);
-    XMStoreFloat3(&m_windDirection, windDirection);
 }
 
 void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQueue)
@@ -252,7 +249,6 @@ void Space::CreateGlobalConstBuffer()
 
     m_globalConstantBufferMapping.Write({
         .time = 0.0f,
-        .windDirection = m_windDirection, // todo: put wind direction in the custom data buffer
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
         .minShadow = 0.2f,

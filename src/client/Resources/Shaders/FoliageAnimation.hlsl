@@ -8,6 +8,7 @@
 
 #include "Animation.hlsl"
 #include "Decoding.hlsl"
+#include "Custom.hlsl"
 
 void ApplySway(inout SpatialVertex vertex, float2 uv, const bool isUpperPart, const bool isDoublePlant,
                const in fnl_state noise)

@@ -7,13 +7,8 @@
 #include "Common.hlsl"
 #include "Payloads.hlsl"
 #include "Space.hlsl"
-
-cbuffer CustomCB : register(b1)
-{
-    bool gWireframe;
-}
-
 // todo: try putting the three headers above and the definitions below (no functions, no CustomCB) into the support project
+#include "Custom.hlsl"
 
 cbuffer MaterialCB : register(b3)
 {

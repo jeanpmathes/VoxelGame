@@ -13,7 +13,6 @@ struct SpatialVertex
 cbuffer GlobalCB : register(b2)
 {
 float gTime;
-float3 gWindDir;
 float3 gLightDir;
 float gMinLight;
 float gMinShadow;

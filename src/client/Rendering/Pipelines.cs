@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -162,7 +163,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
             pipelines.LoadAll(client, textureSlots, visuals);
         }
 
-        Graphics.Initialize(pipelines);
+        Graphics.Initialize(pipelines.loaded ? pipelines : null);
 
         return pipelines;
     }
@@ -373,17 +374,25 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <summary>
     ///     Data passed to the raytracing shaders.
     /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public struct RaytracingData : IEquatable<RaytracingData>
     {
         /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
-        public bool wireframe;
+        [MarshalAs(UnmanagedType.Bool)] public bool wireframe;
+
+        /// <summary>
+        ///     The wind direction, used for foliage swaying.
+        /// </summary>
+        public Vector3 windDirection;
+
+        private (bool, Vector3) Pack => (wireframe, windDirection);
 
         /// <inheritdoc />
         public bool Equals(RaytracingData other)
         {
-            return wireframe == other.wireframe;
+            return Pack.Equals(other.Pack);
         }
 
         /// <inheritdoc />
@@ -395,7 +404,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(wireframe);
+            return Pack.GetHashCode();
         }
 
         /// <summary>

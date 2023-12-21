@@ -186,8 +186,6 @@ private:
 
 #if defined(USE_NSIGHT_AFTERMATH)
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetupShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
-
-
 #else
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)
 #endif

@@ -5,6 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -14,9 +17,17 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public class Graphics
 {
-    private readonly Pipelines pipelines;
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Graphics>();
 
-    private Graphics(Pipelines pipelines)
+    private static readonly Pipelines.RaytracingData defaultData = new()
+    {
+        wireframe = false,
+        windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized()
+    };
+
+    private readonly Pipelines? pipelines;
+
+    private Graphics(Pipelines? pipelines)
     {
         this.pipelines = pipelines;
     }
@@ -30,10 +41,12 @@ public class Graphics
     ///     Initializes the graphics.
     /// </summary>
     /// <param name="pipelines">All pipelines used for rendering.</param>
-    public static void Initialize(Pipelines pipelines)
+    public static void Initialize(Pipelines? pipelines)
     {
         Debug.Assert(Instance == null);
         Instance = new Graphics(pipelines);
+
+        Instance.Reset();
     }
 
     /// <summary>
@@ -41,7 +54,9 @@ public class Graphics
     /// </summary>
     public void Reset()
     {
-        SetWireframe(enable: false);
+        if (pipelines == null) return;
+
+        pipelines.RaytracingDataBuffer.Data = defaultData;
     }
 
     /// <summary>
@@ -50,6 +65,10 @@ public class Graphics
     /// <param name="enable">Whether to enable wireframe rendering.</param>
     public void SetWireframe(bool enable)
     {
+        if (pipelines == null) return;
+
         pipelines.RaytracingDataBuffer.Modify((ref Pipelines.RaytracingData data) => data.wireframe = enable);
+
+        logger.LogDebug("Wireframe mode set to {Mode}", enable);
     }
 }

@@ -78,7 +78,6 @@ DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
 struct GlobalConstantBuffer
 {
     float time;
-    DirectX::XMFLOAT3 windDirection;
     
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
@@ -231,8 +230,6 @@ private:
 
     Camera m_camera;
     Light m_light;
-
-    DirectX::XMFLOAT3 m_windDirection = {0.7f, 0.0f, 0.7f};
 
     Allocation<ID3D12Resource> m_globalConstantBuffer = {};
     UINT64 m_globalConstantBufferSize = 0;

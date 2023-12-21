@@ -754,6 +754,9 @@
         <None Include="Resources\Shaders\FoliageAnimation.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Include="Resources\Shaders\Custom.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <ClCompile Include="Resources\Shaders\Space.hlsl"/>
     </ItemGroup>
 
