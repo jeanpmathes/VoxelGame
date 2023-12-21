@@ -13,6 +13,11 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class ShaderBuffer<T> : NativeObject where T : unmanaged
 {
+    /// <summary>
+    ///     Delegate for modifying the data of the buffer.
+    /// </summary>
+    public delegate void ModifyDelegate(ref T data);
+
     private T data;
     private bool dirty = true;
 
@@ -36,6 +41,17 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged
             if (Client.IsOutOfCycle) Write();
             else dirty = true;
         }
+    }
+
+    /// <summary>
+    ///     Modifies the data of the buffer.
+    /// </summary>
+    /// <param name="modifier">The modifier.</param>
+    public void Modify(ModifyDelegate modifier)
+    {
+        T copy = data;
+        modifier(ref copy);
+        Data = copy;
     }
 
     internal override void Synchronize()

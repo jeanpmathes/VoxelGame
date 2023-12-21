@@ -185,9 +185,9 @@ public class Client : IDisposable // todo: get type usage count down
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal void InitializeRaytracing(SpacePipeline pipeline)
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged
     {
-        Support.Native.InitializeRaytracing(this, pipeline);
+        return Support.Native.InitializeRaytracing<T>(this, pipeline);
     }
 
     /// <summary>

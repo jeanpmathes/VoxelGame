@@ -25,6 +25,6 @@ public class SetWireframe : Command
     /// <exclude />
     public void Invoke(bool enable)
     {
-        Screen.SetWireframe(enable);
+        Graphics.Instance.SetWireframe(enable);
     }
 }

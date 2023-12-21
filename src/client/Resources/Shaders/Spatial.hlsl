@@ -8,11 +8,19 @@
 #include "Payloads.hlsl"
 #include "Space.hlsl"
 
-cbuffer MaterialCB : register(b2) {
+cbuffer CustomCB : register(b1)
+{
+    bool gWireframe;
+}
+
+// todo: try putting the three headers above and the definitions below (no functions, no CustomCB) into the support project
+
+cbuffer MaterialCB : register(b3)
+{
 uint gMaterialIndex;
 }
 
-ConstantBuffer<Instance> instances[] : register(b3);
+ConstantBuffer<Instance> instances[] : register(b4);
 
 RaytracingAccelerationStructure spaceBVH : register(t0); // todo: rename all shader globals to include g prefix
 StructuredBuffer<SpatialVertex> vertices[] : register(t1);
@@ -115,6 +123,24 @@ struct Info
     {
         return a * barycentric.x + b * barycentric.y + c * barycentric.z;
     }
+
+    /**
+     * \brief Get the distance from the current intersection to the borders of the current triangle.
+     * \return The distance.
+     */
+    float GetDistanceToTriangleBorders()
+    {
+        const float3 p = GetPosition();
+
+        const float3 ba = b - a, cb = c - b, ac = a - c;
+        const float3 pa = p - a, pb = p - b, pc = p - c;
+
+        const float3 ae = pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+        const float3 be = pb - cb * clamp(dot(pb, cb) / dot(cb, cb), 0.0, 1.0);
+        const float3 ce = pc - ac * clamp(dot(pc, ac) / dot(ac, ac), 0.0, 1.0);
+
+        return sqrt(min(min(dot(ae, ae), dot(be, be)), dot(ce, ce)));
+    }
 };
 
 Info GetCurrentInfo(const in Attributes attributes) // todo: write doc-comments for all functions in shaders
@@ -187,5 +213,13 @@ float3 CalculateShading(in Info info, const float3 baseColor)
         intensity = lerp(gMinShadow, gMinLight, clamp(energy * -1.0, 0.0, 1.0));
     }
 
-    return color * intensity;
+    color *= intensity;
+
+    if (gWireframe)
+    {
+        const float edge = info.GetDistanceToTriangleBorders();
+        color = edge < 0.005 ? 1.0 : lerp(color, 0.0, 0.2);
+    }
+
+    return color;
 }

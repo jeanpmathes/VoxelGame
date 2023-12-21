@@ -66,8 +66,6 @@ public sealed class StartScene : IScene
     public void Load()
     {
         Screen.SetCursor(locked: false);
-        Screen.SetWireframe(wireframe: false);
-        Screen.EnterUIDrawMode();
 
         ui.Load();
         ui.Resize(Screen.Size);

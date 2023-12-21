@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Client.Rendering;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -42,6 +43,8 @@ public class SceneManager
 
         current.Unload();
         current.Dispose();
+
+        Graphics.Instance.Reset();
     }
 
     /// <summary>

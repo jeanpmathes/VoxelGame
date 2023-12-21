@@ -155,24 +155,6 @@ public sealed class Screen : IDisposable
 
     private Application.Client Client { get; }
 
-    private void EnableWireframe()
-    {
-        // todo: add wireframe shading
-
-        // GL.LineWidth(width: 5f);
-        // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        //
-        // isWireframeActive = true;
-    }
-
-    private void DisableWireframe()
-    {
-        // GL.LineWidth(width: 1f);
-        // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-        //
-        // isWireframeActive = false;
-    }
-
     #region PUBLIC STATIC PROPERTIES // todo: try to remove these, move them to client and use instance methods / properties
 
     /// <summary>
@@ -228,33 +210,6 @@ public sealed class Screen : IDisposable
 
         Instance.fullscreen = fullscreen;
         Instance.Client.ToggleFullscreen();
-    }
-
-    /// <summary>
-    ///     Set the wire-frame mode. Wireframe is only active when in game draw mode.
-    /// </summary>
-    /// <param name="wireframe">True to activate wireframe, false to deactivate it.</param>
-    public static void SetWireframe(bool wireframe)
-    {
-        if (Instance.isWireframeActive && !wireframe) Instance.DisableWireframe();
-
-        Instance.useWireframe = wireframe;
-    }
-
-    /// <summary>
-    ///     Enter the game drawing mode, to use when drawing world content.
-    /// </summary>
-    public static void EnterGameDrawMode()
-    {
-        if (Instance.useWireframe) Instance.EnableWireframe();
-    }
-
-    /// <summary>
-    ///     Enter the ui drawing mode, to use when drawing ui or overlays.
-    /// </summary>
-    public static void EnterUIDrawMode()
-    {
-        Instance.DisableWireframe();
     }
 
     /// <summary>

@@ -15,6 +15,7 @@
 #include "Objects/MeshObject.hpp"
 #include "Tools/ShaderResources.hpp"
 
+class ShaderBuffer;
 class Texture;
 
 struct MaterialDescription
@@ -49,6 +50,8 @@ struct SpacePipelineDescription
 
     UINT textureCountFirstSlot;
     UINT textureCountSecondSlot;
+
+    UINT customDataBufferSize;
 
     NativeErrorFunc onShaderLoadingError;
 };
@@ -164,6 +167,7 @@ public:
      * Get the native client.
      */
     NativeClient& GetNativeClient() const;
+    [[nodiscard]] ShaderBuffer* GetCustomDataBuffer() const;
     
     Camera* GetCamera();
     Light* GetLight();
@@ -234,6 +238,8 @@ private:
     UINT64 m_globalConstantBufferSize = 0;
     double m_renderTime = 0.0;
     Mapping<ID3D12Resource, GlobalConstantBuffer> m_globalConstantBufferMapping = {};
+
+    std::unique_ptr<ShaderBuffer> m_customDataBuffer = nullptr;
 
     std::vector<ComPtr<IDxcBlob>> m_shaderBlobs = {};
     std::vector<std::unique_ptr<Material>> m_materials = {};

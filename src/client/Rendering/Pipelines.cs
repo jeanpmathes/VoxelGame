@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
@@ -43,6 +44,8 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     private bool loaded;
     private RasterPipeline postProcessingPipeline = null!;
 
+    private ShaderBuffer<RaytracingData>? raytracingDataBuffer;
+
     private Pipelines(DirectoryInfo directory, LoadingContext loadingContext)
     {
         this.directory = directory;
@@ -55,6 +58,11 @@ public sealed class Pipelines // todo: delete all GLSL shaders
             (nearPlaneSet, NearPlaneUniform),
             (farPlaneSet, FarPlaneUniform));
     }
+
+    /// <summary>
+    ///     Get the raytracing data buffer.
+    /// </summary>
+    public ShaderBuffer<RaytracingData> RaytracingDataBuffer => raytracingDataBuffer!;
 
     /// <summary>
     ///     The shader used for simple blocks.
@@ -153,6 +161,8 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         {
             pipelines.LoadAll(client, textureSlots, visuals);
         }
+
+        Graphics.Initialize(pipelines);
 
         return pipelines;
     }
@@ -312,7 +322,9 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);
 
-        loaded &= builder.Build(client, loadingContext);
+        builder.SetCustomDataBufferType<RaytracingData>();
+
+        loaded &= builder.Build(client, loadingContext, out raytracingDataBuffer);
     }
 
     /// <summary>
@@ -356,5 +368,50 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         foreach (Shader shader in nearPlaneSet) shader.SetFloat(NearPlaneUniform, (float) near);
 
         foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
+    }
+
+    /// <summary>
+    ///     Data passed to the raytracing shaders.
+    /// </summary>
+    public struct RaytracingData : IEquatable<RaytracingData>
+    {
+        /// <summary>
+        ///     Whether to render in wireframe mode.
+        /// </summary>
+        public bool wireframe;
+
+        /// <inheritdoc />
+        public bool Equals(RaytracingData other)
+        {
+            return wireframe == other.wireframe;
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is RaytracingData other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(wireframe);
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="RaytracingData" />s are equal.
+        /// </summary>
+        public static bool operator ==(RaytracingData left, RaytracingData right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="RaytracingData" />s are not equal.
+        /// </summary>
+        public static bool operator !=(RaytracingData left, RaytracingData right)
+        {
+            return !left.Equals(right);
+        }
     }
 }

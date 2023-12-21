@@ -209,6 +209,11 @@ NativeClient& Space::GetNativeClient() const
     return m_nativeClient;
 }
 
+ShaderBuffer* Space::GetCustomDataBuffer() const
+{
+    return m_customDataBuffer.get();
+}
+
 Camera* Space::GetCamera()
 {
     return &m_camera;
@@ -247,7 +252,7 @@ void Space::CreateGlobalConstBuffer()
 
     m_globalConstantBufferMapping.Write({
         .time = 0.0f,
-        .windDirection = m_windDirection,
+        .windDirection = m_windDirection, // todo: put wind direction in the custom data buffer
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
         .minShadow = 0.2f,
@@ -312,6 +317,12 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 {
     m_textureSlot1.size = std::max(pipelineDescription.description.textureCountFirstSlot, 1u);
     m_textureSlot2.size = std::max(pipelineDescription.description.textureCountSecondSlot, 1u);
+
+    if (pipelineDescription.description.customDataBufferSize > 0)
+    {
+        m_customDataBuffer = std::make_unique<ShaderBuffer>(m_nativeClient,
+                                                            pipelineDescription.description.customDataBufferSize);
+    }
 
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
 
@@ -518,7 +529,11 @@ void Space::CreateAnimations(const SpacePipeline& pipeline)
 void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
 {
     description->AddConstantBufferView(m_camera.GetCameraBufferAddress(), {.reg = 0});
-    description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 1});
+    if (m_customDataBuffer != nullptr)
+    {
+        description->AddConstantBufferView(m_customDataBuffer->GetGPUVirtualAddress(), {.reg = 1});
+    }
+    description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 2});
 
     m_commonResourceTable = description->AddHeapDescriptorTable([this](auto& table)
     {
@@ -539,7 +554,7 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
         return static_cast<UINT>(mesh->GetActiveIndex().value());
     };
 
-    m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList({.reg = 3, .space = 0},
+    m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList({.reg = 4, .space = 0},
                                                                               CreateSizeGetter(&m_activeMeshes),
                                                                               [this](const UINT index)
                                                                               {
@@ -616,7 +631,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
 {
     nv_helpers_dx12::RootSignatureGenerator rsc;
 
-    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 2); // Material Data (b2, space0)
+    rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV, 3); // Material Data (b3, space0)
 
     return rsc.Generate(GetDevice().Get(), true);
 }

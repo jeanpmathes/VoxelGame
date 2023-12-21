@@ -10,7 +10,8 @@ struct SpatialVertex
     uint data;
 };
 
-cbuffer GlobalCB : register(b1) {
+cbuffer GlobalCB : register(b2)
+{
 float gTime;
 float3 gWindDir;
 float3 gLightDir;

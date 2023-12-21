@@ -130,10 +130,7 @@ public sealed class GameScene : IScene
     {
         using (logger.BeginScope("GameScene Render"))
         {
-            Screen.EnterGameDrawMode();
             Game.Render();
-
-            Screen.EnterUIDrawMode();
             RenderUI();
         }
     }

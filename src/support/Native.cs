@@ -182,27 +182,32 @@ public static class Native // todo: make internal, methods too
     }
 
     /// <summary>
+    /// Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
+    /// </summary>
+    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+    private static extern IntPtr NativeInitializeRaytracing(IntPtr native,
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
+        ShaderFileDescription[] shaderFiles,
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
+        string[] symbols,
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
+        MaterialDescription[] materials,
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
+        IntPtr[] textures,
+        SpacePipelineDescription description);
+
+    /// <summary>
     ///     Initialize raytracing.
     /// </summary>
+    /// <typeparam name="T">The type of the shader buffer.</typeparam>
     /// <param name="client">The client.</param>
     /// <param name="pipeline">A description of the raytracing pipeline.</param>
-    public static void InitializeRaytracing(Client client, SpacePipeline pipeline)
+    /// <returns>The shader buffer, if any is created.</returns>
+    public static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged
     {
-        // Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
+        IntPtr buffer = NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
 
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeInitializeRaytracing(IntPtr native,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-            ShaderFileDescription[] shaderFiles,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
-            string[] symbols,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-            MaterialDescription[] materials,
-            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-            IntPtr[] textures,
-            SpacePipelineDescription description);
-
-        NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
+        return buffer == IntPtr.Zero ? null : new ShaderBuffer<T>(buffer, client);
     }
 
     /// <summary>
@@ -391,7 +396,7 @@ public static class Native // todo: make internal, methods too
     private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorFunc callback);
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeGetShaderBuffer(IntPtr rasterPipeline);
+    private static extern IntPtr NativeGetRasterPipelineShaderBuffer(IntPtr rasterPipeline);
 
     /// <summary>
     ///     Create a raster pipeline. Use this overload if no shader buffer is needed.
@@ -406,7 +411,7 @@ public static class Native // todo: make internal, methods too
         Debug.Assert(description.BufferSize == 0);
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
-        IntPtr shaderBuffer = NativeGetShaderBuffer(rasterPipeline);
+        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
 
         Debug.Assert(shaderBuffer == IntPtr.Zero);
 
@@ -426,7 +431,7 @@ public static class Native // todo: make internal, methods too
         description.BufferSize = (uint) Marshal.SizeOf<T>();
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
-        IntPtr shaderBuffer = NativeGetShaderBuffer(rasterPipeline);
+        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
 
         return (new RasterPipeline(rasterPipeline, client), new ShaderBuffer<T>(shaderBuffer, client));
     }

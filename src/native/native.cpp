@@ -139,12 +139,12 @@ NATIVE void NativeSetCursor(const NativeClient* client, MouseCursor cursor)
     CATCH();
 }
 
-NATIVE void NativeInitializeRaytracing(NativeClient* client,
-                                       ShaderFileDescription* shaderFiles,
-                                       LPWSTR* symbols,
-                                       MaterialDescription* materials,
-                                       Texture** textures,
-                                       const SpacePipelineDescription description)
+NATIVE ShaderBuffer* NativeInitializeRaytracing(NativeClient* client,
+                                                ShaderFileDescription* shaderFiles,
+                                                LPWSTR* symbols,
+                                                MaterialDescription* materials,
+                                                Texture** textures,
+                                                const SpacePipelineDescription description)
 {
     TRY
     {
@@ -157,6 +157,10 @@ NATIVE void NativeInitializeRaytracing(NativeClient* client,
             textures,
             description
         });
+
+        if (client->GetSpace() == nullptr) return nullptr;
+
+        return client->GetSpace()->GetCustomDataBuffer();
     }
     CATCH();
 }
@@ -299,7 +303,7 @@ NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
     CATCH();
 }
 
-NATIVE ShaderBuffer* NativeGetShaderBuffer(const RasterPipeline* pipeline)
+NATIVE ShaderBuffer* NativeGetRasterPipelineShaderBuffer(const RasterPipeline* pipeline)
 {
     TRY
     {

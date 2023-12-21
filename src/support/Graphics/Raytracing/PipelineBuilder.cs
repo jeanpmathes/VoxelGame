@@ -4,10 +4,13 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support.Graphics.Raytracing;
 
@@ -48,6 +51,8 @@ public class PipelineBuilder
 
     private TextureArray? firstTextureSlot;
     private TextureArray? secondTextureSlot;
+
+    private uint customDataBufferSize;
 
     /// <summary>
     ///     Add a shader file to the pipeline.
@@ -129,17 +134,46 @@ public class PipelineBuilder
     }
 
     /// <summary>
-    ///     Build the pipeline.
+    /// Set the type of the custom data buffer.
+    /// Using this will enable the creation of a custom data buffer.
+    /// </summary>
+    /// <typeparam name="T">The type of the custom data buffer.</typeparam>
+    public void SetCustomDataBufferType<T>() where T : unmanaged
+    {
+        customDataBufferSize = (uint) Marshal.SizeOf<T>();
+    }
+
+    /// <summary>
+    ///     Build the pipeline, without a custom data buffer.
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
     public bool Build(Client client, LoadingContext loadingContext)
     {
+        Debug.Assert(customDataBufferSize == 0);
+
+        return Build<byte>(client, loadingContext, out _);
+    }
+
+    /// <summary>
+    ///     Build the pipeline.
+    /// </summary>
+    /// <typeparam name="T">
+    ///     The type of the custom data buffer, must be the same as provided in
+    ///     <see cref="SetCustomDataBufferType{T}" />.
+    /// </typeparam>
+    /// <param name="client">The client that will use the pipeline.</param>
+    /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
+    /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
+    public bool Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged
+    {
         (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, IntPtr[] texturePointers) = BuildDescriptions();
+
+        Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
 
         var success = true;
 
-        client.InitializeRaytracing(new SpacePipeline
+        buffer = client.InitializeRaytracing<T>(new SpacePipeline
         {
             ShaderFiles = files,
             Symbols = symbols,
@@ -151,6 +185,7 @@ public class PipelineBuilder
                 materialCount = (uint) materialDescriptions.Length,
                 textureCountFirstSlot = firstTextureSlot?.PartCount ?? 0,
                 textureCountSecondSlot = secondTextureSlot?.PartCount ?? 0,
+                customDataBufferSize = customDataBufferSize,
                 onShaderLoadingError = (_, message) =>
                 {
                     ReportFailure(loadingContext, message);
