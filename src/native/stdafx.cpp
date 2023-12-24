@@ -1,7 +1,7 @@
-//  <copyright file="stdafx.cpp" company="Microsoft">
-//      Copyright (c) Microsoft. All rights reserved.
-//      MIT License
-//  </copyright>
-//  <author>Microsoft</author>
+// <copyright file="stdafx.cpp" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
 
 #include "stdafx.h"

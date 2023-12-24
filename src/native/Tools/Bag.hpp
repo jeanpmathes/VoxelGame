@@ -9,19 +9,14 @@
 #include <vector>
 #include <queue>
 
-template <typename T>
-concept Nullable = requires(T t)
-{
-    { t == nullptr } -> std::convertible_to<bool>;
-    { t != nullptr } -> std::convertible_to<bool>;
-};
+#include "Concepts.hpp"
 
 /**
  * A collection to store elements in.
  * The collection allows pushing, popping and iterating over the elements.
  * All elements in the collections are addressed by a unique index.
  */
-template <Nullable E>
+template <Nullable E, UnsignedNativeSizedInteger I = size_t>
 class Bag
 {
 public:
@@ -29,7 +24,7 @@ public:
      * Push an element to the list, filling a gap if possible.
      * This returns the index of the element, which can be used to remove it.
      */
-    size_t Push(E element)
+    I Push(E element)
     {
         REQUIRE(element != nullptr);
 
@@ -47,14 +42,16 @@ public:
         }
 
         m_size++;
-        return index;
+        return static_cast<I>(index);
     }
 
     /**
      * Remove an element from the list.
      */
-    E Pop(size_t index)
+    E Pop(I i)
     {
+        const size_t index = static_cast<size_t>(i);
+        
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 
@@ -82,8 +79,10 @@ public:
         return m_size == 0;
     }
 
-    E& operator[](size_t index)
+    E& operator[](I i)
     {
+        const size_t index = static_cast<size_t>(i);
+        
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 

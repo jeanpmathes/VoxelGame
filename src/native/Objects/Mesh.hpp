@@ -6,8 +6,7 @@
 
 #pragma once
 
-#include <optional>
-
+#include "Drawable.hpp"
 #include "Spatial.hpp"
 #include "Tools/InBufferAllocator.hpp"
 
@@ -36,7 +35,7 @@ struct Material;
 /**
  * \brief A mesh, positioned in 3D space and target of raytracing.
  */
-class Mesh final : public Spatial
+class Mesh final : public Spatial, public Drawable
 {
     DECLARE_OBJECT_SUBCLASS(Mesh)
 
@@ -44,17 +43,11 @@ public:
     explicit Mesh(NativeClient& client);
     void Initialize(UINT materialIndex);
 
-    enum class Handle : size_t
-    {
-    };
+    void Update() override;
     
-    void Update();
-
-    void SetEnabledState(bool enabled);
     void SetNewVertices(const SpatialVertex* vertices, UINT vertexCount);
     void SetNewBounds(const SpatialBounds* bounds, UINT boundsCount);
     
-    [[nodiscard]] std::optional<size_t> GetActiveIndex() const;
     [[nodiscard]] const Material& GetMaterial() const;
 
     /**
@@ -66,18 +59,6 @@ public:
      * If this object is animated, this will be the destination buffer.
      */
     [[nodiscard]] Allocation<ID3D12Resource> GetGeometryBuffer() const;
-
-    /**
-     * Enqueues commands to upload the mesh to the GPU.
-     * Should only be called when the mesh is modified.
-     */
-    void EnqueueMeshUpload(ComPtr<ID3D12GraphicsCommandList> commandList);
-
-    /**
-     * Finalizes the mesh upload.
-     * Can be called every frame, but only when all commands have been executed.
-     */
-    void CleanupMeshUpload();
 
     [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor GetInstanceDataViewDescriptor() const;
     [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor GetGeometryBufferViewDescriptor() const;
@@ -96,16 +77,12 @@ public:
 
     void SetAnimationHandle(AnimationController::Handle handle);
     [[nodiscard]] AnimationController::Handle GetAnimationHandle() const;
-    
-    /**
-     * Associate this object with a handle. This is performed by the space automatically.
-     */
-    void AssociateWithHandle(Handle handle);
 
-    /**
-     * Return this object to the space. This will allow the space to reuse the object later.
-     */
-    void Return();
+    void Accept(Visitor& visitor) override;
+
+protected:
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList) override;
+    void DoReset() override;
 
 private:
     void CreateBottomLevelASFromVertices(
@@ -121,9 +98,8 @@ private:
         ComPtr<ID3D12GraphicsCommandList4> commandList);
 
     Allocation<ID3D12Resource>& GeometryBuffer();
-    
-    void UpdateActiveState();
-    void UpdateGeometryViews(UINT stride);
+
+    void UpdateGeometryViews(UINT count, UINT stride);
 
     const Material* m_material = nullptr;
 
@@ -131,11 +107,9 @@ private:
     UINT64 m_instanceDataBufferAlignedSize = 0;
     D3D12_CONSTANT_BUFFER_VIEW_DESC m_instanceDataBufferView = {};
     Mapping<ID3D12Resource, InstanceConstantBuffer> m_instanceConstantBufferMapping = {};
-
-    Allocation<ID3D12Resource> m_geometryBufferUpload = {};
+    
     Allocation<ID3D12Resource> m_sourceGeometryBuffer = {};
     Allocation<ID3D12Resource> m_destinationGeometryBuffer = {};
-    UINT m_geometryElementCount = 0;
 
     D3D12_SHADER_RESOURCE_VIEW_DESC m_geometrySRV = {};
     D3D12_UNORDERED_ACCESS_VIEW_DESC m_geometryUAV = {};
@@ -147,12 +121,5 @@ private:
     BLAS m_blas = {};
     bool m_requiresFreshBLAS = false;
 
-    std::optional<Handle> m_handle = std::nullopt;
-    std::optional<size_t> m_active = std::nullopt;
-    bool m_enabled = true;
-
     AnimationController::Handle m_animationHandle = AnimationController::Handle::INVALID;
-
-    bool m_uploadRequired = false;
-    bool m_uploadEnqueued = false;
 };

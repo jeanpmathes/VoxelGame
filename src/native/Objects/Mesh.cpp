@@ -2,7 +2,7 @@
 #include "Mesh.hpp"
 
 Mesh::Mesh(NativeClient& client)
-    : Spatial(client)
+    : Spatial(client), Drawable(client)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
@@ -57,79 +57,45 @@ void Mesh::Update()
     });
 }
 
-void Mesh::SetEnabledState(const bool enabled)
-{
-    m_enabled = enabled;
-    UpdateActiveState();
-}
-
 void Mesh::SetNewVertices(const SpatialVertex* vertices, const UINT vertexCount)
 {
-    REQUIRE(!m_uploadEnqueued);
     REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
 
-    const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
+    UpdateGeometryViews(vertexCount, sizeof(SpatialVertex));
 
-    m_geometryElementCount = vertexCount;
-    
-    UpdateActiveState();
-    UpdateGeometryViews(sizeof(SpatialVertex));
-
-    if (m_geometryElementCount == 0)
-    {
-        m_geometryBufferUpload = {};
-        return;
-    }
-
-    GetClient().GetSpace()->MarkMeshModified(m_handle.value());
+    if (const bool uploadRequired = HandleModification(vertexCount); !uploadRequired) return;
     m_requiresFreshBLAS = true;
-    m_uploadRequired = true;
 
-    util::ReAllocateBuffer(&m_geometryBufferUpload,
+    const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
+    util::ReAllocateBuffer(&GetUploadDataBuffer(),
                            GetClient(), vertexBufferSize,
                            D3D12_RESOURCE_FLAG_NONE,
                            D3D12_RESOURCE_STATE_GENERIC_READ,
                            D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT_WITH_ID(m_geometryBufferUpload);
+    NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
-    TRY_DO(util::MapAndWrite(m_geometryBufferUpload, vertices, vertexCount));
+    TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
 
 void Mesh::SetNewBounds(const SpatialBounds* bounds, const UINT boundsCount)
 {
-    REQUIRE(!m_uploadEnqueued);
     REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
 
-    const auto vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
 
-    m_geometryElementCount = boundsCount;
+    UpdateGeometryViews(boundsCount, sizeof(SpatialBounds));
 
-    UpdateActiveState();
-    UpdateGeometryViews(sizeof(SpatialBounds));
-
-    if (m_geometryElementCount == 0)
-    {
-        m_geometryBufferUpload = {};
-        return;
-    }
-
-    GetClient().GetSpace()->MarkMeshModified(m_handle.value());
+    if (const bool uploadRequired = HandleModification(boundsCount); !uploadRequired) return;
     m_requiresFreshBLAS = true;
-    m_uploadRequired = true;
 
-    util::ReAllocateBuffer(&m_geometryBufferUpload,
+    const auto vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
+    util::ReAllocateBuffer(&GetUploadDataBuffer(),
                            GetClient(), vertexBufferSize,
                            D3D12_RESOURCE_FLAG_NONE,
                            D3D12_RESOURCE_STATE_GENERIC_READ,
                            D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT_WITH_ID(m_geometryBufferUpload);
+    NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
-    TRY_DO(util::MapAndWrite(m_geometryBufferUpload, bounds, boundsCount));
-}
-
-std::optional<size_t> Mesh::GetActiveIndex() const
-{
-    return m_active;
+    TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), bounds, boundsCount));
 }
 
 const Material& Mesh::GetMaterial() const
@@ -142,8 +108,8 @@ UINT Mesh::GetGeometryUnitCount() const
 {
     switch (GetMaterial().geometryType)
     {
-    case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES: return m_geometryElementCount / 4;
-    case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS: return m_geometryElementCount;
+    case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES: return GetDataElementCount() / 4;
+    case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS: return GetDataElementCount();
     default: throw NativeException("Unknown geometry type.");
     }
 }
@@ -151,69 +117,6 @@ UINT Mesh::GetGeometryUnitCount() const
 Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() const
 {
     return const_cast<Mesh*>(this)->GeometryBuffer();
-}
-
-void Mesh::EnqueueMeshUpload(const ComPtr<ID3D12GraphicsCommandList> commandList)
-{
-    REQUIRE(m_uploadRequired);
-    REQUIRE(!m_uploadEnqueued);
-
-    m_uploadRequired = false;
-    m_uploadEnqueued = true;
-
-    if (m_geometryElementCount == 0)
-    {
-        m_sourceGeometryBuffer = {};
-        m_destinationGeometryBuffer = {};
-        return;
-    }
-
-    const auto geometryBufferSize = m_geometryBufferUpload.resource->GetDesc().Width;
-
-    util::ReAllocateBuffer(
-        &m_sourceGeometryBuffer,
-        GetClient(), geometryBufferSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_HEAP_TYPE_DEFAULT);
-    NAME_D3D12_OBJECT_WITH_ID(m_sourceGeometryBuffer);
-
-    if (GetMaterial().IsAnimated())
-    {
-        util::ReAllocateBuffer(
-            &m_destinationGeometryBuffer,
-            GetClient(), geometryBufferSize,
-            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-            D3D12_HEAP_TYPE_DEFAULT);
-        NAME_D3D12_OBJECT_WITH_ID(m_destinationGeometryBuffer);
-    }
-    else
-    {
-        m_destinationGeometryBuffer = {};
-    }
-
-    commandList->CopyBufferRegion(m_sourceGeometryBuffer.Get(), 0, m_geometryBufferUpload.Get(), 0, geometryBufferSize);
-
-    const D3D12_RESOURCE_BARRIER transitionCopyDestToShaderResource = {
-        CD3DX12_RESOURCE_BARRIER::Transition(m_sourceGeometryBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
-    };
-    commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
-
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
-    {
-        std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(m_geometryElementCount);
-    }
-}
-
-void Mesh::CleanupMeshUpload()
-{
-    REQUIRE(!m_uploadRequired);
-
-    m_geometryBufferUpload = {};
-    
-    m_uploadEnqueued = false;
 }
 
 ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescriptor() const
@@ -248,15 +151,16 @@ ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBuff
     };
 }
 
-void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs,
-                      bool isForAnimation)
+void Mesh::CreateBLAS(
+    ComPtr<ID3D12GraphicsCommandList4> commandList,
+    std::vector<ID3D12Resource*>* uavs,
+    bool isForAnimation)
 {
-    REQUIRE(!m_uploadRequired);
     REQUIRE(uavs != nullptr);
     
     if (isForAnimation && m_requiresFreshBLAS) return;
 
-    if (m_geometryElementCount == 0)
+    if (GetDataElementCount() == 0)
     {
         m_blas = {};
         return;
@@ -265,14 +169,14 @@ void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vecto
     if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
     {
         CreateBottomLevelASFromVertices(commandList,
-                                        {{GeometryBuffer(), m_geometryElementCount}},
+                                        {{GeometryBuffer(), GetDataElementCount()}},
                                         {{m_usedIndexBuffer, m_usedIndexCount}});
     }
 
     if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
     {
         CreateBottomLevelASFromBounds(commandList,
-                                      {{GeometryBuffer(), m_geometryElementCount}});
+                                      {{GeometryBuffer(), GetDataElementCount()}});
     }
 
     if (ID3D12Resource* resource = m_blas.result.GetResource(); resource != nullptr) uavs->push_back(resource);
@@ -280,8 +184,6 @@ void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vecto
 
 const BLAS& Mesh::GetBLAS()
 {
-    REQUIRE(!m_uploadRequired);
-    
     return m_blas;
 }
 
@@ -295,50 +197,75 @@ AnimationController::Handle Mesh::GetAnimationHandle() const
     return m_animationHandle;
 }
 
-void Mesh::AssociateWithHandle(Handle handle)
+void Mesh::Accept(Visitor& visitor)
 {
-    REQUIRE(!m_handle.has_value());
-    m_handle = handle;
+    visitor.Visit(*this);
 }
 
-void Mesh::Return()
+void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-    REQUIRE(m_handle.has_value());
-    REQUIRE(!m_uploadEnqueued);
-
-    SetEnabledState(false);
-
-    const auto handle = m_handle.value();
-
+    if (GetDataElementCount() == 0)
     {
-        m_material = nullptr;
-
-        // Instance buffer is intentionally not reset, because it is reused.
-
         m_sourceGeometryBuffer = {};
         m_destinationGeometryBuffer = {};
-        m_geometryBufferUpload = {};
-        m_geometryElementCount = 0;
-
-        m_usedIndexBuffer = {};
-        m_usedIndexCount = 0;
-
-        m_blas = {};
-        m_requiresFreshBLAS = false;
-
-        m_handle = std::nullopt;
-        m_active = std::nullopt;
-        m_enabled = true;
-
-        m_animationHandle = AnimationController::Handle::INVALID;
-
-        m_uploadRequired = false;
-        m_uploadEnqueued = false;
+        return;
     }
 
-    GetClient().GetSpace()->ReturnMesh(handle);
+    const auto geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
-    // No code here, because space is allowed to delete this object.
+    util::ReAllocateBuffer(
+        &m_sourceGeometryBuffer,
+        GetClient(), geometryBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_HEAP_TYPE_DEFAULT);
+    NAME_D3D12_OBJECT_WITH_ID(m_sourceGeometryBuffer);
+
+    if (GetMaterial().IsAnimated())
+    {
+        util::ReAllocateBuffer(
+            &m_destinationGeometryBuffer,
+            GetClient(), geometryBufferSize,
+            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+            D3D12_HEAP_TYPE_DEFAULT);
+        NAME_D3D12_OBJECT_WITH_ID(m_destinationGeometryBuffer);
+    }
+    else
+    {
+        m_destinationGeometryBuffer = {};
+    }
+
+    commandList->CopyBufferRegion(m_sourceGeometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
+
+    const D3D12_RESOURCE_BARRIER transitionCopyDestToShaderResource = {
+        CD3DX12_RESOURCE_BARRIER::Transition(m_sourceGeometryBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+    };
+    commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
+
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+    {
+        std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(GetDataElementCount());
+    }
+}
+
+void Mesh::DoReset()
+{
+    m_material = nullptr;
+
+    // Instance buffer is intentionally not reset, because it is reused.
+
+    m_sourceGeometryBuffer = {};
+    m_destinationGeometryBuffer = {};
+
+    m_usedIndexBuffer = {};
+    m_usedIndexCount = 0;
+
+    m_blas = {};
+    m_requiresFreshBLAS = false;
+
+    m_animationHandle = AnimationController::Handle::INVALID;
 }
 
 void Mesh::CreateBottomLevelASFromVertices(
@@ -434,31 +361,11 @@ Allocation<ID3D12Resource>& Mesh::GeometryBuffer()
     return GetMaterial().IsAnimated() ? m_destinationGeometryBuffer : m_sourceGeometryBuffer;
 }
 
-void Mesh::UpdateActiveState()
+void Mesh::UpdateGeometryViews(const UINT count, const UINT stride)
 {
-    const bool shouldBeActive = m_enabled && m_geometryElementCount > 0;
-    if (m_active.has_value() == shouldBeActive) return;
-
-    if (shouldBeActive)
-    {
-        REQUIRE(!m_active.has_value());
-
-        m_active = GetClient().GetSpace()->ActivateMesh(m_handle.value());
-    }
-    else
-    {
-        REQUIRE(m_active.has_value());
-
-        GetClient().GetSpace()->DeactivateMesh(m_active.value());
-        m_active = std::nullopt;
-    }
-}
-
-void Mesh::UpdateGeometryViews(const UINT stride)
-{
-    m_geometrySRV.Buffer.NumElements = m_geometryElementCount;
+    m_geometrySRV.Buffer.NumElements = count;
     m_geometrySRV.Buffer.StructureByteStride = stride;
 
-    m_geometryUAV.Buffer.NumElements = m_geometryElementCount;
+    m_geometryUAV.Buffer.NumElements = count;
     m_geometryUAV.Buffer.StructureByteStride = stride;
 }

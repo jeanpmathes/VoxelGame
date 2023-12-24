@@ -292,8 +292,8 @@ private:
     std::vector<RootParameter> m_computeRootParameters = {};
 };
 
-template <typename Entry>
-ShaderResources::Description::SizeGetter CreateSizeGetter(Bag<Entry>* list)
+template <typename Entry, typename Index>
+ShaderResources::Description::SizeGetter CreateSizeGetter(Bag<Entry, Index>* list)
 {
     REQUIRE(list != nullptr);
 
@@ -303,8 +303,8 @@ ShaderResources::Description::SizeGetter CreateSizeGetter(Bag<Entry>* list)
     };
 }
 
-template <typename Entry>
-ShaderResources::Description::ListBuilder CreateListBuilder(Bag<Entry>* list,
+template <typename Entry, typename Index>
+ShaderResources::Description::ListBuilder CreateListBuilder(Bag<Entry, Index>* list,
                                                             std::function<UINT(const Entry&)> indexProvider)
 {
     REQUIRE(list != nullptr);

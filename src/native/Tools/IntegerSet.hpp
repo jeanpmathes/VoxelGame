@@ -6,13 +6,7 @@
 
 #pragma once
 
-template <typename T>
-concept UnsignedNativeSizedInteger = requires(T x, size_t y)
-{
-    static_cast<size_t>(x);
-    static_cast<T>(y);
-    sizeof(T) == sizeof(size_t);
-};
+#include "Concepts.hpp"
 
 /**
  * \brief A bit-based set of integers.
@@ -25,6 +19,31 @@ public:
     using BinaryData = uint64_t;
     static constexpr size_t BINARY_DATA_BITS = sizeof(BinaryData) * 8;
     static constexpr size_t BINARY_DATA_MASK = BINARY_DATA_BITS - 1;
+
+    IntegerSet() = default;
+
+    IntegerSet(const IntegerSet&) = default;
+    IntegerSet& operator=(const IntegerSet&) = default;
+    IntegerSet(IntegerSet&&) = default;
+    IntegerSet& operator=(IntegerSet&&) = default;
+    ~IntegerSet() = default;
+
+    template <UnsignedNativeSizedInteger OtherI>
+    friend class IntegerSet;
+
+    template <UnsignedNativeSizedInteger OtherI>
+    explicit IntegerSet(const IntegerSet<OtherI>& other)
+    {
+        *this = other;
+    }
+
+    template <UnsignedNativeSizedInteger OtherI>
+    IntegerSet& operator=(const IntegerSet<OtherI>& other)
+    {
+        m_count = other.m_count;
+        m_data = other.m_data;
+        return *this;
+    }
 
     /**
      * \brief Clears the set.
@@ -66,9 +85,15 @@ public:
     class const_iterator
     {
     public:
+        using difference_type = std::ptrdiff_t;
+        using value_type = I;
+
+        const_iterator() = default;
         const_iterator(std::vector<BinaryData>::const_iterator dataIterator,
                        std::vector<BinaryData>::const_iterator dataEnd);
         const_iterator& operator++();
+        const_iterator& operator++(int);
+        bool operator==(const const_iterator& other) const;
         bool operator!=(const const_iterator& other) const;
         I operator*() const;
 
@@ -183,6 +208,20 @@ typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator+
 {
     Advance();
     return *this;
+}
+
+template <UnsignedNativeSizedInteger I>
+typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
+{
+    auto copy = *this;
+    Advance();
+    return copy;
+}
+
+template <UnsignedNativeSizedInteger I>
+bool IntegerSet<I>::const_iterator::operator==(const const_iterator& other) const
+{
+    return std::tie(m_dataIterator, m_inDataIndex) == std::tie(other.m_dataIterator, other.m_inDataIndex);
 }
 
 template <UnsignedNativeSizedInteger I>

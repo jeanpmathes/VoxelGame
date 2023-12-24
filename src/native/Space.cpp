@@ -17,7 +17,7 @@ Space::Space(NativeClient& nativeClient) :
 
 void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQueue)
 {
-    REQUIRE(m_meshes.IsEmpty());
+    REQUIRE(m_drawables.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient.GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -71,73 +71,62 @@ bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 
 Mesh& Space::CreateMesh(const UINT materialIndex)
 {
-    std::unique_ptr<Mesh> stored;
-
-    if (m_meshPool.empty())
-    {
-        stored = std::make_unique<Mesh>(m_nativeClient);
-    }
-    else
-    {
-        stored = std::move(m_meshPool.back());
-        m_meshPool.pop_back();
-    }
-
-    auto& object = *stored;
-    object.Initialize(materialIndex);
-
-    const size_t index = m_meshes.Push(std::move(stored));
-    object.AssociateWithHandle(static_cast<Mesh::Handle>(index));
-
-    return object;
+    return m_meshes.Create([&](Mesh& mesh) { mesh.Initialize(materialIndex); });
 }
 
-void Space::MarkMeshModified(Mesh::Handle handle)
+void Space::MarkDrawableModified(Drawable* drawable)
 {
-    m_modifiedMeshes.Insert(handle);
+    drawable->Accept(Drawable::Visitor::Empty()
+                     .OnMesh([&](Mesh& mesh)
+                     {
+                         m_meshes.MarkModified(mesh);
 
-    const Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-
-    if (mesh->GetMaterial().IsAnimated() && mesh->GetActiveIndex().has_value())
-    {
-        m_animations[mesh->GetMaterial().animationID.value()].UpdateMesh(*mesh);
-    }
+                         if (mesh.GetMaterial().IsAnimated() && mesh.GetActiveIndex().has_value())
+                         {
+                             m_animations[mesh.GetMaterial().animationID.value()].UpdateMesh(mesh);
+                         }
+                     })
+                     .OnElseFail());
 }
 
-size_t Space::ActivateMesh(const Mesh::Handle handle)
+void Space::ActivateDrawable(Drawable* drawable)
 {
-    Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-    REQUIRE(!mesh->GetActiveIndex());
+    drawable->Accept(Drawable::Visitor::Empty()
+                     .OnMesh([&](Mesh& mesh)
+                     {
+                         m_meshes.Activate(mesh);
 
-    const size_t index = m_activeMeshes.Push(mesh);
-
-    m_activatedMeshes.Insert(index);
-
-    if (mesh->GetMaterial().IsAnimated())
-    {
-        m_animations[mesh->GetMaterial().animationID.value()].AddMesh(*mesh);
-    }
-
-    return index;
+                         if (mesh.GetMaterial().IsAnimated())
+                         {
+                             m_animations[mesh.GetMaterial().animationID.value()].AddMesh(mesh);
+                         }
+                     })
+                     .OnElseFail());
 }
 
-void Space::DeactivateMesh(const size_t index)
+void Space::DeactivateDrawable(Drawable* drawable)
 {
-    Mesh* mesh = m_activeMeshes.Pop(index);
+    drawable->Accept(Drawable::Visitor::Empty()
+                     .OnMesh([this](Mesh& mesh)
+                     {
+                         m_meshes.Deactivate(mesh);
 
-    m_activatedMeshes.Erase(index);
-
-    if (mesh->GetMaterial().IsAnimated())
-    {
-        m_animations[mesh->GetMaterial().animationID.value()].RemoveMesh(*mesh);
-    }
+                         if (mesh.GetMaterial().IsAnimated())
+                         {
+                             m_animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
+                         }
+                     })
+                     .OnElseFail());
 }
 
-void Space::ReturnMesh(const Mesh::Handle handle)
+void Space::ReturnDrawable(Drawable* drawable)
 {
-    m_modifiedMeshes.Erase(handle);
-    
-    m_meshPool.push_back(m_meshes.Pop(static_cast<size_t>(handle)));
+    drawable->Accept(Drawable::Visitor::Empty()
+                     .OnMesh([this](Mesh& mesh)
+                     {
+                         m_meshes.Return(mesh);
+                     })
+                     .OnElseFail());
 }
 
 const Material& Space::GetMaterial(const UINT index) const
@@ -159,9 +148,9 @@ void Space::Update(double)
 {
     m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
 
-    for (const auto& mesh : m_meshes)
+    for (const auto& drawable : m_drawables)
     {
-        mesh->Update();
+        drawable->Update();
     }
 
     m_camera.Update();
@@ -189,14 +178,10 @@ void Space::Render(double delta, Allocation<ID3D12Resource> outputBuffer)
 
 void Space::CleanupRender()
 {
-    for (const auto handle : m_modifiedMeshes)
+    for (auto* group : m_drawableGroups)
     {
-        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        mesh->CleanupMeshUpload();
+        group->CleanupDataUpload();
     }
-    m_modifiedMeshes.Clear();
 
     m_indexBuffer.CleanupRender();
 }
@@ -280,7 +265,7 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
                 for (UINT index = 0; index < count.value(); index++)
                 {
                     const Texture* texture = pipeline.textures[base + index];
-                    
+
                     REQUIRE(texture != nullptr);
                     REQUIRE(texture->GetSize().x == textureSize.value().x);
                     REQUIRE(texture->GetSize().y == textureSize.value().y);
@@ -338,7 +323,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     }
 
     CreateAnimations(pipelineDescription);
-    
+
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
@@ -362,7 +347,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
 
     InitializeAnimations();
-    
+
     pipeline.SetMaxPayloadSize(8 * sizeof(float));
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
@@ -381,10 +366,10 @@ Space::CompileShaderLibraries(NativeClient& nativeClient,
                               nv_helpers_dx12::RayTracingPipelineGenerator& pipeline)
 {
     std::vector<ComPtr<IDxcBlob>> shaderBlobs(pipelineDescription.description.shaderCount);
-    
+
     UINT currentSymbolIndex = 0;
     bool ok = true;
-    
+
     for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
     {
         if (pipelineDescription.shaderFiles[shader].symbolCount > 0)
@@ -551,23 +536,27 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
     };
 
     m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList({.reg = 4, .space = 0},
-                                                                              CreateSizeGetter(&m_activeMeshes),
+                                                                              CreateSizeGetter(&m_meshes.GetActive()),
                                                                               [this](const UINT index)
                                                                               {
-                                                                                  return m_activeMeshes[index]->
+                                                                                  return m_meshes.GetActive()[
+                                                                                          static_cast<
+                                                                                              Drawable::ActiveIndex>(
+                                                                                              index)]->
                                                                                       GetInstanceDataViewDescriptor();
                                                                               },
                                                                               CreateListBuilder(
-                                                                                  &m_activeMeshes, getIndexOfMesh));
+                                                                                  &m_meshes.GetActive(),
+                                                                                  getIndexOfMesh));
 
     m_meshGeometryBufferList = description->AddShaderResourceViewDescriptorList({.reg = 1, .space = 0},
-        CreateSizeGetter(&m_activeMeshes),
+        CreateSizeGetter(&m_meshes.GetActive()),
         [this](const UINT index)
         {
-            return m_activeMeshes[index]->
+            return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->
                 GetGeometryBufferViewDescriptor();
         },
-        CreateListBuilder(&m_activeMeshes, getIndexOfMesh));
+        CreateListBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 }
 
 void Space::SetupAnimationResourceLayout(ShaderResources::Description* description)
@@ -635,7 +624,7 @@ ComPtr<ID3D12RootSignature> Space::CreateMaterialSignature() const
 void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
-    
+
     REQUIRE(!m_outputResourceFresh);
 
     m_sbtHelper.AddRayGenerationProgram(L"RayGen", {});
@@ -660,14 +649,11 @@ void Space::CreateShaderBindingTable()
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
 }
 
-void Space::EnqueueUploads()
+void Space::EnqueueUploads() const
 {
-    for (const auto handle : m_modifiedMeshes)
+    for (auto* group : m_drawableGroups)
     {
-        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        mesh->EnqueueMeshUpload(GetCommandList());
+        group->EnqueueDataUpload(GetCommandList());
     }
 }
 
@@ -688,11 +674,8 @@ void Space::BuildAccelerationStructures()
         animation.CreateBLAS(GetCommandList(), &uavs);
     }
 
-    for (const auto handle : m_modifiedMeshes)
+    for (Mesh* mesh : m_meshes.GetModified())
     {
-        Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
         mesh->CreateBLAS(GetCommandList(), &uavs);
     }
 
@@ -705,8 +688,8 @@ void Space::BuildAccelerationStructures()
 void Space::CreateTLAS()
 {
     nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
-    
-    for (const auto& mesh : m_activeMeshes)
+
+    for (Mesh* mesh : m_meshes.GetActive())
     {
         // The CCW flag is used because DirectX uses left-handed coordinates.
 
@@ -835,18 +818,7 @@ void Space::UpdateTopLevelAccelerationStructureView()
 
 void Space::UpdateGlobalShaderResources()
 {
-    IntegerSet meshesToRefresh = m_activatedMeshes;
-    for (const auto handle : m_modifiedMeshes)
-    {
-        const Mesh* mesh = m_meshes[static_cast<size_t>(handle)].get();
-        REQUIRE(mesh != nullptr);
-
-        std::optional<size_t> index = mesh->GetActiveIndex();
-        if (!index.has_value()) continue;
-
-        meshesToRefresh.Insert(index.value());
-    }
-
+    const IntegerSet meshesToRefresh = m_meshes.ClearChanged();
     for (auto& animation : m_animations)
     {
         animation.Update(m_globalShaderResources, GetCommandList());
@@ -855,6 +827,4 @@ void Space::UpdateGlobalShaderResources()
     m_globalShaderResources.RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
     m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
     m_globalShaderResources.Update();
-
-    m_activatedMeshes.Clear();
 }

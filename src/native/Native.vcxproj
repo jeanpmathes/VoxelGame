@@ -150,6 +150,7 @@
         <ClInclude Include="nv_helpers_dx12\ShaderBindingTableGenerator.hpp"/>
         <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.hpp"/>
         <ClInclude Include="Objects\Camera.hpp"/>
+        <ClInclude Include="Objects\Drawable.hpp"/>
         <ClInclude Include="Objects\Light.hpp"/>
         <ClInclude Include="Objects\Mesh.hpp"/>
         <ClInclude Include="Objects\Object.hpp"/>
@@ -161,6 +162,8 @@
         <ClInclude Include="Tools\Allocation.hpp"/>
         <ClInclude Include="Tools\AnimationController.hpp"/>
         <ClInclude Include="Tools\Common.hpp"/>
+        <ClInclude Include="Tools\Concepts.hpp"/>
+        <ClInclude Include="Tools\DrawablesGroup.hpp"/>
         <ClInclude Include="Tools\InBufferAllocator.hpp"/>
         <ClInclude Include="Tools\D3D12MemAlloc.hpp"/>
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
@@ -209,6 +212,7 @@
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
         </ClCompile>
+        <ClCompile Include="Objects\Drawable.cpp"/>
         <ClCompile Include="Tools\AnimationController.cpp"/>
         <ClCompile Include="Tools\Common.cpp"/>
         <ClCompile Include="Tools\InBufferAllocator.cpp"/>

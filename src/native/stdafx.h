@@ -92,6 +92,8 @@
 #include "Tools/Uploader.hpp"
 #include "Tools/Common.hpp"
 #include "Tools/IntegerSet.hpp"
+#include "Tools/DrawablesGroup.hpp"
+#include "Tools/Concepts.hpp"
 
 // General
 
@@ -111,6 +113,7 @@
 #include "Objects/RasterPipeline.hpp"
 #include "Objects/ShaderBuffer.hpp"
 #include "Objects/Texture.hpp"
+#include "Objects/Drawable.hpp"
 
 // Interfaces
 

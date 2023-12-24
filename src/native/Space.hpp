@@ -13,6 +13,7 @@
 #include "Objects/Camera.hpp"
 #include "Objects/Light.hpp"
 #include "Objects/Mesh.hpp"
+#include "Tools/DrawablesGroup.hpp"
 #include "Tools/ShaderResources.hpp"
 
 class ShaderBuffer;
@@ -129,23 +130,23 @@ public:
      */
     Mesh& CreateMesh(UINT materialIndex);
     /**
-     * Mark a mesh as modified, so that instance data can be updated.
+     * Mark a drawable as modified, so that instance data can be updated.
      */
-    void MarkMeshModified(Mesh::Handle handle);
+    void MarkDrawableModified(Drawable* drawable);
     /**
-     * Activate a mesh for rendering. It must have a valid mesh.
+     * Activate a drawable for rendering. It must have a valid mesh.
      */
-    size_t ActivateMesh(Mesh::Handle handle);
+    void ActivateDrawable(Drawable* drawable);
     /**
-     * Deactivate a mesh.
+     * Deactivate a drawable.
      */
-    void DeactivateMesh(size_t index);
+    void DeactivateDrawable(Drawable* drawable);
     /**
-     * Return a mesh to the creator.
-     * The space is allowed to reuse or free the mesh.
+     * Return a drawable to the creator.
+     * The space is allowed to reuse or free the drawable.
      * Therefore, the object should not be used after this call.
      */
-    void ReturnMesh(Mesh::Handle handle);
+    void ReturnDrawable(Drawable* drawable);
 
     [[nodiscard]] const Material& GetMaterial(UINT index) const;
 
@@ -216,7 +217,7 @@ private:
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMaterialSignature() const;
 
     void CreateShaderBindingTable();
-    void EnqueueUploads();
+    void EnqueueUploads() const;
     void RunAnimations();
     void BuildAccelerationStructures();
     void CreateTLAS();
@@ -277,17 +278,15 @@ private:
     ShaderResources::ListHandle m_meshInstanceDataList = ShaderResources::ListHandle::INVALID;
     ShaderResources::ListHandle m_meshGeometryBufferList = ShaderResources::ListHandle::INVALID;
 
+    Drawable::BaseContainer m_drawables;
+    DrawablesGroup<Mesh> m_meshes{m_nativeClient, m_drawables};
+    std::vector<Drawables*> m_drawableGroups = {&m_meshes};
+
     TLAS m_topLevelASBuffers;
 
     InBufferAllocator m_resultBufferAllocator;
     InBufferAllocator m_scratchBufferAllocator;
-
-    Bag<std::unique_ptr<Mesh>> m_meshes = {};
-    std::vector<std::unique_ptr<Mesh>> m_meshPool = {};
-    IntegerSet<Mesh::Handle> m_modifiedMeshes = {};
-    Bag<Mesh*> m_activeMeshes = {};
-    IntegerSet<> m_activatedMeshes = {};
-
+    
     std::vector<AnimationController> m_animations = {};
 
     SharedIndexBuffer m_indexBuffer;
