@@ -116,6 +116,11 @@ namespace nv_helpers_dx12
         m_rangeLocations.push_back(~0u);
     }
 
+    void RootSignatureGenerator::AddStaticSampler(const D3D12_STATIC_SAMPLER_DESC* sampler)
+    {
+        m_staticSamplers.push_back(*sampler);
+    }
+
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(
         Microsoft::WRL::ComPtr<ID3D12Device> device, bool isLocal)
     {
@@ -140,6 +145,11 @@ namespace nv_helpers_dx12
         // and pixel shaders. For raytracing shaders the root signatures are local.
         rootDesc.Flags =
             isLocal ? D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE : D3D12_ROOT_SIGNATURE_FLAG_NONE;
+
+        if (m_allowInputAssembler)
+        {
+            rootDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+        }
 
         // Create the root signature from its descriptor.
         Microsoft::WRL::ComPtr<ID3DBlob> pSigBlob;

@@ -331,29 +331,29 @@ public static class Native // todo: make internal, methods too
     }
 
     /// <summary>
-    ///     Return a mesh to the space pool.
-    ///     Using the mesh after this call is not allowed.
+    ///     Return a drawable to the space pool.
+    ///     Using the drawable after this call is not allowed.
     /// </summary>
-    /// <param name="mesh">The mesh to return.</param>
-    public static void ReturnMesh(Mesh mesh)
+    /// <param name="drawable">The drawable to return.</param>
+    public static void ReturnDrawable(Drawable drawable)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeReturnMesh(IntPtr native);
+        static extern void NativeReturnDrawable(IntPtr native);
 
-        NativeReturnMesh(mesh.Self);
+        NativeReturnDrawable(drawable.Self);
     }
 
     /// <summary>
-    ///     Set the enabled state of a mesh.
+    ///     Set the enabled state of a drawable.
     /// </summary>
-    /// <param name="mesh">The mesh.</param>
-    /// <param name="enabled">Whether the mesh should be enabled.</param>
-    public static void SetMeshEnabledState(Mesh mesh, bool enabled)
+    /// <param name="drawable">The drawable.</param>
+    /// <param name="enabled">Whether the drawable should be enabled.</param>
+    public static void SetDrawableEnabledState(Drawable drawable, bool enabled)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshEnabledState(IntPtr native, bool enabled);
+        static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
 
-        NativeSetMeshEnabledState(mesh.Self, enabled);
+        NativeSetDrawableEnabledState(drawable.Self, enabled);
     }
 
     /// <summary>

@@ -127,6 +127,8 @@ void NativeClient::LoadDevice()
     ));
     NAME_D3D12_OBJECT(m_device);
 
+    
+
 #if defined(USE_NSIGHT_AFTERMATH)
     constexpr uint32_t aftermathFlags
         = GFSDK_Aftermath_FeatureFlags_EnableMarkers
@@ -369,7 +371,8 @@ void NativeClient::SetupSpaceResolutionDependentResources()
     }
 
     if (m_postProcessingPipeline != nullptr)
-        m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
+        m_postProcessingPipeline->CreateShaderResourceView(
+            m_postProcessingPipeline->GetBindings().PostProcessing().input, 0, {m_intermediateRenderTarget});
 }
 
 void NativeClient::EnsureValidIntermediateRenderTarget(const ComPtr<ID3D12GraphicsCommandList4> commandList)
@@ -552,7 +555,8 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
     m_postProcessingPipeline = pipeline;
-    m_postProcessingPipeline->CreateResourceView(m_intermediateRenderTarget);
+    m_postProcessingPipeline->CreateShaderResourceView(m_postProcessingPipeline->GetBindings().PostProcessing().input,
+                                                       0, {m_intermediateRenderTarget});
 }
 
 void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback)
@@ -658,10 +662,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
         PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
 
         m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
-        m_2dGroup.commandList->SetGraphicsRootSignature(m_postProcessingPipeline->GetRootSignature().Get());
-
-        m_postProcessingPipeline->SetupHeaps(m_2dGroup.commandList);
-        m_postProcessingPipeline->SetupRootDescriptorTable(m_2dGroup.commandList);
+        m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
 
         m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_2dGroup.commandList->RSSetViewports(1, &m_postViewport);

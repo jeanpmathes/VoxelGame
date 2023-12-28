@@ -11,16 +11,12 @@
 /**
  * \brief Abstract base class for all drawable objects. Operations include management of modification and active state.
  */
-class Drawable
+class Drawable : public Spatial
 {
+    DECLARE_OBJECT_SUBCLASS(Drawable)
+
 protected:
     explicit Drawable(NativeClient& client);
-    virtual ~Drawable() = default;
-
-    Drawable(const Drawable&) = default;
-    Drawable& operator=(const Drawable&) = default;
-    Drawable(Drawable&&) = default;
-    Drawable& operator=(Drawable&&) = default;
 
 public:
     /**
@@ -110,8 +106,6 @@ protected:
 
 private:
     void UpdateActiveState();
-
-    NativeClient* m_client;
 
     std::optional<BaseIndex> m_base = std::nullopt;
     std::optional<EntryIndex> m_entry = std::nullopt;

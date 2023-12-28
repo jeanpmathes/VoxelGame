@@ -82,12 +82,12 @@ public:
         }
 
         auto& object = *stored;
-        initializer(object);
-
+        
         Drawable::BaseIndex base = m_common->Push(&object);
         Drawable::EntryIndex entry = m_entries.Push(std::move(stored));
-
         object.AssociateWithIndices(base, entry);
+
+        initializer(object);
 
         return object;
     }

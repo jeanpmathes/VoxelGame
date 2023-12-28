@@ -102,21 +102,25 @@ namespace nv_helpers_dx12
         /// will be bound.
         void AddRootParameter(D3D12_ROOT_PARAMETER_TYPE type, UINT shaderRegister = 0,
                               UINT registerSpace = 0, UINT numRootConstants = 1);
+
+        /// Add a static sampler to the root signature. The sampler is defined by a D3D12_STATIC_SAMPLER_DESC.
+        void AddStaticSampler(const D3D12_STATIC_SAMPLER_DESC* sampler);
+
+        void SetInputAssembler(const bool useInputAssembler) { m_allowInputAssembler = useInputAssembler; }
         
         /// Create the root signature from the set of parameters, in the order of the addition calls
         Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(Microsoft::WRL::ComPtr<ID3D12Device> device, bool isLocal);
 
     private:
-        /// Heap range descriptors
         std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges = {};
-        /// Root parameter descriptors
         std::vector<D3D12_ROOT_PARAMETER> m_parameters = {};
-        /// For each entry of m_parameter, indicate the index of the range array in m_ranges, and ~0u if
-        /// the parameter is not a heap range descriptor
-        std::vector<UINT> m_rangeLocations = {};
-        /// Static samplers
         std::vector<D3D12_STATIC_SAMPLER_DESC> m_staticSamplers = {};
 
+        // For each entry of m_parameter, indicate the index of the range array in m_ranges, and ~0u if the parameter is not a heap range descriptor.
+        std::vector<UINT> m_rangeLocations = {};
+
+        bool m_allowInputAssembler = false;
+        
         enum
         {
             RSC_BASE_SHADER_REGISTER = 0,

@@ -114,6 +114,7 @@
 #include "Objects/ShaderBuffer.hpp"
 #include "Objects/Texture.hpp"
 #include "Objects/Drawable.hpp"
+#include "Objects/Effect.hpp"
 
 // Interfaces
 

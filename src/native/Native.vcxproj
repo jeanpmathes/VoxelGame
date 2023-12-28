@@ -151,6 +151,7 @@
         <ClInclude Include="nv_helpers_dx12\TopLevelASGenerator.hpp"/>
         <ClInclude Include="Objects\Camera.hpp"/>
         <ClInclude Include="Objects\Drawable.hpp"/>
+        <ClInclude Include="Objects\Effect.hpp"/>
         <ClInclude Include="Objects\Light.hpp"/>
         <ClInclude Include="Objects\Mesh.hpp"/>
         <ClInclude Include="Objects\Object.hpp"/>
@@ -213,6 +214,7 @@
             <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="Objects\Drawable.cpp"/>
+        <ClCompile Include="Objects\Effect.cpp"/>
         <ClCompile Include="Tools\AnimationController.cpp"/>
         <ClCompile Include="Tools\Common.cpp"/>
         <ClCompile Include="Tools\InBufferAllocator.cpp"/>

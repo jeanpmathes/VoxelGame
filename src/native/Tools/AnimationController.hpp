@@ -78,7 +78,7 @@ private:
 
     ComPtr<ID3DBlob> m_shader = {};
 
-    Bag<Mesh*> m_meshes = {};
+    Bag<Mesh*> m_meshes = {}; // todo: use Handle as index here (template parameter)
     IntegerSet<> m_changedMeshes = {};
     IntegerSet<> m_removedMeshes = {};
 

@@ -35,7 +35,7 @@ struct Material;
 /**
  * \brief A mesh, positioned in 3D space and target of raytracing.
  */
-class Mesh final : public Spatial, public Drawable
+class Mesh final : public Drawable
 {
     DECLARE_OBJECT_SUBCLASS(Mesh)
 

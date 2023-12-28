@@ -1,8 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Mesh.hpp"
 
-Mesh::Mesh(NativeClient& client)
-    : Spatial(client), Drawable(client)
+Mesh::Mesh(NativeClient& client) : Drawable(client)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 

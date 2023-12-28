@@ -53,13 +53,13 @@ void DescriptorHeap::Create(
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetDescriptorHandleCPU(const UINT index) const
 {
     REQUIRE(IsCreated());
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_startCPU, static_cast<INT>(index), m_increment);
+    return Offset(m_startCPU, index);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetDescriptorHandleGPU(const UINT index) const
 {
     REQUIRE(IsCreated());
-    return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_startGPU, static_cast<INT>(index), m_increment);
+    return Offset(m_startGPU, index);
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::Get() const
@@ -82,6 +82,21 @@ UINT DescriptorHeap::GetDescriptorCount() const
 ID3D12DescriptorHeap** DescriptorHeap::GetAddressOf()
 {
     return m_heap.GetAddressOf();
+}
+
+UINT DescriptorHeap::GetIncrement() const
+{
+    return m_increment;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::Offset(const D3D12_CPU_DESCRIPTOR_HANDLE handle, const UINT index) const
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), m_increment);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::Offset(const D3D12_GPU_DESCRIPTOR_HANDLE handle, const UINT index) const
+{
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), m_increment);
 }
 
 void DescriptorHeap::CopyTo(const DescriptorHeap& other, const UINT offset) const

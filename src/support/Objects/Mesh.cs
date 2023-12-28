@@ -12,29 +12,12 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A mesh, positioned in 3D space and target of raytracing.
 /// </summary>
-public class Mesh : Spatial
+public class Mesh : Drawable
 {
-    private bool enabled = true;
-
     /// <summary>
-    ///     Wrap a native mesh pointer.
+    ///     Wrap a native mesh and drawable pointer.
     /// </summary>
     public Mesh(IntPtr nativePointer, Space space) : base(nativePointer, space) {}
-
-    /// <summary>
-    ///     Set or get the enabled state of this object. If disabled, the object will not be rendered.
-    /// </summary>
-    public bool IsEnabled
-    {
-        get => enabled;
-        set
-        {
-            if (value == enabled) return;
-
-            Native.SetMeshEnabledState(this, value);
-            enabled = value;
-        }
-    }
 
     /// <summary>
     ///     Set the vertices that define this mesh.
@@ -54,14 +37,5 @@ public class Mesh : Spatial
     public void SetBounds(Span<SpatialBounds> bounds)
     {
         Native.SetMeshBounds(this, bounds);
-    }
-
-    /// <summary>
-    ///     Frees the native object.
-    /// </summary>
-    public void Return()
-    {
-        Deregister();
-        Native.ReturnMesh(this);
     }
 }

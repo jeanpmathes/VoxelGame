@@ -1,5 +1,27 @@
 ﻿#include "stdafx.h"
 
+void ShaderResources::ConstantBufferViewDescriptor::Create(
+    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+{
+    D3D12_CONSTANT_BUFFER_VIEW_DESC description;
+    description.BufferLocation = gpuAddress;
+    description.SizeInBytes = size;
+
+    device->CreateConstantBufferView(&description, cpuHandle);
+}
+
+void ShaderResources::ShaderResourceViewDescriptor::Create(
+    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+{
+    device->CreateShaderResourceView(resource.Get(), description, cpuHandle);
+}
+
+void ShaderResources::UnorderedAccessViewDescriptor::Create(
+    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+{
+    device->CreateUnorderedAccessView(resource.Get(), nullptr, description, cpuHandle);
+}
+
 ShaderResources::Table::Entry::Entry(const UINT heapParameterIndex, const UINT inHeapIndex) :
     m_heapParameterIndex(heapParameterIndex), m_inHeapIndex(inHeapIndex)
 {
@@ -84,74 +106,74 @@ ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTabl
     return static_cast<TableHandle>(handle);
 }
 
+void ShaderResources::Description::AddStaticSampler(const ShaderLocation location)
+{
+    D3D12_STATIC_SAMPLER_DESC sampler;
+    sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.MipLODBias = 0;
+    sampler.MaxAnisotropy = 1;
+    sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+    sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+    sampler.MinLOD = 0.0f;
+    sampler.MaxLOD = D3D12_FLOAT32_MAX;
+    sampler.ShaderRegister = location.reg;
+    sampler.RegisterSpace = location.space;
+    sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+    m_rootSignatureGenerator.AddStaticSampler(&sampler);
+}
+
+void ShaderResources::Description::EnableInputAssembler()
+{
+    m_rootSignatureGenerator.SetInputAssembler(true);
+}
+
 ShaderResources::ListHandle ShaderResources::Description::AddConstantBufferViewDescriptorList(
-    ShaderLocation location,
+    const ShaderLocation location,
     SizeGetter count,
-    DescriptorGetter<ConstantBufferViewDescriptor> descriptor,
+    const DescriptorGetter<ConstantBufferViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    const UINT listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
-
-    m_rootSignatureGenerator.AddHeapRangesParameter({
-        {location.reg, UINT_MAX, location.space, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 0}
-    });
-    m_rootParameters.push_back(RootHeapDescriptorList{});
-    m_descriptorListFunctions.emplace_back(std::move(count), [descriptor](auto device, auto index, auto cpuHandle)
-    {
-        const ConstantBufferViewDescriptor view = descriptor(index);
-
-        D3D12_CONSTANT_BUFFER_VIEW_DESC description;
-        description.BufferLocation = view.gpuAddress;
-        description.SizeInBytes = view.size;
-
-        device->CreateConstantBufferView(&description, cpuHandle);
-    }, std::move(builder));
-
-    return static_cast<ListHandle>(listHandle);
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddShaderResourceViewDescriptorList(
-    ShaderLocation location,
+    const ShaderLocation location,
     SizeGetter count,
-    DescriptorGetter<ShaderResourceViewDescriptor> descriptor,
+    const DescriptorGetter<ShaderResourceViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    const UINT listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
-
-    m_rootSignatureGenerator.AddHeapRangesParameter({
-        {location.reg, UINT_MAX, location.space, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0}
-    });
-    m_rootParameters.push_back(RootHeapDescriptorList{});
-    m_descriptorListFunctions.emplace_back(std::move(count), [descriptor](auto device, auto index, auto cpuHandle)
-    {
-        const ShaderResourceViewDescriptor view = descriptor(index);
-
-        device->CreateShaderResourceView(view.resource.Get(), view.description, cpuHandle);
-    }, std::move(builder));
-
-    return static_cast<ListHandle>(listHandle);
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddUnorderedAccessViewDescriptorList(
-    ShaderLocation location,
+    const ShaderLocation location,
     SizeGetter count,
-    DescriptorGetter<UnorderedAccessViewDescriptor> descriptor,
+    const DescriptorGetter<UnorderedAccessViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    const UINT listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
+}
 
-    m_rootSignatureGenerator.AddHeapRangesParameter({
-        {location.reg, UINT_MAX, location.space, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0}
-    });
-    m_rootParameters.push_back(RootHeapDescriptorList{});
-    m_descriptorListFunctions.emplace_back(std::move(count), [descriptor](auto device, auto index, auto cpuHandle)
-    {
-        const UnorderedAccessViewDescriptor view = descriptor(index);
+ShaderResources::SelectionList<ShaderResources::ConstantBufferViewDescriptor>
+ShaderResources::Description::AddConstantBufferViewDescriptorSelectionList(const ShaderLocation location)
+{
+    return AddSelectionList<ConstantBufferViewDescriptor>(location);
+}
 
-        device->CreateUnorderedAccessView(view.resource.Get(), nullptr, view.description, cpuHandle);
-    }, std::move(builder));
+ShaderResources::SelectionList<ShaderResources::ShaderResourceViewDescriptor>
+ShaderResources::Description::AddShaderResourceViewDescriptorSelectionList(const ShaderLocation location)
+{
+    return AddSelectionList<ShaderResourceViewDescriptor>(location);
+}
 
-    return static_cast<ListHandle>(listHandle);
+ShaderResources::SelectionList<ShaderResources::UnorderedAccessViewDescriptor>
+ShaderResources::Description::AddUnorderedAccessViewDescriptorSelectionList(const ShaderLocation location)
+{
+    return AddSelectionList<UnorderedAccessViewDescriptor>(location);
 }
 
 void ShaderResources::Description::AddRootParameter(
@@ -233,7 +255,7 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
 
     auto initializeDescriptorLists = [&](
         std::vector<RootParameter>& rootParameters,
-        const auto& descriptorListGetters)
+        const auto& descriptions)
     {
         UINT listIndex = 0;
 
@@ -244,18 +266,23 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
                 auto& listParameter = std::get<RootHeapDescriptorList>(parameter);
                 listParameter.index = static_cast<UINT>(m_descriptorLists.size());
 
+                auto& description = descriptions[listIndex];
+                
                 auto& listData = m_descriptorLists.emplace_back();
-                std::tie(listData.sizeGetter, listData.descriptorAssigner, listData.listBuilder) = descriptorListGetters
-                    [listIndex];
+                listData.sizeGetter = description.sizeGetter;
+                listData.descriptorAssigner = description.descriptorAssigner;
+                listData.listBuilder = description.listBuilder;
                 listData.parameter = &listParameter;
+
+                listParameter.isSelectionList = description.isSelectionList;
 
                 listIndex++;
             }
         }
     };
 
-    initializeDescriptorLists(m_graphicsRootParameters, graphicsDescription.m_descriptorListFunctions);
-    initializeDescriptorLists(m_computeRootParameters, computeDescription.m_descriptorListFunctions);
+    initializeDescriptorLists(m_graphicsRootParameters, graphicsDescription.m_descriptorListDescriptions);
+    initializeDescriptorLists(m_computeRootParameters, computeDescription.m_descriptorListDescriptions);
 
     Update();
 }
@@ -277,6 +304,8 @@ ComPtr<ID3D12RootSignature> ShaderResources::GetComputeRootSignature() const
 
 void ShaderResources::RequestListRefresh(ListHandle listHandle, const IntegerSet<>& indices)
 {
+    REQUIRE(listHandle != ListHandle::INVALID);
+
     const UINT parameterIndex = static_cast<UINT>(listHandle);
     const RootParameter& parameter = GetRootParameter(parameterIndex);
 
@@ -307,7 +336,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
     {
         auto& parameter = m_graphicsRootParameters[parameterIndex];
 
-        std::visit([commandList, parameterIndex]<typename Arg>(Arg& arg)
+        std::visit([&]<typename Arg>(Arg& arg)
         {
             using T = std::decay_t<Arg>;
 
@@ -341,10 +370,29 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
             }
             else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
             {
-                const auto& [gpuHandle, index] = arg;
-                commandList->SetGraphicsRootDescriptorTable(
-                    static_cast<UINT>(parameterIndex),
-                    gpuHandle);
+                const auto& [gpuHandle, index, isSelectionList] = arg;
+
+                if (isSelectionList)
+                {
+                    auto& list = m_descriptorLists[index];
+
+                    list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = m_gpuDescriptorHeap.GetIncrement()
+                        ](auto command)
+                        {
+                            command->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex),
+                                                                    CD3DX12_GPU_DESCRIPTOR_HANDLE(
+                                                                        gpuHandle, static_cast<INT>(ptr->selection),
+                                                                        increment));
+                        };
+
+                    // Intentionally do not bind yet, as last value might not be safe anymore.
+                }
+                else
+                {
+                    commandList->SetGraphicsRootDescriptorTable(
+                        static_cast<UINT>(parameterIndex),
+                        gpuHandle);
+                }
             }
             else
             {
@@ -357,7 +405,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
     {
         auto& parameter = m_computeRootParameters[parameterIndex];
 
-        std::visit([commandList, parameterIndex]<typename Arg>(Arg& arg)
+        std::visit([&]<typename Arg>(Arg& arg)
         {
             using T = std::decay_t<Arg>;
 
@@ -391,10 +439,29 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
             }
             else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
             {
-                const auto& [gpuHandle, index] = arg;
-                commandList->SetComputeRootDescriptorTable(
-                    static_cast<UINT>(parameterIndex),
-                    gpuHandle);
+                const auto& [gpuHandle, index, isSelectionList] = arg;
+
+                if (isSelectionList)
+                {
+                    auto& list = m_descriptorLists[index];
+
+                    list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = m_gpuDescriptorHeap.GetIncrement()
+                        ](auto command)
+                        {
+                            command->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex),
+                                                                   CD3DX12_GPU_DESCRIPTOR_HANDLE(
+                                                                       gpuHandle, static_cast<INT>(ptr->selection),
+                                                                       increment));
+                        };
+
+                    // Intentionally do not bind yet, as last value might not be safe anymore.
+                }
+                else
+                {
+                    commandList->SetComputeRootDescriptorTable(
+                        static_cast<UINT>(parameterIndex),
+                        gpuHandle);
+                }
             }
             else
             {
@@ -409,7 +476,7 @@ void ShaderResources::Update()
     UINT indexOfFirstResizedList, totalListDescriptorCount;
     const bool resized = CheckListSizeUpdate(&indexOfFirstResizedList, &totalListDescriptorCount);
 
-    if (resized)
+    if (resized || !m_cpuDescriptorHeap.IsCreated() || !m_gpuDescriptorHeap.IsCreated())
     {
         PerformSizeUpdate(indexOfFirstResizedList, totalListDescriptorCount);
 

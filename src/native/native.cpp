@@ -241,7 +241,7 @@ NATIVE Mesh* NativeCreateMesh(const NativeClient* client, const UINT materialInd
     CATCH();
 }
 
-NATIVE void NativeReturnMesh(Mesh* object)
+NATIVE void NativeReturnDrawable(Drawable* object)
 {
     TRY
     {
@@ -252,7 +252,7 @@ NATIVE void NativeReturnMesh(Mesh* object)
     CATCH();
 }
 
-NATIVE void NativeSetMeshEnabledState(Mesh* object, const bool enabled)
+NATIVE void NativeSetDrawableEnabledState(Drawable* object, const bool enabled)
 {
     TRY
     {

@@ -20,6 +20,26 @@ public:
     static constexpr size_t BINARY_DATA_BITS = sizeof(BinaryData) * 8;
     static constexpr size_t BINARY_DATA_MASK = BINARY_DATA_BITS - 1;
 
+    /**
+     * \brief Creates a set with the given number of elements, all set to true.
+     * \param count The number of elements to create the set with.
+     * \return The created set.
+     */
+    static IntegerSet Full(size_t count)
+    {
+        const size_t full = count / BINARY_DATA_BITS;
+        const size_t remainder = count & BINARY_DATA_MASK;
+
+        IntegerSet set;
+        set.m_count = count;
+        set.m_data.resize(full + 1, static_cast<BinaryData>(-1));
+
+        if (remainder != 0)
+            set.m_data[full] = (static_cast<BinaryData>(1) << remainder) - 1;
+
+        return set;
+    }
+
     IntegerSet() = default;
 
     IntegerSet(const IntegerSet&) = default;

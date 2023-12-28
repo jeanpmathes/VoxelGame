@@ -58,13 +58,16 @@ namespace draw2d
     private:
         static void Initialize(Pipeline* ctx);
 
+        void BindBoolean() const;
+        void BindTexture() const;
+
         RasterPipeline* m_raster;
         Callback m_callback;
         NativeClient& m_client;
 
         std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
-        std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC> m_constantBufferViews = {};
-        std::vector<std::tuple<Allocation<ID3D12Resource>, const D3D12_SHADER_RESOURCE_VIEW_DESC*>> m_textures = {};
+        std::vector<ShaderResources::ConstantBufferViewDescriptor> m_constantBufferViews = {};
+        std::vector<ShaderResources::ShaderResourceViewDescriptor> m_textures = {};
 
         Allocation<ID3D12Resource> m_vertexBuffer = {};
         Allocation<ID3D12Resource> m_uploadBuffer = {};

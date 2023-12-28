@@ -11,7 +11,7 @@ class ShaderBuffer;
 enum class ShaderPreset : BYTE
 {
     POST_PROCESSING,
-    DRAW_2D,
+    DRAW_2D
 };
 
 struct PipelineDescription
@@ -40,67 +40,114 @@ public:
         const PipelineDescription& description,
         NativeErrorFunc callback);
 
+    struct Bindings
+    {
+        struct Draw2dBindings
+        {
+            ShaderResources::SelectionList<ShaderResources::ConstantBufferViewDescriptor> booleans{};
+            ShaderResources::SelectionList<ShaderResources::ShaderResourceViewDescriptor> textures{};
+        };
+
+        struct PostProcessingBindings
+        {
+            ShaderResources::Table::Entry input = ShaderResources::Table::Entry::invalid;
+        };
+
+        explicit Bindings(ShaderPreset preset)
+        {
+            switch (preset)
+            {
+            case ShaderPreset::DRAW_2D: // NOLINT(bugprone-branch-clone)
+                m_preset = Draw2dBindings();
+                break;
+            case ShaderPreset::POST_PROCESSING:
+                m_preset = PostProcessingBindings();
+                break;
+            }
+        }
+
+        Draw2dBindings& Draw2D() { return std::get<Draw2dBindings>(m_preset); }
+        PostProcessingBindings& PostProcessing() { return std::get<PostProcessingBindings>(m_preset); }
+
+    private:
+        std::variant<Draw2dBindings, PostProcessingBindings> m_preset;
+    };
+
     /**
      * Create a pipeline from an already initialized pipeline state object and associated root signature.
      */
     RasterPipeline(
         NativeClient& client, ShaderPreset preset,
         std::unique_ptr<ShaderBuffer> shaderBuffer,
-        DescriptorHeap descriptorHeap,
-        ComPtr<ID3D12RootSignature> rootSignature,
+        ShaderResources&& resources,
+        Bindings bindings,
         ComPtr<ID3D12PipelineState> pipelineState);
 
     /**
-     * Set the pipeline on the command list.
+     * \brief Set the pipeline state object and root signature on the command list. Will not perform resource binding.
+     * \param commandList The command list.
      */
     void SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 
     /**
-     * Get the root signature of the pipeline.
+     * \brief Bind the resources to the command list.
+     * \param commandList The command list.
      */
-    [[nodiscard]] ComPtr<ID3D12RootSignature> GetRootSignature() const;
+    void BindResources(ComPtr<ID3D12GraphicsCommandList4> commandList);
 
-    /**
-     * Get the shader buffer of the pipeline, or nullptr if none.
-     */
+    [[nodiscard]] Bindings& GetBindings();
     [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
 
+    void CreateConstantBufferView(ShaderResources::Table::Entry entry, UINT index,
+                                  const ShaderResources::ConstantBufferViewDescriptor& descriptor);
+    void CreateShaderResourceView(ShaderResources::Table::Entry entry, UINT index,
+                                  const ShaderResources::ShaderResourceViewDescriptor& descriptor);
+    void CreateUnorderedAccessView(ShaderResources::Table::Entry entry, UINT index,
+                                   const ShaderResources::UnorderedAccessViewDescriptor& descriptor);
+    
     /**
-     * Create a resource view for a single primary resource, apart from the potential shader buffer.
+     * \brief Set the content of a selection list.
+     * \tparam Descriptor The descriptor type.
+     * \param selectionList The selection list, must be part of the bindings of this pipeline.
+     * \param descriptors The descriptors to set.
      */
-    void CreateResourceView(Allocation<ID3D12Resource> resource) const;
+    template <class Descriptor>
+    void SetSelectionListContent(
+        ShaderResources::SelectionList<Descriptor>& selectionList,
+        const std::vector<Descriptor>& descriptors)
+    {
+        m_resources.SetSelectionListContent(selectionList, descriptors);
+    }
 
     /**
-     * Create resource views for a set of constant buffers, followed by a set of textures.
+     * \brief Bind an entry of a selection list for active use.
+     * \tparam Descriptor The descriptor type.
+     * \param commandList The command list.
+     * \param selectionList The selection list, must be part of the bindings of this pipeline.
+     * \param index The index of the entry to bind.
      */
-    void CreateResourceViews(
-        const std::vector<D3D12_CONSTANT_BUFFER_VIEW_DESC>& cbuffers,
-        const std::vector<std::tuple<Allocation<ID3D12Resource>, const D3D12_SHADER_RESOURCE_VIEW_DESC*>>& textures);
-
-    /**
-     * Setup the descriptor heap for the pipeline.
-     */
-    void SetupHeaps(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
-
-    /**
-     * Setup the root descriptor table for the pipeline.
-     */
-    void SetupRootDescriptorTable(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
-
-    /**
-     * Bind a descriptor on the heap, created with e.g. CreateResourceViews, to a slot in the root signature.
-     */
-    void BindDescriptor(ComPtr<ID3D12GraphicsCommandList4> commandList, UINT slot, UINT descriptor) const;
-
-    [[nodiscard]] UINT GetResourceSlot(UINT index) const;
-    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetCpuResourceHandle(UINT index) const;
-    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetGpuResourceHandle(UINT index) const;
+    template <class Descriptor>
+    void BindSelectionIndex(
+        ComPtr<ID3D12GraphicsCommandList4> commandList,
+        ShaderResources::SelectionList<Descriptor>& selectionList,
+        UINT index)
+    {
+        m_resources.BindSelectionListIndex(selectionList, index, commandList);
+    }
 
 private:
+    /**
+     * \brief Ensure that the resources have been updated at least once. This is required to allow creating descriptors.
+     */
+    void EnsureFirstUpdate();
+    
     ShaderPreset m_preset;
-    DescriptorHeap m_descriptorHeap;
-    ComPtr<ID3D12RootSignature> m_rootSignature;
+
+    ShaderResources m_resources;
+    Bindings m_bindings;
+    
     ComPtr<ID3D12PipelineState> m_pipelineState;
 
     std::unique_ptr<ShaderBuffer> m_shaderBuffer = nullptr;
+    bool m_update = false;
 };

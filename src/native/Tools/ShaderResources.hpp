@@ -41,6 +41,7 @@ class ShaderResources
     {
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
         UINT index;
+        bool isSelectionList;
     };
 
     using RootParameter = std::variant<RootConstantBufferView, RootShaderResourceView, RootUnorderedAccessView,
@@ -66,18 +67,27 @@ public:
     {
         D3D12_GPU_VIRTUAL_ADDRESS gpuAddress{};
         UINT size{};
+
+        static constexpr D3D12_DESCRIPTOR_RANGE_TYPE RANGE_TYPE = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+        void Create(ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const;
     };
 
     struct ShaderResourceViewDescriptor
     {
         Allocation<ID3D12Resource> resource{};
         const D3D12_SHADER_RESOURCE_VIEW_DESC* description{};
+
+        static constexpr D3D12_DESCRIPTOR_RANGE_TYPE RANGE_TYPE = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        void Create(ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const;
     };
 
     struct UnorderedAccessViewDescriptor
     {
         Allocation<ID3D12Resource> resource{};
         const D3D12_UNORDERED_ACCESS_VIEW_DESC* description{};
+
+        static constexpr D3D12_DESCRIPTOR_RANGE_TYPE RANGE_TYPE = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+        void Create(ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const;
     };
 
     struct Description;
@@ -124,6 +134,12 @@ public:
         INVALID = UINT_MAX
     };
 
+    template <class Descriptor>
+        requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+            or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+            or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+    class SelectionList;
+
     struct Description
     {
         friend class ShaderResources;
@@ -142,12 +158,23 @@ public:
          * Add a UAV directly in the root signature.
          */
         void AddUnorderedAccessView(D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, ShaderLocation location);
-
+        
         /**
          * Add a static heap descriptor table, containing CBVs, SRVs and UAVs.
          * Contains multiple parameters and cannot be resized.
          */
         TableHandle AddHeapDescriptorTable(const std::function<void(Table&)>& builder);
+
+        /**
+         * \brief Add a static texture sampler.
+         * \param location The shader location of the sampler.
+         */
+        void AddStaticSampler(ShaderLocation location);
+
+        /**
+         * \brief Enable the input assembler option in the root signature.
+         */
+        void EnableInputAssembler();
 
         using DescriptorBuilder = std::function<void(UINT)>;
         using DescriptorAssigner = std::function<void(ID3D12Device*, UINT, D3D12_CPU_DESCRIPTOR_HANDLE)>;
@@ -164,7 +191,7 @@ public:
         ListHandle AddConstantBufferViewDescriptorList(
             ShaderLocation location,
             SizeGetter count,
-            DescriptorGetter<ConstantBufferViewDescriptor> descriptor,
+            const DescriptorGetter<ConstantBufferViewDescriptor>& descriptor,
             ListBuilder builder);
 
         /**
@@ -174,7 +201,7 @@ public:
         ListHandle AddShaderResourceViewDescriptorList(
             ShaderLocation location,
             SizeGetter count,
-            DescriptorGetter<ShaderResourceViewDescriptor> descriptor,
+            const DescriptorGetter<ShaderResourceViewDescriptor>& descriptor,
             ListBuilder builder);
 
         /**
@@ -184,10 +211,73 @@ public:
         ListHandle AddUnorderedAccessViewDescriptorList(
             ShaderLocation location,
             SizeGetter count,
-            DescriptorGetter<UnorderedAccessViewDescriptor> descriptor,
+            const DescriptorGetter<UnorderedAccessViewDescriptor>& descriptor,
             ListBuilder builder);
 
     private:
+        template <class Descriptor>
+            requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+                or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+                or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+        ListHandle AddDescriptorList(
+            const ShaderLocation& location,
+            SizeGetter&& count,
+            const DescriptorGetter<Descriptor>& descriptor,
+            ListBuilder&& builder,
+            bool isSelectionList)
+        {
+            const UINT number = isSelectionList ? 1 : UINT_MAX;
+            const UINT listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+
+            m_rootSignatureGenerator.AddHeapRangesParameter({
+                {location.reg, number, location.space, Descriptor::RANGE_TYPE, 0},
+            });
+            m_rootParameters.push_back(RootHeapDescriptorList{});
+            m_descriptorListDescriptions.emplace_back(std::move(count),
+                                                      [descriptor](auto device, auto index, auto cpuHandle)
+                                                      {
+                                                          const Descriptor view = descriptor(index);
+                                                          view.Create(device, cpuHandle);
+                                                      }, std::move(builder), isSelectionList);
+
+            return static_cast<ListHandle>(listHandle);
+        }
+
+    public:
+        /**
+         * \brief Add a CBV selection list.
+         * \param location The shader location of the CBV.
+         * \return The selection list.
+         */
+        SelectionList<ConstantBufferViewDescriptor> AddConstantBufferViewDescriptorSelectionList(
+            ShaderLocation location);
+
+        /**
+         * \brief Add a SRV selection list.
+         * \param location The shader location of the SRV.
+         * \return The selection list.
+         */
+        SelectionList<ShaderResourceViewDescriptor> AddShaderResourceViewDescriptorSelectionList(
+            ShaderLocation location);
+
+        /**
+         * \brief Add a UAV selection list.
+         * \param location The shader location of the UAV.
+         * \return The selection list.
+         */
+        SelectionList<UnorderedAccessViewDescriptor> AddUnorderedAccessViewDescriptorSelectionList(
+            ShaderLocation location);
+
+    private:
+        template <class Descriptor>
+            requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+                or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+                or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+        SelectionList<Descriptor> AddSelectionList(const ShaderLocation& location)
+        {
+            return SelectionList<Descriptor>(location, this);
+        }
+        
         void AddRootParameter(ShaderLocation location, D3D12_ROOT_PARAMETER_TYPE type, RootParameter&& parameter);
         
         ComPtr<ID3D12RootSignature> GenerateRootSignature(ComPtr<ID3D12Device> device);
@@ -201,7 +291,83 @@ public:
         std::vector<std::vector<UINT>> m_heapDescriptorTableOffsets = {};
         UINT m_heapDescriptorTableCount = 0;
 
-        std::vector<std::tuple<SizeGetter, DescriptorAssigner, ListBuilder>> m_descriptorListFunctions = {};
+        struct DescriptorListDescription
+        {
+            SizeGetter sizeGetter = {};
+            DescriptorAssigner descriptorAssigner = {};
+            ListBuilder listBuilder = {};
+
+            bool isSelectionList = false;
+        };
+
+        std::vector<DescriptorListDescription> m_descriptorListDescriptions = {};
+    };
+
+    /**
+     * \brief A selection list is a list of descriptors of which always one is selected as parameter.
+     * \tparam Descriptor The descriptor type.
+     */
+    template <class Descriptor>
+        requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+            or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+            or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+    class SelectionList
+    {
+    public:
+        SelectionList() : m_data(nullptr)
+        {
+        }
+
+        ~SelectionList() = default;
+
+        SelectionList(const SelectionList& other) = delete;
+        SelectionList& operator=(const SelectionList& other) = delete;
+        SelectionList(SelectionList&& other) noexcept = default;
+        SelectionList& operator=(SelectionList&& other) noexcept = default;
+
+        friend Description;
+        friend ShaderResources;
+
+    private:
+        SelectionList(const ShaderLocation location, Description* description) : m_data(std::make_unique<Data>())
+        {
+            m_data->handle = description->AddDescriptorList<Descriptor>(location, [ptr = m_data.get()]() -> UINT
+                                                                        {
+                                                                            return static_cast<UINT>(ptr->descriptors.
+                                                                                size());
+                                                                        }, [ptr = m_data.get()](
+                                                                        UINT index) -> Descriptor
+                                                                        {
+                                                                            return ptr->descriptors[index];
+                                                                        }, [ptr = m_data.get()](
+                                                                        const Description::DescriptorBuilder& builder)
+                                                                        {
+                                                                            for (UINT i = 0; i < ptr->count; i++)
+                                                                            {
+                                                                                builder(i);
+                                                                            }
+                                                                        }, true);
+        }
+
+        void SetDescriptors(const std::vector<Descriptor>& descriptors)
+        {
+            m_data->count = static_cast<UINT>(descriptors.size());
+            m_data->descriptors.resize(std::max(static_cast<size_t>(m_data->count), m_data->descriptors.size()));
+
+            for (UINT index = 0; index < m_data->count; index++)
+            {
+                m_data->descriptors[index] = descriptors[index];
+            }
+        }
+
+        struct Data
+        {
+            ListHandle handle = ListHandle::INVALID;
+            std::vector<Descriptor> descriptors = {};
+            UINT count = 0;
+        };
+
+        std::unique_ptr<Data> m_data = nullptr;
     };
 
     using Builder = std::function<void(Description&)>;
@@ -219,9 +385,45 @@ public:
      */
     void RequestListRefresh(ListHandle listHandle, const IntegerSet<>& indices);
 
-    void Bind(ComPtr<ID3D12GraphicsCommandList> commandList);
-    void Update();
+    template <class Descriptor>
+        requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+            or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+            or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+    void SetSelectionListContent(SelectionList<Descriptor>& list, const std::vector<Descriptor>& descriptors)
+    {
+        list.SetDescriptors(descriptors);
+        RequestListRefresh(list.m_data->handle, IntegerSet<>::Full(list.m_data->count));
+    }
 
+    void Bind(ComPtr<ID3D12GraphicsCommandList> commandList);
+
+    template <class Descriptor>
+        requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
+            or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
+            or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
+    void BindSelectionListIndex(SelectionList<Descriptor>& list, UINT index,
+                                ComPtr<ID3D12GraphicsCommandList> commandList)
+    {
+        const UINT parameterIndex = static_cast<UINT>(list.m_data->handle);
+        const RootParameter& parameter = GetRootParameter(parameterIndex);
+
+        if (std::holds_alternative<RootHeapDescriptorList>(parameter))
+        {
+            auto& data = m_descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
+
+            REQUIRE(list.m_data->count > index);
+
+            data.selection = index;
+            data.bind(commandList);
+        }
+        else
+        {
+            REQUIRE(FALSE);
+        }
+    }
+
+    void Update();
+    
     /**
      * Creates a constant buffer view at a given table entry.
      * If the entry contains multiple descriptors, use the offset, else zero.
@@ -281,6 +483,9 @@ private:
 
         UINT size = 0;
         IntegerSet<> dirtyIndices = {};
+
+        UINT selection = 0;
+        std::function<void(ComPtr<ID3D12GraphicsCommandList>)> bind = {};
     };
 
     std::vector<DescriptorList> m_descriptorLists = {};

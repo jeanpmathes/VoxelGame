@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-Drawable::Drawable(NativeClient& client) : m_client(&client)
+Drawable::Drawable(NativeClient& client) : Spatial(client)
 {
 }
 
@@ -17,7 +17,7 @@ void Drawable::Return()
 
     SetEnabledState(false);
 
-    m_client->GetSpace()->ReturnDrawable(this);
+    GetClient().GetSpace()->ReturnDrawable(this);
     // No code here, because space is allowed to delete this object.
 }
 
@@ -37,7 +37,6 @@ void Drawable::CleanupDataUpload()
     REQUIRE(!m_uploadRequired);
 
     m_dataBufferUpload = {};
-
     m_uploadEnqueued = false;
 }
 
@@ -143,7 +142,7 @@ bool Drawable::HandleModification(const UINT newElementCount)
     UpdateActiveState();
 
     if (m_uploadRequired)
-        m_client->GetSpace()->MarkDrawableModified(this);
+        GetClient().GetSpace()->MarkDrawableModified(this);
     else
         m_dataBufferUpload = {};
 
@@ -164,12 +163,12 @@ void Drawable::UpdateActiveState()
     {
         REQUIRE(!m_active.has_value());
 
-        m_client->GetSpace()->ActivateDrawable(this);
+        GetClient().GetSpace()->ActivateDrawable(this);
     }
     else
     {
         REQUIRE(m_active.has_value());
 
-        m_client->GetSpace()->DeactivateDrawable(this);
+        GetClient().GetSpace()->DeactivateDrawable(this);
     }
 }
