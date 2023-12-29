@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support.Data;
 
 namespace VoxelGame.Client.Logic;
 
@@ -51,7 +52,7 @@ public partial class Chunk
 
                 if (guard == null) return;
 
-                context = ChunkMeshingContext.Acquire(Chunk);
+                context = ChunkMeshingContext.Acquire(Chunk, SpatialMeshingFactory.Shared);
                 activity = (Chunk.CreateMeshDataAsync(context), guard, context);
             }
             else if (task.IsCompleted)

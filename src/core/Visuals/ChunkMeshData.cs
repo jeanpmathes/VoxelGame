@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
@@ -30,7 +29,7 @@ public record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides)
     /// </summary>
     public void ReturnPooled()
     {
-        foreach (SectionMeshData section in SectionMeshData) section.ReturnPooled();
+        foreach (SectionMeshData section in SectionMeshData) section.Release();
     }
 }
 
@@ -41,26 +40,14 @@ public class SectionMeshData
 {
     private bool isReturnedToPool;
 
-    internal SectionMeshData((PooledList<SpatialVertex>, PooledList<SpatialVertex>) basicMesh,
-        PooledList<SpatialVertex> foliageMesh,
-        PooledList<SpatialVertex> fluidMesh)
+    internal SectionMeshData((IMeshing, IMeshing) basicMeshing,
+        IMeshing foliageMeshing,
+        IMeshing fluidMeshing)
     {
-        BasicMesh = basicMesh;
-        FoliageMesh = foliageMesh;
-        FluidMesh = fluidMesh;
+        BasicMeshing = basicMeshing;
+        FoliageMeshing = foliageMeshing;
+        FluidMeshing = fluidMeshing;
     }
-
-    private SectionMeshData()
-    {
-        BasicMesh = (new PooledList<SpatialVertex>(), new PooledList<SpatialVertex>());
-        FoliageMesh = new PooledList<SpatialVertex>();
-        FluidMesh = new PooledList<SpatialVertex>();
-    }
-
-    /// <summary>
-    ///     Create an empty mesh data instance.
-    /// </summary>
-    public static SectionMeshData Empty => new();
 
     /// <summary>
     ///     Get whether this mesh data is empty.
@@ -73,44 +60,44 @@ public class SectionMeshData
     ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex"/>, and
     ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight"/> meshables.
     /// </summary>
-    public (PooledList<SpatialVertex> opaque, PooledList<SpatialVertex> transparent) BasicMesh { get; }
+    public (IMeshing opaque, IMeshing transparent) BasicMeshing { get; }
 
     /// <summary>
     ///     The foliage mesh data.
     ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
     /// </summary>
-    public PooledList<SpatialVertex> FoliageMesh { get; }
+    public IMeshing FoliageMeshing { get; }
 
     /// <summary>
     ///     The fluid mesh data.
     /// </summary>
-    public PooledList<SpatialVertex> FluidMesh { get; }
+    public IMeshing FluidMeshing { get; }
 
     private int GetTotalSize()
     {
         var size = 0;
 
-        size += BasicMesh.opaque.Count;
-        size += BasicMesh.transparent.Count;
+        size += BasicMeshing.opaque.Count;
+        size += BasicMeshing.transparent.Count;
 
-        size += FoliageMesh.Count;
-        size += FluidMesh.Count;
+        size += FoliageMeshing.Count;
+        size += FluidMeshing.Count;
 
         return size;
     }
 
     /// <summary>
-    ///     Return all pooled lists to the pool. The data can only be returned once.
+    ///     Release all used resources. The data can only be returned once.
     /// </summary>
-    public void ReturnPooled()
+    public void Release()
     {
         Debug.Assert(!isReturnedToPool);
 
-        BasicMesh.opaque.ReturnToPool();
-        BasicMesh.transparent.ReturnToPool();
+        BasicMeshing.opaque.Release();
+        BasicMeshing.transparent.Release();
 
-        FoliageMesh.ReturnToPool();
-        FluidMesh.ReturnToPool();
+        FoliageMeshing.Release();
+        FluidMeshing.Release();
 
         isReturnedToPool = true;
     }
@@ -122,6 +109,6 @@ public class SectionMeshData
     {
         if (isReturnedToPool) return;
 
-        ReturnPooled();
+        Release();
     }
 }

@@ -40,7 +40,7 @@ public abstract class Drawable : Spatial
     /// <summary>
     ///     Frees the native object.
     /// </summary>
-    public void Return()
+    public void Return() // todo: try using IDisposable
     {
         Deregister();
         Native.ReturnDrawable(this);

@@ -6,7 +6,6 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -21,7 +20,7 @@ public interface IFoliage : IBlockMeshable
 
         MeshData mesh = GetMeshData(info);
         BlockMesh.Quad[] quads = mesh.Quads;
-        PooledList<SpatialVertex> vertices = context.GetFoliageMesh();
+        IMeshing meshing = context.GetFoliageMesh();
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
@@ -33,7 +32,7 @@ public interface IFoliage : IBlockMeshable
             Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsDoublePlant, mesh.IsDoublePlant);
             Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsUpperPart, mesh.IsUpperPart);
 
-            Meshing.PushQuadWithOffset(vertices, quad.Positions, quad.data, offset);
+            meshing.PushQuadWithOffset(quad.Positions, quad.data, offset);
         }
     }
 

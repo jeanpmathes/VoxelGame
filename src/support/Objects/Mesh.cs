@@ -4,8 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
+using VoxelGame.Support.Data;
 
 namespace VoxelGame.Support.Objects;
 

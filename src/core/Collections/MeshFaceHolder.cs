@@ -286,12 +286,12 @@ public class MeshFaceHolder
     /// <summary>
     ///     Generate the mesh with all held faces.
     /// </summary>
-    /// <param name="vertices">The mesh list to which all new vertices will be added.</param>
-    public void GenerateMesh(PooledList<SpatialVertex> vertices)
+    /// <param name="meshing">The meshing object to which the mesh is added.</param>
+    public void GenerateMesh(IMeshing meshing)
     {
         if (count == 0) return;
 
-        vertices.EnsureCapacity(vertices.Count + count * 4);
+        meshing.Grow(IMeshing.Primitive.Quad, count);
 
         for (var l = 0; l < Section.Size; l++)
         for (var r = 0; r < Section.Size; r++)
@@ -311,7 +311,7 @@ public class MeshFaceHolder
                 (Vector3, Vector3, Vector3, Vector3) positions = GetPositions(l, r, currentFace);
                 ApplyVaryingHeight(ref positions, currentFace);
 
-                PushQuads(vertices, positions, currentFace);
+                PushQuads(meshing, positions, currentFace);
 
                 MeshFace? next = currentFace.previous;
                 currentFace.Return();
@@ -398,16 +398,16 @@ public class MeshFaceHolder
         positions.d += offset;
     }
 
-    private static void PushQuads(PooledList<SpatialVertex> vertices, (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
+    private static void PushQuads(IMeshing meshing, (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        Meshing.PushQuad(vertices, positions, face.data);
+        meshing.PushQuad(positions, face.data);
 
         if (face.isSingleSided) return;
 
         positions = (positions.d, positions.c, positions.b, positions.a);
         Meshing.MirrorUVs(ref face.data);
 
-        Meshing.PushQuad(vertices, positions, face.data);
+        meshing.PushQuad(positions, face.data);
     }
 
     /// <summary>

@@ -10,6 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
+using VoxelGame.Support.Data;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
@@ -47,31 +48,31 @@ public sealed class SectionRenderer : IDisposable
     {
         if (disposed) return;
 
-        if (meshData.BasicMesh.opaque.Count > 0 || basic.opaque != null)
+        if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
             basic.opaque ??= space.CreateMesh(Pipelines.BasicOpaqueSectionMaterial, position);
-            basic.opaque.SetVertices(meshData.BasicMesh.opaque.AsSpan());
+            basic.opaque.SetVertices((meshData.BasicMeshing.opaque as SpatialMeshing)!.Span);
         }
 
-        if (meshData.BasicMesh.transparent.Count > 0 || basic.transparent != null)
+        if (meshData.BasicMeshing.transparent.Count > 0 || basic.transparent != null)
         {
             basic.transparent ??= space.CreateMesh(Pipelines.BasicTransparentSectionMaterial, position);
-            basic.transparent.SetVertices(meshData.BasicMesh.transparent.AsSpan());
+            basic.transparent.SetVertices((meshData.BasicMeshing.transparent as SpatialMeshing)!.Span);
         }
 
-        if (meshData.FoliageMesh.Count > 0 || foliage != null)
+        if (meshData.FoliageMeshing.Count > 0 || foliage != null)
         {
             foliage ??= space.CreateMesh(Pipelines.FoliageSectionMaterial, position);
-            foliage.SetVertices(meshData.FoliageMesh.AsSpan());
+            foliage.SetVertices((meshData.FoliageMeshing as SpatialMeshing)!.Span);
         }
 
-        if (meshData.FluidMesh.Count > 0 || fluid != null)
+        if (meshData.FluidMeshing.Count > 0 || fluid != null)
         {
             fluid ??= space.CreateMesh(Pipelines.FluidSectionMaterial, position);
-            fluid.SetVertices(meshData.FluidMesh.AsSpan());
+            fluid.SetVertices((meshData.FluidMeshing as SpatialMeshing)!.Span);
         }
 
-        meshData.ReturnPooled();
+        meshData.Release();
     }
 
     /// <summary>

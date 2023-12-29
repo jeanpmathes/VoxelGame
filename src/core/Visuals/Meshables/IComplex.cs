@@ -6,7 +6,6 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -21,7 +20,7 @@ public interface IComplex : IBlockMeshable
 
         MeshData mesh = GetMeshData(info);
         BlockMesh.Quad[] quads = mesh.Quads;
-        PooledList<SpatialVertex> vertices = context.GetBasicMesh(IsOpaque);
+        IMeshing meshing = context.GetBasicMesh(IsOpaque);
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
@@ -30,7 +29,7 @@ public interface IComplex : IBlockMeshable
             Meshing.SetTint(ref quad.data, mesh.Tint.Select(context.GetBlockTint(position)));
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
 
-            Meshing.PushQuadWithOffset(vertices, quad.Positions, quad.data, offset);
+            meshing.PushQuadWithOffset(quad.Positions, quad.data, offset);
         }
     }
 

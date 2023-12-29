@@ -19,6 +19,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
+using VoxelGame.Support.Data;
 using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Logic;
@@ -183,7 +184,7 @@ public class World : Core.Logic.World
     private void MeshAndClearSectionList()
     {
         foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
-            chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk));
+            chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared));
 
         sectionsToMesh.Clear();
     }

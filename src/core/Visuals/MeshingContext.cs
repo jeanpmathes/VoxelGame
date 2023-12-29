@@ -22,10 +22,10 @@ public class MeshingContext
 {
     // todo: evaluate initial capacity
 
-    private readonly PooledList<SpatialVertex> basicOpaqueMesh = new(capacity: 2048);
-    private readonly PooledList<SpatialVertex> basicTransparentMesh = new(capacity: 2048);
-    private readonly PooledList<SpatialVertex> foliageMesh = new(capacity: 2048);
-    private readonly PooledList<SpatialVertex> fluidMesh = new(capacity: 2048);
+    private readonly IMeshing basicOpaqueMeshing;
+    private readonly IMeshing basicTransparentMeshing;
+    private readonly IMeshing foliageMeshing;
+    private readonly IMeshing fluidMeshing;
 
     private readonly Section current;
     private readonly Section?[] neighbors;
@@ -49,6 +49,12 @@ public class MeshingContext
         Section? section = context.GetSection(position);
         Debug.Assert(section != null);
         current = section;
+
+        IMeshingFactory factory = context.MeshingFactory;
+        basicOpaqueMeshing = factory.Create(hint: 2048);
+        basicTransparentMeshing = factory.Create(hint: 2048);
+        foliageMeshing = factory.Create(hint: 2048);
+        fluidMeshing = factory.Create(hint: 2048);
 
         neighbors = GetNeighborSections(position, context);
         tintColors = GetTintColors(position, context);
@@ -112,13 +118,13 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get the list containing the basic mesh data.
+    ///     Get the meshing object for the basic mesh.
     /// </summary>
     /// <param name="isOpaque">Whether the mesh is opaque or not.</param>
-    /// <returns>The list containing the basic mesh data.</returns>
-    public PooledList<SpatialVertex> GetBasicMesh(bool isOpaque)
+    /// <returns>The meshing object.</returns>
+    public IMeshing GetBasicMesh(bool isOpaque)
     {
-        return isOpaque ? basicOpaqueMesh : basicTransparentMesh;
+        return isOpaque ? basicOpaqueMeshing : basicTransparentMeshing;
     }
 
     /// <summary>
@@ -148,11 +154,11 @@ public class MeshingContext
     }
 
     /// <summary>
-    ///     Get the foliage mesh.
+    ///     Get the foliage meshing object.
     /// </summary>
-    public PooledList<SpatialVertex> GetFoliageMesh()
+    public IMeshing GetFoliageMesh()
     {
-        return foliageMesh;
+        return foliageMeshing;
     }
 
     /// <summary>
@@ -220,18 +226,18 @@ public class MeshingContext
     {
         // We build the mesh data for everything except complex meshes, as they are already in the correct format.
 
-        GenerateMesh(opaqueFullBlockMeshFaceHolders, basicOpaqueMesh);
-        GenerateMesh(transparentFullBlockMeshFaceHolders, basicTransparentMesh);
+        GenerateMesh(opaqueFullBlockMeshFaceHolders, basicOpaqueMeshing);
+        GenerateMesh(transparentFullBlockMeshFaceHolders, basicTransparentMeshing);
 
-        GenerateMesh(opaqueVaryingHeightBlockMeshFaceHolders, basicOpaqueMesh);
-        GenerateMesh(transparentVaryingHeightBlockMeshFaceHolders, basicTransparentMesh);
+        GenerateMesh(opaqueVaryingHeightBlockMeshFaceHolders, basicOpaqueMeshing);
+        GenerateMesh(transparentVaryingHeightBlockMeshFaceHolders, basicTransparentMeshing);
 
-        GenerateMesh(fluidMeshFaceHolders, fluidMesh);
+        GenerateMesh(fluidMeshFaceHolders, fluidMeshing);
 
         return new SectionMeshData(
-            (basicOpaqueMesh, basicTransparentMesh),
-            foliageMesh,
-            fluidMesh);
+            (basicOpaqueMeshing, basicTransparentMeshing),
+            foliageMeshing,
+            fluidMeshing);
     }
 
     /// <summary>
@@ -248,9 +254,9 @@ public class MeshingContext
         ReturnToPool(fluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(MeshFaceHolder[] holders, PooledList<SpatialVertex> mesh)
+    private static void GenerateMesh(MeshFaceHolder[] holders, IMeshing meshing)
     {
-        foreach (MeshFaceHolder holder in holders) holder.GenerateMesh(mesh);
+        foreach (MeshFaceHolder holder in holders) holder.GenerateMesh(meshing);
     }
 
     private static void ReturnToPool(MeshFaceHolder[] holders)

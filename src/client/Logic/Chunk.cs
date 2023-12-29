@@ -14,6 +14,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support.Data;
 
 namespace VoxelGame.Client.Logic;
 
@@ -124,7 +125,7 @@ public partial class Chunk : Core.Logic.Chunk
 
     private void RecreateIncompleteSectionMeshes()
     {
-        ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this);
+        ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
         for (var s = 0; s < SectionCount; s++) GetSection(s).RecreateIncompleteMesh(context);
     }

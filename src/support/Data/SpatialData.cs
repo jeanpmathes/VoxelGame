@@ -7,7 +7,7 @@
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Visuals;
+namespace VoxelGame.Support.Data;
 
 #pragma warning disable S3898 // No equality comparison used.
 

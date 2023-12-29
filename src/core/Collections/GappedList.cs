@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Collections;
 ///     Implements a list that allows gaps when removing items.
 /// </summary>
 /// <typeparam name="T">The type of the items in the list.</typeparam>
-public class GappedList<T>
+public class GappedList<T> // todo: rename to bag, also rename usage
 {
     private readonly PriorityQueue<int, int> gaps = new();
 
