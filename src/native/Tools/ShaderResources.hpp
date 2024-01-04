@@ -68,6 +68,10 @@ public:
         D3D12_GPU_VIRTUAL_ADDRESS gpuAddress{};
         UINT size{};
 
+        ConstantBufferViewDescriptor() = default;
+        ConstantBufferViewDescriptor(D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, UINT size);
+        explicit(false) ConstantBufferViewDescriptor(const D3D12_CONSTANT_BUFFER_VIEW_DESC* description);
+        
         static constexpr D3D12_DESCRIPTOR_RANGE_TYPE RANGE_TYPE = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
         void Create(ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const;
     };

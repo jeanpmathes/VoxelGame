@@ -53,7 +53,7 @@ void Spatial::RecalculateTransform()
         DirectX::XMVectorZero(),
         rotation,
         position);
-
+    
     XMStoreFloat4x4(&m_transform, transform);
     m_transformDirty = true;
 }

@@ -43,6 +43,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
     private bool loaded;
+
     private RasterPipeline postProcessingPipeline = null!;
 
     private ShaderBuffer<RaytracingData>? raytracingDataBuffer;
@@ -59,6 +60,11 @@ public sealed class Pipelines // todo: delete all GLSL shaders
             (nearPlaneSet, NearPlaneUniform),
             (farPlaneSet, FarPlaneUniform));
     }
+
+    /// <summary>
+    ///     Get the selection effect.
+    /// </summary>
+    public RasterPipeline SelectionEffect { get; private set; } = null!;
 
     /// <summary>
     ///     Get the raytracing data buffer.
@@ -195,8 +201,9 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     {
         loaded = true;
 
-        LoadRasterPipelines(client);
+        LoadBasicRasterPipelines(client);
         LoadRaytracingPipeline(client, textureSlots, visuals);
+        LoadEffectRasterPipelines(client);
 
         if (!loaded) return;
 
@@ -227,44 +234,50 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         UpdateOrthographicProjection();
     }
 
-    private void LoadRasterPipelines(Support.Core.Client client)
+    private void LoadBasicRasterPipelines(Support.Core.Client client)
     {
-        RasterPipeline LoadPipeline(string name, ShaderPreset preset)
-        {
-            FileInfo path = directory.GetFile($"{name}.hlsl");
+        postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing, client);
+    }
 
-            RasterPipeline pipeline = client.CreateRasterPipeline(
-                PipelineDescription.Create(path, preset),
-                error =>
-                {
-                    loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
-                    loaded = false;
-                });
+    private void LoadEffectRasterPipelines(Support.Core.Client client)
+    {
+        (RasterPipeline pipeline, ShaderBuffer<BoxRenderer.Data> buffer) = LoadPipelineWithBuffer<BoxRenderer.Data>("Selection", ShaderPreset.SpatialEffect, client);
+        SelectionEffect = pipeline;
+        if (loaded) buffer.Modify((ref BoxRenderer.Data data) => data.Color = (0.1f, 0.1f, 0.1f));
+    }
 
-            if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
+    private (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(string name, ShaderPreset preset, Support.Core.Client client) where T : unmanaged, IEquatable<T>
+    {
+        FileInfo path = directory.GetFile($"{name}.hlsl");
 
-            return pipeline;
-        }
+        (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
+            PipelineDescription.Create(path, preset),
+            error =>
+            {
+                loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
+                loaded = false;
+            });
 
-        (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(string name, ShaderPreset preset)
-            where T : unmanaged
-        {
-            FileInfo path = directory.GetFile($"{name}.hlsl");
+        if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
 
-            (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
-                PipelineDescription.Create(path, preset),
-                error =>
-                {
-                    loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
-                    loaded = false;
-                });
+        return result;
+    }
 
-            if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
+    private RasterPipeline LoadPipeline(string name, ShaderPreset preset, Support.Core.Client client)
+    {
+        FileInfo path = directory.GetFile($"{name}.hlsl");
 
-            return result;
-        }
+        RasterPipeline pipeline = client.CreateRasterPipeline(
+            PipelineDescription.Create(path, preset),
+            error =>
+            {
+                loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
+                loaded = false;
+            });
 
-        postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing);
+        if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
+
+        return pipeline;
     }
 
     private void LoadRaytracingPipeline(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)

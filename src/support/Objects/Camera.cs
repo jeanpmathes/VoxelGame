@@ -116,7 +116,10 @@ public class Camera : NativeObject, IView
         fov,
         Client.AspectRatio,
         NearClipping,
-        FarClipping);
+        FarClipping).With(matrix =>
+    {
+        matrix[rowIndex: 3, columnIndex: 2] *= 0.5f;
+    });
 
     /// <summary>
     ///     Get a partial frustum, which is the view frustum with changed near and far clipping planes.

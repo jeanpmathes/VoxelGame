@@ -13,7 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public abstract class Drawable : Spatial
 {
-    private bool enabled = true;
+    private bool enabled;
 
     /// <summary>
     ///     Create a new drawable object.

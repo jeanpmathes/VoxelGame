@@ -13,6 +13,8 @@
 #include "Objects/Camera.hpp"
 #include "Objects/Light.hpp"
 #include "Objects/Mesh.hpp"
+#include "Objects/Effect.hpp"
+#include "Objects/RasterPipeline.hpp"
 #include "Tools/DrawablesGroup.hpp"
 #include "Tools/ShaderResources.hpp"
 
@@ -130,6 +132,10 @@ public:
      */
     Mesh& CreateMesh(UINT materialIndex);
     /**
+     * Create a new effect.
+     */
+    Effect& CreateEffect(RasterPipeline* pipeline);
+    /**
      * Mark a drawable as modified, so that instance data can be updated.
      */
     void MarkDrawableModified(Drawable* drawable);
@@ -161,8 +167,18 @@ public:
      */
     [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
 
+    struct RenderData
+    {
+        const D3D12_CPU_DESCRIPTOR_HANDLE* rtv;
+        const D3D12_CPU_DESCRIPTOR_HANDLE* dsv;
+        const RasterInfo* viewport;
+    };
+
     void Update(double delta);
-    void Render(double delta, Allocation<ID3D12Resource> outputBuffer);
+    void Render(
+        double delta,
+        Allocation<ID3D12Resource> outputBuffer,
+        const RenderData& data);
     void CleanupRender();
 
     /**
@@ -173,6 +189,9 @@ public:
     
     Camera* GetCamera();
     Light* GetLight();
+
+    std::shared_ptr<ShaderResources> GetShaderResources();
+    std::shared_ptr<RasterPipeline::Bindings> GetEffectBindings();
 
     /**
      * Get the internal command list.
@@ -223,9 +242,10 @@ private:
     void CreateTLAS();
     void DispatchRays() const;
     void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
+    void DrawEffects(const RenderData& data);
 
     void UpdateOutputResourceView();
-    void UpdateTopLevelAccelerationStructureView();
+    void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
     NativeClient& m_nativeClient; // todo: make pointer, check other offenders of warning
@@ -270,7 +290,8 @@ private:
     TextureSlot m_textureSlot1 = {};
     TextureSlot m_textureSlot2 = {};
 
-    ShaderResources m_globalShaderResources;
+    std::shared_ptr<ShaderResources> m_globalShaderResources;
+    std::shared_ptr<RasterPipeline::Bindings> m_effectBindings;
 
     ShaderResources::TableHandle m_commonResourceTable = ShaderResources::TableHandle::INVALID;
     ShaderResources::Table::Entry m_outputTextureEntry = ShaderResources::Table::Entry::invalid;
@@ -280,7 +301,8 @@ private:
 
     Drawable::BaseContainer m_drawables;
     DrawablesGroup<Mesh> m_meshes{m_nativeClient, m_drawables};
-    std::vector<Drawables*> m_drawableGroups = {&m_meshes};
+    DrawablesGroup<Effect> m_effects{m_nativeClient, m_drawables};
+    std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
     TLAS m_topLevelASBuffers;
 

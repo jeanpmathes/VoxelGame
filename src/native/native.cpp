@@ -241,28 +241,6 @@ NATIVE Mesh* NativeCreateMesh(const NativeClient* client, const UINT materialInd
     CATCH();
 }
 
-NATIVE void NativeReturnDrawable(Drawable* object)
-{
-    TRY
-    {
-        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
-
-        object->Return();
-    }
-    CATCH();
-}
-
-NATIVE void NativeSetDrawableEnabledState(Drawable* object, const bool enabled)
-{
-    TRY
-    {
-        REQUIRE(CALL_INSIDE_CYCLE(&object->GetClient()));
-
-        object->SetEnabledState(enabled);
-    }
-    CATCH();
-}
-
 NATIVE void NativeSetMeshVertices(Mesh* object, const SpatialVertex* vertexData, const UINT vertexCount)
 {
     TRY
@@ -281,6 +259,50 @@ NATIVE void NativeSetMeshBounds(Mesh* object, const SpatialBounds* boundsData, c
         REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
 
         object->SetNewBounds(boundsData, boundsCount);
+    }
+    CATCH();
+}
+
+NATIVE Effect* NativeCreateEffect(const NativeClient* client, RasterPipeline* pipeline)
+{
+    TRY
+    {
+        REQUIRE(CALL_IN_UPDATE(client));
+
+        return &client->GetSpace()->CreateEffect(pipeline);
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetEffectVertices(Effect* object, const EffectVertex* vertexData, const UINT vertexCount)
+{
+    TRY
+    {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+
+        object->SetNewVertices(vertexData, vertexCount);
+    }
+    CATCH();
+}
+
+NATIVE void NativeReturnDrawable(Drawable* object)
+{
+    TRY
+    {
+        REQUIRE(CALL_IN_UPDATE(&object->GetClient()));
+
+        object->Return();
+    }
+    CATCH();
+}
+
+NATIVE void NativeSetDrawableEnabledState(Drawable* object, const bool enabled)
+{
+    TRY
+    {
+        REQUIRE(CALL_INSIDE_CYCLE(&object->GetClient()));
+
+        object->SetEnabledState(enabled);
     }
     CATCH();
 }

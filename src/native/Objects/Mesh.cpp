@@ -5,7 +5,7 @@ Mesh::Mesh(NativeClient& client) : Drawable(client)
 {
     REQUIRE(GetClient().GetDevice() != nullptr);
 
-    m_instanceDataBufferAlignedSize = sizeof InstanceConstantBuffer;
+    m_instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
     m_instanceDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceDataBuffer);
 
@@ -120,10 +120,10 @@ Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() const
 
 ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescriptor() const
 {
-    return {
-        .gpuAddress = m_instanceDataBuffer.GetGPUVirtualAddress(),
-        .size = static_cast<UINT>(m_instanceDataBufferAlignedSize)
-    };
+    return ShaderResources::ConstantBufferViewDescriptor(
+        m_instanceDataBuffer.GetGPUVirtualAddress(),
+        static_cast<UINT>(m_instanceDataBufferAlignedSize)
+    );
 }
 
 ShaderResources::ShaderResourceViewDescriptor Mesh::GetGeometryBufferViewDescriptor() const

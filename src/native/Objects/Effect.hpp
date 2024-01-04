@@ -6,16 +6,61 @@
 
 #pragma once
 
+class RasterPipeline;
+
+#pragma pack(push, 4)
+struct EffectDataBuffer
+{
+    DirectX::XMFLOAT4X4 pvm;
+};
+#pragma pack(pop)
+
+struct EffectVertex
+{
+    DirectX::XMFLOAT3 position;
+    UINT data;
+};
+
 /**
  * \brief An effect, rendered in the 3D scene using raster-based techniques.
  */
-class Effect final : public Spatial, public Drawable
+class Effect final : public Drawable
 {
     DECLARE_OBJECT_SUBCLASS(Effect)
 
 public:
     explicit Effect(NativeClient& client);
-    void Initialize();
+    void Initialize(RasterPipeline& pipeline);
 
-    using Spatial::GetClient;
+    void Update() override;
+
+    /**
+     * \brief Set new vertices for this effect.
+     * \param vertices The new vertices, must be an array of at least vertexCount elements.
+     * \param vertexCount The number of vertices.
+     */
+    void SetNewVertices(const EffectVertex* vertices, UINT vertexCount);
+
+    /**
+     * \brief Draw this effect. May only be called by the space class.
+     * \param commandList The command list to use for drawing.
+     */
+    void Draw(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+
+    void Accept(Visitor& visitor) override;
+
+protected:
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList) override;
+    void DoReset() override;
+
+private:
+    RasterPipeline* m_pipeline = nullptr;
+
+    Allocation<ID3D12Resource> m_instanceDataBuffer = {};
+    UINT64 m_instanceDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC m_instanceDataBufferView = {};
+    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping = {};
+
+    Allocation<ID3D12Resource> m_geometryBuffer = {};
+    D3D12_VERTEX_BUFFER_VIEW m_geometryVBV = {};
 };

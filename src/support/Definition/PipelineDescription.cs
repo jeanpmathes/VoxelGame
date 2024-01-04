@@ -69,5 +69,10 @@ public enum ShaderPreset : byte
     /// <summary>
     ///     Used for drawing 2D rectangles that are either colored or textured.
     /// </summary>
-    Draw2D
+    Draw2D,
+
+    /// <summary>
+    ///     Used for drawing 3D objects in the space, using a raster pipeline.
+    /// </summary>
+    SpatialEffect
 }

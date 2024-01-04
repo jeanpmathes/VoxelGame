@@ -64,18 +64,25 @@ float GetReflectance(
 [shader("raygeneration")]
 void RayGen()
 {
-    uint2 launchIndex = DispatchRaysIndex().xy;
-    float2 dimensions = float2(DispatchRaysDimensions().xy);
-    float2 d = (((launchIndex.xy + 0.5) / dimensions.xy) * 2.0 - 1.0);
-    float4 target = mul(projectionI, float4(d.x, d.y, 1, 1));
+    const uint2 launchIndex = DispatchRaysIndex().xy;
+    const float2 dimensions = float2(DispatchRaysDimensions().xy);
 
-    float3 origin = mul(viewI, float4(0, 0, 0, 1)).xyz;
-    float3 direction = mul(viewI, float4(target.xyz, 0)).xyz;
+    // Given the dimension (Dx, Dy), the launch index is in the range [0, Dx - 1] x [0, Dy - 1].
+    // This range is transformed to NDC space, i.e. [-1, 1] x [-1, 1].
+    const float2 d = (float2(launchIndex) + 0.5) / dimensions * 2.0 - 1.0;
+
+    // DirectX textures have their origin at the top-left corner, while NDC has it at the bottom-left corner.
+    // Therefore, the y coordinate is inverted.
+    const float4 pixel = float4(d.x, d.y * -1, 1, 1);
+
+    float3 target = mul(pixel, projectionI).xyz;
+    float3 origin = mul(float4(0, 0, 0, 1), viewI).xyz;
+    float3 direction = mul(float4(target.xyz, 0), viewI).xyz;
     float3 normal = float3(0, 0, 0);
-    float min = 0;
     
+    float min = 0;
     int iteration = 0;
-    float4 color = float4(0, 0, 0, 0);
+    float4 color = 0;
 
     float reflectance = 0.0;
     HitInfo reflectionHit = GetEmptyHitInfo();

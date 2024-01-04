@@ -26,7 +26,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     CreateTLAS();
 
     m_commandGroup.Close();
-    ID3D12CommandList* ppCommandLists[] = {m_commandGroup.commandList.Get()};
+    ID3D12CommandList* ppCommandLists[] = {GetCommandList().Get()};
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
     m_nativeClient.WaitForGPU();
@@ -62,7 +62,7 @@ bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
     if (!CreateRaytracingPipeline(pipeline)) return false;
 
     InitializePipelineResourceViews(pipeline);
-    m_globalShaderResources.Update();
+    m_globalShaderResources->Update();
 
     CreateShaderBindingTable();
 
@@ -72,6 +72,11 @@ bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)
 Mesh& Space::CreateMesh(const UINT materialIndex)
 {
     return m_meshes.Create([&](Mesh& mesh) { mesh.Initialize(materialIndex); });
+}
+
+Effect& Space::CreateEffect(RasterPipeline* pipeline)
+{
+    return m_effects.Create([&](Effect& effect) { effect.Initialize(*pipeline); });
 }
 
 void Space::MarkDrawableModified(Drawable* drawable)
@@ -85,6 +90,10 @@ void Space::MarkDrawableModified(Drawable* drawable)
                          {
                              m_animations[mesh.GetMaterial().animationID.value()].UpdateMesh(mesh);
                          }
+                     })
+                     .OnEffect([&](Effect& effect)
+                     {
+                         m_effects.MarkModified(effect);
                      })
                      .OnElseFail());
 }
@@ -101,6 +110,10 @@ void Space::ActivateDrawable(Drawable* drawable)
                              m_animations[mesh.GetMaterial().animationID.value()].AddMesh(mesh);
                          }
                      })
+                     .OnEffect([&](Effect& effect)
+                     {
+                         m_effects.Activate(effect);
+                     })
                      .OnElseFail());
 }
 
@@ -116,6 +129,10 @@ void Space::DeactivateDrawable(Drawable* drawable)
                              m_animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
                          }
                      })
+                     .OnEffect([this](Effect& effect)
+                     {
+                         m_effects.Deactivate(effect);
+                     })
                      .OnElseFail());
 }
 
@@ -125,6 +142,10 @@ void Space::ReturnDrawable(Drawable* drawable)
                      .OnMesh([this](Mesh& mesh)
                      {
                          m_meshes.Return(mesh);
+                     })
+                     .OnEffect([this](Effect& effect)
+                     {
+                         m_effects.Return(effect);
                      })
                      .OnElseFail());
 }
@@ -148,15 +169,18 @@ void Space::Update(double)
 {
     m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
 
+    m_camera.Update();
+
     for (const auto& drawable : m_drawables)
     {
         drawable->Update();
     }
-
-    m_camera.Update();
 }
 
-void Space::Render(double delta, Allocation<ID3D12Resource> outputBuffer)
+void Space::Render(
+    const double delta,
+    Allocation<ID3D12Resource> outputBuffer,
+    const RenderData& data)
 {
     m_renderTime += delta;
     m_globalConstantBufferMapping->time = static_cast<float>(m_renderTime);
@@ -166,11 +190,12 @@ void Space::Render(double delta, Allocation<ID3D12Resource> outputBuffer)
 
         EnqueueUploads();
         UpdateGlobalShaderResources();
-        m_globalShaderResources.Bind(GetCommandList());
+        m_globalShaderResources->Bind(GetCommandList());
         RunAnimations();
         BuildAccelerationStructures();
         DispatchRays();
         CopyOutputToBuffer(outputBuffer);
+        DrawEffects(data);
     }
 
     TRY_DO(GetCommandList()->Close());
@@ -204,6 +229,16 @@ Camera* Space::GetCamera()
 Light* Space::GetLight()
 {
     return &m_light;
+}
+
+std::shared_ptr<ShaderResources> Space::GetShaderResources()
+{
+    return m_globalShaderResources;
+}
+
+std::shared_ptr<RasterPipeline::Bindings> Space::GetEffectBindings()
+{
+    return m_effectBindings;
 }
 
 ComPtr<ID3D12GraphicsCommandList4> Space::GetCommandList() const
@@ -270,17 +305,17 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
                     REQUIRE(texture->GetSize().x == textureSize.value().x);
                     REQUIRE(texture->GetSize().y == textureSize.value().y);
 
-                    m_globalShaderResources.CreateShaderResourceView(entry, index,
-                                                                     {texture->GetResource(), &texture->GetView()});
+                    m_globalShaderResources->CreateShaderResourceView(entry, index,
+                                                                      {texture->GetResource(), &texture->GetView()});
                 }
             }
             else
             {
-                m_globalShaderResources.CreateShaderResourceView(entry, 0,
-                                                                 {
-                                                                     m_sentinelTexture,
-                                                                     &m_sentinelTextureViewDescription
-                                                                 });
+                m_globalShaderResources->CreateShaderResourceView(entry, 0,
+                                                                  {
+                                                                      m_sentinelTexture,
+                                                                      &m_sentinelTextureViewDescription
+                                                                  });
             }
         };
 
@@ -327,9 +362,12 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
-    m_globalShaderResources.Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
-        [&](auto&)
+    m_globalShaderResources = std::make_shared<ShaderResources>();
+    m_globalShaderResources->Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
+        [&](auto& graphics)
         {
+            m_effectBindings = RasterPipeline::SetupEffectBindings(graphics);
+            // todo: update wiki article about shader resources
         },
         [&](auto& compute)
         {
@@ -343,8 +381,8 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
         },
         GetDevice());
 
-    NAME_D3D12_OBJECT(m_globalShaderResources.GetComputeRootSignature());
-    NAME_D3D12_OBJECT(m_globalShaderResources.GetGraphicsRootSignature());
+    NAME_D3D12_OBJECT(m_globalShaderResources->GetComputeRootSignature());
+    NAME_D3D12_OBJECT(m_globalShaderResources->GetGraphicsRootSignature());
 
     InitializeAnimations();
 
@@ -352,7 +390,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     pipeline.SetMaxAttributeSize(2 * sizeof(float));
     pipeline.SetMaxRecursionDepth(2);
 
-    m_rtStateObject = pipeline.Generate(m_globalShaderResources.GetComputeRootSignature());
+    m_rtStateObject = pipeline.Generate(m_globalShaderResources->GetComputeRootSignature());
     NAME_D3D12_OBJECT(m_rtStateObject);
 
     TRY_DO(m_rtStateObject->QueryInterface(IID_PPV_ARGS(&m_rtStateObjectProperties)));
@@ -571,7 +609,7 @@ void Space::InitializeAnimations()
 {
     for (auto& animation : m_animations)
     {
-        animation.Initialize(m_nativeClient, m_globalShaderResources.GetComputeRootSignature());
+        animation.Initialize(m_nativeClient, m_globalShaderResources->GetComputeRootSignature());
     }
 }
 
@@ -728,7 +766,7 @@ void Space::CreateTLAS()
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDescription);
 
-    topLevelASGenerator.Generate(m_commandGroup.commandList.Get(),
+    topLevelASGenerator.Generate(GetCommandList().Get(),
                                  m_topLevelASBuffers.scratch,
                                  m_topLevelASBuffers.result,
                                  m_topLevelASBuffers.instanceDescription);
@@ -781,15 +819,27 @@ void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
             D3D12_RESOURCE_STATE_COPY_DEST)
     };
 
-    m_commandGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
+    GetCommandList()->ResourceBarrier(_countof(barriers), barriers);
 
-    m_commandGroup.commandList->CopyResource(buffer.Get(),
-                                             m_outputResource.Get());
+    GetCommandList()->CopyResource(buffer.Get(),
+                                   m_outputResource.Get());
 
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_commandGroup.commandList->ResourceBarrier(1, &barrier);
+    GetCommandList()->ResourceBarrier(1, &barrier);
+}
+
+void Space::DrawEffects(const RenderData& data)
+{
+    GetCommandList()->OMSetRenderTargets(1, data.rtv, FALSE, data.dsv);
+
+    data.viewport->Set(GetCommandList());
+
+    for (const Effect* effect : m_effects.GetActive())
+    {
+        effect->Draw(GetCommandList());
+    }
 }
 
 void Space::UpdateOutputResourceView()
@@ -801,10 +851,10 @@ void Space::UpdateOutputResourceView()
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
     uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-    m_globalShaderResources.CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
+    m_globalShaderResources->CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
 }
 
-void Space::UpdateTopLevelAccelerationStructureView()
+void Space::UpdateTopLevelAccelerationStructureView() const
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDescription;
     srvDescription.Format = DXGI_FORMAT_UNKNOWN;
@@ -813,7 +863,7 @@ void Space::UpdateTopLevelAccelerationStructureView()
     srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
         GetGPUVirtualAddress();
 
-    m_globalShaderResources.CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
+    m_globalShaderResources->CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
 }
 
 void Space::UpdateGlobalShaderResources()
@@ -821,10 +871,12 @@ void Space::UpdateGlobalShaderResources()
     const IntegerSet meshesToRefresh = m_meshes.ClearChanged();
     for (auto& animation : m_animations)
     {
-        animation.Update(m_globalShaderResources, GetCommandList());
+        animation.Update(*m_globalShaderResources, GetCommandList());
     }
 
-    m_globalShaderResources.RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
-    m_globalShaderResources.RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
-    m_globalShaderResources.Update();
+    m_globalShaderResources->RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
+    m_globalShaderResources->RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
+    m_globalShaderResources->Update();
+
+    m_effects.ClearChanged();
 }

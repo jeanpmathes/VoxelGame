@@ -14,11 +14,6 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, const UINT size)
     m_cbvDesc.SizeInBytes = m_size;
 }
 
-void ShaderBuffer::CreateResourceView(const DescriptorHeap& heap) const
-{
-    GetClient().GetDevice()->CreateConstantBufferView(&m_cbvDesc, heap.GetDescriptorHandleCPU(0));
-}
-
 void ShaderBuffer::SetData(const void* data) const
 {
     auto* pData = static_cast<const std::byte*>(data);
@@ -28,4 +23,9 @@ void ShaderBuffer::SetData(const void* data) const
 D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const
 {
     return m_constantBuffer.GetGPUVirtualAddress();
+}
+
+ShaderResources::ConstantBufferViewDescriptor ShaderBuffer::GetDescriptor() const
+{
+    return ShaderResources::ConstantBufferViewDescriptor(GetGPUVirtualAddress(), m_size);
 }

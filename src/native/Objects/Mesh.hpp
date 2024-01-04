@@ -23,7 +23,7 @@ struct SpatialBounds
     DirectX::XMUINT4 data;
 };
 
-struct InstanceConstantBuffer
+struct MeshDataBuffer // todo: check that c++ structs and respective hlsl structs have same names
 {
     DirectX::XMFLOAT4X4 objectToWorld;
     DirectX::XMFLOAT4X4 objectToWorldNormal;
@@ -106,7 +106,7 @@ private:
     Allocation<ID3D12Resource> m_instanceDataBuffer = {};
     UINT64 m_instanceDataBufferAlignedSize = 0;
     D3D12_CONSTANT_BUFFER_VIEW_DESC m_instanceDataBufferView = {};
-    Mapping<ID3D12Resource, InstanceConstantBuffer> m_instanceConstantBufferMapping = {};
+    Mapping<ID3D12Resource, MeshDataBuffer> m_instanceConstantBufferMapping = {};
     
     Allocation<ID3D12Resource> m_sourceGeometryBuffer = {};
     Allocation<ID3D12Resource> m_destinationGeometryBuffer = {};

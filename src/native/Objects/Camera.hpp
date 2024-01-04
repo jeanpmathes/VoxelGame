@@ -41,6 +41,7 @@ public:
     void SetOrientation(const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& up);
 
     [[nodiscard]] const DirectX::XMFLOAT3& GetPosition() const;
+    [[nodiscard]] const DirectX::XMFLOAT4X4& GetViewProjectionMatrix() const;
 
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
@@ -48,6 +49,8 @@ public:
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
 private:
+    static constexpr int NUMBER_OF_CAMERA_MATRICES = 4;
+    
     DirectX::XMFLOAT3 m_position = {};
     DirectX::XMFLOAT3 m_front = {};
     DirectX::XMFLOAT3 m_up = {};
@@ -55,6 +58,8 @@ private:
     float m_fov = 0.0f;
     float m_near = 0.0f;
     float m_far = 0.0f;
+
+    DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
     Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
     Mapping<ID3D12Resource, DirectX::XMFLOAT4X4> m_spaceCameraBufferMapping = {};

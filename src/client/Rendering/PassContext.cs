@@ -15,4 +15,4 @@ namespace VoxelGame.Client.Rendering;
 /// <param name="ViewMatrix">The view matrix.</param>
 /// <param name="ProjectionMatrix">The projection matrix.</param>
 /// <param name="Frustum">The rendering cull frustum.</param>
-public record PassContext(Matrix4d ViewMatrix, Matrix4d ProjectionMatrix, Frustum Frustum);
+public record PassContext(Matrix4d ViewMatrix, Matrix4d ProjectionMatrix, Frustum Frustum); // todo: remove unused variables

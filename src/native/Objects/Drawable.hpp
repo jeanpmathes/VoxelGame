@@ -8,6 +8,9 @@
 
 #include <optional>
 
+class Mesh;
+class Effect;
+
 /**
  * \brief Abstract base class for all drawable objects. Operations include management of modification and active state.
  */
@@ -90,9 +93,13 @@ public:
         void Visit(Mesh& mesh) const;
         Visitor& OnMesh(const std::function<void(Mesh&)>& mesh);
 
+        void Visit(Effect& effect) const;
+        Visitor& OnEffect(const std::function<void(Effect&)>& effect);
+
     private:
         std::function<void(Drawable&)> m_else;
         std::function<void(Mesh&)> m_mesh;
+        std::function<void(Effect&)> m_effect;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -110,7 +117,7 @@ private:
     std::optional<BaseIndex> m_base = std::nullopt;
     std::optional<EntryIndex> m_entry = std::nullopt;
     std::optional<ActiveIndex> m_active = std::nullopt;
-    bool m_enabled = true;
+    bool m_enabled = false;
 
     bool m_uploadRequired = false;
     bool m_uploadEnqueued = false;

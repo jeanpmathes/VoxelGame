@@ -1,5 +1,11 @@
 ﻿#include "stdafx.h"
 
+void RasterInfo::Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const
+{
+    commandList->RSSetViewports(1, &viewport);
+    commandList->RSSetScissorRects(1, &scissorRect);
+}
+
 bool operator==(const Resolution& lhs, const Resolution& rhs)
 {
     return lhs.width == rhs.width && lhs.height == rhs.height;

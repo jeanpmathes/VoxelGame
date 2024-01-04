@@ -1,5 +1,16 @@
 ﻿#include "stdafx.h"
 
+ShaderResources::ConstantBufferViewDescriptor::ConstantBufferViewDescriptor(
+    const D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, const UINT size) : gpuAddress(gpuAddress), size(size)
+{
+}
+
+ShaderResources::ConstantBufferViewDescriptor::ConstantBufferViewDescriptor(
+    const D3D12_CONSTANT_BUFFER_VIEW_DESC* description)
+    : gpuAddress(description->BufferLocation), size(description->SizeInBytes)
+{
+}
+
 void ShaderResources::ConstantBufferViewDescriptor::Create(
     ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
 {

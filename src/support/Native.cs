@@ -203,7 +203,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="pipeline">A description of the raytracing pipeline.</param>
     /// <returns>The shader buffer, if any is created.</returns>
-    public static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged
+    public static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
     {
         IntPtr buffer = NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
 
@@ -331,32 +331,6 @@ public static class Native // todo: make internal, methods too
     }
 
     /// <summary>
-    ///     Return a drawable to the space pool.
-    ///     Using the drawable after this call is not allowed.
-    /// </summary>
-    /// <param name="drawable">The drawable to return.</param>
-    public static void ReturnDrawable(Drawable drawable)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeReturnDrawable(IntPtr native);
-
-        NativeReturnDrawable(drawable.Self);
-    }
-
-    /// <summary>
-    ///     Set the enabled state of a drawable.
-    /// </summary>
-    /// <param name="drawable">The drawable.</param>
-    /// <param name="enabled">Whether the drawable should be enabled.</param>
-    public static void SetDrawableEnabledState(Drawable drawable, bool enabled)
-    {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
-
-        NativeSetDrawableEnabledState(drawable.Self, enabled);
-    }
-
-    /// <summary>
     ///     Set the vertices of a mesh.
     /// </summary>
     /// <param name="mesh">The mesh.</param>
@@ -390,6 +364,66 @@ public static class Native // todo: make internal, methods too
         {
             NativeSetMeshVertices(mesh.Self, boundsData, bounds.Length);
         }
+    }
+
+    /// <summary>
+    ///     Create an effect, an object in 3D space that uses a raster pipeline.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="pipeline">The pipeline to use to render the effect.</param>
+    /// <returns>The effect.</returns>
+    public static Effect CreateEffect(Client client, RasterPipeline pipeline)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern IntPtr NativeCreateEffect(IntPtr native, IntPtr pipeline);
+
+        IntPtr effect = NativeCreateEffect(client.Native, pipeline.Self);
+
+        return new Effect(effect, client.Space);
+    }
+
+    /// <summary>
+    ///     Set the vertices of an effect.
+    /// </summary>
+    /// <param name="effect">The effect.</param>
+    /// <param name="vertices">The vertices.</param>
+    public static unsafe void SetEffectVertices(Effect effect, Span<EffectVertex> vertices)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetEffectVertices(IntPtr effect, EffectVertex* vertices, int vertexLength);
+
+        Debug.Assert(vertices.Length >= 0);
+
+        fixed (EffectVertex* vertexData = vertices)
+        {
+            NativeSetEffectVertices(effect.Self, vertexData, vertices.Length);
+        }
+    }
+
+    /// <summary>
+    ///     Return a drawable to the space pool.
+    ///     Using the drawable after this call is not allowed.
+    /// </summary>
+    /// <param name="drawable">The drawable to return.</param>
+    public static void ReturnDrawable(Drawable drawable)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeReturnDrawable(IntPtr native);
+
+        NativeReturnDrawable(drawable.Self);
+    }
+
+    /// <summary>
+    ///     Set the enabled state of a drawable.
+    /// </summary>
+    /// <param name="drawable">The drawable.</param>
+    /// <param name="enabled">Whether the drawable should be enabled.</param>
+    public static void SetDrawableEnabledState(Drawable drawable, bool enabled)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
+
+        NativeSetDrawableEnabledState(drawable.Self, enabled);
     }
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
@@ -426,7 +460,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer.</returns>
     public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(Client client,
-        PipelineDescription description, Definition.Native.NativeErrorFunc callback) where T : unmanaged
+        PipelineDescription description, Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
     {
         description.BufferSize = (uint) Marshal.SizeOf<T>();
 
@@ -456,7 +490,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="shaderBuffer">The shader buffer.</param>
     /// <param name="data">The data to set.</param>
     /// <typeparam name="T">The type of the data.</typeparam>
-    public static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged
+    public static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged, IEquatable<T>
     {
         T* dataPtr = &data;
         NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);

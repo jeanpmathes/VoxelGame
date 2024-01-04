@@ -19,11 +19,6 @@ public:
     ShaderBuffer(NativeClient& client, UINT size);
 
     /**
-     * Create a resource view for the buffer.
-     */
-    void CreateResourceView(const DescriptorHeap& heap) const;
-
-    /**
      * Set the data of the buffer.
      */
     void SetData(const void* data) const;
@@ -32,6 +27,12 @@ public:
      * Get the GPU virtual address of the buffer.
      */
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
+
+    /**
+     * \brief Get a descriptor for the buffer.
+     * \return The descriptor.
+     */
+    [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor GetDescriptor() const;
 
 private:
     UINT m_size;

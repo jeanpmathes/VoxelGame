@@ -5,170 +5,167 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics.Groups;
+using VoxelGame.Support.Core;
+using VoxelGame.Support.Data;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
-///     A renderer that renders instances of the <see cref="BoundingVolume" /> struct.
+///     A renderer that renders instances of the <see cref="BoxCollider" /> struct.
 ///     For this multiple boxes are drawn.
 /// </summary>
 public sealed class BoxRenderer : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
 
-    private readonly ElementDrawGroup drawGroup;
+    private readonly Effect effect;
 
-    private BoundingVolume? currentBoundingVolume;
+    private BoxCollider? currentBox;
 
     /// <summary>
     ///     Create a new <see cref="BoxRenderer" />.
     /// </summary>
-    public BoxRenderer()
+    public BoxRenderer(Space space)
     {
-        // todo: port to DirectX
-
-        drawGroup = ElementDrawGroup.Create();
-
-        return;
-
-        Pipelines.Selection.Use();
-
-        drawGroup.VertexArrayBindBuffer(size: 3);
-
-        int vertexLocation = Pipelines.Selection.GetAttributeLocation("aPosition");
-        drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
+        effect = space.CreateEffect(Pipelines.SelectionEffect);
     }
 
     private static Pipelines Pipelines => Application.Client.Instance.Resources.Pipelines;
 
     /// <summary>
-    ///     Set the bounding box to render.
+    /// Set whether the renderer is enabled.
     /// </summary>
-    /// <param name="boundingVolume">The bounding box.</param>
-    public void SetVolume(BoundingVolume boundingVolume)
+    public bool IsEnabled
+    {
+        get => effect.IsEnabled;
+        set => effect.IsEnabled = value;
+    }
+
+    /// <summary>
+    ///     Set the box collider to render.
+    /// </summary>
+    /// <param name="boxCollider">The box collider to render.</param>
+    public void SetBox(BoxCollider boxCollider)
     {
         if (disposed) return;
 
-        if (ReferenceEquals(currentBoundingVolume, boundingVolume)) return;
+        if (currentBox == boxCollider) return;
 
-        currentBoundingVolume = boundingVolume;
+        currentBox = boxCollider;
+        effect.Position = boxCollider.Position;
 
-        int elementCount = BuildMeshData(boundingVolume, out float[] vertices, out uint[] indices);
-        drawGroup.SetData(elementCount, vertices.Length, vertices, indices.Length, indices);
+        PooledList<EffectVertex> vertices = new();
+        BuildMeshData(boxCollider.Volume, vertices);
+
+        {
+            // todo: remove the block
+            var c = boxCollider.Volume.Center.ToVector3();
+            vertices.Clear();
+            vertices.Add(new EffectVertex {Position = c + (0, 1, 0), Data = 0});
+            vertices.Add(new EffectVertex {Position = c + (0, 0, 0), Data = 0});
+            vertices.Add(new EffectVertex {Position = c + (1, 1, 0), Data = 0});
+        }
+
+        effect.SetNewVertices(vertices.AsSpan());
+        vertices.ReturnToPool();
     }
 
-    private static int BuildMeshData(BoundingVolume boundingVolume,
-        out float[] vertices, out uint[] indices)
+    private static void BuildMeshData(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
     {
-        int points = BuildMeshData_NonRecursive(boundingVolume, out vertices, out indices);
+        BuildMeshDataForTopLevelBox(boundingVolume, vertices);
 
-        if (boundingVolume.ChildCount == 0) return points;
+        if (boundingVolume.ChildCount == 0) return;
 
         for (var i = 0; i < boundingVolume.ChildCount; i++)
         {
-            int newElements = BuildMeshData(
-                boundingVolume[i],
-                out float[] addVertices,
-                out uint[] addIndices);
-
-            var offset = (uint) (points / 3);
-
-            for (var j = 0; j < addIndices.Length; j++) addIndices[j] += offset;
-
-            var combinedVertices = new float[vertices.Length + addVertices.Length];
-            Array.Copy(vertices, sourceIndex: 0, combinedVertices, destinationIndex: 0, vertices.Length);
-            Array.Copy(addVertices, sourceIndex: 0, combinedVertices, vertices.Length, addVertices.Length);
-
-            vertices = combinedVertices;
-
-            var combinedIndices = new uint[indices.Length + addIndices.Length];
-            Array.Copy(indices, sourceIndex: 0, combinedIndices, destinationIndex: 0, indices.Length);
-            Array.Copy(addIndices, sourceIndex: 0, combinedIndices, indices.Length, addIndices.Length);
-
-            indices = combinedIndices;
-
-            points += newElements;
+            BuildMeshData(boundingVolume[i], vertices);
         }
-
-        return points;
     }
 
-    private static int BuildMeshData_NonRecursive(BoundingVolume boundingVolume,
-        out float[] vertices, out uint[] indices)
+    private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
     {
         (float minX, float minY, float minZ) = boundingVolume.Min.ToVector3();
         (float maxX, float maxY, float maxZ) = boundingVolume.Max.ToVector3();
 
-        vertices = new[]
-        {
-            // Bottom
-            minX, minY, minZ,
-            maxX, minY, minZ,
-            maxX, minY, maxZ,
-            minX, minY, maxZ,
+        // The four bottom lines:
+        AddLine(vertices, (minX, minY, minZ), (maxX, minY, minZ));
+        AddLine(vertices, (minX, minY, maxZ), (maxX, minY, maxZ));
+        AddLine(vertices, (minX, minY, minZ), (minX, minY, maxZ));
+        AddLine(vertices, (maxX, minY, minZ), (maxX, minY, maxZ));
 
-            // Top
-            minX, maxY, minZ,
-            maxX, maxY, minZ,
-            maxX, maxY, maxZ,
-            minX, maxY, maxZ
-        };
+        // The four top lines:
+        AddLine(vertices, (minX, maxY, minZ), (maxX, maxY, minZ));
+        AddLine(vertices, (minX, maxY, maxZ), (maxX, maxY, maxZ));
+        AddLine(vertices, (minX, maxY, minZ), (minX, maxY, maxZ));
+        AddLine(vertices, (maxX, maxY, minZ), (maxX, maxY, maxZ));
 
-        indices = new uint[]
-        {
-            // Bottom
-            0, 1,
-            1, 2,
-            2, 3,
-            3, 0,
+        // The four vertical lines:
+        AddLine(vertices, (minX, minY, minZ), (minX, maxY, minZ));
+        AddLine(vertices, (maxX, minY, minZ), (maxX, maxY, minZ));
+        AddLine(vertices, (minX, minY, maxZ), (minX, maxY, maxZ));
+        AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
+    }
 
-            // Top
-            4, 5,
-            5, 6,
-            6, 7,
-            7, 4,
-
-            // Connection
-            0, 4,
-            1, 5,
-            2, 6,
-            3, 7
-        };
-
-        return 24;
+    private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
+    {
+        vertices.Add(new EffectVertex {Position = a, Data = 0});
+        vertices.Add(new EffectVertex {Position = b, Data = 0});
     }
 
     /// <summary>
-    ///     Draw the bounding box.
+    ///     Data used by the shader.
     /// </summary>
-    /// <param name="position">The position at which the box should be drawn.</param>
-    public void Draw(Vector3d position)
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    public struct Data : IEquatable<Data>
     {
-        if (disposed) return;
+        /// <summary>
+        ///     The color of the rendered boxes.
+        /// </summary>
+        public Vector3 Color;
 
-        drawGroup.BindVertexArray();
+        /// <summary>
+        ///     Check equality.
+        /// </summary>
+        public bool Equals(Data other)
+        {
+            return Color.Equals(other.Color);
+        }
 
-        Pipelines.Selection.Use();
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Data other && Equals(other);
+        }
 
-        Matrix4d model = Matrix4d.Identity * Matrix4d.CreateTranslation(position);
-        Matrix4d view = Application.Client.Instance.CurrentGame!.Player.View.ViewMatrix;
-        Matrix4d projection = Application.Client.Instance.CurrentGame!.Player.View.ProjectionMatrix;
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Color.GetHashCode();
+        }
 
-        Matrix4d mvp = model * view * projection;
-        Pipelines.Selection.SetMatrix4("mvp_matrix", mvp.ToMatrix4());
+        /// <summary>
+        ///     The equality operator.
+        /// </summary>
+        public static bool operator ==(Data left, Data right)
+        {
+            return left.Equals(right);
+        }
 
-        // GL.Disable(EnableCap.DepthTest);
-        // drawGroup.DrawElements(PrimitiveType.Lines);
-        // GL.Enable(EnableCap.DepthTest);
-        //
-        // GL.BindVertexArray(array: 0);
-        // GL.UseProgram(program: 0);
+        /// <summary>
+        ///     The inequality operator.
+        /// </summary>
+        public static bool operator !=(Data left, Data right)
+        {
+            return !left.Equals(right);
+        }
     }
 
     #region IDisposable Support
@@ -180,7 +177,7 @@ public sealed class BoxRenderer : IDisposable
         if (disposed)
             return;
 
-        if (disposing) drawGroup.Delete();
+        if (disposing) effect.Return();
         else
             logger.LogWarning(
                 Events.UndeletedBuffers,

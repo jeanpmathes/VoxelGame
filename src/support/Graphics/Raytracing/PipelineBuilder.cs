@@ -165,7 +165,7 @@ public class PipelineBuilder
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
-    public bool Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged
+    public bool Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
         (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, IntPtr[] texturePointers) = BuildDescriptions();
 

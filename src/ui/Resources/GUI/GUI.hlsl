@@ -4,12 +4,12 @@
 //  </copyright>
 //  <author>Gwen.Net, jeanpmathes</author>
 
-cbuffer ScreenSizeConstantBuffer : register(b0)
+cbuffer ScreenSizeCB : register(b0)
 {
 float2 gScreenSize;
 };
 
-cbuffer UseTextureConstantBuffer : register(b1)
+cbuffer UseTextureCB : register(b1)
 {
 bool gUseTexture;
 };

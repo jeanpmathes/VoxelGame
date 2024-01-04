@@ -16,13 +16,7 @@ NativeClient::NativeClient(const Configuration configuration) :
     DXApp(configuration),
     m_resolution{configuration.width, configuration.height},
     m_debugCallback(configuration.onDebug),
-    m_spaceViewport(0.0f, 0.0f, 0.0f, 0.0f),
-    m_spaceScissorRect(0, 0, 0, 0),
     m_space(std::make_unique<Space>(*this)),
-    m_postViewport(0.0f, 0.0f, 0.0f, 0.0f),
-    m_postScissorRect(0, 0, 0, 0),
-    m_draw2DViewport(0.0f, 0.0f, 0.0f, 0.0f),
-    m_draw2DScissorRect(0, 0, 0, 0),
     m_frameIndex(0),
     m_fenceValues{},
     m_windowVisible(true),
@@ -239,10 +233,10 @@ void NativeClient::LoadRasterPipeline()
 {
     constexpr PostVertex quadVertices[] =
     {
-        {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-        {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-        {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
+        {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
     };
 
     constexpr UINT vertexBufferSize = sizeof quadVertices;
@@ -306,11 +300,11 @@ void NativeClient::SetupSizeDependentResources()
     UpdatePostViewAndScissor();
 
     {
-        m_draw2DViewport.Width = static_cast<float>(m_width);
-        m_draw2DViewport.Height = static_cast<float>(m_height);
+        m_draw2dViewport.viewport.Width = static_cast<float>(m_width);
+        m_draw2dViewport.viewport.Height = static_cast<float>(m_height);
 
-        m_draw2DScissorRect.right = static_cast<LONG>(m_width);
-        m_draw2DScissorRect.bottom = static_cast<LONG>(m_height);
+        m_draw2dViewport.scissorRect.right = static_cast<LONG>(m_width);
+        m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(m_height);
     }
 
     {
@@ -329,11 +323,11 @@ void NativeClient::SetupSizeDependentResources()
 void NativeClient::SetupSpaceResolutionDependentResources()
 {
     {
-        m_spaceViewport.Width = static_cast<float>(m_resolution.width);
-        m_spaceViewport.Height = static_cast<float>(m_resolution.height);
+        m_spaceViewport.viewport.Width = static_cast<float>(m_resolution.width);
+        m_spaceViewport.viewport.Height = static_cast<float>(m_resolution.height);
 
-        m_spaceScissorRect.right = static_cast<LONG>(m_resolution.width);
-        m_spaceScissorRect.bottom = static_cast<LONG>(m_resolution.height);
+        m_spaceViewport.scissorRect.right = static_cast<LONG>(m_resolution.width);
+        m_spaceViewport.scissorRect.bottom = static_cast<LONG>(m_resolution.height);
     }
 
     UpdatePostViewAndScissor();
@@ -351,7 +345,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
             D3D12_TEXTURE_LAYOUT_UNKNOWN, 0u);
 
-        m_intermediateRenderTargetView = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
+        m_intermediateRTV = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
         m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
             *this,
             renderTargetDesc,
@@ -365,7 +359,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         m_device->CreateRenderTargetView(
             m_intermediateRenderTarget.Get(),
             nullptr,
-            m_intermediateRenderTargetView);
+            m_intermediateRTV);
 
         if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
     }
@@ -423,8 +417,8 @@ void NativeClient::OnRender(const double delta)
 #if defined(USE_NSIGHT_AFTERMATH)
     if (FAILED(present))
     {
-        auto tdrTerminationTimeout = std::chrono::seconds(3);
-        auto tStart = std::chrono::steady_clock::now();
+        constexpr auto tdrTerminationTimeout = std::chrono::seconds(3);
+        const auto tStart = std::chrono::steady_clock::now();
         auto tElapsed = std::chrono::milliseconds::zero();
 
         GFSDK_Aftermath_CrashDump_Status status = GFSDK_Aftermath_CrashDump_Status_Unknown;
@@ -649,58 +643,52 @@ void NativeClient::CheckRaytracingSupport() const
 void NativeClient::PopulateSpaceCommandList(const double delta) const
 {
     REQUIRE(m_space != nullptr);
-
+    
     m_space->Reset(m_frameIndex);
-    m_space->Render(delta, m_intermediateRenderTarget);
+    m_space->Render(delta, m_intermediateRenderTarget, {
+                        .rtv = &m_intermediateRTV, .dsv = nullptr, .viewport = &m_spaceViewport
+                    });
 }
 
 void NativeClient::PopulatePostProcessingCommandList() const
 {
     if (m_space == nullptr) return; // Nothing to post-process.
 
-    {
-        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
+    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
 
-        m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
-        m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
+    m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
+    m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
 
-        m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_2dGroup.commandList->RSSetViewports(1, &m_postViewport);
-        m_2dGroup.commandList->RSSetScissorRects(1, &m_postScissorRect);
+    m_postViewport.Set(m_2dGroup.commandList);
 
-        const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-        const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
 
-        m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+    m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-        m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
-        m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
+    m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-        m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        m_2dGroup.commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
-        m_2dGroup.commandList->DrawInstanced(4, 1, 0, 0);
-    }
+    m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    m_2dGroup.commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
+    m_2dGroup.commandList->DrawInstanced(4, 1, 0, 0);
 }
 
 void NativeClient::PopulateDraw2DCommandList(const size_t index)
 {
-    {
-        auto& pipeline = m_draw2DPipelines[index];
-        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
+    auto& pipeline = m_draw2DPipelines[index];
+    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
 
-        pipeline.PopulateCommandListSetup(m_2dGroup.commandList);
+    pipeline.PopulateCommandListSetup(m_2dGroup.commandList);
 
-        m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_2dGroup.commandList->RSSetViewports(1, &m_draw2DViewport);
-        m_2dGroup.commandList->RSSetScissorRects(1, &m_draw2DScissorRect);
+    m_draw2dViewport.Set(m_2dGroup.commandList);
 
-        const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-        const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
 
-        m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+    m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-        pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
-    }
+    pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
 }
 
 void NativeClient::PopulateCommandLists(const double delta)
@@ -764,13 +752,15 @@ void NativeClient::UpdatePostViewAndScissor()
         y = viewHeightRatio / viewWidthRatio;
     }
 
-    m_postViewport.TopLeftX = width * (1.0f - x) / 2.0f;
-    m_postViewport.TopLeftY = height * (1.0f - y) / 2.0f;
-    m_postViewport.Width = x * width;
-    m_postViewport.Height = y * height;
+    m_postViewport.viewport.TopLeftX = width * (1.0f - x) / 2.0f;
+    m_postViewport.viewport.TopLeftY = height * (1.0f - y) / 2.0f;
+    m_postViewport.viewport.Width = x * width;
+    m_postViewport.viewport.Height = y * height;
 
-    m_postScissorRect.left = static_cast<LONG>(m_postViewport.TopLeftX);
-    m_postScissorRect.right = static_cast<LONG>(m_postViewport.TopLeftX + m_postViewport.Width);
-    m_postScissorRect.top = static_cast<LONG>(m_postViewport.TopLeftY);
-    m_postScissorRect.bottom = static_cast<LONG>(m_postViewport.TopLeftY + m_postViewport.Height);
+    m_postViewport.scissorRect.left = static_cast<LONG>(m_postViewport.viewport.TopLeftX);
+    m_postViewport.scissorRect.right = static_cast<LONG>(m_postViewport.viewport.TopLeftX + m_postViewport.viewport.
+        Width);
+    m_postViewport.scissorRect.top = static_cast<LONG>(m_postViewport.viewport.TopLeftY);
+    m_postViewport.scissorRect.bottom = static_cast<LONG>(m_postViewport.viewport.TopLeftY + m_postViewport.viewport.
+        Height);
 }

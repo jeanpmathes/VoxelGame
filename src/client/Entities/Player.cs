@@ -183,28 +183,12 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// </summary>
     public void RenderOverlays()
     {
-        if (targetPosition is {} position)
-        {
-            (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
-
-            if (IsBlockBoundingBoxVisualized(selectedBlock))
-            {
-                /* todo: restore this
-                Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
-                    "color",
-                    new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
-
-                visualization.DrawSelectionBox(selectedBlock.GetCollider(World, position));
-                */
-            }
-        }
-
         visualization.Draw();
 
         if (OverlayEnabled) visualization.DrawOverlay();
     }
 
-    private static bool IsBlockBoundingBoxVisualized(Block block)
+    private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)
     {
         bool visualized = !block.IsReplaceable;
 
@@ -216,7 +200,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         IsVisualizedInDebugMode(block, ref visualized);
 
-        return visualized;
+        return visualized ? block.GetCollider(world, position) : null;
     }
 
     /// <inheritdoc />
@@ -279,6 +263,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             targetSide = hitSide;
 
             (targetBlock, targetFluid) = (block, fluid);
+
+            visualization.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, hitPosition));
         }
         else
         {
@@ -286,6 +272,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             targetSide = BlockSide.All;
 
             (targetBlock, targetFluid) = (null, null);
+
+            visualization.SetSelectionBox(collider: null);
         }
     }
 

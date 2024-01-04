@@ -26,6 +26,16 @@ public static class Conversion
     }
 
     /// <summary>
+    ///     Converts a <see cref="Color4" /> to a <see cref="Vector3" />.
+    /// </summary>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>The vector.</returns>
+    public static Vector3 ToVector3(this Color4 color)
+    {
+        return new Vector3(color.R, color.G, color.B);
+    }
+
+    /// <summary>
     ///     Converts a <see cref="Size" /> to a <see cref="Vector2i" />.
     /// </summary>
     /// <param name="size">The size to convert.</param>

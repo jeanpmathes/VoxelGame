@@ -11,7 +11,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     Represents a shader constant buffer.
 /// </summary>
-public class ShaderBuffer<T> : NativeObject where T : unmanaged
+public class ShaderBuffer<T> : NativeObject where T : unmanaged, IEquatable<T>
 {
     /// <summary>
     ///     Delegate for modifying the data of the buffer.

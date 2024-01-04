@@ -54,7 +54,7 @@ public sealed class PlayerVisualization : IDisposable
         Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
         Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
 
-        selectionRenderer = new BoxRenderer();
+        selectionRenderer = new BoxRenderer(Application.Client.Instance.Space);
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -84,13 +84,15 @@ public sealed class PlayerVisualization : IDisposable
     }
 
     /// <summary>
-    ///     Draw a selection box.
+    ///     Set the selection box which is drawn in the world.
     /// </summary>
-    /// <param name="collider">The collider to draw.</param>
-    public void DrawSelectionBox(BoxCollider collider)
+    /// <param name="collider">The collider to draw, or null to not draw anything.</param>
+    public void SetSelectionBox(BoxCollider? collider)
     {
-        selectionRenderer.SetVolume(collider.Volume);
-        selectionRenderer.Draw(collider.Position);
+        if (collider != null)
+            selectionRenderer.SetBox(collider.Value);
+
+        selectionRenderer.IsEnabled = collider != null;
     }
 
     /// <summary>

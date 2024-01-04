@@ -62,7 +62,7 @@ void Drawable::Reset()
     m_base = std::nullopt;
     m_entry = std::nullopt;
     m_active = std::nullopt;
-    m_enabled = true;
+    m_enabled = false;
 
     m_uploadRequired = false;
     m_uploadEnqueued = false;
@@ -102,6 +102,7 @@ Drawable::Visitor::Visitor() // NOLINT(modernize-use-equals-default)
       {
       })
       , m_mesh([this](Mesh& mesh) { m_else(mesh); })
+      , m_effect([this](Effect& effect) { m_else(effect); })
 {
 }
 
@@ -129,6 +130,17 @@ void Drawable::Visitor::Visit(Mesh& mesh) const
 Drawable::Visitor& Drawable::Visitor::OnMesh(const std::function<void(Mesh&)>& mesh)
 {
     m_mesh = mesh;
+    return *this;
+}
+
+void Drawable::Visitor::Visit(Effect& effect) const
+{
+    m_effect(effect);
+}
+
+Drawable::Visitor& Drawable::Visitor::OnEffect(const std::function<void(Effect&)>& effect)
+{
+    m_effect = effect;
     return *this;
 }
 

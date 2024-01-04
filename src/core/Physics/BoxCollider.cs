@@ -235,7 +235,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <inheritdoc />
     public bool Equals(BoxCollider other)
     {
-        return Volume.Equals(other.Volume) && Position.Equals(other.Position);
+        return ReferenceEquals(Volume, other.Volume) && Position.Equals(other.Position);
     }
 
     /// <inheritdoc />

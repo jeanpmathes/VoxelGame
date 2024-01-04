@@ -69,6 +69,7 @@ public class Space
     /// <param name="material">The material. It cannot be changed later.</param>
     /// <param name="position">The initial position.</param>
     /// <param name="rotation">The initial rotation.</param>
+    /// <returns>The mesh.</returns>
     public Mesh CreateMesh(Material material, Vector3d position = default, Quaterniond rotation = default)
     {
         Mesh mesh = Native.CreateMesh(Client, material.Index);
@@ -77,6 +78,23 @@ public class Space
         mesh.Rotation = rotation;
 
         return mesh;
+    }
+
+    /// <summary>
+    ///     Create a new effect.
+    /// </summary>
+    /// <param name="pipeline">The pipeline used to render the effect. Must use the spatial effect preset.</param>
+    /// <param name="position">The initial position.</param>
+    /// <param name="rotation">The initial rotation.</param>
+    /// <returns>The effect.</returns>
+    public Effect CreateEffect(RasterPipeline pipeline, Vector3d position = default, Quaterniond rotation = default)
+    {
+        Effect effect = Native.CreateEffect(Client, pipeline);
+
+        effect.Position = position;
+        effect.Rotation = rotation;
+
+        return effect;
     }
 
     /// <summary>

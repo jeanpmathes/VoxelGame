@@ -142,7 +142,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <summary>
     ///     Get the space rendered by the client.
     /// </summary>
-    public Space Space { get; }
+    public Space Space { get; } // todo: check all static usages of this and go trough resources instead where possible
 
     /// <summary>
     ///     Get the native client pointer.
@@ -185,7 +185,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
     {
         return Support.Native.InitializeRaytracing<T>(this, pipeline);
     }
@@ -384,7 +384,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer.</returns>
-    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged
+    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
     {
         return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }

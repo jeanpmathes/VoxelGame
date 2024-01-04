@@ -15,6 +15,17 @@ struct Resolution
     UINT height = 0;
 };
 
+/**
+ * \brief Information to set up the raster stage.
+ */
+struct RasterInfo
+{
+    CD3DX12_VIEWPORT viewport{0.0f, 0.0f, 0.0f, 0.0f};
+    CD3DX12_RECT scissorRect{0, 0, 0, 0};
+
+    void Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+};
+
 bool operator==(const Resolution& lhs, const Resolution& rhs);
 bool operator!=(const Resolution& lhs, const Resolution& rhs);
 

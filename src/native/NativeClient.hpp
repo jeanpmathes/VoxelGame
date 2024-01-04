@@ -116,19 +116,15 @@ private:
     std::unique_ptr<Uploader> m_uploader = nullptr;
     Bag<std::unique_ptr<Object>> m_objects = {};
 
-    CD3DX12_VIEWPORT m_spaceViewport;
-    CD3DX12_RECT m_spaceScissorRect;
+    RasterInfo m_spaceViewport = {};
+    RasterInfo m_postViewport = {};
+    RasterInfo m_draw2dViewport = {};
 
     std::unique_ptr<Space> m_space = nullptr;
     bool m_spaceInitialized = false;
-
-    CD3DX12_VIEWPORT m_postViewport;
-    CD3DX12_RECT m_postScissorRect;
+    
     Allocation<ID3D12Resource> m_postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
-
-    CD3DX12_VIEWPORT m_draw2DViewport;
-    CD3DX12_RECT m_draw2DScissorRect;
 
     std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
     RasterPipeline* m_postProcessingPipeline = nullptr;
@@ -140,7 +136,7 @@ private:
     ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
     Allocation<ID3D12Resource> m_intermediateRenderTarget;
     bool m_intermediateRenderTargetInitialized = false;
-    CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRenderTargetView = {};
+    CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRTV = {};
     DescriptorHeap m_rtvHeap;
 
     DescriptorHeap m_dsvHeap;

@@ -124,7 +124,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <inheritdoc />
     public bool Equals(BoundingVolume? other)
     {
-        return Box.Equals(other?.Box);
+        if (!Box.Equals(other?.Box)) return false;
+        if (ChildCount != other.ChildCount) return false;
+
+        for (var i = 0; i < ChildCount; i++)
+            if (!children[i].Equals(other.children[i]))
+                return false;
+
+        return true;
     }
 
     /// <inheritdoc />
