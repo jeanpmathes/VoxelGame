@@ -427,7 +427,7 @@ public static class Native // todo: make internal, methods too
     }
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, PipelineDescription description, Definition.Native.NativeErrorFunc callback);
+    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
 
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
     private static extern IntPtr NativeGetRasterPipelineShaderBuffer(IntPtr rasterPipeline);
@@ -439,8 +439,10 @@ public static class Native // todo: make internal, methods too
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline.</returns>
-    public static RasterPipeline CreateRasterPipeline(Client client,
-        PipelineDescription description, Definition.Native.NativeErrorFunc callback)
+    public static RasterPipeline CreateRasterPipeline(
+        Client client,
+        RasterPipelineDescription description,
+        Definition.Native.NativeErrorFunc callback)
     {
         Debug.Assert(description.BufferSize == 0);
 
@@ -459,8 +461,10 @@ public static class Native // todo: make internal, methods too
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer.</returns>
-    public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(Client client,
-        PipelineDescription description, Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
+    public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(
+        Client client,
+        RasterPipelineDescription description,
+        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
     {
         description.BufferSize = (uint) Marshal.SizeOf<T>();
 

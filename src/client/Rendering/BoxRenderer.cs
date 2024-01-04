@@ -65,15 +65,6 @@ public sealed class BoxRenderer : IDisposable
         PooledList<EffectVertex> vertices = new();
         BuildMeshData(boxCollider.Volume, vertices);
 
-        {
-            // todo: remove the block
-            var c = boxCollider.Volume.Center.ToVector3();
-            vertices.Clear();
-            vertices.Add(new EffectVertex {Position = c + (0, 1, 0), Data = 0});
-            vertices.Add(new EffectVertex {Position = c + (0, 0, 0), Data = 0});
-            vertices.Add(new EffectVertex {Position = c + (1, 1, 0), Data = 0});
-        }
-
         effect.SetNewVertices(vertices.AsSpan());
         vertices.ReturnToPool();
     }

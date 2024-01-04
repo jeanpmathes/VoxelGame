@@ -308,7 +308,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, const bool enabled)
 }
 
 NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client,
-                                                  const PipelineDescription description,
+                                                  const RasterPipelineDescription description,
                                                   const NativeErrorFunc callback)
 {
     TRY

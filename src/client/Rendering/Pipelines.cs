@@ -236,22 +236,22 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
     private void LoadBasicRasterPipelines(Support.Core.Client client)
     {
-        postProcessingPipeline = LoadPipeline("Post", ShaderPreset.PostProcessing, client);
+        postProcessingPipeline = LoadPipeline(client, "Post", ShaderPreset.PostProcessing);
     }
 
     private void LoadEffectRasterPipelines(Support.Core.Client client)
     {
-        (RasterPipeline pipeline, ShaderBuffer<BoxRenderer.Data> buffer) = LoadPipelineWithBuffer<BoxRenderer.Data>("Selection", ShaderPreset.SpatialEffect, client);
+        (RasterPipeline pipeline, ShaderBuffer<BoxRenderer.Data> buffer) = LoadPipelineWithBuffer<BoxRenderer.Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
         SelectionEffect = pipeline;
         if (loaded) buffer.Modify((ref BoxRenderer.Data data) => data.Color = (0.1f, 0.1f, 0.1f));
     }
 
-    private (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(string name, ShaderPreset preset, Support.Core.Client client) where T : unmanaged, IEquatable<T>
+    private (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle) where T : unmanaged, IEquatable<T>
     {
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
-            PipelineDescription.Create(path, preset),
+            RasterPipelineDescription.Create(path, preset, topology),
             error =>
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
@@ -263,12 +263,12 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         return result;
     }
 
-    private RasterPipeline LoadPipeline(string name, ShaderPreset preset, Support.Core.Client client)
+    private RasterPipeline LoadPipeline(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle)
     {
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         RasterPipeline pipeline = client.CreateRasterPipeline(
-            PipelineDescription.Create(path, preset),
+            RasterPipelineDescription.Create(path, preset, topology),
             error =>
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);

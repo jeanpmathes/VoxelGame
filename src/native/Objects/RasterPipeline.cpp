@@ -9,47 +9,26 @@ using Preset = std::tuple<
 
 namespace 
 {
-    Preset GetDraw2dPreset(const ShaderBuffer* shaderBuffer, const NativeClient& client)
+    void EnsureValidDescription(const RasterPipelineDescription& description)
     {
-        std::vector<D3D12_INPUT_ELEMENT_DESC> input =
+        REQUIRE(description.vertexShaderPath != nullptr);
+        REQUIRE(description.pixelShaderPath != nullptr);
+
+        REQUIRE(description.shaderPreset == ShaderPreset::POST_PROCESSING ||
+            description.shaderPreset == ShaderPreset::DRAW_2D ||
+            description.shaderPreset == ShaderPreset::SPATIAL_EFFECT);
+
+        REQUIRE(description.bufferSize < D3D12_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT * 4 * 4);
+
+        if (description.shaderPreset == ShaderPreset::SPATIAL_EFFECT)
         {
-            {
-                "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,
-                0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            },
-            {
-                "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
-                0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            },
-            {
-                "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-                0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-            },
-        };
-
-        auto resources = std::make_shared<ShaderResources>();
-        auto bindings = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
-
-        resources->Initialize(
-            [&](auto& graphics)
-            {
-                graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0});
-
-                if (shaderBuffer != nullptr)
-                {
-                    graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
-                }
-
-                bindings->Draw2D().booleans = graphics.AddConstantBufferViewDescriptorSelectionList({.reg = 1});
-                bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList({.reg = 0});
-            },
-            [&](auto&)
-            {
-            },
-            client.GetDevice());
-
-        return {std::move(resources), std::move(bindings), input};
+            REQUIRE(description.topology == Topology::TRIANGLE ||
+                description.topology == Topology::LINE);
+        }
+        else
+        {
+            REQUIRE(description.topology == Topology::TRIANGLE);
+        }
     }
 
     Preset GetPostProcessingPreset(const ShaderBuffer* shaderBuffer, const NativeClient& client)
@@ -84,6 +63,49 @@ namespace
                 {
                     bindings->PostProcessing().input = table.AddShaderResourceView({.reg = 0});
                 });
+            },
+            [&](auto&)
+            {
+            },
+            client.GetDevice());
+
+        return {std::move(resources), std::move(bindings), input};
+    }
+
+    Preset GetDraw2dPreset(const ShaderBuffer* shaderBuffer, const NativeClient& client)
+    {
+        std::vector<D3D12_INPUT_ELEMENT_DESC> input =
+        {
+            {
+                "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,
+                0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+            },
+            {
+                "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
+                0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+            },
+            {
+                "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
+                0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+            },
+        };
+
+        auto resources = std::make_shared<ShaderResources>();
+        auto bindings = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
+
+        resources->Initialize(
+            [&](auto& graphics)
+            {
+                graphics.EnableInputAssembler();
+                graphics.AddStaticSampler({.reg = 0});
+
+                if (shaderBuffer != nullptr)
+                {
+                    graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
+                }
+
+                bindings->Draw2D().booleans = graphics.AddConstantBufferViewDescriptorSelectionList({.reg = 1});
+                bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList({.reg = 0});
             },
             [&](auto&)
             {
@@ -132,12 +154,12 @@ namespace
         }
     }
 
-    void ApplyPresetToPipeline(
-        const ShaderPreset preset,
+    void ApplyDescriptionToPipeline(
+        const RasterPipelineDescription& description,
         D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
         D3D12_PRIMITIVE_TOPOLOGY* topology)
     {
-        switch (preset)
+        switch (description.shaderPreset)
         {
         case ShaderPreset::POST_PROCESSING:
             {
@@ -161,7 +183,17 @@ namespace
             break;
         case ShaderPreset::SPATIAL_EFFECT:
             {
-                *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+                switch (description.topology)
+                {
+                case Topology::TRIANGLE:
+                    *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+                    desc->PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+                    break;
+                case Topology::LINE:
+                    *topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+                    desc->PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+                    break;
+                }
 
                 desc->DepthStencilState.DepthEnable = false;
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
@@ -174,7 +206,7 @@ namespace
 
     std::optional<std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>> CompileShaders(
         NativeClient& client,
-        const PipelineDescription& description,
+        const RasterPipelineDescription& description,
         NativeErrorFunc callback)
     {
         const ComPtr<IDxcBlob> vertexShader = CompileShader(
@@ -205,9 +237,11 @@ namespace
 
 std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     NativeClient& client,
-    const PipelineDescription& description,
+    const RasterPipelineDescription& description,
     NativeErrorFunc callback)
 {
+    EnsureValidDescription(description);
+    
     auto shaders = CompileShaders(client, description, callback);
     if (!shaders.has_value()) return nullptr;
     auto [vertexShaderBlob, pixelShaderBlob] = shaders.value();
@@ -239,7 +273,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     psoDesc.SampleDesc.Count = 1;
 
     D3D12_PRIMITIVE_TOPOLOGY topology = {};
-    ApplyPresetToPipeline(description.shaderPreset, &psoDesc, &topology);
+    ApplyDescriptionToPipeline(description, &psoDesc, &topology);
 
     ComPtr<ID3D12PipelineState> pipelineState;
     TRY_DO(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));

@@ -26,12 +26,23 @@ enum class ShaderPreset : BYTE
     SPATIAL_EFFECT
 };
 
-struct PipelineDescription
+/**
+ * \brief The topology used by the pipeline. Only valid for SPATIAL_EFFECT.
+ */
+enum class Topology : BYTE
+{
+    TRIANGLE,
+    LINE
+};
+
+struct RasterPipelineDescription
 {
     const wchar_t* vertexShaderPath;
     const wchar_t* pixelShaderPath;
     ShaderPreset shaderPreset;
     UINT bufferSize;
+
+    Topology topology = Topology::TRIANGLE;
 };
 
 /**
@@ -49,7 +60,7 @@ public:
      */
     static std::unique_ptr<RasterPipeline> Create(
         NativeClient& client,
-        const PipelineDescription& description,
+        const RasterPipelineDescription& description,
         NativeErrorFunc callback);
 
     struct Bindings

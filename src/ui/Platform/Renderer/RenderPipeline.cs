@@ -47,7 +47,7 @@ public class RenderPipeline
         this.preDraw = preDraw;
 
         (pipeline, uniformBuffer) = client.CreateRasterPipeline<Vector2>(
-            PipelineDescription.Create(shader, ShaderPreset.Draw2D),
+            RasterPipelineDescription.Create(shader, ShaderPreset.Draw2D),
             errorCallback);
 
         client.AddDraw2dPipeline(pipeline, DoDraw);

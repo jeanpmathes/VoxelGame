@@ -372,7 +372,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <param name="description">A description of the pipeline.</param>
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <returns>The created pipeline.</returns>
-    public RasterPipeline CreateRasterPipeline(PipelineDescription description, Action<string> errorCallback)
+    public RasterPipeline CreateRasterPipeline(RasterPipelineDescription description, Action<string> errorCallback)
     {
         return Support.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
@@ -384,7 +384,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer.</returns>
-    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(PipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(RasterPipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
     {
         return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
