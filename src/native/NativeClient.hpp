@@ -133,15 +133,16 @@ private:
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;
 
-    ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
+    DescriptorHeap m_rtvHeap;
+    ComPtr<ID3D12Resource> m_finalRenderTargets[FRAME_COUNT];
     Allocation<ID3D12Resource> m_intermediateRenderTarget;
     bool m_intermediateRenderTargetInitialized = false;
-    CD3DX12_CPU_DESCRIPTOR_HANDLE m_intermediateRTV = {};
-    DescriptorHeap m_rtvHeap;
 
     DescriptorHeap m_dsvHeap;
-    Allocation<ID3D12Resource> m_depthStencilBuffer;
-    bool m_depthStencilBufferInitialized = false;
+    Allocation<ID3D12Resource> m_finalDepthStencilBuffers[FRAME_COUNT];
+    bool m_finalDepthStencilBuffersInitialized = false;
+    Allocation<ID3D12Resource> m_intermediateDepthStencilBuffer;
+    bool m_intermediateDepthStencilBufferInitialized = false;
 
     UINT m_frameIndex;
     HANDLE m_fenceEvent{};
@@ -171,8 +172,8 @@ private:
 
     void LoadDevice();
     void LoadRasterPipeline();
-    void CreateDepthBuffer();
-    void EnsureValidDepthBuffer(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void CreateFinalDepthBuffers();
+    void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);

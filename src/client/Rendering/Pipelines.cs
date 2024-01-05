@@ -236,14 +236,24 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
     private void LoadBasicRasterPipelines(Support.Core.Client client)
     {
+        if (!loaded) return;
+
         postProcessingPipeline = LoadPipeline(client, "Post", ShaderPreset.PostProcessing);
     }
 
     private void LoadEffectRasterPipelines(Support.Core.Client client)
     {
-        (RasterPipeline pipeline, ShaderBuffer<BoxRenderer.Data> buffer) = LoadPipelineWithBuffer<BoxRenderer.Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
+        if (!loaded) return;
+
+        (RasterPipeline pipeline, ShaderBuffer<SelectionBoxRenderer.Data> buffer) = LoadPipelineWithBuffer<SelectionBoxRenderer.Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
         SelectionEffect = pipeline;
-        if (loaded) buffer.Modify((ref BoxRenderer.Data data) => data.Color = (0.1f, 0.1f, 0.1f));
+
+        if (loaded)
+            buffer.Modify((ref SelectionBoxRenderer.Data data) =>
+            {
+                data.DarkColor = (0.1f, 0.1f, 0.1f);
+                data.BrightColor = (0.9f, 0.9f, 0.9f);
+            });
     }
 
     private (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle) where T : unmanaged, IEquatable<T>
@@ -282,6 +292,8 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
     private void LoadRaytracingPipeline(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
+        if (!loaded) return;
+
         PipelineBuilder builder = new();
 
         PipelineBuilder.HitGroup basicOpaqueSectionHitGroup = new("BasicOpaqueSectionClosestHit");
@@ -387,7 +399,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <summary>
     ///     Data passed to the raytracing shaders.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
     public struct RaytracingData : IEquatable<RaytracingData>
     {
         /// <summary>

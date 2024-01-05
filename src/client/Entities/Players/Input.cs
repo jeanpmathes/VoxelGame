@@ -11,12 +11,12 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.Support.Input.Composite;
 
-namespace VoxelGame.Client.Entities;
+namespace VoxelGame.Client.Entities.Players;
 
 /// <summary>
 ///     Contains all player input.
 /// </summary>
-internal sealed class PlayerInput
+internal sealed class Input
 {
     private readonly Button blockInteractButton;
     private readonly Button crouchButton;
@@ -37,7 +37,7 @@ internal sealed class PlayerInput
 
     private double timer;
 
-    internal PlayerInput(Player player)
+    internal Input(Player player)
     {
         this.player = player;
 

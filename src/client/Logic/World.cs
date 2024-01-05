@@ -118,7 +118,7 @@ public class World : Core.Logic.World
         }
 
         // Render all players in this world.
-        player?.Render();
+        player?.DrawVisualAssets();
     }
 
     /// <inheritdoc />
@@ -172,6 +172,12 @@ public class World : Core.Logic.World
 
             CurrentState = State.Active;
         }
+    }
+
+    /// <inheritdoc />
+    protected override void OnDeactivation()
+    {
+        player?.OnDeactivate();
     }
 
     private void DoTicksOnEverything(double deltaTime)

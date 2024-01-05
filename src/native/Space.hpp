@@ -177,7 +177,8 @@ public:
     void Update(double delta);
     void Render(
         double delta,
-        Allocation<ID3D12Resource> outputBuffer,
+        Allocation<ID3D12Resource> color,
+        Allocation<ID3D12Resource> depth,
         const RenderData& data);
     void CleanupRender();
 
@@ -241,10 +242,10 @@ private:
     void BuildAccelerationStructures();
     void CreateTLAS();
     void DispatchRays() const;
-    void CopyOutputToBuffer(Allocation<ID3D12Resource> buffer) const;
+    void CopyOutputToBuffers(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth) const;
     void DrawEffects(const RenderData& data);
 
-    void UpdateOutputResourceView();
+    void UpdateOutputResourceViews();
     void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
@@ -275,9 +276,12 @@ private:
 
     ComPtr<ID3D12StateObject> m_rtStateObject;
     ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
-    
-    Allocation<ID3D12Resource> m_outputResource;
-    bool m_outputResourceFresh = false;
+
+    Allocation<ID3D12Resource> m_colorOutput;
+    D3D12_RESOURCE_DESC m_colorOutputDescription = {};
+    Allocation<ID3D12Resource> m_depthOutput;
+    D3D12_RESOURCE_DESC m_depthOutputDescription = {};
+    bool m_outputResourcesFresh = false;
 
     struct TextureSlot
     {
@@ -291,10 +295,13 @@ private:
     TextureSlot m_textureSlot2 = {};
 
     std::shared_ptr<ShaderResources> m_globalShaderResources;
+    ShaderResources::Table::Entry m_rtColorDataForRasterEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry m_rtDepthDataForRasterEntry = ShaderResources::Table::Entry::invalid;
     std::shared_ptr<RasterPipeline::Bindings> m_effectBindings;
 
     ShaderResources::TableHandle m_commonResourceTable = ShaderResources::TableHandle::INVALID;
-    ShaderResources::Table::Entry m_outputTextureEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry m_colorOutputEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry m_depthOutputEntry = ShaderResources::Table::Entry::invalid;
     ShaderResources::Table::Entry m_bvhEntry = ShaderResources::Table::Entry::invalid;
     ShaderResources::ListHandle m_meshInstanceDataList = ShaderResources::ListHandle::INVALID;
     ShaderResources::ListHandle m_meshGeometryBufferList = ShaderResources::ListHandle::INVALID;

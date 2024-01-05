@@ -471,7 +471,10 @@ public static class Native // todo: make internal, methods too
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
         IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
 
-        return (new RasterPipeline(rasterPipeline, client), new ShaderBuffer<T>(shaderBuffer, client));
+        RasterPipeline pipelineWrapper = new(rasterPipeline, client);
+        ShaderBuffer<T>? bufferWrapper = shaderBuffer == IntPtr.Zero ? null : new ShaderBuffer<T>(shaderBuffer, client);
+
+        return (pipelineWrapper, bufferWrapper!);
     }
 
     /// <summary>

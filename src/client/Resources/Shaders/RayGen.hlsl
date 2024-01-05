@@ -16,6 +16,7 @@ float4x4 projectionI;
 }
 
 RWTexture2D<float4> gColorOutput : register(u0);
+RWTexture2D<float> gDepthOutput : register(u1);
 
 RaytracingAccelerationStructure gSpaceBVH : register(t0);
 
@@ -75,14 +76,16 @@ void RayGen()
     // Therefore, the y coordinate is inverted.
     const float4 pixel = float4(d.x, d.y * -1, 1, 1);
 
-    float3 target = mul(pixel, projectionI).xyz;
+    float3 targetInViewSpace = mul(pixel, projectionI).xyz;
+    float3 direction = mul(float4(targetInViewSpace.xyz, 0), viewI).xyz;
     float3 origin = mul(float4(0, 0, 0, 1), viewI).xyz;
-    float3 direction = mul(float4(target.xyz, 0), viewI).xyz;
-    float3 normal = float3(0, 0, 0);
     
+    float3 normal = float3(0, 0, 0);
     float min = 0;
+    
     int iteration = 0;
     float4 color = 0;
+    float depth = 0;
 
     float reflectance = 0.0;
     HitInfo reflectionHit = GetEmptyHitInfo();
@@ -108,16 +111,24 @@ void RayGen()
         color.rgb = rgb;
         color.a = a;
 
-        min = 0;
-        iteration++;
-
-        // The reflection ray is traced now and the result is used next iteration when the refraction ray is traced.
-
+        // If an reflectance ray is needed for the current hit, it is traced this iteration.
+        // The main ray of the next iteration is the refraction ray.
         reflectance = hit.alpha < 1.0 ? GetReflectance(hit.normal, direction, refracted, n1, n2) : 0.0;
 
         origin += direction * hit.distance;
         normal = hit.normal;
         direction = refracted;
+
+        if (iteration == 0)
+        {
+            const float4 hitInViewSpace = mul(float4(origin, 1), view);
+            const float4 hitInClipSpace = mul(hitInViewSpace, projection);
+
+            depth = hitInClipSpace.z / hitInClipSpace.w;
+        }
+
+        min = 0;
+        iteration++;
 
         if (reflectance > 0.0)
         {
@@ -127,4 +138,5 @@ void RayGen()
     }
 
     gColorOutput[launchIndex] = float4(color.rgb, 1.0);
+    gDepthOutput[launchIndex] = depth;
 }

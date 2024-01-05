@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
+using VoxelGame.Client.Entities.Players;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
@@ -31,7 +32,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
     private readonly float diveSpeed = 8f;
 
-    private readonly PlayerInput input;
+    private readonly Input input;
 
     private readonly float jumpForce = 25000f;
 
@@ -44,7 +45,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     private readonly float sprintSpeed = 6f;
     private readonly float swimSpeed = 4f;
 
-    private readonly PlayerVisualization visualization;
+    private readonly VisualInterface visualInterface;
     private Vector3i headPosition;
 
     private bool isFirstUpdate = true;
@@ -72,8 +73,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         this.camera = camera;
         camera.Position = Position;
 
-        visualization = new PlayerVisualization(this, ui, resources);
-        input = new PlayerInput(this);
+        visualInterface = new VisualInterface(this, ui, resources);
+        input = new Input(this);
 
         selector = new PlacementSelection(input, () => targetBlock?.Block);
     }
@@ -167,11 +168,20 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         Position = position;
     }
 
+    /// <summary>
+    ///     Called when the world deactivates.
+    ///     After this no more updates will be called.
+    /// </summary>
+    public void OnDeactivate()
+    {
+        visualInterface.SetSelectionBox(collider: null);
+    }
+
  #pragma warning disable CA1822
     /// <summary>
-    ///     Render the visual content of this player.
+    ///     Draw the visual content of this player.
     /// </summary>
-    public void Render()
+    public void DrawVisualAssets()
  #pragma warning restore CA1822
     {
         // Intentionally empty, as player has no mesh to render.
@@ -179,13 +189,13 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     }
 
     /// <summary>
-    ///     Render content that is specific to the local player.
+    ///     Draw content that is specific to the local player.
     /// </summary>
-    public void RenderOverlays()
+    public void DrawVisualInterface()
     {
-        visualization.Draw();
+        visualInterface.Draw();
 
-        if (OverlayEnabled) visualization.DrawOverlay();
+        if (OverlayEnabled) visualInterface.DrawOverlay();
     }
 
     private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)
@@ -222,7 +232,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
                 DoBlockFluidSelection();
                 DoWorldInteraction();
 
-                visualization.UpdateInput();
+                visualInterface.UpdateInput();
             }
 
             headPosition = camera.Position.Floor();
@@ -232,14 +242,14 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             isFirstUpdate = false;
         }
 
-        visualization.Update();
+        visualInterface.Update();
         input.Update(deltaTime);
     }
 
     private void DoBlockFluidSelection()
     {
         bool isUpdated = selector.DoBlockFluidSelection();
-        if (isUpdated || isFirstUpdate) visualization.UpdateData();
+        if (isUpdated || isFirstUpdate) visualInterface.UpdateData();
     }
 
     private void SetBlockAndFluidOverlays()
@@ -249,7 +259,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
 
-        visualization.BuildOverlay(positions);
+        visualInterface.BuildOverlay(positions);
     }
 
     private void UpdateTargets()
@@ -264,7 +274,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
             (targetBlock, targetFluid) = (block, fluid);
 
-            visualization.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, hitPosition));
+            visualInterface.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, hitPosition));
         }
         else
         {
@@ -273,7 +283,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
             (targetBlock, targetFluid) = (null, null);
 
-            visualization.SetSelectionBox(collider: null);
+            visualInterface.SetSelectionBox(collider: null);
         }
     }
 
@@ -388,7 +398,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         if (disposed)
             return;
 
-        if (disposing) visualization.Dispose();
+        if (disposing) visualInterface.Dispose();
 
         disposed = true;
     }

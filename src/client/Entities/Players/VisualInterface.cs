@@ -16,12 +16,12 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Entities;
+namespace VoxelGame.Client.Entities.Players;
 
 /// <summary>
 ///     Offers visualization like HUD, UI and in-world selection for the player.
 /// </summary>
-public sealed class PlayerVisualization : IDisposable
+public sealed class VisualInterface : IDisposable
 {
     private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
     private readonly ScreenElementRenderer crosshairRenderer;
@@ -29,7 +29,7 @@ public sealed class PlayerVisualization : IDisposable
     private readonly OverlayRenderer overlay;
 
     private readonly Player player;
-    private readonly BoxRenderer selectionRenderer;
+    private readonly SelectionBoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
     private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
@@ -38,12 +38,12 @@ public sealed class PlayerVisualization : IDisposable
     private double upperBound;
 
     /// <summary>
-    ///     Create a new instance of the <see cref="PlayerVisualization" /> class.
+    ///     Create a new instance of the <see cref="VisualInterface" /> class.
     /// </summary>
     /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
     /// <param name="resources">The resources to use.</param>
-    public PlayerVisualization(Player player, GameUserInterface ui, PlayerResources resources)
+    public VisualInterface(Player player, GameUserInterface ui, PlayerResources resources)
     {
         overlay = new OverlayRenderer();
 
@@ -54,7 +54,7 @@ public sealed class PlayerVisualization : IDisposable
         Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
         Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
 
-        selectionRenderer = new BoxRenderer(Application.Client.Instance.Space);
+        selectionRenderer = new SelectionBoxRenderer(Application.Client.Instance.Space);
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -181,7 +181,7 @@ public sealed class PlayerVisualization : IDisposable
     /// <summary>
     ///     Finalizer.
     /// </summary>
-    ~PlayerVisualization()
+    ~VisualInterface()
     {
         Dispose(disposing: false);
     }

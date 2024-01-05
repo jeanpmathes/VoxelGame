@@ -14,7 +14,7 @@ namespace VoxelGame.Support.Data;
 /// <summary>
 ///     Vertex type used by the <see cref="VoxelGame.Support.Objects.Effect" /> class.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct EffectVertex
 {
     /// <summary>

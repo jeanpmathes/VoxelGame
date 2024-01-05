@@ -15,7 +15,7 @@ namespace VoxelGame.Support.Data;
 ///     The vertex layout used by all basic meshes.
 ///     A mesh is simply a sequence of quads with their vertices in CW order.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SpatialVertex
 {
     /// <summary>
@@ -32,7 +32,7 @@ public struct SpatialVertex
 /// <summary>
 ///     An axis-aligned bounding box.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 #pragma warning disable S101
 public readonly struct AABB
 #pragma warning restore S101
@@ -106,7 +106,7 @@ public readonly struct AABB
 ///     The data associated with an AABB.
 ///     See the wiki for more information.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public readonly struct BoundsData
 {
     /// <summary>
@@ -154,7 +154,7 @@ public readonly struct BoundsData
 ///     An AABB with additional data.
 ///     This is used by meshes that use custom ray intersections.
 /// </summary>
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SpatialBounds
 {
     /// <summary>

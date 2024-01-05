@@ -245,6 +245,8 @@ public abstract class World : IDisposable, IGrid
 
         logger.LogInformation(Events.WorldIO, "Unloading world");
 
+        OnDeactivation();
+
         chunks.BeginSaving();
 
         Information.Version = ApplicationInformation.Instance.Version;
@@ -274,6 +276,11 @@ public abstract class World : IDisposable, IGrid
 
         return true;
     }
+
+    /// <summary>
+    ///     Called when the world deactivates.
+    /// </summary>
+    protected virtual void OnDeactivation() {}
 
     private void UnloadChunk(Chunk chunk)
     {

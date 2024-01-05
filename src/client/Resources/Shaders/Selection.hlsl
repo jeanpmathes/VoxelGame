@@ -6,7 +6,8 @@
 
 cbuffer CustomDataCB : register(b0)
 {
-    float3 gColor;
+    float3 gDarkColor;
+    float3 gBrightColor;
 }
 
 cbuffer EffectDataCB : register(b1)
@@ -19,6 +20,8 @@ struct PSInput
     float4 position : SV_POSITION;
 };
 
+Texture2D gColorFromRT : register(t0);
+
 PSInput VSMain(const float3 position : POSITION, const uint data : DATA)
 {
     PSInput result;
@@ -28,7 +31,15 @@ PSInput VSMain(const float3 position : POSITION, const uint data : DATA)
     return result;
 }
 
-float4 PSMain(const PSInput) : SV_TARGET
+float4 PSMain(const PSInput input) : SV_TARGET
+
 {
-    return float4(gColor, 1.0);
+    const int3 pixel = int3(input.position.xy, 0);
+
+    const float4 background = gColorFromRT.Load(pixel);
+    const float brightness = (background.r + background.g + background.b) / 3.0;
+
+    // Dark and bright are swapped to increase contrast.
+    const float3 color = lerp(gBrightColor, gDarkColor, brightness);
+    return float4(color, 1.0);
 }

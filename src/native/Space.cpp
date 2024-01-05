@@ -179,7 +179,8 @@ void Space::Update(double)
 
 void Space::Render(
     const double delta,
-    Allocation<ID3D12Resource> outputBuffer,
+    Allocation<ID3D12Resource> color,
+    Allocation<ID3D12Resource> depth,
     const RenderData& data)
 {
     m_renderTime += delta;
@@ -194,7 +195,7 @@ void Space::Render(
         RunAnimations();
         BuildAccelerationStructures();
         DispatchRays();
-        CopyOutputToBuffer(outputBuffer);
+        CopyOutputToBuffers(color, depth);
         DrawEffects(data);
     }
 
@@ -278,7 +279,7 @@ void Space::CreateGlobalConstBuffer()
 
 void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
 {
-    UpdateOutputResourceView();
+    UpdateOutputResourceViews();
     UpdateTopLevelAccelerationStructureView();
 
     {
@@ -366,8 +367,14 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     m_globalShaderResources->Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
         [&](auto& graphics)
         {
+            graphics.AddHeapDescriptorTable([&](auto& table)
+            {
+                m_rtColorDataForRasterEntry = table.AddShaderResourceView({.reg = 0});
+                m_rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
+            });
+            
             m_effectBindings = RasterPipeline::SetupEffectBindings(graphics);
-            // todo: update wiki article about shader resources
+            // todo: update wiki article about shader resources (write section about compute resources)
         },
         [&](auto& compute)
         {
@@ -556,10 +563,11 @@ void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
 
     m_commonResourceTable = description->AddHeapDescriptorTable([this](auto& table)
     {
-        m_outputTextureEntry = table.AddUnorderedAccessView({.reg = 0});
         m_bvhEntry = table.AddShaderResourceView({.reg = 0});
         m_textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, m_textureSlot1.size);
         m_textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, m_textureSlot2.size);
+        m_colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});
+        m_depthOutputEntry = table.AddUnorderedAccessView({.reg = 1});
     });
 }
 
@@ -615,27 +623,43 @@ void Space::InitializeAnimations()
 
 void Space::CreateRaytracingOutputBuffer()
 {
-    D3D12_RESOURCE_DESC outputDescription = {};
-    outputDescription.DepthOrArraySize = 1;
-    outputDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    m_colorOutputDescription.DepthOrArraySize = 1;
+    m_colorOutputDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-    outputDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    outputDescription.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-    outputDescription.Width = m_resolution.width;
-    outputDescription.Height = m_resolution.height;
-    outputDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    outputDescription.MipLevels = 1;
-    outputDescription.SampleDesc.Count = 1;
+    m_colorOutputDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    m_colorOutputDescription.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    m_colorOutputDescription.Width = m_resolution.width;
+    m_colorOutputDescription.Height = m_resolution.height;
+    m_colorOutputDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    m_colorOutputDescription.MipLevels = 1;
+    m_colorOutputDescription.SampleDesc.Count = 1;
 
-    m_outputResource = util::AllocateResource<ID3D12Resource>(
+    m_colorOutput = util::AllocateResource<ID3D12Resource>(
         m_nativeClient,
-        outputDescription,
+        m_colorOutputDescription,
         D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_RESOURCE_STATE_COPY_SOURCE);
-    NAME_D3D12_OBJECT(m_outputResource);
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    NAME_D3D12_OBJECT(m_colorOutput);
 
-    m_outputResourceFresh = true;
-    UpdateOutputResourceView();
+    m_depthOutputDescription.DepthOrArraySize = 1;
+    m_depthOutputDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+    m_depthOutputDescription.Format = DXGI_FORMAT_R32_FLOAT;
+    m_depthOutputDescription.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    m_depthOutputDescription.Width = m_resolution.width;
+    m_depthOutputDescription.Height = m_resolution.height;
+    m_depthOutputDescription.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    m_depthOutputDescription.MipLevels = 1;
+    m_depthOutputDescription.SampleDesc.Count = 1;
+
+    m_depthOutput = util::AllocateResource<ID3D12Resource>(
+        m_nativeClient,
+        m_depthOutputDescription,
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    m_outputResourcesFresh = true;
+    UpdateOutputResourceViews();
 }
 
 ComPtr<ID3D12RootSignature> Space::CreateRayGenSignature() const
@@ -663,7 +687,7 @@ void Space::CreateShaderBindingTable()
 {
     m_sbtHelper.Reset();
 
-    REQUIRE(!m_outputResourceFresh);
+    REQUIRE(!m_outputResourcesFresh);
 
     m_sbtHelper.AddRayGenerationProgram(L"RayGen", {});
 
@@ -776,7 +800,10 @@ void Space::DispatchRays() const
 {
     const std::vector barriers = {
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_outputResource.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
+            m_colorOutput.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_depthOutput.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
     };
     GetCommandList()->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
@@ -808,30 +835,51 @@ void Space::DispatchRays() const
     GetCommandList()->DispatchRays(&desc);
 }
 
-void Space::CopyOutputToBuffer(const Allocation<ID3D12Resource> buffer) const
+void Space::CopyOutputToBuffers(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth) const
 {
-    D3D12_RESOURCE_BARRIER barriers[] = {
+    D3D12_RESOURCE_BARRIER entry[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_outputResource.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            m_colorOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             D3D12_RESOURCE_STATE_COPY_SOURCE),
         CD3DX12_RESOURCE_BARRIER::Transition(
-            buffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+            m_depthOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_COPY_SOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            color.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_COPY_DEST),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            depth.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_COPY_DEST)
     };
+    GetCommandList()->ResourceBarrier(_countof(entry), entry);
 
-    GetCommandList()->ResourceBarrier(_countof(barriers), barriers);
+    GetCommandList()->CopyResource(color.Get(),
+                                   m_colorOutput.Get());
 
-    GetCommandList()->CopyResource(buffer.Get(),
-                                   m_outputResource.Get());
+    GetCommandList()->CopyResource(depth.Get(),
+                                   m_depthOutput.Get());
 
-    const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        buffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
-    GetCommandList()->ResourceBarrier(1, &barrier);
+    D3D12_RESOURCE_BARRIER exit[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            color.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_RENDER_TARGET),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            depth.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE)
+    };
+    GetCommandList()->ResourceBarrier(_countof(exit), exit);
 }
 
 void Space::DrawEffects(const RenderData& data)
 {
+    D3D12_RESOURCE_BARRIER barriers[] = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_colorOutput.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_depthOutput.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+    };
+    GetCommandList()->ResourceBarrier(_countof(barriers), barriers);
+    
     GetCommandList()->OMSetRenderTargets(1, data.rtv, FALSE, data.dsv);
 
     data.viewport->Set(GetCommandList());
@@ -842,16 +890,37 @@ void Space::DrawEffects(const RenderData& data)
     }
 }
 
-void Space::UpdateOutputResourceView()
+void Space::UpdateOutputResourceViews()
 {
-    if (!m_outputTextureEntry.IsValid()) return;
+    if (!m_colorOutputEntry.IsValid() || !m_depthOutputEntry.IsValid()) return;
 
-    if (!m_outputResourceFresh) return;
-    m_outputResourceFresh = false;
+    if (!m_outputResourcesFresh) return;
+    m_outputResourcesFresh = false;
 
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-    uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-    m_globalShaderResources->CreateUnorderedAccessView(m_outputTextureEntry, 0, {m_outputResource, &uavDesc});
+    {
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+
+        uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        m_globalShaderResources->CreateUnorderedAccessView(m_colorOutputEntry, 0, {m_colorOutput, &uavDesc});
+
+        uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+        m_globalShaderResources->CreateUnorderedAccessView(m_depthOutputEntry, 0, {m_depthOutput, &uavDesc});
+    }
+
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+        srvDesc.Format = m_colorOutputDescription.Format;
+        srvDesc.Texture2D.MipLevels = m_colorOutputDescription.MipLevels;
+        m_globalShaderResources->CreateShaderResourceView(m_rtColorDataForRasterEntry, 0, {m_colorOutput, &srvDesc});
+
+        srvDesc.Format = m_depthOutputDescription.Format;
+        srvDesc.Texture2D.MipLevels = m_depthOutputDescription.MipLevels;
+        m_globalShaderResources->CreateShaderResourceView(m_rtDepthDataForRasterEntry, 0, {m_depthOutput, &srvDesc});
+    }
 }
 
 void Space::UpdateTopLevelAccelerationStructureView() const

@@ -22,18 +22,18 @@ namespace VoxelGame.Client.Rendering;
 ///     A renderer that renders instances of the <see cref="BoxCollider" /> struct.
 ///     For this multiple boxes are drawn.
 /// </summary>
-public sealed class BoxRenderer : IDisposable
+public sealed class SelectionBoxRenderer : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<BoxRenderer>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SelectionBoxRenderer>();
 
     private readonly Effect effect;
 
     private BoxCollider? currentBox;
 
     /// <summary>
-    ///     Create a new <see cref="BoxRenderer" />.
+    ///     Create a new <see cref="SelectionBoxRenderer" />.
     /// </summary>
-    public BoxRenderer(Space space)
+    public SelectionBoxRenderer(Space space)
     {
         effect = space.CreateEffect(Pipelines.SelectionEffect);
     }
@@ -114,20 +114,27 @@ public sealed class BoxRenderer : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Explicit)]
     public struct Data : IEquatable<Data>
     {
         /// <summary>
-        ///     The color of the rendered boxes.
+        ///     The lower bound of the color range.
         /// </summary>
-        public Vector3 Color;
+        [FieldOffset(0 * ShaderBuffers.FieldOffset)]
+        public Vector3 DarkColor;
+
+        /// <summary>
+        ///     The upper bound of the color range.
+        /// </summary>
+        [FieldOffset(1 * ShaderBuffers.FieldOffset)]
+        public Vector3 BrightColor;
 
         /// <summary>
         ///     Check equality.
         /// </summary>
         public bool Equals(Data other)
         {
-            return Color.Equals(other.Color);
+            return (DarkColor, BrightColor) == (other.DarkColor, other.BrightColor);
         }
 
         /// <inheritdoc />
@@ -139,7 +146,7 @@ public sealed class BoxRenderer : IDisposable
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return Color.GetHashCode();
+            return HashCode.Combine(DarkColor, BrightColor);
         }
 
         /// <summary>
@@ -180,7 +187,7 @@ public sealed class BoxRenderer : IDisposable
     /// <summary>
     ///     Finalizer.
     /// </summary>
-    ~BoxRenderer()
+    ~SelectionBoxRenderer()
     {
         Dispose(disposing: false);
     }

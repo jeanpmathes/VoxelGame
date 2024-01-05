@@ -9,6 +9,23 @@ using VoxelGame.Support.Core;
 namespace VoxelGame.Support.Objects;
 
 /// <summary>
+///     Common constants for shader buffers.
+/// </summary>
+public static class ShaderBuffers
+{
+    /// <summary>
+    ///     The recommended packing for data structs.
+    /// </summary>
+    public const int Pack = 4;
+
+    /// <summary>
+    ///     The maximum field offset between two fields.
+    ///     Use this when padding would be required.
+    /// </summary>
+    public const int FieldOffset = 4 * sizeof(float);
+}
+
+/// <summary>
 ///     Represents a shader constant buffer.
 /// </summary>
 public class ShaderBuffer<T> : NativeObject where T : unmanaged, IEquatable<T>

@@ -172,9 +172,9 @@ namespace
         case ShaderPreset::DRAW_2D:
             {
                 *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-                
-                desc->DepthStencilState.DepthEnable = false;
+
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+                desc->DepthStencilState.DepthEnable = false;
 
                 desc->BlendState.RenderTarget[0].BlendEnable = true;
                 desc->BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
@@ -195,8 +195,8 @@ namespace
                     break;
                 }
 
-                desc->DepthStencilState.DepthEnable = false;
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+                desc->DepthStencilState.DepthEnable = false;
             }
             break;
         default:

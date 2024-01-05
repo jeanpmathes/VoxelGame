@@ -9,7 +9,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Client.Entities;
+namespace VoxelGame.Client.Entities.Players;
 
 /// <summary>
 ///     The selector used to decide which block or fluid to player is placing.
@@ -17,14 +17,14 @@ namespace VoxelGame.Client.Entities;
 internal class PlacementSelection
 {
     private readonly Func<Block?> getTargetBlock;
-    private readonly PlayerInput input;
+    private readonly Input input;
 
     /// <summary>
     ///     Creates a new placement selection.
     /// </summary>
     /// <param name="input">The player input.</param>
     /// <param name="getTargetBlock">A function to get the targeted block.</param>
-    internal PlacementSelection(PlayerInput input, Func<Block?> getTargetBlock)
+    internal PlacementSelection(Input input, Func<Block?> getTargetBlock)
     {
         this.input = input;
         this.getTargetBlock = getTargetBlock;

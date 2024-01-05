@@ -224,8 +224,13 @@ void NativeClient::LoadDevice()
     {
         m_rtvHeap.Create(m_device, FRAME_COUNT + 1,
                          D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
-
         NAME_D3D12_OBJECT(m_rtvHeap);
+    }
+
+    {
+        m_dsvHeap.Create(m_device, FRAME_COUNT + 1,
+                         D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+        NAME_D3D12_OBJECT(m_dsvHeap);
     }
 }
 
@@ -255,10 +260,9 @@ void NativeClient::LoadRasterPipeline()
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_2dGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
-void NativeClient::CreateDepthBuffer()
+void NativeClient::CreateFinalDepthBuffers()
 {
-    m_dsvHeap.Create(m_device, 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
-    NAME_D3D12_OBJECT(m_dsvHeap);
+    m_finalDepthStencilBuffersInitialized = false;
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_D32_FLOAT,
@@ -268,31 +272,46 @@ void NativeClient::CreateDepthBuffer()
 
     const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
-    m_depthStencilBuffer = util::AllocateResource<ID3D12Resource>(
-        *this,
-        depthResourceDesc,
-        D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        &depthOptimizedClearValue);
-    NAME_D3D12_OBJECT(m_depthStencilBuffer);
-
-    m_depthStencilBufferInitialized = false;
+    for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
+    {
+        m_finalDepthStencilBuffers[frameIndex] = util::AllocateResource<ID3D12Resource>(
+            *this,
+            depthResourceDesc,
+            D3D12_HEAP_TYPE_DEFAULT,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &depthOptimizedClearValue);
+        NAME_D3D12_OBJECT_INDEXED(m_finalDepthStencilBuffers, frameIndex);
+    }
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
     dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-    m_device->CreateDepthStencilView(m_depthStencilBuffer.Get(), &dsvDesc,
-                                     m_dsvHeap.GetDescriptorHandleCPU(0));
+    for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
+    {
+        m_device->CreateDepthStencilView(m_finalDepthStencilBuffers[frameIndex].Get(), &dsvDesc,
+                                         m_dsvHeap.GetDescriptorHandleCPU(frameIndex));
+    }
 }
 
-void NativeClient::EnsureValidDepthBuffer(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+void NativeClient::EnsureValidDepthBuffers(const ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
-    if (m_depthStencilBufferInitialized) return;
-    m_depthStencilBufferInitialized = true;
+    if (!m_finalDepthStencilBuffersInitialized)
+    {
+        for (UINT frame = 0; frame < FRAME_COUNT; frame++)
+        {
+            commandList->DiscardResource(m_finalDepthStencilBuffers[frame].Get(), nullptr);
+        }
 
-    commandList->DiscardResource(m_depthStencilBuffer.Get(), nullptr);
+        m_finalDepthStencilBuffersInitialized = true;
+    }
+
+    if (!m_intermediateDepthStencilBufferInitialized)
+    {
+        commandList->DiscardResource(m_intermediateDepthStencilBuffer.Get(), nullptr);
+        m_intermediateDepthStencilBufferInitialized = true;
+    }
 }
 
 void NativeClient::SetupSizeDependentResources()
@@ -310,14 +329,15 @@ void NativeClient::SetupSizeDependentResources()
     {
         for (UINT n = 0; n < FRAME_COUNT; n++)
         {
-            TRY_DO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
-            m_device->CreateRenderTargetView(m_renderTargets[n].Get(), nullptr, m_rtvHeap.GetDescriptorHandleCPU(n));
+            TRY_DO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
+            m_device->CreateRenderTargetView(m_finalRenderTargets[n].Get(), nullptr,
+                                             m_rtvHeap.GetDescriptorHandleCPU(n));
 
-            NAME_D3D12_OBJECT_INDEXED(m_renderTargets, n);
+            NAME_D3D12_OBJECT_INDEXED(m_finalRenderTargets, n);
         }
     }
 
-    CreateDepthBuffer();
+    CreateFinalDepthBuffers();
 }
 
 void NativeClient::SetupSpaceResolutionDependentResources()
@@ -333,7 +353,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
     UpdatePostViewAndScissor();
 
     {
-        const D3D12_RESOURCE_DESC swapChainDesc = m_renderTargets[m_frameIndex]->GetDesc();
+        const D3D12_RESOURCE_DESC swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
         const CD3DX12_CLEAR_VALUE clearValue(swapChainDesc.Format, CLEAR_COLOR);
         const CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             swapChainDesc.Format,
@@ -344,8 +364,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
             swapChainDesc.SampleDesc.Quality,
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
             D3D12_TEXTURE_LAYOUT_UNKNOWN, 0u);
-
-        m_intermediateRTV = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
+        
         m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
             *this,
             renderTargetDesc,
@@ -359,9 +378,35 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         m_device->CreateRenderTargetView(
             m_intermediateRenderTarget.Get(),
             nullptr,
-            m_intermediateRTV);
+            m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
         if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
+    }
+
+    {
+        D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+            DXGI_FORMAT_D32_FLOAT,
+            m_resolution.width, m_resolution.height,
+            1, 1);
+        depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+        const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
+
+        m_intermediateDepthStencilBuffer = util::AllocateResource<ID3D12Resource>(
+            *this,
+            depthResourceDesc,
+            D3D12_HEAP_TYPE_DEFAULT,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &depthOptimizedClearValue);
+        NAME_D3D12_OBJECT(m_intermediateDepthStencilBuffer);
+
+        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+        dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+        dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+        dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+        m_device->CreateDepthStencilView(m_intermediateDepthStencilBuffer.Get(), &dsvDesc,
+                                         m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
     }
 
     if (m_postProcessingPipeline != nullptr)
@@ -470,7 +515,7 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
 
         for (UINT n = 0; n < FRAME_COUNT; n++) // NOLINT(modernize-loop-convert)
         {
-            m_renderTargets[n].Reset();
+            m_finalRenderTargets[n].Reset();
             m_fenceValues[n] = m_fenceValues[m_frameIndex];
         }
 
@@ -643,10 +688,13 @@ void NativeClient::CheckRaytracingSupport() const
 void NativeClient::PopulateSpaceCommandList(const double delta) const
 {
     REQUIRE(m_space != nullptr);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
     
     m_space->Reset(m_frameIndex);
-    m_space->Render(delta, m_intermediateRenderTarget, {
-                        .rtv = &m_intermediateRTV, .dsv = nullptr, .viewport = &m_spaceViewport
+    m_space->Render(delta, m_intermediateRenderTarget, m_intermediateDepthStencilBuffer, {
+                        .rtv = &rtvHandle, .dsv = &dsvHandle, .viewport = &m_spaceViewport
                     });
 }
 
@@ -662,7 +710,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
     m_postViewport.Set(m_2dGroup.commandList);
 
     const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
 
     m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
@@ -684,7 +732,7 @@ void NativeClient::PopulateDraw2DCommandList(const size_t index)
     m_draw2dViewport.Set(m_2dGroup.commandList);
 
     const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(0);
+    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
 
     m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
@@ -695,11 +743,11 @@ void NativeClient::PopulateCommandLists(const double delta)
 {
     m_2dGroup.Reset(m_frameIndex);
 
-    EnsureValidDepthBuffer(m_2dGroup.commandList);
+    EnsureValidDepthBuffers(m_2dGroup.commandList);
     EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
     D3D12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(),
+        CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
                                              D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
         CD3DX12_RESOURCE_BARRIER::Transition(m_intermediateRenderTarget.Get(),
                                              D3D12_RESOURCE_STATE_RENDER_TARGET,
