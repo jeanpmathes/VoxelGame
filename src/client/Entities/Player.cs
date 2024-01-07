@@ -169,33 +169,29 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     }
 
     /// <summary>
+    /// Called when the world activates.
+    /// After this updates will be called.
+    /// </summary>
+    public void OnActivate()
+    {
+        visualInterface.Activate();
+    }
+
+    /// <summary>
     ///     Called when the world deactivates.
     ///     After this no more updates will be called.
     /// </summary>
     public void OnDeactivate()
     {
-        visualInterface.SetSelectionBox(collider: null);
-    }
-
- #pragma warning disable CA1822
-    /// <summary>
-    ///     Draw the visual content of this player.
-    /// </summary>
-    public void DrawVisualAssets()
- #pragma warning restore CA1822
-    {
-        // Intentionally empty, as player has no mesh to render.
-        // This render method is for content that has to be rendered on every player.
+        visualInterface.Deactivate();
     }
 
     /// <summary>
     ///     Draw content that is specific to the local player.
     /// </summary>
-    public void DrawVisualInterface()
+    public void RenderVisualInterface()
     {
-        visualInterface.Draw();
-
-        if (OverlayEnabled) visualInterface.DrawOverlay();
+        if (OverlayEnabled) visualInterface.DrawOverlay(); // todo: handle OverlayEnabled differently (not this method), and remove this method
     }
 
     private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)

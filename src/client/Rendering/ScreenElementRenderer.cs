@@ -6,12 +6,13 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics.Groups;
+using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
@@ -19,133 +20,199 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     Renders textures on the screen.
 /// </summary>
-public sealed class ScreenElementRenderer : IDisposable
+public sealed class ScreenElementRenderer : Renderer
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
 
-    private readonly ElementDrawGroup drawGroup;
-    private Vector3 color;
+    private readonly Support.Core.Client client;
+    private readonly Vector2d relativeScreenPosition;
+    private readonly ShaderBuffer<Data> data;
 
-    private int texUnit;
+    private readonly Texture placeholder;
 
-    /// <summary>
-    ///     Create a new <see cref="ScreenElementRenderer" />.
-    /// </summary>
-    public ScreenElementRenderer()
+    private float scaling = 1.0f;
+
+    private Color4 color = Color4.White;
+
+    private Texture? texture;
+    private bool isTextureInitialized;
+
+    private bool isVertexBufferUploaded;
+    private (uint start, uint length) rangeOfVertexBuffer;
+
+    private ScreenElementRenderer(Support.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
-        // todo: port to DirectX
+        this.client = client;
+        this.relativeScreenPosition = relativeScreenPosition;
+        this.data = data;
 
-        (float[] vertices, uint[] indices) = BlockMeshes.CreatePlaneModel();
-
-        drawGroup = ElementDrawGroup.Create();
-        drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
-
-        disposed = true; // todo: remove this line when porting to DirectX
-
-        return; // todo: remove this line when porting to DirectX
-
-        Shaders.ScreenElement.Use();
-
-        drawGroup.VertexArrayBindBuffer(size: 5);
-
-        int vertexLocation = Shaders.ScreenElement.GetAttributeLocation("aPosition");
-        drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
-
-        int texCordLocation = Shaders.ScreenElement.GetAttributeLocation("aTexCoord");
-        drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
+        placeholder = client.LoadTexture(Texture.CreateFallback(resolution: 1));
     }
 
-    private static Pipelines Shaders => Application.Client.Instance.Resources.Pipelines;
+    /// <inheritdoc />
+    public override bool IsEnabled { get; set; }
 
     /// <summary>
-    ///     Set the texture to use for rendering.
+    /// Create a new <see cref="ScreenElementRenderer"/>.
     /// </summary>
-    /// <param name="texture">The texture.</param>
-    public void SetTexture(Texture texture)
+    public static ScreenElementRenderer? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
     {
-        if (disposed) return;
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", ShaderPreset.Draw2D);
 
-        // todo: implement texture setting in DirectX (probably texture class on C++ side should pass the GPU address to the constant buffer)
+        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+
+        ScreenElementRenderer renderer = new(client, relativeScreenPosition, buffer);
+
+        client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+
+        return renderer;
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp()
+    {
+        // Intentionally left empty.
+    }
+
+    /// <inheritdoc />
+    protected override void OnTearDown()
+    {
+        // Intentionally left empty.
+    }
+
+    private void Draw(Draw2D drawer)
+    {
+        if (!IsEnabled) return;
+
+        if (!isTextureInitialized)
+        {
+            drawer.InitializeTextures(new[] {texture ?? placeholder});
+            isTextureInitialized = true;
+        }
+
+        if (!isVertexBufferUploaded)
+        {
+            drawer.UploadQuadBuffer(out rangeOfVertexBuffer);
+            isVertexBufferUploaded = true;
+        }
+
+        drawer.DrawBuffer(rangeOfVertexBuffer, textureIndex: 0, texture != null);
+    }
+
+    /// <summary>
+    /// Set the scale of the texture.
+    /// </summary>
+    /// <param name="newScaling">The new scale.</param>
+    public void SetScale(float newScaling)
+    {
+        scaling = newScaling;
     }
 
     /// <summary>
     ///     Set the color to apply to the texture.
     /// </summary>
-    /// <param name="newColor">The color.</param>
+    /// <param name="newColor">The new color.</param>
     public void SetColor(Color newColor)
     {
-        if (disposed) return;
-
-        color = newColor.ToVector3();
+        color = newColor;
     }
 
     /// <summary>
-    ///     Draw the screen element.
+    ///     Set the texture to use for rendering.
     /// </summary>
-    /// <param name="offset">The relative position on the screen.</param>
-    /// <param name="scaling">The scale of the screen element.</param>
-    public void Draw(Vector2 offset, float scaling)
+    /// <param name="newTexture">The new texture.</param>
+    public void SetTexture(Texture newTexture)
     {
-        if (disposed) return;
+        texture = newTexture;
+        isTextureInitialized = false;
+    }
 
-        var screenSize = Screen.Size.ToVector2();
-        Vector3d scale = new Vector3d(scaling, scaling, z: 1.0) * screenSize.Length;
-        var translate = new Vector3d((offset - new Vector2d(x: 0.5, y: 0.5)) * screenSize);
+    /// <inheritdoc />
+    protected override void OnUpdate()
+    {
+        var screenSize = client.Size.ToVector2();
 
-        Matrix4d model = Matrix4d.Identity * VMath.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translate);
+        Vector3d scale = new Vector3d(scaling, scaling, z: 1.0) * screenSize.Length * 0.5;
 
-        drawGroup.BindVertexArray();
+        Vector2d pixelOffset = (relativeScreenPosition - (0.5, 0.5)) * screenSize;
+        Vector3d translation = new(pixelOffset);
 
-        Shaders.ScreenElement.Use();
+        Matrix4d model = VMath.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
+        Matrix4d view = Matrix4d.Identity;
+        var projection = Matrix4d.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0.0, depthFar: 1.0);
 
-        Shaders.ScreenElement.SetMatrix4("model", model.ToMatrix4());
-        Shaders.ScreenElement.SetVector3("color", color);
-        Shaders.ScreenElement.SetInt("tex", texUnit);
-
-        // todo: port to DirectX
-
-        // GL.Disable(EnableCap.DepthTest);
-        // drawGroup.DrawElements(PrimitiveType.Triangles);
-        // GL.Enable(EnableCap.DepthTest);
-        //
-        // GL.BindVertexArray(array: 0);
-        // GL.UseProgram(program: 0);
+        data.Data = new Data
+        {
+            MVP = (model * view * projection).ToMatrix4(),
+            Color = color
+        };
     }
 
     #region IDisposable Support
 
-    private bool disposed;
-
-    private void Dispose(bool disposing)
+    /// <inheritdoc />
+    protected override void OnDispose(bool disposing)
     {
-        if (disposed)
-            return;
-
-        if (disposing) drawGroup.Delete();
+        if (disposing) ; // todo: dispose raster pipeline
         else
             logger.LogWarning(
                 Events.UndeletedBuffers,
                 "Renderer disposed by GC without freeing storage");
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~ScreenElementRenderer()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of the renderer.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion IDisposable Support
+
+    /// <summary>
+    ///     Data used by the shader.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Data : IEquatable<Data>
+    {
+        /// <summary>
+        ///     The model-view-projection matrix.
+        /// </summary>
+        public Matrix4 MVP;
+
+        /// <summary>
+        ///     The color to apply to the texture.
+        ///     If no texture is used, the vertex color is used instead and this is ignored.
+        /// </summary>
+        public Color4 Color;
+
+        /// <summary>
+        ///     Check equality.
+        /// </summary>
+        public bool Equals(Data other)
+        {
+            return (MVP, Color) == (other.MVP, other.Color);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Data other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(MVP, Color);
+        }
+
+        /// <summary>
+        ///     The equality operator.
+        /// </summary>
+        public static bool operator ==(Data left, Data right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     The inequality operator.
+        /// </summary>
+        public static bool operator !=(Data left, Data right)
+        {
+            return !left.Equals(right);
+        }
+    }
 }

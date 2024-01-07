@@ -598,9 +598,26 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
                                                        0, {m_intermediateRenderTarget});
 }
 
-void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback)
+void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback)
 {
-    m_draw2DPipelines.push_back({*this, pipeline, callback});
+    if (m_draw2dPipelines.empty() || priority < m_draw2dPipelines.front().priority)
+    {
+        m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, callback}, priority);
+    }
+    else if (priority > m_draw2dPipelines.back().priority)
+    {
+        m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, callback}, priority);
+    }
+    else
+        for (auto it = m_draw2dPipelines.begin(); it != m_draw2dPipelines.end(); ++it)
+        {
+            // Goal: insert after the first element with priority lower than the new one.
+            if (priority > it->priority)
+            {
+                m_draw2dPipelines.emplace(--it, draw2d::Pipeline{*this, pipeline, callback}, priority);
+                break;
+            }
+        }
 }
 
 NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)
@@ -722,9 +739,8 @@ void NativeClient::PopulatePostProcessingCommandList() const
     m_2dGroup.commandList->DrawInstanced(4, 1, 0, 0);
 }
 
-void NativeClient::PopulateDraw2DCommandList(const size_t index)
+void NativeClient::PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const
 {
-    auto& pipeline = m_draw2DPipelines[index];
     PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
 
     pipeline.PopulateCommandListSetup(m_2dGroup.commandList);
@@ -766,9 +782,9 @@ void NativeClient::PopulateCommandLists(const double delta)
         }
     }
 
-    for (size_t i = 0; i < m_draw2DPipelines.size(); ++i)
+    for (auto& [pipeline, priority] : m_draw2dPipelines)
     {
-        PopulateDraw2DCommandList(i);
+        PopulateDraw2DCommandList(pipeline);
     }
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;

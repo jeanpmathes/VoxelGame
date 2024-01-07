@@ -175,7 +175,7 @@ public sealed class GameScene : IScene
 
     private void RenderUI()
     {
-        Game.Player.DrawVisualInterface();
+        Game.Player.RenderVisualInterface();
 
         ui.UpdatePerformanceData();
         ui.Render();

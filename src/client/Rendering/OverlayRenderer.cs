@@ -16,10 +16,8 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     A renderer for overlay textures. Any block or fluid texture can be used as an overlay.
 /// </summary>
-public sealed class OverlayRenderer : IDisposable
+public sealed class OverlayRenderer : IDisposable // todo: inherit from renderer base class, call methods
 {
-    // todo: maybe overlay renderer and screen element renderer can be merged (differences are in shader, data, and setup which can all be done in ctor)
-
     private const int BlockMode = 0;
     private const int FluidMode = 1;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
@@ -108,6 +106,12 @@ public sealed class OverlayRenderer : IDisposable
 
         // GL.Enable(EnableCap.Blend);
         // GL.Disable(EnableCap.DepthTest);
+
+        /*
+         * Overlay.SetMatrix4(
+            "projection",
+            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Application.Client.Instance.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
+         */
 
         drawGroup.BindVertexArray();
 

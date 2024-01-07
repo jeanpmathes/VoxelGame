@@ -237,7 +237,7 @@ public static class BlockMeshes
     ///     Create a plane model.
     /// </summary>
     /// <returns>The model data.</returns>
-    public static (float[] vertices, uint[] indices) CreatePlaneModel() // todo: move to Draw2D or a screen util class
+    public static (float[] vertices, uint[] indices) CreatePlaneModel() // todo: remove
     {
         float[] vertices =
         {

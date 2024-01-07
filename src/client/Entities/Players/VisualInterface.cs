@@ -23,15 +23,15 @@ namespace VoxelGame.Client.Entities.Players;
 /// </summary>
 public sealed class VisualInterface : IDisposable
 {
-    private readonly Vector2 crosshairPosition = new(x: 0.5f, y: 0.5f);
     private readonly ScreenElementRenderer crosshairRenderer;
-    private readonly Button debugViewButton;
     private readonly OverlayRenderer overlay;
+    private readonly List<Renderer> renderers = new();
+
+    private readonly Button debugViewButton;
 
     private readonly Player player;
     private readonly SelectionBoxRenderer selectionRenderer;
     private readonly GameUserInterface ui;
-    private float crosshairScale = Application.Client.Instance.Settings.CrosshairScale;
 
     private double lowerBound;
     private bool renderOverlay;
@@ -47,14 +47,21 @@ public sealed class VisualInterface : IDisposable
     {
         overlay = new OverlayRenderer();
 
-        crosshairRenderer = new ScreenElementRenderer();
-        crosshairRenderer.SetTexture(resources.Crosshair);
-        crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
+        selectionRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.SelectionBoxRenderer);
+        crosshairRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.CrosshairRenderer);
 
-        Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
-        Application.Client.Instance.Settings.CrosshairScaleChanged += SettingsOnCrosshairScaleChanged;
+        foreach (Renderer renderer in renderers) renderer.SetUp();
 
-        selectionRenderer = new SelectionBoxRenderer(Application.Client.Instance.Space);
+        {
+            // todo: all settings sync should move to pipelines class, and use new Binding<T> utility class (which could be declared directly in Settings, grouping value and delegate, providing IDisposable to unbind
+
+            crosshairRenderer.SetTexture(resources.Crosshair);
+            crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
+            crosshairRenderer.SetScale(Application.Client.Instance.Settings.CrosshairScale);
+
+            Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
+            Application.Client.Instance.Settings.CrosshairScaleChanged += UpdateCrosshairScale;
+        }
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -65,22 +72,21 @@ public sealed class VisualInterface : IDisposable
         this.player = player;
     }
 
+    private T RegisterRenderer<T>(T renderer) where T : Renderer
+    {
+        renderers.Add(renderer);
+
+        return renderer;
+    }
+
     private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
     {
-        crosshairRenderer.SetColor(args.Settings.CrosshairColor);
+        crosshairRenderer.SetColor(args.NewValue);
     }
 
-    private void SettingsOnCrosshairScaleChanged(object? sender, SettingChangedArgs<float> args)
+    private void UpdateCrosshairScale(object? sender, SettingChangedArgs<float> args)
     {
-        crosshairScale = args.NewValue;
-    }
-
-    /// <summary>
-    ///     Draw the normal visualization elements.
-    /// </summary>
-    public void Draw()
-    {
-        crosshairRenderer.Draw(crosshairPosition, crosshairScale);
+        crosshairRenderer.SetScale(args.NewValue);
     }
 
     /// <summary>
@@ -96,9 +102,27 @@ public sealed class VisualInterface : IDisposable
     }
 
     /// <summary>
+    ///     Call this when the player is activated.
+    /// </summary>
+    public void Activate()
+    {
+        foreach (Renderer renderer in renderers) renderer.IsEnabled = true;
+
+        SetSelectionBox(collider: null);
+    }
+
+    /// <summary>
+    ///     Call this when the player is deactivated.
+    /// </summary>
+    public void Deactivate()
+    {
+        foreach (Renderer renderer in renderers) renderer.IsEnabled = false;
+    }
+
+    /// <summary>
     ///     Draw an overlay, used to indicate a substance surrounding the player head.
     /// </summary>
-    public void DrawOverlay()
+    public void DrawOverlay() // todo: remove this method, move the renderOverlay bool to the renderer
     {
         if (renderOverlay) overlay.Draw();
     }
@@ -156,6 +180,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void Update()
     {
+        foreach (Renderer renderer in renderers) renderer.Update();
+
         ui.UpdatePlayerDebugData();
     }
 
@@ -192,13 +218,14 @@ public sealed class VisualInterface : IDisposable
 
         if (disposing)
         {
-            crosshairRenderer.Dispose();
-            selectionRenderer.Dispose();
+            foreach (Renderer renderer in renderers) renderer.TearDown();
 
-            overlay.Dispose();
+            overlay.Dispose(); // todo: move creation to pipelines class, dispose there
+
             ui.Dispose();
 
-            Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor;
+            Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor; // todo: move to the pipelines class (init too), simplify with Binding<T>
+            Application.Client.Instance.Settings.CrosshairScaleChanged -= UpdateCrosshairScale;
         }
 
         disposed = true;

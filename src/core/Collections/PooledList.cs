@@ -14,10 +14,11 @@ namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     A list that that uses a pool for its internal storage.
+///     Dispose must be called to return the internal array to the pool.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
-public class PooledList<T> : IEnumerable<T>
+public sealed class PooledList<T> : IEnumerable<T>, IDisposable
 {
     private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
@@ -132,6 +133,13 @@ public class PooledList<T> : IEnumerable<T>
 
             items[index] = value;
         }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -315,7 +323,7 @@ public class PooledList<T> : IEnumerable<T>
     ///     Return the internal array of this <see cref="PooledList{T}" /> to the pool. After calling this method, the exposed
     ///     array should no longer be used.
     /// </summary>
-    public void ReturnToPool()
+    private void ReturnToPool()
     {
         if (items == null) Debug.Fail("The array is already returned to the pool.");
 
@@ -325,12 +333,19 @@ public class PooledList<T> : IEnumerable<T>
         Count = 0;
     }
 
+    private void Dispose(bool disposing)
+    {
+        if (disposing) ReturnToPool();
+    }
+
     /// <summary>
     ///     Finalizer.
     /// </summary>
     ~PooledList()
     {
         if (items == null) return;
+
+        Dispose(disposing: false);
 
         Debug.Fail("The array is not returned to the pool.");
     }

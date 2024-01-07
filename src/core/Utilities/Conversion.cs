@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     A utility class for different conversion methods.
 /// </summary>
-public static class Conversion
+public static class Conversion // todo: check if there are conversions in VMath and move them here
 {
     /// <summary>
     ///     Converts a <see cref="Color" /> to a <see cref="Vector3" />.
@@ -22,7 +22,17 @@ public static class Conversion
     /// <returns>The vector.</returns>
     public static Vector3 ToVector3(this Color color)
     {
-        return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
+        return color.ToVector4().Xyz;
+    }
+
+    /// <summary>
+    ///     Converts a <see cref="Color" /> to a <see cref="Vector4" />.
+    /// </summary>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>The vector.</returns>
+    private static Vector4 ToVector4(this Color color)
+    {
+        return (Vector4) (Color4) color;
     }
 
     /// <summary>

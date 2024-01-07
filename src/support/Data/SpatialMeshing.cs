@@ -106,8 +106,8 @@ public class SpatialMeshing : IMeshing
     public int Count => mesh.Count;
 
     /// <inheritdoc />
-    public void Release()
+    public void Release() // todo: use dispose pattern
     {
-        mesh.ReturnToPool();
+        mesh.Dispose();
     }
 }

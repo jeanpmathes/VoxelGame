@@ -760,7 +760,12 @@
         <None Include="Resources\Shaders\Selection.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <ClCompile Include="Resources\Shaders\Space.hlsl"/>
+        <None Include="Resources\Shaders\ScreenElement.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="Resources\Shaders\Space.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

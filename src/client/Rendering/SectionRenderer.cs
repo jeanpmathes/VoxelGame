@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     A renderer for <see cref="VoxelGame.Core.Logic.Section" />.
 /// </summary>
-public sealed class SectionRenderer : IDisposable
+public sealed class SectionRenderer : IDisposable // todo: inherit renderer base class, call the methods from users
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
 

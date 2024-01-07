@@ -86,7 +86,7 @@ public:
         {
             switch (preset)
             {
-            case ShaderPreset::DRAW_2D: // NOLINT(bugprone-branch-clone)
+            case ShaderPreset::DRAW_2D:
                 m_preset = Draw2dBindings();
                 break;
             case ShaderPreset::POST_PROCESSING:

@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     Common functionality associated with the screen.
 /// </summary>
-public sealed class Screen : IDisposable
+public sealed class Screen : IDisposable // todo: first, move all functionality from here to instance methods of client, then pull out functionality from client to new Screen class that only has instance methods, try to match it on C++ side
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
@@ -52,16 +52,9 @@ public sealed class Screen : IDisposable
 
         #region MULTISAMPLED FBO
 
-        // todo: port multisampling or maybe just remove it for now (covered by resolution scaling)
-        // todo: add future note on using a smart sampling pattern which would make a sampling setting interesting again
+        // todo: just remove the sampling related stuff for now (covered by resolution scaling)
         int maxSamples = Context.MaxTextureSamples;
         samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
-
-        logger.LogDebug(
-            Events.VisualQuality,
-            "Set sample count to {Samples}, of maximum {Max} possible samples",
-            samples,
-            maxSamples);
 
         /*GL.Enable(EnableCap.DepthTest);
         GL.Enable(EnableCap.CullFace);

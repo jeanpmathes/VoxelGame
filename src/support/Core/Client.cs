@@ -403,13 +403,14 @@ public class Client : IDisposable // todo: get type usage count down
     }
 
     /// <summary>
-    ///     Add a pipeline to the draw2d rendering step.
+    ///     Add a pipeline to the Draw2D rendering step.
     /// </summary>
-    /// <param name="pipeline"></param>
-    /// <param name="callback"></param>
-    public void AddDraw2dPipeline(RasterPipeline pipeline, Action<Draw2D> callback)
+    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPreset.Draw2D"/> preset.</param>
+    /// <param name="priority">The priority of the pipeline, higher priority pipelines are rendered later. Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.</param>
+    /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
+    public void AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
-        Support.Native.AddDraw2DPipeline(this, pipeline, callback);
+        Support.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
 
     /// <summary>

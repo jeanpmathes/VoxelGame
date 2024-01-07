@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -12,8 +13,8 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
+using VoxelGame.Support.Definition;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
@@ -22,31 +23,69 @@ namespace VoxelGame.Client.Rendering;
 ///     A renderer that renders instances of the <see cref="BoxCollider" /> struct.
 ///     For this multiple boxes are drawn.
 /// </summary>
-public sealed class SelectionBoxRenderer : IDisposable
+public sealed class SelectionBoxRenderer : Renderer
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SelectionBoxRenderer>();
 
-    private readonly Effect effect;
+    private readonly Support.Core.Client client;
+    private readonly RasterPipeline pipeline;
+
+    private Effect? effect;
 
     private BoxCollider? currentBox;
 
-    /// <summary>
-    ///     Create a new <see cref="SelectionBoxRenderer" />.
-    /// </summary>
-    public SelectionBoxRenderer(Space space)
+    private SelectionBoxRenderer(Support.Core.Client client, RasterPipeline pipeline)
     {
-        effect = space.CreateEffect(Pipelines.SelectionEffect);
+        this.client = client;
+        this.pipeline = pipeline;
     }
-
-    private static Pipelines Pipelines => Application.Client.Instance.Resources.Pipelines;
 
     /// <summary>
     /// Set whether the renderer is enabled.
     /// </summary>
-    public bool IsEnabled
+    public override bool IsEnabled
     {
-        get => effect.IsEnabled;
-        set => effect.IsEnabled = value;
+        get => effect?.IsEnabled ?? false;
+        set
+        {
+            Debug.Assert(effect != null);
+            effect.IsEnabled = value;
+        }
+    }
+
+    /// <summary>
+    /// Create a new <see cref="SelectionBoxRenderer"/>.
+    /// </summary>
+    public static SelectionBoxRenderer? Create(Support.Core.Client client, Pipelines pipelines)
+    {
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
+
+        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+
+        buffer.Modify((ref Data data) =>
+        {
+            data.DarkColor = (0.1f, 0.1f, 0.1f);
+            data.BrightColor = (0.9f, 0.9f, 0.9f);
+        });
+
+        return new SelectionBoxRenderer(client, pipeline);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp()
+    {
+        Debug.Assert(effect == null);
+
+        effect = client.Space.CreateEffect(pipeline);
+    }
+
+    /// <inheritdoc />
+    protected override void OnTearDown()
+    {
+        Debug.Assert(effect != null);
+
+        effect?.Return();
+        effect = null;
     }
 
     /// <summary>
@@ -55,18 +94,17 @@ public sealed class SelectionBoxRenderer : IDisposable
     /// <param name="boxCollider">The box collider to render.</param>
     public void SetBox(BoxCollider boxCollider)
     {
-        if (disposed) return;
+        if (effect == null) return;
 
         if (currentBox == boxCollider) return;
 
         currentBox = boxCollider;
         effect.Position = boxCollider.Position;
 
-        PooledList<EffectVertex> vertices = new();
+        using PooledList<EffectVertex> vertices = new();
         BuildMeshData(boxCollider.Volume, vertices);
 
         effect.SetNewVertices(vertices.AsSpan());
-        vertices.ReturnToPool();
     }
 
     private static void BuildMeshData(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
@@ -111,11 +149,25 @@ public sealed class SelectionBoxRenderer : IDisposable
         vertices.Add(new EffectVertex {Position = b, Data = 0});
     }
 
+    #region IDisposable Support
+
+    /// <inheritdoc />
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing) ; // todo: dispose raster pipeline
+        else
+            logger.LogWarning(
+                Events.UndeletedBuffers,
+                "Renderer disposed by GC without freeing storage");
+    }
+
+    #endregion IDisposable Support
+
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    public struct Data : IEquatable<Data>
+    private struct Data : IEquatable<Data>
     {
         /// <summary>
         ///     The lower bound of the color range.
@@ -165,41 +217,4 @@ public sealed class SelectionBoxRenderer : IDisposable
             return !left.Equals(right);
         }
     }
-
-    #region IDisposable Support
-
-    private bool disposed;
-
-    private void Dispose(bool disposing)
-    {
-        if (disposed)
-            return;
-
-        if (disposing) effect.Return();
-        else
-            logger.LogWarning(
-                Events.UndeletedBuffers,
-                "Renderer disposed by GC without freeing storage");
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~SelectionBoxRenderer()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of this renderer.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    #endregion IDisposable Support
 }

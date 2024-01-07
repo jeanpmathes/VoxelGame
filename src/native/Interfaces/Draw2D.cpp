@@ -65,6 +65,9 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             REQUIRE(vertices != nullptr);
             REQUIRE(vertexCount > 0);
 
+            REQUIRE(!ctx->m_vertexBufferBound);
+            ctx->m_vertexCount = vertexCount;
+            
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
             util::ReAllocateBuffer(&ctx->m_uploadBuffer,
@@ -95,12 +98,12 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
                                                               D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
             ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
-            D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-            vertexBufferView.BufferLocation = ctx->m_vertexBuffer.GetGPUVirtualAddress();
-            vertexBufferView.StrideInBytes = sizeof(Vertex);
-            vertexBufferView.SizeInBytes = vertexBufferSize;
+            ctx->m_vertexBufferView = {};
+            ctx->m_vertexBufferView.BufferLocation = ctx->m_vertexBuffer.GetGPUVirtualAddress();
+            ctx->m_vertexBufferView.StrideInBytes = sizeof(Vertex);
+            ctx->m_vertexBufferView.SizeInBytes = vertexBufferSize;
 
-            ctx->m_currentCommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+            ctx->BindVertexBuffer();
         },
         .drawBuffer = [](
         const UINT firstVertex, const UINT vertexCount, const UINT textureIndex, const BOOL useTexture,
@@ -108,7 +111,10 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         {
             REQUIRE(vertexCount > 0);
 
+            REQUIRE(ctx->m_vertexCount >= firstVertex + vertexCount);
+
             if (!ctx->m_initialized) Initialize(ctx);
+            if (!ctx->m_vertexBufferBound) ctx->BindVertexBuffer();
 
             if (ctx->m_currentUseTexture != useTexture)
             {
@@ -132,7 +138,9 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
     m_currentCommandList = commandList.Get();
     m_callback(drawer);
     m_currentCommandList = nullptr;
+    
     m_initialized = false;
+    m_vertexBufferBound = false;
 }
 
 void draw2d::Pipeline::Initialize(Pipeline* ctx)
@@ -164,4 +172,10 @@ void draw2d::Pipeline::BindTexture() const
     this->m_raster->BindSelectionIndex(this->m_currentCommandList,
                                        this->m_raster->GetBindings().Draw2D().textures,
                                        this->m_currentTextureIndex);
+}
+
+void draw2d::Pipeline::BindVertexBuffer()
+{
+    this->m_currentCommandList->IASetVertexBuffers(0, 1, &this->m_vertexBufferView);
+    this->m_vertexBufferBound = true;
 }

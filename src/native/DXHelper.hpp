@@ -37,8 +37,8 @@ public:
     [[nodiscard]] const char* Info() const { return m_info.c_str(); }
 
 private:
-    const HRESULT m_hr;
-    const std::string m_info;
+    HRESULT m_hr;
+    std::string m_info;
 };
 
 class NativeException final : public std::runtime_error
@@ -59,10 +59,10 @@ constexpr bool IS_DEBUG_BUILD = false;
 
 #define REQUIRE(expression) \
     do { \
+        if (!IS_DEBUG_BUILD) break; \
         if (!(expression)) \
         { \
-            if (!IS_DEBUG_BUILD) break; \
-            std::string TRY_DO_message = "failed requirement '" #expression "' at " __FILE__ ":" + std::to_string(__LINE__); \
+            std::string TRY_DO_message = "failed requirement '" #expression "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
             if (IsDebuggerPresent()) DebugBreak(); \
             throw NativeException(TRY_DO_message); \
         } \
@@ -73,9 +73,9 @@ constexpr bool IS_DEBUG_BUILD = false;
         auto TRY_DO_result = (expression); \
         std::string TRY_DO_errorMessage; \
         if (IS_DEBUG_BUILD) \
-            TRY_DO_errorMessage = "throwing from " #expression " at " __FILE__ ":" + std::to_string(__LINE__); \
+            TRY_DO_errorMessage = "throwing from '" #expression "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
-            TRY_DO_errorMessage = "throwing from " #expression; \
+            TRY_DO_errorMessage = "throwing from '" #expression "' in " __FUNCTION__; \
         ThrowIfFailed(TRY_DO_result, TRY_DO_errorMessage); \
     } while (false)
 
@@ -83,9 +83,9 @@ constexpr bool IS_DEBUG_BUILD = false;
     do { \
         std::string TRY_DO_errorMessage; \
         if (IS_DEBUG_BUILD) \
-            TRY_DO_errorMessage = "error with " #value " at " __FILE__ ":" + std::to_string(__LINE__); \
+            TRY_DO_errorMessage = "error with '" #value "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
         else \
-            TRY_DO_errorMessage = "error with " #value; \
+            TRY_DO_errorMessage = "error with '" #value "' in " __FUNCTION__; \
         BOOL TRY_DO_ok = (value) != NULL; \
         ThrowIfFailed(TRY_DO_ok, TRY_DO_errorMessage); \
     } while (false)

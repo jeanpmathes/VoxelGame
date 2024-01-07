@@ -108,17 +108,20 @@ public class World : Core.Logic.World
         Application.Client.Instance.Resources.Pipelines.SetPlanes(view.NearClipping, view.FarClipping);
         PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
 
-        // Perform culling on all active chunks.
-        for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
-        for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
-        for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
-        {
-            Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-            chunk?.Cast().CullSections(context.Frustum);
-        }
+        CullActiveChunks();
 
-        // Render all players in this world.
-        player?.DrawVisualAssets();
+        return;
+
+        void CullActiveChunks()
+        {
+            for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+            for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
+            for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
+            {
+                Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
+                chunk?.Cast().CullSections(context.Frustum);
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -171,7 +174,14 @@ public class World : Core.Logic.World
             logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
 
             CurrentState = State.Active;
+
+            OnActivation();
         }
+    }
+
+    private void OnActivation()
+    {
+        player?.OnActivate();
     }
 
     /// <inheritdoc />

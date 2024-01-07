@@ -143,7 +143,7 @@ namespace
     {
         switch (preset)
         {
-        case ShaderPreset::POST_PROCESSING: // NOLINT(bugprone-branch-clone)
+        case ShaderPreset::POST_PROCESSING:
             return GetPostProcessingPreset(shaderBuffer, client);
         case ShaderPreset::DRAW_2D:
             return GetDraw2dPreset(shaderBuffer, client);

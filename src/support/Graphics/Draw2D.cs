@@ -18,6 +18,17 @@ public readonly unsafe struct Draw2D
 #pragma warning restore S3898 // No equality comparison used.
 {
     /// <summary>
+    ///     Use this as a priority to add a pipeline that will be rendered before all other pipelines, thus in the background.
+    /// </summary>
+    public const int Background = int.MinValue;
+
+    /// <summary>
+    ///     Use this as a priority to add a pipeline that will be rendered after all other pipelines, thus in the foreground
+    ///     and on top of everything.
+    /// </summary>
+    public const int Foreground = int.MaxValue;
+
+    /// <summary>
     ///     A single vertex.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -38,7 +49,7 @@ public readonly unsafe struct Draw2D
         /// <summary>
         ///     The color of the vertex.
         /// </summary>
-        public Vector4 Color;
+        public Color4 Color;
     }
 
     internal delegate void InitializeTexturesDelegate(IntPtr textures, uint textureCount, IntPtr ctx);
@@ -98,6 +109,55 @@ public readonly unsafe struct Draw2D
         {
             @internal.uploadBuffer((IntPtr) verticesPointer, vertexCount, @internal.ctx);
         }
+    }
+
+    /// <summary>
+    ///     Upload a buffer that contains exactly one quad.
+    ///     The quad fills the whole space between <c>-1</c> and <c>1</c> in both dimensions.
+    /// </summary>
+    /// <param name="range">The range of vertices that were uploaded.</param>
+    /// <param name="color">The color of the quad.</param>
+    public void UploadQuadBuffer(out (uint, uint) range, Color4? color = null)
+    {
+        Color4 c = color ?? Color4.Black;
+
+        Vertex bottomLeft = new()
+        {
+            Position = (-1, -1),
+            TextureCoordinate = (0, 1),
+            Color = c
+        };
+
+        Vertex topLeft = new()
+        {
+            Position = (-1, 1),
+            TextureCoordinate = (0, 0),
+            Color = c
+        };
+
+        Vertex topRight = new()
+        {
+            Position = (1, 1),
+            TextureCoordinate = (1, 0),
+            Color = c
+        };
+
+        Vertex bottomRight = new()
+        {
+            Position = (1, -1),
+            TextureCoordinate = (1, 1),
+            Color = c
+        };
+
+        Vertex[] vertices =
+        {
+            bottomLeft, topLeft, topRight,
+            bottomLeft, topRight, bottomRight
+        };
+
+        UploadBuffer(vertices);
+
+        range = (0, (uint) vertices.Length);
     }
 
     /// <summary>

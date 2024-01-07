@@ -12,6 +12,9 @@ namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     A tint that can be applied to blocks.
+///     Additionally to three color channels, it also has a flag indicating whether it is neutral.
+///     When encoding the tint into bits for shaders, three bits are used for each color channel.
+///     If the neutral flag is set, the color is replaced with the neutral color provided externally.
 /// </summary>
 public readonly struct TintColor : IEquatable<TintColor>
 {

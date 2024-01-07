@@ -507,19 +507,20 @@ public static class Native // todo: make internal, methods too
     ///     Add a draw 2D pipeline.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="pipeline">The pipeline.</param>
+    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPreset.Draw2D"/>.</param>
+    /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
-    public static void AddDraw2DPipeline(Client client, RasterPipeline pipeline, Action<Draw2D> callback)
+    public static void AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, Draw2D.Callback callback);
+        static extern void NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, int priority, Draw2D.Callback callback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(pipeline));
 
         // ReSharper disable once ConvertToLocalFunction - we need to keep the callback alive
         Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
         draw2DCallbacks[pipeline] = draw2dCallback;
-        NativeAddDraw2DPipeline(client.Native, pipeline.Self, draw2dCallback);
+        NativeAddDraw2DPipeline(client.Native, pipeline.Self, priority, draw2dCallback);
     }
 
     /// <summary>
@@ -533,6 +534,7 @@ public static class Native // todo: make internal, methods too
 
         // todo: implement NativeRemoveDraw2DPipeline, then call it here
         // todo: all users of AddDraw2DPipeline should call RemoveDraw2DPipeline when they are done (e.g. dispose)
+        // todo: to achieve this, also make the Pipelines class disposable
 
         draw2DCallbacks.Remove(pipeline);
     }

@@ -172,8 +172,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// <inheritdoc />
     protected override void OnResize(Vector2i size)
     {
-        Resources.Pipelines.UpdateOrthographicProjection();
-
         logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", size);
 
         sceneManager.OnResize(size);

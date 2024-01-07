@@ -63,8 +63,8 @@ public class TextureList
     ///     Uploads the texture list to the GPU if it has been modified.
     ///     Only the list of textures is uploaded, not the actual textures.
     /// </summary>
-    /// <param name="draw2D">The Draw2D pipeline.</param>
-    public void UploadIfDirty(Draw2D draw2D)
+    /// <param name="drawer">The Draw2D pipeline.</param>
+    public void UploadIfDirty(Draw2D drawer)
     {
         if (!IsDirty) return;
 
@@ -73,7 +73,7 @@ public class TextureList
         previousNewTextures = newTextures;
         newTextures.Clear();
 
-        draw2D.InitializeTextures(textures.AsSpan());
+        drawer.InitializeTextures(textures.AsSpan());
 
         IsDirty = false;
     }

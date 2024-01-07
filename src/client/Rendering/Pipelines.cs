@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
@@ -37,10 +38,12 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     private readonly ISet<Shader> farPlaneSet = new HashSet<Shader>();
 
     private readonly ShaderLoader loader;
-    private readonly LoadingContext loadingContext;
     private readonly ISet<Shader> nearPlaneSet = new HashSet<Shader>();
 
     private readonly ISet<Shader> timedSet = new HashSet<Shader>();
+
+    private readonly List<Renderer> renderers = new();
+    private LoadingContext? loadingContext;
 
     private bool loaded;
 
@@ -51,7 +54,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     private Pipelines(DirectoryInfo directory, LoadingContext loadingContext)
     {
         this.directory = directory;
-        this.loadingContext = loadingContext;
 
         loader = new ShaderLoader(
             directory,
@@ -62,9 +64,14 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     }
 
     /// <summary>
-    ///     Get the selection effect.
+    ///     Get the selection box renderer, which is used to draw selection boxes around blocks.
     /// </summary>
-    public RasterPipeline SelectionEffect { get; private set; } = null!;
+    public SelectionBoxRenderer SelectionBoxRenderer { get; private set; } = null!; // todo: dispose this
+
+    /// <summary>
+    ///     Get the crosshair renderer, which is used to draw the crosshair.
+    /// </summary>
+    public ScreenElementRenderer CrosshairRenderer { get; private set; } = null!;
 
     /// <summary>
     ///     Get the raytracing data buffer.
@@ -166,7 +173,9 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
         using (loadingContext.BeginStep(Events.RenderPipelineSetup, "Shader Setup"))
         {
+            pipelines.loadingContext = loadingContext;
             pipelines.LoadAll(client, textureSlots, visuals);
+            pipelines.loadingContext = null!;
         }
 
         Graphics.Initialize(pipelines.loaded ? pipelines : null);
@@ -174,10 +183,14 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         return pipelines;
     }
 
-    internal void Delete()
+    internal void Delete() // todo: implement IDisposable
     {
         // todo: think about deleting (some cleanup like removing from draw2d and similar is necessary)
         // todo: maybe some more cleanup would be nice
+
+        foreach (Renderer renderer in renderers) renderer.Dispose();
+
+        // todo: go trough all members and check if they need to be disposed
 
         return;
 
@@ -230,34 +243,54 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         Overlay = Check(loader.Load(nameof(Overlay), "overlay", "overlay"));
         Selection = Check(loader.Load(nameof(Selection), "selection", "selection"));
         ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
-
-        UpdateOrthographicProjection();
     }
 
     private void LoadBasicRasterPipelines(Support.Core.Client client)
     {
         if (!loaded) return;
 
-        postProcessingPipeline = LoadPipeline(client, "Post", ShaderPreset.PostProcessing);
+        postProcessingPipeline = Require(LoadPipeline(client, "Post", ShaderPreset.PostProcessing));
+
+        CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
     }
 
     private void LoadEffectRasterPipelines(Support.Core.Client client)
     {
         if (!loaded) return;
 
-        (RasterPipeline pipeline, ShaderBuffer<SelectionBoxRenderer.Data> buffer) = LoadPipelineWithBuffer<SelectionBoxRenderer.Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
-        SelectionEffect = pipeline;
-
-        if (loaded)
-            buffer.Modify((ref SelectionBoxRenderer.Data data) =>
-            {
-                data.DarkColor = (0.1f, 0.1f, 0.1f);
-                data.BrightColor = (0.9f, 0.9f, 0.9f);
-            });
+        SelectionBoxRenderer = Require(SelectionBoxRenderer.Create(client, this), renderers);
     }
 
-    private (RasterPipeline, ShaderBuffer<T>) LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle) where T : unmanaged, IEquatable<T>
+    private TConcrete Require<TConcrete>(TConcrete? value)
     {
+        loaded &= value != null;
+
+        return value!;
+    }
+
+    private TConcrete Require<TConcrete, TBase>(TConcrete? value, ICollection<TBase> registry) where TConcrete : TBase
+    {
+        loaded &= value != null;
+
+        if (value != null) registry.Add(value);
+
+        return value!;
+    }
+
+    /// <summary>
+    ///     Load a raster pipeline with a buffer.
+    ///     Only valid to call during the loading phase.
+    /// </summary>
+    /// <param name="client">The client to use.</param>
+    /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
+    /// <param name="preset">The preset to use.</param>
+    /// <param name="topology">The topology to use.</param>
+    /// <typeparam name="T">The type of the buffer.</typeparam>
+    /// <returns>The pipeline and the buffer, if loading was successful.</returns>
+    public (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle) where T : unmanaged, IEquatable<T>
+    {
+        Debug.Assert(loadingContext != null);
+
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
@@ -270,11 +303,22 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
         if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
 
-        return result;
+        return loaded ? result : null;
     }
 
-    private RasterPipeline LoadPipeline(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle)
+    /// <summary>
+    ///     Load a raster pipeline.
+    ///     Only valid to call during the loading phase.
+    /// </summary>
+    /// <param name="client">The client to use.</param>
+    /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
+    /// <param name="preset">The preset to use.</param>
+    /// <param name="topology">The topology to use.</param>
+    /// <returns>The pipeline, if loading was successful.</returns>
+    public RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle)
     {
+        Debug.Assert(loadingContext != null);
+
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         RasterPipeline pipeline = client.CreateRasterPipeline(
@@ -287,7 +331,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
         if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
 
-        return pipeline;
+        return loaded ? pipeline : null;
     }
 
     private void LoadRaytracingPipeline(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
@@ -350,25 +394,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
         builder.SetCustomDataBufferType<RaytracingData>();
 
-        loaded &= builder.Build(client, loadingContext, out raytracingDataBuffer);
-    }
-
-    /// <summary>
-    ///     Update all orthographic projection matrices.
-    /// </summary>
-    public void UpdateOrthographicProjection()
-    {
-        if (!loaded) return;
-
-        return; // todo: remove the return, and maybe the code below (as projection matrix could be known in c++ code or are just not necessary for these steps anymore)
-
-        Overlay.SetMatrix4(
-            "projection",
-            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Application.Client.Instance.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
-
-        ScreenElement.SetMatrix4(
-            "projection",
-            Matrix4d.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
+        loaded &= builder.Build(client, loadingContext!, out raytracingDataBuffer);
     }
 
     /// <summary>

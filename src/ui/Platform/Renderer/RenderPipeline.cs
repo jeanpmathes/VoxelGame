@@ -50,7 +50,7 @@ public class RenderPipeline
             RasterPipelineDescription.Create(shader, ShaderPreset.Draw2D),
             errorCallback);
 
-        client.AddDraw2dPipeline(pipeline, DoDraw);
+        client.AddDraw2dPipeline(pipeline, Draw2D.Foreground, Draw);
 
         Textures = new TextureList(client);
     }
@@ -76,14 +76,14 @@ public class RenderPipeline
         float cG = renderer.DrawColor.G / 255f;
         float cB = renderer.DrawColor.B / 255f;
         float cA = renderer.DrawColor.A / 255f;
-        Vector4 vertexColor = new(cR, cG, cB, cA);
+        Color4 color = new(cR, cG, cB, cA);
 
-        PushVertex(rect.X, rect.Y, new Vector2(u1, v1), ref vertexColor);
-        PushVertex(rect.X + rect.Width, rect.Y, new Vector2(u2, v1), ref vertexColor);
-        PushVertex(rect.X + rect.Width, rect.Y + rect.Height, new Vector2(u2, v2), ref vertexColor);
-        PushVertex(rect.X, rect.Y, new Vector2(u1, v1), ref vertexColor);
-        PushVertex(rect.X + rect.Width, rect.Y + rect.Height, new Vector2(u2, v2), ref vertexColor);
-        PushVertex(rect.X, rect.Y + rect.Height, new Vector2(u1, v2), ref vertexColor);
+        PushVertex(rect.X, rect.Y, new Vector2(u1, v1), ref color);
+        PushVertex(rect.X + rect.Width, rect.Y, new Vector2(u2, v1), ref color);
+        PushVertex(rect.X + rect.Width, rect.Y + rect.Height, new Vector2(u2, v2), ref color);
+        PushVertex(rect.X, rect.Y, new Vector2(u1, v1), ref color);
+        PushVertex(rect.X + rect.Width, rect.Y + rect.Height, new Vector2(u2, v2), ref color);
+        PushVertex(rect.X, rect.Y + rect.Height, new Vector2(u1, v2), ref color);
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class RenderPipeline
         currentVertexCount = 0;
     }
 
-    private void PushVertex(int x, int y, Vector2 uv, ref Vector4 vertexColor)
+    private void PushVertex(int x, int y, Vector2 uv, ref Color4 vertexColor)
     {
         vertexBuffer.Add(new Draw2D.Vertex
         {
@@ -180,7 +180,7 @@ public class RenderPipeline
         currentVertexCount++;
     }
 
-    private void DoDraw(Draw2D drawer)
+    private void Draw(Draw2D drawer)
     {
         Debug.Assert((drawCalls.Count > 0).Implies(vertexBuffer.Count > 0));
 

@@ -176,11 +176,11 @@ namespace util
         auto str = [](const wchar_t* s) -> const wchar_t* { return s ? s : L"<unknown>"; };
 
         {
-            auto getOperationText = [&](D3D12_AUTO_BREADCRUMB_OP op) -> std::wstring
+            auto getOperationText = [&](const D3D12_AUTO_BREADCRUMB_OP op) -> std::wstring
             {
                 switch (op)
                 {
-                case D3D12_AUTO_BREADCRUMB_OP_SETMARKER: // NOLINT(bugprone-branch-clone)
+                case D3D12_AUTO_BREADCRUMB_OP_SETMARKER:
                     return L"SetMarker";
                 case D3D12_AUTO_BREADCRUMB_OP_BEGINEVENT:
                     return L"BeginEvent";
@@ -270,6 +270,14 @@ namespace util
                     return L"EncodeFrame";
                 case D3D12_AUTO_BREADCRUMB_OP_RESOLVEENCODEROUTPUTMETADATA:
                     return L"ResolveEncoderOutputMetadata";
+                case D3D12_AUTO_BREADCRUMB_OP_BARRIER:
+                    return L"Barrier";
+                case D3D12_AUTO_BREADCRUMB_OP_BEGIN_COMMAND_LIST:
+                    return L"BeginCommandList";
+                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHGRAPH:
+                    return L"DispatchGraph";
+                case D3D12_AUTO_BREADCRUMB_OP_SETPROGRAM:
+                    return L"SetProgram";
                 }
                 return L"<unknown>";
             };
@@ -420,10 +428,8 @@ namespace util
                         break;
                     case D3D12_DRED_ALLOCATION_TYPE_INVALID: message << L" Invalid";
                         break;
-                    default: message << L" <unknown>";
-                        break;
                     }
-
+                    
                     message << std::endl;
 
                     current = current->pNext;

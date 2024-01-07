@@ -23,17 +23,15 @@ public class PlayerResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(LoadingContext loadingContext)
+    public void Load(Support.Core.Client client, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "Player"))
         {
-            // todo: load crosshair here
-            /*
-            Crosshair = new Texture(loadingContext,
+            Crosshair = Texture.Load(
+                client,
                 FileSystem.GetResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
-                TextureUnit.Texture10,
+                loadingContext,
                 fallbackResolution: 32);
-            */
         }
     }
 }

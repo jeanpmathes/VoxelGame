@@ -61,6 +61,8 @@ namespace draw2d
         void BindBoolean() const;
         void BindTexture() const;
 
+        void BindVertexBuffer();
+
         RasterPipeline* m_raster;
         Callback m_callback;
         NativeClient& m_client;
@@ -71,6 +73,10 @@ namespace draw2d
 
         Allocation<ID3D12Resource> m_vertexBuffer = {};
         Allocation<ID3D12Resource> m_uploadBuffer = {};
+        UINT m_vertexCount = 0;
+
+        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView = {};
+        bool m_vertexBufferBound = false;
 
         UINT m_currentTextureIndex = 0;
         BOOL m_currentUseTexture = FALSE;

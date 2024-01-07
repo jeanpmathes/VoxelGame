@@ -74,10 +74,12 @@ public:
     void SetPostProcessingPipeline(RasterPipeline* pipeline);
 
     /**
-     * Add a draw 2D pipeline to the client.
-     * The associated callback will be called every frame, after the post processing pipeline.
+     * \brief Add a draw2d pipeline to the client.
+     * \param pipeline The pipeline to add. Must use the DRAW_2D preset.
+     * \param priority The priority of the pipeline. Higher priorities are drawn later, and thus on top of lower priorities.
+     * \param callback The associated callback will be called every frame, after the post processing pipeline.
      */
-    void AddDraw2DPipeline(RasterPipeline* pipeline, draw2d::Callback callback);
+    void AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback);
 
     using ObjectHandle = size_t;
 
@@ -115,7 +117,7 @@ private:
 
     std::unique_ptr<Uploader> m_uploader = nullptr;
     Bag<std::unique_ptr<Object>> m_objects = {};
-
+    
     RasterInfo m_spaceViewport = {};
     RasterInfo m_postViewport = {};
     RasterInfo m_draw2dViewport = {};
@@ -126,9 +128,15 @@ private:
     Allocation<ID3D12Resource> m_postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
 
+    struct Draw2dPipeline
+    {
+        draw2d::Pipeline pipeline;
+        INT priority;
+    };
+
     std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
     RasterPipeline* m_postProcessingPipeline = nullptr;
-    std::vector<draw2d::Pipeline> m_draw2DPipelines = {};
+    std::list<Draw2dPipeline> m_draw2dPipelines = {};
 
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;
@@ -168,7 +176,7 @@ private:
     void CheckRaytracingSupport() const;
     void PopulateSpaceCommandList(double delta) const;
     void PopulatePostProcessingCommandList() const;
-    void PopulateDraw2DCommandList(size_t index);
+    void PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const;
 
     void LoadDevice();
     void LoadRasterPipeline();

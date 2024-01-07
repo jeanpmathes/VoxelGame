@@ -23,14 +23,14 @@ public class GameResources
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
-    private readonly Support.Core.Client window;
+    private readonly Support.Core.Client client;
 
     /// <summary>
     ///     Create the graphics resources.
     /// </summary>
-    public GameResources(Support.Core.Client window)
+    public GameResources(Support.Core.Client client)
     {
-        this.window = window;
+        this.client = client;
     }
 
     /// <summary>
@@ -95,9 +95,9 @@ public class GameResources
             }
         }
 
-        UIResources.Load(window, loadingContext);
+        UIResources.Load(client, loadingContext);
 
-        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), window, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
+        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
 
         TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
@@ -114,7 +114,7 @@ public class GameResources
 
         Fluids.Load(FluidTextures, loadingContext);
 
-        PlayerResources.Load(loadingContext);
+        PlayerResources.Load(client, loadingContext);
 
         Generator.Prepare(loadingContext);
 
@@ -125,7 +125,7 @@ public class GameResources
     /// <summary>
     ///     Unload and free all resources.
     /// </summary>
-    public void Unload()
+    public void Unload() // todo: instead of this use a proper dispose pattern, same for the classes below and above
     {
         Pipelines.Delete();
         UIResources.Unload();
