@@ -117,10 +117,10 @@ ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTabl
     return static_cast<TableHandle>(handle);
 }
 
-void ShaderResources::Description::AddStaticSampler(const ShaderLocation location)
+void ShaderResources::Description::AddStaticSampler(const ShaderLocation location, const D3D12_FILTER filter)
 {
     D3D12_STATIC_SAMPLER_DESC sampler;
-    sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    sampler.Filter = filter;
     sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
     sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;

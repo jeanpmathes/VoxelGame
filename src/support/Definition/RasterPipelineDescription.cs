@@ -30,7 +30,7 @@ public struct RasterPipelineDescription
     /// <summary>
     ///     The shader preset.
     /// </summary>
-    private ShaderPreset ShaderPreset;
+    private ShaderPresets.ShaderPreset ShaderPreset;
 
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
@@ -38,53 +38,110 @@ public struct RasterPipelineDescription
     internal uint BufferSize;
 
     /// <summary>
-    ///     The topology of the mesh. Only used for <see cref="ShaderPreset.SpatialEffect" />.
+    ///     The topology of the mesh. Only used for <see cref="ShaderPresets.ShaderPreset.SpatialEffect" />.
     /// </summary>
     private Topology Topology;
+
+    /// <summary>
+    ///     The filter set on the texture sampler. Only used for <see cref="ShaderPresets.ShaderPreset.PostProcessing" /> and
+    ///     <see cref="ShaderPresets.ShaderPreset.Draw2D" />.
+    /// </summary>
+    private Filter Filter;
 
     /// <summary>
     ///     Creates a new pipeline description.
     /// </summary>
     /// <param name="shader">The combined shader file.</param>
     /// <param name="preset">The shader preset.</param>
-    /// <param name="topology">If the preset is <see cref="ShaderPreset.SpatialEffect"/>, the topology of the mesh.</param>
     /// <returns>The pipeline description.</returns>
-    public static RasterPipelineDescription Create(FileInfo shader, ShaderPreset preset, Topology topology = Topology.Triangle)
+    public static RasterPipelineDescription Create(FileInfo shader, ShaderPresets.IPreset preset)
     {
         return new RasterPipelineDescription
         {
             VertexShaderPath = shader.FullName,
             PixelShaderPath = shader.FullName,
-            ShaderPreset = preset,
+            ShaderPreset = preset.Preset,
             BufferSize = 0,
-            Topology = topology
+            Topology = preset.Topology,
+            Filter = preset.Filter
         };
     }
 }
 
 /// <summary>
-///     A shader preset determining the shader input and the root signature.
+/// Utility class for shader presets.
 /// </summary>
-public enum ShaderPreset : byte
+public static class ShaderPresets
 {
+    /// <summary>
+    ///     All presets, as an enum for the native code.
+    /// </summary>
+    public enum ShaderPreset : byte
+    {
+        /// <summary>
+        ///     The post processing preset, see <see cref="ShaderPresets.PostProcessing" />.
+        /// </summary>
+        PostProcessing,
+
+        /// <summary>
+        ///     The 2D drawing preset, see <see cref="ShaderPresets.Draw2D" />.
+        /// </summary>
+        Draw2D,
+
+        /// <summary>
+        ///     The 3D drawing preset, see <see cref="ShaderPresets.SpatialEffect" />.
+        /// </summary>
+        SpatialEffect
+    }
+
+    /// <summary>
+    ///     Interface for shader presets.
+    /// </summary>
+    public interface IPreset
+    {
+        internal ShaderPreset Preset { get; }
+
+        /// <summary>
+        ///     Gets the topology of the mesh.
+        /// </summary>
+        public Topology Topology => Topology.Triangle;
+
+        /// <summary>
+        ///     Gets the filter set on the texture sampler.
+        /// </summary>
+        public Filter Filter => Filter.Linear;
+    }
+
     /// <summary>
     ///     Draws a single quad with a texture containing the previously rendered space.
     /// </summary>
-    PostProcessing,
+    public record struct PostProcessing(Filter Filter = Filter.Linear) : IPreset
+    {
+        /// <inheritdoc />
+        public ShaderPreset Preset => ShaderPreset.PostProcessing;
+    }
 
     /// <summary>
     ///     Used for drawing 2D rectangles that are either colored or textured.
     /// </summary>
-    Draw2D,
+    public record struct Draw2D(Filter Filter = Filter.Linear) : IPreset
+    {
+        /// <inheritdoc />
+        public ShaderPreset Preset => ShaderPreset.Draw2D;
+    }
 
     /// <summary>
     ///     Used for drawing 3D objects in the space, using a raster pipeline.
     /// </summary>
-    SpatialEffect
+    public record struct SpatialEffect(Topology Topology = Topology.Triangle) : IPreset
+    {
+        /// <inheritdoc />
+        public ShaderPreset Preset => ShaderPreset.SpatialEffect;
+    }
 }
 
 /// <summary>
-///     The topology of the raster pipeline. Only used for <see cref="ShaderPreset.SpatialEffect" />.
+///     The topology of the raster pipeline.
 /// </summary>
 public enum Topology : byte
 {
@@ -97,4 +154,20 @@ public enum Topology : byte
     ///     The mesh is a list of lines.
     /// </summary>
     Line
+}
+
+/// <summary>
+///     The filter set on the texture sampler.
+/// </summary>
+public enum Filter : byte
+{
+    /// <summary>
+    ///     A linear filter.
+    /// </summary>
+    Linear,
+
+    /// <summary>
+    ///     A nearest/point filter.
+    /// </summary>
+    Closest
 }

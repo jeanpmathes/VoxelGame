@@ -35,6 +35,15 @@ enum class Topology : BYTE
     LINE
 };
 
+/**
+ * \brief The filter to use for the texture sampler. Only valid for POST_PROCESSING and DRAW_2D.
+ */
+enum class Filter : BYTE
+{
+    LINEAR,
+    CLOSEST
+};
+
 struct RasterPipelineDescription
 {
     const wchar_t* vertexShaderPath;
@@ -42,7 +51,8 @@ struct RasterPipelineDescription
     ShaderPreset shaderPreset;
     UINT bufferSize;
 
-    Topology topology = Topology::TRIANGLE;
+    Topology topology = {};
+    Filter filter = {};
 };
 
 /**

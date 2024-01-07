@@ -20,18 +20,41 @@ namespace
 
         REQUIRE(description.bufferSize < D3D12_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT * 4 * 4);
 
-        if (description.shaderPreset == ShaderPreset::SPATIAL_EFFECT)
+        auto ensureValidEnum = [&]<typename E>(const E& field, const std::vector<ShaderPreset>& presets,
+                                               const std::vector<E>& values)
         {
-            REQUIRE(description.topology == Topology::TRIANGLE ||
-                description.topology == Topology::LINE);
-        }
-        else
-        {
-            REQUIRE(description.topology == Topology::TRIANGLE);
-        }
+            if (std::ranges::find(presets, description.shaderPreset) != presets.end())
+                REQUIRE(std::ranges::find(values, field) != values.end());
+            else
+                REQUIRE(field == E{});
+        };
+
+        ensureValidEnum(description.topology,
+                        {ShaderPreset::SPATIAL_EFFECT},
+                        {Topology::TRIANGLE, Topology::LINE});
+
+        ensureValidEnum(description.filter,
+                        {ShaderPreset::POST_PROCESSING, ShaderPreset::DRAW_2D},
+                        {Filter::LINEAR, Filter::CLOSEST});
     }
 
-    Preset GetPostProcessingPreset(const ShaderBuffer* shaderBuffer, const NativeClient& client)
+    D3D12_FILTER GetFilter(const RasterPipelineDescription& description)
+    {
+        switch (description.filter)
+        {
+        case Filter::LINEAR:
+            return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        case Filter::CLOSEST:
+            return D3D12_FILTER_MIN_MAG_MIP_POINT;
+        }
+
+        throw NativeException("Invalid filter.");
+    }
+
+    Preset GetPostProcessingPreset(
+        const RasterPipelineDescription& description,
+        const ShaderBuffer* shaderBuffer,
+        const NativeClient& client)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> input =
         {
@@ -52,7 +75,7 @@ namespace
             [&](auto& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0});
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
 
                 if (shaderBuffer != nullptr)
                 {
@@ -72,7 +95,10 @@ namespace
         return {std::move(resources), std::move(bindings), input};
     }
 
-    Preset GetDraw2dPreset(const ShaderBuffer* shaderBuffer, const NativeClient& client)
+    Preset GetDraw2dPreset(
+        const RasterPipelineDescription& description,
+        const ShaderBuffer* shaderBuffer,
+        const NativeClient& client)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> input =
         {
@@ -97,7 +123,7 @@ namespace
             [&](auto& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0});
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
 
                 if (shaderBuffer != nullptr)
                 {
@@ -115,7 +141,10 @@ namespace
         return {std::move(resources), std::move(bindings), input};
     }
 
-    Preset GetSpatialEffectPreset(const ShaderBuffer*, const NativeClient& client)
+    Preset GetSpatialEffectPreset(
+        const RasterPipelineDescription&,
+        const ShaderBuffer*,
+        const NativeClient& client)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> input =
         {
@@ -138,17 +167,19 @@ namespace
         return {std::move(resources), std::move(bindings), input};
     }
 
-    Preset GetShaderPreset(const ShaderPreset preset, const ShaderBuffer* shaderBuffer,
-                           const NativeClient& client)
+    Preset GetShaderPreset(
+        const RasterPipelineDescription& description,
+        const ShaderBuffer* shaderBuffer,
+        const NativeClient& client)
     {
-        switch (preset)
+        switch (description.shaderPreset)
         {
         case ShaderPreset::POST_PROCESSING:
-            return GetPostProcessingPreset(shaderBuffer, client);
+            return GetPostProcessingPreset(description, shaderBuffer, client);
         case ShaderPreset::DRAW_2D:
-            return GetDraw2dPreset(shaderBuffer, client);
+            return GetDraw2dPreset(description, shaderBuffer, client);
         case ShaderPreset::SPATIAL_EFFECT:
-            return GetSpatialEffectPreset(shaderBuffer, client);
+            return GetSpatialEffectPreset(description, shaderBuffer, client);
         default:
             throw NativeException("Invalid shader preset.");
         }
@@ -252,8 +283,8 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         shaderBuffer = std::make_unique<ShaderBuffer>(client, description.bufferSize);
     }
 
-    auto [resources, bindings, inputLayout] = GetShaderPreset(
-        description.shaderPreset, shaderBuffer.get(), client);
+    auto [resources, bindings, inputLayout]
+        = GetShaderPreset(description, shaderBuffer.get(), client);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.pRootSignature = resources->GetGraphicsRootSignature().Get();

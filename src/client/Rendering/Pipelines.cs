@@ -249,7 +249,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     {
         if (!loaded) return;
 
-        postProcessingPipeline = Require(LoadPipeline(client, "Post", ShaderPreset.PostProcessing));
+        postProcessingPipeline = Require(LoadPipeline(client, "Post", new ShaderPresets.PostProcessing()));
 
         CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
     }
@@ -284,17 +284,16 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <param name="client">The client to use.</param>
     /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
     /// <param name="preset">The preset to use.</param>
-    /// <param name="topology">The topology to use.</param>
     /// <typeparam name="T">The type of the buffer.</typeparam>
     /// <returns>The pipeline and the buffer, if loading was successful.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>
     {
         Debug.Assert(loadingContext != null);
 
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
-            RasterPipelineDescription.Create(path, preset, topology),
+            RasterPipelineDescription.Create(path, preset),
             error =>
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
@@ -313,16 +312,15 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <param name="client">The client to use.</param>
     /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
     /// <param name="preset">The preset to use.</param>
-    /// <param name="topology">The topology to use.</param>
     /// <returns>The pipeline, if loading was successful.</returns>
-    public RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPreset preset, Topology topology = Topology.Triangle)
+    public RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPresets.IPreset preset)
     {
         Debug.Assert(loadingContext != null);
 
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
         RasterPipeline pipeline = client.CreateRasterPipeline(
-            RasterPipelineDescription.Create(path, preset, topology),
+            RasterPipelineDescription.Create(path, preset),
             error =>
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);

@@ -57,7 +57,8 @@ public sealed class ScreenElementRenderer : Renderer
     /// </summary>
     public static ScreenElementRenderer? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", ShaderPreset.Draw2D);
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
+            = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 

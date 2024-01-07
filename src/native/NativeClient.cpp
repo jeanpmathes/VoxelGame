@@ -600,13 +600,17 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 
 void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback)
 {
+    // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
+    // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
+    UINT clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
+    
     if (m_draw2dPipelines.empty() || priority < m_draw2dPipelines.front().priority)
     {
-        m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, callback}, priority);
+        m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
     }
     else if (priority > m_draw2dPipelines.back().priority)
     {
-        m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, callback}, priority);
+        m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
     }
     else
         for (auto it = m_draw2dPipelines.begin(); it != m_draw2dPipelines.end(); ++it)
@@ -614,7 +618,7 @@ void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, dra
             // Goal: insert after the first element with priority lower than the new one.
             if (priority > it->priority)
             {
-                m_draw2dPipelines.emplace(--it, draw2d::Pipeline{*this, pipeline, callback}, priority);
+                m_draw2dPipelines.emplace(--it, draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
                 break;
             }
         }

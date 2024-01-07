@@ -58,7 +58,8 @@ public sealed class SelectionBoxRenderer : Renderer
     /// </summary>
     public static SelectionBoxRenderer? Create(Support.Core.Client client, Pipelines pipelines)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", ShaderPreset.SpatialEffect, Topology.Line);
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
+            = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 

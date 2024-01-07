@@ -172,8 +172,9 @@ public:
         /**
          * \brief Add a static texture sampler.
          * \param location The shader location of the sampler.
+         * \param filter The sampler filter.
          */
-        void AddStaticSampler(ShaderLocation location);
+        void AddStaticSampler(ShaderLocation location, D3D12_FILTER filter);
 
         /**
          * \brief Enable the input assembler option in the root signature.
