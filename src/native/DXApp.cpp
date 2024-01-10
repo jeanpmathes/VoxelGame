@@ -67,6 +67,7 @@ void DXApp::Init()
 void DXApp::Update(const StepTimer& timer)
 {
     const double delta = timer.GetElapsedSeconds();
+    m_totalRenderTime += delta;
 
     m_cycle = Cycle::UPDATE;
 
@@ -81,6 +82,7 @@ void DXApp::Render(const StepTimer& timer)
     if (m_updateTimer.GetFrameCount() == 0) return;
 
     const double delta = timer.GetElapsedSeconds();
+    m_totalRenderTime += delta;
 
     m_cycle = Cycle::RENDER;
 

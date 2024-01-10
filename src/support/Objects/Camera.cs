@@ -132,16 +132,6 @@ public class Camera : NativeObject, IView
         return new Frustum(fov, Client.AspectRatio, (near, far), Position, front, Up, Right);
     }
 
-    /// <summary>
-    ///     Get the camera's frustum dimensions at a given distance.
-    /// </summary>
-    /// <param name="distance">The distance.</param>
-    /// <returns>The width and height.</returns>
-    public (double width, double height) GetDimensionsAt(double distance)
-    {
-        return Frustum.GetDimensionsAt(distance, fov, Client.AspectRatio);
-    }
-
     internal override void PrepareSynchronization()
     {
         const float maxDistance = 1000.0f;

@@ -435,7 +435,7 @@ void NativeClient::OnPreRender()
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
 
-void NativeClient::OnRender(const double delta)
+void NativeClient::OnRender(const double)
 {
     if (!m_windowVisible) return;
 
@@ -444,7 +444,7 @@ void NativeClient::OnRender(const double delta)
 
         m_uploadGroup.Close();
 
-        PopulateCommandLists(delta);
+        PopulateCommandLists();
 
         std::vector<ID3D12CommandList*> commandLists;
         commandLists.reserve(3);
@@ -706,7 +706,7 @@ void NativeClient::CheckRaytracingSupport() const
             "Raytracing not supported on device.");
 }
 
-void NativeClient::PopulateSpaceCommandList(const double delta) const
+void NativeClient::PopulateSpaceCommandList() const
 {
     REQUIRE(m_space != nullptr);
 
@@ -714,7 +714,7 @@ void NativeClient::PopulateSpaceCommandList(const double delta) const
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
     
     m_space->Reset(m_frameIndex);
-    m_space->Render(delta, m_intermediateRenderTarget, m_intermediateDepthStencilBuffer, {
+    m_space->Render(m_intermediateRenderTarget, m_intermediateDepthStencilBuffer, {
                         .rtv = &rtvHandle, .dsv = &dsvHandle, .viewport = &m_spaceViewport
                     });
 }
@@ -724,6 +724,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
     if (m_space == nullptr) return; // Nothing to post-process.
 
     PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
+    // todo: all raster pipelines should use name $preset - $shader
 
     m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
     m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
@@ -759,7 +760,7 @@ void NativeClient::PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const
     pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
 }
 
-void NativeClient::PopulateCommandLists(const double delta)
+void NativeClient::PopulateCommandLists()
 {
     m_2dGroup.Reset(m_frameIndex);
 
@@ -778,7 +779,7 @@ void NativeClient::PopulateCommandLists(const double delta)
 
     if (m_space)
     {
-        PopulateSpaceCommandList(delta);
+        PopulateSpaceCommandList();
 
         if (m_postProcessingPipeline != nullptr)
         {

@@ -164,7 +164,7 @@ public readonly unsafe struct Draw2D
     ///     Draw parts of the current buffer.
     /// </summary>
     /// <param name="range">The range of vertices to draw, given as a tuple of the first vertex and the number of vertices.</param>
-    /// <param name="textureIndex">The index of the texture to use. Is ignored if <paramref name="useTexture" /> is false.</param>
+    /// <param name="textureIndex">The index of the texture to use. Is ignored if <paramref name="useTexture" /> is false. When using manual indexing in the shader, supply <c>0</c> here.</param>
     /// <param name="useTexture">Whether to use a texture.</param>
     public void DrawBuffer((uint first, uint lenght) range, uint textureIndex, bool useTexture)
     {

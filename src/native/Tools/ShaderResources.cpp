@@ -79,6 +79,20 @@ ShaderResources::Table::Table(const UINT heap) : m_heap(heap)
 {
 }
 
+ShaderResources::ConstantHandle ShaderResources::Description::AddRootConstant(
+    const std::function<Value32()>& getter,
+    const ShaderLocation location)
+{
+    const UINT handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+
+    m_rootSignatureGenerator.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS, location.reg, location.space,
+                                              1);
+    m_rootParameters.push_back(RootConstant{});
+    m_rootConstants.push_back(getter);
+
+    return static_cast<ConstantHandle>(handle);
+}
+
 void ShaderResources::Description::AddConstantBufferView(
     const D3D12_GPU_VIRTUAL_ADDRESS gpuAddress,
     const ShaderLocation location)
@@ -148,7 +162,7 @@ ShaderResources::ListHandle ShaderResources::Description::AddConstantBufferViewD
     const DescriptorGetter<ConstantBufferViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddShaderResourceViewDescriptorList(
@@ -157,7 +171,7 @@ ShaderResources::ListHandle ShaderResources::Description::AddShaderResourceViewD
     const DescriptorGetter<ShaderResourceViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddUnorderedAccessViewDescriptorList(
@@ -166,25 +180,28 @@ ShaderResources::ListHandle ShaderResources::Description::AddUnorderedAccessView
     const DescriptorGetter<UnorderedAccessViewDescriptor>& descriptor,
     ListBuilder builder)
 {
-    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), false);
+    return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::SelectionList<ShaderResources::ConstantBufferViewDescriptor>
-ShaderResources::Description::AddConstantBufferViewDescriptorSelectionList(const ShaderLocation location)
+ShaderResources::Description::AddConstantBufferViewDescriptorSelectionList(
+    const ShaderLocation location, const UINT window)
 {
-    return AddSelectionList<ConstantBufferViewDescriptor>(location);
+    return AddSelectionList<ConstantBufferViewDescriptor>(location, window);
 }
 
 ShaderResources::SelectionList<ShaderResources::ShaderResourceViewDescriptor>
-ShaderResources::Description::AddShaderResourceViewDescriptorSelectionList(const ShaderLocation location)
+ShaderResources::Description::AddShaderResourceViewDescriptorSelectionList(
+    const ShaderLocation location, const UINT window)
 {
-    return AddSelectionList<ShaderResourceViewDescriptor>(location);
+    return AddSelectionList<ShaderResourceViewDescriptor>(location, window);
 }
 
 ShaderResources::SelectionList<ShaderResources::UnorderedAccessViewDescriptor>
-ShaderResources::Description::AddUnorderedAccessViewDescriptorSelectionList(const ShaderLocation location)
+ShaderResources::Description::AddUnorderedAccessViewDescriptorSelectionList(
+    const ShaderLocation location, const UINT window)
 {
-    return AddSelectionList<UnorderedAccessViewDescriptor>(location);
+    return AddSelectionList<UnorderedAccessViewDescriptor>(location, window);
 }
 
 void ShaderResources::Description::AddRootParameter(
@@ -210,10 +227,12 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
 {
     m_device = device;
 
-    Description graphicsDescription(0);
+    UINT rootParameterCount = 0;
+    Description graphicsDescription(rootParameterCount);
     graphics(graphicsDescription);
 
-    Description computeDescription(static_cast<UINT>(graphicsDescription.m_rootParameters.size()));
+    rootParameterCount = static_cast<UINT>(graphicsDescription.m_rootParameters.size());
+    Description computeDescription(rootParameterCount);
     compute(computeDescription);
 
     m_graphicsRootSignature = graphicsDescription.GenerateRootSignature(device);
@@ -223,6 +242,30 @@ void ShaderResources::Initialize(const Builder& graphics, const Builder& compute
     m_computeRootSignature = computeDescription.GenerateRootSignature(device);
     m_computeRootParameters = std::move(computeDescription.m_rootParameters);
     NAME_D3D12_OBJECT(m_computeRootSignature);
+
+    auto initializeConstants = [&](
+        std::vector<RootParameter>& rootParameters,
+        std::vector<std::function<Value32()>>&& getters)
+    {
+        UINT constantIndex = 0;
+
+        for (auto& parameter : rootParameters)
+        {
+            if (std::holds_alternative<RootConstant>(parameter))
+            {
+                auto& [index] = std::get<RootConstant>(parameter);
+                index = constantIndex;
+
+                auto& [getter] = m_constants.emplace_back();
+                getter = std::move(getters[constantIndex]);
+
+                constantIndex++;
+            }
+        }
+    };
+
+    initializeConstants(m_graphicsRootParameters, std::move(graphicsDescription.m_rootConstants));
+    initializeConstants(m_computeRootParameters, std::move(computeDescription.m_rootConstants));
 
     m_totalTableDescriptorCount = graphicsDescription.m_heapDescriptorTableCount + computeDescription.
         m_heapDescriptorTableCount;
@@ -351,7 +394,16 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         {
             using T = std::decay_t<Arg>;
 
-            if constexpr (std::is_same_v<T, RootConstantBufferView>)
+            if constexpr (std::is_same_v<T, RootConstant>)
+            {
+                const auto& [index] = arg;
+                auto& constant = m_constants[index];
+
+                commandList->SetGraphicsRoot32BitConstant(
+                    static_cast<UINT>(parameterIndex),
+                    constant.getter().uInteger, 0);
+            }
+            else if constexpr (std::is_same_v<T, RootConstantBufferView>)
             {
                 const auto& [gpuAddress] = arg;
                 commandList->SetGraphicsRootConstantBufferView(
@@ -420,7 +472,16 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         {
             using T = std::decay_t<Arg>;
 
-            if constexpr (std::is_same_v<T, RootConstantBufferView>)
+            if constexpr (std::is_same_v<T, RootConstant>)
+            {
+                const auto& [index] = arg;
+                auto& constant = m_constants[index];
+
+                commandList->SetComputeRoot32BitConstant(
+                    static_cast<UINT>(parameterIndex),
+                    constant.getter().uInteger, 0);
+            }
+            else if constexpr (std::is_same_v<T, RootConstantBufferView>)
             {
                 const auto& [gpuAddress] = arg;
                 commandList->SetComputeRootConstantBufferView(

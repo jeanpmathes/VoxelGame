@@ -115,29 +115,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// </summary>
     public IView View => camera;
 
-    /// <summary>
-    ///     Get or set whether any overlay rendering is enabled.
-    /// </summary>
-    public bool OverlayEnabled { get; set; } = true;
-
-    /// <summary>
-    ///     Get the dimensions of the near view plane.
-    /// </summary>
-    public (Vector3d a, Vector3d b) NearDimensions
-    {
-        get
-        {
-            (double width, double height) = camera.GetDimensionsAt(camera.NearClipping);
-
-            Vector3d position = camera.Position + camera.Front * camera.NearClipping;
-
-            Vector3d up = camera.Up * height * 0.5f;
-            Vector3d right = camera.Right * width * 0.5f;
-
-            return (position - up - right, position + up + right);
-        }
-    }
-
     /// <inheritdoc />
     public override Vector3d Movement => movement;
 
@@ -157,6 +134,14 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     string IPlayerDataProvider.Selection => selector.SelectionName;
 
     string IPlayerDataProvider.Mode => selector.ModeName;
+
+    /// <summary>
+    ///     Set whether the overlay rendering is allowed.
+    /// </summary>
+    public void SetOverlayAllowed(bool allowed)
+    {
+        visualInterface.IsOverlayAllowed = allowed;
+    }
 
     /// <summary>
     ///     Teleport the player to a new position.
@@ -184,14 +169,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     public void OnDeactivate()
     {
         visualInterface.Deactivate();
-    }
-
-    /// <summary>
-    ///     Draw content that is specific to the local player.
-    /// </summary>
-    public void RenderVisualInterface()
-    {
-        if (OverlayEnabled) visualInterface.DrawOverlay(); // todo: handle OverlayEnabled differently (not this method), and remove this method
     }
 
     private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)

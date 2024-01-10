@@ -177,14 +177,9 @@ void Space::Update(double)
     }
 }
 
-void Space::Render(
-    const double delta,
-    Allocation<ID3D12Resource> color,
-    Allocation<ID3D12Resource> depth,
-    const RenderData& data)
+void Space::Render(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth, const RenderData& data)
 {
-    m_renderTime += delta;
-    m_globalConstantBufferMapping->time = static_cast<float>(m_renderTime);
+    m_globalConstantBufferMapping->time = static_cast<float>(m_nativeClient.GetTotalRenderTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
@@ -372,8 +367,8 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
                 m_rtColorDataForRasterEntry = table.AddShaderResourceView({.reg = 0});
                 m_rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
             });
-            
-            m_effectBindings = RasterPipeline::SetupEffectBindings(graphics);
+
+            m_effectBindings = RasterPipeline::SetupEffectBindings(m_nativeClient, graphics);
             // todo: update wiki article about shader resources (write section about compute resources)
         },
         [&](auto& compute)

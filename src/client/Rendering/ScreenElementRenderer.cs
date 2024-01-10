@@ -55,6 +55,9 @@ public sealed class ScreenElementRenderer : Renderer
     /// <summary>
     /// Create a new <see cref="ScreenElementRenderer"/>.
     /// </summary>
+    /// <param name="client">The client instance.</param>
+    /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
+    /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
     public static ScreenElementRenderer? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result

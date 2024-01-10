@@ -59,8 +59,8 @@ namespace draw2d
         static void Initialize(Pipeline* ctx);
 
         void BindBoolean() const;
-        void BindTexture() const;
-
+        void BindTextures() const;
+        
         void BindVertexBuffer();
 
         RasterPipeline* m_raster;

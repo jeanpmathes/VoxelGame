@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <span>
 #include <variant>
 
 #include "DescriptorHeap.hpp"
@@ -16,6 +17,25 @@
  */
 class ShaderResources
 {
+public:
+    /**
+     * \brief Signals that a heap descriptor table range has an unbounded size.
+     */
+    static constexpr UINT UNBOUNDED = UINT_MAX;
+
+    union Value32
+    {
+        INT32 sInteger;
+        UINT32 uInteger;
+        FLOAT floating;
+    };
+
+private:
+    struct RootConstant
+    {
+        UINT index;
+    };
+    
     struct RootConstantBufferView
     {
         D3D12_GPU_VIRTUAL_ADDRESS gpuAddress;
@@ -44,8 +64,8 @@ class ShaderResources
         bool isSelectionList;
     };
 
-    using RootParameter = std::variant<RootConstantBufferView, RootShaderResourceView, RootUnorderedAccessView,
-                                       RootHeapDescriptorTable, RootHeapDescriptorList>;
+    using RootParameter = std::variant<RootConstant, RootConstantBufferView, RootShaderResourceView,
+                                       RootUnorderedAccessView, RootHeapDescriptorTable, RootHeapDescriptorList>;
     
 public:
     /**
@@ -128,6 +148,11 @@ public:
         std::vector<UINT> m_offsets = {{0}};
     };
 
+    enum class ConstantHandle : UINT
+    {
+        INVALID = UINT_MAX
+    };
+    
     enum class TableHandle : UINT
     {
         INVALID = UINT_MAX
@@ -147,6 +172,11 @@ public:
     struct Description
     {
         friend class ShaderResources;
+
+        /**
+         * Add a root constant directly in the root signature.
+         */
+        ConstantHandle AddRootConstant(const std::function<Value32()>& getter, ShaderLocation location);
 
         /**
          * Add a CBV directly in the root signature.
@@ -229,9 +259,9 @@ public:
             SizeGetter&& count,
             const DescriptorGetter<Descriptor>& descriptor,
             ListBuilder&& builder,
-            bool isSelectionList)
+            std::optional<UINT> numberOfDescriptorsIfSelectionList)
         {
-            const UINT number = isSelectionList ? 1 : UINT_MAX;
+            const UINT number = numberOfDescriptorsIfSelectionList.value_or(UNBOUNDED);
             const UINT listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
 
             m_rootSignatureGenerator.AddHeapRangesParameter({
@@ -243,7 +273,8 @@ public:
                                                       {
                                                           const Descriptor view = descriptor(index);
                                                           view.Create(device, cpuHandle);
-                                                      }, std::move(builder), isSelectionList);
+                                                      }, std::move(builder),
+                                                      numberOfDescriptorsIfSelectionList.has_value());
 
             return static_cast<ListHandle>(listHandle);
         }
@@ -252,35 +283,40 @@ public:
         /**
          * \brief Add a CBV selection list.
          * \param location The shader location of the CBV.
+         * \param window The size of the selection window.
          * \return The selection list.
          */
         SelectionList<ConstantBufferViewDescriptor> AddConstantBufferViewDescriptorSelectionList(
-            ShaderLocation location);
+            ShaderLocation location, UINT window = 1);
 
         /**
          * \brief Add a SRV selection list.
          * \param location The shader location of the SRV.
+         * \param window The size of the selection window.
          * \return The selection list.
          */
         SelectionList<ShaderResourceViewDescriptor> AddShaderResourceViewDescriptorSelectionList(
-            ShaderLocation location);
+            ShaderLocation location, UINT window = 1);
 
         /**
          * \brief Add a UAV selection list.
          * \param location The shader location of the UAV.
+         * \param window The size of the selection window.
          * \return The selection list.
          */
         SelectionList<UnorderedAccessViewDescriptor> AddUnorderedAccessViewDescriptorSelectionList(
-            ShaderLocation location);
+            ShaderLocation location, UINT window = 1);
 
     private:
         template <class Descriptor>
             requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor>
                 or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
                 or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
-        SelectionList<Descriptor> AddSelectionList(const ShaderLocation& location)
+        SelectionList<Descriptor> AddSelectionList(const ShaderLocation& location, const UINT window)
         {
-            return SelectionList<Descriptor>(location, this);
+            REQUIRE(window > 0);
+
+            return SelectionList<Descriptor>(location, this, window);
         }
         
         void AddRootParameter(ShaderLocation location, D3D12_ROOT_PARAMETER_TYPE type, RootParameter&& parameter);
@@ -293,6 +329,8 @@ public:
         std::vector<RootParameter> m_rootParameters = {};
         nv_helpers_dx12::RootSignatureGenerator m_rootSignatureGenerator = {};
 
+        std::vector<std::function<Value32()>> m_rootConstants = {};
+        
         std::vector<std::vector<UINT>> m_heapDescriptorTableOffsets = {};
         UINT m_heapDescriptorTableCount = 0;
 
@@ -309,7 +347,7 @@ public:
     };
 
     /**
-     * \brief A selection list is a list of descriptors of which always one is selected as parameter.
+     * \brief A selection list is a list of descriptors of which a window is selected as parameters.
      * \tparam Descriptor The descriptor type.
      */
     template <class Descriptor>
@@ -334,8 +372,10 @@ public:
         friend ShaderResources;
 
     private:
-        SelectionList(const ShaderLocation location, Description* description) : m_data(std::make_unique<Data>())
+        SelectionList(const ShaderLocation location, Description* description, UINT window) : m_data(
+            std::make_unique<Data>())
         {
+            m_data->window = window;
             m_data->handle = description->AddDescriptorList<Descriptor>(location, [ptr = m_data.get()]() -> UINT
                                                                         {
                                                                             return static_cast<UINT>(ptr->descriptors.
@@ -351,11 +391,13 @@ public:
                                                                             {
                                                                                 builder(i);
                                                                             }
-                                                                        }, true);
+                                                                        }, window);
         }
 
         void SetDescriptors(const std::vector<Descriptor>& descriptors)
         {
+            REQUIRE(descriptors.size() >= m_data->window || m_data->window == UNBOUNDED);
+            
             m_data->count = static_cast<UINT>(descriptors.size());
             m_data->descriptors.resize(std::max(static_cast<size_t>(m_data->count), m_data->descriptors.size()));
 
@@ -369,6 +411,8 @@ public:
         {
             ListHandle handle = ListHandle::INVALID;
             std::vector<Descriptor> descriptors = {};
+
+            UINT window = 0;
             UINT count = 0;
         };
 
@@ -407,7 +451,7 @@ public:
             or std::is_same_v<Descriptor, ShaderResourceViewDescriptor>
             or std::is_same_v<Descriptor, UnorderedAccessViewDescriptor>)
     void BindSelectionListIndex(SelectionList<Descriptor>& list, UINT index,
-                                ComPtr<ID3D12GraphicsCommandList> commandList)
+                                const ComPtr<ID3D12GraphicsCommandList> commandList)
     {
         const UINT parameterIndex = static_cast<UINT>(list.m_data->handle);
         const RootParameter& parameter = GetRootParameter(parameterIndex);
@@ -463,6 +507,13 @@ private:
     bool m_cpuDescriptorHeapDirty = false;
     
     ComPtr<ID3D12Device5> m_device = nullptr;
+
+    struct Constant
+    {
+        std::function<Value32()> getter = {};
+    };
+
+    std::vector<Constant> m_constants = {};
 
     struct DescriptorTable
     {

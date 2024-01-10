@@ -93,6 +93,9 @@ public:
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
 
+    [[nodiscard]] double GetTotalUpdateTime() const { return m_totalUpdateTime; }
+    [[nodiscard]] double GetTotalRenderTime() const { return m_totalRenderTime; }
+
     enum class Cycle
     {
         /**
@@ -152,6 +155,9 @@ private:
 
     StepTimer m_updateTimer{};
     StepTimer m_renderTimer{};
+
+    double m_totalUpdateTime = 0.0;
+    double m_totalRenderTime = 0.0;
 
     int m_xMousePosition = 0;
     int m_yMousePosition = 0;

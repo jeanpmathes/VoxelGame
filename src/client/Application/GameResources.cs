@@ -82,7 +82,7 @@ public class GameResources
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
-                    1 << 13); // todo: use constant here and in vertex data creation
+                    1 << 13); // todo: use constant here and in meshing
             }
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
@@ -91,7 +91,7 @@ public class GameResources
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
-                    1 << 11); // todo: use constant here and in vertex data creation
+                    1 << 11); // todo: use constant here and in meshing (in meshing the set texture id method should use the maximum of both constants)
             }
         }
 

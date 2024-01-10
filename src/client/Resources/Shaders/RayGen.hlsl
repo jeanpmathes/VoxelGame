@@ -13,6 +13,8 @@ float4x4 view;
 float4x4 projection;
 float4x4 viewI;
 float4x4 projectionI;
+float gNear;
+float gFar;
 }
 
 RWTexture2D<float4> gColorOutput : register(u0);
@@ -81,8 +83,9 @@ void RayGen()
     float3 origin = mul(float4(0, 0, 0, 1), viewI).xyz;
     
     float3 normal = float3(0, 0, 0);
-    float min = 0;
-    
+    float min = gNear * length(direction);
+    direction = normalize(direction);
+     
     int iteration = 0;
     float4 color = 0;
     float depth = 0;

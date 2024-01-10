@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -14,6 +15,8 @@ namespace VoxelGame.Core.Physics;
 /// <summary>
 ///     A camera view frustum.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[SuppressMessage("ReSharper", "ConvertToAutoPropertyWhenPossible")]
 public readonly struct Frustum : IEquatable<Frustum>
 {
     /// <summary>
@@ -29,6 +32,8 @@ public readonly struct Frustum : IEquatable<Frustum>
     public Frustum(double fovY, double ratio, (double near, double far) clip,
         Vector3d position, Vector3d direction, Vector3d up, Vector3d right)
     {
+        Debug.Assert(fovY is > 0.0 and < Math.PI);
+
         Debug.Assert(clip.near < clip.far);
         Debug.Assert(clip.near >= 0.0);
 
@@ -76,6 +81,26 @@ public readonly struct Frustum : IEquatable<Frustum>
     private readonly double wFar;
     private readonly double hFar;
 
+    /// <summary>
+    ///     Get the position of the frustum origin.
+    /// </summary>
+    public Vector3d Position => Top.Point;
+
+    /// <summary>
+    ///     Get the front direction of the frustum.
+    /// </summary>
+    public Vector3d FrontDirection => Top.Normal;
+
+    /// <summary>
+    ///     Get the right direction of the frustum.
+    /// </summary>
+    public Vector3d RightDirection => right;
+
+    /// <summary>
+    ///     Get the up direction of the frustum.
+    /// </summary>
+    public Vector3d UpDirection => up;
+
     private Frustum(Frustum original, Vector3d offset)
     {
         Near = original.Near.Translated(offset);
@@ -106,6 +131,20 @@ public readonly struct Frustum : IEquatable<Frustum>
         double width = height * ratio;
 
         return (width, height);
+    }
+
+    /// <summary>
+    ///     Get the dimensions of the near view plane.
+    /// </summary>
+    public (Vector3d a, Vector3d b) NearDimensions
+    {
+        get
+        {
+            Vector3d scaledUp = UpDirection * hNear * 0.5f;
+            Vector3d scaledRight = RightDirection * wNear * 0.5f;
+
+            return (Near.Point - scaledUp - scaledRight, Near.Point + scaledUp + scaledRight);
+        }
     }
 
     /// <summary>

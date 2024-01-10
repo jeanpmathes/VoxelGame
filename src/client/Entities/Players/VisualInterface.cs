@@ -23,19 +23,16 @@ namespace VoxelGame.Client.Entities.Players;
 /// </summary>
 public sealed class VisualInterface : IDisposable
 {
+    private readonly SelectionBoxRenderer selectionRenderer;
     private readonly ScreenElementRenderer crosshairRenderer;
-    private readonly OverlayRenderer overlay;
+    private readonly OverlayRenderer overlayRenderer;
     private readonly List<Renderer> renderers = new();
 
     private readonly Button debugViewButton;
 
     private readonly Player player;
-    private readonly SelectionBoxRenderer selectionRenderer;
-    private readonly GameUserInterface ui;
 
-    private double lowerBound;
-    private bool renderOverlay;
-    private double upperBound;
+    private readonly GameUserInterface ui;
 
     /// <summary>
     ///     Create a new instance of the <see cref="VisualInterface" /> class.
@@ -45,9 +42,8 @@ public sealed class VisualInterface : IDisposable
     /// <param name="resources">The resources to use.</param>
     public VisualInterface(Player player, GameUserInterface ui, PlayerResources resources)
     {
-        overlay = new OverlayRenderer();
-
         selectionRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.SelectionBoxRenderer);
+        overlayRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.OverlayRenderer);
         crosshairRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.CrosshairRenderer);
 
         foreach (Renderer renderer in renderers) renderer.SetUp();
@@ -66,11 +62,14 @@ public sealed class VisualInterface : IDisposable
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
 
-        ClearOverlay();
-
         this.ui = ui;
         this.player = player;
     }
+
+    /// <summary>
+    /// Whether overlay rendering is allowed. Building overlay is still possible, but it will not be rendered.
+    /// </summary>
+    public bool IsOverlayAllowed { get; set; } = true;
 
     private T RegisterRenderer<T>(T renderer) where T : Renderer
     {
@@ -109,6 +108,8 @@ public sealed class VisualInterface : IDisposable
         foreach (Renderer renderer in renderers) renderer.IsEnabled = true;
 
         SetSelectionBox(collider: null);
+
+        // todo: only begin drawing UI now and stop drawing on deactivation
     }
 
     /// <summary>
@@ -120,46 +121,26 @@ public sealed class VisualInterface : IDisposable
     }
 
     /// <summary>
-    ///     Draw an overlay, used to indicate a substance surrounding the player head.
-    /// </summary>
-    public void DrawOverlay() // todo: remove this method, move the renderOverlay bool to the renderer
-    {
-        if (renderOverlay) overlay.Draw();
-    }
-
-    /// <summary>
     ///     Build the overlay, considering the given positions.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
     public void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
     {
-        ClearOverlay();
+        overlayRenderer.IsEnabled = false;
+        var lowerBound = 1.0;
+        var upperBound = 0.0;
 
-        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player, ref lowerBound, ref upperBound).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View.Frustum, ref lowerBound, ref upperBound).ToList();
 
         if (!overlays.Any()) return;
 
         Overlay selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
 
-        if (selected.IsBlock) overlay.SetBlockTexture(selected.GetWithAppliedTint(player.World));
-        else overlay.SetFluidTexture(selected.GetWithAppliedTint(player.World));
+        if (selected.IsBlock) overlayRenderer.SetBlockTexture(selected.GetWithAppliedTint(player.World));
+        else overlayRenderer.SetFluidTexture(selected.GetWithAppliedTint(player.World));
 
-        renderOverlay = true;
-
-        FinalizeOverlay();
-    }
-
-    private void FinalizeOverlay()
-    {
-        overlay.SetBounds(lowerBound, upperBound);
-    }
-
-    private void ClearOverlay()
-    {
-        renderOverlay = false;
-
-        lowerBound = 1.0f;
-        upperBound = 0.0f;
+        overlayRenderer.IsEnabled = IsOverlayAllowed;
+        overlayRenderer.SetBounds(lowerBound, upperBound);
     }
 
     /// <summary>
@@ -220,11 +201,9 @@ public sealed class VisualInterface : IDisposable
         {
             foreach (Renderer renderer in renderers) renderer.TearDown();
 
-            overlay.Dispose(); // todo: move creation to pipelines class, dispose there
-
             ui.Dispose();
 
-            Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor; // todo: move to the pipelines class (init too), simplify with Binding<T>
+            Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor; // todo: move to the pipelines class (init too), simplify with Binding<T>, do not use static access there as client instance is passed to it
             Application.Client.Instance.Settings.CrosshairScaleChanged -= UpdateCrosshairScale;
         }
 

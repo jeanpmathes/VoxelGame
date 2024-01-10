@@ -74,6 +74,11 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     public ScreenElementRenderer CrosshairRenderer { get; private set; } = null!;
 
     /// <summary>
+    ///     Get the overlay renderer, which is used to draw overlays, e.g. when stuck in a block.
+    /// </summary>
+    public OverlayRenderer OverlayRenderer { get; private set; } = null!;
+
+    /// <summary>
     ///     Get the raytracing data buffer.
     /// </summary>
     public ShaderBuffer<RaytracingData> RaytracingDataBuffer => raytracingDataBuffer!;
@@ -214,7 +219,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     {
         loaded = true;
 
-        LoadBasicRasterPipelines(client);
+        LoadBasicRasterPipelines(client, textureSlots);
         LoadRaytracingPipeline(client, textureSlots, visuals);
         LoadEffectRasterPipelines(client);
 
@@ -245,13 +250,14 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
     }
 
-    private void LoadBasicRasterPipelines(Support.Core.Client client)
+    private void LoadBasicRasterPipelines(Support.Core.Client client, (TextureArray, TextureArray) textureSlots)
     {
         if (!loaded) return;
 
         postProcessingPipeline = Require(LoadPipeline(client, "Post", new ShaderPresets.PostProcessing()));
 
         CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
+        OverlayRenderer = Require(OverlayRenderer.Create(client, this, textureSlots), renderers);
     }
 
     private void LoadEffectRasterPipelines(Support.Core.Client client)

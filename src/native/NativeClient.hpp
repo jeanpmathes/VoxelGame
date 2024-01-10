@@ -174,7 +174,7 @@ private:
 #endif
 
     void CheckRaytracingSupport() const;
-    void PopulateSpaceCommandList(double delta) const;
+    void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
     void PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const;
 
@@ -185,7 +185,7 @@ private:
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    void PopulateCommandLists(double delta);
+    void PopulateCommandLists();
     void UpdatePostViewAndScissor();
 };
 

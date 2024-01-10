@@ -125,7 +125,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
             if (ctx->m_currentTextureIndex != textureIndex && useTexture)
             {
                 ctx->m_currentTextureIndex = textureIndex;
-                ctx->BindTexture();
+                ctx->BindTextures();
             }
             
             ctx->m_currentCommandList->DrawInstanced(vertexCount, 1, firstVertex, 0);
@@ -152,7 +152,7 @@ void draw2d::Pipeline::Initialize(Pipeline* ctx)
     ctx->m_raster->BindResources(ctx->m_currentCommandList);
     
     ctx->m_currentTextureIndex = 0;
-    ctx->BindTexture();
+    ctx->BindTextures();
     
     ctx->m_currentUseTexture = FALSE;
     ctx->BindBoolean();
@@ -167,7 +167,7 @@ void draw2d::Pipeline::BindBoolean() const
                                        this->m_currentUseTexture ? TRUE_DESCRIPTOR_INDEX : FALSE_DESCRIPTOR_INDEX);
 }
 
-void draw2d::Pipeline::BindTexture() const
+void draw2d::Pipeline::BindTextures() const
 {
     this->m_raster->BindSelectionIndex(this->m_currentCommandList,
                                        this->m_raster->GetBindings().Draw2D().textures,

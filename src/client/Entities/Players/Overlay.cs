@@ -30,11 +30,11 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
-    /// <param name="player">The player.</param>
+    /// <param name="frustum">The frustum to use for the measurement.</param>
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Player player, ref double lowerBound, ref double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Frustum frustum, ref double lowerBound, ref double upperBound)
     {
         List<Overlay> overlays = new();
 
@@ -48,7 +48,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
             if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
             {
-                newBounds = GetOverlayBounds(content.Block, position, player);
+                newBounds = GetOverlayBounds(content.Block, position, frustum);
                 overlayTextureProvider = overlayBlockTextureProvider;
 
                 isBlock = true;
@@ -57,7 +57,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
             if (newBounds == null && content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
             {
-                newBounds = GetOverlayBounds(content.Fluid, position, player);
+                newBounds = GetOverlayBounds(content.Fluid, position, frustum);
                 overlayTextureProvider = overlayFluidTextureProvider;
             }
 
@@ -75,36 +75,36 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Player player)
+    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
     {
         var height = 15;
 
         if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
 
-        return GetOverlayBounds(height, position, inverted: false, player);
+        return GetOverlayBounds(height, position, inverted: false, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Player player)
+    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
     {
         int height = fluid.Level.GetBlockHeight();
 
-        return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, player);
+        return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, Player player)
+    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, Frustum frustum)
     {
         float actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
 
         Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
-        Plane viewPlane = player.View.Frustum.Near;
+        Plane viewPlane = frustum.Near;
 
         Line? bound = topPlane.Intersects(viewPlane);
 
         if (bound == null) return null;
 
-        Vector3d axis = player.Right;
-        (Vector3d a, Vector3d b) dimensions = player.NearDimensions;
+        Vector3d axis = frustum.RightDirection;
+        (Vector3d a, Vector3d b) dimensions = frustum.NearDimensions;
 
         // Assume the bound is parallel to the view horizon.
         Vector2d point = viewPlane.Project2D(bound.Value.Any, axis);

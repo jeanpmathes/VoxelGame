@@ -24,6 +24,19 @@ struct AdvancedCameraData
     FLOAT farDistance;
 };
 
+#pragma pack(push, 4)
+struct CameraDataBuffer
+{
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 projection;
+    DirectX::XMFLOAT4X4 viewI;
+    DirectX::XMFLOAT4X4 projectionI;
+
+    FLOAT dNear;
+    FLOAT dFar;
+};
+#pragma pack(pop)
+
 /**
  * \brief Represents the camera of the space.
  */
@@ -49,8 +62,6 @@ public:
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
 private:
-    static constexpr int NUMBER_OF_CAMERA_MATRICES = 4;
-    
     DirectX::XMFLOAT3 m_position = {};
     DirectX::XMFLOAT3 m_front = {};
     DirectX::XMFLOAT3 m_up = {};
@@ -62,6 +73,6 @@ private:
     DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
     Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
-    Mapping<ID3D12Resource, DirectX::XMFLOAT4X4> m_spaceCameraBufferMapping = {};
+    Mapping<ID3D12Resource, CameraDataBuffer> m_spaceCameraBufferMapping = {};
     UINT64 m_spaceCameraBufferSize = 0;
 };

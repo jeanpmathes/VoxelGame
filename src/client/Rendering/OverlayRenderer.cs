@@ -5,135 +5,112 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics.Groups;
+using VoxelGame.Support.Definition;
+using VoxelGame.Support.Graphics;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
 
 /// <summary>
 ///     A renderer for overlay textures. Any block or fluid texture can be used as an overlay.
 /// </summary>
-public sealed class OverlayRenderer : IDisposable // todo: inherit from renderer base class, call methods
+public sealed class OverlayRenderer : Renderer
 {
     private const int BlockMode = 0;
     private const int FluidMode = 1;
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
-    private readonly ElementDrawGroup drawGroup;
+    private readonly Support.Core.Client client;
+    private readonly ShaderBuffer<Data> data;
+
+    private readonly (TextureArray block, TextureArray fluid) textures;
+
+    private int mode = BlockMode;
+    private TintColor tint = TintColor.None;
     private bool isAnimated;
 
     private float lowerBound;
-
-    private int mode = BlockMode;
-    private int samplerId;
-
-    private int textureId;
-    private TintColor tint = TintColor.None;
     private float upperBound;
 
-    /// <summary>
-    ///     Create a new overlay renderer.
-    /// </summary>
-    public OverlayRenderer()
+    private int textureID;
+    private int firstFluidTextureID;
+    private bool isTextureInitialized;
+
+    private bool isVertexBufferUploaded;
+    private (uint start, uint length) rangeOfVertexBuffer;
+
+    private OverlayRenderer(Support.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
-        // todo: port to DirectX
-
-        (float[] vertices, uint[] indices) = BlockMeshes.CreatePlaneModel();
-
-        drawGroup = ElementDrawGroup.Create();
-        drawGroup.SetStorage(elements: 6, vertices.Length, vertices, indices.Length, indices);
-
-        disposed = true; // todo: remove this line when porting to DirectX
-
-        return; // todo: remove this line when porting to DirectX
-
-        Pipelines.Overlay.Use();
-
-        drawGroup.VertexArrayBindBuffer(size: 5);
-
-        int vertexLocation = Pipelines.Overlay.GetAttributeLocation("aPosition");
-        drawGroup.VertexArrayBindAttribute(vertexLocation, size: 3, offset: 0);
-
-        int texCordLocation = Pipelines.Overlay.GetAttributeLocation("aTexCoord");
-        drawGroup.VertexArrayBindAttribute(texCordLocation, size: 2, offset: 3);
+        this.client = client;
+        this.data = data;
+        this.textures = textures;
     }
 
-    private static Pipelines Pipelines => Application.Client.Instance.Resources.Pipelines;
+    /// <inheritdoc />
+    public override bool IsEnabled { get; set; }
+
+    /// <summary>
+    /// Create a new <see cref="OverlayRenderer"/>.
+    /// </summary>
+    /// <param name="client">The client instance.</param>
+    /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
+    /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
+    /// <returns>The new renderer.</returns>
+    public static OverlayRenderer? Create(Support.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
+    {
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
+            = pipelines.LoadPipelineWithBuffer<Data>(client, "Overlay", new ShaderPresets.Draw2D(Filter.Closest));
+
+        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+
+        OverlayRenderer renderer = new(client, buffer, textures);
+
+        client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+
+        return renderer;
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp()
+    {
+        // Intentionally left empty.
+    }
+
+    /// <inheritdoc />
+    protected override void OnTearDown()
+    {
+        // Intentionally left empty.
+    }
 
     /// <summary>
     ///     Set the texture to a block texture.
     /// </summary>
-    /// <param name="texture">The texture to use.</param>
-    public void SetBlockTexture(OverlayTexture texture)
+    /// <param name="overlay">The texture to use.</param>
+    public void SetBlockTexture(OverlayTexture overlay)
     {
-        samplerId = 0; // todo: remove as no longer needed
-        textureId = texture.TextureIdentifier;
-
         mode = BlockMode;
 
-        SetGeneralAttributes(texture);
+        SetAttributes(overlay);
     }
 
     /// <summary>
     ///     Set the texture to a fluid texture.
     /// </summary>
-    /// <param name="texture">The texture to use.</param>
-    public void SetFluidTexture(OverlayTexture texture)
+    /// <param name="overlay">The texture to use.</param>
+    public void SetFluidTexture(OverlayTexture overlay)
     {
-        samplerId = 5;
-        textureId = texture.TextureIdentifier;
-
         mode = FluidMode;
 
-        SetGeneralAttributes(texture);
-    }
-
-    private void SetGeneralAttributes(OverlayTexture texture)
-    {
-        tint = texture.Tint;
-        isAnimated = texture.IsAnimated;
-    }
-
-    /// <summary>
-    ///     Draw the overlay.
-    /// </summary>
-    public void Draw()
-    {
-        if (disposed) return;
-
-        // GL.Enable(EnableCap.Blend);
-        // GL.Disable(EnableCap.DepthTest);
-
-        /*
-         * Overlay.SetMatrix4(
-            "projection",
-            Matrix4d.CreateOrthographic(width: 1.0, 1.0 / Application.Client.Instance.AspectRatio, depthNear: 0.0, depthFar: 1.0).ToMatrix4());
-         */
-
-        drawGroup.BindVertexArray();
-
-        Pipelines.Overlay.Use();
-
-        Pipelines.Overlay.SetInt("textureId", textureId);
-        Pipelines.Overlay.SetInt("sampler", samplerId);
-        Pipelines.Overlay.SetInt("mode", mode);
-
-        Pipelines.Overlay.SetFloat("lowerBound", lowerBound);
-        Pipelines.Overlay.SetFloat("upperBound", upperBound);
-
-        Pipelines.Overlay.SetColor4("tint", tint);
-        Pipelines.Overlay.SetInt("isAnimated", isAnimated.ToInt());
-
-        // drawGroup.DrawElements(PrimitiveType.Triangles);
-        //
-        // GL.BindVertexArray(array: 0);
-        // GL.UseProgram(program: 0);
-        //
-        // GL.Enable(EnableCap.DepthTest);
-        // GL.Disable(EnableCap.Blend);
+        SetAttributes(overlay);
     }
 
     /// <summary>
@@ -147,40 +124,153 @@ public sealed class OverlayRenderer : IDisposable // todo: inherit from renderer
         upperBound = (float) newUpperBound;
     }
 
+    private void SetAttributes(OverlayTexture overlay)
+    {
+        textureID = overlay.TextureIdentifier;
+        tint = overlay.Tint;
+        isAnimated = overlay.IsAnimated;
+    }
+
+    /// <inheritdoc />
+    protected override void OnUpdate()
+    {
+        Matrix4d model = Matrix4d.Identity;
+        Matrix4d view = Matrix4d.Identity;
+        var projection = Matrix4d.CreateOrthographic(width: 2.0, 2.0 / client.AspectRatio, depthNear: 0.0, depthFar: 1.0);
+
+        (uint, uint, uint, uint) attributes = (0, 0, 0, 0);
+
+        Meshing.SetTextureIndex(ref attributes, textureID);
+        Meshing.SetTint(ref attributes, tint);
+        Meshing.SetFlag(ref attributes, Meshing.QuadFlag.IsAnimated, isAnimated);
+
+        data.Data = new Data
+        {
+            MVP = (model * view * projection).ToMatrix4(),
+            Attributes = EncodeAttributes(attributes),
+            LowerBound = lowerBound,
+            UpperBound = upperBound,
+            Mode = mode,
+            FirstFluidTextureIndex = firstFluidTextureID
+        };
+    }
+
+    private void Draw(Draw2D drawer)
+    {
+        if (!IsEnabled) return;
+
+        if (!isTextureInitialized)
+        {
+            firstFluidTextureID = textures.block.Count;
+
+            using PooledList<Texture> list = new();
+            list.AddRange(textures.block.AsSpan());
+            list.AddRange(textures.fluid.AsSpan());
+
+            drawer.InitializeTextures(list.AsSpan());
+            isTextureInitialized = true;
+        }
+
+        if (!isVertexBufferUploaded)
+        {
+            drawer.UploadQuadBuffer(out rangeOfVertexBuffer);
+            isVertexBufferUploaded = true;
+        }
+
+        // Because the shader indexes into the array itself, we don't need to pass the index here.
+        // This is necessary to allow for animated overlays which use index offsets.
+        drawer.DrawBuffer(rangeOfVertexBuffer, textureIndex: 0, useTexture: true);
+    }
+
+    private static Vector4i EncodeAttributes((uint a, uint b, uint c, uint d) attributes)
+    {
+        return new Vector4i((int) attributes.a, (int) attributes.b, (int) attributes.c, (int) attributes.d);
+    }
+
     #region IDisposable Support
 
-    private bool disposed;
-
-    private void Dispose(bool disposing)
+    /// <inheritdoc />
+    protected override void OnDispose(bool disposing)
     {
-        if (disposed)
-            return;
-
-        if (disposing) drawGroup.Delete();
+        if (disposing) ; // todo: dispose raster pipeline
         else
             logger.LogWarning(
                 Events.UndeletedBuffers,
                 "Renderer disposed by GC without freeing storage");
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~OverlayRenderer()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of the renderer.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion IDisposable Support
+
+    /// <summary>
+    ///     Data used by the shader.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Data : IEquatable<Data>
+    {
+        /// <summary>
+        ///     The matrix used to transform the vertices.
+        /// </summary>
+        public Matrix4 MVP;
+
+        /// <summary>
+        ///     Attributes encoded as binary data, including tint and animation.
+        /// </summary>
+        public Vector4i Attributes;
+
+        /// <summary>
+        ///     The lower bound of the overlay.
+        /// </summary>
+        public float LowerBound;
+
+        /// <summary>
+        ///     The upper bound of the overlay.
+        /// </summary>
+        public float UpperBound;
+
+        /// <summary>
+        ///     The mode of the overlay, either block or fluid.
+        /// </summary>
+        public int Mode;
+
+        /// <summary>
+        ///     The index of the first fluid texture.
+        /// </summary>
+        public int FirstFluidTextureIndex;
+
+        /// <summary>
+        ///     Check equality.
+        /// </summary>
+        public bool Equals(Data other)
+        {
+            return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex) == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            return obj is Data other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex);
+        }
+
+        /// <summary>
+        ///     The equality operator.
+        /// </summary>
+        public static bool operator ==(Data left, Data right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     The inequality operator.
+        /// </summary>
+        public static bool operator !=(Data left, Data right)
+        {
+            return !left.Equals(right);
+        }
+    }
 }

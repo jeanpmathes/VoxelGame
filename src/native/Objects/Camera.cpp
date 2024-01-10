@@ -6,11 +6,11 @@ Camera::Camera(NativeClient& client) : Object(client)
 
 void Camera::Initialize()
 {
-    m_spaceCameraBufferSize = NUMBER_OF_CAMERA_MATRICES * sizeof(DirectX::XMMATRIX);
+    m_spaceCameraBufferSize = sizeof(CameraDataBuffer);
     m_spaceCameraBuffer = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
 
-    TRY_DO(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, NUMBER_OF_CAMERA_MATRICES));
+    TRY_DO(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, 1));
 }
 
 void Camera::Update()
@@ -30,13 +30,16 @@ void Camera::Update()
     const auto viewI = XMMatrixInverse(&det, view);
     const auto projectionI = XMMatrixInverse(&det, projection);
 
-    std::vector<DirectX::XMFLOAT4X4> matrices(NUMBER_OF_CAMERA_MATRICES);
-    XMStoreFloat4x4(&matrices[0], XMMatrixTranspose(view));
-    XMStoreFloat4x4(&matrices[1], XMMatrixTranspose(projection));
-    XMStoreFloat4x4(&matrices[2], XMMatrixTranspose(viewI));
-    XMStoreFloat4x4(&matrices[3], XMMatrixTranspose(projectionI));
+    CameraDataBuffer data = {};
+    XMStoreFloat4x4(&data.view, XMMatrixTranspose(view));
+    XMStoreFloat4x4(&data.projection, XMMatrixTranspose(projection));
+    XMStoreFloat4x4(&data.viewI, XMMatrixTranspose(viewI));
+    XMStoreFloat4x4(&data.projectionI, XMMatrixTranspose(projectionI));
 
-    m_spaceCameraBufferMapping.Write(matrices.data(), matrices.size());
+    data.dNear = m_near;
+    data.dFar = m_far;
+
+    m_spaceCameraBufferMapping.Write(data);
 }
 
 void Camera::SetPosition(const DirectX::XMFLOAT3& position)

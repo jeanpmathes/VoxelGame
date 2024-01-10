@@ -31,7 +31,7 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
 
     result.uv = uv;
     result.color = gUseTexture ? gTextureColor : color;
-    result.position = mul(float4(position, 0.0f, 1.0f), gMVP);
+    result.position = mul(float4(position, 0.0, 1.0), gMVP);
 
     return result;
 }

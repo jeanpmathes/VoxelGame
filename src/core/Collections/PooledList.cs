@@ -212,25 +212,25 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     }
 
     /// <summary>
-    ///     Adds the elements of the specified array to the end of the <see cref="PooledList{T}" />.
+    ///     Adds the elements of the specified span to the end of the <see cref="PooledList{T}" />.
     /// </summary>
-    /// <param name="array">
-    ///     The array whose elements should be added to the end of the <see cref="PooledList{T}" />. The array
+    /// <param name="span">
+    ///     The span whose elements should be added to the end of the <see cref="PooledList{T}" />. The span
     ///     itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference
     ///     type.
     /// </param>
-    /// <param name="count">The amount of elements to add.</param>
-    public void AddRange(T[] array, int count) // todo: use span here instead of array+count
+    public void AddRange(Span<T> span)
     {
         Debug.Assert(items != null, NoUseAfterReturnMessage);
 
-        if (count <= 0) return;
+        if (span.Length <= 0) return;
 
-        EnsureCapacity(Count + count);
+        EnsureCapacity(Count + span.Length);
 
-        Array.Copy(array, sourceIndex: 0, items, Count, count);
+        Span<T> destination = items;
+        span.CopyTo(destination[Count..]);
 
-        Count += count;
+        Count += span.Length;
     }
 
     /// <summary>

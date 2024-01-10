@@ -159,24 +159,6 @@ float2 RotateUV(float2 uv)
     return rotatedUV;
 }
 
-uint GetAnimatedIndex(const uint index, const uint frameCount, const float quadFactor)
-{
-    if (index == 0) return 0;
-    
-    const uint quadID = PrimitiveIndex() / 2;
-    return index + uint(fmod(gTime * frameCount + quadID * quadFactor, frameCount));
-}
-
-uint GetAnimatedBlockTextureIndex(const uint index)
-{
-    return GetAnimatedIndex(index, 8, 0.125);
-}
-
-uint GetAnimatedFluidTextureIndex(const uint index)
-{
-    return GetAnimatedIndex(index, 16, 0.00);
-}
-
 float3 CalculateShading(in Info info, const float3 baseColor)
 {
     const float3 dirToLight = -gLightDir;

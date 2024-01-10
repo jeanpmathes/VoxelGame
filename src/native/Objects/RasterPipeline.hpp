@@ -118,10 +118,12 @@ public:
 
     /**
      * \brief Used by the 3D space to set up the bindings in the shader resources used for all space rendering.
+     * \param client The client.
      * \param description The description (builder) of the shader resources.
      * \return The bindings to use for spatial effects.
      */
-    static std::shared_ptr<Bindings> SetupEffectBindings(ShaderResources::Description& description);
+    static std::shared_ptr<Bindings> SetupEffectBindings(NativeClient& client,
+                                                         ShaderResources::Description& description);
 
     /**
      * Create a pipeline from an already initialized pipeline state object and associated root signature.
@@ -149,7 +151,7 @@ public:
     [[nodiscard]] ShaderPreset GetPreset() const;
     [[nodiscard]] D3D12_PRIMITIVE_TOPOLOGY GetTopology() const;
     [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
-
+    
     void CreateConstantBufferView(ShaderResources::Table::Entry entry, UINT index,
                                   const ShaderResources::ConstantBufferViewDescriptor& descriptor);
     void CreateShaderResourceView(ShaderResources::Table::Entry entry, UINT index,

@@ -4,6 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+#ifndef VG_SHADER_DECODING_H
+#define VG_SHADER_DECODING_H
+
 // todo: write data layout descriptions in wiki
 
 #define BITMASK(x) ( (1 << (x)) - 1 )
@@ -13,8 +16,9 @@
  */
 namespace decode
 {
-    // todo: write data layout descriptions in wiki
-
+    // todo: write doc comments for all shader code, also on top of every file a description block / where in other code to find more info
+    // todo: use more namespace for shaders, also put everything into vg namespace if the file is included (so not the end shader files)
+    
     uint GetTextureIndex(const uint4 data)
     {
         return data[0] & BITMASK(13);
@@ -82,3 +86,5 @@ namespace decode
         return (data[2] >> flag) & BITMASK(1);
     }
 }
+
+#endif

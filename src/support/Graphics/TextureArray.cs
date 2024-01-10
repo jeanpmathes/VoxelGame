@@ -18,24 +18,17 @@ public sealed class TextureArray
 {
     // todo: ensure that no texture units are mentioned in the wiki
 
-    private readonly Texture[] parts;
+    private readonly Texture[] textures;
 
-    private TextureArray(Texture[] parts, int count)
+    private TextureArray(Texture[] textures)
     {
-        this.parts = parts;
-
-        Count = count;
+        this.textures = textures;
     }
 
     /// <summary>
     ///     Get the number of textures in the array.
     /// </summary>
-    public int Count { get; private set; }
-
-    /// <summary>
-    ///     Get the number of parts that make up this array texture.
-    /// </summary>
-    internal uint PartCount => (uint) parts.Length;
+    public int Count => textures.Length;
 
     /// <summary>
     ///     Load a new array texture. It will be filled with all textures found in the given directory.
@@ -53,7 +46,7 @@ public sealed class TextureArray
         // Split the full texture list into parts and create the array textures.
         var data = new Texture[count];
 
-        foreach (Bitmap texture in bitmaps) texture.RotateFlip(RotateFlipType.Rotate180FlipX);
+        foreach (Bitmap texture in bitmaps) texture.RotateFlip(RotateFlipType.Rotate180FlipX); // todo: check in PIX that textures have right orientation, change shader if necessary
 
         Size size = bitmaps[index: 0].Size;
 
@@ -66,7 +59,7 @@ public sealed class TextureArray
             data[index] = client.LoadTexture(bitmaps[begin..end]);
         }
 
-        return new TextureArray(data, count);
+        return new TextureArray(data);
     }
 
     /// <summary>
@@ -76,6 +69,15 @@ public sealed class TextureArray
     /// <returns>The pointers.</returns>
     internal IEnumerable<IntPtr> GetTexturePointers()
     {
-        return parts.Select(p => p.Self);
+        return textures.Select(p => p.Self);
+    }
+
+    /// <summary>
+    ///     Get the array as a span.
+    /// </summary>
+    /// <returns>The span.</returns>
+    public Span<Texture> AsSpan()
+    {
+        return textures;
     }
 }

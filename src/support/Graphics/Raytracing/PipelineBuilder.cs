@@ -183,8 +183,8 @@ public class PipelineBuilder
             {
                 shaderCount = (uint) files.Length,
                 materialCount = (uint) materialDescriptions.Length,
-                textureCountFirstSlot = firstTextureSlot?.PartCount ?? 0,
-                textureCountSecondSlot = secondTextureSlot?.PartCount ?? 0,
+                textureCountFirstSlot = (uint) (firstTextureSlot?.Count ?? 0),
+                textureCountSecondSlot = (uint) (secondTextureSlot?.Count ?? 0),
                 customDataBufferSize = customDataBufferSize,
                 onShaderLoadingError = (_, message) =>
                 {

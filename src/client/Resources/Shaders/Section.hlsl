@@ -1,5 +1,12 @@
-﻿#include "Spatial.hlsl"
+﻿//  <copyright file="Section.hlsl" company="VoxelGame">
+//     MIT License
+//	   For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+#include "Spatial.hlsl"
 #include "Decoding.hlsl"
+#include "TextureAnimation.hlsl"
 
 float2 GetUV(const in Info info, const bool useTextureRepetition)
 {
@@ -23,11 +30,7 @@ float2 GetUV(const in Info info, const bool useTextureRepetition)
 int4 GetBaseColorIndex(const in Info info, const bool useTextureRepetition, const bool isBlock)
 {
     const float2 uv = GetUV(info, useTextureRepetition);
-    uint textureIndex = decode::GetTextureIndex(info.data);
-
-    const bool animated = decode::GetAnimationFlag(info.data);
-    if (animated && isBlock) textureIndex = GetAnimatedBlockTextureIndex(textureIndex);
-    if (animated && !isBlock) textureIndex = GetAnimatedFluidTextureIndex(textureIndex);
+    uint textureIndex = GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, gTime, isBlock);
 
     const float2 ts = float2(gTextureSize.x, gTextureSize.y) * frac(uv);
     uint2 texel = uint2(ts.x, ts.y);

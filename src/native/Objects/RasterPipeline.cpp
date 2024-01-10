@@ -82,6 +82,11 @@ namespace
                     graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
                 }
 
+                graphics.AddRootConstant([&client]() -> ShaderResources::Value32
+                {
+                    return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                }, {.reg = 0, .space = 1});
+
                 graphics.AddHeapDescriptorTable([&](auto& table)
                 {
                     bindings->PostProcessing().input = table.AddShaderResourceView({.reg = 0});
@@ -130,8 +135,14 @@ namespace
                     graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
                 }
 
+                graphics.AddRootConstant([&client]() -> ShaderResources::Value32
+                {
+                    return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                }, {.reg = 0, .space = 1});
+
                 bindings->Draw2D().booleans = graphics.AddConstantBufferViewDescriptorSelectionList({.reg = 1});
-                bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList({.reg = 0});
+                bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList(
+                    {.reg = 0}, ShaderResources::UNBOUNDED);
             },
             [&](auto&)
             {
@@ -319,7 +330,8 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         pipelineState);
 }
 
-std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(ShaderResources::Description& description)
+std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(
+    NativeClient& client, ShaderResources::Description& description)
 {
     auto bindings = std::make_shared<Bindings>(ShaderPreset::SPATIAL_EFFECT);
 
@@ -330,6 +342,11 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(Sh
         bindings->SpatialEffect().customData = table.AddConstantBufferView({.reg = 0});
         bindings->SpatialEffect().instanceData = table.AddConstantBufferView({.reg = 1});
     });
+
+    description.AddRootConstant([&client]() -> ShaderResources::Value32
+    {
+        return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+    }, {.reg = 0, .space = 1});
 
     return bindings;
 }

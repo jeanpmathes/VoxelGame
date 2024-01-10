@@ -175,11 +175,7 @@ public:
     };
 
     void Update(double delta);
-    void Render(
-        double delta,
-        Allocation<ID3D12Resource> color,
-        Allocation<ID3D12Resource> depth,
-        const RenderData& data);
+    void Render(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth, const RenderData& data);
     void CleanupRender();
 
     /**
@@ -257,7 +253,6 @@ private:
 
     Allocation<ID3D12Resource> m_globalConstantBuffer = {};
     UINT64 m_globalConstantBufferSize = 0;
-    double m_renderTime = 0.0;
     Mapping<ID3D12Resource, GlobalConstantBuffer> m_globalConstantBufferMapping = {};
 
     std::unique_ptr<ShaderBuffer> m_customDataBuffer = nullptr;
