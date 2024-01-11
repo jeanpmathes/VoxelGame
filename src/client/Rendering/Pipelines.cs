@@ -17,7 +17,6 @@ using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Graphics.Objects;
 using VoxelGame.Support.Graphics.Raytracing;
-using VoxelGame.Support.Graphics.Utility;
 using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Rendering;
@@ -27,40 +26,18 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class Pipelines // todo: delete all GLSL shaders
 {
-    private const string SectionFragmentShader = "section";
-
-    private const string TimeUniform = "time"; // todo: delete these constants, all the uniform stuff and the setter methods
-    private const string NearPlaneUniform = "nearPlane";
-    private const string FarPlaneUniform = "farPlane";
-
     private readonly DirectoryInfo directory;
-
-    private readonly ISet<Shader> farPlaneSet = new HashSet<Shader>();
-
-    private readonly ShaderLoader loader;
-    private readonly ISet<Shader> nearPlaneSet = new HashSet<Shader>();
-
-    private readonly ISet<Shader> timedSet = new HashSet<Shader>();
 
     private readonly List<Renderer> renderers = new();
     private LoadingContext? loadingContext;
-
     private bool loaded;
 
     private RasterPipeline postProcessingPipeline = null!;
-
     private ShaderBuffer<RaytracingData>? raytracingDataBuffer;
 
-    private Pipelines(DirectoryInfo directory, LoadingContext loadingContext)
+    private Pipelines(DirectoryInfo directory)
     {
         this.directory = directory;
-
-        loader = new ShaderLoader(
-            directory,
-            loadingContext,
-            (timedSet, TimeUniform),
-            (nearPlaneSet, NearPlaneUniform),
-            (farPlaneSet, FarPlaneUniform));
     }
 
     /// <summary>
@@ -174,7 +151,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         VisualConfiguration visuals,
         LoadingContext loadingContext)
     {
-        Pipelines pipelines = new(directory, loadingContext);
+        Pipelines pipelines = new(directory);
 
         using (loadingContext.BeginStep(Events.RenderPipelineSetup, "Shader Setup"))
         {
@@ -196,23 +173,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         foreach (Renderer renderer in renderers) renderer.Dispose();
 
         // todo: go trough all members and check if they need to be disposed
-
-        return;
-
-        SimpleSection.Delete();
-        ComplexSection.Delete();
-        VaryingHeightSection.Delete();
-        CrossPlantSection.Delete();
-        CropPlantSection.Delete();
-        OpaqueFluidSection.Delete();
-        TransparentFluidSectionAccumulate.Delete();
-        TransparentFluidSectionDraw.Delete();
-
-        Overlay.Delete();
-        Selection.Delete();
-        ScreenElement.Delete();
-
-        loaded = false;
     }
 
     private void LoadAll(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
@@ -226,28 +186,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         if (!loaded) return;
 
         client.SetPostProcessingPipeline(postProcessingPipeline);
-
-        return; // todo: remove this, and maybe the code below
-
-        Shader Check(Shader? shader)
-        {
-            loaded &= shader != null;
-
-            return shader!;
-        }
-
-        SimpleSection = Check(loader.Load(nameof(SimpleSection), "simple_section", SectionFragmentShader));
-        ComplexSection = Check(loader.Load(nameof(ComplexSection), "complex_section", SectionFragmentShader));
-        VaryingHeightSection = Check(loader.Load(nameof(VaryingHeightSection), "varying_height_section", SectionFragmentShader));
-        CrossPlantSection = Check(loader.Load(nameof(CrossPlantSection), "cross_plant_section", SectionFragmentShader));
-        CropPlantSection = Check(loader.Load(nameof(CropPlantSection), "crop_plant_section", SectionFragmentShader));
-        OpaqueFluidSection = Check(loader.Load(nameof(OpaqueFluidSection), "fluid_section", "opaque_fluid_section"));
-        TransparentFluidSectionAccumulate = Check(loader.Load(nameof(TransparentFluidSectionAccumulate), "fluid_section", "transparent_fluid_section_accumulate"));
-        TransparentFluidSectionDraw = Check(loader.Load(nameof(TransparentFluidSectionDraw), "fullscreen", "transparent_fluid_section_draw"));
-
-        Overlay = Check(loader.Load(nameof(Overlay), "overlay", "overlay"));
-        Selection = Check(loader.Load(nameof(Selection), "selection", "selection"));
-        ScreenElement = Check(loader.Load(nameof(ScreenElement), "screen_element", "screen_element"));
     }
 
     private void LoadBasicRasterPipelines(Support.Core.Client client, (TextureArray, TextureArray) textureSlots)
@@ -399,31 +337,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         builder.SetCustomDataBufferType<RaytracingData>();
 
         loaded &= builder.Build(client, loadingContext!, out raytracingDataBuffer);
-    }
-
-    /// <summary>
-    ///     Update the current time.
-    /// </summary>
-    /// <param name="time">The current time, since the game has started.</param>
-    public void SetTime(float time)
-    {
-        if (!loaded) return;
-
-        foreach (Shader shader in timedSet) shader.SetFloat(TimeUniform, time);
-    }
-
-    /// <summary>
-    ///     Set the view plane distances.
-    /// </summary>
-    /// <param name="near">The near plane distance.</param>
-    /// <param name="far">The far plane distance.</param>
-    public void SetPlanes(double near, double far)
-    {
-        if (!loaded) return;
-
-        foreach (Shader shader in nearPlaneSet) shader.SetFloat(NearPlaneUniform, (float) near);
-
-        foreach (Shader shader in farPlaneSet) shader.SetFloat(FarPlaneUniform, (float) far);
     }
 
     /// <summary>

@@ -1,1 +1,0 @@
-﻿See: https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
