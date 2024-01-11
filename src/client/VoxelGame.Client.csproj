@@ -674,7 +674,7 @@
         <None Update="Resources\Textures\Blocks\salt.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Shaders\Common.hlsl">
+        <None Update="Resources\Shaders\CommonRT.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Shaders\BasicOpaque.hlsl">
@@ -794,6 +794,12 @@
 
     <ItemGroup>
         <None Include="Resources\Shaders\TextureAnimation.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Resources\Shaders\Common.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

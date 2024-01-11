@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#include "Common.hlsl"
+#include "CommonRT.hlsl"
 #include "Payloads.hlsl"
 #include "Space.hlsl"
 // todo: try putting the three headers above and the definitions below (no functions, no CustomCB) into the support project

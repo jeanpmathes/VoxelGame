@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#include "Common.hlsl"
+#include "CommonRT.hlsl"
 #include "Payloads.hlsl"
 
 cbuffer CameraParameters : register(b0)

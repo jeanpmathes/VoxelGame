@@ -238,7 +238,10 @@ namespace
                 }
 
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-                desc->DepthStencilState.DepthEnable = false;
+
+                desc->DepthStencilState.DepthEnable = true;
+                desc->DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+                desc->DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
             }
             break;
         default:

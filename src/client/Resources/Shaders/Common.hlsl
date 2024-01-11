@@ -1,21 +1,11 @@
-//  <copyright file="Common.hlsl" company="VoxelGame">
+﻿//  <copyright file="Common.hlsl" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
-struct Attributes
-{
-    float2 barycentrics;
-};
-
-float3 GetBarycentrics(in Attributes attributes)
-{
-    return float3(
-        1.0 - attributes.barycentrics.x - attributes.barycentrics.y,
-        attributes.barycentrics.x,
-        attributes.barycentrics.y);
-}
+#ifndef VG_SHADER_COMMON_H
+#define VG_SHADER_COMMON_H
 
 float3 HUEtoRGB(const in float h)
 {
@@ -25,17 +15,39 @@ float3 HUEtoRGB(const in float h)
     return saturate(float3(r, g, b));
 }
 
+float GetLuminance(const in float3 color)
+{
+    return dot(color, float3(0.299, 0.587, 0.114));
+}
+
+// ReSharper disable CppInconsistentNaming
+template
+<
+typename T
+>
+T invlerp(const T a, const T b, const T v)
+{
+    return (v - a) / (b - a);
+}
+
+template
+<
+typename T
+>
+T remap(const T a, const T b, const T c, const T d, const T v)
+{
+    return lerp(c, d, invlerp(a, b, v));
+}
+
+// ReSharper restore CppInconsistentNaming
+
+static const float3 RED = float3(1.0, 0.0, 0.0);
+static const float3 GREEN = float3(0.0, 1.0, 0.0);
+static const float3 BLUE = float3(0.0, 0.0, 1.0);
+
 #define POW2(x) ((x) * (x))
 #define POW3(x) (POW2(x) * (x))
 #define POW4(x) (POW2(x) * POW2(x))
 #define POW5(x) (POW3(x) * POW2(x))
 
-// todo: replace the following defines with static const variables
-
-#define VG_RAY_DISTANCE 100000.0
-#define VG_RAY_EPSILON 0.0001
-
-#define VG_MASK_VISIBLE (1 << 0)
-#define VG_MASK_SHADOW (1 << 1)
-
-#define VG_HIT_ARG(index) index, 0, index
+#endif
