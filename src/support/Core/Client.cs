@@ -461,7 +461,7 @@ public class Client : IDisposable // todo: get type usage count down
 
                 Task.Run(() =>
                 {
-                    Image screenshot = new(copy, Image.Format.RGBA, (int) width, (int) height);
+                    Image screenshot = new(copy, Image.Format.BGRA, (int) width, (int) height);
                     Exception? exception = screenshot.Save(path);
 
                     if (exception == null) logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);

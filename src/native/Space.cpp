@@ -36,7 +36,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     // todo: use the Texture class to create sentinel texture
     
     const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1,
+        DXGI_FORMAT_B8G8R8A8_UNORM, 1, 1,
         1, 1,
         1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
@@ -623,7 +623,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_colorOutputDescription.DepthOrArraySize = 1;
     m_colorOutputDescription.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-    m_colorOutputDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    m_colorOutputDescription.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     m_colorOutputDescription.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     m_colorOutputDescription.Width = m_resolution.width;
     m_colorOutputDescription.Height = m_resolution.height;
@@ -898,7 +898,7 @@ void Space::UpdateOutputResourceViews()
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
         uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 
-        uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
         m_globalShaderResources->CreateUnorderedAccessView(m_colorOutputEntry, 0, {m_colorOutput, &uavDesc});
 
         uavDesc.Format = DXGI_FORMAT_R32_FLOAT;

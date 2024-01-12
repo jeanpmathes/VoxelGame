@@ -199,7 +199,7 @@ void NativeClient::LoadDevice()
     swapChainDesc.BufferCount = FRAME_COUNT;
     swapChainDesc.Width = m_width;
     swapChainDesc.Height = m_height;
-    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
@@ -810,7 +810,7 @@ void NativeClient::PopulateScreenshotCommandList() const
     m_2dGroup.commandList->ResourceBarrier(1, &entry);
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint = {};
-    footprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    footprint.Footprint.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     footprint.Footprint.Width = m_width;
     footprint.Footprint.Height = m_height;
     footprint.Footprint.Depth = 1;
