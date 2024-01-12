@@ -314,6 +314,35 @@ void NativeClient::EnsureValidDepthBuffers(const ComPtr<ID3D12GraphicsCommandLis
     }
 }
 
+void NativeClient::CreateScreenShotBuffers()
+{
+    m_screenshotBuffersInitialized = false;
+
+    for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
+    {
+        const UINT64 size = GetRequiredIntermediateSize(m_finalRenderTargets[frameIndex].Get(), 0, 1);
+        D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(size);
+
+        m_screenshotBuffers[frameIndex] = util::AllocateResource<ID3D12Resource>(
+            *this,
+            desc,
+            D3D12_HEAP_TYPE_READBACK,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            nullptr);
+        NAME_D3D12_OBJECT_INDEXED(m_screenshotBuffers, frameIndex);
+    }
+}
+
+void NativeClient::EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4> commandList)
+{
+    m_screenshotBuffersInitialized = true;
+
+    for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
+    {
+        commandList->DiscardResource(m_screenshotBuffers[frameIndex].Get(), nullptr);
+    }
+}
+
 void NativeClient::SetupSizeDependentResources()
 {
     UpdatePostViewAndScissor();
@@ -338,6 +367,7 @@ void NativeClient::SetupSizeDependentResources()
     }
 
     CreateFinalDepthBuffers();
+    CreateScreenShotBuffers();
 }
 
 void NativeClient::SetupSpaceResolutionDependentResources()
@@ -498,6 +528,8 @@ void NativeClient::OnRender(const double)
 
     if (m_space) m_space->CleanupRender();
 
+    HandleScreenshot();
+
     MoveToNextFrame();
 }
 
@@ -566,6 +598,12 @@ void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
 void NativeClient::ToggleFullscreen() const
 {
     Win32Application::ToggleFullscreenWindow();
+}
+
+void NativeClient::TakeScreenshot(ScreenshotFunc func)
+{
+    if (m_screenshotFunc.has_value()) return;
+    m_screenshotFunc = std::move(func);
 }
 
 Texture* NativeClient::LoadTexture(std::byte** data, const TextureDescription& description) const
@@ -760,6 +798,34 @@ void NativeClient::PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const
     pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
 }
 
+void NativeClient::PopulateScreenshotCommandList() const
+{
+    if (!m_screenshotFunc.has_value()) return;
+
+    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Screenshot");
+
+    const D3D12_RESOURCE_BARRIER entry = CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
+                                                                              D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                                                              D3D12_RESOURCE_STATE_COPY_SOURCE);
+    m_2dGroup.commandList->ResourceBarrier(1, &entry);
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint = {};
+    footprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    footprint.Footprint.Width = m_width;
+    footprint.Footprint.Height = m_height;
+    footprint.Footprint.Depth = 1;
+    footprint.Footprint.RowPitch = m_width * 4;
+
+    const auto dst = CD3DX12_TEXTURE_COPY_LOCATION(m_screenshotBuffers[m_frameIndex].Get(), footprint);
+    const auto src = CD3DX12_TEXTURE_COPY_LOCATION(m_finalRenderTargets[m_frameIndex].Get(), 0);
+    m_2dGroup.commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+
+    const D3D12_RESOURCE_BARRIER exit = CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
+                                                                             D3D12_RESOURCE_STATE_COPY_SOURCE,
+                                                                             D3D12_RESOURCE_STATE_RENDER_TARGET);
+    m_2dGroup.commandList->ResourceBarrier(1, &exit);
+}
+
 void NativeClient::PopulateCommandLists()
 {
     m_2dGroup.Reset(m_frameIndex);
@@ -791,6 +857,8 @@ void NativeClient::PopulateCommandLists()
     {
         PopulateDraw2DCommandList(pipeline);
     }
+
+    PopulateScreenshotCommandList();
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
     barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -826,10 +894,26 @@ void NativeClient::UpdatePostViewAndScissor()
     m_postViewport.viewport.Width = x * width;
     m_postViewport.viewport.Height = y * height;
 
-    m_postViewport.scissorRect.left = static_cast<LONG>(m_postViewport.viewport.TopLeftX);
-    m_postViewport.scissorRect.right = static_cast<LONG>(m_postViewport.viewport.TopLeftX + m_postViewport.viewport.
-        Width);
-    m_postViewport.scissorRect.top = static_cast<LONG>(m_postViewport.viewport.TopLeftY);
-    m_postViewport.scissorRect.bottom = static_cast<LONG>(m_postViewport.viewport.TopLeftY + m_postViewport.viewport.
-        Height);
+    m_postViewport.scissorRect.left =
+        static_cast<LONG>(m_postViewport.viewport.TopLeftX);
+    m_postViewport.scissorRect.right =
+        static_cast<LONG>(m_postViewport.viewport.TopLeftX + m_postViewport.viewport.Width);
+    m_postViewport.scissorRect.top =
+        static_cast<LONG>(m_postViewport.viewport.TopLeftY);
+    m_postViewport.scissorRect.bottom =
+        static_cast<LONG>(m_postViewport.viewport.TopLeftY + m_postViewport.viewport.Height);
+}
+
+void NativeClient::HandleScreenshot()
+{
+    if (!m_screenshotFunc.has_value()) return;
+    auto* func = m_screenshotFunc.value();
+
+    const UINT size = m_width * m_height * 4;
+    const auto data = std::make_unique<std::byte[]>(size);
+
+    TRY_DO(util::MapAndRead(m_screenshotBuffers[m_frameIndex], data.get(), size));
+
+    func(data.get(), m_width, m_height);
+    m_screenshotFunc = std::nullopt;
 }

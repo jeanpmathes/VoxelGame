@@ -62,6 +62,7 @@ public class Texture : NativeObject
         }
 
         // todo: check all usages of flip and the created texture in PIX - texture should be correctly oriented in PIX, shaders should consider that DirectX puts UV 0,0 in the top left corner and might need to use translation method
+        // todo: use Images utility to rotate bitmap exactly as needed for DirectX
 
         bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
         Texture texture = client.LoadTexture(bitmap);

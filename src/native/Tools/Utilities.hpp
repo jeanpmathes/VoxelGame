@@ -145,6 +145,31 @@ namespace util
         return result;
     }
 
+    /**
+     * \brief Map a resource and read the data from it.
+     * \tparam D The type of the data to read.
+     * \param resource The resource to map.
+     * \param data The data pointer to write to.
+     * \param count The number of elements of D to read.
+     * \return The result of the mapping operation.
+     */
+    template <typename D>
+    [[nodiscard]] HRESULT MapAndRead(const Allocation<ID3D12Resource> resource, D* data, const UINT count)
+    {
+        REQUIRE(count > 0);
+
+        const D3D12_RANGE readRange = {0, sizeof(D) * count};
+        D* mapping;
+
+        const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&mapping));
+        if (FAILED(result)) return result;
+
+        memcpy(data, mapping, sizeof(D) * count);
+
+        resource.resource->Unmap(0, nullptr);
+        return result;
+    }
+
     inline std::wstring FormatDRED(
         const D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1& breadcrumbs,
         const D3D12_DRED_PAGE_FAULT_OUTPUT2& pageFaults,

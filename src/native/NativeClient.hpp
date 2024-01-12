@@ -23,6 +23,8 @@ using Microsoft::WRL::ComPtr;
 class RasterPipeline;
 class Texture;
 
+using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
+
 class NativeClient final : public DXApp
 {
 public:
@@ -47,6 +49,12 @@ public:
      * Toggle fullscreen mode.
      */
     void ToggleFullscreen() const;
+
+    /**
+     * \brief Take a screenshot of the next frame.
+     * \param func The function that will be called when the screenshot is ready.
+     */
+    void TakeScreenshot(ScreenshotFunc func);
 
     /**
      * Load a texture from a file.
@@ -152,6 +160,10 @@ private:
     Allocation<ID3D12Resource> m_intermediateDepthStencilBuffer;
     bool m_intermediateDepthStencilBufferInitialized = false;
 
+    Allocation<ID3D12Resource> m_screenshotBuffers[FRAME_COUNT];
+    bool m_screenshotBuffersInitialized = false;
+    std::optional<ScreenshotFunc> m_screenshotFunc = std::nullopt;
+
     UINT m_frameIndex;
     HANDLE m_fenceEvent{};
     ComPtr<ID3D12Fence> m_fence;
@@ -177,16 +189,21 @@ private:
     void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
     void PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const;
+    void PopulateScreenshotCommandList() const;
 
     void LoadDevice();
     void LoadRasterPipeline();
     void CreateFinalDepthBuffers();
     void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void CreateScreenShotBuffers();
+    void EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void SetupSizeDependentResources();
     void SetupSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void PopulateCommandLists();
     void UpdatePostViewAndScissor();
+
+    void HandleScreenshot();
 };
 
 #if defined(USE_NSIGHT_AFTERMATH)

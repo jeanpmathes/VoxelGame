@@ -10,6 +10,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -405,7 +407,7 @@ public class Client : IDisposable // todo: get type usage count down
     /// <summary>
     ///     Add a pipeline to the Draw2D rendering step.
     /// </summary>
-    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPreset.Draw2D"/> preset.</param>
+    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D"/> preset.</param>
     /// <param name="priority">The priority of the pipeline, higher priority pipelines are rendered later. Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.</param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
     public void AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
@@ -442,12 +444,54 @@ public class Client : IDisposable // todo: get type usage count down
     }
 
     /// <summary>
+    ///     Take a screenshot of the next frame and save it to the given directory.
+    /// </summary>
+    /// <param name="directory">The directory to save the screenshot to.</param>
+    public void TakeScreenshot(DirectoryInfo directory)
+    {
+        Support.Native.TakeScreenshot(this,
+            (data, width, height) =>
+            {
+                var copy = new int[width * height];
+                Marshal.Copy(data, copy, startIndex: 0, copy.Length);
+
+                FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
+
+                Task.Run(() =>
+                {
+                    using Bitmap screenshot = Images.CreateFromData(copy, Images.Format.RGBA, (int) width, (int) height);
+                    Exception? exception = Images.Save(screenshot, path);
+
+                    if (exception == null) logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
+                    else logger.LogError(Events.Screenshot, exception, "Failed to save a screenshot to: {Path}", path);
+                });
+            });
+    }
+
+    /// <summary>
     ///     Run the client. This methods returns when the client is closed.
     /// </summary>
+    /// <param name="criticalExceptionHandler">A handler for critical exceptions.</param>
     /// <returns>The exit code of the client.</returns>
-    public int Run()
+    public int Run(Action<Exception, bool>? criticalExceptionHandler = null)
     {
-        return Support.Native.Run(this);
+        var exit = 1;
+
+        try
+        {
+            exit = Support.Native.Run(this);
+
+            logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
+        }
+        catch (Exception e)
+        {
+            logger.LogCritical(e, "Client crashed from an unhandled exception");
+
+            const bool terminate = true;
+            criticalExceptionHandler?.Invoke(e, terminate);
+        }
+
+        return exit;
     }
 
     private record struct Config(
@@ -467,6 +511,8 @@ public class Client : IDisposable // todo: get type usage count down
     /// <param name="disposing">Whether the method was called by the user.</param>
     protected virtual void Dispose(bool disposing)
     {
+        if (disposing) logger.LogDebug(Events.ApplicationState, "Disposing client");
+
         ReleaseUnmanagedResources();
 
         if (!disposing) return;

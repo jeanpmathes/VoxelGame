@@ -87,6 +87,7 @@ public static class Arguments
     private static int RunApplication(ILogger logger, Func<ILogger, int> app)
     {
         int exitCode = app(logger);
+
         logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
 
         return exitCode;

@@ -27,5 +27,5 @@ D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const
 
 ShaderResources::ConstantBufferViewDescriptor ShaderBuffer::GetDescriptor() const
 {
-    return ShaderResources::ConstantBufferViewDescriptor(GetGPUVirtualAddress(), m_size);
+    return {GetGPUVirtualAddress(), m_size};
 }

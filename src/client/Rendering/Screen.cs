@@ -9,7 +9,6 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -20,128 +19,13 @@ public sealed class Screen : IDisposable // todo: first, move all functionality 
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Screen>();
 
-    private readonly int depthRBO;
-
-    private readonly int emptyVAO;
-
-    private readonly int msFBO;
-
-    private readonly int msTex;
-
-    private readonly int samples;
-
-    private readonly int screenshotFBO;
-    private readonly int screenshotRBO;
-
-    private readonly int shaderFBO;
-
-    private readonly int transparencyFBO;
     private bool fullscreen;
-    private bool isWireframeActive;
-
-    private Vector2i previousScreenLocation;
-    private Vector2i previousScreenSize;
-
-    private bool useWireframe;
 
     internal Screen(Application.Client client)
     {
         Instance = this;
 
         Client = client;
-
-        #region MULTISAMPLED FBO
-
-        // todo: just remove the sampling related stuff for now (covered by resolution scaling)
-        int maxSamples = Context.MaxTextureSamples;
-        samples = Math.Clamp(Client.Graphics.SampleCount, min: 1, maxSamples);
-
-        /*GL.Enable(EnableCap.DepthTest);
-        GL.Enable(EnableCap.CullFace);
-        GL.Enable(EnableCap.Multisample);
-
-        msTex = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2DMultisample, msTex);
-
-        GL.TexImage2DMultisample(
-            TextureTargetMultisample.Texture2DMultisample,
-            samples,
-            PixelInternalFormat.Rgba8,
-            Size.X,
-            Size.Y,
-            fixedsamplelocations: true);
-
-        GL.BindTexture(TextureTarget.Texture2DMultisample, texture: 0);
-
-        GL.CreateFramebuffers(n: 1, out msFBO);
-        GL.NamedFramebufferTexture(msFBO, FramebufferAttachment.ColorAttachment0, msTex, level: 0);
-
-        FramebufferStatus multisampledFboStatus =
-            GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
-
-        while (multisampledFboStatus != FramebufferStatus.FramebufferComplete)
-        {
-            logger.LogWarning(
-                Events.VisualsSetup,
-                "Multi-sampled FBO not complete [{Status}], waiting...",
-                multisampledFboStatus);
-
-            Thread.Sleep(millisecondsTimeout: 100);
-
-            multisampledFboStatus = GL.CheckNamedFramebufferStatus(msFBO, FramebufferTarget.Framebuffer);
-        }
-
-        GL.CreateRenderbuffers(n: 1, out depthRBO);
-        GL.NamedRenderbufferStorageMultisample(depthRBO, samples, RenderbufferStorage.Depth24Stencil8, Size.X, Size.Y);
-
-        GL.NamedFramebufferRenderbuffer(
-            msFBO,
-            FramebufferAttachment.DepthStencilAttachment,
-            RenderbufferTarget.Renderbuffer,
-            depthRBO);
-
-        GL.NamedFramebufferDrawBuffer(msFBO, DrawBufferMode.ColorAttachment0);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, msFBO);*/
-
-        #endregion MULTISAMPLED FBO
-
-        /*GL.CreateFramebuffers(n: 1, out shaderFBO);
-
-        depthTexture = RenderTexture.Create(shaderFBO,
-            Size,
-            TextureUnit.Texture20,
-            (PixelFormat.DepthComponent, PixelInternalFormat.DepthComponent, PixelType.Float),
-            FramebufferAttachment.DepthAttachment);
-
-        colorTexture = RenderTexture.Create(shaderFBO,
-            Size,
-            TextureUnit.Texture21,
-            (PixelFormat.Rgba, PixelInternalFormat.Rgba, PixelType.Float),
-            FramebufferAttachment.ColorAttachment0);
-
-        GL.CreateFramebuffers(n: 1, out transparencyFBO);
-
-        transparencyAccumulationTexture = RenderTexture.Create(transparencyFBO,
-            Size,
-            TextureUnit.Texture22,
-            (PixelFormat.Rgba, PixelInternalFormat.Rgba16f, PixelType.HalfFloat),
-            FramebufferAttachment.ColorAttachment0);
-
-        transparencyRevealageTexture = RenderTexture.Create(transparencyFBO,
-            Size,
-            TextureUnit.Texture23,
-            (PixelFormat.Red, PixelInternalFormat.R8, PixelType.Float),
-            FramebufferAttachment.ColorAttachment1);
-
-        GL.NamedFramebufferDrawBuffers(transparencyFBO, n: 2, new[] {DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1});
-
-        GL.NamedFramebufferRenderbuffer(
-            transparencyFBO,
-            FramebufferAttachment.DepthStencilAttachment,
-            RenderbufferTarget.Renderbuffer,
-            depthRBO);*/
-
-        // GL.CreateVertexArrays(n: 1, out emptyVAO);
     }
 
     private static Screen Instance { get; set; } = null!;
@@ -203,51 +87,6 @@ public sealed class Screen : IDisposable // todo: first, move all functionality 
 
         Instance.fullscreen = fullscreen;
         Instance.Client.ToggleFullscreen();
-    }
-
-    /// <summary>
-    ///     Takes a screenshot and saves it to the specified directory.
-    /// </summary>
-    /// <param name="directory">The directory in which the screenshot should be saved.</param>
-    public static void TakeScreenshot(DirectoryInfo directory)
-    {
-        // todo: implement screenshot taking
-        /*IntPtr data = Marshal.AllocHGlobal(Size.X * Size.Y * 4);
-
-        GL.BlitNamedFramebuffer(
-            Instance.msFBO,
-            Instance.screenshotFBO,
-            srcX0: 0,
-            srcY0: 0,
-            Size.X,
-            Size.Y,
-            dstX0: 0,
-            dstY0: 0,
-            Size.X,
-            Size.Y,
-            ClearBufferMask.ColorBufferBit,
-            BlitFramebufferFilter.Nearest);
-
-        GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, Instance.screenshotFBO);
-        GL.ReadPixels(x: 0, y: 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, data);
-
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, Instance.msFBO);
-
-        using Bitmap screenshot = new(
-            Size.X,
-            Size.Y,
-            4 * Size.X,
-            System.Drawing.Imaging.PixelFormat.Format32bppArgb,
-            data);
-
-        screenshot.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-        FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
-
-        screenshot.Save(path.FullName);
-        logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
-
-        Marshal.FreeHGlobal(data);*/
     }
 
     /// <summary>

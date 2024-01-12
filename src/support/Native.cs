@@ -32,6 +32,8 @@ public static class Native // todo: make internal, methods too
 
     private static readonly Dictionary<RasterPipeline, object> draw2DCallbacks = new();
 
+    private static Definition.Native.ScreenshotFunc? screenshotCallback;
+
     /// <summary>
     ///     Show an error message box.
     /// </summary>
@@ -125,6 +127,30 @@ public static class Native // todo: make internal, methods too
         NativePassDRED(client.Native, s => result = s);
 
         return result;
+    }
+
+    /// <summary>
+    ///     Queue a screenshot to be taken. If the screenshot is already queued, this call is ignored.
+    /// </summary>
+    /// <param name="client">The client for which to take a screenshot.</param>
+    /// <param name="callback">The callback to call when the screenshot is taken.</param>
+    public static void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeTakeScreenshot(IntPtr native, Definition.Native.ScreenshotFunc callback);
+
+        if (screenshotCallback != null) return;
+
+        screenshotCallback = callback;
+
+        NativeTakeScreenshot(client.Native,
+            (data, width, height) =>
+            {
+                Debug.Assert(screenshotCallback != null);
+
+                screenshotCallback(data, width, height);
+                screenshotCallback = null;
+            });
     }
 
     /// <summary>

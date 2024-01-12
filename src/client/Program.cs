@@ -97,7 +97,7 @@ internal static class Program
 
                 using Application.Client client = new(windowSettings, graphicsSettings, args);
 
-                return client.Run();
+                return client.Run(HandleCriticalException);
             });
     }
 
@@ -106,12 +106,21 @@ internal static class Program
     {
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
         {
-            logger.LogCritical(Events.ApplicationInformation, eventArgs.ExceptionObject as Exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
+            Exception exception = eventArgs.ExceptionObject as Exception ?? new Exception("Unknown exception");
+
+            logger.LogCritical(Events.ApplicationInformation, exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
 
             // The runtime will emit a message, to prevent mixing we wait.
             Thread.Sleep(millisecondsTimeout: 100);
 
-            // todo: error window
+            HandleCriticalException(exception, !eventArgs.IsTerminating);
         };
+    }
+
+    private static void HandleCriticalException(Exception exception, bool exit)
+    {
+        // todo: error window
+
+        if (exit) Environment.Exit(exitCode: 1);
     }
 }

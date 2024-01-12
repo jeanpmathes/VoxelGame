@@ -65,8 +65,8 @@ public sealed class SelectionBoxRenderer : Renderer
 
         buffer.Modify((ref Data data) =>
         {
-            data.DarkColor = (0.1f, 0.1f, 0.1f);
-            data.BrightColor = (0.4f, 0.4f, 0.4f);
+            data.DarkColor = (0.1f, 0.1f, 0.1f); // todo: use setting for both colors, similar to crosshair
+            data.BrightColor = (0.6f, 0.6f, 0.6f);
         });
 
         return new SelectionBoxRenderer(client, pipeline);

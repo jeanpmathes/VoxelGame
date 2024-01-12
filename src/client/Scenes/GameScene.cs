@@ -96,12 +96,15 @@ public sealed class GameScene : IScene
         };
 
         Game = new Game(world, player);
+        Client = client;
     }
 
     /// <summary>
     ///     Get the game played in this scene.
     /// </summary>
     public Game Game { get; private set; }
+
+    private Support.Core.Client Client { get; }
 
     /// <inheritdoc />
     public void Load()
@@ -149,7 +152,7 @@ public sealed class GameScene : IScene
 
             if (!Screen.IsOverlayLockActive)
             {
-                if (screenshotButton.Pushed) Screen.TakeScreenshot(Program.ScreenshotDirectory);
+                if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
 
                 if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
             }

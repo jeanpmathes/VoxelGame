@@ -6,7 +6,10 @@
 
 #include "stdafx.h"
 
-static NativeErrorFunc onError;
+namespace
+{
+    NativeErrorFunc onError;
+}
 
 NATIVE void NativeShowErrorBox(const LPCWSTR message, const LPCWSTR caption)
 {
@@ -92,6 +95,17 @@ NATIVE void NativePassDRED(const NativeClient* client, const NativeWStringFunc r
 
         const std::wstring dred = client->GetDRED();
         receiver(const_cast<LPWSTR>(dred.c_str()));
+    }
+    CATCH();
+}
+
+NATIVE void NativeTakeScreenshot(NativeClient* client, const ScreenshotFunc func)
+{
+    TRY
+    {
+        REQUIRE(CALL_IN_UPDATE(client));
+
+        client->TakeScreenshot(func);
     }
     CATCH();
 }

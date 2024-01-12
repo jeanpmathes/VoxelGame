@@ -206,8 +206,8 @@ namespace
         case ShaderPreset::POST_PROCESSING:
             {
                 *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-                
-                desc->DepthStencilState.DepthEnable = true;
+
+                desc->DepthStencilState.DepthEnable = TRUE;
                 desc->DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
                 desc->DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
             }
@@ -216,11 +216,15 @@ namespace
                 *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-                desc->DepthStencilState.DepthEnable = false;
+                desc->DepthStencilState.DepthEnable = FALSE;
 
-                desc->BlendState.RenderTarget[0].BlendEnable = true;
+                desc->BlendState.RenderTarget[0].BlendEnable = TRUE;
                 desc->BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
                 desc->BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+                desc->BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+                desc->BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+                desc->BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+                desc->BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
             }
             break;
         case ShaderPreset::SPATIAL_EFFECT:
@@ -239,7 +243,7 @@ namespace
 
                 desc->RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
-                desc->DepthStencilState.DepthEnable = true;
+                desc->DepthStencilState.DepthEnable = TRUE;
                 desc->DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
                 desc->DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
             }
