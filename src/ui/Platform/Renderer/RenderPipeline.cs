@@ -29,7 +29,7 @@ public class RenderPipeline
     private readonly Action preDraw;
 
     private readonly RendererBase renderer;
-    private readonly ShaderBuffer<Vector2> uniformBuffer;
+    private readonly ShaderBuffer<Vector2> buffer;
 
     private readonly PooledList<Draw2D.Vertex> vertexBuffer = new();
 
@@ -39,16 +39,12 @@ public class RenderPipeline
     /// <summary>
     ///     Creates a new render pipeline.
     /// </summary>
-    public RenderPipeline(Client client,
-        RendererBase renderer, Action preDraw,
-        FileInfo shader, Action<string> errorCallback)
+    public RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
     {
         this.renderer = renderer;
         this.preDraw = preDraw;
 
-        (pipeline, uniformBuffer) = client.CreateRasterPipeline<Vector2>(
-            RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
-            errorCallback);
+        (pipeline, buffer) = raster;
 
         client.AddDraw2dPipeline(pipeline, Draw2D.Foreground, Draw);
 
@@ -64,6 +60,23 @@ public class RenderPipeline
     ///     Whether CPU clipping is enabled.
     /// </summary>
     public bool IsClippingEnabled { get; set; }
+
+    /// <summary>
+    ///     Creates a new render pipeline.
+    /// </summary>
+    public static RenderPipeline? Create(
+        Client client,
+        RendererBase rendererBase,
+        Action preDrawAction,
+        FileInfo shader,
+        Action<string> errorCallback)
+    {
+        (RasterPipeline pipeline, ShaderBuffer<Vector2>)? result = client.CreateRasterPipeline<Vector2>(
+            RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
+            errorCallback);
+
+        return result == null ? null : new RenderPipeline(client, rendererBase, preDrawAction, result.Value);
+    }
 
     /// <summary>
     ///     Push a new rectangle to the vertex buffer.
@@ -212,7 +225,7 @@ public class RenderPipeline
     /// </summary>
     public void Resize(Vector2 size)
     {
-        uniformBuffer.Data = size;
+        buffer.Data = size;
     }
 
     private sealed class DrawCall

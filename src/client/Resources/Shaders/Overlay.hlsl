@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+#include "Common.hlsl"
 #include "TextureAnimation.hlsl"
 
 static const int BLOCK_MODE = 0;
@@ -47,13 +48,13 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
 
     const bool isBlockMode = gMode == BLOCK_MODE;
 
+    const int offset = isBlockMode ? 0 : gFirstFluidTextureIndex;
+
     result.uv = uv;
     result.color = color;
     result.position = mul(float4(position, 0.0, 1.0), gMVP);
     result.height = (result.position.y + 1.0) * 0.5;
-    result.index = GetAnimatedTextureIndex(gAttributes, 0, gTime, isBlockMode) + (isBlockMode
-        ? 0
-        : gFirstFluidTextureIndex);
+    result.index = GetAnimatedTextureIndex(gAttributes, 0, gTime, isBlockMode) + offset;
 
     return result;
 }

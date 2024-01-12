@@ -7,10 +7,10 @@ bool Material::IsAnimated() const
 
 Space::Space(NativeClient& nativeClient) :
     m_nativeClient(nativeClient),
-    m_camera(nativeClient),
-    m_light(nativeClient),
     m_resultBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE),
     m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+    m_camera(nativeClient),
+    m_light(nativeClient),
     m_indexBuffer(*this)
 {
 }
@@ -33,8 +33,10 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
 
     m_camera.Initialize();
 
+    // todo: use the Texture class to create sentinel texture
+    
     const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_B8G8R8A8_UNORM, 1, 1,
+        DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1,
         1, 1,
         1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);

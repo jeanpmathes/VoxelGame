@@ -98,7 +98,7 @@ public class UIResources
     private void LoadGUI(Client window, LoadingContext loadingContext)
     {
         FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
-        FileInfo shader = FileSystem.GetResourceDirectory("GUI").GetFile("GUI.hlsl");
+        FileInfo shader = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
 
         Exception? skinLoadingError = null;
         string? shaderLoadingError = null;
@@ -115,7 +115,9 @@ public class UIResources
                     settings.SkinLoadingErrorCallback = exception => skinLoadingError = exception;
 
                     settings.ShaderFile = shader;
-                    settings.ShaderLoadingErrorCallback = exception => shaderLoadingError = exception;
+
+                    settings.ShaderLoadingErrorCallback =
+                        exception => shaderLoadingError = exception;
 
                     foreach ((string _, TexturePreload texture) in textures) settings.TexturePreloads.Add(texture);
 

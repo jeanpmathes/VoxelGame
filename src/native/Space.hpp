@@ -248,6 +248,9 @@ private:
     NativeClient& m_nativeClient; // todo: make pointer, check other offenders of warning
     Resolution m_resolution{};
 
+    InBufferAllocator m_resultBufferAllocator;
+    InBufferAllocator m_scratchBufferAllocator;
+
     Camera m_camera;
     Light m_light;
 
@@ -307,9 +310,6 @@ private:
     std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
     TLAS m_topLevelASBuffers;
-
-    InBufferAllocator m_resultBufferAllocator;
-    InBufferAllocator m_scratchBufferAllocator;
     
     std::vector<AnimationController> m_animations = {};
 

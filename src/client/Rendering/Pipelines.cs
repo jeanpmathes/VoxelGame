@@ -15,7 +15,6 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Graphics.Objects;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
 
@@ -59,61 +58,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     ///     Get the raytracing data buffer.
     /// </summary>
     public ShaderBuffer<RaytracingData> RaytracingDataBuffer => raytracingDataBuffer!;
-
-    /// <summary>
-    ///     The shader used for simple blocks.
-    /// </summary>
-    public Shader SimpleSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for complex blocks.
-    /// </summary>
-    public Shader ComplexSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for varying height blocks.
-    /// </summary>
-    public Shader VaryingHeightSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for cross plant blocks.
-    /// </summary>
-    public Shader CrossPlantSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for crop plant blocks.
-    /// </summary>
-    public Shader CropPlantSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for opaque fluids.
-    /// </summary>
-    public Shader OpaqueFluidSection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for the accumulate pass for transparent fluids.
-    /// </summary>
-    public Shader TransparentFluidSectionAccumulate { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for the draw pass for transparent fluids.
-    /// </summary>
-    public Shader TransparentFluidSectionDraw { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for block/fluid texture overlays.
-    /// </summary>
-    public Shader Overlay { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for the selection box.
-    /// </summary>
-    public Shader Selection { get; private set; } = null!;
-
-    /// <summary>
-    ///     The shader used for simply screen elements.
-    /// </summary>
-    public Shader ScreenElement { get; private set; } = null!;
 
     /// <summary>
     ///     The basic raytracing material for opaque section parts.
@@ -205,14 +149,14 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         SelectionBoxRenderer = Require(SelectionBoxRenderer.Create(client, this), renderers);
     }
 
-    private TConcrete Require<TConcrete>(TConcrete? value)
+    private TConcrete Require<TConcrete>(TConcrete? value) where TConcrete : class
     {
         loaded &= value != null;
 
         return value!;
     }
 
-    private TConcrete Require<TConcrete, TBase>(TConcrete? value, ICollection<TBase> registry) where TConcrete : TBase
+    private TConcrete Require<TConcrete, TBase>(TConcrete? value, ICollection<TBase> registry) where TConcrete : class, TBase
     {
         loaded &= value != null;
 
@@ -236,7 +180,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
 
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
-        (RasterPipeline, ShaderBuffer<T>) result = client.CreateRasterPipeline<T>(
+        (RasterPipeline, ShaderBuffer<T>)? result = client.CreateRasterPipeline<T>(
             RasterPipelineDescription.Create(path, preset),
             error =>
             {
@@ -257,13 +201,13 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
     /// <param name="preset">The preset to use.</param>
     /// <returns>The pipeline, if loading was successful.</returns>
-    public RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPresets.IPreset preset)
+    private RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPresets.IPreset preset)
     {
         Debug.Assert(loadingContext != null);
 
         FileInfo path = directory.GetFile($"{name}.hlsl");
 
-        RasterPipeline pipeline = client.CreateRasterPipeline(
+        RasterPipeline? pipeline = client.CreateRasterPipeline(
             RasterPipelineDescription.Create(path, preset),
             error =>
             {

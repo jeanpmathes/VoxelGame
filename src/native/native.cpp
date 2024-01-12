@@ -343,7 +343,6 @@ NATIVE ShaderBuffer* NativeGetRasterPipelineShaderBuffer(const RasterPipeline* p
 {
     TRY
     {
-        if (pipeline == nullptr) return nullptr;
         return pipeline->GetShaderBuffer();
     }
     CATCH();
@@ -377,7 +376,7 @@ NATIVE void NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeli
     TRY
     {
         REQUIRE(CALL_OUTSIDE_CYCLE(client));
-
+        
         client->AddDraw2DPipeline(pipeline, priority, callback);
     }
     CATCH();

@@ -14,6 +14,7 @@ using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -46,7 +47,7 @@ public sealed class ScreenElementRenderer : Renderer
         this.relativeScreenPosition = relativeScreenPosition;
         this.data = data;
 
-        placeholder = client.LoadTexture(Texture.CreateFallback(resolution: 1));
+        placeholder = client.LoadTexture(Image.CreateFallback(size: 1));
     }
 
     /// <inheritdoc />

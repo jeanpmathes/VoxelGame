@@ -6,11 +6,18 @@
 
 #pragma once
 
+enum ColorFormat : byte
+{
+    RGBA,
+    BGRA
+};
+
 struct TextureDescription
 {
     UINT width;
     UINT height;
     UINT mipLevels;
+    ColorFormat format;
 };
 
 /**
@@ -22,7 +29,7 @@ class Texture final : public Object
 
 public:
     /**
-     * Create a texture from given data.
+     * Create a texture from given data, in RGBA format.
      * The texture is stored in the client that is associated with the uploader.
      */
     static Texture* Create(Uploader& uploader, std::byte** data, TextureDescription description);

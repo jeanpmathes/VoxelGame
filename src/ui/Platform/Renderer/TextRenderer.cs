@@ -12,6 +12,7 @@ using System.Drawing.Text;
 using Gwen.Net;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
+using Image = VoxelGame.Core.Visuals.Image;
 using Point = Gwen.Net.Point;
 
 namespace VoxelGame.UI.Platform.Renderer;
@@ -77,7 +78,7 @@ public sealed class TextRenderer : IDisposable
             new System.Drawing.Point(point.X, point.Y),
             format);
 
-        renderer.LoadTextureDirectly(Texture, bitmap);
+        renderer.LoadTextureDirectly(Texture, new Image(bitmap));
     }
 
     private void Dispose(bool manual)

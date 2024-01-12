@@ -34,15 +34,6 @@
         <Compile Remove="lib\**"/>
         <EmbeddedResource Remove="lib\**"/>
         <None Remove="lib\**"/>
-        <None Update="Resources\GUI\Icons\load.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\GUI\Icons\delete.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\GUI\Icons\reset.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\Attribution\wikimedia-textures.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -58,9 +49,6 @@
         <None Update="Resources\Attribution\voxel-traversal.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\GUI\VoxelSkin.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\GUI\Images\start.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -71,6 +59,21 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Attribution\d3d12-memory-allocator.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Shaders\GUI.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\VoxelSkin.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\delete.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\load.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\reset.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
@@ -96,11 +99,5 @@
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\support\VoxelGame.Support.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\GUI\GUI.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 </Project>

@@ -5,10 +5,9 @@
 //  <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
 using VoxelGame.Support.Definition;
@@ -464,8 +463,8 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
-    /// <returns>The raster pipeline.</returns>
-    public static RasterPipeline CreateRasterPipeline(
+    /// <returns>The raster pipeline, or null if the pipeline could not be created.</returns>
+    public static RasterPipeline? CreateRasterPipeline(
         Client client,
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback)
@@ -473,8 +472,10 @@ public static class Native // todo: make internal, methods too
         Debug.Assert(description.BufferSize == 0);
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
-        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
 
+        if (rasterPipeline == IntPtr.Zero) return null;
+
+        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
         Debug.Assert(shaderBuffer == IntPtr.Zero);
 
         return new RasterPipeline(rasterPipeline, client);
@@ -486,8 +487,8 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
-    /// <returns>The raster pipeline and associated shader buffer.</returns>
-    public static (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(
+    /// <returns>The raster pipeline and associated shader buffer, or null if the pipeline could not be created.</returns>
+    public static (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
@@ -495,12 +496,13 @@ public static class Native // todo: make internal, methods too
         description.BufferSize = (uint) Marshal.SizeOf<T>();
 
         IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+
+        if (rasterPipeline == IntPtr.Zero) return null;
+
         IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
+        Debug.Assert(shaderBuffer != IntPtr.Zero);
 
-        RasterPipeline pipelineWrapper = new(rasterPipeline, client);
-        ShaderBuffer<T>? bufferWrapper = shaderBuffer == IntPtr.Zero ? null : new ShaderBuffer<T>(shaderBuffer, client);
-
-        return (pipelineWrapper, bufferWrapper!);
+        return (new RasterPipeline(rasterPipeline, client), new ShaderBuffer<T>(shaderBuffer, client));
     }
 
     /// <summary>
@@ -533,7 +535,7 @@ public static class Native // todo: make internal, methods too
     ///     Add a draw 2D pipeline.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPreset.Draw2D"/>.</param>
+    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D"/>.</param>
     /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
     public static void AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
@@ -566,44 +568,48 @@ public static class Native // todo: make internal, methods too
     }
 
     /// <summary>
-    ///     Load a texture from a bitmap.
+    ///     Load a texture from images.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="texture">The texture, consisting of a bitmap for each mip level.</param>
+    /// <param name="texture">The texture, consisting of an image for each mip level.</param>
     /// <returns>The loaded texture.</returns>
-    public static unsafe Texture LoadTexture(Client client, Span<Bitmap> texture)
+    public static unsafe Texture LoadTexture(Client client, Span<Image> texture)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeLoadTexture(IntPtr client, IntPtr* data, TextureDescription description);
+        static extern IntPtr NativeLoadTexture(IntPtr client, int** data, TextureDescription description);
 
         Debug.Assert(texture.Length > 0);
+
+        Image.Format format = texture[index: 0].GetFormat();
 
         TextureDescription description = new()
         {
             Width = (uint) texture[index: 0].Width,
             Height = (uint) texture[index: 0].Height,
-            MipLevels = (uint) texture.Length
+            MipLevels = (uint) texture.Length,
+            ColorFormat = format.ToNative()
         };
 
-        List<IntPtr> subresources = new(texture.Length);
-        List<BitmapData> locks = new(texture.Length);
+        List<GCHandle> pins = new(texture.Length);
+        var subresources = new int*[texture.Length];
 
-        foreach (Bitmap bitmap in texture)
+        for (var index = 0; index < texture.Length; index++)
         {
-            BitmapData data = bitmap.LockBits(new Rectangle(x: 0, y: 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int[] data = texture[index].GetData(format);
+            GCHandle pin = GCHandle.Alloc(data, GCHandleType.Pinned);
 
-            subresources.Add(data.Scan0);
-            locks.Add(data);
+            pins.Add(pin);
+            subresources[index] = (int*) pin.AddrOfPinnedObject();
         }
 
         IntPtr result;
 
-        fixed (IntPtr* subresourcesPtr = CollectionsMarshal.AsSpan(subresources))
+        fixed (int** subresourcesPtr = subresources)
         {
             result = NativeLoadTexture(client.Native, subresourcesPtr, description);
         }
 
-        for (var i = 0; i < texture.Length; i++) texture[i].UnlockBits(locks[i]);
+        for (var i = 0; i < texture.Length; i++) pins[i].Free();
 
         return new Texture(result, client, new Vector2i((int) description.Width, (int) description.Height));
     }

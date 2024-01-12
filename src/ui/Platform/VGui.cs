@@ -44,7 +44,15 @@ internal sealed class VGui : IGwenGui
     {
         GwenPlatform.Init(new VoxelGamePlatform(Parent.SetCursor));
         AttachToWindowEvents();
-        renderer = new DirectXRenderer(Parent, Settings);
+
+        try
+        {
+            renderer = new DirectXRenderer(Parent, Settings);
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
 
         skin = new TexturedBase(renderer, Settings.SkinFile, Settings.SkinLoadingErrorCallback)
         {

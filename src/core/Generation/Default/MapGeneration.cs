@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -502,7 +503,7 @@ public partial class Map
 
     private static void EmitTerrainView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -511,7 +512,7 @@ public partial class Map
             view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(path.GetFile("terrain_view.png").FullName);
+        view.Save(path.GetFile("terrain_view.png"));
     }
 
     private static Color GetTerrainColor(Cell current)
@@ -558,7 +559,7 @@ public partial class Map
 
     private static void EmitTemperatureView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -567,7 +568,7 @@ public partial class Map
             view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
-        view.Save(path.GetFile("temperature_view.png").FullName);
+        view.Save(path.GetFile("temperature_view.png"));
     }
 
     private static HumidityData[] CreateInitialHumidityData()
@@ -698,7 +699,7 @@ public partial class Map
 
     private static void EmitHumidityView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -707,7 +708,7 @@ public partial class Map
             view.SetPixel(x, y, GetHumidityColor(current));
         }
 
-        view.Save(path.GetFile("precipitation_view.png").FullName);
+        view.Save(path.GetFile("precipitation_view.png"));
     }
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
@@ -717,7 +718,7 @@ public partial class Map
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -726,7 +727,7 @@ public partial class Map
             view.SetPixel(x, y, GetBiomeColor(current, biomes));
         }
 
-        view.Save(path.GetFile("biome_view.png").FullName);
+        view.Save(path.GetFile("biome_view.png"));
     }
 
     private static Color GetStoneTypeColor(Cell current)
@@ -746,7 +747,7 @@ public partial class Map
 
     private static void EmitStoneView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -755,7 +756,7 @@ public partial class Map
             view.SetPixel(x, y, GetStoneTypeColor(current));
         }
 
-        view.Save(path.GetFile("stone_view.png").FullName);
+        view.Save(path.GetFile("stone_view.png"));
     }
 
     private record struct HumidityData

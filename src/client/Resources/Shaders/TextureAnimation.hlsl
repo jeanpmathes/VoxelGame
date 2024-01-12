@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 // ReSharper disable once CppUnusedIncludeDirective
+
 #include "Decoding.hlsl"
 
 uint GetAnimatedIndex(const uint index, const uint primitive, const float time, const uint frameCount,

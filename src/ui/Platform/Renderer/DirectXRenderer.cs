@@ -8,14 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
 using VoxelGame.Support.Core;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
+using Image = VoxelGame.Core.Visuals.Image;
 using Point = Gwen.Net.Point;
 using Rectangle = Gwen.Net.Rectangle;
 using Size = Gwen.Net.Size;
@@ -34,9 +35,6 @@ public sealed class DirectXRenderer : RendererBase
     private readonly TextCache textCache;
     private readonly TextSupport textSupport;
 
-    private Bitmap? currentPixelColorSource;
-    private string currentPixelColorSourceName = "";
-
     private TextureList.Handle currentTexture;
 
     private bool textureDiscardAllowed;
@@ -49,7 +47,9 @@ public sealed class DirectXRenderer : RendererBase
         textSupport = new TextSupport(this);
         textCache = new TextCache(this);
 
-        renderPipeline = new RenderPipeline(client, this, PreDraw, settings.ShaderFile, settings.ShaderLoadingErrorCallback);
+        renderPipeline
+            = RenderPipeline.Create(client, this, PreDraw, settings.ShaderFile, settings.ShaderLoadingErrorCallback)
+              ?? throw new InvalidOperationException("Failed to create render pipeline.");
 
         foreach (TexturePreload texturePreload in settings.TexturePreloads)
         {
@@ -90,7 +90,6 @@ public sealed class DirectXRenderer : RendererBase
     {
         textSupport.Dispose();
         textCache.Dispose();
-        currentPixelColorSource?.Dispose();
 
         base.Dispose();
     }
@@ -128,17 +127,17 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void DrawTexturedRect(Texture texture, Rectangle targetRect, float u1 = 0, float v1 = 0, float u2 = 1,
-        float v2 = 1)
+    public override void DrawTexturedRect(Texture texture, Rectangle targetRect,
+        float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
     {
-        if (null == texture.RendererData)
+        if (texture.RendererData == null)
         {
             DrawMissingImage(targetRect);
 
             return;
         }
 
-        var handle = (TextureList.Handle) texture.RendererData;
+        TextureList.Handle handle = GetRenderData(texture);
         targetRect = Translate(targetRect);
 
         bool differentTexture = currentTexture != handle;
@@ -256,40 +255,22 @@ public sealed class DirectXRenderer : RendererBase
     /// <inheritdoc />
     public override void LoadTextureRaw(Texture texture, byte[] pixelData)
     {
-        Bitmap bitmap;
+        Span<byte> bytes = pixelData;
+        Span<int> pixels = MemoryMarshal.Cast<byte, int>(bytes);
 
-        try
-        {
-            unsafe
-            {
-                fixed (byte* ptr = &pixelData[0])
-                {
-                    bitmap = new Bitmap(texture.Width, texture.Height, 4 * texture.Width, PixelFormat.Format32bppArgb, (IntPtr) ptr);
-                }
-            }
-        }
-#pragma warning disable S2221 // Not clear what could be thrown here.
-        catch (Exception)
-#pragma warning restore S2221
-        {
-            SetFailedTextureProperties(texture);
+        Image image = new(pixels, Image.Format.BGRA, texture.Width, texture.Height);
 
-            return;
-        }
-
-        LoadTextureDirectly(texture, bitmap);
-
-        bitmap.Dispose();
+        LoadTextureDirectly(texture, image);
     }
 
     /// <summary>
-    ///     Load a texture directly from a bitmap.
+    ///     Load a texture directly from an image.
     /// </summary>
     /// <param name="t">The texture to load.</param>
-    /// <param name="bitmap">The bitmap to load.</param>
-    public void LoadTextureDirectly(Texture t, Bitmap bitmap)
+    /// <param name="image">The image to load.</param>
+    public void LoadTextureDirectly(Texture t, Image image)
     {
-        TextureList.Handle loadedTexture = renderPipeline.Textures.LoadTexture(bitmap, allowDiscard: true);
+        TextureList.Handle loadedTexture = renderPipeline.Textures.LoadTexture(image, allowDiscard: true);
         SetTextureProperties(t, loadedTexture);
     }
 
@@ -330,31 +311,14 @@ public sealed class DirectXRenderer : RendererBase
         texture.Failed = false;
     }
 
-    private FileInfo GetTextureFile(Texture texture)
-    {
-        return preloadNameToPath.TryGetValue(texture.Name, out string? path)
-            ? new FileInfo(path)
-            : new FileInfo(texture.Name);
-    }
-
     /// <inheritdoc />
     public override Color PixelColor(Texture texture, uint x, uint y, Color defaultColor)
     {
         if (texture.RendererData == null) return defaultColor;
 
-        if (texture.Name != currentPixelColorSourceName)
-        {
-#pragma warning disable S2952 // Reference is overriden and thus disposed.
-            currentPixelColorSource?.Dispose();
-#pragma warning restore S2952
+        TextureList.Handle handle = GetRenderData(texture);
 
-            currentPixelColorSource = new Bitmap(GetTextureFile(texture).FullName);
-            currentPixelColorSourceName = texture.Name;
-        }
-
-        System.Drawing.Color pixel = currentPixelColorSource!.GetPixel((int) x, (int) y);
-
-        return new Color(pixel.A, pixel.R, pixel.G, pixel.B);
+        return renderPipeline.Textures.GetPixel(handle, x, y);
     }
 
     /// <summary>

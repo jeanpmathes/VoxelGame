@@ -3,6 +3,8 @@
 draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const Callback callback)
     : m_raster(raster), m_callback(callback), m_client(client)
 {
+    REQUIRE(m_raster != nullptr);
+
     auto addBuffer = [this](const BOOL value)
     {
         constexpr UINT size = sizeof(BOOL);

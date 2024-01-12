@@ -20,6 +20,16 @@ float GetLuminance(const in float3 color)
     return dot(color, float3(0.299, 0.587, 0.114));
 }
 
+/**
+ * \brief Translates the UV coordinates between the OpenGL and DirectX coordinate system.
+ * \param uv The UV coordinates in the OpenGL/DirectX coordinate system.
+ * \return The UV coordinates in the DirectX/OpenGL coordinate system.
+ */
+float2 TranslateUV(const in float2 uv)
+{
+    return float2(uv.x, 1.0 - uv.y);
+}
+
 // ReSharper disable CppInconsistentNaming
 template
 <

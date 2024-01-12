@@ -7,12 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
+using Gwen.Net;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
+using Texture = VoxelGame.Support.Objects.Texture;
 
 namespace VoxelGame.UI.Platform.Renderer;
 
@@ -26,15 +27,15 @@ public class TextureList
 
     private readonly Client client;
 
+    private readonly GappedList<Texture> textures;
+    private readonly PooledList<Image> images = new();
+    private readonly PooledList<int> usage = new();
+
     /// <summary>
     ///     Contains the indices of textures that were added since the last upload.
     ///     This is used to prevent textures from being discarded during the same frame they are uploaded.
     /// </summary>
-    private readonly SortedSet<int> newTextures = new();
-
-    private readonly GappedList<Texture> textures;
-
-    private readonly PooledList<int> usage = new();
+    private SortedSet<int> newTextures = new();
 
     private SortedSet<int> previousNewTextures = new();
 
@@ -47,11 +48,11 @@ public class TextureList
         this.client = client;
 
         // The Draw2D pipeline requires at least one texture.
-        using Bitmap image = Texture.CreateFallback(resolution: 1);
+        var image = Image.CreateFallback(size: 1);
         Texture sentinel = client.LoadTexture(image);
 
         textures = new GappedList<Texture>(sentinel);
-        AddEntry(sentinel, allowDiscard: false);
+        AddEntry(sentinel, image, allowDiscard: false);
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ public class TextureList
         foreach (int index in previousNewTextures) DiscardIfUnused(new Handle(index));
 
         previousNewTextures = newTextures;
-        newTextures.Clear();
+        newTextures = new SortedSet<int>();
 
         drawer.InitializeTextures(textures.AsSpan());
 
@@ -85,7 +86,7 @@ public class TextureList
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
     /// <param name="callback">The callback that receives the texture handle if the load was successful.</param>
     /// <returns>An exception if the load failed, null otherwise.</returns>
-    public Exception? LoadTexture(FileSystemInfo path, bool allowDiscard, Action<Handle> callback)
+    public Exception? LoadTexture(FileInfo path, bool allowDiscard, Action<Handle> callback)
     {
         Handle existing = GetTexture(path.FullName);
 
@@ -98,17 +99,17 @@ public class TextureList
 
         try
         {
-            using Bitmap bitmap = new(path.FullName);
-            Texture texture = client.LoadTexture(bitmap);
+            Image image = Image.LoadFromFile(path);
+            Texture texture = client.LoadTexture(image);
 
-            Handle loadedTexture = AddEntry(texture, allowDiscard);
+            Handle loadedTexture = AddEntry(texture, image, allowDiscard);
             availableTextures[path.FullName] = loadedTexture.Index;
 
             callback(loadedTexture);
 
             return null;
         }
-#pragma warning disable S2221 // Not clear what could be thrown here.
+#pragma warning disable S2221
         catch (Exception e)
 #pragma warning restore S2221
         {
@@ -119,13 +120,13 @@ public class TextureList
     /// <summary>
     ///     Load a texture from a bitmap.
     /// </summary>
-    /// <param name="bitmap">The bitmap to load from.</param>
+    /// <param name="image">The image to load from.</param>
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
-    public Handle LoadTexture(Bitmap bitmap, bool allowDiscard)
+    public Handle LoadTexture(Image image, bool allowDiscard)
     {
-        Texture texture = client.LoadTexture(bitmap);
+        Texture texture = client.LoadTexture(image);
 
-        return AddEntry(texture, allowDiscard);
+        return AddEntry(texture, image, allowDiscard);
     }
 
     /// <summary>
@@ -149,6 +150,7 @@ public class TextureList
         if (newTextures.Contains(handle.Index)) return;
 
         textures[handle.Index].Free();
+        images[handle.Index] = images[index: 0];
         usage[handle.Index] = NeverDiscard;
 
         textures.RemoveAt(handle.Index);
@@ -156,11 +158,12 @@ public class TextureList
         IsDirty = true;
     }
 
-    private Handle AddEntry(Texture texture, bool allowDiscard)
+    private Handle AddEntry(Texture texture, Image image, bool allowDiscard)
     {
         int usageCount = allowDiscard ? 0 : NeverDiscard;
         Handle handle = new(textures.Add(texture));
 
+        SafelySetImage(handle, image);
         SafelySetUsage(handle, usageCount);
         IncreaseUsageCount(handle);
 
@@ -168,6 +171,19 @@ public class TextureList
         newTextures.Add(handle.Index);
 
         return handle;
+    }
+
+    private void SafelySetImage(Handle handle, Image image)
+    {
+        if (images.Count > handle.Index)
+        {
+            images[handle.Index] = image;
+        }
+        else
+        {
+            Debug.Assert(images.Count == handle.Index);
+            images.Add(image);
+        }
     }
 
     private void SafelySetUsage(Handle handle, int usageCount)
@@ -212,6 +228,16 @@ public class TextureList
     public Texture? GetEntry(Handle handle)
     {
         return handle.IsValid ? textures[handle.Index] : null;
+    }
+
+    /// <summary>
+    ///     Get the pixel at the given coordinates.
+    /// </summary>
+    public Color GetPixel(Handle handle, uint x, uint y)
+    {
+        System.Drawing.Color color = images[handle.Index].GetPixel((int) x, (int) y);
+
+        return new Color(color.A, color.R, color.G, color.B);
     }
 
     /// <summary>

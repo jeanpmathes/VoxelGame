@@ -1,6 +1,24 @@
 ﻿#include "stdafx.h"
 #include "Texture.hpp"
 
+namespace
+{
+    DXGI_FORMAT GetFormat(const ColorFormat format)
+    {
+        switch (format)
+        {
+        case RGBA:
+            return DXGI_FORMAT_R8G8B8A8_UNORM;
+
+        case BGRA:
+            return DXGI_FORMAT_B8G8R8A8_UNORM;
+
+        default:
+            throw NativeException("Invalid color format.");
+        }
+    }
+}
+
 Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescription description)
 {
     REQUIRE(description.width > 0);
@@ -8,7 +26,7 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     REQUIRE(description.mipLevels > 0);
 
     const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_B8G8R8A8_UNORM,
+        GetFormat(description.format),
         description.width,
         description.height,
         1,

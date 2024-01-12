@@ -5,7 +5,6 @@
 //  <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
@@ -373,8 +372,8 @@ public class Client : IDisposable // todo: get type usage count down
     /// </summary>
     /// <param name="description">A description of the pipeline.</param>
     /// <param name="errorCallback">A callback for error messages.</param>
-    /// <returns>The created pipeline.</returns>
-    public RasterPipeline CreateRasterPipeline(RasterPipelineDescription description, Action<string> errorCallback)
+    /// <returns>The created pipeline, or <c>null</c> if the pipeline could not be created.</returns>
+    public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<string> errorCallback)
     {
         return Support.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
@@ -385,8 +384,8 @@ public class Client : IDisposable // todo: get type usage count down
     /// <param name="description">A description of the pipeline.</param>
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
-    /// <returns>The created pipeline and shader buffer.</returns>
-    public (RasterPipeline, ShaderBuffer<T>) CreateRasterPipeline<T>(RasterPipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
+    /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
+    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
     {
         return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
@@ -408,7 +407,10 @@ public class Client : IDisposable // todo: get type usage count down
     ///     Add a pipeline to the Draw2D rendering step.
     /// </summary>
     /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D"/> preset.</param>
-    /// <param name="priority">The priority of the pipeline, higher priority pipelines are rendered later. Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.</param>
+    /// <param name="priority">
+    ///     The priority of the pipeline, higher priority pipelines are rendered later.
+    ///     Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.
+    /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
     public void AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
@@ -416,23 +418,23 @@ public class Client : IDisposable // todo: get type usage count down
     }
 
     /// <summary>
-    ///     Load a texture from a bitmap.
+    ///     Load a texture from an image.
     /// </summary>
-    /// <param name="bitmap">The bitmap to load from.</param>
+    /// <param name="image">The image to load from.</param>
     /// <returns>The loaded texture.</returns>
-    public Texture LoadTexture(Bitmap bitmap)
+    public Texture LoadTexture(Image image)
     {
-        return Support.Native.LoadTexture(this, new[] {bitmap});
+        return Support.Native.LoadTexture(this, new[] {image});
     }
 
     /// <summary>
-    ///     Load a texture from a span of bitmaps.
+    ///     Load a texture from a span of images.
     /// </summary>
-    /// <param name="bitmaps">The bitmaps to load from, each bitmap represents a mip level.</param>
+    /// <param name="images">The images to load from, each image represents a mip level.</param>
     /// <returns>The loaded texture.</returns>
-    public Texture LoadTexture(Span<Bitmap> bitmaps)
+    public Texture LoadTexture(Span<Image> images)
     {
-        return Support.Native.LoadTexture(this, bitmaps);
+        return Support.Native.LoadTexture(this, images);
     }
 
     /// <summary>
@@ -459,8 +461,8 @@ public class Client : IDisposable // todo: get type usage count down
 
                 Task.Run(() =>
                 {
-                    using Bitmap screenshot = Images.CreateFromData(copy, Images.Format.RGBA, (int) width, (int) height);
-                    Exception? exception = Images.Save(screenshot, path);
+                    Image screenshot = new(copy, Image.Format.RGBA, (int) width, (int) height);
+                    Exception? exception = screenshot.Save(path);
 
                     if (exception == null) logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
                     else logger.LogError(Events.Screenshot, exception, "Failed to save a screenshot to: {Path}", path);
@@ -471,25 +473,12 @@ public class Client : IDisposable // todo: get type usage count down
     /// <summary>
     ///     Run the client. This methods returns when the client is closed.
     /// </summary>
-    /// <param name="criticalExceptionHandler">A handler for critical exceptions.</param>
     /// <returns>The exit code of the client.</returns>
-    public int Run(Action<Exception, bool>? criticalExceptionHandler = null)
+    public int Run()
     {
-        var exit = 1;
+        int exit = Support.Native.Run(this);
 
-        try
-        {
-            exit = Support.Native.Run(this);
-
-            logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Client crashed from an unhandled exception");
-
-            const bool terminate = true;
-            criticalExceptionHandler?.Invoke(e, terminate);
-        }
+        logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
 
         return exit;
     }

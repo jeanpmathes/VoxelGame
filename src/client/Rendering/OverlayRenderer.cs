@@ -242,7 +242,8 @@ public sealed class OverlayRenderer : Renderer
         /// </summary>
         public bool Equals(Data other)
         {
-            return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex) == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
+            return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex)
+                   == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
         }
 
         /// <inheritdoc />

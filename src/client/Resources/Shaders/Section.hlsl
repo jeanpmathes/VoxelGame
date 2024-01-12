@@ -21,6 +21,8 @@ float2 GetUV(const in Info info, const bool useTextureRepetition)
     if (decode::GetTextureRotationFlag(info.data))
         uv = RotateUV(uv);
 
+    uv = TranslateUV(uv);
+
     if (useTextureRepetition)
         uv *= decode::GetTextureRepetition(info.data);
 

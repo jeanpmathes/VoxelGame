@@ -97,7 +97,7 @@ internal static class Program
 
                 using Application.Client client = new(windowSettings, graphicsSettings, args);
 
-                return client.Run(HandleCriticalException);
+                return client.Run();
             });
     }
 
@@ -113,14 +113,7 @@ internal static class Program
             // The runtime will emit a message, to prevent mixing we wait.
             Thread.Sleep(millisecondsTimeout: 100);
 
-            HandleCriticalException(exception, !eventArgs.IsTerminating);
+            // todo: error window
         };
-    }
-
-    private static void HandleCriticalException(Exception exception, bool exit)
-    {
-        // todo: error window
-
-        if (exit) Environment.Exit(exitCode: 1);
     }
 }

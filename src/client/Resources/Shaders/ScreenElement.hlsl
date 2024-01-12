@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+#include "Common.hlsl"
+
 cbuffer CustomDataCB : register(b0)
 {
     float4x4 gMVP;

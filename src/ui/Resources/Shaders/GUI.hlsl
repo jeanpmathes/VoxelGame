@@ -4,6 +4,8 @@
 //  </copyright>
 //  <author>Gwen.Net, jeanpmathes</author>
 
+#include "Common.hlsl"
+
 cbuffer ScreenSizeCB : register(b0)
 {
 float2 gScreenSize;

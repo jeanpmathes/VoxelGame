@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -98,13 +97,13 @@ public sealed class TextureBundle : ITextureIndexProvider
         }
 
         // Create fallback texture.
-        List<Bitmap> extraTextures = new();
-        Bitmap fallback = Texture.CreateFallback(resolution);
+        List<Image> extraTextures = new();
+        var fallback = Image.CreateFallback(resolution);
         extraTextures.Add(fallback);
 
         // Load all textures, preprocess them and add them to the list.
-        using LoadingResult result = LoadBitmaps(resolution, texturePaths, extraTextures);
-        Span<Bitmap> textures = CollectionsMarshal.AsSpan(result.Bitmaps);
+        LoadingResult result = LoadImages(resolution, texturePaths, extraTextures);
+        Span<Image> textures = CollectionsMarshal.AsSpan(result.Images);
 
         // Check if the arrays could hold all textures.
         if (result.Count > maxTextures)
@@ -124,9 +123,6 @@ public sealed class TextureBundle : ITextureIndexProvider
         }
 
         TextureArray loadedTextureArray = TextureArray.Load(client, textures, Math.Min(result.Count, maxTextures), result.Mips);
-
-        // Cleanup.
-        foreach (Bitmap bitmap in extraTextures) bitmap.Dispose();
 
         loadingContext.ReportSuccess(Events.ResourceLoad, nameof(TextureArray), textureDirectory);
 
@@ -150,17 +146,17 @@ public sealed class TextureBundle : ITextureIndexProvider
         loadingContext = null;
     }
 
-    private static void PreprocessBitmap(Bitmap texture)
+    private static void PreprocessImage(Image image)
     {
         long r = 0;
         long g = 0;
         long b = 0;
         long count = 0;
 
-        for (var x = 0; x < texture.Width; x++)
-        for (var y = 0; y < texture.Height; y++)
+        for (var x = 0; x < image.Width; x++)
+        for (var y = 0; y < image.Height; y++)
         {
-            Color pixel = texture.GetPixel(x, y);
+            Color pixel = image.GetPixel(x, y);
 
             if (pixel.A == 0) continue;
 
@@ -178,62 +174,58 @@ public sealed class TextureBundle : ITextureIndexProvider
 
         Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
 
-        for (var x = 0; x < texture.Width; x++)
-        for (var y = 0; y < texture.Height; y++)
+        for (var x = 0; x < image.Width; x++)
+        for (var y = 0; y < image.Height; y++)
         {
-            if (texture.GetPixel(x, y).A != 0) continue;
+            if (image.GetPixel(x, y).A != 0) continue;
 
-            texture.SetPixel(x, y, average);
+            image.SetPixel(x, y, average);
         }
     }
 
     /// <summary>
-    ///     Loads all bitmaps specified by the paths into a. The bitmaps are split into smaller parts that are all sized
+    ///     Loads all images specified by the paths into a. The bitmaps are split into smaller parts that are all sized
     ///     according to the resolution.
     /// </summary>
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private static LoadingResult LoadBitmaps(int resolution, IReadOnlyCollection<FileInfo> paths, List<Bitmap> extraTextures)
+    private static LoadingResult LoadImages(int resolution, IEnumerable<FileInfo> paths, List<Image> extraTextures)
     {
         Dictionary<string, int> indices = new();
         var count = 0;
         var mips = (int) Math.Log(resolution, newBase: 2);
 
-        List<Bitmap> bitmaps = new();
+        List<Image> images = new();
 
-        void AddTexture(Bitmap texture)
+        void AddTexture(Image texture)
         {
-            bitmaps.Add(texture);
+            images.Add(texture);
 
             count++;
 
-            PreprocessBitmap(bitmaps[^1]);
+            PreprocessImage(images[^1]);
 
-            List<Bitmap> mipmap = GenerateMipmap(bitmaps[^1], mips);
-            bitmaps.AddRange(mipmap);
+            IEnumerable<Image> mipmap = GenerateMipmap(images[^1], mips);
+            images.AddRange(mipmap);
         }
 
-        foreach (Bitmap texture in extraTextures) AddTexture(texture);
+        foreach (Image texture in extraTextures) AddTexture(texture);
 
         foreach (FileInfo path in paths)
             try
             {
-                using Bitmap bitmap = new(path.FullName);
+                Image image = Image.LoadFromFile(path);
 
-                if (bitmap.Width % resolution == 0 &&
-                    bitmap.Height == resolution) // Check if image consists of correctly sized textures
+                if (image.Width % resolution == 0 &&
+                    image.Height == resolution) // Check if image consists of correctly sized textures
                 {
-                    int textureCount = bitmap.Width / resolution;
+                    int textureCount = image.Width / resolution;
                     indices.Add(path.GetFileNameWithoutExtension(), count);
 
                     for (var j = 0; j < textureCount; j++)
                     {
-                        Bitmap texture = bitmap.Clone(
-                            new Rectangle(j * resolution, y: 0, resolution, resolution),
-                            PixelFormat.Format32bppArgb);
-
-                        AddTexture(texture);
+                        AddTexture(image.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
                     }
                 }
                 else
@@ -249,17 +241,17 @@ public sealed class TextureBundle : ITextureIndexProvider
                 logger.LogError(e, "The image could not be loaded: {Path}", path);
             }
 
-        return new LoadingResult(indices, bitmaps, count, mips);
+        return new LoadingResult(indices, images, count, mips);
     }
 
-    private static List<Bitmap> GenerateMipmap(Bitmap baseLevel, int levels)
+    private static IEnumerable<Image> GenerateMipmap(Image baseLevel, int levels)
     {
-        Bitmap upperLevel = baseLevel;
-        List<Bitmap> mipmap = new();
+        Image upperLevel = baseLevel;
+        List<Image> mipmap = new();
 
         for (var lod = 1; lod < levels; lod++)
         {
-            Bitmap lowerLevel = new(upperLevel.Width / 2, upperLevel.Height / 2);
+            Image lowerLevel = new(upperLevel.Width / 2, upperLevel.Height / 2);
 
             // Create the lower level by averaging the upper level
             // todo: allow selecting which mipmap generation algorithm to use, and add a transparency mixing one (essentially default OpenGL behaviour)
@@ -272,7 +264,7 @@ public sealed class TextureBundle : ITextureIndexProvider
         return mipmap;
     }
 
-    private static void CreateLowerLevelWithoutTransparencyMixing(ref Bitmap upperLevel, ref Bitmap lowerLevel)
+    private static void CreateLowerLevelWithoutTransparencyMixing(ref Image upperLevel, ref Image lowerLevel)
     {
         for (var w = 0; w < lowerLevel.Width; w++)
         for (var h = 0; h < lowerLevel.Height; h++)
@@ -319,11 +311,5 @@ public sealed class TextureBundle : ITextureIndexProvider
         return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
     }
 
-    private sealed record LoadingResult(Dictionary<string, int> Indices, List<Bitmap> Bitmaps, int Count, int Mips) : IDisposable
-    {
-        public void Dispose()
-        {
-            foreach (Bitmap bitmap in Bitmaps) bitmap.Dispose();
-        }
-    }
+    private sealed record LoadingResult(Dictionary<string, int> Indices, List<Image> Images, int Count, int Mips);
 }

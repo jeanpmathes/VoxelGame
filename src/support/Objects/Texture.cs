@@ -4,10 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
-using System.Drawing.Imaging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 
@@ -48,46 +47,22 @@ public class Texture : NativeObject
     /// <returns></returns>
     public static Texture Load(Client client, FileInfo path, LoadingContext? loadingContext, int fallbackResolution = 16)
     {
-        Bitmap bitmap;
+        Image image;
 
         try
         {
-            bitmap = new Bitmap(path.Open(FileMode.Open));
+            image = Image.LoadFromFile(path);
             loadingContext?.ReportSuccess(Events.ResourceLoad, nameof(Texture), path);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
         {
-            bitmap = CreateFallback(fallbackResolution);
+            image = Image.CreateFallback(fallbackResolution);
             loadingContext?.ReportWarning(Events.MissingResource, nameof(Texture), path, exception);
         }
 
-        // todo: check all usages of flip and the created texture in PIX - texture should be correctly oriented in PIX, shaders should consider that DirectX puts UV 0,0 in the top left corner and might need to use translation method
-        // todo: use Images utility to rotate bitmap exactly as needed for DirectX
-
-        bitmap.RotateFlip(RotateFlipType.Rotate180FlipX);
-        Texture texture = client.LoadTexture(bitmap);
-        bitmap.Dispose();
+        Texture texture = client.LoadTexture(image);
 
         return texture;
-    }
-
-    /// <summary>
-    ///     Creates a fallback image.
-    /// </summary>
-    /// <param name="resolution">The size of the image to create.</param>
-    /// <returns>The created fallback image.</returns>
-    public static Bitmap CreateFallback(int resolution)
-    {
-        var fallback = new Bitmap(resolution, resolution, PixelFormat.Format32bppArgb);
-
-        Color magenta = Color.FromArgb(alpha: 64, red: 255, green: 0, blue: 255);
-        Color black = Color.FromArgb(alpha: 64, red: 0, green: 0, blue: 0);
-
-        for (var x = 0; x < fallback.Width; x++)
-        for (var y = 0; y < fallback.Height; y++)
-            fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
-
-        return fallback;
     }
 
     /// <summary>
