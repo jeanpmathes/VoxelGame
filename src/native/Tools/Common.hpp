@@ -13,6 +13,8 @@ struct Resolution
 {
     UINT width = 0;
     UINT height = 0;
+
+    Resolution operator*(float scale) const;
 };
 
 /**

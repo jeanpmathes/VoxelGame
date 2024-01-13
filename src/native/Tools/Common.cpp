@@ -1,5 +1,15 @@
 ﻿#include "stdafx.h"
 
+Resolution Resolution::operator*(const float scale) const
+{
+    Resolution scaled;
+
+    scaled.width = static_cast<UINT>(static_cast<float>(width) * scale);
+    scaled.height = static_cast<UINT>(static_cast<float>(height) * scale);
+
+    return scaled;
+}
+
 void RasterInfo::Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {
     commandList->RSSetViewports(1, &viewport);

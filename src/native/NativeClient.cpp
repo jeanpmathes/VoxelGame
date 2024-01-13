@@ -12,9 +12,9 @@ constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 const UINT NativeClient::AGILITY_SDK_VERSION = 711;
 const LPCSTR NativeClient::AGILITY_SDK_PATH = ".\\D3D12\\";
 
-NativeClient::NativeClient(const Configuration configuration) :
+NativeClient::NativeClient(const Configuration& configuration) :
     DXApp(configuration),
-    m_resolution{configuration.width, configuration.height},
+    m_resolution(Resolution(configuration.width, configuration.height) * configuration.renderScale),
     m_debugCallback(configuration.onDebug),
     m_space(std::make_unique<Space>(*this)),
     m_frameIndex(0),
@@ -552,7 +552,7 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
         }
 
         DXGI_SWAP_CHAIN_DESC desc = {};
-        m_swapChain->GetDesc(&desc);
+        TRY_DO(m_swapChain->GetDesc(&desc));
         TRY_DO(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, desc.BufferDesc.Format, desc.Flags));
 
         BOOL fullscreenState; // todo: fullscreen should be on monitor on which window is
@@ -564,11 +564,8 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
         UpdateForSizeChange(width, height);
         SetupSizeDependentResources();
 
-        Resolution newResolution;
-        newResolution.width = static_cast<UINT>(width * GetRenderScale());
-        newResolution.height = static_cast<UINT>(height * GetRenderScale());
-
-        if (newResolution != m_resolution)
+        if (const Resolution newResolution = Resolution(width, height) * GetRenderScale();
+            newResolution != m_resolution)
         {
             m_resolution = newResolution;
             SetupSpaceResolutionDependentResources();

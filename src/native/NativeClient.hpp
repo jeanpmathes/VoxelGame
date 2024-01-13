@@ -28,7 +28,7 @@ using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
 class NativeClient final : public DXApp
 {
 public:
-    explicit NativeClient(Configuration configuration);
+    explicit NativeClient(const Configuration& configuration);
 
     [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
