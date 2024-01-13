@@ -99,9 +99,11 @@ public class Client : IDisposable // todo: get type usage count down
                 Size = new Vector2i((int) width, (int) height);
                 OnResize(Size);
             },
-            onActiveStateChange = state =>
+            onActiveStateChange = active =>
             {
-                IsFocused = state;
+                if (IsFocused && !active) KeyState.Wipe();
+
+                IsFocused = active;
             },
             onDebug = D3D12Debug.Enable(this),
             width = (uint) windowSettings.Size.X,

@@ -193,6 +193,9 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_MOUSEACTIVATE:
+        return MA_ACTIVATEANDEAT;
+
     case WM_ACTIVATE:
         {
             const bool active = LOWORD(wParam) != WA_INACTIVE;
@@ -214,16 +217,52 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         return 0;
 
     case WM_KEYDOWN:
-        if (app)
-        {
-            app->OnKeyDown(static_cast<UINT8>(wParam));
-        }
-        return 0;
-
     case WM_KEYUP:
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
         if (app)
         {
-            app->OnKeyUp(static_cast<UINT8>(wParam));
+            WORD vkCode = LOWORD(wParam);
+            WORD keyFlags = HIWORD(lParam);
+
+            if (vkCode == VK_LWIN || vkCode == VK_RWIN) return 0;
+
+            WORD scanCode = LOBYTE(keyFlags);
+            BOOL extended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
+
+            BOOL up = (keyFlags & KF_UP) == KF_UP;
+            BOOL alt = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
+
+            switch (vkCode)
+            {
+            case VK_SHIFT:
+                vkCode = LOWORD(MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX));
+                break;
+            case VK_CONTROL:
+                vkCode = extended ? VK_RCONTROL : VK_LCONTROL;
+                break;
+            case VK_MENU:
+                vkCode = extended ? VK_RMENU : VK_LMENU;
+                break;
+            default: break;
+            }
+
+            // todo: test cyrillic text input
+            // todo: test french layout movement keys
+
+            auto vk = static_cast<UINT8>(vkCode);
+
+            if (up)
+            {
+                app->OnKeyUp(vk);
+            }
+            else
+            {
+                if (!alt)
+                {
+                    app->OnKeyDown(vk);
+                }
+            }
         }
         return 0;
 

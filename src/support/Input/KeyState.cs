@@ -17,6 +17,7 @@ namespace VoxelGame.Support.Input;
 /// </summary>
 public class KeyState
 {
+    private static readonly VirtualKeys[] allKeys = (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys));
     private readonly BitArray keys = new((int) VirtualKeys.LastKey + 1);
     private readonly BitArray keysPrevious = new((int) VirtualKeys.LastKey + 1);
 
@@ -36,7 +37,7 @@ public class KeyState
 
     private VirtualKeys? GetAnyKeyDown()
     {
-        foreach (VirtualKeys key in (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys)))
+        foreach (VirtualKeys key in allKeys)
         {
             if (key == VirtualKeys.Undefined) continue;
 
@@ -66,7 +67,7 @@ public class KeyState
         for (VirtualKeys key = 0; key <= VirtualKeys.LastKey; key++)
             if (IsKeyDown(key))
             {
-                builder.Append(CultureInfo.InvariantCulture, $"{key}{(!first ? ", " : string.Empty)}");
+                builder.Append(CultureInfo.InvariantCulture, $"{(!first ? ", " : string.Empty)}{key}");
                 first = false;
             }
 
@@ -79,6 +80,11 @@ public class KeyState
     {
         keysPrevious.SetAll(value: false);
         keysPrevious.Or(keys);
+    }
+
+    internal void Wipe()
+    {
+        keys.SetAll(value: false);
     }
 
     /// <summary>

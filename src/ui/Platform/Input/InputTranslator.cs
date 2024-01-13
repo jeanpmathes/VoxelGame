@@ -65,13 +65,6 @@ public class InputTranslator
                 return GwenMappedKey.Alt;
             case VirtualKeys.RightShift: return GwenMappedKey.Shift;
 
-            case VirtualKeys.Control:
-                controlPressed = true;
-
-                return GwenMappedKey.Control;
-            case VirtualKeys.Menu: return GwenMappedKey.Alt;
-            case VirtualKeys.Shift: return GwenMappedKey.Shift;
-
             default:
                 return GwenMappedKey.Invalid;
         }

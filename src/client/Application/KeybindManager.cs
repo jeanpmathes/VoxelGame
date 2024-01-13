@@ -225,7 +225,7 @@ internal class KeybindManager : ISettingsProvider
     internal Keybind StrafeRight { get; } = Keybind.RegisterButton("strafe_right", Language.KeyStrafeRight, VirtualKeys.D);
     internal Keybind StrafeLeft { get; } = Keybind.RegisterButton("strafe_left", Language.KeyStrafeLeft, VirtualKeys.A);
 
-    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, VirtualKeys.Shift);
+    internal Keybind Sprint { get; } = Keybind.RegisterButton("sprint", Language.KeySprint, VirtualKeys.LeftShift);
     internal Keybind Jump { get; } = Keybind.RegisterButton("jump", Language.KeyJump, VirtualKeys.Space);
     internal Keybind Crouch { get; } = Keybind.RegisterButton("crouch", Language.KeyCrouch, VirtualKeys.C);
 
@@ -239,7 +239,7 @@ internal class KeybindManager : ISettingsProvider
     internal Keybind BlockInteract { get; } = Keybind.RegisterButton(
         "block_interact",
         Language.KeyForceInteract,
-        VirtualKeys.Control);
+        VirtualKeys.LeftControl);
 
     internal Keybind PlacementMode { get; } =
         Keybind.RegisterToggle("placement_mode", Language.KeyPlacementMode, VirtualKeys.R);
