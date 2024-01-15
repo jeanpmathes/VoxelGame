@@ -111,7 +111,7 @@ namespace util
     template <typename D>
     [[nodiscard]] HRESULT MapAndWrite(const Allocation<ID3D12Resource> resource, const D& data)
     {
-        constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
+        constexpr D3D12_RANGE readRange = {0, 0};
         D* mapping;
 
         const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&mapping));
@@ -133,7 +133,7 @@ namespace util
     {
         REQUIRE(count > 0);
 
-        constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
+        constexpr D3D12_RANGE readRange = {0, 0};
         D* mapping;
 
         const HRESULT result = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&mapping));
@@ -166,7 +166,8 @@ namespace util
 
         memcpy(data, mapping, sizeof(D) * count);
 
-        resource.resource->Unmap(0, nullptr);
+        const D3D12_RANGE writeRange = {0, 0};
+        resource.resource->Unmap(0, &writeRange);
         return result;
     }
 

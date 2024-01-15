@@ -44,16 +44,11 @@ namespace draw2d
     {
     public:
         Pipeline(NativeClient& client, RasterPipeline* raster, Callback callback);
-
+        
         /**
-         * Populate the command list with setup calls.
+         * Populate the command list with all necessary commands to draw the 2D elements.
          */
-        void PopulateCommandListSetup(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
-
-        /**
-         * Populate the command list with draw calls.
-         */
-        void PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandList4> commandList);
+        void PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> commandList);
 
     private:
         static void Initialize(Pipeline* ctx);

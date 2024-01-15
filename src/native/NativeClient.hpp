@@ -188,7 +188,6 @@ private:
     void CheckRaytracingSupport() const;
     void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
-    void PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const;
     void PopulateScreenshotCommandList() const;
 
     void LoadDevice();

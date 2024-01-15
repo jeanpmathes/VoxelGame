@@ -30,15 +30,10 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const C
                                             this->m_constantBufferViews);
 }
 
-void draw2d::Pipeline::PopulateCommandListSetup(ComPtr<ID3D12GraphicsCommandList4> commandList) const
-{
-    m_raster->SetPipeline(commandList);
-}
-
 static constexpr UINT TRUE_DESCRIPTOR_INDEX = 0;
 static constexpr UINT FALSE_DESCRIPTOR_INDEX = 1;
 
-void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandList4> commandList)
+void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
     const Drawer drawer
     {
@@ -134,9 +129,7 @@ void draw2d::Pipeline::PopulateCommandListDrawing(ComPtr<ID3D12GraphicsCommandLi
         },
         .ctx = this
     };
-
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+    
     m_currentCommandList = commandList.Get();
     m_callback(drawer);
     m_currentCommandList = nullptr;
@@ -151,6 +144,7 @@ void draw2d::Pipeline::Initialize(Pipeline* ctx)
     // But only one descriptor heap is used for all draw calls.
     // Therefore, the heap is initialized either on texture initialization or on the first draw call of a frame.
 
+    ctx->m_raster->SetPipeline(ctx->m_currentCommandList);
     ctx->m_raster->BindResources(ctx->m_currentCommandList);
     
     ctx->m_currentTextureIndex = 0;

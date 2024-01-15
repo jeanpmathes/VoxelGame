@@ -22,6 +22,10 @@ NativeClient::NativeClient(const Configuration& configuration) :
     m_windowVisible(true),
     m_windowedMode(true)
 {
+    if (SupportPIX() && !PIXIsAttachedForGpuCapture())
+    {
+        PIXLoadLatestWinPixGpuCapturerLibrary();
+    }
 }
 
 ComPtr<ID3D12Device5> NativeClient::GetDevice() const
@@ -486,8 +490,10 @@ void NativeClient::OnRender(const double)
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
-    const UINT presentFlags = (m_tearingSupport && m_windowedMode) ? DXGI_PRESENT_ALLOW_TEARING : 0;
-    const HRESULT present = m_swapChain->Present(0, presentFlags);
+    const UINT syncInterval = m_tearingSupport && m_windowedMode ? 0 : 1;
+    const UINT presentFlags = m_tearingSupport && m_windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    constexpr DXGI_PRESENT_PARAMETERS presentParameters = {};
+    const HRESULT present = m_swapChain->Present1(syncInterval, presentFlags, &presentParameters);
 
 #if defined(USE_NSIGHT_AFTERMATH)
     if (FAILED(present))
@@ -765,34 +771,10 @@ void NativeClient::PopulatePostProcessingCommandList() const
     m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
 
     m_postViewport.Set(m_2dGroup.commandList);
-
-    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
-
-    m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-    m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
-    m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
+    
     m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     m_2dGroup.commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
     m_2dGroup.commandList->DrawInstanced(4, 1, 0, 0);
-}
-
-void NativeClient::PopulateDraw2DCommandList(draw2d::Pipeline& pipeline) const
-{
-    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
-
-    pipeline.PopulateCommandListSetup(m_2dGroup.commandList);
-
-    m_draw2dViewport.Set(m_2dGroup.commandList);
-
-    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
-
-    m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-    pipeline.PopulateCommandListDrawing(m_2dGroup.commandList);
 }
 
 void NativeClient::PopulateScreenshotCommandList() const
@@ -841,18 +823,24 @@ void NativeClient::PopulateCommandLists()
     m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
 
     if (m_space)
-    {
         PopulateSpaceCommandList();
 
-        if (m_postProcessingPipeline != nullptr)
-        {
-            PopulatePostProcessingCommandList();
-        }
-    }
+    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
+
+    m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+    m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
+    m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+    if (m_postProcessingPipeline != nullptr)
+        PopulatePostProcessingCommandList();
+
+    m_draw2dViewport.Set(m_2dGroup.commandList);
 
     for (auto& [pipeline, priority] : m_draw2dPipelines)
     {
-        PopulateDraw2DCommandList(pipeline);
+        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
+        pipeline.PopulateCommandList(m_2dGroup.commandList);
     }
 
     PopulateScreenshotCommandList();

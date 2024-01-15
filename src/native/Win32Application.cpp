@@ -246,10 +246,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
                 break;
             default: break;
             }
-
-            // todo: test cyrillic text input
-            // todo: test french layout movement keys
-
+            
             auto vk = static_cast<UINT8>(vkCode);
 
             if (up)

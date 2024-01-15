@@ -30,7 +30,7 @@ internal class Program : Client
             GwenGuiSettings.Default.From(settings =>
             {
                 settings.SkinFile = new FileInfo("DefaultSkin2.png");
-                settings.ShaderFile = FileSystem.GetResourceDirectory("GUI").GetFile("GUI.hlsl");
+                settings.ShaderFile = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
             }));
     }
 

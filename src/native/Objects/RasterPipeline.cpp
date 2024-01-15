@@ -377,6 +377,8 @@ RasterPipeline::RasterPipeline(
 
 void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {
+    commandList->SetPipelineState(m_pipelineState.Get());
+    
     if (m_preset != ShaderPreset::SPATIAL_EFFECT)
     {
         // The space class already sets the root signature.
@@ -384,7 +386,6 @@ void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList)
     }
 
     commandList->IASetPrimitiveTopology(GetTopology());
-    commandList->SetPipelineState(m_pipelineState.Get());
 }
 
 void RasterPipeline::BindResources(ComPtr<ID3D12GraphicsCommandList4> commandList)
