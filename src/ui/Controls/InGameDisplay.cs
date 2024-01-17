@@ -62,7 +62,8 @@ internal class InGameDisplay : ControlBase
         performance = new Label(right)
         {
             Text = "FPS/UPS: 000/000",
-            Alignment = Alignment.Right
+            Alignment = Alignment.Right,
+            AutoSizeToContents = false
         };
 
         debugViewContainer = new VerticalLayout(right)

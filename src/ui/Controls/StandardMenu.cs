@@ -10,7 +10,6 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Support.Input;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -32,17 +31,19 @@ internal abstract class StandardMenu : ControlBase
     internal Context Context { get; }
 
     protected FontHolder Fonts => Context.Fonts;
-    protected InputListener Input => Context.Input;
 
     protected void CreateContent()
     {
-        GridLayout start = new(this);
-        start.SetColumnWidths(0.3f, 0.7f);
-        start.SetRowHeights(1.0f);
+        Dock = Dock.Fill;
 
-        GridLayout bar = new(start)
+        GridLayout grid = new(this);
+        grid.SetColumnWidths(0.3f, 0.7f);
+        grid.SetRowHeights(1.0f);
+
+        GridLayout bar = new(grid)
         {
-            Dock = Dock.Fill
+            Dock = Dock.Fill,
+            Margin = Margin.Five
         };
 
         MakeFiller(bar);
@@ -57,7 +58,7 @@ internal abstract class StandardMenu : ControlBase
         bar.SetColumnWidths(1.0f);
         bar.SetRowHeights(0.05f, 0.15f, 0.55f, 0.20f, 0.05f);
 
-        CreateDisplay(start);
+        CreateDisplay(grid);
     }
 
     private static void MakeFiller(ControlBase control)

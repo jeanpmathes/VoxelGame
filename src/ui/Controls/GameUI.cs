@@ -160,7 +160,12 @@ internal class GameUI : ControlBase
             IsDraggingEnabled = false
         };
 
-        SettingsMenu menu = new(settings, settingsProviders, parent.Context);
+        Empty margins = new(settings)
+        {
+            Margin = Margin.Two
+        };
+
+        SettingsMenu menu = new(margins, settingsProviders, parent.Context);
 
         menu.Cancel += (_, _) =>
         {

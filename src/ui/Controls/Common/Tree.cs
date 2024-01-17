@@ -7,7 +7,7 @@
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.UI.Controls.Common;
 
 using StringTree = Tree<string>;
 using StringNode = Tree<string>.INode;

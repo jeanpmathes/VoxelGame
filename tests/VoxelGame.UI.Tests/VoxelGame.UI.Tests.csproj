@@ -22,7 +22,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net.Tests.Components" Version="0.1.0"/>
+        <PackageReference Include="Gwen.Net.Tests.Components" Version="0.1.1"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
