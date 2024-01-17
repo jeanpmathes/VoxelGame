@@ -161,7 +161,7 @@ public sealed class ScreenElementRenderer : Renderer
         if (disposing) ; // todo: dispose raster pipeline
         else
             logger.LogWarning(
-                Events.UndeletedBuffers,
+                Events.LeakedNativeObject,
                 "Renderer disposed by GC without freeing storage");
     }
 

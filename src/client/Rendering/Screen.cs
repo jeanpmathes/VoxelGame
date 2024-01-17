@@ -117,7 +117,7 @@ public sealed class Screen : IDisposable // todo: first, move all functionality 
 
         // todo: cleanup, adapt logging here
 
-        logger.LogWarning(Events.UndeletedGlObjects, "Screen object disposed by GC without freeing storage");
+        logger.LogWarning(Events.LeakedNativeObject, "Screen object disposed by GC without freeing storage");
 
         disposed = true;
     }

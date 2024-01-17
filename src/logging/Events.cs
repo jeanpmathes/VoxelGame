@@ -230,24 +230,9 @@ public static class Events // todo: go trough all events and make sure they are 
     public const int LeakedNativeObject = 3010;
 
     /// <summary>
-    ///     Occurs when rendering objects are incorrectly disposed and their buffers are not deleted. This causes memory leaks.
-    /// </summary>
-    public const int UndeletedBuffers = 3011; // todo: check if this is still used
-
-    /// <summary>
-    ///     Occurs when textures are incorrectly disposed and their storage is not deleted. This causes memory leak.
-    /// </summary>
-    public const int UndeletedTexture = 3012; // todo: check if this is still used
-
-    /// <summary>
-    ///     Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
-    /// </summary>
-    public const int UndeletedGlObjects = 3013; // todo: check if this is still used
-
-    /// <summary>
     ///     Occurs when a screenshot is taken.
     /// </summary>
-    public const int Screenshot = 3150; // todo: use this
+    public const int Screenshot = 3150;
 
     /// <summary>
     ///     Occurs when DirectX issues a debug message.
