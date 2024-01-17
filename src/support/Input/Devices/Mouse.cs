@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Support.Core;
+using VoxelGame.Support.Definition;
 
 namespace VoxelGame.Support.Input.Devices;
 
@@ -13,15 +15,33 @@ namespace VoxelGame.Support.Input.Devices;
 /// </summary>
 public class Mouse
 {
-    private readonly InputManager input;
+    private readonly Client client;
+
     private Vector2d oldDelta;
     private Vector2d oldPosition;
 
     private Vector2i? storedPosition;
 
-    internal Mouse(InputManager input)
+    private Vector2i position;
+
+    private bool isCursorLocked;
+
+    internal Mouse(Client client)
     {
-        this.input = input;
+        this.client = client;
+    }
+
+    /// <summary>
+    ///     Get or set the position of the mouse.
+    /// </summary>
+    public Vector2i Position
+    {
+        get => position;
+        private set
+        {
+            position = value;
+            Native.SetMousePosition(client, position.X, position.Y);
+        }
     }
 
     /// <summary>
@@ -32,41 +52,60 @@ public class Mouse
 
     internal void Update()
     {
-        Vector2d delta = input.Window.MousePosition - oldPosition;
+        position = Native.GetMousePosition(client);
 
-        if (input.Window.Size.X == 0 || input.Window.Size.Y == 0)
+        Vector2d delta = Position - oldPosition;
+
+        if (client.Size.X == 0 || client.Size.Y == 0)
         {
             Delta = Vector2d.Zero;
 
             return;
         }
 
-        double xScale = 1f / input.Window.Size.X;
-        double yScale = 1f / input.Window.Size.Y;
+        double xScale = 1f / client.Size.X;
+        double yScale = 1f / client.Size.Y;
 
         delta = Vector2d.Multiply(delta, (xScale, -yScale)) * 1000;
         delta = Vector2d.Lerp(oldDelta, delta, blend: 0.7f);
 
+        if (isCursorLocked) Position = new Vector2i(client.Size.X, client.Size.Y) / 2;
+
         oldDelta = Delta;
-        oldPosition = input.Window.MousePosition;
+        oldPosition = Position;
+
         Delta = delta;
     }
 
     /// <summary>
-    ///     Store the mouse position to restore it later. If there is already a stored position, it will be overwritten.
+    /// Pass a mouse move event to the mouse class.
+    /// This will not trigger a call to set the mouse position.
     /// </summary>
-    public void StorePosition()
+    internal void OnMouseMove(Vector2i newPosition)
     {
-        storedPosition = input.Window.MousePosition;
+        position = newPosition;
     }
 
     /// <summary>
-    ///     Restore the stored mouse position. If there is no stored position, nothing will happen.
+    ///     Set the mouse cursor type.
     /// </summary>
-    public void RestorePosition()
+    public void SetCursorType(MouseCursor cursor)
     {
-        if (storedPosition == null) return;
+        Native.SetCursorType(client, cursor);
+    }
 
-        input.Window.MousePosition = storedPosition.Value;
+    /// <summary>
+    /// Set whether the cursor should be locked, i.e. hidden and grabbed.
+    /// </summary>
+    /// <param name="locked">Whether the cursor should be locked.</param>
+    public void SetCursorLock(bool locked)
+    {
+        isCursorLocked = locked;
+
+        if (locked) storedPosition = Position;
+
+        Native.SetCursorLock(client, locked);
+
+        if (!locked && storedPosition != null) Position = storedPosition.Value;
     }
 }

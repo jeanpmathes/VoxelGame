@@ -65,7 +65,7 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Load()
     {
-        Screen.SetCursor(locked: false);
+        client.Mouse.SetCursorLock(locked: false);
 
         ui.Load();
         ui.Resize(Screen.Size);

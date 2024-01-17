@@ -6,24 +6,22 @@
 
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
-using VoxelGame.Support.Input.Devices;
 
 namespace VoxelGame.Support.Input;
 
 /// <summary>
 ///     The input manager providing input to input actions.
 /// </summary>
-public class InputManager
+public class InputManager // todo: remove this class
 {
     /// <summary>
     ///     Create a new input manager.
     /// </summary>
-    /// <param name="window">The window that receives system input.</param>
-    public InputManager(Client window)
+    /// <param name="client">The client that receives system input.</param>
+    public InputManager(Client client)
     {
-        Window = window;
+        Client = client;
 
-        Mouse = new Mouse(this);
         Listener = new InputListener(this);
     }
 
@@ -33,16 +31,14 @@ public class InputManager
     public KeyState State { get; private set; } = null!;
 
     /// <summary>
-    ///     Get the mouse device.
-    /// </summary>
-    public Mouse Mouse { get; }
-
-    /// <summary>
     ///     Get the input listener.
     /// </summary>
     public InputListener Listener { get; }
 
-    internal Client Window { get; }
+    /// <summary>
+    ///     Get the client connected to this input manager.
+    /// </summary>
+    public Client Client { get; }
 
     /// <summary>
     ///     Update the current state.
@@ -52,7 +48,6 @@ public class InputManager
     {
         State = state;
 
-        Mouse.Update();
         OnUpdate.Invoke(this, EventArgs.Empty);
 
         Listener.ProcessInput(state);
@@ -68,6 +63,7 @@ public class InputManager
         //  1. modify the client state so that the key is up
         //  2. wait until the actual release event, then remove the override
         //  functionality should be added to the client class
+        // todo: test whether it works for the usages, both mouse and keybinds
     }
 
     /// <summary>

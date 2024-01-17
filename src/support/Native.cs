@@ -194,16 +194,30 @@ public static class Native // todo: make internal, methods too
     }
 
     /// <summary>
-    ///     Set the mouse cursor.
+    ///     Set the mouse cursor type.
     /// </summary>
     /// <param name="client">The client for which to set the cursor.</param>
-    /// <param name="cursor">The cursor to set.</param>
-    public static void SetCursor(Client client, MouseCursor cursor)
+    /// <param name="cursor">The cursor type to set.</param>
+    public static void SetCursorType(Client client, MouseCursor cursor)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetCursor(IntPtr native, MouseCursor cursor);
+        static extern void NativeSetCursorType(IntPtr native, MouseCursor cursor);
 
-        NativeSetCursor(client.Native, cursor);
+        NativeSetCursorType(client.Native, cursor);
+    }
+
+    /// <summary>
+    ///     Set whether the cursor should be locked.
+    ///     A locked cursor is invisible and cannot leave the window.
+    /// </summary>
+    /// <param name="client">The client for which to set the cursor lock.</param>
+    /// <param name="locked">Whether the cursor should be locked.</param>
+    public static void SetCursorLock(Client client, bool locked)
+    {
+        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
+        static extern void NativeSetCursorLock(IntPtr native, bool locked);
+
+        NativeSetCursorLock(client.Native, locked);
     }
 
     /// <summary>

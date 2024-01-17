@@ -88,7 +88,9 @@ public:
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
+    
     void SetMouseCursor(MouseCursor cursor) const;
+    void SetMouseLock(bool lock);
 
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
@@ -161,6 +163,7 @@ private:
 
     int m_xMousePosition = 0;
     int m_yMousePosition = 0;
+    bool m_mouseLocked = false;
 
     std::optional<Cycle> m_cycle = std::nullopt;
     std::thread::id m_mainThreadId;

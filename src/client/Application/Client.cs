@@ -12,7 +12,6 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Input;
-using VoxelGame.Support.Input.Devices;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -65,11 +64,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     ///     Get the keybinds bound for the game.
     /// </summary>
     internal KeybindManager Keybinds { get; }
-
-    /// <summary>
-    ///     Get the mouse used by the client,
-    /// </summary>
-    internal Mouse Mouse => input.Mouse;
 
     internal GeneralSettings Settings { get; }
     internal GraphicsSettings Graphics { get; }
@@ -124,7 +118,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (logger.BeginScope("UpdateFrame"))
         {
-            double deltaTime = MathHelper.Clamp(delta, min: 0f, max: 1f);
+            double deltaTime = MathHelper.Clamp(delta, min: 0f, max: 1f); // todo: check if clamp can be removed, maybe it is already done on C++ side
 
             input.UpdateState(KeyState);
 

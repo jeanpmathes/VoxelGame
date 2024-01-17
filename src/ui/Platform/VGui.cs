@@ -42,7 +42,7 @@ internal sealed class VGui : IGwenGui
 
     public void Load()
     {
-        GwenPlatform.Init(new VoxelGamePlatform(Parent.SetCursor));
+        GwenPlatform.Init(new VoxelGamePlatform(Parent.Mouse.SetCursorType));
         AttachToWindowEvents();
 
         try
@@ -85,7 +85,7 @@ internal sealed class VGui : IGwenGui
         // Helps the UI to recognize that the mouse is over a control if that control was just added:
         input.ProcessMouseMove(new MouseMoveEventArgs
         {
-            Position = Parent.MousePosition.ToVector2()
+            Position = Parent.Mouse.Position.ToVector2()
         });
     }
 

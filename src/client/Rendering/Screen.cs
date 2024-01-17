@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Logging;
@@ -32,7 +31,7 @@ public sealed class Screen : IDisposable // todo: first, move all functionality 
 
     private Application.Client Client { get; }
 
-    #region PUBLIC STATIC PROPERTIES // todo: try to remove these, move them to client and use instance methods / properties
+    #region PUBLIC STATIC PROPERTIES // todo: move all of this to client, make it instance methods there
 
     /// <summary>
     ///     Gets the window size. The value is equal to the value retrieved from the client.
@@ -52,30 +51,11 @@ public sealed class Screen : IDisposable // todo: first, move all functionality 
     /// <summary>
     ///     Gets whether an overlay is open and therefore input should be ignored.
     /// </summary>
-    public static bool IsOverlayLockActive { get; private set; }
+    public static bool IsOverlayLockActive { get; private set; } // todo: move to application client and not support client
 
     #endregion PUBLIC STATIC PROPERTIES
 
     #region PUBLIC STATIC METHODS
-
-    /// <summary>
-    ///     Set the cursor state. Locking the cursor will store the position, unlocking restores it.
-    /// </summary>
-    /// <param name="locked">Whether the cursor should be locked.</param>
-    public static void SetCursor(bool locked)
-    {
-        if (locked) Instance.Client.Mouse.StorePosition();
-
-        bool visible = !locked;
-        bool grabbed = locked;
-
-        // todo: implement cursor locking (but not separate grabbing and visibility, instead just one property)
-
-        // Instance.Client.CursorVisible = visible;
-        // Instance.Client.CursorGrabbed = grabbed;
-
-        if (!locked) Instance.Client.Mouse.RestorePosition();
-    }
 
     /// <summary>
     ///     Set if the screen should be in fullscreen.

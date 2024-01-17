@@ -43,13 +43,13 @@ public sealed class GameScene : IScene
         void OnOverlayClose()
         {
             Screen.ClearOverlayLock();
-            Screen.SetCursor(locked: true);
+            client.Mouse.SetCursorLock(locked: true);
         }
 
         void OnOverlayOpen()
         {
             Screen.SetOverlayLock();
-            Screen.SetCursor(locked: false);
+            client.Mouse.SetCursorLock(locked: false);
         }
 
         OnOverlayClose();

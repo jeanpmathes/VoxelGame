@@ -15,6 +15,7 @@ using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Input;
+using VoxelGame.Support.Input.Devices;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.Support.Objects;
 
@@ -40,8 +41,6 @@ public class Client : IDisposable // todo: get type usage count down
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.
 
-    private Vector2i mousePosition;
-
     private Thread mainThread = null!;
 
     private Cycle? cycle = new();
@@ -55,6 +54,8 @@ public class Client : IDisposable // todo: get type usage count down
         Debug.Assert(windowSettings.Size.Y > 0);
 
         Size = windowSettings.Size;
+
+        Mouse = new Mouse(this);
 
         Definition.Native.NativeConfiguration configuration = new()
         {
@@ -70,7 +71,7 @@ public class Client : IDisposable // todo: get type usage count down
 
                 Time += delta;
 
-                mousePosition = Support.Native.GetMousePosition(this);
+                Mouse.Update();
 
                 OnUpdate(delta);
 
@@ -121,6 +122,11 @@ public class Client : IDisposable // todo: get type usage count down
     }
 
     /// <summary>
+    ///     Get the mouse device.
+    /// </summary>
+    public Mouse Mouse { get; }
+
+    /// <summary>
     ///     Whether the client is currently in the update cycle.
     /// </summary>
     internal bool IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
@@ -158,19 +164,6 @@ public class Client : IDisposable // todo: get type usage count down
     protected KeyState KeyState { get; } = new();
 
     /// <summary>
-    ///     Get or set the mouse position.
-    /// </summary>
-    public Vector2i MousePosition
-    {
-        get => mousePosition;
-        set
-        {
-            mousePosition = value;
-            Support.Native.SetMousePosition(this, mousePosition.X, mousePosition.Y);
-        }
-    }
-
-    /// <summary>
     ///     Get the current window size.
     /// </summary>
     public Vector2i Size { get; private set; }
@@ -191,14 +184,6 @@ public class Client : IDisposable // todo: get type usage count down
     internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
     {
         return Support.Native.InitializeRaytracing<T>(this, pipeline);
-    }
-
-    /// <summary>
-    ///     Set the mouse cursor.
-    /// </summary>
-    public void SetCursor(MouseCursor cursor)
-    {
-        Support.Native.SetCursor(this, cursor);
     }
 
     private static string FormatErrorMessage(int hr, string message)
@@ -328,12 +313,12 @@ public class Client : IDisposable // todo: get type usage count down
 
     private void OnMouseMove(int x, int y)
     {
-        mousePosition = new Vector2i(x, y);
+        Mouse.OnMouseMove((x, y));
 
         MouseMove(this,
             new MouseMoveEventArgs
             {
-                Position = MousePosition
+                Position = Mouse.Position
             });
     }
 

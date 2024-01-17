@@ -108,11 +108,21 @@ void DXApp::HandleSizeChanged(const UINT width, const UINT height, const bool mi
 {
     OnSizeChanged(width, height, minimized);
     m_configuration.onResize(width, height);
+
+    if (m_mouseLocked)
+    {
+        SetMouseLock(true);
+    }
 }
 
 void DXApp::HandleWindowMoved(const int xPos, const int yPos)
 {
     OnWindowMoved(xPos, yPos);
+
+    if (m_mouseLocked)
+    {
+        SetMouseLock(true);
+    }
 }
 
 void DXApp::HandleActiveStateChange(const bool active) const
@@ -207,6 +217,29 @@ void DXApp::SetMouseCursor(const MouseCursor cursor) const
     CHECK_RETURN(cursorHandle);
 
     SetCursor(cursorHandle);
+}
+
+void DXApp::SetMouseLock(const bool lock)
+{
+    if (lock)
+    {
+        RECT rect;
+        TRY_DO(GetWindowRect(Win32Application::GetHwnd(), &rect));
+
+        TRY_DO(ClipCursor(&rect));
+    }
+    else
+    {
+        TRY_DO(ClipCursor(nullptr));
+    }
+
+    if (m_mouseLocked != lock)
+    {
+        // The function uses a display count, thus repeated calls would cause incorrect behavior.
+        ShowCursor(!lock);
+    }
+
+    m_mouseLocked = lock;
 }
 
 float DXApp::GetAspectRatio() const

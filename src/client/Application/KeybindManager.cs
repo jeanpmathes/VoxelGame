@@ -44,7 +44,7 @@ internal class KeybindManager : ISettingsProvider
         InitializeUsages();
         InitializeSettings();
 
-        LookBind = new LookInput(Input.Mouse, Client.Instance.Settings.MouseSensitivity);
+        LookBind = new LookInput(Input.Client.Mouse, Client.Instance.Settings.MouseSensitivity);
         Client.Instance.Settings.MouseSensitivityChanged += (_, args) => LookBind.SetSensitivity(args.NewValue);
     }
 
