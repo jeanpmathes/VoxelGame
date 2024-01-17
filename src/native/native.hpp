@@ -44,6 +44,7 @@ struct Configuration
     UINT width;
     UINT height;
     LPWSTR title;
+    HICON icon;
 
     FLOAT renderScale;
 

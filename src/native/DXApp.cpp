@@ -17,6 +17,7 @@ DXApp::DXApp(const Configuration configuration) :
     m_windowBounds{0, 0, 0, 0},
     m_tearingSupport(false),
     m_title(configuration.title),
+    m_icon(configuration.icon),
     m_configuration(configuration),
     m_mainThreadId(std::this_thread::get_id())
 {

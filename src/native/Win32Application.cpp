@@ -13,23 +13,24 @@ RECT Win32Application::m_windowRect;
 size_t Win32Application::m_errorModeDepth = 0;
 
 // ReSharper disable once CppParameterMayBeConst
-int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
+int Win32Application::Run(DXApp* app, HINSTANCE instance, const int cmdShow)
 {
     WNDCLASSEX windowClass = {0};
     windowClass.cbSize = sizeof(WNDCLASSEX);
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     windowClass.lpfnWndProc = WindowProc;
-    windowClass.hInstance = hInstance;
+    windowClass.hInstance = instance;
+    windowClass.hIcon = app->GetIcon();
     windowClass.hCursor = nullptr;
     windowClass.lpszClassName = L"DXApp";
     RegisterClassEx(&windowClass);
 
-    RECT windowRect = {0, 0, static_cast<LONG>(pApp->GetWidth()), static_cast<LONG>(pApp->GetHeight())};
+    RECT windowRect = {0, 0, static_cast<LONG>(app->GetWidth()), static_cast<LONG>(app->GetHeight())};
     TRY_DO(AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE));
 
     m_hwnd = CreateWindow(
         windowClass.lpszClassName,
-        pApp->GetTitle(),
+        app->GetTitle(),
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -37,17 +38,17 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
         windowRect.bottom - windowRect.top,
         nullptr,
         nullptr,
-        hInstance,
-        pApp);
-    m_app = pApp;
+        instance,
+        app);
+    m_app = app;
 
-    pApp->Init();
-    pApp->Tick(DXApp::ALLOW_UPDATE);
-    pApp->Tick(DXApp::ALLOW_RENDER);
+    app->Init();
+    app->Tick(DXApp::ALLOW_UPDATE);
+    app->Tick(DXApp::ALLOW_RENDER);
 
-    ShowWindow(m_hwnd, nCmdShow);
+    ShowWindow(m_hwnd, cmdShow);
 
-    pApp->Tick(DXApp::ALLOW_RENDER);
+    app->Tick(DXApp::ALLOW_RENDER);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -59,11 +60,11 @@ int Win32Application::Run(DXApp* pApp, HINSTANCE hInstance, const int nCmdShow)
         }
         else
         {
-            pApp->Tick(DXApp::ALLOW_BOTH);
+            app->Tick(DXApp::ALLOW_BOTH);
         }
     }
 
-    pApp->Destroy();
+    app->Destroy();
 
     return static_cast<char>(msg.wParam);
 }

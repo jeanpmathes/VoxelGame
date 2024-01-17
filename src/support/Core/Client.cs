@@ -5,12 +5,12 @@
 //  <author>jeanpmathes</author>
 
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
@@ -18,6 +18,7 @@ using VoxelGame.Support.Input;
 using VoxelGame.Support.Input.Devices;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.Support.Objects;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Support.Core;
 
@@ -110,6 +111,7 @@ public class Client : IDisposable // todo: get type usage count down
             width = (uint) windowSettings.Size.X,
             height = (uint) windowSettings.Size.Y,
             title = windowSettings.Title,
+            icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty)?.Handle ?? IntPtr.Zero,
             renderScale = windowSettings.RenderScale,
             allowTearing = false,
             supportPIX = windowSettings.SupportPIX

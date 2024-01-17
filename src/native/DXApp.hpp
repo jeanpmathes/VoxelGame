@@ -80,6 +80,7 @@ public:
     [[nodiscard]] UINT GetWidth() const { return m_width; }
     [[nodiscard]] UINT GetHeight() const { return m_height; }
     [[nodiscard]] const WCHAR* GetTitle() const { return m_title.c_str(); }
+    [[nodiscard]] HICON GetIcon() const { return m_icon; }
 
     /**
      * Whether to configure features in a way that are more friendly to PIX.
@@ -142,7 +143,7 @@ protected:
 
     [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
 
-    UINT m_width;
+    UINT m_width; // todo: make these all private, add getters (and setters if needed)
     UINT m_height;
     float m_aspectRatio;
 
@@ -152,6 +153,7 @@ protected:
 
 private:
     std::wstring m_title;
+    HICON m_icon;
 
     Configuration m_configuration;
 

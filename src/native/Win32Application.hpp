@@ -13,7 +13,7 @@ class DXApp;
 class Win32Application
 {
 public:
-    static int Run(DXApp* pApp, HINSTANCE hInstance, int nCmdShow);
+    static int Run(DXApp* app, HINSTANCE instance, int cmdShow);
 
     static void ToggleFullscreenWindow(IDXGISwapChain* pSwapChain = nullptr);
     static void SetWindowOrderToTopMost(bool setToTopMost);

@@ -158,6 +158,11 @@ public static partial class Native
         [MarshalAs(UnmanagedType.LPWStr)] public string title;
 
         /// <summary>
+        ///     A handle to the icon to use for the window.
+        /// </summary>
+        public IntPtr icon;
+
+        /// <summary>
         ///     The scale at which the world is rendered, as a percentage of the window size.
         /// </summary>
         public float renderScale;
