@@ -13,7 +13,6 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Physics;
 using VoxelGame.Logging;
 using VoxelGame.Support.Input.Actions;
@@ -42,13 +41,13 @@ public sealed class GameScene : IScene
     {
         void OnOverlayClose()
         {
-            Screen.ClearOverlayLock();
+            IsOverlayOpen = false;
             client.Mouse.SetCursorLock(locked: true);
         }
 
         void OnOverlayOpen()
         {
-            Screen.SetOverlayLock();
+            IsOverlayOpen = true;
             client.Mouse.SetCursorLock(locked: false);
         }
 
@@ -86,7 +85,8 @@ public sealed class GameScene : IScene
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
             ui,
-            client.Resources.PlayerResources);
+            client.Resources.PlayerResources,
+            this);
 
         world.AddPlayer(player);
 
@@ -100,11 +100,21 @@ public sealed class GameScene : IScene
     }
 
     /// <summary>
+    ///     Get whether any overlay is open. If this is the case, game input should be disabled.
+    /// </summary>
+    public bool IsOverlayOpen { get; private set; }
+
+    /// <summary>
+    ///     Get whether the game window is focused.
+    /// </summary>
+    public bool IsWindowFocused => Client.IsFocused;
+
+    /// <summary>
     ///     Get the game played in this scene.
     /// </summary>
     public Game Game { get; private set; }
 
-    private Support.Core.Client Client { get; }
+    private Application.Client Client { get; }
 
     /// <inheritdoc />
     public void Load()
@@ -114,7 +124,7 @@ public sealed class GameScene : IScene
         ui.SetPlayerDataProvider(Game.Player);
 
         ui.Load();
-        ui.Resize(Screen.Size);
+        ui.Resize(Client.Size);
 
         ui.CreateControl();
         Game.Initialize(new ConsoleWrapper(ui.Console!));
@@ -147,10 +157,10 @@ public sealed class GameScene : IScene
 
             Game.Update(deltaTime);
 
-            if (!Screen.IsFocused)
+            if (!Client.IsFocused)
                 return;
 
-            if (!Screen.IsOverlayLockActive)
+            if (!IsOverlayOpen)
             {
                 if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
 

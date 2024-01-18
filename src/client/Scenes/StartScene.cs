@@ -11,7 +11,6 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -68,7 +67,7 @@ public sealed class StartScene : IScene
         client.Mouse.SetCursorLock(locked: false);
 
         ui.Load();
-        ui.Resize(Screen.Size);
+        ui.Resize(client.Size);
 
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());

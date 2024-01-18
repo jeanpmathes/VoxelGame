@@ -9,7 +9,7 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Entities.Players;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -28,29 +28,31 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 {
     private const float FlyingSpeedFactor = 5f;
     private const float FlyingSprintSpeedFactor = 25f;
+
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
-    private readonly float diveSpeed = 8f;
 
     private readonly Input input;
 
-    private readonly float jumpForce = 25000f;
+    private readonly GameScene scene;
 
     private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
     private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
 
     private readonly PlacementSelection selector;
+    private readonly VisualInterface visualInterface;
 
+    private readonly float diveSpeed = 8f;
+    private readonly float jumpForce = 25000f;
     private readonly float speed = 4f;
     private readonly float sprintSpeed = 6f;
     private readonly float swimSpeed = 4f;
 
-    private readonly VisualInterface visualInterface;
-    private Vector3i headPosition;
-
     private bool isFirstUpdate = true;
 
     private Vector3d movement;
+
+    private Vector3i headPosition;
 
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
@@ -67,11 +69,14 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="ui">The ui used to display player information.</param>
     /// <param name="resources">The resources used to render the player.</param>
+    /// <param name="scene">The scene in which the player is placed.</param>
     public Player(World world, float mass, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui, PlayerResources resources) : base(world, mass, boundingVolume)
+        GameUserInterface ui, PlayerResources resources, GameScene scene) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;
+
+        this.scene = scene;
 
         visualInterface = new VisualInterface(this, ui, resources);
         input = new Input(this);
@@ -195,9 +200,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         UpdateTargets();
 
-        if (Screen.IsFocused)
+        if (scene.IsWindowFocused)
         {
-            if (!Screen.IsOverlayLockActive)
+            if (!scene.IsOverlayOpen)
             {
                 HandleMovementInput(deltaTime);
                 HandleLookInput();

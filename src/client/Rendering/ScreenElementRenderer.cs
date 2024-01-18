@@ -144,7 +144,7 @@ public sealed class ScreenElementRenderer : Renderer
 
         Matrix4d model = VMath.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
         Matrix4d view = Matrix4d.Identity;
-        var projection = Matrix4d.CreateOrthographic(Screen.Size.X, Screen.Size.Y, depthNear: 0.0, depthFar: 1.0);
+        var projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
 
         data.Data = new Data
         {

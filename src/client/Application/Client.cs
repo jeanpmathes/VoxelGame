@@ -78,8 +78,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal Game? CurrentGame { get; private set; }
 
-    internal double FPS => screenBehaviour.FPS;
-    internal double UPS => screenBehaviour.UPS;
+    private double FPS => screenBehaviour.FPS;
+    private double UPS => screenBehaviour.UPS;
 
     double IPerformanceProvider.FPS => FPS;
     double IPerformanceProvider.UPS => UPS;
