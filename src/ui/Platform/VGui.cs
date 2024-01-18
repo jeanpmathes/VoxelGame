@@ -42,7 +42,7 @@ internal sealed class VGui : IGwenGui
 
     public void Load()
     {
-        GwenPlatform.Init(new VoxelGamePlatform(Parent.Mouse.SetCursorType));
+        GwenPlatform.Init(new VoxelGamePlatform(Parent.Input.Mouse.SetCursorType));
         AttachToWindowEvents();
 
         try
@@ -85,7 +85,7 @@ internal sealed class VGui : IGwenGui
         // Helps the UI to recognize that the mouse is over a control if that control was just added:
         input.ProcessMouseMove(new MouseMoveEventArgs
         {
-            Position = Parent.Mouse.Position.ToVector2()
+            Position = Parent.Input.Mouse.Position.ToVector2()
         });
     }
 
@@ -122,22 +122,22 @@ internal sealed class VGui : IGwenGui
 
     private void AttachToWindowEvents()
     {
-        Parent.KeyUp += OnKeyUp;
-        Parent.KeyDown += OnKeyDown;
-        Parent.TextInput += OnTextInput;
-        Parent.MouseButton += OnMouseButton;
-        Parent.MouseMove += OnMouseMove;
-        Parent.MouseWheel += OnMouseWheel;
+        Parent.Input.KeyUp += OnKeyUp;
+        Parent.Input.KeyDown += OnKeyDown;
+        Parent.Input.TextInput += OnTextInput;
+        Parent.Input.MouseButton += OnMouseButton;
+        Parent.Input.MouseMove += OnMouseMove;
+        Parent.Input.MouseWheel += OnMouseWheel;
     }
 
     private void DetachWindowEvents()
     {
-        Parent.KeyUp -= OnKeyUp;
-        Parent.KeyDown -= OnKeyDown;
-        Parent.TextInput -= OnTextInput;
-        Parent.MouseButton -= OnMouseButton;
-        Parent.MouseMove -= OnMouseMove;
-        Parent.MouseWheel -= OnMouseWheel;
+        Parent.Input.KeyUp -= OnKeyUp;
+        Parent.Input.KeyDown -= OnKeyDown;
+        Parent.Input.TextInput -= OnTextInput;
+        Parent.Input.MouseButton -= OnMouseButton;
+        Parent.Input.MouseMove -= OnMouseMove;
+        Parent.Input.MouseWheel -= OnMouseWheel;
     }
 
     private void OnKeyUp(object? sender, KeyboardKeyEventArgs obj)

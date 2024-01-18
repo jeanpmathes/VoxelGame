@@ -180,8 +180,6 @@ internal class GameUI : ControlBase
     {
         if (!IsGameMenuOpen || isSettingsMenuOpen) return;
 
-        parent.Context.Input.AbsorbMousePress();
-
         Debug.Assert(gameMenu != null);
         gameMenu.Close();
 

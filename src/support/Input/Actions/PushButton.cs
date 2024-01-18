@@ -21,7 +21,7 @@ public class PushButton : Button
     /// </summary>
     /// <param name="key">The key or button to target.</param>
     /// <param name="input">The input manager.</param>
-    public PushButton(VirtualKeys key, InputManager input) : base(key, input) {}
+    public PushButton(VirtualKeys key, Input input) : base(key, input) {}
 
     /// <summary>
     ///     Get whether the button is pushed this frame.
@@ -41,7 +41,7 @@ public class PushButton : Button
     /// <inheritdoc />
     protected override void Update(object? sender, EventArgs e)
     {
-        KeyState state = Input.State;
+        KeyState state = Input.KeyState;
 
         Pushed = false;
 

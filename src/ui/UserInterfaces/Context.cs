@@ -14,7 +14,7 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 internal sealed class Context
 {
-    internal Context(InputListener input, UIResources resources)
+    internal Context(Input input, UIResources resources)
     {
         Fonts = resources.Fonts;
         Input = input;
@@ -22,7 +22,7 @@ internal sealed class Context
     }
 
     internal FontHolder Fonts { get; }
-    internal InputListener Input { get; }
+    internal Input Input { get; }
 
     internal UIResources Resources { get; }
 }

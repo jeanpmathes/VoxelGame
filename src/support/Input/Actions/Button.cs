@@ -18,7 +18,7 @@ public abstract class Button : InputAction
     /// </summary>
     /// <param name="key">The trigger key.</param>
     /// <param name="input">The input manager.</param>
-    protected Button(VirtualKeys key, InputManager input) : base(input)
+    protected Button(VirtualKeys key, Input input) : base(input)
     {
         Key = key;
     }

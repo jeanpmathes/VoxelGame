@@ -18,14 +18,14 @@ public class SimpleButton : Button
     /// </summary>
     /// <param name="key">The button target.</param>
     /// <param name="input">The input manager.</param>
-    public SimpleButton(VirtualKeys key, InputManager input) : base(key, input) {}
+    public SimpleButton(VirtualKeys key, Input input) : base(key, input) {}
 
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <inheritdoc />
     protected override void Update(object? sender, EventArgs e)
     {
-        KeyState state = Input.State;
+        KeyState state = Input.KeyState;
         IsDown = state.IsKeyDown(Key);
     }
 }

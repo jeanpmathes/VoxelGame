@@ -186,7 +186,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             {
                 Vector3i position1 = position + flow.Direction();
 
-                world.SetFluid(this.AsInstance(FluidLevel.Eight, isStatic: false), position1);
+                world.SetFluid(this.AsInstance(isStatic: false), position1);
 
                 world.SetFluid(this.AsInstance(level - volume - 1, isStatic: false), position);
 
@@ -449,7 +449,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             }
             else
             {
-                world.SetFluid(this.AsInstance(FluidLevel.Eight, isStatic: false), neighborPosition);
+                world.SetFluid(this.AsInstance(isStatic: false), neighborPosition);
 
                 remaining = remaining - volume - 1;
             }

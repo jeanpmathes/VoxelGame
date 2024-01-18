@@ -246,8 +246,6 @@ public class ConsoleInterface
         consoleInput = null;
         consoleOutput = null;
 
-        context.Input.AbsorbMousePress();
-
         WindowClosed(this, EventArgs.Empty);
     }
 

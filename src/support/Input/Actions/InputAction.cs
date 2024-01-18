@@ -15,17 +15,17 @@ public abstract class InputAction
     ///     Create a new input action.
     /// </summary>
     /// <param name="input">The input manager providing the input.</param>
-    protected InputAction(InputManager input)
+    protected InputAction(Input input)
     {
         Input = input;
 
-        input.OnUpdate += Update;
+        input.OnInputUpdate += Update;
     }
 
     /// <summary>
     ///     Get the input manager providing the input.
     /// </summary>
-    protected InputManager Input { get; }
+    protected Input Input { get; }
 
     /// <summary>
     ///     Called every frame.

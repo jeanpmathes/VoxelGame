@@ -21,7 +21,7 @@ public class ToggleButton : Button
     /// </summary>
     /// <param name="key">The key or button to target.</param>
     /// <param name="input">The input manager providing the input.</param>
-    public ToggleButton(VirtualKeys key, InputManager input) : base(key, input) {}
+    public ToggleButton(VirtualKeys key, Input input) : base(key, input) {}
 
     /// <summary>
     ///     Get the current button state.
@@ -54,7 +54,7 @@ public class ToggleButton : Button
     /// <inheritdoc />
     protected override void Update(object? sender, EventArgs e)
     {
-        KeyState currentState = Input.State;
+        KeyState currentState = Input.KeyState;
 
         Changed = false;
 

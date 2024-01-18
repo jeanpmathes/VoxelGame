@@ -14,9 +14,6 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Input;
-using VoxelGame.Support.Input.Devices;
-using VoxelGame.Support.Input.Events;
 using VoxelGame.Support.Objects;
 using Image = VoxelGame.Core.Visuals.Image;
 
@@ -25,18 +22,9 @@ namespace VoxelGame.Support.Core;
 /// <summary>
 ///     A proxy class for the native client.
 /// </summary>
-public class Client : IDisposable // todo: get type usage count down, e.g. by pulling out events
+public class Client : IDisposable // todo: get type usage count down, e.g. by pulling out events and input
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-
-    private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
-    {
-        VirtualKeys.LeftButton,
-        VirtualKeys.RightButton,
-        VirtualKeys.MiddleButton,
-        VirtualKeys.ExtraButton1,
-        VirtualKeys.ExtraButton2
-    };
 
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
@@ -56,7 +44,7 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
 
         Size = windowSettings.Size;
 
-        Mouse = new Mouse(this);
+        Input = new Input.Input(this);
 
         Definition.Native.NativeConfiguration configuration = new()
         {
@@ -72,12 +60,13 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
 
                 Time += delta;
 
-                Mouse.Update();
+                Input.PreUpdate();
 
                 OnUpdate(delta);
 
                 Sync.Update();
-                KeyState.Update();
+
+                Input.PostUpdate();
 
                 cycle = null;
             },
@@ -91,11 +80,11 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
             },
             onDestroy = OnDestroy,
             canClose = CanClose,
-            onKeyDown = OnKeyDown,
-            onKeyUp = OnKeyUp,
-            onChar = OnChar,
-            onMouseMove = OnMouseMove,
-            onMouseWheel = OnMouseWheel,
+            onKeyDown = Input.OnKeyDown,
+            onKeyUp = Input.OnKeyUp,
+            onChar = Input.OnChar,
+            onMouseMove = Input.OnMouseMove,
+            onMouseWheel = Input.OnMouseWheel,
             onResize = (width, height) =>
             {
                 Size = new Vector2i((int) width, (int) height);
@@ -103,7 +92,7 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
             },
             onActiveStateChange = active =>
             {
-                if (IsFocused && !active) KeyState.Wipe();
+                if (IsFocused && !active) Input.KeyState.Wipe();
 
                 IsFocused = active;
             },
@@ -124,9 +113,9 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     }
 
     /// <summary>
-    ///     Get the mouse device.
+    ///     Get the input system of the client.
     /// </summary>
-    public Mouse Mouse { get; }
+    public Input.Input Input { get; }
 
     /// <summary>
     ///     Whether the client is currently in the update cycle.
@@ -159,11 +148,6 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     ///     Get the native client pointer.
     /// </summary>
     public IntPtr Native { get; }
-
-    /// <summary>
-    ///     Get the current key state.
-    /// </summary>
-    protected KeyState KeyState { get; } = new();
 
     /// <summary>
     ///     Get the current window size.
@@ -217,36 +201,6 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     }
 
     /// <summary>
-    ///     Called when a mouse button is pressed or released.
-    /// </summary>
-    public event EventHandler<MouseButtonEventArgs> MouseButton = delegate {};
-
-    /// <summary>
-    ///     Called when the mouse moves.
-    /// </summary>
-    public event EventHandler<MouseMoveEventArgs> MouseMove = delegate {};
-
-    /// <summary>
-    ///     Called when the mouse wheel is scrolled.
-    /// </summary>
-    public event EventHandler<MouseWheelEventArgs> MouseWheel = delegate {};
-
-    /// <summary>
-    ///     Called when a keyboard key is pressed.
-    /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyDown = delegate {};
-
-    /// <summary>
-    ///     Called when a keyboard key is released.
-    /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyUp = delegate {};
-
-    /// <summary>
-    ///     Called when a text input is received.
-    /// </summary>
-    public event EventHandler<TextInputEventArgs> TextInput = delegate {};
-
-    /// <summary>
     ///     Close the window.
     /// </summary>
     public void Close()
@@ -289,72 +243,6 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     ///     Called when the client is destroyed.
     /// </summary>
     protected virtual void OnDestroy() {}
-
-    private void OnKeyDown(byte key)
-    {
-        var virtualKey = (VirtualKeys) key;
-        KeyState.SetKeyState(virtualKey, down: true);
-        HandleKey(virtualKey, down: true);
-    }
-
-    private void OnKeyUp(byte key)
-    {
-        var virtualKey = (VirtualKeys) key;
-        KeyState.SetKeyState(virtualKey, down: false);
-        HandleKey(virtualKey, down: false);
-    }
-
-    private void OnChar(char character)
-    {
-        TextInput(this,
-            new TextInputEventArgs
-            {
-                Character = character
-            });
-    }
-
-    private void OnMouseMove(int x, int y)
-    {
-        Mouse.OnMouseMove((x, y));
-
-        MouseMove(this,
-            new MouseMoveEventArgs
-            {
-                Position = Mouse.Position
-            });
-    }
-
-    private void OnMouseWheel(double delta)
-    {
-        MouseWheel(this,
-            new MouseWheelEventArgs
-            {
-                Delta = delta
-            });
-    }
-
-    private void HandleKey(VirtualKeys key, bool down)
-    {
-        if (mouseButtons.Contains(key))
-        {
-            MouseButton(this,
-                new MouseButtonEventArgs
-                {
-                    Button = key,
-                    IsPressed = down
-                });
-        }
-        else
-        {
-            KeyboardKeyEventArgs args = new()
-            {
-                Key = key
-            };
-
-            if (down) KeyDown(this, args);
-            else KeyUp(this, args);
-        }
-    }
 
     /// <summary>
     ///     Create a raster pipeline.

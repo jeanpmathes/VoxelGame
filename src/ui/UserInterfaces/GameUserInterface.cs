@@ -28,11 +28,11 @@ public class GameUserInterface : UserInterface
     /// <summary>
     ///     Creates a new game user interface.
     /// </summary>
-    /// <param name="inputListener">The input listener.</param>
+    /// <param name="input">The input.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(InputListener inputListener, UIResources resources, bool drawBackground) : base(
-        inputListener,
+    public GameUserInterface(Input input, UIResources resources, bool drawBackground) : base(
+        input,
         resources,
         drawBackground) {}
 

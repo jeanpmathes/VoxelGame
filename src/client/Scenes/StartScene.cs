@@ -54,7 +54,7 @@ public sealed class StartScene : IScene
         };
 
         ui = new StartUserInterface(
-            client.Keybinds.Input.Listener,
+            client.Input,
             worldProvider,
             settingsProviders,
             client.Resources.UIResources,
@@ -64,7 +64,7 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Load()
     {
-        client.Mouse.SetCursorLock(locked: false);
+        client.Input.Mouse.SetCursorLock(locked: false);
 
         ui.Load();
         ui.Resize(client.Size);

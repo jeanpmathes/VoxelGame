@@ -34,7 +34,7 @@ internal class KeybindManager : ISettingsProvider
 
     private readonly KeyMap usageMap = new();
 
-    internal KeybindManager(InputManager input)
+    internal KeybindManager(Input input)
     {
         Input = input;
 
@@ -44,11 +44,11 @@ internal class KeybindManager : ISettingsProvider
         InitializeUsages();
         InitializeSettings();
 
-        LookBind = new LookInput(Input.Client.Mouse, Client.Instance.Settings.MouseSensitivity);
+        LookBind = new LookInput(Input.Mouse, Client.Instance.Settings.MouseSensitivity);
         Client.Instance.Settings.MouseSensitivityChanged += (_, args) => LookBind.SetSensitivity(args.NewValue);
     }
 
-    internal InputManager Input { get; }
+    internal Input Input { get; }
 
     internal LookInput LookBind { get; }
 
@@ -161,7 +161,8 @@ internal class KeybindManager : ISettingsProvider
 
         usageMap.RemoveBinding(keybinds[bind].Key);
         keybinds[bind].SetBinding(key);
-        Input.AddPullDown(key);
+
+        Input.IgnoreKeyUntilRelease(key);
 
         Properties.Settings.Default[PropertyName(bind)] = key.GetSettings(isDefault);
         Properties.Settings.Default.Save();

@@ -11,7 +11,6 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
-using VoxelGame.Support.Input;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -22,8 +21,6 @@ namespace VoxelGame.Client.Application;
 internal class Client : Support.Core.Client, IPerformanceProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-
-    private readonly InputManager input;
 
     private readonly GameParameters parameters;
     private readonly SceneFactory sceneFactory;
@@ -51,8 +48,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);
 
-        input = new InputManager(this);
-        Keybinds = new KeybindManager(input);
+        Keybinds = new KeybindManager(Input);
     }
 
     /// <summary>
@@ -119,8 +115,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         using (logger.BeginScope("UpdateFrame"))
         {
             double deltaTime = MathHelper.Clamp(delta, min: 0f, max: 1f); // todo: check if clamp can be removed, maybe it is already done on C++ side
-
-            input.UpdateState(KeyState);
 
             sceneManager.Update(deltaTime);
             screenBehaviour.Update(delta);

@@ -42,19 +42,19 @@ public sealed class GameScene : IScene
         void OnOverlayClose()
         {
             IsOverlayOpen = false;
-            client.Mouse.SetCursorLock(locked: true);
+            client.Input.Mouse.SetCursorLock(locked: true);
         }
 
         void OnOverlayOpen()
         {
             IsOverlayOpen = true;
-            client.Mouse.SetCursorLock(locked: false);
+            client.Input.Mouse.SetCursorLock(locked: false);
         }
 
         OnOverlayClose();
 
         ui = new GameUserInterface(
-            client.Keybinds.Input.Listener,
+            client.Input,
             client.Resources.UIResources,
             drawBackground: false);
 

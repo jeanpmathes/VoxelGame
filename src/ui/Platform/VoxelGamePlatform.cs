@@ -138,7 +138,7 @@ namespace VoxelGame.UI.Platform
                 Cursor.No => MouseCursor.No,
                 Cursor.Wait => MouseCursor.Wait,
                 Cursor.Finger => MouseCursor.Hand,
-                _ => throw new ArgumentOutOfRangeException(nameof(cursor), cursor, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(cursor), cursor, message: null)
             };
 
             setCursor.Invoke(translatedCursor);

@@ -19,19 +19,19 @@ public abstract class UserInterface : IDisposable
 {
     private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
     private readonly bool drawBackground;
-    private readonly InputListener inputListener;
+    private readonly Input input;
     private readonly UIResources resources;
 
     /// <summary>
     ///     Creates a new user interface.
     /// </summary>
-    /// <param name="inputListener">The input listener.</param>
+    /// <param name="input">The input.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(InputListener inputListener, UIResources resources, bool drawBackground)
+    protected UserInterface(Input input, UIResources resources, bool drawBackground)
     {
         this.drawBackground = drawBackground;
-        this.inputListener = inputListener;
+        this.input = input;
         this.resources = resources;
     }
 
@@ -49,7 +49,7 @@ public abstract class UserInterface : IDisposable
     {
         Root.ShouldDrawBackground = drawBackground;
 
-        Context = new Context(inputListener, resources);
+        Context = new Context(input, resources);
     }
 
     /// <summary>

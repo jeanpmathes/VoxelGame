@@ -177,7 +177,7 @@ public static class FileSystem
     /// <returns>The temporary directory.</returns>
     public static DirectoryInfo CreateTemporaryDirectory()
     {
-        string? directory = null;
+        string? directory;
 
         do
         {
