@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Rendering;
 /// <summary>
 ///     A utility class for loading, compiling and managing graphics pipelines used by the game.
 /// </summary>
-public sealed class Pipelines // todo: delete all GLSL shaders
+public sealed class Pipelines : IDisposable
 {
     private readonly DirectoryInfo directory;
 
@@ -42,7 +42,7 @@ public sealed class Pipelines // todo: delete all GLSL shaders
     /// <summary>
     ///     Get the selection box renderer, which is used to draw selection boxes around blocks.
     /// </summary>
-    public SelectionBoxRenderer SelectionBoxRenderer { get; private set; } = null!; // todo: dispose this
+    public SelectionBoxRenderer SelectionBoxRenderer { get; private set; } = null!;
 
     /// <summary>
     ///     Get the crosshair renderer, which is used to draw the crosshair.
@@ -107,16 +107,6 @@ public sealed class Pipelines // todo: delete all GLSL shaders
         Graphics.Initialize(pipelines.loaded ? pipelines : null);
 
         return pipelines;
-    }
-
-    internal void Delete() // todo: implement IDisposable
-    {
-        // todo: think about deleting (some cleanup like removing from draw2d and similar is necessary)
-        // todo: maybe some more cleanup would be nice
-
-        foreach (Renderer renderer in renderers) renderer.Dispose();
-
-        // todo: go trough all members and check if they need to be disposed
     }
 
     private void LoadAll(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
@@ -335,4 +325,27 @@ public sealed class Pipelines // todo: delete all GLSL shaders
             return !left.Equals(right);
         }
     }
+
+    #region IDisposable Support
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+
+        foreach (Renderer renderer in renderers) renderer.Dispose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~Pipelines()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

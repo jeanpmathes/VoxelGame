@@ -11,13 +11,14 @@
 #include "Custom.hlsl"
 
 cbuffer MaterialCB : register(b3)
+// todo: for all constant buffers use the templated variant and remove g prefixes from structs (but use g prefix for the buffer var)
 {
 uint gMaterialIndex;
 }
 
 ConstantBuffer<Instance> instances[] : register(b4);
 
-RaytracingAccelerationStructure spaceBVH : register(t0); // todo: rename all shader globals to include g prefix
+RaytracingAccelerationStructure spaceBVH : register(t0); // todo: go trough all shader variables, use g prefix
 StructuredBuffer<SpatialVertex> vertices[] : register(t1);
 
 Texture2D gTextureSlotOne[] : register(t0, space1);

@@ -123,10 +123,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnDestroy()
     {
-        logger.LogInformation(Events.WindowState, "Closing window");
-
         sceneManager.Unload();
-        Resources.Unload();
+        Resources.Dispose();
     }
 
     protected override bool CanClose()

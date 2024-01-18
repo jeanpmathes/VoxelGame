@@ -61,15 +61,12 @@ public sealed class SelectionBoxRenderer : Renderer
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));
 
-        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+        if (result is not {pipeline: var rasterPipeline, buffer: var buffer}) return null;
 
-        buffer.Modify((ref Data data) =>
-        {
-            data.DarkColor = (0.1f, 0.1f, 0.1f); // todo: use setting for both colors, similar to crosshair
-            data.BrightColor = (0.6f, 0.6f, 0.6f);
-        });
+        // todo: use setting for both colors, similar to crosshair
+        buffer.Data = new Data((0.1f, 0.1f, 0.1f), (0.6f, 0.6f, 0.6f));
 
-        return new SelectionBoxRenderer(client, pipeline);
+        return new SelectionBoxRenderer(client, rasterPipeline);
     }
 
     /// <inheritdoc />
@@ -85,7 +82,7 @@ public sealed class SelectionBoxRenderer : Renderer
     {
         Debug.Assert(effect != null);
 
-        effect?.Return();
+        effect.Return();
         effect = null;
     }
 
@@ -155,8 +152,7 @@ public sealed class SelectionBoxRenderer : Renderer
     /// <inheritdoc />
     protected override void OnDispose(bool disposing)
     {
-        if (disposing) ; // todo: dispose raster pipeline
-        else
+        if (!disposing)
             logger.LogWarning(
                 Events.LeakedNativeObject,
                 "Renderer disposed by GC without freeing storage");
@@ -168,19 +164,28 @@ public sealed class SelectionBoxRenderer : Renderer
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    private struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>
     {
+        /// <summary>
+        ///     Create the shader data.
+        /// </summary>
+        public Data(Vector3 darkColor, Vector3 brightColor)
+        {
+            DarkColor = darkColor;
+            BrightColor = brightColor;
+        }
+
         /// <summary>
         ///     The color to use with bright background.
         /// </summary>
         [FieldOffset(0 * ShaderBuffers.FieldOffset)]
-        public Vector3 DarkColor;
+        public readonly Vector3 DarkColor;
 
         /// <summary>
         ///     The color to use with dark background.
         /// </summary>
         [FieldOffset(1 * ShaderBuffers.FieldOffset)]
-        public Vector3 BrightColor;
+        public readonly Vector3 BrightColor;
 
         /// <summary>
         ///     Check equality.

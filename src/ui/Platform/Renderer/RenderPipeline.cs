@@ -22,11 +22,13 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Does the actual issuing of draw calls and managing of GPU resources.
 /// </summary>
-public class RenderPipeline
+public sealed class RenderPipeline : IDisposable
 {
     private readonly PooledList<DrawCall> drawCalls = new();
     private readonly RasterPipeline pipeline;
     private readonly Action preDraw;
+
+    private readonly IDisposable disposable;
 
     private readonly RendererBase renderer;
     private readonly ShaderBuffer<Vector2> buffer;
@@ -39,14 +41,14 @@ public class RenderPipeline
     /// <summary>
     ///     Creates a new render pipeline.
     /// </summary>
-    public RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
+    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
     {
         this.renderer = renderer;
         this.preDraw = preDraw;
 
         (pipeline, buffer) = raster;
 
-        client.AddDraw2dPipeline(pipeline, Draw2D.Foreground, Draw);
+        disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Foreground, Draw);
 
         Textures = new TextureList(client);
     }
@@ -234,4 +236,30 @@ public class RenderPipeline
         public uint VertexCount { get; set; }
         public TextureList.Handle Texture { get; set; }
     }
+
+    #region IDisposable Support
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+
+        disposable.Dispose();
+
+        drawCalls.Dispose();
+        vertexBuffer.Dispose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~RenderPipeline()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

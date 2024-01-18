@@ -31,6 +31,8 @@ public sealed class ScreenElementRenderer : Renderer
 
     private readonly Texture placeholder;
 
+    private IDisposable? disposable;
+
     private float scaling = 1.0f;
 
     private Color4 color = Color4.White;
@@ -68,7 +70,7 @@ public sealed class ScreenElementRenderer : Renderer
 
         ScreenElementRenderer renderer = new(client, relativeScreenPosition, buffer);
 
-        client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+        renderer.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
 
         return renderer;
     }
@@ -146,11 +148,9 @@ public sealed class ScreenElementRenderer : Renderer
         Matrix4d view = Matrix4d.Identity;
         var projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
 
-        data.Data = new Data
-        {
-            MVP = (model * view * projection).ToMatrix4(),
-            Color = color
-        };
+        Matrix4d mvp = model * view * projection;
+
+        data.Data = new Data(mvp.ToMatrix4(), color);
     }
 
     #region IDisposable Support
@@ -158,7 +158,7 @@ public sealed class ScreenElementRenderer : Renderer
     /// <inheritdoc />
     protected override void OnDispose(bool disposing)
     {
-        if (disposing) ; // todo: dispose raster pipeline
+        if (disposing) disposable?.Dispose();
         else
             logger.LogWarning(
                 Events.LeakedNativeObject,
@@ -171,18 +171,27 @@ public sealed class ScreenElementRenderer : Renderer
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    private struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>
     {
         /// <summary>
         ///     The model-view-projection matrix.
         /// </summary>
-        public Matrix4 MVP;
+        public readonly Matrix4 MVP;
 
         /// <summary>
         ///     The color to apply to the texture.
         ///     If no texture is used, the vertex color is used instead and this is ignored.
         /// </summary>
-        public Color4 Color;
+        public readonly Color4 Color;
+
+        /// <summary>
+        ///     Create a new <see cref="Data" /> instance.
+        /// </summary>
+        public Data(Matrix4 mvp, Color4 color)
+        {
+            MVP = mvp;
+            Color = color;
+        }
 
         /// <summary>
         ///     Check equality.

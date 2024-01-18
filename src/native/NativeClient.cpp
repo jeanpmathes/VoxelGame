@@ -639,19 +639,23 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
                                                        0, {m_intermediateRenderTarget});
 }
 
-void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback)
+UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback)
 {
     // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
     // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
     UINT clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
+
+    decltype(m_draw2dPipelines)::iterator iterator;
     
     if (m_draw2dPipelines.empty() || priority < m_draw2dPipelines.front().priority)
     {
         m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
+        iterator = m_draw2dPipelines.begin();
     }
     else if (priority > m_draw2dPipelines.back().priority)
     {
         m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
+        iterator = std::prev(m_draw2dPipelines.end());
     }
     else
         for (auto it = m_draw2dPipelines.begin(); it != m_draw2dPipelines.end(); ++it)
@@ -659,10 +663,26 @@ void NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, dra
             // Goal: insert after the first element with priority lower than the new one.
             if (priority > it->priority)
             {
-                m_draw2dPipelines.emplace(--it, draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
+                iterator = m_draw2dPipelines.
+                    emplace(--it, draw2d::Pipeline(*this, pipeline, callback), clampedPriority);
                 break;
             }
         }
+
+    m_draw2dPipelineIDs[m_nextDraw2dPipelineID] = iterator;
+
+    const UINT id = m_nextDraw2dPipelineID;
+    m_nextDraw2dPipelineID++;
+
+    return id;
+}
+
+void NativeClient::RemoveDraw2DPipeline(const UINT id)
+{
+    const auto iterator = m_draw2dPipelineIDs[id];
+
+    m_draw2dPipelines.erase(iterator);
+    m_draw2dPipelineIDs.erase(id);
 }
 
 NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)

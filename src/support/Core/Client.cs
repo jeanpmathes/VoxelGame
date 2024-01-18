@@ -78,7 +78,12 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
 
                 cycle = null;
             },
-            onDestroy = OnDestroy,
+            onDestroy = () =>
+            {
+                logger.LogInformation(Events.WindowState, "Closing window");
+
+                OnDestroy();
+            },
             canClose = CanClose,
             onKeyDown = Input.OnKeyDown,
             onKeyUp = Input.OnKeyUp,
@@ -289,9 +294,10 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     ///     Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.
     /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
-    public void AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
+    /// <returns>A disposable object which can be used to remove the pipeline.</returns>
+    public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
-        Support.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
+        return Support.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
 
     /// <summary>

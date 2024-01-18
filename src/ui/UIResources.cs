@@ -21,7 +21,7 @@ namespace VoxelGame.UI;
 /// <summary>
 ///     All resources used by the UI, such as images and icons.
 /// </summary>
-public class UIResources
+public sealed class UIResources : IDisposable
 {
     private static readonly List<string> iconNames = new();
     private static readonly List<string> imageNames = new();
@@ -178,15 +178,6 @@ public class UIResources
         }
     }
 
-    /// <summary>
-    ///     Unloads all the resources.
-    /// </summary>
-    public void Unload()
-    {
-        attributions.Clear();
-        GUI.Dispose();
-    }
-
     private static (Document document, string name) CreateAttribution(Attribution attribution, Context context)
     {
         Document credits = new();
@@ -217,4 +208,28 @@ public class UIResources
     }
 
     private sealed record Attribution(string Name, string Text); // todo: remove the no longer needed attribution files
+
+    #region IDisposable Support
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+
+        Fonts.Dispose();
+        GUI.Dispose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~UIResources()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

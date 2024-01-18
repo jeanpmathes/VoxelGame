@@ -34,6 +34,8 @@ public sealed class OverlayRenderer : Renderer
 
     private readonly (TextureArray block, TextureArray fluid) textures;
 
+    private IDisposable? disposable;
+
     private int mode = BlockMode;
     private TintColor tint = TintColor.None;
     private bool isAnimated;
@@ -74,7 +76,7 @@ public sealed class OverlayRenderer : Renderer
 
         OverlayRenderer renderer = new(client, buffer, textures);
 
-        client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+        renderer.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
 
         return renderer;
     }
@@ -144,15 +146,9 @@ public sealed class OverlayRenderer : Renderer
         Meshing.SetTint(ref attributes, tint);
         Meshing.SetFlag(ref attributes, Meshing.QuadFlag.IsAnimated, isAnimated);
 
-        data.Data = new Data
-        {
-            MVP = (model * view * projection).ToMatrix4(),
-            Attributes = EncodeAttributes(attributes),
-            LowerBound = lowerBound,
-            UpperBound = upperBound,
-            Mode = mode,
-            FirstFluidTextureIndex = firstFluidTextureID
-        };
+        Matrix4d mvp = model * view * projection;
+
+        data.Data = new Data(mvp.ToMatrix4(), attributes, (lowerBound, upperBound), mode, firstFluidTextureID);
     }
 
     private void Draw(Draw2D drawer)
@@ -192,7 +188,7 @@ public sealed class OverlayRenderer : Renderer
     /// <inheritdoc />
     protected override void OnDispose(bool disposing)
     {
-        if (disposing) ; // todo: dispose raster pipeline
+        if (disposing) disposable?.Dispose();
         else
             logger.LogWarning(
                 Events.LeakedNativeObject,
@@ -205,37 +201,50 @@ public sealed class OverlayRenderer : Renderer
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    private struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>
     {
         /// <summary>
         ///     The matrix used to transform the vertices.
         /// </summary>
-        public Matrix4 MVP;
+        public readonly Matrix4 MVP;
 
         /// <summary>
         ///     Attributes encoded as binary data, including tint and animation.
         /// </summary>
-        public Vector4i Attributes;
+        public readonly Vector4i Attributes;
 
         /// <summary>
         ///     The lower bound of the overlay.
         /// </summary>
-        public float LowerBound;
+        public readonly float LowerBound;
 
         /// <summary>
         ///     The upper bound of the overlay.
         /// </summary>
-        public float UpperBound;
+        public readonly float UpperBound;
 
         /// <summary>
         ///     The mode of the overlay, either block or fluid.
         /// </summary>
-        public int Mode;
+        public readonly int Mode;
 
         /// <summary>
         ///     The index of the first fluid texture.
         /// </summary>
-        public int FirstFluidTextureIndex;
+        public readonly int FirstFluidTextureIndex;
+
+        /// <summary>
+        ///     Create a new <see cref="Data" /> instance.
+        /// </summary>
+        public Data(Matrix4 mvp, (uint, uint, uint, uint) attributes, (float lower, float upper) bounds, int mode, int firstFluidTextureIndex)
+        {
+            MVP = mvp;
+            Attributes = EncodeAttributes(attributes);
+            LowerBound = bounds.lower;
+            UpperBound = bounds.upper;
+            Mode = mode;
+            FirstFluidTextureIndex = firstFluidTextureIndex;
+        }
 
         /// <summary>
         ///     Check equality.

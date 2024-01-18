@@ -87,8 +87,15 @@ public:
      * \param pipeline The pipeline to add. Must use the DRAW_2D preset.
      * \param priority The priority of the pipeline. Higher priorities are drawn later, and thus on top of lower priorities.
      * \param callback The associated callback will be called every frame, after the post processing pipeline.
+     * \return The ID of the pipeline. Can be used to remove it later.
      */
-    void AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback);
+    UINT AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback);
+
+    /**
+     * \brief Remove a draw2d pipeline from the client.
+     * \param id The ID of the pipeline to remove.
+     */
+    void RemoveDraw2DPipeline(UINT id);
 
     using ObjectHandle = size_t;
 
@@ -146,6 +153,8 @@ private:
     std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
     RasterPipeline* m_postProcessingPipeline = nullptr;
     std::list<Draw2dPipeline> m_draw2dPipelines = {};
+    std::map<UINT, decltype(m_draw2dPipelines)::iterator> m_draw2dPipelineIDs = {};
+    UINT m_nextDraw2dPipelineID = 0;
 
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;

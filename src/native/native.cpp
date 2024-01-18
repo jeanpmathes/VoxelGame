@@ -379,14 +379,26 @@ NATIVE void NativeSetShaderBufferData(const ShaderBuffer* buffer, const void* da
     CATCH();
 }
 
-NATIVE void NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeline, INT priority,
+NATIVE UINT NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeline,
+                                    const INT priority,
                                     const draw2d::Callback callback)
 {
     TRY
     {
         REQUIRE(CALL_OUTSIDE_CYCLE(client));
-        
-        client->AddDraw2DPipeline(pipeline, priority, callback);
+
+        return client->AddDraw2DPipeline(pipeline, priority, callback);
+    }
+    CATCH();
+}
+
+NATIVE void NativeRemoveDraw2DPipeline(NativeClient* client, const UINT id)
+{
+    TRY
+    {
+        REQUIRE(CALL_OUTSIDE_CYCLE(client));
+
+        client->RemoveDraw2DPipeline(id);
     }
     CATCH();
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Generation.Default;
@@ -19,7 +20,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     Prepares, loads and offers game resources.
 /// </summary>
-public class GameResources
+public sealed class GameResources : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
@@ -122,12 +123,27 @@ public class GameResources
         FluidTextures.DisableLoading();
     }
 
-    /// <summary>
-    ///     Unload and free all resources.
-    /// </summary>
-    public void Unload() // todo: instead of this use a proper dispose pattern, same for the classes below and above
+    #region IDisposable Support
+
+    private void Dispose(bool disposing)
     {
-        Pipelines.Delete();
-        UIResources.Unload();
+        if (!disposing) return;
+
+        Pipelines.Dispose();
+        UIResources.Dispose();
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~GameResources()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

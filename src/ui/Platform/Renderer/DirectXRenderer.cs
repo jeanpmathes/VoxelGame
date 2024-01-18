@@ -26,7 +26,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Class for the DirectX-based GUI renderer.
 /// </summary>
-public sealed class DirectXRenderer : RendererBase
+public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease type usage, maybe pull out TextureSupport and move more text stuff to TextSupport
 {
     private readonly Dictionary<string, string> preloadNameToPath = new();
 
@@ -83,15 +83,6 @@ public sealed class DirectXRenderer : RendererBase
     internal void FinishLoading()
     {
         textureDiscardAllowed = true;
-    }
-
-    /// <inheritdoc />
-    public override void Dispose()
-    {
-        textSupport.Dispose();
-        textCache.Dispose();
-
-        base.Dispose();
     }
 
     /// <inheritdoc />
@@ -339,4 +330,19 @@ public sealed class DirectXRenderer : RendererBase
 
         return handle;
     }
+
+    #region IDisposable Support
+
+    /// <inheritdoc />
+    public override void Dispose()
+    {
+        textSupport.Dispose();
+        textCache.Dispose();
+
+        renderPipeline.Dispose();
+
+        base.Dispose();
+    }
+
+    #endregion IDisposable Support
 }
