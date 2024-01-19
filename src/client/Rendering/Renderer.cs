@@ -97,7 +97,10 @@ public abstract class Renderer : IDisposable
     ///     Called to dispose of resources.
     /// </summary>
     /// <param name="disposing">Whether to dispose of managed resources.</param>
-    protected abstract void OnDispose(bool disposing);
+    protected virtual void OnDispose(bool disposing)
+    {
+        // Intentionally left empty.
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -106,6 +109,9 @@ public abstract class Renderer : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~Renderer()
     {
         Dispose(disposing: false);

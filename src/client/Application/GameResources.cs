@@ -140,6 +140,9 @@ public sealed class GameResources : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~GameResources()
     {
         Dispose(disposing: false);

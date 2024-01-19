@@ -41,6 +41,9 @@ public sealed class Disposer : IDisposable
         else logger.LogWarning(Events.LeakedNativeObject, "A disposer was not disposed");
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~Disposer()
     {
         Dispose(disposing: false);

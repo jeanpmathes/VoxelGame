@@ -226,6 +226,9 @@ public sealed class UIResources : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~UIResources()
     {
         Dispose(disposing: false);

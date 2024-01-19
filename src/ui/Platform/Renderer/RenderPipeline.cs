@@ -256,6 +256,9 @@ public sealed class RenderPipeline : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~RenderPipeline()
     {
         Dispose(disposing: false);

@@ -342,6 +342,9 @@ public sealed class Pipelines : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~Pipelines()
     {
         Dispose(disposing: false);

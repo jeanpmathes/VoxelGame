@@ -257,7 +257,8 @@ public class PipelineBuilder
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.
     /// </summary>
     /// <param name="ClosestHitSymbol">The name of the closest hit shader.</param>
-    /// <param name="AnyHitSymbol">The name of the any hit shader.</param>
+    /// <param name="AnyHitSymbol">The name of the any hit shader, or empty if there is none.</param>
+    /// <param name="IntersectionSymbol">The name of the intersection shader, or empty if there is none.</param>
     public sealed record HitGroup(string ClosestHitSymbol, string AnyHitSymbol = "", string IntersectionSymbol = "");
 
     /// <summary>
