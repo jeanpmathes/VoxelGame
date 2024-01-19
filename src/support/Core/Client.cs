@@ -95,11 +95,12 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
                 Size = new Vector2i((int) width, (int) height);
                 OnResize(Size);
             },
-            onActiveStateChange = active =>
+            onActiveStateChange = newState =>
             {
-                if (IsFocused && !active) Input.KeyState.Wipe();
+                bool oldState = IsFocused;
+                IsFocused = newState;
 
-                IsFocused = active;
+                if (oldState != newState) OnFocusChange(this, EventArgs.Empty);
             },
             onDebug = D3D12Debug.Enable(this),
             width = (uint) windowSettings.Size.X,
@@ -168,6 +169,11 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     ///     Get whether the window is focused.
     /// </summary>
     public bool IsFocused { get; private set; }
+
+    /// <summary>
+    ///     Called when the focus / active state of the window changes.
+    /// </summary>
+    internal event EventHandler OnFocusChange = delegate {};
 
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.

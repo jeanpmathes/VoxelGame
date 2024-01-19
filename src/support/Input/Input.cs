@@ -31,8 +31,12 @@ public class Input
 
     internal Input(Client client)
     {
-
         Mouse = new Mouse(client);
+
+        client.OnFocusChange += (_, _) =>
+        {
+            if (!client.IsFocused) KeyState.Wipe();
+        };
     }
 
     /// <summary>

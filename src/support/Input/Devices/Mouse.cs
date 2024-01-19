@@ -25,10 +25,26 @@ public class Mouse
     private Vector2i position;
 
     private bool isCursorLocked;
+    private bool isCursorLockRequiredOnFocus;
 
     internal Mouse(Client client)
     {
         this.client = client;
+
+        this.client.OnFocusChange += (_, _) =>
+        {
+            if (this.client.IsFocused && isCursorLockRequiredOnFocus)
+            {
+                SetCursorLock(locked: true);
+                isCursorLockRequiredOnFocus = false;
+            }
+
+            if (!this.client.IsFocused && isCursorLocked)
+            {
+                SetCursorLock(locked: false);
+                isCursorLockRequiredOnFocus = true;
+            }
+        };
     }
 
     /// <summary>
