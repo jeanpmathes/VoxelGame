@@ -29,6 +29,12 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     private const float FlyingSpeedFactor = 5f;
     private const float FlyingSprintSpeedFactor = 25f;
 
+    private const float DiveSpeed = 8f;
+    private const float JumpForce = 25000f;
+    private const float Speed = 4f;
+    private const float SprintSpeed = 6f;
+    private const float SwimSpeed = 4f;
+
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
@@ -41,12 +47,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private readonly PlacementSelection selector;
     private readonly VisualInterface visualInterface;
-
-    private readonly float diveSpeed = 8f;
-    private readonly float jumpForce = 25000f;
-    private readonly float speed = 4f;
-    private readonly float sprintSpeed = 6f;
-    private readonly float swimSpeed = 4f;
 
     private bool isFirstUpdate = true;
 
@@ -280,19 +280,19 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private void DoNormalMovement()
     {
-        movement = input.GetMovement(speed, sprintSpeed);
+        movement = input.GetMovement(Speed, SprintSpeed);
         Move(movement, maxForce);
 
         if (!(input.ShouldJump ^ input.ShouldCrouch)) return;
 
         if (input.ShouldJump)
         {
-            if (IsGrounded) AddForce(new Vector3d(x: 0, jumpForce, z: 0));
-            else if (IsSwimming) Move(Vector3d.UnitY * swimSpeed, maxSwimForce);
+            if (IsGrounded) AddForce(new Vector3d(x: 0, JumpForce, z: 0));
+            else if (IsSwimming) Move(Vector3d.UnitY * SwimSpeed, maxSwimForce);
         }
         else
         {
-            if (IsSwimming) Move(Vector3d.UnitY * -diveSpeed, maxSwimForce);
+            if (IsSwimming) Move(Vector3d.UnitY * -DiveSpeed, maxSwimForce);
         }
     }
 

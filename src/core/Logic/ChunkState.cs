@@ -94,6 +94,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Whether this state allows that its access is stolen.
     ///     A state must hold write-access to its core and extended data to allow stealing.
+    ///     If a state performs work on another thread, it cannot allow stealing.
     /// </summary>
     protected virtual bool AllowStealing => false;
 
@@ -114,6 +115,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Perform updates.
+    ///     This is where the state logic, e.g. the work associated with the state as well as transitions, is performed.
     /// </summary>
     protected abstract void OnUpdate();
 
@@ -200,7 +202,7 @@ public abstract class ChunkState
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <param name="description">The request description.</param>
-    public void RequestNextState(ChunkState state, RequestDescription description = new())
+    private void RequestNextState(ChunkState state, RequestDescription description = new())
     {
         state.Chunk = Chunk;
         state.Context = Context;
@@ -361,7 +363,7 @@ public abstract class ChunkState
     #pragma warning restore S1871
 
     /// <summary>
-    ///     Update the state of a chunk.
+    ///     Update the state of a chunk. This can change the state.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
     public static void Update(ref ChunkState state)
@@ -384,8 +386,8 @@ public abstract class ChunkState
     ///     Initialize the state of a chunk.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
-    /// <param name="chunk">The chunk.</param>
-    /// <param name="context">The context.</param>
+    /// <param name="chunk">The chunk of which the state is initialized.</param>
+    /// <param name="context">The current context.</param>
     public static void Initialize(out ChunkState state, Chunk chunk, ChunkContext context)
     {
         state = new Chunk.Unloaded
@@ -409,7 +411,9 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Try to steal access from the current state.
-    ///     If access is stolen, the state is changed.
+    ///     If access is stolen, the state is changed to the <see cref="Chunk.Used"/> state.
+    ///     Access can be stolen if the chunk is in a state that allows stealing and the state holds write-access to all its resources.
+    ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
@@ -417,6 +421,8 @@ public abstract class ChunkState
         ApplicationInformation.Instance.EnsureMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
+
+        state.OnExit();
 
         Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: not null});
         Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: not null});
@@ -447,6 +453,9 @@ public abstract class ChunkState
         return GetType().Name;
     }
 
+    /// <summary>
+    ///     Check if two states are of the same type.
+    /// </summary>
     private static bool IsSameState(ChunkState a, ChunkState b)
     {
         return a.GetType() == b.GetType();
