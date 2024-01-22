@@ -7,5 +7,3 @@
 using System.Runtime.Versioning;
 
 [assembly: SupportedOSPlatform("windows11.0")]
-
-// todo: Gwen shader loading should also be integrated into VoxelGame resource loading system

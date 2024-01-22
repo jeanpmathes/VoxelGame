@@ -1,4 +1,4 @@
-﻿// <copyright file="TextCache.cs" company="VoxelGame">
+﻿// <copyright file="TextStorage.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Gwen.Net;
+using VoxelGame.Core.Utilities;
 using Font = Gwen.Net.Font;
 using Point = Gwen.Net.Point;
 using Size = Gwen.Net.Size;
@@ -17,27 +18,23 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Stores text renderers and their associated text for reuse.
 /// </summary>
-public sealed class TextCache : IDisposable
+public sealed class TextStorage : IDisposable
 {
-    private readonly DirectXRenderer renderer;
+    private readonly DirectXRenderer rendering;
+    private readonly Cache<(string, Font), TextRenderer> cache = new(capacity: 100);
 
-    private Dictionary<(string, Font), Entry> strings = new();
+    private Dictionary<(string, Font), Entry> used = new();
 
     /// <summary>
     ///     Creates a new text cache.
     /// </summary>
-    public TextCache(DirectXRenderer renderer)
+    public TextStorage(DirectXRenderer rendering)
     {
         StringFormat = new StringFormat(StringFormat.GenericTypographic);
         StringFormat.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
 
-        this.renderer = renderer;
+        this.rendering = rendering;
     }
-
-    /// <summary>
-    ///     Get the current size of the cache.
-    /// </summary>
-    public int Size => strings.Count;
 
     /// <summary>
     ///     Get the string format used by the cache.
@@ -50,6 +47,7 @@ public sealed class TextCache : IDisposable
     public void Dispose()
     {
         Flush();
+
         StringFormat.Dispose();
     }
 
@@ -58,11 +56,22 @@ public sealed class TextCache : IDisposable
     /// </summary>
     public Texture? GetTexture(Font font, string text)
     {
-        if (!strings.TryGetValue((text, font), out Entry? entry)) return null;
+        if (used.TryGetValue((text, font), out Entry? entry))
+        {
+            entry.Accessed = true;
 
-        entry.Accessed = true;
+            return entry.Renderer.Texture;
+        }
 
-        return entry.Renderer.Texture;
+        if (cache.TryGet((text, font), out TextRenderer? renderer))
+        {
+            Entry newEntry = new(renderer);
+            used[(text, font)] = newEntry;
+
+            return newEntry.Renderer.Texture;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -70,50 +79,50 @@ public sealed class TextCache : IDisposable
     /// </summary>
     public Texture GetOrCreateTexture(Font font, string text)
     {
-        if (strings.TryGetValue((text, font), out Entry? entry))
-        {
-            entry.Accessed = true;
+        Texture? texture = GetTexture(font, text);
 
-            return entry.Renderer.Texture;
-        }
+        if (texture != null) return texture;
 
-        Size size = renderer.MeasureText(font, text);
-        entry = new Entry(new TextRenderer(size.Width, size.Height, renderer));
+        Size size = rendering.MeasureText(font, text);
+        Entry entry = new(new TextRenderer(size.Width, size.Height, rendering));
+
         entry.Renderer.SetString(text, (System.Drawing.Font) font.RendererData, Brushes.White, Point.Zero, StringFormat);
-
-        strings[(text, font)] = entry;
+        used[(text, font)] = entry;
 
         return entry.Renderer.Texture;
     }
 
     /// <summary>
-    ///     Go trough the cache and remove all renderers that are not used.
+    ///     Go trough the storage and perform cleanup.
+    ///     This can remove renderers that are not used anymore.
     /// </summary>
-    public void Evict()
+    public void Update()
     {
         Dictionary<(string, Font), Entry> newStrings = new();
 
-        foreach (KeyValuePair<(string, Font), Entry> pair in strings)
-            if (pair.Value.Accessed) // todo: experiment with giving textures points that decay over time (or increase when used) - current system is essentially just one point max
+        foreach (KeyValuePair<(string, Font), Entry> pair in used)
+            if (pair.Value.Accessed)
             {
                 pair.Value.Accessed = false;
                 newStrings.Add(pair.Key, pair.Value);
             }
             else
             {
-                pair.Value.Renderer.Dispose();
+                cache.Add(pair.Key, pair.Value.Renderer);
             }
 
-        strings = newStrings;
+        used = newStrings;
     }
 
     /// <summary>
-    ///     Clear the cache, disposing all renderers.
+    ///     Clear the storage, disposing all renderers.
     /// </summary>
     public void Flush()
     {
-        foreach (Entry entry in strings.Values) entry.Renderer.Dispose();
-        strings.Clear();
+        foreach (Entry entry in used.Values) entry.Renderer.Dispose();
+        used.Clear();
+
+        cache.Flush();
     }
 
     private sealed class Entry

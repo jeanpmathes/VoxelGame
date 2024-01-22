@@ -32,7 +32,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
 
     private readonly RenderPipeline renderPipeline;
 
-    private readonly TextCache textCache;
+    private readonly TextStorage textStorage;
     private readonly TextSupport textSupport;
 
     private TextureList.Handle currentTexture;
@@ -45,7 +45,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     internal DirectXRenderer(Client client, GwenGuiSettings settings)
     {
         textSupport = new TextSupport(this);
-        textCache = new TextCache(this);
+        textStorage = new TextStorage(this);
 
         renderPipeline
             = RenderPipeline.Create(client, this, PreDraw, settings.ShaderFile, settings.ShaderLoadingErrorCallback)
@@ -72,7 +72,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
 
     private void PreDraw()
     {
-        textCache.Evict();
+        textStorage.Update();
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     /// <inheritdoc />
     protected override void OnScaleChanged(float oldScale)
     {
-        textCache.Flush();
+        textStorage.Flush();
     }
 
     /// <inheritdoc />
@@ -169,20 +169,20 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
             sysFont = (System.Drawing.Font) font.RendererData;
         }
 
-        if (textCache.GetTexture(font, text) is {} texture) return new Size(texture.Width, texture.Height);
+        if (textStorage.GetTexture(font, text) is {} texture) return new Size(texture.Width, texture.Height);
 
         Debug.Assert(sysFont != null);
 
         SizeF tabSize = textSupport.MeasureTab(sysFont);
 
-        textCache.StringFormat.SetTabStops(
+        textStorage.StringFormat.SetTabStops(
             firstTabOffset: 0f,
             new[]
             {
                 tabSize.Width
             });
 
-        SizeF size = textSupport.MeasureString(text, sysFont, textCache.StringFormat);
+        SizeF size = textSupport.MeasureString(text, sysFont, textStorage.StringFormat);
 
         return new Size(Util.Ceil(size.Width), Util.Ceil(size.Height));
     }
@@ -198,7 +198,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
             LoadFont(font);
         }
 
-        Texture texture = textCache.GetOrCreateTexture(font, text);
+        Texture texture = textStorage.GetOrCreateTexture(font, text);
 
         DrawTexturedRect(
             texture,
@@ -337,7 +337,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     public override void Dispose()
     {
         textSupport.Dispose();
-        textCache.Dispose();
+        textStorage.Dispose();
 
         renderPipeline.Dispose();
 

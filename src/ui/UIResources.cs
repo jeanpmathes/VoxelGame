@@ -207,7 +207,7 @@ public sealed class UIResources : IDisposable
         return FileSystem.GetResourceDirectory("GUI", "Icons").GetFile($"{name}.png");
     }
 
-    private sealed record Attribution(string Name, string Text); // todo: remove the no longer needed attribution files
+    private sealed record Attribution(string Name, string Text);
 
     #region IDisposable Support
 

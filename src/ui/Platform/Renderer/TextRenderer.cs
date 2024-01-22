@@ -23,7 +23,8 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class TextRenderer : IDisposable
 {
     private readonly DirectXRenderer renderer;
-    private bool disposed;
+
+    private readonly Texture texture;
 
     /// <summary>
     ///     Creates a new instance of <see cref="TextRenderer" />.
@@ -35,22 +36,13 @@ public sealed class TextRenderer : IDisposable
 
         this.renderer = renderer;
 
-        Texture = new Texture(renderer) {Width = width, Height = height};
+        texture = new Texture(renderer) {Width = width, Height = height};
     }
 
     /// <summary>
     ///     Gets the backing store.
     /// </summary>
-    public Texture Texture { get; }
-
-    /// <summary>
-    ///     Disposes the instance.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(manual: true);
-        GC.SuppressFinalize(this);
-    }
+    public Texture Texture => disposed ? throw new ObjectDisposedException(nameof(TextRenderer)) : texture;
 
     /// <summary>
     ///     Draws the specified string to the backing store.
@@ -81,6 +73,19 @@ public sealed class TextRenderer : IDisposable
         renderer.LoadTextureDirectly(Texture, new Image(bitmap));
     }
 
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <summary>
+    ///     Disposes the instance.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(manual: true);
+        GC.SuppressFinalize(this);
+    }
+
     private void Dispose(bool manual)
     {
         if (disposed) return;
@@ -100,4 +105,6 @@ public sealed class TextRenderer : IDisposable
     {
         Dispose(manual: false);
     }
+
+    #endregion IDisposable Support
 }
