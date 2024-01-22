@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Utilities;
@@ -14,6 +15,7 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     A class containing different mathematical methods and extensions.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "This are public methods for general use.")]
 public static class VMath
 {
     private const float Epsilon = 128 * float.Epsilon;
@@ -192,7 +194,7 @@ public static class VMath
     /// <param name="value">The value to round.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded value.</returns>
-    private static int RoundedToInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static int RoundedToInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return (int) Math.Round(value, digits: 0, midpointRounding);
     }

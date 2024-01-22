@@ -69,6 +69,17 @@ public class Section : Core.Logic.Section
         if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
     }
 
+    /// <summary>
+    ///     Set that the mesh of the section is incomplete.
+    ///     This should only be called on the main thread.
+    ///     No resource access is needed, as all written variables are only accessed from the main thread.
+    /// </summary>
+    /// <param name="sides">The sides that are missing for the section.</param>
+    public void SetAsIncomplete(BlockSides sides)
+    {
+        missing |= sides;
+    }
+
     private static BlockSides GetRequiredSides(SectionPosition position)
     {
         var required = BlockSides.None;
@@ -128,6 +139,7 @@ public class Section : Core.Logic.Section
 
     /// <summary>
     ///     Set the mesh data for this section. The mesh must be generated from this section.
+    ///     Must be called from the main thread.
     /// </summary>
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(SectionMeshData meshData)

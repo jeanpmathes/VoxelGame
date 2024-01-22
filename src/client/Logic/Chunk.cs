@@ -131,6 +131,18 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <summary>
+    ///     Set a section as incomplete, which means that it was meshed without all required neighbors.
+    ///     Alternatively, it can also indicate that a section was not meshed when affected by a data change.
+    ///     This method does not require any resource access as it should only be called from the main thread.
+    /// </summary>
+    /// <param name="local">The local position of the section.</param>
+    /// <param name="sides">The sides that are missing for the section.</param>
+    public void SetSectionAsIncomplete((int x, int y, int z) local, BlockSides sides)
+    {
+        GetLocalSection(local.x, local.y, local.z).Cast().SetAsIncomplete(sides);
+    }
+
+    /// <summary>
     ///     Start a task that will create mesh data for this chunk.
     /// </summary>
     /// <param name="context">The chunk meshing context.</param>

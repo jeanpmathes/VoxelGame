@@ -230,32 +230,55 @@ public class World : Core.Logic.World
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessChangedSection(Core.Logic.Chunk chunk, Vector3i position)
     {
+        EnqueueMeshingForAllAffectedSections(chunk, position);
+    }
+
+    /// <summary>
+    ///     Find all sections that need to be meshed because of a block change in a section.
+    ///     If the block position is on the edge of a section, the neighbor is also considered to be affected.
+    /// </summary>
+    /// <param name="chunk">The chunk in which the block change happened.</param>
+    /// <param name="position">The position of the block change, in block coordinates.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunk chunk, Vector3i position)
+    {
         sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
 
-        // Check if sections next to changed section have to be changed:
+        CheckAxis(axis: 0);
+        CheckAxis(axis: 1);
+        CheckAxis(axis: 2);
 
-        void CheckNeighbor(Vector3i neighborPosition)
+        void CheckAxis(int axis)
         {
-            Core.Logic.Chunk? neighbor = GetActiveChunk(neighborPosition);
+            int axisSectionPosition = position[axis] & (Core.Logic.Section.Size - 1);
 
-            if (neighbor == null) return;
+            Vector3i direction = new()
+            {
+                [axis] = 1
+            };
 
-            sectionsToMesh.Add((neighbor.Cast(), SectionPosition.From(neighborPosition).Local));
+            if (axisSectionPosition == 0) CheckNeighbor(direction * -1);
+            else if (axisSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(direction);
         }
 
-        int xSectionPosition = position.X & (Core.Logic.Section.Size - 1);
+        void CheckNeighbor(Vector3i direction)
+        {
+            Vector3i neighborPosition = position + direction;
 
-        if (xSectionPosition == 0) CheckNeighbor(position - (1, 0, 0));
-        else if (xSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (1, 0, 0));
+            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunk? neighbor)) return;
 
-        int ySectionPosition = position.Y & (Core.Logic.Section.Size - 1);
+            if (neighbor.IsActive)
+            {
+                sectionsToMesh.Add((neighbor.Cast(), SectionPosition.From(neighborPosition).Local));
+            }
+            else
+            {
+                // We set the section as incomplete.
+                // The next time the neighbor chunk is activated (if it is), the section will be meshed.
 
-        if (ySectionPosition == 0) CheckNeighbor(position - (0, 1, 0));
-        else if (ySectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (0, 1, 0));
-
-        int zSectionPosition = position.Z & (Core.Logic.Section.Size - 1);
-
-        if (zSectionPosition == 0) CheckNeighbor(position - (0, 0, 1));
-        else if (zSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(position + (0, 0, 1));
+                BlockSides missing = direction.ToBlockSide().ToFlag();
+                neighbor.Cast().SetSectionAsIncomplete(SectionPosition.From(neighborPosition).Local, missing);
+            }
+        }
     }
 }
