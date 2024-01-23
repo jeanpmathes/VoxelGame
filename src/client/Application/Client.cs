@@ -104,7 +104,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (logger.BeginScope("RenderFrame"))
         {
-            // Resources.Shaders.SetTime((float) Time); todo: check whether this is still needed
             sceneManager.Render((float) delta);
             screenBehaviour.Draw(delta);
         }
@@ -114,9 +113,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (logger.BeginScope("UpdateFrame"))
         {
-            double deltaTime = MathHelper.Clamp(delta, min: 0f, max: 1f); // todo: check if clamp can be removed, maybe it is already done on C++ side
-
-            sceneManager.Update(deltaTime);
+            sceneManager.Update(delta);
             screenBehaviour.Update(delta);
         }
     }

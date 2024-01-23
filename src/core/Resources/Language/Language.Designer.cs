@@ -528,15 +528,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sample Count (MSAA).
-        /// </summary>
-        public static string GraphicsSampleCount {
-            get {
-                return ResourceManager.GetString("GraphicsSampleCount", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply..
         /// </summary>
         public static string GraphicsSettingsDescription {

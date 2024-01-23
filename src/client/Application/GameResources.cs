@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
 using VoxelGame.UI;
 
@@ -83,7 +84,7 @@ public sealed class GameResources : IDisposable
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
-                    1 << 13); // todo: use constant here and in meshing
+                    Meshing.MaxTextureCount);
             }
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
@@ -92,7 +93,7 @@ public sealed class GameResources : IDisposable
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
-                    1 << 11); // todo: use constant here and in meshing (in meshing the set texture id method should use the maximum of both constants)
+                    Meshing.MaxFluidTextureCount);
             }
         }
 

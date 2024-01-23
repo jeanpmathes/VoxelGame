@@ -477,9 +477,6 @@
     <data name="Graphics" xml:space="preserve">
     <value>Graphics</value>
   </data>
-    <data name="GraphicsSampleCount" xml:space="preserve">
-    <value>Sample Count (MSAA)</value>
-  </data>
     <data name="GraphicsSettingsDescription" xml:space="preserve">
     <value>Set different graphics settings that can affect the quality of the game visuals. Some settings require a restart to apply.</value>
   </data>

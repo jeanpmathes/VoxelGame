@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Entities.Players;
@@ -180,13 +179,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     {
         bool visualized = !block.IsReplaceable;
 
-        [Conditional("DEBUG")]
-        static void IsVisualizedInDebugMode(Block block, ref bool b)
-        {
-            b |= block != Blocks.Instance.Air;
-        }
-
-        IsVisualizedInDebugMode(block, ref visualized);
+        if (Program.IsDebug)
+            visualized |= block != Blocks.Instance.Air;
 
         return visualized ? block.GetCollider(world, position) : null;
     }

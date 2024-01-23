@@ -60,26 +60,6 @@ public sealed class Pipelines : IDisposable
     public ShaderBuffer<RaytracingData> RaytracingDataBuffer => raytracingDataBuffer!;
 
     /// <summary>
-    ///     The basic raytracing material for opaque section parts.
-    /// </summary>
-    public Material BasicOpaqueSectionMaterial { get; private set; } = null!;
-
-    /// <summary>
-    ///     The basic raytracing material for transparent section parts.
-    /// </summary>
-    public Material BasicTransparentSectionMaterial { get; private set; } = null!;
-
-    /// <summary>
-    ///     The raytracing material used for foliage.
-    /// </summary>
-    public Material FoliageSectionMaterial { get; private set; } = null!;
-
-    /// <summary>
-    ///     The raytracing material used for opaque fluids.
-    /// </summary>
-    public Material FluidSectionMaterial { get; private set; } = null!;
-
-    /// <summary>
     ///     Load all pipelines required for the game from a given directory.
     /// </summary>
     /// <param name="directory">The directory containing all necessary shader code.</param>
@@ -216,54 +196,11 @@ public sealed class Pipelines : IDisposable
 
         PipelineBuilder builder = new();
 
-        PipelineBuilder.HitGroup basicOpaqueSectionHitGroup = new("BasicOpaqueSectionClosestHit");
-        PipelineBuilder.HitGroup basicOpaqueShadowHitGroup = new("BasicOpaqueShadowClosestHit");
-
-        PipelineBuilder.HitGroup basicTransparentSectionHitGroup = new("BasicTransparentSectionClosestHit", "BasicTransparentSectionAnyHit");
-        PipelineBuilder.HitGroup basicTransparentShadowHitGroup = new("BasicTransparentShadowClosestHit", "BasicTransparentShadowAnyHit");
-
-        PipelineBuilder.HitGroup foliageSectionHitGroup = new("FoliageSectionClosestHit", "FoliageSectionAnyHit");
-        PipelineBuilder.HitGroup foliageShadowHitGroup = new("FoliageShadowClosestHit", "FoliageShadowAnyHit");
-
-        PipelineBuilder.HitGroup fluidSectionHitGroup = new("FluidSectionClosestHit");
-        PipelineBuilder.HitGroup fluidShadowHitGroup = new("FluidShadowClosestHit");
-
         builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: new[] {"RayGen"});
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
-        builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), new[] {basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), new[] {basicTransparentSectionHitGroup, basicTransparentShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), new[] {foliageSectionHitGroup, foliageShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("Fluid.hlsl"), new[] {fluidSectionHitGroup, fluidShadowHitGroup});
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
 
-        BasicOpaqueSectionMaterial = builder.AddMaterial(
-            nameof(BasicOpaqueSectionMaterial),
-            PipelineBuilder.Groups.Default,
-            isOpaque: true,
-            basicOpaqueSectionHitGroup,
-            basicOpaqueShadowHitGroup);
-
-        BasicTransparentSectionMaterial = builder.AddMaterial(
-            nameof(BasicTransparentSectionMaterial),
-            PipelineBuilder.Groups.Default,
-            isOpaque: false,
-            basicTransparentSectionHitGroup,
-            basicTransparentShadowHitGroup);
-
-        FoliageSectionMaterial = builder.AddMaterial(
-            nameof(FoliageSectionMaterial),
-            PipelineBuilder.Groups.Default,
-            isOpaque: false,
-            foliageSectionHitGroup,
-            foliageShadowHitGroup,
-            visuals.FoliageQuality > Quality.Low ? builder.AddAnimation(directory.GetFile("FoliageAnimation.hlsl")) : null);
-
-        FluidSectionMaterial = builder.AddMaterial(
-            nameof(FluidSectionMaterial),
-            PipelineBuilder.Groups.NoShadow,
-            isOpaque: true, // Despite having transparency, no any-hit shader is used, so it is considered opaque.
-            fluidSectionHitGroup,
-            fluidShadowHitGroup);
+        SectionRenderer.InitializeRequiredResources(directory, visuals, builder);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);

@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
-using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -105,8 +104,6 @@ public class World : Core.Logic.World
 
         IView view = player!.View;
 
-        PassContext context = new(view.ViewMatrix, view.ProjectionMatrix, view.Frustum);
-
         CullActiveChunks();
 
         return;
@@ -118,7 +115,7 @@ public class World : Core.Logic.World
             for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
             {
                 Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-                chunk?.Cast().CullSections(context.Frustum);
+                chunk?.Cast().CullSections(view.Frustum);
             }
         }
     }

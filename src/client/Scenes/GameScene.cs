@@ -183,7 +183,7 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public bool CanCloseWindow()
     {
-        return false; // todo: test if this works
+        return false;
     }
 
     private void RenderUI()

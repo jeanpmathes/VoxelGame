@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
@@ -51,7 +52,23 @@ public static class Meshing
     }
 
     private const int UVShift = 15;
+
+    private const int BitsPerTextureIndex = 13;
+    private const int BitsPerFluidTextureIndex = 11;
+
+    /// <summary>
+    ///     The maximum amount of textures that can be used.
+    /// </summary>
+    public const int MaxTextureCount = 1 << BitsPerTextureIndex;
+
+    /// <summary>
+    ///     The maximum amount of fluid textures that can be used.
+    /// </summary>
+    public const int MaxFluidTextureCount = 1 << BitsPerFluidTextureIndex;
+
     private static readonly uint uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
+
+    private static readonly uint textureIndexMask = BitHelper.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
 
     /// <summary>
     ///     Encode a vector in base 17, assuming all components are in the range [0, 1].
@@ -167,8 +184,7 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetTextureIndex(ref (uint a, uint b, uint c, uint d) data, int index)
     {
-        const int indexMask = (1 << 13) - 1;
-        data.a |= (uint) index & indexMask;
+        data.a |= (uint) index & textureIndexMask;
     }
 
     /// <summary>

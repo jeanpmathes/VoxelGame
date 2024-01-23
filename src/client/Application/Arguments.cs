@@ -8,7 +8,6 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
@@ -63,7 +62,9 @@ public static class Arguments
             Debug.Assert(logDebugOption != null);
 
             LoggingParameters parameters = new(context.ParseResult.GetValueForOption(logDebugOption));
-            ApplyDebugModification(ref parameters);
+
+            if (Program.IsDebug)
+                parameters = new LoggingParameters(LogDebug: true);
 
             return setupLogging(parameters);
         }
@@ -91,13 +92,6 @@ public static class Arguments
         logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
 
         return exitCode;
-    }
-
-    [Conditional("DEBUG")]
-    [SuppressMessage("ReSharper", "RedundantAssignment")]
-    private static void ApplyDebugModification(ref LoggingParameters parameters)
-    {
-        parameters = new LoggingParameters(LogDebug: true);
     }
 }
 

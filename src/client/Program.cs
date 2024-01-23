@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using Properties;
 using VoxelGame.Client.Application;
@@ -17,6 +16,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support;
 using VoxelGame.Support.Core;
 
 [assembly: CLSCompliant(isCompliant: false)]
@@ -52,9 +52,16 @@ internal static class Program
     /// </summary>
     internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
 
+    /// <summary>
+    ///     Get whether the program is running with code that was compiled in debug mode.
+    /// </summary>
+    internal static bool IsDebug { get; private set; }
+
     [STAThread]
     private static int Main(string[] commandLineArguments)
     {
+        SetDebugMode();
+
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
         StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");
@@ -64,8 +71,6 @@ internal static class Program
             logging =>
             {
                 ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
-
-                SetupExceptionHandler(logger);
 
                 if (logging.LogDebug) logger.LogDebug(Events.Meta, "Logging debug messages");
                 else
@@ -81,39 +86,51 @@ internal static class Program
 
                 return logger;
             },
-            (args, logger) =>
-            {
-                GraphicsSettings graphicsSettings = new(Settings.Default);
-
-                WindowSettings windowSettings = new WindowSettings
+            (args, logger) => Run(logger,
+                () =>
                 {
-                    Title = Language.VoxelGame + " " + Version,
-                    Size = graphicsSettings.WindowSize,
-                    RenderScale = graphicsSettings.RenderResolutionScale,
-                    SupportPIX = args.SupportPIX
-                }.Corrected; // todo: icon
+                    GraphicsSettings graphicsSettings = new(Settings.Default);
 
-                logger.LogDebug("Opening window");
+                    WindowSettings windowSettings = new WindowSettings
+                    {
+                        Title = Language.VoxelGame + " " + Version,
+                        Size = graphicsSettings.WindowSize,
+                        RenderScale = graphicsSettings.RenderResolutionScale,
+                        SupportPIX = args.SupportPIX
+                    }.Corrected;
 
-                using Application.Client client = new(windowSettings, graphicsSettings, args);
+                    logger.LogDebug("Opening window");
 
-                return client.Run();
-            });
+                    using Application.Client client = new(windowSettings, graphicsSettings, args);
+
+                    return client.Run();
+                }));
     }
 
-    [Conditional("RELEASE")]
-    private static void SetupExceptionHandler(ILogger logger)
+
+    [Conditional("DEBUG")]
+    private static void SetDebugMode()
     {
-        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
-        {
-            Exception exception = eventArgs.ExceptionObject as Exception ?? new Exception("Unknown exception");
-
-            logger.LogCritical(Events.ApplicationInformation, exception, "Unhandled exception, likely a bug. Terminating: {Exit}", eventArgs.IsTerminating);
-
-            // The runtime will emit a message, to prevent mixing we wait.
-            Thread.Sleep(millisecondsTimeout: 100);
-
-            // todo: error window
-        };
+        IsDebug = true;
     }
+
+    #pragma warning disable S2221 // Goal is to catch any exception that might be unhandled.
+    private static int Run(ILogger logger, Func<int> runnable)
+    {
+        if (IsDebug) return runnable();
+
+        try
+        {
+            return runnable();
+        }
+        catch (Exception exception)
+        {
+            logger.LogCritical(Events.ApplicationInformation, exception, "Unhandled exception, likely a bug");
+
+            Dialog.ShowError($"Unhandled exception: {exception.Message}\n\n{exception.StackTrace}");
+
+            return 1;
+        }
+    }
+    #pragma warning restore S2221
 }

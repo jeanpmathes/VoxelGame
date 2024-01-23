@@ -83,8 +83,10 @@ public sealed class Game : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     /// <inheritdoc />
-    public void Dispose() // todo: go trough all dispose methods and finalizers, ensure that pattern is correct (e.g. here the disposed member is missing)
+    public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
@@ -100,10 +102,13 @@ public sealed class Game : IDisposable
 
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         World.Dispose();
         Player.Dispose();
+
+        disposed = true;
     }
 
     #endregion IDisposable Support

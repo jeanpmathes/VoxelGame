@@ -66,8 +66,8 @@ public sealed class Guard : IDisposable
         WriteLog();
     }
 
-    [Conditional("DEBUG")]
-    private void WriteLog()
+    [Conditional("DEBUG")] // todo: for the new system, don't use the conditional, instead set it up in client project where the bool on Program exists
+    private void WriteLog() // todo: for all leak warnings, find better way instead of logging (use it for all renderers too, should have no impact on release build)
     {
         logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired {Stacktrace}", resource, stackTrace);
     }

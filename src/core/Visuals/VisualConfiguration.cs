@@ -14,5 +14,5 @@ public class VisualConfiguration
     /// <summary>
     ///     The foliage quality.
     /// </summary>
-    public Quality FoliageQuality { get; set; }
+    public Quality FoliageQuality { get; init; }
 }

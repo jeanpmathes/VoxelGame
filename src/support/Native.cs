@@ -38,12 +38,13 @@ public static class Native // todo: make internal, methods too
     ///     Show an error message box.
     /// </summary>
     /// <param name="message">The error message.</param>
-    public static void ShowErrorBox(string message)
+    /// <param name="caption">The caption of the message box.</param>
+    public static void ShowErrorBox(string message, string caption)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
 
-        NativeShowErrorBox(message, "Error");
+        NativeShowErrorBox(message, caption);
     }
 
     /// <summary>

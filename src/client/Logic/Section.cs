@@ -31,8 +31,7 @@ public class Section : Core.Logic.Section
     public Section(SectionPosition position) : base(position)
     {
         renderer = new SectionRenderer(Application.Client.Instance.Space, position.FirstBlock);
-        hasMesh = false;
-        disposed = false;
+        renderer.SetUp();
     }
 
     /// <inheritdoc />
@@ -158,7 +157,7 @@ public class Section : Core.Logic.Section
     {
         Debug.Assert(renderer != null);
 
-        renderer.SetEnabledState(enabled);
+        renderer.IsEnabled = enabled;
     }
 
     private void SetMeshDataInternal(SectionMeshData meshData)
@@ -178,7 +177,11 @@ public class Section : Core.Logic.Section
     {
         if (!disposed)
         {
-            if (disposing) renderer?.Dispose();
+            if (disposing)
+            {
+                renderer?.TearDown();
+                renderer?.Dispose();
+            }
 
             disposed = true;
         }

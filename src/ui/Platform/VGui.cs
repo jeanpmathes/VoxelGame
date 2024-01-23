@@ -23,7 +23,6 @@ internal sealed class VGui : IGwenGui
     private readonly List<Action> inputEvents = new();
     private Canvas canvas = null!;
 
-    private bool disposed;
     private InputTranslator input = null!;
     private DirectXRenderer renderer = null!;
     private SkinBase skin = null!;
@@ -95,31 +94,6 @@ internal sealed class VGui : IGwenGui
         canvas.SetSize(newSize.X, newSize.Y);
     }
 
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (disposed) return;
-
-        if (!disposing) return;
-
-        DetachWindowEvents();
-        canvas.Dispose();
-        skin.Dispose();
-        renderer.Dispose();
-
-        disposed = true;
-    }
-
-    ~VGui()
-    {
-        Dispose(disposing: false);
-    }
-
     private void AttachToWindowEvents()
     {
         Parent.Input.KeyUp += OnKeyUp;
@@ -169,4 +143,35 @@ internal sealed class VGui : IGwenGui
     {
         inputEvents.Add(() => input.ProcessMouseWheel(obj));
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (!disposing) return;
+
+        DetachWindowEvents();
+        canvas.Dispose();
+        skin.Dispose();
+        renderer.Dispose();
+
+        disposed = true;
+    }
+
+    ~VGui()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

@@ -477,9 +477,6 @@
     <data name="Graphics" xml:space="preserve">
     <value>Grafik</value>
   </data>
-    <data name="GraphicsSampleCount" xml:space="preserve">
-    <value>Abtastzahl (MSAA)</value>
-  </data>
     <data name="GraphicsSettingsDescription" xml:space="preserve">
     <value>Wähle verschiedene Grafikeinstellungen, welche Auswirkungen auf die Grafikqualität des Spiels haben. Manche Einstellungen sind erst nach einem Neustart aktiv.</value>
   </data>

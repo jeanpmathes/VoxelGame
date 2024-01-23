@@ -193,7 +193,7 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
         Debugger.Break();
 
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
-        Support.Native.ShowErrorBox($"Fatal error ({hr:X}): {message}");
+        Dialog.ShowError($"Fatal error ({hr:X}): {message}");
 
         var hex = hr.ToString("X", CultureInfo.InvariantCulture);
         logger.LogCritical(exception, "Fatal error ({HR}): {Message}", hex, message);

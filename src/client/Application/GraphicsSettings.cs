@@ -20,6 +20,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     Game settings concerning the game graphics and visuals.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class GraphicsSettings : ISettingsProvider
 {
     private readonly Settings clientSettings;
@@ -31,19 +32,11 @@ public class GraphicsSettings : ISettingsProvider
         this.clientSettings = clientSettings;
 
         settings.Add(
-            Setting.CreateIntegerSetting(
-                this,
-                Language.GraphicsSampleCount,
-                () => SampleCount,
-                i => SampleCount = i,
-                min: 1)); // todo: use this, maybe in ray gen (and adapt description accordingly)
-
-        settings.Add(
             Setting.CreateQualitySetting(
                 this,
                 Language.GraphicsFoliageQuality,
                 () => FoliageQuality,
-                quality => FoliageQuality = quality)); // todo: use this, maybe in the intersect shader
+                quality => FoliageQuality = quality));
 
         settings.Add(
             Setting.CreateSizeSetting(
@@ -61,20 +54,6 @@ public class GraphicsSettings : ISettingsProvider
                 min: 0.1f,
                 max: 5f,
                 percentage: true));
-    }
-
-    /// <summary>
-    ///     Get or set the sample count setting. This is the number of samples used for anti-aliasing.
-    /// </summary>
-    public int SampleCount
-    {
-        get => clientSettings.SampleCount;
-
-        private set
-        {
-            clientSettings.SampleCount = value;
-            clientSettings.Save();
-        }
     }
 
     /// <summary>

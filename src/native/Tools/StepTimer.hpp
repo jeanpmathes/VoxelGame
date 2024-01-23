@@ -103,7 +103,7 @@ public:
         {
             timeDelta = m_qpcMaxDelta;
         }
-
+        
         timeDelta *= TicksPerSecond;
         timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
 

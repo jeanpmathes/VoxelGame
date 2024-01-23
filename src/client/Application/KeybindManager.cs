@@ -94,8 +94,6 @@ internal class KeybindManager : ISettingsProvider
 
     private void InitializeStorage()
     {
-        // todo: check that the keybind saving, resetting etc. still works as intended
-
         foreach (KeyValuePair<Keybind, Button> pair in keybinds)
         {
             string key = PropertyName(pair.Key);
