@@ -20,7 +20,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Stores all loaded textures and provides methods to access them for the Draw2D pipeline.
 /// </summary>
-public class TextureList
+public sealed class TextureList : IDisposable
 {
     private const int NeverDiscard = -1;
     private readonly Dictionary<string, int> availableTextures = new();
@@ -258,4 +258,32 @@ public class TextureList
         /// </summary>
         public bool IsValid => Index != InvalidIndex;
     }
+
+    #region IDisposable Support
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+
+        // Because the sentinel texture is used as the gap value, the iteration will not process it.
+        textures[index: 0].Free();
+        foreach (Texture texture in textures) texture.Free();
+
+        images.Dispose();
+        usage.Dispose();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~TextureList()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

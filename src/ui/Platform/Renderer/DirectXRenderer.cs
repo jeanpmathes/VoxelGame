@@ -5,10 +5,8 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
@@ -26,18 +24,16 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Class for the DirectX-based GUI renderer.
 /// </summary>
-public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease type usage, maybe pull out TextureSupport and move more text stuff to TextSupport
+public sealed class DirectXRenderer : RendererBase
 {
-    private readonly Dictionary<string, string> preloadNameToPath = new();
-
     private readonly RenderPipeline renderPipeline;
 
     private readonly TextStorage textStorage;
     private readonly TextSupport textSupport;
 
-    private TextureList.Handle currentTexture;
+    private readonly TextureSupport textureSupport;
 
-    private bool textureDiscardAllowed;
+    private TextureList.Handle currentTexture;
 
     /// <summary>
     ///     Creates a new instance of <see cref="DirectXRenderer" />.
@@ -51,18 +47,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
             = RenderPipeline.Create(client, this, PreDraw, settings.ShaderFile, settings.ShaderLoadingErrorCallback)
               ?? throw new InvalidOperationException("Failed to create render pipeline.");
 
-        foreach (TexturePreload texturePreload in settings.TexturePreloads)
-        {
-            Exception? exception = renderPipeline.Textures.LoadTexture(texturePreload.File,
-                textureDiscardAllowed,
-                _ =>
-                {
-                    preloadNameToPath.Add(texturePreload.Name, texturePreload.File.FullName);
-                });
-
-            if (exception != null)
-                settings.TexturePreloadErrorCallback(texturePreload, exception);
-        }
+        textureSupport = new TextureSupport(renderPipeline.Textures, settings);
     }
 
     /// <summary>
@@ -76,13 +61,11 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     }
 
     /// <summary>
-    ///     Indicate that the loading phase is finished.
-    ///     Textures that are loaded after this call can be freed, while texture created during loading are kept alive with the
-    ///     client.
+    /// Notifies the renderer that the loading phase is finished.
     /// </summary>
     internal void FinishLoading()
     {
-        textureDiscardAllowed = true;
+        textureSupport.FinishLoading();
     }
 
     /// <inheritdoc />
@@ -128,7 +111,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
             return;
         }
 
-        TextureList.Handle handle = GetRenderData(texture);
+        TextureList.Handle handle = TextureSupport.GetTextureHandle(texture);
         targetRect = Translate(targetRect);
 
         bool differentTexture = currentTexture != handle;
@@ -221,26 +204,7 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     /// <inheritdoc />
     public override void LoadTexture(Texture texture, Action<Exception> errorCallback)
     {
-        TextureList.Handle handle = TextureList.Handle.Invalid;
-
-        if (preloadNameToPath.TryGetValue(texture.Name, out string? path)) handle = renderPipeline.Textures.GetTexture(path);
-
-        if (!handle.IsValid) handle = renderPipeline.Textures.GetTexture(texture.Name);
-
-        if (!handle.IsValid)
-        {
-            Exception? exception = renderPipeline.Textures.LoadTexture(new FileInfo(texture.Name),
-                textureDiscardAllowed,
-                loaded =>
-                {
-                    handle = loaded;
-                });
-
-            if (exception != null) errorCallback(exception);
-        }
-
-        if (handle.IsValid) SetTextureProperties(texture, handle);
-        else SetFailedTextureProperties(texture);
+        textureSupport.LoadTexture(texture, errorCallback);
     }
 
     /// <inheritdoc />
@@ -251,65 +215,29 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
 
         Image image = new(pixels, Image.Format.BGRA, texture.Width, texture.Height);
 
-        LoadTextureDirectly(texture, image);
+        textureSupport.LoadTextureDirectly(texture, image);
     }
 
     /// <summary>
     ///     Load a texture directly from an image.
     /// </summary>
-    /// <param name="t">The texture to load.</param>
+    /// <param name="texture">The texture to load.</param>
     /// <param name="image">The image to load.</param>
-    public void LoadTextureDirectly(Texture t, Image image)
+    public void LoadTextureDirectly(Texture texture, Image image)
     {
-        TextureList.Handle loadedTexture = renderPipeline.Textures.LoadTexture(image, allowDiscard: true);
-        SetTextureProperties(t, loadedTexture);
-    }
-
-    private void SetTextureProperties(Texture texture, TextureList.Handle loadedTexture)
-    {
-        renderPipeline.Textures.DiscardTexture(GetRenderData(texture));
-
-        Support.Objects.Texture? entry = renderPipeline.Textures.GetEntry(loadedTexture);
-
-        Debug.Assert(loadedTexture.IsValid);
-        Debug.Assert(entry != null);
-
-        texture.Width = entry.Width;
-        texture.Height = entry.Height;
-        texture.Failed = false;
-
-        texture.RendererData = loadedTexture;
-    }
-
-    private void SetFailedTextureProperties(Texture texture)
-    {
-        renderPipeline.Textures.DiscardTexture(GetRenderData(texture));
-
-        texture.RendererData = null;
-        texture.Width = 0;
-        texture.Height = 0;
-        texture.Failed = true;
+        textureSupport.LoadTextureDirectly(texture, image);
     }
 
     /// <inheritdoc />
     public override void FreeTexture(Texture texture)
     {
-        renderPipeline.Textures.DiscardTexture(GetRenderData(texture));
-
-        texture.RendererData = null;
-        texture.Width = 0;
-        texture.Height = 0;
-        texture.Failed = false;
+        textureSupport.FreeTexture(texture);
     }
 
     /// <inheritdoc />
     public override Color PixelColor(Texture texture, uint x, uint y, Color defaultColor)
     {
-        if (texture.RendererData == null) return defaultColor;
-
-        TextureList.Handle handle = GetRenderData(texture);
-
-        return renderPipeline.Textures.GetPixel(handle, x, y);
+        return textureSupport.GetTexturePixel(texture, (x, y)) ?? defaultColor;
     }
 
     /// <summary>
@@ -319,16 +247,6 @@ public sealed class DirectXRenderer : RendererBase // todo: refactor to decrease
     public void Resize(Vector2 size)
     {
         renderPipeline.Resize(size);
-    }
-
-    private static TextureList.Handle GetRenderData(Texture texture)
-    {
-        if (texture.RendererData == null) return TextureList.Handle.Invalid;
-
-        var handle = (TextureList.Handle) texture.RendererData;
-        Debug.Assert(handle.IsValid);
-
-        return handle;
     }
 
     #region IDisposable Support

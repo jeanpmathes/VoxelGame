@@ -243,6 +243,8 @@ public sealed class RenderPipeline : IDisposable
     {
         if (!disposing) return;
 
+        Textures.Dispose();
+
         disposable.Dispose();
 
         drawCalls.Dispose();

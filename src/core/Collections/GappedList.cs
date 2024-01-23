@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace VoxelGame.Core.Collections;
 
@@ -13,7 +15,7 @@ namespace VoxelGame.Core.Collections;
 ///     Implements a list that allows gaps when removing items.
 /// </summary>
 /// <typeparam name="T">The type of the items in the list.</typeparam>
-public class GappedList<T> // todo: rename to bag, also rename usage
+public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename usage
 {
     private readonly PriorityQueue<int, int> gaps = new();
 
@@ -37,6 +39,17 @@ public class GappedList<T> // todo: rename to bag, also rename usage
     {
         get => items[index];
         set => items[index] = value;
+    }
+
+    /// <inheritdoc />
+    public IEnumerator<T> GetEnumerator()
+    {
+        return items.Where(item => !Equals(item, gapValue)).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 
     /// <summary>
