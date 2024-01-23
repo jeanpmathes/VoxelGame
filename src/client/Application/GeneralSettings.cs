@@ -45,6 +45,20 @@ public class GeneralSettings : ISettingsProvider
                 max: 0.5f));
 
         settings.Add(
+            Setting.CreateColorSetting(
+                this,
+                Language.SelectionBoxDarkColor,
+                () => DarkSelectionColor,
+                color => DarkSelectionColor = color));
+
+        settings.Add(
+            Setting.CreateColorSetting(
+                this,
+                Language.SelectionBoxBrightColor,
+                () => BrightSelectionColor,
+                color => BrightSelectionColor = color));
+
+        settings.Add(
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.MouseSensitivity,
@@ -72,6 +86,23 @@ public class GeneralSettings : ISettingsProvider
     }
 
     /// <summary>
+    ///     The color of the selection box on bright background.
+    /// </summary>
+    public Color DarkSelectionColor
+    {
+        get => clientSettings.DarkSelectionColor;
+        private set
+        {
+            Color old = DarkSelectionColor;
+
+            clientSettings.DarkSelectionColor = value;
+            clientSettings.Save();
+
+            DarkSelectionColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
+        }
+    }
+
+    /// <summary>
     ///     Get or set the crosshair scale setting.
     /// </summary>
     public float CrosshairScale
@@ -85,6 +116,23 @@ public class GeneralSettings : ISettingsProvider
             clientSettings.Save();
 
             CrosshairScaleChanged.Invoke(this, new SettingChangedArgs<float>(this, old, value));
+        }
+    }
+
+    /// <summary>
+    ///     The color of the selection box on dark background.
+    /// </summary>
+    public Color BrightSelectionColor
+    {
+        get => clientSettings.BrightSelectionColor;
+        private set
+        {
+            Color old = BrightSelectionColor;
+
+            clientSettings.BrightSelectionColor = value;
+            clientSettings.Save();
+
+            BrightSelectionColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
         }
     }
 
@@ -125,6 +173,16 @@ public class GeneralSettings : ISettingsProvider
     ///     Is invoked when the crosshair scale setting has been changed.
     /// </summary>
     public event EventHandler<SettingChangedArgs<float>> CrosshairScaleChanged = delegate {};
+
+    /// <summary>
+    ///     Is invoked when the dark selection color setting has been changed.
+    /// </summary>
+    public event EventHandler<SettingChangedArgs<Color>> DarkSelectionColorChanged = delegate {};
+
+    /// <summary>
+    ///     Is invoked when the bright selection color setting has been changed.
+    /// </summary>
+    public event EventHandler<SettingChangedArgs<Color>> BrightSelectionColorChanged = delegate {};
 
     /// <summary>
     ///     Is invoked when the mouse sensitivity setting has been changed.

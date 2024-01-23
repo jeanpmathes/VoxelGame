@@ -83,7 +83,7 @@ public sealed class Game : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private bool disposed; // todo: add helper in core to throw ObjectDisposedException, use where this variable is used
 
     /// <inheritdoc />
     public void Dispose()

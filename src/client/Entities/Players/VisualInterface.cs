@@ -49,7 +49,9 @@ public sealed class VisualInterface : IDisposable
         foreach (Renderer renderer in renderers) renderer.SetUp();
 
         {
-            // todo: all settings sync should move to pipelines class, and use new Binding<T> utility class (which could be declared directly in Settings, grouping value and delegate, providing IDisposable to unbind
+            // todo: all settings sync should move to pipelines class, and use new Binding<T> utility class
+            // which could be declared directly in Settings, grouping value and delegate, providing IDisposable to unbind,
+            // should be used for all settings not just the crosshair (go trough all settings classes)
 
             crosshairRenderer.SetTexture(resources.Crosshair);
             crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
@@ -57,6 +59,12 @@ public sealed class VisualInterface : IDisposable
 
             Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
             Application.Client.Instance.Settings.CrosshairScaleChanged += UpdateCrosshairScale;
+
+            selectionRenderer.SetDarkColor(Application.Client.Instance.Settings.DarkSelectionColor);
+            selectionRenderer.SetBrightColor(Application.Client.Instance.Settings.BrightSelectionColor);
+
+            Application.Client.Instance.Settings.DarkSelectionColorChanged += UpdateSelectionDarkColor;
+            Application.Client.Instance.Settings.BrightSelectionColorChanged += UpdateSelectionBrightColor;
         }
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
@@ -86,6 +94,16 @@ public sealed class VisualInterface : IDisposable
     private void UpdateCrosshairScale(object? sender, SettingChangedArgs<float> args)
     {
         crosshairRenderer.SetScale(args.NewValue);
+    }
+
+    private void UpdateSelectionDarkColor(object? sender, SettingChangedArgs<Color> args)
+    {
+        selectionRenderer.SetDarkColor(args.NewValue);
+    }
+
+    private void UpdateSelectionBrightColor(object? sender, SettingChangedArgs<Color> args)
+    {
+        selectionRenderer.SetBrightColor(args.NewValue);
     }
 
     /// <summary>
@@ -205,6 +223,9 @@ public sealed class VisualInterface : IDisposable
 
             Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor; // todo: move to the pipelines class (init too), simplify with Binding<T>, do not use static access there as client instance is passed to it
             Application.Client.Instance.Settings.CrosshairScaleChanged -= UpdateCrosshairScale;
+
+            Application.Client.Instance.Settings.DarkSelectionColorChanged -= UpdateSelectionDarkColor;
+            Application.Client.Instance.Settings.BrightSelectionColorChanged -= UpdateSelectionBrightColor;
         }
 
         disposed = true;

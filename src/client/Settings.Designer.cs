@@ -72,18 +72,6 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
-        public int SampleCount {
-            get {
-                return ((int)(this["SampleCount"]));
-            }
-            set {
-                this["SampleCount"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("16")]
         public int MaxMeshingTasks {
             get {
@@ -120,13 +108,37 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public double RenderResolutionScale {
             get {
                 return ((double)(this["RenderResolutionScale"]));
             }
             set {
                 this["RenderResolutionScale"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25, 25, 25")]
+        public global::System.Drawing.Color DarkSelectionColor {
+            get {
+                return ((global::System.Drawing.Color)(this["DarkSelectionColor"]));
+            }
+            set {
+                this["DarkSelectionColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150, 150, 150")]
+        public global::System.Drawing.Color BrightSelectionColor {
+            get {
+                return ((global::System.Drawing.Color)(this["BrightSelectionColor"]));
+            }
+            set {
+                this["BrightSelectionColor"] = value;
             }
         }
     }

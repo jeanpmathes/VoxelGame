@@ -63,7 +63,7 @@ public sealed class TextStorage : IDisposable
             return entry.Renderer.Texture;
         }
 
-        if (cache.TryGet((text, font), out TextRenderer? renderer))
+        if (cache.TryGet((text, font), out TextRenderer? renderer, remove: true))
         {
             Entry newEntry = new(renderer);
             used[(text, font)] = newEntry;

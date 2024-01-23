@@ -82,15 +82,15 @@ public sealed class TextRenderer : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Dispose(manual: true);
+        Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool manual)
+    private void Dispose(bool disposing)
     {
         if (disposed) return;
 
-        if (manual)
+        if (disposing)
         {
             Texture.Dispose();
         }
@@ -103,7 +103,7 @@ public sealed class TextRenderer : IDisposable
     /// </summary>
     ~TextRenderer()
     {
-        Dispose(manual: false);
+        Dispose(disposing: false);
     }
 
     #endregion IDisposable Support

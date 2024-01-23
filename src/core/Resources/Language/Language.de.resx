@@ -600,4 +600,10 @@
     <data name="GraphicsRenderResolutionScale" xml:space="preserve">
       <value>Skalierung der Renderingauflösung</value>
   </data>
+    <data name="SelectionBoxDarkColor" xml:space="preserve">
+        <value>Dunkle Auswahlfarbe</value>
+    </data>
+    <data name="SelectionBoxBrightColor" xml:space="preserve">
+        <value>Helle Auswahlfarbe</value>
+    </data>
 </root>

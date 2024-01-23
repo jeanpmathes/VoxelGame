@@ -48,13 +48,19 @@ public sealed class Cache<TK, TV>
     ///     When this method returns, contains the value associated with the specified key, if the key is found; otherwise, the
     ///     default value for the type of the value parameter.
     /// </param>
+    /// <param name="remove">
+    ///     Whether to remove the entry from the cache.
+    ///     If true, the cache essentially becomes a linked map.
+    /// </param>
     /// <returns>true if the cache contains an element with the specified key; otherwise, false.</returns>
-    public bool TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value)
+    public bool TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value, bool remove = false)
     {
         if (map.TryGetValue(key, out LinkedListNode<Entry>? node))
         {
             list.Remove(node);
-            list.AddLast(node);
+
+            if (remove) map.Remove(key);
+            else list.AddLast(node);
 
             value = node.Value.Value;
 

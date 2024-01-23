@@ -1221,6 +1221,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bright Color of Selection.
+        /// </summary>
+        public static string SelectionBoxBrightColor {
+            get {
+                return ResourceManager.GetString("SelectionBoxBrightColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark Color of Selection.
+        /// </summary>
+        public static string SelectionBoxDarkColor {
+            get {
+                return ResourceManager.GetString("SelectionBoxDarkColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string Settings {

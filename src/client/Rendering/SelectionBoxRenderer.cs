@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -29,15 +30,20 @@ public sealed class SelectionBoxRenderer : Renderer
 
     private readonly Support.Core.Client client;
     private readonly RasterPipeline pipeline;
+    private readonly ShaderBuffer<Data> buffer;
 
     private Effect? effect;
 
     private BoxCollider? currentBox;
 
-    private SelectionBoxRenderer(Support.Core.Client client, RasterPipeline pipeline)
+    private Color darkColor = Color.Black;
+    private Color brightColor = Color.White;
+
+    private SelectionBoxRenderer(Support.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
         this.client = client;
         this.pipeline = pipeline;
+        this.buffer = buffer;
     }
 
     /// <summary>
@@ -61,12 +67,9 @@ public sealed class SelectionBoxRenderer : Renderer
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));
 
-        if (result is not {pipeline: var rasterPipeline, buffer: var buffer}) return null;
-
-        // todo: use setting for both colors, similar to crosshair
-        buffer.Data = new Data((0.1f, 0.1f, 0.1f), (0.6f, 0.6f, 0.6f));
-
-        return new SelectionBoxRenderer(client, rasterPipeline);
+        return result is {pipeline: var rasterPipeline, buffer: var shaderBuffer}
+            ? new SelectionBoxRenderer(client, rasterPipeline, shaderBuffer)
+            : null;
     }
 
     /// <inheritdoc />
@@ -84,6 +87,32 @@ public sealed class SelectionBoxRenderer : Renderer
 
         effect.Return();
         effect = null;
+    }
+
+    /// <summary>
+    ///     Set the color to use o bright background.
+    /// </summary>
+    /// <param name="newColor">The new color.</param>
+    public void SetDarkColor(Color newColor)
+    {
+        darkColor = newColor;
+    }
+
+    /// <summary>
+    ///     Set the color to use on dark background.
+    /// </summary>
+    /// <param name="newColor">The new color.</param>
+    public void SetBrightColor(Color newColor)
+    {
+        brightColor = newColor;
+    }
+
+    /// <inheritdoc />
+    protected override void OnUpdate()
+    {
+        Debug.Assert(effect != null);
+
+        buffer.Data = new Data(darkColor.ToVector3(), brightColor.ToVector3());
     }
 
     /// <summary>

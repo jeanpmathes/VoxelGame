@@ -15,9 +15,6 @@
         <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
             <Value Profile="(Default)">480, 270</Value>
         </Setting>
-        <Setting Name="SampleCount" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">8</Value>
-        </Setting>
         <Setting Name="MaxMeshingTasks" Type="System.Int32" Scope="User">
             <Value Profile="(Default)">16</Value>
         </Setting>
@@ -28,7 +25,13 @@
             <Value Profile="(Default)">Medium</Value>
         </Setting>
         <Setting Name="RenderResolutionScale" Type="System.Double" Scope="User">
-            <Value Profile="(Default)">0.5</Value>
+            <Value Profile="(Default)">1</Value>
+        </Setting>
+        <Setting Name="DarkSelectionColor" Type="System.Drawing.Color" Scope="User">
+            <Value Profile="(Default)">25, 25, 25</Value>
+        </Setting>
+        <Setting Name="BrightSelectionColor" Type="System.Drawing.Color" Scope="User">
+            <Value Profile="(Default)">150, 150, 150</Value>
         </Setting>
     </Settings>
 </SettingsFile>
