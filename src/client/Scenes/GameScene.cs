@@ -164,7 +164,7 @@ public sealed class GameScene : IScene
             {
                 if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
 
-                if (uiToggle.Changed) ui.IsHidden = !ui.IsHidden;
+                if (uiToggle.Changed) ui.ToggleHidden();
             }
 
             if (escapeButton.Pushed) ui.DoEscape();

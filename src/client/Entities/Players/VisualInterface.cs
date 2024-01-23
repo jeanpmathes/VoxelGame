@@ -127,7 +127,7 @@ public sealed class VisualInterface : IDisposable
 
         SetSelectionBox(collider: null);
 
-        // todo: only begin drawing UI now and stop drawing on deactivation
+        ui.SetActive(active: true);
     }
 
     /// <summary>
@@ -135,6 +135,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void Deactivate()
     {
+        ui.SetActive(active: false);
+
         foreach (Renderer renderer in renderers) renderer.IsEnabled = false;
     }
 

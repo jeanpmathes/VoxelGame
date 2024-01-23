@@ -18,12 +18,15 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public class GameUserInterface : UserInterface
 {
-    private IConsoleProvider? consoleProvider;
-
     private GameUI? control;
+
+    private IConsoleProvider? consoleProvider;
     private IPerformanceProvider? performanceProvider;
     private IPlayerDataProvider? playerDataProvider;
     private ICollection<ISettingsProvider>? settingsProviders;
+
+    private bool isActive;
+    private bool isHidden;
 
     /// <summary>
     ///     Creates a new game user interface.
@@ -42,17 +45,34 @@ public class GameUserInterface : UserInterface
     public ConsoleInterface? Console => control?.Console;
 
     /// <summary>
-    ///     Get or set whether the ui is hidden.
+    /// Toggle whether the UI is hidden.
+    /// An active UI will not drawn when hidden.
     /// </summary>
-    public bool IsHidden
+    public void ToggleHidden()
     {
-        get => control?.IsHidden ?? false;
-        set
-        {
-            if (control == null) return;
+        isHidden = !isHidden;
 
-            control.IsHidden = value;
-        }
+        UpdateControlVisibility();
+    }
+
+    /// <summary>
+    /// Set whether the UI is active.
+    /// If the UI is not active, it will not be drawn.
+    /// </summary>
+    /// <param name="active">Whether the UI is active.</param>
+    public void SetActive(bool active)
+    {
+        isActive = active;
+
+        UpdateControlVisibility();
+    }
+
+    private void UpdateControlVisibility()
+    {
+        if (control == null) return;
+
+        bool visible = isActive && !isHidden;
+        control.IsHidden = !visible;
     }
 
     /// <summary>
@@ -87,7 +107,6 @@ public class GameUserInterface : UserInterface
         performanceProvider = newPerformanceProvider;
     }
 
-
     /// <inheritdoc />
     protected override void CreateNewControl()
     {
@@ -97,6 +116,8 @@ public class GameUserInterface : UserInterface
         Debug.Assert(performanceProvider != null);
 
         control = new GameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
+
+        UpdateControlVisibility();
     }
 
     /// <summary>
