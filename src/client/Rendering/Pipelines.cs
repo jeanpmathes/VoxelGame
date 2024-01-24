@@ -28,6 +28,8 @@ public sealed class Pipelines : IDisposable
     private readonly DirectoryInfo directory;
 
     private readonly List<Renderer> renderers = new();
+    private readonly List<IDisposable> bindings = new();
+
     private LoadingContext? loadingContext;
     private bool loaded;
 
@@ -70,7 +72,7 @@ public sealed class Pipelines : IDisposable
     /// <returns>An object representing all loaded pipelines.</returns>
     internal static Pipelines Load(
         DirectoryInfo directory,
-        Support.Core.Client client,
+        Application.Client client,
         (TextureArray, TextureArray) textureSlots,
         VisualConfiguration visuals,
         LoadingContext loadingContext)
@@ -89,7 +91,7 @@ public sealed class Pipelines : IDisposable
         return pipelines;
     }
 
-    private void LoadAll(Support.Core.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
+    private void LoadAll(Application.Client client, (TextureArray, TextureArray) textureSlots, VisualConfiguration visuals)
     {
         loaded = true;
 
@@ -102,21 +104,26 @@ public sealed class Pipelines : IDisposable
         client.SetPostProcessingPipeline(postProcessingPipeline);
     }
 
-    private void LoadBasicRasterPipelines(Support.Core.Client client, (TextureArray, TextureArray) textureSlots)
+    private void LoadBasicRasterPipelines(Application.Client client, (TextureArray, TextureArray) textureSlots)
     {
         if (!loaded) return;
 
         postProcessingPipeline = Require(LoadPipeline(client, "Post", new ShaderPresets.PostProcessing()));
 
         CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
+        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairRenderer.SetColor(args.NewValue)));
+        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairRenderer.SetScale(args.NewValue)));
+
         OverlayRenderer = Require(OverlayRenderer.Create(client, this, textureSlots), renderers);
     }
 
-    private void LoadEffectRasterPipelines(Support.Core.Client client)
+    private void LoadEffectRasterPipelines(Application.Client client)
     {
         if (!loaded) return;
 
         SelectionBoxRenderer = Require(SelectionBoxRenderer.Create(client, this), renderers);
+        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => SelectionBoxRenderer.SetDarkColor(args.NewValue)));
+        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => SelectionBoxRenderer.SetBrightColor(args.NewValue)));
     }
 
     private TConcrete Require<TConcrete>(TConcrete? value) where TConcrete : class
@@ -270,6 +277,7 @@ public sealed class Pipelines : IDisposable
         if (!disposing) return;
 
         foreach (Renderer renderer in renderers) renderer.Dispose();
+        foreach (IDisposable binding in bindings) binding.Dispose();
     }
 
     /// <inheritdoc />

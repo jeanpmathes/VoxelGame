@@ -23,80 +23,70 @@ namespace VoxelGame.Client.Application;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class GraphicsSettings : ISettingsProvider
 {
-    private readonly Settings clientSettings;
-
     private readonly List<Setting> settings = new();
 
     internal GraphicsSettings(Settings clientSettings)
     {
-        this.clientSettings = clientSettings;
+        FoliageQuality = new Bindable<Quality>(
+            () => clientSettings.FoliageQuality,
+            quality =>
+            {
+                clientSettings.FoliageQuality = quality;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateQualitySetting(
                 this,
                 Language.GraphicsFoliageQuality,
-                () => FoliageQuality,
-                quality => FoliageQuality = quality));
+                FoliageQuality.Accessors));
+
+        WindowSize = new Bindable<Vector2i>(
+            () => clientSettings.WindowSize.ToVector2i(),
+            size =>
+            {
+                clientSettings.WindowSize = new Size(size.X, size.Y);
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateSizeSetting(
                 this,
                 Language.GraphicsWindowSize,
-                () => WindowSize,
-                size => WindowSize = size));
+                WindowSize.Accessors));
+
+        RenderResolutionScale = new Bindable<float>(
+            () => (float) clientSettings.RenderResolutionScale,
+            scale =>
+            {
+                clientSettings.RenderResolutionScale = scale;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.GraphicsRenderResolutionScale,
-                () => RenderResolutionScale,
-                scale => RenderResolutionScale = scale,
+                RenderResolutionScale.Accessors,
                 min: 0.1f,
                 max: 5f,
                 percentage: true));
     }
 
     /// <summary>
-    ///     Get or set the foliage quality setting.
+    /// The rendering quality of the foliage.
     /// </summary>
-    public Quality FoliageQuality
-    {
-        get => clientSettings.FoliageQuality;
-
-        private set
-        {
-            clientSettings.FoliageQuality = value;
-            clientSettings.Save();
-        }
-    }
+    public Bindable<Quality> FoliageQuality { get; }
 
     /// <summary>
-    ///     Get or set the window size setting.
+    ///     The initial window size.
     /// </summary>
-    public Vector2i WindowSize
-    {
-        get => clientSettings.WindowSize.ToVector2i();
-
-        private set
-        {
-            clientSettings.WindowSize = new Size(value.X, value.Y);
-            clientSettings.Save();
-        }
-    }
+    public Bindable<Vector2i> WindowSize { get; }
 
     /// <summary>
-    ///     Get or set the render resolution scale setting.
+    ///     The render resolution scale.
     /// </summary>
-    public float RenderResolutionScale
-    {
-        get => (float) clientSettings.RenderResolutionScale;
-
-        private set
-        {
-            clientSettings.RenderResolutionScale = value;
-            clientSettings.Save();
-        }
-    }
+    public Bindable<float> RenderResolutionScale { get; }
 
     /// <summary>
     ///     Get the visual configuration from the settings.

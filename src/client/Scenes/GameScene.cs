@@ -55,7 +55,7 @@ public sealed class GameScene : IScene
 
         ui = new GameUserInterface(
             client.Input,
-            client.Resources.UIResources,
+            client.Resources.UI,
             drawBackground: false);
 
         List<ISettingsProvider> settingsProviders = new()
@@ -85,7 +85,7 @@ public sealed class GameScene : IScene
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
             ui,
-            client.Resources.PlayerResources,
+            client.Resources,
             this);
 
         world.AddPlayer(player);

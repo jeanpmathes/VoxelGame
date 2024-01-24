@@ -70,7 +70,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <param name="resources">The resources used to render the player.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
     public Player(World world, float mass, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui, PlayerResources resources, GameScene scene) : base(world, mass, boundingVolume)
+        GameUserInterface ui, GameResources resources, GameScene scene) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;

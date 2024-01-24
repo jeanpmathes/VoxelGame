@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -24,7 +23,6 @@ namespace VoxelGame.Client.Entities.Players;
 public sealed class VisualInterface : IDisposable
 {
     private readonly SelectionBoxRenderer selectionRenderer;
-    private readonly ScreenElementRenderer crosshairRenderer;
     private readonly OverlayRenderer overlayRenderer;
     private readonly List<Renderer> renderers = new();
 
@@ -40,32 +38,15 @@ public sealed class VisualInterface : IDisposable
     /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
     /// <param name="resources">The resources to use.</param>
-    public VisualInterface(Player player, GameUserInterface ui, PlayerResources resources)
+    public VisualInterface(Player player, GameUserInterface ui, GameResources resources)
     {
-        selectionRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.SelectionBoxRenderer);
-        overlayRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.OverlayRenderer);
-        crosshairRenderer = RegisterRenderer(Application.Client.Instance.Resources.Pipelines.CrosshairRenderer);
+        selectionRenderer = RegisterRenderer(resources.Pipelines.SelectionBoxRenderer);
+        overlayRenderer = RegisterRenderer(resources.Pipelines.OverlayRenderer);
+        ScreenElementRenderer crosshairRenderer = RegisterRenderer(resources.Pipelines.CrosshairRenderer);
+
+        crosshairRenderer.SetTexture(resources.Player.Crosshair);
 
         foreach (Renderer renderer in renderers) renderer.SetUp();
-
-        {
-            // todo: all settings sync should move to pipelines class, and use new Binding<T> utility class
-            // which could be declared directly in Settings, grouping value and delegate, providing IDisposable to unbind,
-            // should be used for all settings not just the crosshair (go trough all settings classes)
-
-            crosshairRenderer.SetTexture(resources.Crosshair);
-            crosshairRenderer.SetColor(Application.Client.Instance.Settings.CrosshairColor);
-            crosshairRenderer.SetScale(Application.Client.Instance.Settings.CrosshairScale);
-
-            Application.Client.Instance.Settings.CrosshairColorChanged += UpdateCrosshairColor;
-            Application.Client.Instance.Settings.CrosshairScaleChanged += UpdateCrosshairScale;
-
-            selectionRenderer.SetDarkColor(Application.Client.Instance.Settings.DarkSelectionColor);
-            selectionRenderer.SetBrightColor(Application.Client.Instance.Settings.BrightSelectionColor);
-
-            Application.Client.Instance.Settings.DarkSelectionColorChanged += UpdateSelectionDarkColor;
-            Application.Client.Instance.Settings.BrightSelectionColorChanged += UpdateSelectionBrightColor;
-        }
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -84,26 +65,6 @@ public sealed class VisualInterface : IDisposable
         renderers.Add(renderer);
 
         return renderer;
-    }
-
-    private void UpdateCrosshairColor(object? sender, SettingChangedArgs<Color> args)
-    {
-        crosshairRenderer.SetColor(args.NewValue);
-    }
-
-    private void UpdateCrosshairScale(object? sender, SettingChangedArgs<float> args)
-    {
-        crosshairRenderer.SetScale(args.NewValue);
-    }
-
-    private void UpdateSelectionDarkColor(object? sender, SettingChangedArgs<Color> args)
-    {
-        selectionRenderer.SetDarkColor(args.NewValue);
-    }
-
-    private void UpdateSelectionBrightColor(object? sender, SettingChangedArgs<Color> args)
-    {
-        selectionRenderer.SetBrightColor(args.NewValue);
     }
 
     /// <summary>
@@ -222,12 +183,6 @@ public sealed class VisualInterface : IDisposable
             foreach (Renderer renderer in renderers) renderer.TearDown();
 
             ui.Dispose();
-
-            Application.Client.Instance.Settings.CrosshairColorChanged -= UpdateCrosshairColor; // todo: move to the pipelines class (init too), simplify with Binding<T>, do not use static access there as client instance is passed to it
-            Application.Client.Instance.Settings.CrosshairScaleChanged -= UpdateCrosshairScale;
-
-            Application.Client.Instance.Settings.DarkSelectionColorChanged -= UpdateSelectionDarkColor;
-            Application.Client.Instance.Settings.BrightSelectionColorChanged -= UpdateSelectionBrightColor;
         }
 
         disposed = true;

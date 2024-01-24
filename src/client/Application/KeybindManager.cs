@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -20,19 +21,21 @@ using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Application;
 
-internal class KeybindManager : ISettingsProvider
+internal sealed class KeybindManager : ISettingsProvider, IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
 
     private readonly Dictionary<Keybind, Button> keybinds = new();
+
     private readonly Dictionary<Keybind, PushButton> pushButtons = new();
-
-    private readonly List<Setting> settings = new();
     private readonly Dictionary<Keybind, SimpleButton> simpleButtons = new();
-
     private readonly Dictionary<Keybind, ToggleButton> toggleButtons = new();
 
     private readonly KeyMap usageMap = new();
+
+    private readonly List<Setting> settings = new();
+
+    private readonly IDisposable binding;
 
     internal KeybindManager(Input input)
     {
@@ -45,7 +48,7 @@ internal class KeybindManager : ISettingsProvider
         InitializeSettings();
 
         LookBind = new LookInput(Input.Mouse, Client.Instance.Settings.MouseSensitivity);
-        Client.Instance.Settings.MouseSensitivityChanged += (_, args) => LookBind.SetSensitivity(args.NewValue);
+        binding = Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
     }
 
     internal Input Input { get; }
@@ -257,4 +260,30 @@ internal class KeybindManager : ISettingsProvider
         VirtualKeys.MiddleButton);
 
     #endregion KEYBINDS
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) binding.Dispose();
+
+        disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~KeybindManager()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

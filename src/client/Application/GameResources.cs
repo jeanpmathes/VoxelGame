@@ -25,12 +25,12 @@ public sealed class GameResources : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
-    private readonly Support.Core.Client client;
+    private readonly Client client;
 
     /// <summary>
     ///     Create the graphics resources.
     /// </summary>
-    public GameResources(Support.Core.Client client)
+    internal GameResources(Client client)
     {
         this.client = client;
     }
@@ -53,12 +53,12 @@ public sealed class GameResources : IDisposable
     /// <summary>
     ///     The player resources.
     /// </summary>
-    public PlayerResources PlayerResources { get; } = new();
+    public PlayerResources Player { get; } = new();
 
     /// <summary>
     ///     The UI resources.
     /// </summary>
-    public UIResources UIResources { get; } = new();
+    public UIResources UI { get; } = new();
 
     /// <summary>
     ///     Load the resources. This requires a valid OpenGL context.
@@ -97,7 +97,7 @@ public sealed class GameResources : IDisposable
             }
         }
 
-        UIResources.Load(client, loadingContext);
+        UI.Load(client, loadingContext);
 
         Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
 
@@ -116,7 +116,7 @@ public sealed class GameResources : IDisposable
 
         Fluids.Load(FluidTextures, loadingContext);
 
-        PlayerResources.Load(client, loadingContext);
+        Player.Load(client, loadingContext);
 
         Generator.Prepare(loadingContext);
 
@@ -131,7 +131,7 @@ public sealed class GameResources : IDisposable
         if (!disposing) return;
 
         Pipelines.Dispose();
-        UIResources.Dispose();
+        UI.Dispose();
     }
 
     /// <inheritdoc />

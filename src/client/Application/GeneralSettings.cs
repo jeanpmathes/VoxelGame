@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -21,140 +20,112 @@ namespace VoxelGame.Client.Application;
 /// </summary>
 public class GeneralSettings : ISettingsProvider
 {
-    private readonly Settings clientSettings;
     private readonly List<Setting> settings = new();
 
     internal GeneralSettings(Settings clientSettings)
     {
-        this.clientSettings = clientSettings;
+        CrosshairColor = new Bindable<Color>(
+            () => clientSettings.CrosshairColor,
+            color =>
+            {
+                clientSettings.CrosshairColor = color;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateColorSetting(
                 this,
                 Language.CrosshairColor,
-                () => CrosshairColor,
-                color => CrosshairColor = color));
+                CrosshairColor.Accessors));
+
+        CrosshairScale = new Bindable<float>(
+            () => (float) clientSettings.CrosshairScale,
+            f =>
+            {
+                clientSettings.CrosshairScale = f;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.CrosshairScale,
-                () => CrosshairScale,
-                f => CrosshairScale = f,
+                CrosshairScale.Accessors,
                 min: 0f,
                 max: 0.5f));
+
+        DarkSelectionColor = new Bindable<Color>(
+            () => clientSettings.DarkSelectionColor,
+            color =>
+            {
+                clientSettings.DarkSelectionColor = color;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateColorSetting(
                 this,
                 Language.SelectionBoxDarkColor,
-                () => DarkSelectionColor,
-                color => DarkSelectionColor = color));
+                DarkSelectionColor.Accessors));
+
+        BrightSelectionColor = new Bindable<Color>(
+            () => clientSettings.BrightSelectionColor,
+            color =>
+            {
+                clientSettings.BrightSelectionColor = color;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateColorSetting(
                 this,
                 Language.SelectionBoxBrightColor,
-                () => BrightSelectionColor,
-                color => BrightSelectionColor = color));
+                BrightSelectionColor.Accessors));
+
+        MouseSensitivity = new Bindable<float>(
+            () => (float) clientSettings.MouseSensitivity,
+            f =>
+            {
+                clientSettings.MouseSensitivity = f;
+                clientSettings.Save();
+            });
 
         settings.Add(
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.MouseSensitivity,
-                () => MouseSensitivity,
-                f => MouseSensitivity = f,
+                MouseSensitivity.Accessors,
                 min: 0f,
                 max: 1f));
     }
 
     /// <summary>
-    ///     Get or set the crosshair color setting.
+    /// The color of the crosshair.
     /// </summary>
-    public Color CrosshairColor
-    {
-        get => clientSettings.CrosshairColor;
-        private set
-        {
-            Color old = CrosshairColor;
-
-            clientSettings.CrosshairColor = value;
-            clientSettings.Save();
-
-            CrosshairColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
-        }
-    }
-
-    /// <summary>
-    ///     The color of the selection box on bright background.
-    /// </summary>
-    public Color DarkSelectionColor
-    {
-        get => clientSettings.DarkSelectionColor;
-        private set
-        {
-            Color old = DarkSelectionColor;
-
-            clientSettings.DarkSelectionColor = value;
-            clientSettings.Save();
-
-            DarkSelectionColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
-        }
-    }
+    public Bindable<Color> CrosshairColor { get; }
 
     /// <summary>
     ///     Get or set the crosshair scale setting.
     /// </summary>
-    public float CrosshairScale
-    {
-        get => (float) clientSettings.CrosshairScale;
-        private set
-        {
-            float old = CrosshairScale;
+    public Bindable<float> CrosshairScale { get; }
 
-            clientSettings.CrosshairScale = value;
-            clientSettings.Save();
-
-            CrosshairScaleChanged.Invoke(this, new SettingChangedArgs<float>(this, old, value));
-        }
-    }
+    /// <summary>
+    ///     The color of the selection box on bright background.
+    /// </summary>
+    public Bindable<Color> DarkSelectionColor { get; }
 
     /// <summary>
     ///     The color of the selection box on dark background.
     /// </summary>
-    public Color BrightSelectionColor
-    {
-        get => clientSettings.BrightSelectionColor;
-        private set
-        {
-            Color old = BrightSelectionColor;
-
-            clientSettings.BrightSelectionColor = value;
-            clientSettings.Save();
-
-            BrightSelectionColorChanged.Invoke(this, new SettingChangedArgs<Color>(this, old, value));
-        }
-    }
+    public Bindable<Color> BrightSelectionColor { get; }
 
     /// <summary>
     ///     Get or set the mouse sensitivity setting.
     /// </summary>
-    public float MouseSensitivity
-    {
-        get => (float) clientSettings.MouseSensitivity;
-        private set
-        {
-            float old = MouseSensitivity;
-
-            clientSettings.MouseSensitivity = value;
-            clientSettings.Save();
-
-            MouseSensitivityChanged.Invoke(this, new SettingChangedArgs<float>(this, old, value));
-        }
-    }
+    public Bindable<float> MouseSensitivity { get; }
 
     /// <inheritdoc />
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
+    [SuppressMessage("Performance", "CA1822:Mark members as static")] // todo: remove these in all settings, use explicit interface implementation
     public string Category => Language.General;
 
     /// <inheritdoc />
@@ -163,29 +134,4 @@ public class GeneralSettings : ISettingsProvider
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
-
-    /// <summary>
-    ///     Is invoked when the crosshair color setting has been changed.
-    /// </summary>
-    public event EventHandler<SettingChangedArgs<Color>> CrosshairColorChanged = delegate {};
-
-    /// <summary>
-    ///     Is invoked when the crosshair scale setting has been changed.
-    /// </summary>
-    public event EventHandler<SettingChangedArgs<float>> CrosshairScaleChanged = delegate {};
-
-    /// <summary>
-    ///     Is invoked when the dark selection color setting has been changed.
-    /// </summary>
-    public event EventHandler<SettingChangedArgs<Color>> DarkSelectionColorChanged = delegate {};
-
-    /// <summary>
-    ///     Is invoked when the bright selection color setting has been changed.
-    /// </summary>
-    public event EventHandler<SettingChangedArgs<Color>> BrightSelectionColorChanged = delegate {};
-
-    /// <summary>
-    ///     Is invoked when the mouse sensitivity setting has been changed.
-    /// </summary>
-    public event EventHandler<SettingChangedArgs<float>> MouseSensitivityChanged = delegate {};
 }

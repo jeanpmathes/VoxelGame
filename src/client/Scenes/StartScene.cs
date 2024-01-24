@@ -57,7 +57,7 @@ public sealed class StartScene : IScene
             client.Input,
             worldProvider,
             settingsProviders,
-            client.Resources.UIResources,
+            client.Resources.UI,
             drawBackground: true);
     }
 
