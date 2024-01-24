@@ -102,6 +102,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint GetContent(int x, int y, int z)
     {
+        Throw.IfDisposed(disposed);
+
         return blocks[(x << SizeExp2) + (y << SizeExp) + z];
     }
 
@@ -113,6 +115,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint GetContent(Vector3i blockPosition)
     {
+        Throw.IfDisposed(disposed);
+
         return GetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1));
     }
 
@@ -126,6 +130,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(int x, int y, int z, uint data)
     {
+        Throw.IfDisposed(disposed);
+
         blocks[(x << SizeExp2) + (y << SizeExp) + z] = data;
     }
 
@@ -137,6 +143,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Vector3i blockPosition, uint value)
     {
+        Throw.IfDisposed(disposed);
+
         SetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1), value);
     }
 
@@ -177,6 +185,8 @@ public abstract class Section : IDisposable
     /// <param name="world">The world this section is in.</param>
     public void SendRandomUpdates(World world)
     {
+        Throw.IfDisposed(disposed);
+
         uint val = GetPos(out Vector3i selectedPosition);
         Decode(val, out Block block, out uint data, out _, out _, out _);
 
@@ -277,6 +287,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BlockInstance GetBlock(Vector3i blockPosition)
     {
+        Throw.IfDisposed(disposed);
+
         uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
         uint data = (val & DataMask) >> DataShift;
@@ -292,6 +304,8 @@ public abstract class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance GetFluid(Vector3i blockPosition)
     {
+        Throw.IfDisposed(disposed);
+
         uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
         var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
@@ -312,6 +326,11 @@ public abstract class Section : IDisposable
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
+
+    /// <summary>
+    ///     Whether the section is disposed.
+    /// </summary>
+    [NonSerialized] protected bool disposed;
 
     /// <summary>
     ///     Dispose of the section.

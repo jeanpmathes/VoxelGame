@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
+using VoxelGame.Core.Utilities;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -57,6 +58,8 @@ public sealed class TextRenderer : IDisposable
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
     public void SetString(string text, Font font, Brush brush, Point point, StringFormat format)
     {
+        Throw.IfDisposed(disposed);
+
         using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
 
         using Graphics graphics = Graphics.FromImage(bitmap);

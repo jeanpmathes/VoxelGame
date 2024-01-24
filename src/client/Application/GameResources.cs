@@ -65,6 +65,8 @@ public sealed class GameResources : IDisposable
     /// </summary>
     public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
     {
+        Throw.IfDisposed(disposed);
+
         BlockModel.EnableLoading(loadingContext);
         StaticStructure.SetLoadingContext(loadingContext);
 
@@ -126,12 +128,17 @@ public sealed class GameResources : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         Pipelines.Dispose();
         UI.Dispose();
+
+        disposed = true;
     }
 
     /// <inheritdoc />

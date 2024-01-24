@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Utilities;
 /// </summary>
 /// <typeparam name="TK">The type of the key.</typeparam>
 /// <typeparam name="TV">The type of the value.</typeparam>
-public sealed class Cache<TK, TV>
+public sealed class Cache<TK, TV> : IDisposable
     where TK : notnull
     where TV : IDisposable
 {
@@ -55,6 +55,8 @@ public sealed class Cache<TK, TV>
     /// <returns>true if the cache contains an element with the specified key; otherwise, false.</returns>
     public bool TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value, bool remove = false)
     {
+        Throw.IfDisposed(disposed);
+
         if (map.TryGetValue(key, out LinkedListNode<Entry>? node))
         {
             list.Remove(node);
@@ -81,6 +83,8 @@ public sealed class Cache<TK, TV>
     /// <param name="value">The value of the element to add.</param>
     public void Add(TK key, TV value)
     {
+        Throw.IfDisposed(disposed);
+
         if (map.TryGetValue(key, out LinkedListNode<Entry>? existing))
         {
             list.Remove(existing);
@@ -106,6 +110,8 @@ public sealed class Cache<TK, TV>
     /// </summary>
     public void Flush()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Entry entry in list) entry.Value.Dispose();
 
         list.Clear();
@@ -113,4 +119,31 @@ public sealed class Cache<TK, TV>
     }
 
     private sealed record Entry(TK Key, TV Value);
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) Flush();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~Cache()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion
 }

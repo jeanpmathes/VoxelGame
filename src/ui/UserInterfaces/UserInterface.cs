@@ -47,6 +47,8 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Load()
     {
+        Throw.IfDisposed(disposed);
+
         Root.ShouldDrawBackground = drawBackground;
 
         Context = new Context(input, resources);
@@ -57,6 +59,8 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void CreateControl()
     {
+        Throw.IfDisposed(disposed);
+
         Root.DeleteAllChildren();
         CreateNewControl();
     }
@@ -71,6 +75,8 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Update()
     {
+        Throw.IfDisposed(disposed);
+
         resources.GUI.Update();
     }
 
@@ -79,6 +85,8 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Render()
     {
+        Throw.IfDisposed(disposed);
+
         resources.GUI.Render();
     }
 
@@ -88,6 +96,8 @@ public abstract class UserInterface : IDisposable
     /// <param name="size">The new size.</param>
     public void Resize(Vector2i size)
     {
+        Throw.IfDisposed(disposed);
+
         SetSize(size);
     }
 

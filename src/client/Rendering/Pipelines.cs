@@ -272,12 +272,17 @@ public sealed class Pipelines : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         foreach (Renderer renderer in renderers) renderer.Dispose();
         foreach (IDisposable binding in bindings) binding.Dispose();
+
+        disposed = true;
     }
 
     /// <inheritdoc />

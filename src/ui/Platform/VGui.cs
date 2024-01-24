@@ -11,6 +11,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Input.Events;
 using VoxelGame.UI.Platform.Input;
@@ -41,6 +42,8 @@ internal sealed class VGui : IGwenGui
 
     public void Load()
     {
+        Throw.IfDisposed(disposed);
+
         GwenPlatform.Init(new VoxelGamePlatform(Parent.Input.Mouse.SetCursorType));
         AttachToWindowEvents();
 
@@ -72,6 +75,8 @@ internal sealed class VGui : IGwenGui
 
     public void Update()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Action inputEvent in inputEvents) inputEvent();
 
         inputEvents.Clear();
@@ -79,6 +84,8 @@ internal sealed class VGui : IGwenGui
 
     public void Render()
     {
+        Throw.IfDisposed(disposed);
+
         canvas.RenderCanvas();
 
         // Helps the UI to recognize that the mouse is over a control if that control was just added:

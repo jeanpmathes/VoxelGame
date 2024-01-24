@@ -43,7 +43,7 @@ public class ApplicationInformation
     /// </summary>
     /// <returns>True if the current thread is the main thread.</returns>
     [Conditional("DEBUG")]
-    public void EnsureMainThread(object @object, [CallerMemberName] string operation = "")
+    public void EnsureMainThread(object @object, [CallerMemberName] string operation = "") // todo: move to Throw class
     {
         if (Thread.CurrentThread == MainThread) return;
 

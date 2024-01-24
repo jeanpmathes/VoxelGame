@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using Gwen.Net;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Graphics;
@@ -67,6 +68,8 @@ public sealed class TextureList : IDisposable
     /// <param name="drawer">The Draw2D pipeline.</param>
     public void UploadIfDirty(Draw2D drawer)
     {
+        Throw.IfDisposed(disposed);
+
         if (!IsDirty) return;
 
         foreach (int index in previousNewTextures) DiscardIfUnused(new Handle(index));
@@ -88,6 +91,8 @@ public sealed class TextureList : IDisposable
     /// <returns>An exception if the load failed, null otherwise.</returns>
     public Exception? LoadTexture(FileInfo path, bool allowDiscard, Action<Handle> callback)
     {
+        Throw.IfDisposed(disposed);
+
         Handle existing = GetTexture(path.FullName);
 
         if (existing.IsValid)
@@ -124,6 +129,8 @@ public sealed class TextureList : IDisposable
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
     public Handle LoadTexture(Image image, bool allowDiscard)
     {
+        Throw.IfDisposed(disposed);
+
         Texture texture = client.LoadTexture(image);
 
         return AddEntry(texture, image, allowDiscard);
@@ -136,6 +143,8 @@ public sealed class TextureList : IDisposable
     /// <param name="handle">The texture handle.</param>
     public void DiscardTexture(Handle handle)
     {
+        Throw.IfDisposed(disposed);
+
         if (!handle.IsValid) return;
         if (usage[handle.Index] == NeverDiscard) return;
 
@@ -211,6 +220,8 @@ public sealed class TextureList : IDisposable
     /// <returns>The texture entry, if found.</returns>
     public Handle GetTexture(string name)
     {
+        Throw.IfDisposed(disposed);
+
         if (!availableTextures.TryGetValue(name, out int index)) return Handle.Invalid;
 
         Handle handle = new(index);
@@ -227,6 +238,8 @@ public sealed class TextureList : IDisposable
     /// <returns>The texture list entry, if the handle is valid.</returns>
     public Texture? GetEntry(Handle handle)
     {
+        Throw.IfDisposed(disposed);
+
         return handle.IsValid ? textures[handle.Index] : null;
     }
 
@@ -235,6 +248,8 @@ public sealed class TextureList : IDisposable
     /// </summary>
     public Color GetPixel(Handle handle, uint x, uint y)
     {
+        Throw.IfDisposed(disposed);
+
         System.Drawing.Color color = images[handle.Index].GetPixel((int) x, (int) y);
 
         return new Color(color.A, color.R, color.G, color.B);
@@ -261,8 +276,11 @@ public sealed class TextureList : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         // Because the sentinel texture is used as the gap value, the iteration will not process it.
@@ -271,6 +289,8 @@ public sealed class TextureList : IDisposable
 
         images.Dispose();
         usage.Dispose();
+
+        disposed = true;
     }
 
     /// <inheritdoc />

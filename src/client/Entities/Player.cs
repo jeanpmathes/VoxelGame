@@ -144,6 +144,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// </summary>
     public void SetOverlayAllowed(bool allowed)
     {
+        Throw.IfDisposed(disposed);
+
         visualInterface.IsOverlayAllowed = allowed;
     }
 
@@ -153,6 +155,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <param name="position">The new position.</param>
     public void Teleport(Vector3d position)
     {
+        Throw.IfDisposed(disposed);
+
         PreviousPosition = Position;
         Position = position;
     }
@@ -163,6 +167,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// </summary>
     public void OnActivate()
     {
+        Throw.IfDisposed(disposed);
+
         visualInterface.Activate();
     }
 
@@ -172,6 +178,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// </summary>
     public void OnDeactivate()
     {
+        Throw.IfDisposed(disposed);
+
         visualInterface.Deactivate();
     }
 
@@ -188,6 +196,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <inheritdoc />
     protected override void OnUpdate(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         movement = Vector3d.Zero;
 
         camera.Position = Position + cameraOffset;
@@ -361,8 +371,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     }
 
     #region IDisposable Support
-
-    private bool disposed;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)

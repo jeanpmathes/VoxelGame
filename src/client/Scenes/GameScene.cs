@@ -14,6 +14,7 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.Providers;
@@ -119,6 +120,8 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void Load()
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(Game != null, "Scene has been unloaded.");
 
         ui.SetPlayerDataProvider(Game.Player);
@@ -135,12 +138,16 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void OnResize(Vector2i size)
     {
+        Throw.IfDisposed(disposed);
+
         ui.Resize(size);
     }
 
     /// <inheritdoc />
     public void Render(float deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         using (logger.BeginScope("GameScene Render"))
         {
             Game.Render();
@@ -151,6 +158,8 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void Update(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         using (logger.BeginScope("GameScene Update"))
         {
             ui.Update();
@@ -176,6 +185,8 @@ public sealed class GameScene : IScene
     /// <inheritdoc />
     public void Unload()
     {
+        Throw.IfDisposed(disposed);
+
         Game.Dispose();
         Game = null!;
     }
@@ -198,12 +209,11 @@ public sealed class GameScene : IScene
 
     private void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing) ui.Dispose();
+        if (disposed) return;
 
-            disposed = true;
-        }
+        if (disposing) ui.Dispose();
+
+        disposed = true;
     }
 
     /// <summary>

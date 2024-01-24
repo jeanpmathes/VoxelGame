@@ -97,12 +97,10 @@ public class GraphicsSettings : ISettingsProvider
     };
 
     /// <inheritdoc />
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public string Category => Language.Graphics;
+    string ISettingsProvider.Category => Language.Graphics;
 
     /// <inheritdoc />
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public string Description => Language.GraphicsSettingsDescription;
+    string ISettingsProvider.Description => Language.GraphicsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;

@@ -42,20 +42,12 @@ public sealed class TextStorage : IDisposable
     public StringFormat StringFormat { get; }
 
     /// <summary>
-    ///     Dispose the cache, disposing all renderers.
-    /// </summary>
-    public void Dispose()
-    {
-        Flush();
-
-        StringFormat.Dispose();
-    }
-
-    /// <summary>
     ///     Get the texture for the given text and font if it exists, otherwise return null.
     /// </summary>
     public Texture? GetTexture(Font font, string text)
     {
+        Throw.IfDisposed(disposed);
+
         if (used.TryGetValue((text, font), out Entry? entry))
         {
             entry.Accessed = true;
@@ -79,6 +71,8 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public Texture GetOrCreateTexture(Font font, string text)
     {
+        Throw.IfDisposed(disposed);
+
         Texture? texture = GetTexture(font, text);
 
         if (texture != null) return texture;
@@ -98,6 +92,8 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Update()
     {
+        Throw.IfDisposed(disposed);
+
         Dictionary<(string, Font), Entry> newStrings = new();
 
         foreach (KeyValuePair<(string, Font), Entry> pair in used)
@@ -119,6 +115,8 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Flush()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Entry entry in used.Values) entry.Renderer.Dispose();
         used.Clear();
 
@@ -136,4 +134,38 @@ public sealed class TextStorage : IDisposable
         public TextRenderer Renderer { get; }
         public bool Accessed { get; set; }
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            Flush();
+
+            StringFormat.Dispose();
+
+            cache.Dispose();
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~TextStorage()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

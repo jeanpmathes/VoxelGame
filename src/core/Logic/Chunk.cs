@@ -177,6 +177,8 @@ public partial class Chunk : IDisposable
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireCore(Access access)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(access != Access.None);
 
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
@@ -201,6 +203,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public bool CanAcquireCore(Access access)
     {
+        Throw.IfDisposed(disposed);
+
         return state.CanStealAccess || coreResource.CanAcquire(access);
     }
 
@@ -209,6 +213,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public bool IsCoreHeldBy(Guard guard, Access access)
     {
+        Throw.IfDisposed(disposed);
+
         return coreResource.IsHeldBy(guard, access);
     }
 
@@ -221,6 +227,8 @@ public partial class Chunk : IDisposable
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? AcquireExtended(Access access)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(access != Access.None);
 
         (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
@@ -245,6 +253,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public bool CanAcquireExtended(Access access)
     {
+        Throw.IfDisposed(disposed);
+
         return state.CanStealAccess || extendedResource.CanAcquire(access);
     }
 
@@ -253,6 +263,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public bool IsExtendedHeldBy(Guard guard, Access access)
     {
+        Throw.IfDisposed(disposed);
+
         return extendedResource.IsHeldBy(guard, access);
     }
 
@@ -261,6 +273,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public void AddRequest()
     {
+        Throw.IfDisposed(disposed);
+
         isRequested = true;
     }
 
@@ -269,6 +283,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public void RemoveRequest()
     {
+        Throw.IfDisposed(disposed);
+
         isRequested = false;
         BeginSaving();
     }
@@ -278,6 +294,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public void Setup(Chunk loaded)
     {
+        Throw.IfDisposed(disposed);
+
         blockTickManager = loaded.blockTickManager;
         fluidTickManager = loaded.fluidTickManager;
 
@@ -372,6 +390,8 @@ public partial class Chunk : IDisposable
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     public void Save(DirectoryInfo path)
     {
+        Throw.IfDisposed(disposed);
+
         blockTickManager.Normalize();
         fluidTickManager.Normalize();
         localUpdateCounter.Reset();
@@ -398,6 +418,8 @@ public partial class Chunk : IDisposable
     /// <returns>A task.</returns>
     public Task SaveAsync(DirectoryInfo path)
     {
+        Throw.IfDisposed(disposed);
+
         return Task.Run(() => Save(path));
     }
 
@@ -407,6 +429,8 @@ public partial class Chunk : IDisposable
     /// <param name="generator">The generator to use.</param>
     public void Generate(IWorldGenerator generator)
     {
+        Throw.IfDisposed(disposed);
+
         logger.LogDebug(
             Events.ChunkOperation,
             "Started generating chunk {Position} using '{Name}' generator",
@@ -468,6 +492,8 @@ public partial class Chunk : IDisposable
     /// <returns>The task.</returns>
     public Task GenerateAsync(IWorldGenerator generator)
     {
+        Throw.IfDisposed(disposed);
+
         return Task.Run(() => Generate(generator));
     }
 
@@ -494,6 +520,8 @@ public partial class Chunk : IDisposable
     /// </summary>
     public void Tick()
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(IsActive);
 
         blockTickManager.Process();
@@ -517,6 +545,8 @@ public partial class Chunk : IDisposable
     /// <returns>The section.</returns>
     public Section GetSection(SectionPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         (int x, int y, int z) = position.Local;
 
         return sections[LocalSectionToIndex(x, y, z)];
@@ -588,6 +618,8 @@ public partial class Chunk : IDisposable
     /// <returns>The next state, if the chunk needs decoration.</returns>
     public ChunkState? ProcessDecorationOption()
     {
+        Throw.IfDisposed(disposed);
+
         if (!CanAcquireCore(Access.Write)) return null;
 
         bool allAvailableChunksAreFullyDecorated = IsFullyDecorated;
@@ -714,6 +746,8 @@ public partial class Chunk : IDisposable
     /// <returns>The task that decorates the chunk.</returns>
     public Task DecorateAsync(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(ReferenceEquals(neighbors.Center, this));
 
         return Task.Run(() => Decorate(generator, neighbors));
@@ -931,20 +965,23 @@ public partial class Chunk : IDisposable
 
     #region IDisposable Support
 
-    [NonSerialized] private bool isDisposed;
+    /// <summary>
+    ///     Whether this chunk is disposed.
+    /// </summary>
+    [NonSerialized] protected bool disposed;
 
     /// <summary>
     ///     Dispose of this chunk.
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {
-        if (isDisposed) return;
+        if (disposed) return;
 
         if (!disposing) return;
 
         foreach (Section section in sections) section.Dispose();
 
-        isDisposed = true;
+        disposed = true;
     }
 
     /// <summary>

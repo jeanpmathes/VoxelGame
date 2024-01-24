@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Logging;
@@ -37,6 +36,10 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     private readonly IDisposable binding;
 
+    /// <summary>
+    ///     Creates a new instance of the <see cref="KeybindManager" /> class.
+    /// </summary>
+    /// <param name="input">The input system.</param>
     internal KeybindManager(Input input)
     {
         Input = input;
@@ -51,8 +54,14 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         binding = Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
     }
 
+    /// <summary>
+    ///     Get the input system used by this manager.
+    /// </summary>
     internal Input Input { get; }
 
+    /// <summary>
+    ///     Get the look input provided by this manager.
+    /// </summary>
     internal LookInput LookBind { get; }
 
     /// <summary>
@@ -60,26 +69,36 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
     /// </summary>
     internal IEnumerable<Keybind> Binds => keybinds.Keys;
 
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public string Category => Language.Keybinds;
+    /// <inheritdoc />
+    string ISettingsProvider.Category => Language.Keybinds;
 
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public string Description => Language.KeybindsSettingsDescription;
+    /// <inheritdoc />
+    string ISettingsProvider.Description => Language.KeybindsSettingsDescription;
 
+    /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
 
+    /// <summary>
+    ///     Bind a button to a keybind.
+    /// </summary>
     internal void Add(Keybind bind, ToggleButton button)
     {
         AddKeybind(bind, button);
         toggleButtons.Add(bind, button);
     }
 
+    /// <summary>
+    ///     Bind a button to a keybind.
+    /// </summary>
     internal void Add(Keybind bind, SimpleButton button)
     {
         AddKeybind(bind, button);
         simpleButtons.Add(bind, button);
     }
 
+    /// <summary>
+    ///     Bind a button to a keybind.
+    /// </summary>
     internal void Add(Keybind bind, PushButton button)
     {
         AddKeybind(bind, button);

@@ -85,6 +85,8 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushRect(Rectangle rect, float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
     {
+        Throw.IfDisposed(disposed);
+
         if (IsClippingEnabled && PerformClip(ref rect, ref u1, ref v1, ref u2, ref v2)) return;
 
         float cR = renderer.DrawColor.R / 255f;
@@ -170,6 +172,8 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushCall(TextureList.Handle texture)
     {
+        Throw.IfDisposed(disposed);
+
         if (currentVertexCount == 0) return;
 
         DrawCall call = ObjectPool<DrawCall>.Shared.Get();
@@ -227,6 +231,8 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void Resize(Vector2 size)
     {
+        Throw.IfDisposed(disposed);
+
         buffer.Data = size;
     }
 
@@ -239,8 +245,11 @@ public sealed class RenderPipeline : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         Textures.Dispose();
@@ -249,6 +258,8 @@ public sealed class RenderPipeline : IDisposable
 
         drawCalls.Dispose();
         vertexBuffer.Dispose();
+
+        disposed = true;
     }
 
     /// <inheritdoc />

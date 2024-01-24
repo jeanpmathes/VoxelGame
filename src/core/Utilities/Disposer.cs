@@ -19,6 +19,8 @@ public sealed class Disposer : IDisposable
 
     private readonly Action dispose;
 
+    private bool disposed;
+
     /// <summary>
     ///     Create a new <see cref="Disposer" />.
     /// </summary>
@@ -37,8 +39,12 @@ public sealed class Disposer : IDisposable
 
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
+
         if (disposing) dispose();
         else logger.LogWarning(Events.LeakedNativeObject, "A disposer was not disposed");
+
+        disposed = true;
     }
 
     /// <summary>

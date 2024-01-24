@@ -10,6 +10,7 @@ using System;
 using System.Diagnostics;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic;
@@ -37,6 +38,8 @@ public class Section : Core.Logic.Section
     /// <inheritdoc />
     public override void Setup(Core.Logic.Section loaded)
     {
+        Throw.IfDisposed(disposed);
+
         blocks = loaded.Cast().blocks;
 
         // Loaded section is not disposed because this section takes ownership of the resources.
@@ -48,6 +51,8 @@ public class Section : Core.Logic.Section
     /// <param name="context">The context to use for mesh creation.</param>
     public void CreateAndSetMesh(ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         BlockSides required = GetRequiredSides(position);
         missing = required & ~context.AvailableSides & BlockSides.All;
 
@@ -61,6 +66,8 @@ public class Section : Core.Logic.Section
     /// <param name="context">The context to use for mesh creation.</param>
     public void RecreateIncompleteMesh(ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         if (missing == BlockSides.None) return;
 
         BlockSides required = GetRequiredSides(position);
@@ -76,6 +83,8 @@ public class Section : Core.Logic.Section
     /// <param name="sides">The sides that are missing for the section.</param>
     public void SetAsIncomplete(BlockSides sides)
     {
+        Throw.IfDisposed(disposed);
+
         missing |= sides;
     }
 
@@ -103,6 +112,8 @@ public class Section : Core.Logic.Section
     /// <returns>The created mesh data.</returns>
     public SectionMeshData CreateMeshData(ChunkMeshingContext chunkContext)
     {
+        Throw.IfDisposed(disposed);
+
         MeshingContext context = new(position, chunkContext);
 
         for (var x = 0; x < Size; x++)
@@ -143,6 +154,8 @@ public class Section : Core.Logic.Section
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(SectionMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         // While the mesh is not necessarily complete,
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
         missing = BlockSides.None;
@@ -155,6 +168,8 @@ public class Section : Core.Logic.Section
     /// </summary>
     public void SetRendererEnabledState(bool enabled)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(renderer != null);
 
         renderer.IsEnabled = enabled;
@@ -162,6 +177,8 @@ public class Section : Core.Logic.Section
 
     private void SetMeshDataInternal(SectionMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(renderer != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
 
@@ -170,21 +187,18 @@ public class Section : Core.Logic.Section
 
     #region IDisposable Support
 
-    [NonSerialized] private bool disposed;
-
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing)
-            {
-                renderer?.TearDown();
-                renderer?.Dispose();
-            }
+        if (disposed) return;
 
-            disposed = true;
+        if (disposing)
+        {
+            renderer?.TearDown();
+            renderer?.Dispose();
         }
+
+        disposed = true;
     }
 
     #endregion IDisposable Support

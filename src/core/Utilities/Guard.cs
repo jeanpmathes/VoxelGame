@@ -42,19 +42,26 @@ public sealed class Guard : IDisposable
     /// <returns>True if the guard is guarding the resource.</returns>
     public bool IsGuarding(object @object)
     {
+        Throw.IfDisposed(disposed);
+
         return resource == @object;
     }
 
     #region IDisposable Support
+
+    private bool disposed;
 
     /// <summary>
     ///     Dispose of this guard.
     /// </summary>
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         release();
+
+        disposed = true;
     }
 
     /// <summary>
@@ -67,7 +74,7 @@ public sealed class Guard : IDisposable
     }
 
     [Conditional("DEBUG")] // todo: for the new system, don't use the conditional, instead set it up in client project where the bool on Program exists
-    private void WriteLog() // todo: for all leak warnings, find better way instead of logging (use it for all renderers too, should have no impact on release build)
+    private void WriteLog() // todo: for all leak warnings, find better way instead of just logging (use it for all renderers and the pooled list and the disposer too - log warning and use debug fail, add utility that can be used at all places)
     {
         logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired {Stacktrace}", resource, stackTrace);
     }

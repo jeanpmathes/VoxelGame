@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using Properties;
 using VoxelGame.Core.Resources.Language;
@@ -125,12 +124,10 @@ public class GeneralSettings : ISettingsProvider
     public Bindable<float> MouseSensitivity { get; }
 
     /// <inheritdoc />
-    [SuppressMessage("Performance", "CA1822:Mark members as static")] // todo: remove these in all settings, use explicit interface implementation
-    public string Category => Language.General;
+    string ISettingsProvider.Category => Language.General;
 
     /// <inheritdoc />
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public string Description => Language.GeneralSettingsDescription;
+    string ISettingsProvider.Description => Language.GeneralSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;

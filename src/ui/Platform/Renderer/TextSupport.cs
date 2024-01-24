@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
+using VoxelGame.Core.Utilities;
 using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = System.Drawing.Point;
@@ -33,18 +34,12 @@ public sealed class TextSupport : IDisposable
     }
 
     /// <summary>
-    ///     Disposes the object.
-    /// </summary>
-    public void Dispose()
-    {
-        graphics.Dispose();
-    }
-
-    /// <summary>
     ///     Converts a value from a given unit to pixels.
     /// </summary>
-    public float ConvertToPixels(float value, GraphicsUnit unit)
+    private float ConvertToPixels(float value, GraphicsUnit unit)
     {
+        Throw.IfDisposed(disposed);
+
         switch (unit)
         {
             case GraphicsUnit.Document:
@@ -75,6 +70,8 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public bool LoadFont(Font font)
     {
+        Throw.IfDisposed(disposed);
+
         font.RealSize = (float) Math.Ceiling(font.Size * renderer.Scale);
 
         if (font.RendererData is System.Drawing.Font sysFont) sysFont.Dispose();
@@ -112,6 +109,8 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public FontMetrics GetFontMetrics(Font font)
     {
+        Throw.IfDisposed(disposed);
+
         if (font.RendererData is not System.Drawing.Font sysFont
             || Math.Abs(font.RealSize - font.Size * renderer.Scale) > 2)
         {
@@ -150,6 +149,8 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureTab(System.Drawing.Font font)
     {
+        Throw.IfDisposed(disposed);
+
         return graphics.MeasureString(
             "....",
             font); //Spaces are not being picked up, let's just use .'s.
@@ -160,6 +161,35 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureString(string text, System.Drawing.Font font, StringFormat format)
     {
+        Throw.IfDisposed(disposed);
+
         return graphics.MeasureString(text, font, Point.Empty, format);
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) graphics.Dispose();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~TextSupport()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

@@ -171,6 +171,8 @@ public sealed class UIResources : IDisposable
     /// </summary>
     public void Load(Client window, LoadingContext loadingContext)
     {
+        Throw.IfDisposed(disposed);
+
         using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
         {
             LoadAttributions(loadingContext);
@@ -192,8 +194,15 @@ public sealed class UIResources : IDisposable
         return (credits, attribution.Name);
     }
 
+    /// <summary>
+    ///     Create the attribution documents.
+    /// </summary>
+    /// <param name="context">The current context.</param>
+    /// <returns>The documents and their names.</returns>
     internal IEnumerable<(Document document, string name)> CreateAttributions(Context context)
     {
+        Throw.IfDisposed(disposed);
+
         return attributions.Select(attribution => CreateAttribution(attribution, context));
     }
 
@@ -211,12 +220,17 @@ public sealed class UIResources : IDisposable
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         Fonts.Dispose();
         GUI.Dispose();
+
+        disposed = true;
     }
 
     /// <inheritdoc />

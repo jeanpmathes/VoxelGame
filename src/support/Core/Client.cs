@@ -263,6 +263,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>The created pipeline, or <c>null</c> if the pipeline could not be created.</returns>
     public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<string> errorCallback)
     {
+        Throw.IfDisposed(disposed);
+
         return Support.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
 
@@ -275,6 +277,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
     public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
     {
+        Throw.IfDisposed(disposed);
+
         return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
@@ -288,6 +292,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// </summary>
     public void SetPostProcessingPipeline(RasterPipeline pipeline)
     {
+        Throw.IfDisposed(disposed);
+
         Support.Native.SetPostProcessingPipeline(this, pipeline);
     }
 
@@ -303,6 +309,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>A disposable object which can be used to remove the pipeline.</returns>
     public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
+        Throw.IfDisposed(disposed);
+
         return Support.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
 
@@ -313,6 +321,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Image image)
     {
+        Throw.IfDisposed(disposed);
+
         return Support.Native.LoadTexture(this, new[] {image});
     }
 
@@ -323,6 +333,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Span<Image> images)
     {
+        Throw.IfDisposed(disposed);
+
         return Support.Native.LoadTexture(this, images);
     }
 
@@ -331,6 +343,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// </summary>
     public void ToggleFullscreen()
     {
+        Throw.IfDisposed(disposed);
+
         Support.Native.ToggleFullscreen(this);
     }
 
@@ -340,6 +354,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <param name="directory">The directory to save the screenshot to.</param>
     public void TakeScreenshot(DirectoryInfo directory)
     {
+        Throw.IfDisposed(disposed);
+
         Support.Native.TakeScreenshot(this,
             (data, width, height) =>
             {
@@ -365,6 +381,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <returns>The exit code of the client.</returns>
     public int Run()
     {
+        Throw.IfDisposed(disposed);
+
         int exit = Support.Native.Run(this);
 
         logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
@@ -378,6 +396,8 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
 
     #region IDisposable Support
 
+    private bool disposed;
+
     private void ReleaseUnmanagedResources()
     {
         Support.Native.Finalize(this);
@@ -389,13 +409,16 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <param name="disposing">Whether the method was called by the user.</param>
     protected virtual void Dispose(bool disposing)
     {
+        if (disposed) return;
+
         if (disposing) logger.LogDebug(Events.ApplicationState, "Disposing client");
 
         ReleaseUnmanagedResources();
 
-        if (!disposing) return;
+        if (disposing)
+            config = new Config();
 
-        config = new Config();
+        disposed = true;
     }
 
     /// <summary>

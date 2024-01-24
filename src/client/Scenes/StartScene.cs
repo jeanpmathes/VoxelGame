@@ -64,6 +64,8 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Load()
     {
+        Throw.IfDisposed(disposed);
+
         client.Input.Mouse.SetCursorLock(locked: false);
 
         ui.Load();
@@ -85,6 +87,8 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void Update(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         if (isFirstUpdate)
         {
             DoFirstUpdate();
@@ -97,18 +101,24 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public void OnResize(Vector2i size)
     {
+        Throw.IfDisposed(disposed);
+
         ui.Resize(size);
     }
 
     /// <inheritdoc />
     public void Render(float deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         ui.Render();
     }
 
     /// <inheritdoc />
     public void Unload()
     {
+        Throw.IfDisposed(disposed);
+
         // Method intentionally left empty.
     }
 
@@ -143,12 +153,11 @@ public sealed class StartScene : IScene
 
     private void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing) ui.Dispose();
+        if (disposed) return;
 
-            disposed = true;
-        }
+        if (disposing) ui.Dispose();
+
+        disposed = true;
     }
 
     /// <summary>

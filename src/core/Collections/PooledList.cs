@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -72,13 +73,15 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     {
         get
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             return items.Length;
         }
         set
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if (value < Count)
                 throw new ArgumentOutOfRangeException(
@@ -112,7 +115,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     {
         get
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
@@ -124,7 +128,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
 
         set
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
@@ -135,33 +140,29 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         }
     }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
     /// <summary>
     ///     Returns an enumerator that iterates through the <see cref="PooledList{T}" />.
     /// </summary>
     public IEnumerator<T> GetEnumerator()
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         for (var i = 0; i < Count; i++) yield return items[i];
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         return GetEnumerator();
     }
 
     private T[] MoveIntoNew(int newSize)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         T[] newItems = arrayPool.Rent(newSize);
 
@@ -181,7 +182,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </param>
     public void Add(T item)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if (Count == items.Length) EnsureCapacity(Count + 1);
 
@@ -198,7 +200,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </param>
     public void AddRange(ICollection<T> collection)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         int count = collection.Count;
 
@@ -221,7 +224,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </param>
     public void AddRange(Span<T> span)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if (span.Length <= 0) return;
 
@@ -242,8 +246,9 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </param>
     public void AddRange(PooledList<T> pooledList)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
-        Debug.Assert(pooledList.items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+        Throw.IfNull(pooledList.items, NoUseAfterReturnMessage);
 
         if (this == pooledList)
             throw new ArgumentException($@"Adding '{this}' to itself not allowed", nameof(pooledList));
@@ -265,7 +270,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </summary>
     public void RemoveAt(int index)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if ((uint) index >= (uint) Count)
             throw new ArgumentOutOfRangeException(
@@ -285,7 +291,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// <param name="min">The minimum amount of elements the <see cref="PooledList{T}" /> should be able to hold.</param>
     public void EnsureCapacity(int min)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if (items.Length >= min) return;
 
@@ -303,7 +310,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </summary>
     public void Clear()
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         Count = 0;
     }
@@ -314,7 +322,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </summary>
     public Span<T> AsSpan()
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         return items.AsSpan(start: 0, Count);
     }
@@ -325,7 +334,8 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </summary>
     private void ReturnToPool()
     {
-        if (items == null) Debug.Fail("The array is already returned to the pool.");
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         arrayPool.Return(items);
         items = null;
@@ -333,9 +343,24 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         Count = 0;
     }
 
+    #region IDisposable Support
+
+    private bool disposed;
+
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
+
         if (disposing) ReturnToPool();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -349,4 +374,6 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
 
         Debug.Fail("The array is not returned to the pool.");
     }
+
+    #endregion IDisposable Support
 }

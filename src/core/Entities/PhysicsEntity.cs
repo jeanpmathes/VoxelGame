@@ -23,7 +23,7 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     The gravitational constant which accelerates all physics entities.
     /// </summary>
-    public const double Gravity = -9.81;
+    private const double Gravity = -9.81;
 
     private const double AirDrag = 0.18;
     private const double FluidDrag = 15.0;
@@ -59,7 +59,7 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Gets the mass of this physics entity.
     /// </summary>
-    public double Mass { get; }
+    private double Mass { get; }
 
     /// <summary>
     ///     Gets or sets the velocity of the physics entity.
@@ -78,17 +78,17 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Get the rotation of the physics entity.
     /// </summary>
-    public Quaterniond Rotation { get; set; }
+    protected Quaterniond Rotation { get; set; }
 
     /// <summary>
     ///     Get whether the physics entity touches the ground.
     /// </summary>
-    public bool IsGrounded { get; private set; }
+    protected bool IsGrounded { get; private set; }
 
     /// <summary>
     ///     Get whether the physics entity is in a fluid.
     /// </summary>
-    public bool IsSwimming { get; private set; }
+    protected bool IsSwimming { get; private set; }
 
     /// <summary>
     ///     Get the forward vector of the physics entity.
@@ -140,6 +140,8 @@ public abstract class PhysicsEntity : IDisposable
         get => doPhysics;
         set
         {
+            Throw.IfDisposed(disposed);
+
             bool oldValue = doPhysics;
             doPhysics = value;
 
@@ -156,8 +158,10 @@ public abstract class PhysicsEntity : IDisposable
     ///     Applies force to this entity.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
-    public void AddForce(Vector3d additionalForce)
+    protected void AddForce(Vector3d additionalForce)
     {
+        Throw.IfDisposed(disposed);
+
         force += additionalForce;
     }
 
@@ -166,8 +170,10 @@ public abstract class PhysicsEntity : IDisposable
     /// </summary>
     /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
     /// <param name="maxForce">The maximum allowed force to use.</param>
-    public void Move(Vector3d movement, Vector3d maxForce)
+    protected void Move(Vector3d movement, Vector3d maxForce)
     {
+        Throw.IfDisposed(disposed);
+
         maxForce = maxForce.Absolute();
 
         Vector3d requiredForce = (movement - Velocity) * Mass;
@@ -181,6 +187,8 @@ public abstract class PhysicsEntity : IDisposable
     /// <param name="deltaTime">The time since the last update.</param>
     public void Tick(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         if (DoPhysics)
         {
             CalculatePhysics(deltaTime);
@@ -289,6 +297,11 @@ public abstract class PhysicsEntity : IDisposable
     protected abstract void Update(double deltaTime);
 
     #region IDisposable Support
+
+    /// <summary>
+    ///     Whether this entity is disposed.
+    /// </summary>
+    protected bool disposed;
 
     /// <summary>
     ///     Disposes this entity.

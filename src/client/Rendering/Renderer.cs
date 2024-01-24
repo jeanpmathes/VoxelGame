@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Rendering;
 
@@ -27,7 +28,7 @@ public abstract class Renderer : IDisposable
     /// </summary>
     public void SetUp()
     {
-        Debug.Assert(!disposed);
+        Throw.IfDisposed(disposed);
 
         Debug.Assert(!IsSetUp);
         IsSetUp = true;
@@ -48,7 +49,7 @@ public abstract class Renderer : IDisposable
     /// </summary>
     public void TearDown()
     {
-        Debug.Assert(!disposed);
+        Throw.IfDisposed(disposed);
 
         Debug.Assert(IsSetUp);
         IsSetUp = false;
@@ -68,7 +69,7 @@ public abstract class Renderer : IDisposable
     /// </summary>
     public void Update()
     {
-        Debug.Assert(!disposed);
+        Throw.IfDisposed(disposed);
 
         if (IsSetUp) OnUpdate();
     }

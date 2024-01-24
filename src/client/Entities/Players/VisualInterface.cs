@@ -12,6 +12,7 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Rendering;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
@@ -73,6 +74,8 @@ public sealed class VisualInterface : IDisposable
     /// <param name="collider">The collider to draw, or null to not draw anything.</param>
     public void SetSelectionBox(BoxCollider? collider)
     {
+        Throw.IfDisposed(disposed);
+
         if (collider != null)
             selectionRenderer.SetBox(collider.Value);
 
@@ -84,6 +87,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void Activate()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Renderer renderer in renderers) renderer.IsEnabled = true;
 
         SetSelectionBox(collider: null);
@@ -96,6 +101,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void Deactivate()
     {
+        Throw.IfDisposed(disposed);
+
         ui.SetActive(active: false);
 
         foreach (Renderer renderer in renderers) renderer.IsEnabled = false;
@@ -107,6 +114,8 @@ public sealed class VisualInterface : IDisposable
     /// <param name="positions">The positions to consider.</param>
     public void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
     {
+        Throw.IfDisposed(disposed);
+
         overlayRenderer.IsEnabled = false;
         var lowerBound = 1.0;
         var upperBound = 0.0;
@@ -129,6 +138,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void UpdateInput()
     {
+        Throw.IfDisposed(disposed);
+
         SelectDebugView();
     }
 
@@ -142,6 +153,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void Update()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Renderer renderer in renderers) renderer.Update();
 
         ui.UpdatePlayerDebugData();
@@ -152,6 +165,8 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public void UpdateData()
     {
+        Throw.IfDisposed(disposed);
+
         ui.UpdatePlayerData();
     }
 

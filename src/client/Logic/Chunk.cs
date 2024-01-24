@@ -55,6 +55,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// </summary>
     public void BeginMeshing()
     {
+        Throw.IfDisposed(disposed);
+
         if (!IsFullyDecorated) return;
 
         State.RequestNextState<Meshing>(new Core.Logic.ChunkState.RequestDescription
@@ -80,6 +82,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(context);
     }
 
@@ -89,6 +93,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
     public Core.Logic.ChunkState? ProcessMeshingOption()
     {
+        Throw.IfDisposed(disposed);
+
         BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
 
         if (sides == BlockSides.None) return null;
@@ -139,6 +145,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="sides">The sides that are missing for the section.</param>
     public void SetSectionAsIncomplete((int x, int y, int z) local, BlockSides sides)
     {
+        Throw.IfDisposed(disposed);
+
         GetLocalSection(local.x, local.y, local.z).Cast().SetAsIncomplete(sides);
     }
 
@@ -149,6 +157,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <returns>The meshing task.</returns>
     public Task<ChunkMeshData> CreateMeshDataAsync(ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         return Task.Run(() => CreateMeshData(context));
     }
 
@@ -174,6 +184,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <returns>True if this step was the final step.</returns>
     public bool DoMeshDataSetStep(ChunkMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         hasMeshData = false;
         meshedSides = meshData.Sides;
 
@@ -202,6 +214,8 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     public void CullSections(Frustum frustum)
     {
+        Throw.IfDisposed(disposed);
+
         Box3d chunkBox = VMath.CreateBox3(Position.Center, Extents);
 
         if (!hasMeshData || !frustum.IsBoxVisible(chunkBox))
