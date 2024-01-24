@@ -8,46 +8,31 @@ import json
 import os
 from json import JSONEncoder
 
-PATH = os.path.expanduser("~\Desktop\\")
+PATH = os.path.expanduser("~\\Desktop\\")
 
-# Options:
-include_normals = True  # Whether to include normals of the model or use zero for all normals
-
-
-# todo: remove normals
-# todo: move UV up to Quad
 
 class Vertex:
-    def __init__(self, co, uv, nm):
-        self.X = round(co.x, 5)
-        self.Y = round(co.z, 5)
-        self.Z = round(co.y, 5)
-        self.U = round(abs(1 - uv.x), 4)
-        self.V = round(uv.y, 4)
-
-        if include_normals:
-            self.N = round(nm.x, 4)
-            self.O = round(nm.z, 4)
-            self.P = round(nm.y, 4)
-        else:
-            self.N = 0.0
-            self.O = 0.0
-            self.P = 0.0
+    def __init__(self, world_coordinates, uv_coordinates):
+        self.X = round(world_coordinates.x, 5)
+        self.Y = round(world_coordinates.z, 5)
+        self.Z = round(world_coordinates.y, 5)
+        self.U = round(abs(1 - uv_coordinates.x), 4)
+        self.V = round(uv_coordinates.y, 4)
 
 
 class Quad:
-    def __init__(self, tex_id, verts):
-        self.TextureId = tex_id
-        self.Vert0 = verts[0]
-        self.Vert1 = verts[1]
-        self.Vert2 = verts[2]
-        self.Vert3 = verts[3]
+    def __init__(self, texture_id, vertices):
+        self.TextureId = texture_id
+        self.Vert0 = vertices[0]
+        self.Vert1 = vertices[1]
+        self.Vert2 = vertices[2]
+        self.Vert3 = vertices[3]
 
 
 class Model:
-    def __init__(self, tex_names, quads):
-        self.TextureNames = tex_names
-        self.Quads = quads
+    def __init__(self, texture_names, all_quads):
+        self.TextureNames = texture_names
+        self.Quads = all_quads
 
 
 class ModelEncoder(JSONEncoder):
@@ -64,7 +49,7 @@ quads = []
 for face in mesh.polygons:
 
     if len(face.vertices) != 4:
-        continue  # todo: error message
+        raise Exception("Only quads are supported!")
 
     mat = obj.material_slots[face.material_index].material
     if mat is not None:
@@ -77,11 +62,11 @@ for face in mesh.polygons:
 
     verts = []
 
-    for vertIndx, loopIndx in zip(face.vertices, face.loop_indices):
-        cord = mesh.vertices[vertIndx].co
-        uv = mesh.uv_layers.active.data[loopIndx].uv
+    for vertex_index, loop_index in zip(face.vertices, face.loop_indices):
+        xyz = mesh.vertices[vertex_index].co
+        uv = mesh.uv_layers.active.data[loop_index].uv
         norm = face.normal
-        verts.append(Vertex(cord, uv, norm))
+        verts.append(Vertex(xyz, uv))
 
     quads.append(Quad(tex_names.index(matName), verts))
 

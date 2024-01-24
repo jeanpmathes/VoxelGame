@@ -234,29 +234,6 @@ public static class BlockMeshes
     }
 
     /// <summary>
-    ///     Create a plane model.
-    /// </summary>
-    /// <returns>The model data.</returns>
-    public static (float[] vertices, uint[] indices) CreatePlaneModel() // todo: remove
-    {
-        float[] vertices =
-        {
-            -0.5f, -0.5f, 0.0f, 0f, 0f,
-            -0.5f, 0.5f, 0.0f, 0f, 1f,
-            0.5f, 0.5f, 0.0f, 1f, 1f,
-            0.5f, -0.5f, 0.0f, 1f, 0f
-        };
-
-        uint[] indices =
-        {
-            0, 2, 1,
-            0, 3, 2
-        };
-
-        return (vertices, indices);
-    }
-
-    /// <summary>
     ///     Get block uvs.
     /// </summary>
     /// <param name="isRotated">Whether the block is rotated.</param>

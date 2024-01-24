@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Visuals;
     "Performance",
     "CA1819:Properties should not return arrays",
     Justification = "This class is meant for data storage.")]
-public sealed class BlockModel // todo: remove everything index-related from this class (rendered no longer uses indices for RT)
+public sealed class BlockModel
 {
     private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
@@ -127,7 +127,7 @@ public sealed class BlockModel // todo: remove everything index-related from thi
 
         var xyz = Matrix4.CreateTranslation(movement.ToVector3());
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyTranslationMatrix(xyz);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     /// <summary>
@@ -146,11 +146,9 @@ public sealed class BlockModel // todo: remove everything index-related from thi
         Matrix4 xyz = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * Matrix4.CreateRotationY(angle) *
                       Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
-        var nop = Matrix4.CreateRotationY(angle);
-
         rotations = rotateTopAndBottomTexture ? 0 : rotations;
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, rotations);
     }
 
     /// <summary>
@@ -294,17 +292,17 @@ public sealed class BlockModel // todo: remove everything index-related from thi
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
-        copy.ApplyMatrix(matrix, rotation);
+        copy.ApplyMatrix(matrix);
         copy.RotateTextureCoordinates(axis, rotations);
 
         return copy;
     }
 
-    private void ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    private void ApplyMatrix(Matrix4 xyz)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     private void RotateTextureCoordinates(Vector3d axis, int rotations)
@@ -367,15 +365,16 @@ public sealed class BlockModel // todo: remove everything index-related from thi
     /// <summary>
     ///     Save this model to a file.
     /// </summary>
-    /// <param name="name">The path to the file.</param>
-    public void Save(string name)
+    /// <param name="directory">The directory to save the file to.</param>
+    /// <param name="name">The name of the file.</param>
+    public void Save(DirectoryInfo directory, string name)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
-        path.GetFile(GetFileName(name)).WriteAllText(json);
+        directory.GetFile(GetFileName(name)).WriteAllText(json);
     }
 
     /// <summary>
@@ -455,20 +454,15 @@ public sealed class BlockModel // todo: remove everything index-related from thi
 
         Quad BuildQuad(BlockSide side)
         {
-            Vector3i normal = side.Direction();
-
-            Vertex BuildVertex(int[] corner, int[] uv)
+            Vertex BuildVertex(IReadOnlyList<int> corner, IReadOnlyList<int> uv)
             {
                 return new Vertex
                 {
-                    X = begin + corner[0] * size,
-                    Y = begin + corner[1] * size,
-                    Z = begin + corner[2] * size,
-                    U = begin + uv[0] * size,
-                    V = begin + uv[1] * size,
-                    N = normal.X,
-                    O = normal.Y,
-                    P = normal.Z
+                    X = begin + corner[index: 0] * size,
+                    Y = begin + corner[index: 1] * size,
+                    Z = begin + corner[index: 2] * size,
+                    U = begin + uv[index: 0] * size,
+                    V = begin + uv[index: 1] * size
                 };
             }
 
@@ -583,32 +577,21 @@ public struct Quad : IEquatable<Quad>
     public Vector3d Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
 
     /// <summary>
-    ///     Apply a matrix only affecting the xyz values.
+    ///     The normal of the quad.
     /// </summary>
-    /// <param name="xyz">The matrix to apply.</param>
-    /// <returns>The new quad.</returns>
-    public Quad ApplyTranslationMatrix(Matrix4 xyz)
-    {
-        Vert0 = Vert0.ApplyTranslationMatrix(xyz);
-        Vert1 = Vert1.ApplyTranslationMatrix(xyz);
-        Vert2 = Vert2.ApplyTranslationMatrix(xyz);
-        Vert3 = Vert3.ApplyTranslationMatrix(xyz);
-
-        return this;
-    }
+    private Vector3d Normal => Vector3d.Cross(Vert1.Position - Vert0.Position, Vert2.Position - Vert0.Position).Normalized();
 
     /// <summary>
     ///     Apply a matrix to this quad.
     /// </summary>
     /// <param name="xyz">The matrix to apply to the position.</param>
-    /// <param name="nop">The matrix to apply to the normals.</param>
     /// <returns>The quad with the matrices applied.</returns>
-    public Quad ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    public Quad ApplyMatrix(Matrix4 xyz)
     {
-        Vert0 = Vert0.ApplyMatrix(xyz, nop);
-        Vert1 = Vert1.ApplyMatrix(xyz, nop);
-        Vert2 = Vert2.ApplyMatrix(xyz, nop);
-        Vert3 = Vert3.ApplyMatrix(xyz, nop);
+        Vert0 = Vert0.ApplyMatrix(xyz);
+        Vert1 = Vert1.ApplyMatrix(xyz);
+        Vert2 = Vert2.ApplyMatrix(xyz);
+        Vert3 = Vert3.ApplyMatrix(xyz);
 
         return this;
     }
@@ -616,16 +599,16 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Apply a rotation matrix to this quad.
     /// </summary>
-    public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
+    public Quad ApplyRotationMatrixY(Matrix4 xyz, int rotations)
     {
-        // Rotate positions and normals.
-        Vert0 = Vert0.ApplyMatrix(xyz, nop);
-        Vert1 = Vert1.ApplyMatrix(xyz, nop);
-        Vert2 = Vert2.ApplyMatrix(xyz, nop);
-        Vert3 = Vert3.ApplyMatrix(xyz, nop);
+        // Rotate positions.
+        Vert0 = Vert0.ApplyMatrix(xyz);
+        Vert1 = Vert1.ApplyMatrix(xyz);
+        Vert2 = Vert2.ApplyMatrix(xyz);
+        Vert3 = Vert3.ApplyMatrix(xyz);
 
         // Rotate UVs for top and bottom sides.
-        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) == Vector3d.UnitY)
+        if (Normal.Absolute().Rounded(digits: 2) == Vector3d.UnitY)
             for (var r = 0; r < rotations; r++)
             {
                 Vert0 = Vert0.RotateUV();
@@ -642,7 +625,7 @@ public struct Quad : IEquatable<Quad>
     /// </summary>
     public Quad RotateTextureCoordinates(Vector3d axis, int rotations)
     {
-        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
+        if (Normal.Absolute().Rounded(digits: 2) != axis) return this;
 
         for (var r = 0; r < rotations; r++)
         {
@@ -722,21 +705,6 @@ public struct Vertex : IEquatable<Vertex>
     public float V { get; set; }
 
     /// <summary>
-    ///     The first normal component.
-    /// </summary>
-    public float N { get; set; }
-
-    /// <summary>
-    ///     The second normal component.
-    /// </summary>
-    public float O { get; set; }
-
-    /// <summary>
-    ///     The third normal component.
-    /// </summary>
-    public float P { get; set; }
-
-    /// <summary>
     ///     The position of the vertex.
     /// </summary>
     public Vector3d Position => new(X, Y, Z);
@@ -747,34 +715,15 @@ public struct Vertex : IEquatable<Vertex>
     public Vector2d UV => new(U, V);
 
     /// <summary>
-    ///     Apply a translation matrix to this vertex.
-    /// </summary>
-    public Vertex ApplyTranslationMatrix(Matrix4 xyz)
-    {
-        Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
-
-        X = position.X;
-        Y = position.Y;
-        Z = position.Z;
-
-        return this;
-    }
-
-    /// <summary>
     ///     Apply a matrix to this vertex.
     /// </summary>
-    public Vertex ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    public Vertex ApplyMatrix(Matrix4 xyz)
     {
         Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
-        Vector4 normal = new Vector4(N, O, P, w: 1f) * nop;
 
         X = position.X;
         Y = position.Y;
         Z = position.Z;
-
-        N = normal.X;
-        O = normal.Y;
-        P = normal.Z;
 
         return this;
     }
@@ -795,7 +744,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <inheritdoc />
     public bool Equals(Vertex other)
     {
-        return (X, Y, Z, U, V, N, O, P) == (other.X, other.Y, other.Z, other.U, other.V, other.N, other.O, other.P);
+        return (X, Y, Z, U, V) == (other.X, other.Y, other.Z, other.U, other.V);
     }
 
     /// <inheritdoc />
@@ -807,7 +756,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Z, U, V, N, O, P);
+        return HashCode.Combine(X, Y, Z, U, V);
     }
 
     /// <summary>
