@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -30,14 +32,14 @@ public class Image
     private const int C3 = 3 * BitsPerByte;
 
     private readonly int[] data;
-    private readonly Format format;
 
     private Image(int[] data, Format format, int width, int height)
     {
         Debug.Assert(data.Length == width * height);
 
         this.data = data;
-        this.format = format;
+
+        StorageFormat = format;
 
         Width = width;
         Height = height;
@@ -74,7 +76,7 @@ public class Image
             Span<int> src = new((int*) content.Scan0, bitmap.Width * bitmap.Height);
             Span<int> dst = data;
 
-            Reformat(dst, BitmapImageFormat, src, this.format, data.Length);
+            Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
 
             bitmap.UnlockBits(content);
         }
@@ -109,10 +111,7 @@ public class Image
     /// <summary>
     ///     Gets the format of the image.
     /// </summary>
-    public Format GetFormat()
-    {
-        return format;
-    }
+    public Format StorageFormat { get; }
 
     /// <summary>
     ///     Loads an image from a file. Can throw IO exceptions.
@@ -142,7 +141,7 @@ public class Image
             Span<int> src = data;
             Span<int> dst = new((int*) content.Scan0, bitmap.Width * bitmap.Height);
 
-            Reformat(dst, BitmapImageFormat, src, format, data.Length);
+            Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
 
             bitmap.UnlockBits(content);
 
@@ -158,7 +157,7 @@ public class Image
     /// <returns>The copy.</returns>
     public Image CreateCopy(Rectangle? area = null, Format? targetFormat = null)
     {
-        Format copyFormat = targetFormat ?? format;
+        Format copyFormat = targetFormat ?? StorageFormat;
 
         Vector2i size = area == null ? Size : area.Value.Size.ToVector2i();
 
@@ -167,7 +166,7 @@ public class Image
         if (area == null)
         {
             copy = new int[data.Length];
-            Reformat(copy, copyFormat, data, format, size.X * size.Y);
+            Reformat(copy, copyFormat, data, StorageFormat, size.X * size.Y);
         }
         else
         {
@@ -178,7 +177,7 @@ public class Image
                 Span<int> src = data.AsSpan().Slice(area.Value.X + (area.Value.Y + y) * Width, size.X);
                 Span<int> dst = copy.AsSpan().Slice(y * size.X);
 
-                Reformat(dst, copyFormat, src, format, size.X);
+                Reformat(dst, copyFormat, src, StorageFormat, size.X);
             }
         }
 
@@ -190,7 +189,9 @@ public class Image
     /// </summary>
     /// <param name="file">The file to save to.</param>
     /// <returns>An exception if saving failed, otherwise null.</returns>
+    #pragma warning disable S3242 // Type carries semantic information.
     public Exception? Save(FileInfo file)
+    #pragma warning restore S3242
     {
         try
         {
@@ -200,7 +201,7 @@ public class Image
 
             return null;
         }
-        catch (Exception e)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ExternalException)
         {
             return e;
         }
@@ -234,7 +235,7 @@ public class Image
     /// <param name="color">The color to set.</param>
     public void SetPixel(int x, int y, Color color)
     {
-        this[x, y] = Reformat(color.ToArgb(), BitmapImageFormat, format);
+        this[x, y] = Reformat(color.ToArgb(), BitmapImageFormat, StorageFormat);
     }
 
     /// <summary>
@@ -245,7 +246,7 @@ public class Image
     /// <returns>The color of the pixel.</returns>
     public Color GetPixel(int x, int y)
     {
-        return Color.FromArgb(Reformat(this[x, y], format, BitmapImageFormat));
+        return Color.FromArgb(Reformat(this[x, y], StorageFormat, BitmapImageFormat));
     }
 
     /// <summary>
@@ -255,7 +256,7 @@ public class Image
     /// <returns>The data, in the given format.</returns>
     public int[] GetData(Format dataFormat)
     {
-        return format == dataFormat ? data : CreateCopy(targetFormat: format).data;
+        return StorageFormat == dataFormat ? data : CreateCopy(targetFormat: StorageFormat).data;
     }
 
     private static Rectangle GetFull(System.Drawing.Image image)
@@ -287,6 +288,24 @@ public class Image
     }
 
     /// <summary>
+    ///     Generate the mipmaps for this image.
+    /// </summary>
+    /// <param name="levels">The number of levels the texture uses. Includes the base level.</param>
+    /// <param name="algorithm">The algorithm to use.</param>
+    /// <returns>The mipmaps, without the base level.</returns>
+    public IEnumerable<Image> GenerateMipmaps(int levels, MipmapAlgorithm algorithm)
+    {
+        Image current = this;
+
+        for (var level = 1; level < levels; level++)
+        {
+            current = algorithm.CreateNextLevel(current);
+
+            yield return current;
+        }
+    }
+
+    /// <summary>
     ///     Defines a color format based on the order of the channels.
     ///     These formats apply for colors using 32 bits per pixel, where each channel is 8 bits.
     /// </summary>
@@ -301,5 +320,110 @@ public class Image
         ///     The format where the channels are in the order B, G, R, A.
         /// </summary>
         public static readonly Format BGRA = new(C2, C1, C0, C3);
+    }
+
+    /// <summary>
+    ///     Defines the algorithm used to generate mipmaps.
+    /// </summary>
+    public abstract class MipmapAlgorithm
+    {
+        /// <summary>
+        ///     Averages all colors that are merged, except for transparent colors.
+        /// </summary>
+        public static MipmapAlgorithm AveragingWithoutTransparency { get; } = new AveragingAlgorithm(transparency: false);
+
+        /// <summary>
+        ///     Averages all colors that are merged, including transparent colors.
+        /// </summary>
+        public static MipmapAlgorithm AveragingWithTransparency { get; } = new AveragingAlgorithm(transparency: true);
+
+        /// <summary>
+        ///     Create the next level of the mipmap.
+        /// </summary>
+        /// <param name="input">The input image.</param>
+        /// <returns>The next level. Must have half the size of the input.</returns>
+        public abstract Image CreateNextLevel(Image input);
+
+        private sealed class AveragingAlgorithm : MipmapAlgorithm
+        {
+            private readonly bool transparency;
+
+            public AveragingAlgorithm(bool transparency)
+            {
+                this.transparency = transparency;
+            }
+
+            private ((int, int, int, int) factors, int alpha) DetermineFactorsAndAlpha(
+                Color c1, Color c2, Color c3, Color c4)
+            {
+                (int, int, int, int) factors;
+                int alpha;
+
+                if (transparency)
+                {
+                    factors = (1, 1, 1, 1);
+                    alpha = CalculateAveragedColorChannel(c1.A, c2.A, c3.A, c4.A, factors);
+                }
+                else
+                {
+                    alpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
+
+                    if (alpha == 0)
+                    {
+                        factors = (1, 1, 1, 1);
+                    }
+                    else
+                    {
+                        int f1 = c1.HasOpaqueness().ToInt();
+                        int f2 = c2.HasOpaqueness().ToInt();
+                        int f3 = c3.HasOpaqueness().ToInt();
+                        int f4 = c4.HasOpaqueness().ToInt();
+
+                        factors = (f1, f2, f3, f4);
+                    }
+                }
+
+                return (factors, alpha);
+            }
+
+            public override Image CreateNextLevel(Image input)
+            {
+                Image output = new(input.Width / 2, input.Height / 2);
+
+                for (var w = 0; w < output.Width; w++)
+                for (var h = 0; h < output.Height; h++)
+                {
+                    Color c1 = input.GetPixel(w * 2, h * 2);
+                    Color c2 = input.GetPixel(w * 2 + 1, h * 2);
+                    Color c3 = input.GetPixel(w * 2, h * 2 + 1);
+                    Color c4 = input.GetPixel(w * 2 + 1, h * 2 + 1);
+
+                    ((int, int, int, int) factors, int alpha) = DetermineFactorsAndAlpha(c1, c2, c3, c4);
+
+                    Color average = Color.FromArgb(
+                        alpha,
+                        CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
+                        CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
+                        CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
+
+                    output.SetPixel(w, h, average);
+                }
+
+                return output;
+            }
+
+            private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, (int, int, int, int) factors)
+            {
+                (int f1, int f2, int f3, int f4) = factors;
+                double divisor = f1 + f2 + f3 + f4;
+
+                int s1 = c1 * c1 * f1;
+                int s2 = c2 * c2 * f2;
+                int s3 = c3 * c3 * f3;
+                int s4 = c4 * c4 * f4;
+
+                return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
+            }
+        }
     }
 }

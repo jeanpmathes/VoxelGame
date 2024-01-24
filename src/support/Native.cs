@@ -591,7 +591,7 @@ public static class Native // todo: make internal, methods too
 
         Debug.Assert(texture.Length > 0);
 
-        Image.Format format = texture[index: 0].GetFormat();
+        Image.Format format = texture[index: 0].StorageFormat;
 
         TextureDescription description = new()
         {

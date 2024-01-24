@@ -86,7 +86,8 @@ public sealed class GameResources : IDisposable
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
-                    Meshing.MaxTextureCount);
+                    Meshing.MaxTextureCount,
+                    Image.MipmapAlgorithm.AveragingWithoutTransparency);
             }
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
@@ -95,7 +96,8 @@ public sealed class GameResources : IDisposable
                     loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
-                    Meshing.MaxFluidTextureCount);
+                    Meshing.MaxFluidTextureCount,
+                    Image.MipmapAlgorithm.AveragingWithTransparency);
             }
         }
 

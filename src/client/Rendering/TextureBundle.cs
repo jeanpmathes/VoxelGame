@@ -77,9 +77,12 @@ public sealed class TextureBundle : ITextureIndexProvider
     /// <param name="client">The client that will own the texture.</param>
     /// <param name="loadingContext">The context in which loading is performed.</param>
     /// <param name="textureDirectory">The directory to load textures from.</param>
-    /// <param name="resolution">The resolution of the textures. Textures that do not fit are excluded.</param>
+    /// <param name="resolution">The resolution, i.e. both the width and height, of the textures. Textures that do not fit are excluded.</param>
     /// <param name="maxTextures">The maximum number of textures to load.</param>
-    public static TextureBundle Load(Support.Core.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory, int resolution, int maxTextures)
+    /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
+    public static TextureBundle Load(
+        Support.Core.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory,
+        int resolution, int maxTextures, Image.MipmapAlgorithm mipmap)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
@@ -102,7 +105,7 @@ public sealed class TextureBundle : ITextureIndexProvider
         extraTextures.Add(fallback);
 
         // Load all textures, preprocess them and add them to the list.
-        LoadingResult result = LoadImages(resolution, texturePaths, extraTextures);
+        LoadingResult result = LoadImages(resolution, texturePaths, extraTextures, mipmap);
         Span<Image> textures = CollectionsMarshal.AsSpan(result.Images);
 
         // Check if the arrays could hold all textures.
@@ -187,10 +190,14 @@ public sealed class TextureBundle : ITextureIndexProvider
     ///     Loads all images specified by the paths into a. The bitmaps are split into smaller parts that are all sized
     ///     according to the resolution.
     /// </summary>
+    /// <param name="resolution">The resolution of the textures. Both width and height should have this value.</param>
+    /// <param name="paths">The paths to the images.</param>
+    /// <param name="extraTextures">The textures to add to the list.</param>
+    /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private static LoadingResult LoadImages(int resolution, IEnumerable<FileInfo> paths, List<Image> extraTextures)
+    private static LoadingResult LoadImages(int resolution, IEnumerable<FileInfo> paths, List<Image> extraTextures, Image.MipmapAlgorithm mipmap)
     {
         Dictionary<string, int> indices = new();
         var count = 0;
@@ -206,8 +213,7 @@ public sealed class TextureBundle : ITextureIndexProvider
 
             PreprocessImage(images[^1]);
 
-            IEnumerable<Image> mipmap = GenerateMipmap(images[^1], mips);
-            images.AddRange(mipmap);
+            images.AddRange(images[^1].GenerateMipmaps(mips, mipmap));
         }
 
         foreach (Image texture in extraTextures) AddTexture(texture);
@@ -242,73 +248,6 @@ public sealed class TextureBundle : ITextureIndexProvider
             }
 
         return new LoadingResult(indices, images, count, mips);
-    }
-
-    private static IEnumerable<Image> GenerateMipmap(Image baseLevel, int levels)
-    {
-        Image upperLevel = baseLevel;
-        List<Image> mipmap = new();
-
-        for (var lod = 1; lod < levels; lod++)
-        {
-            Image lowerLevel = new(upperLevel.Width / 2, upperLevel.Height / 2);
-
-            // Create the lower level by averaging the upper level
-            // todo: allow selecting which mipmap generation algorithm to use, and add a transparency mixing one (essentially default OpenGL behaviour)
-            CreateLowerLevelWithoutTransparencyMixing(ref upperLevel, ref lowerLevel);
-
-            mipmap.Add(lowerLevel);
-            upperLevel = lowerLevel;
-        }
-
-        return mipmap;
-    }
-
-    private static void CreateLowerLevelWithoutTransparencyMixing(ref Image upperLevel, ref Image lowerLevel)
-    {
-        for (var w = 0; w < lowerLevel.Width; w++)
-        for (var h = 0; h < lowerLevel.Height; h++)
-        {
-            Color c1 = upperLevel.GetPixel(w * 2, h * 2);
-            Color c2 = upperLevel.GetPixel(w * 2 + 1, h * 2);
-            Color c3 = upperLevel.GetPixel(w * 2, h * 2 + 1);
-            Color c4 = upperLevel.GetPixel(w * 2 + 1, h * 2 + 1);
-
-            int minAlpha = Math.Min(Math.Min(c1.A, c2.A), Math.Min(c3.A, c4.A));
-            int maxAlpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
-
-            int one = c1.HasOpaqueness().ToInt();
-            int two = c2.HasOpaqueness().ToInt();
-            int three = c3.HasOpaqueness().ToInt();
-            int four = c4.HasOpaqueness().ToInt();
-
-            int relevantPixelCount = minAlpha != 0 ? 4 : one + two + three + four;
-            (int, int, int, int) factors = (one, two, three, four);
-
-            int alpha = relevantPixelCount == 0 ? 0 : maxAlpha;
-            factors = relevantPixelCount == 0 ? (1, 1, 1, 1) : factors;
-
-            Color average = Color.FromArgb(
-                alpha,
-                CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
-                CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
-                CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
-
-            lowerLevel.SetPixel(w, h, average);
-        }
-    }
-
-    private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, (int, int, int, int) factors)
-    {
-        (int f1, int f2, int f3, int f4) = factors;
-        double divisor = f1 + f2 + f3 + f4;
-
-        int s1 = c1 * c1 * f1;
-        int s2 = c2 * c2 * f2;
-        int s3 = c3 * c3 * f3;
-        int s4 = c4 * c4 * f4;
-
-        return (int) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
     }
 
     private sealed record LoadingResult(Dictionary<string, int> Indices, List<Image> Images, int Count, int Mips);
