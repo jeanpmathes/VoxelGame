@@ -25,15 +25,15 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
 
         if (children.Length == 0)
         {
-            childBounds = new Box3d(Vector3d.Zero, Vector3d.Zero);
+            childBounds = new Box3d(Vector3d.PositiveInfinity, Vector3d.NegativeInfinity);
         }
         else
         {
-            childBounds = children[0].childBounds;
+            childBounds = children[0].GetChildBoundsOrBounds();
 
             for (var i = 1; i < children.Length; i++)
             {
-                Box3d currentChild = children[i].childBounds;
+                Box3d currentChild = children[i].GetChildBoundsOrBounds();
                 childBounds = childBounds.Inflated(currentChild.Min).Inflated(currentChild.Max);
             }
         }
@@ -87,6 +87,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
 
     /// <summary>
     ///     Get the box that contains all child boxes.
+    ///     Should not be used if there are no children.
     /// </summary>
     private Box3d ChildBounds => childBounds;
 
@@ -134,6 +135,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return true;
     }
 
+    /// <summary>
+    ///     Gets the child bounds of this bounding volume, or the bounds of this bounding volume if it has no children.
+    /// </summary>
+    private Box3d GetChildBoundsOrBounds()
+    {
+        return ChildCount == 0 ? Box : ChildBounds;
+    }
+
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
@@ -174,7 +183,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (Box.Contains(point, boundaryInclusive: true))
             return true;
 
-        if (ChildCount == 0 || !ChildBounds.Contains(point, boundaryInclusive: true)) return false;
+        if (ChildCount == 0) return false;
+        if (!ChildBounds.Contains(point, boundaryInclusive: true)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Contains(point))
@@ -210,7 +220,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (Collision.IsIntersecting(Box, other))
             return true;
 
-        if (ChildCount == 0 || !Collision.IsIntersecting(childBounds, other)) return false;
+        if (ChildCount == 0) return false;
+        if (!Collision.IsIntersecting(ChildBounds, other)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other))
@@ -232,7 +243,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         bool dy = y;
         bool dz = z;
 
-        if (ChildCount == 0 || !Collision.IsIntersecting(Box, other, ref dx, ref dy, ref dz)) return false;
+        if (ChildCount == 0) return false;
+        if (!Collision.IsIntersecting(ChildBounds, other, ref dx, ref dy, ref dz)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other, ref x, ref y, ref z))
@@ -249,7 +261,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (Collision.IsIntersecting(Box, ray))
             return true;
 
-        if (ChildCount == 0 || !Collision.IsIntersecting(childBounds, ray)) return false;
+        if (ChildCount == 0) return false;
+        if (!Collision.IsIntersecting(ChildBounds, ray)) return false;
 
         for (var i = 0; i < ChildCount; i++)
             if (children[i].Intersects(ray))

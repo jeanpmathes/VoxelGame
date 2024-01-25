@@ -224,6 +224,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             isFirstUpdate = false;
         }
 
+        // Update the selection after all interaction, as that might change the bounding box of the block.
+        UpdateSelection();
+
         visualInterface.Update();
         input.Update(deltaTime);
     }
@@ -255,8 +258,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             targetSide = hitSide;
 
             (targetBlock, targetFluid) = (block, fluid);
-
-            visualInterface.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, hitPosition));
         }
         else
         {
@@ -264,9 +265,13 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             targetSide = BlockSide.All;
 
             (targetBlock, targetFluid) = (null, null);
-
-            visualInterface.SetSelectionBox(collider: null);
         }
+    }
+
+    private void UpdateSelection()
+    {
+        if (targetPosition is {} position && targetBlock is {} block) visualInterface.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, position));
+        else visualInterface.SetSelectionBox(collider: null);
     }
 
     private void HandleMovementInput(double deltaTime)
