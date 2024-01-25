@@ -43,6 +43,11 @@ namespace decode
         return (data[1] >> 1) & BITMASK(1);
     }
 
+    bool GetUnshadedFlag(const uint4 data)
+    {
+        return (data[1] >> 2) & BITMASK(1);
+    }
+
     float4 DecodeFromBase17(const uint value)
     {
         uint x = value % 17;

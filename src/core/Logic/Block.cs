@@ -41,6 +41,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         IsTrigger = flags.IsTrigger;
         IsReplaceable = flags.IsReplaceable;
         IsInteractable = flags.IsInteractable;
+        IsUnshaded = flags.IsUnshaded;
 
         this.boundingVolume = boundingVolume;
 
@@ -76,6 +77,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
     /// <inheritdoc />
     public bool IsInteractable { get; }
+
+    /// <inheritdoc />
+    public bool IsUnshaded { get; }
 
     /// <inheritdoc />
     public bool IsFull { get; }

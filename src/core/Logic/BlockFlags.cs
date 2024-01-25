@@ -4,11 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     Block flags containing different options for a block.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public record BlockFlags
 {
     /// <summary>
@@ -50,6 +53,12 @@ public record BlockFlags
     ///     Whether the block is interactable.
     /// </summary>
     public bool IsInteractable { get; init; }
+
+    /// <summary>
+    ///     Whether the block is unshaded.
+    ///     An unshaded block does not receive shadows and other forms of shading.
+    /// </summary>
+    public bool IsUnshaded { get; init; }
 
     /// <summary>
     ///     Create flags for an empty block.

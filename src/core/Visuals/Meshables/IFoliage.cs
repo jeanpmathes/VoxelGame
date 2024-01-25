@@ -28,6 +28,7 @@ public interface IFoliage : IBlockMeshable
 
             Meshing.SetTint(ref quad.data, mesh.Tint.Select(context.GetBlockTint(position)));
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
+            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
 
             Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsDoublePlant, mesh.IsDoublePlant);
             Meshing.SetFoliageFlag(ref quad.data, Meshing.FoliageQuadFlag.IsUpperPart, mesh.IsUpperPart);

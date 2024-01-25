@@ -56,6 +56,11 @@ public interface IBlockBase
     public bool IsInteractable { get; }
 
     /// <summary>
+    ///     Gets whether this block is unshaded.
+    /// </summary>
+    public bool IsUnshaded { get; }
+
+    /// <summary>
     ///     Gets whether this block always completely fills a 1x1x1 volume or not. Prefer the <see cref="IsSideFull" /> method
     ///     as it handles blocks that are sometimes full.
     /// </summary>

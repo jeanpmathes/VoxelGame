@@ -39,7 +39,7 @@ public class FireBlock : Block, IFillable, IComplex
         base(
             name,
             namedID,
-            BlockFlags.Replaceable,
+            BlockFlags.Replaceable with {IsUnshaded = true},
             BoundingVolume.Block)
     {
         BlockModel complete = BlockModel.Load(completeModel);

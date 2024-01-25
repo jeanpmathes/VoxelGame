@@ -28,6 +28,7 @@ public interface IComplex : IBlockMeshable
 
             Meshing.SetTint(ref quad.data, mesh.Tint.Select(context.GetBlockTint(position)));
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
+            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
 
             meshing.PushQuadWithOffset(quad.Positions, quad.data, offset);
         }

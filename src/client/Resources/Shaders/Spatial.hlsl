@@ -7,7 +7,8 @@
 #include "CommonRT.hlsl"
 #include "Payloads.hlsl"
 #include "Space.hlsl"
-// todo: try putting the three headers above and the definitions below (no functions, no CustomCB) into the support project
+// todo: try putting the three headers above and the global var definitions below (no functions, no CustomCB) into the support project
+#include "Decoding.hlsl"
 #include "Custom.hlsl"
 
 cbuffer MaterialCB : register(b3)
@@ -167,28 +168,36 @@ float3 CalculateShading(in Info info, const float3 baseColor)
 
     float3 color = baseColor;
 
-    RayDesc ray;
-    ray.Origin = info.GetPosition();
-    ray.Direction = dirToLight;
-    ray.TMin = VG_RAY_EPSILON;
-    ray.TMax = VG_RAY_DISTANCE;
-
-    ShadowHitInfo shadowPayload;
-    shadowPayload.isHit = false;
-
-    TraceRay(spaceBVH, RAY_FLAG_NONE, VG_MASK_SHADOW, VG_HIT_ARG(1), ray, shadowPayload);
-
-    const float energy = dot(normal, dirToLight);
-
+    const bool shaded = !decode::GetUnshadedFlag(info.data);
     float intensity;
 
-    if (!shadowPayload.isHit)
+    if (shaded)
     {
-        intensity = clamp(energy, gMinLight, 1.0);
+        RayDesc ray;
+        ray.Origin = info.GetPosition();
+        ray.Direction = dirToLight;
+        ray.TMin = VG_RAY_EPSILON;
+        ray.TMax = VG_RAY_DISTANCE;
+
+        ShadowHitInfo shadowPayload;
+        shadowPayload.isHit = false;
+
+        TraceRay(spaceBVH, RAY_FLAG_NONE, VG_MASK_SHADOW, VG_HIT_ARG(1), ray, shadowPayload);
+
+        const float energy = dot(normal, dirToLight);
+
+        if (!shadowPayload.isHit)
+        {
+            intensity = clamp(energy, gMinLight, 1.0);
+        }
+        else
+        {
+            intensity = lerp(gMinShadow, gMinLight, clamp(energy * -1.0, 0.0, 1.0));
+        }
     }
     else
     {
-        intensity = lerp(gMinShadow, gMinLight, clamp(energy * -1.0, 0.0, 1.0));
+        intensity = 1.0;
     }
 
     color *= intensity;

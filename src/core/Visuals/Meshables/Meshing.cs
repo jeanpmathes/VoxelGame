@@ -48,7 +48,12 @@ public static class Meshing
         /// <summary>
         ///     Whether the quad texture is rotated.
         /// </summary>
-        IsTextureRotated = 1
+        IsTextureRotated = 1,
+
+        /// <summary>
+        ///     Whether the quad does not receive shading.
+        /// </summary>
+        IsUnshaded = 2
     }
 
     private const int UVShift = 15;

@@ -30,7 +30,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
             MeshData mesh = GetMeshData(info with {Side = side});
 
-            AddSimpleMesh(position, side, mesh, IsOpaque, context);
+            AddSimpleMesh(position, side, mesh, IsOpaque, IsUnshaded, context);
         }
 
         MeshSimpleSide(BlockSide.Front);
@@ -67,7 +67,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void AddSimpleMesh(
-        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, MeshingContext context)
+        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, bool isUnshaded, MeshingContext context)
     {
         (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 
@@ -77,6 +77,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
         Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsActuallyAnimated);
         Meshing.SetFlag(ref data, Meshing.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, isUnshaded);
 
         context.GetFullBlockMeshFaceHolder(side, isOpaque).AddFace(
             position,

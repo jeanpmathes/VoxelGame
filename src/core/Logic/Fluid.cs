@@ -253,6 +253,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
             }
 
             Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, value: true);
+            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, value: false);
 
             fluidMeshFaceHolders[(int) side].AddFace(
                 position,
