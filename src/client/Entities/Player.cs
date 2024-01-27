@@ -224,7 +224,10 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             isFirstUpdate = false;
         }
 
-        // Update the selection after all interaction, as that might change the bounding box of the block.
+        // Because interaction can change the target block or the bounding box,
+        // we search again for the target and update the selection now.
+
+        UpdateTargets();
         UpdateSelection();
 
         visualInterface.Update();

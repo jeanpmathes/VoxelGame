@@ -9,7 +9,9 @@
 #include "Decoding.hlsl"
 #include "Custom.hlsl"
 
-usingnamespace native::rt;
+// @formatter:off
+using namespace native::rt;
+// @formatter:on
 
 /**
  * \brief Defines basic data and operations for the spatial rendering used by the game.
