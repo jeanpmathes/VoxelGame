@@ -6,6 +6,7 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Support.Data;
@@ -13,7 +14,7 @@ namespace VoxelGame.Support.Data;
 /// <summary>
 ///     Builds a mesh for <see cref="VoxelGame.Support.Objects.Mesh" />.
 /// </summary>
-public class SpatialMeshing : IMeshing
+public sealed class SpatialMeshing : IMeshing
 {
     private readonly PooledList<SpatialVertex> mesh;
 
@@ -37,6 +38,8 @@ public class SpatialMeshing : IMeshing
         in (uint a, uint b, uint c, uint d) data,
         Vector3 offset)
     {
+        Throw.IfDisposed(disposed);
+
         mesh.Add(new SpatialVertex
         {
             Position = positions.a + offset,
@@ -65,6 +68,8 @@ public class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void PushQuad(in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, in (uint a, uint b, uint c, uint d) data)
     {
+        Throw.IfDisposed(disposed);
+
         mesh.Add(new SpatialVertex
         {
             Position = positions.a,
@@ -93,11 +98,11 @@ public class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void Grow(IMeshing.Primitive primitive, int count)
     {
-        int size = primitive switch
-        {
-            IMeshing.Primitive.Quad => 4,
-            _ => throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null)
-        };
+        Throw.IfDisposed(disposed);
+
+        int size = primitive == IMeshing.Primitive.Quad
+            ? 4
+            : throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null);
 
         mesh.EnsureCapacity(mesh.Count + size * count);
     }
@@ -105,9 +110,32 @@ public class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public int Count => mesh.Count;
 
-    /// <inheritdoc />
-    public void Release() // todo: use dispose pattern
+    #region IDisposable Support
+
+    private bool disposed;
+
+    #pragma warning disable S2953 // False positive, this class does implement IDisposable.
+    private void Dispose(bool disposing)
+    #pragma warning restore S2953
     {
-        mesh.Dispose();
+        if (disposed) return;
+
+        if (disposing) mesh.Dispose();
+
+        disposed = true;
     }
+
+    /// <inheritdoc />
+    void IDisposable.Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~SpatialMeshing()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

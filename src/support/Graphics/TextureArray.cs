@@ -17,8 +17,6 @@ namespace VoxelGame.Support.Graphics;
 /// </summary>
 public sealed class TextureArray
 {
-    // todo: ensure that no texture units are mentioned in the wiki
-
     private readonly Texture[] textures;
 
     private TextureArray(Texture[] textures)

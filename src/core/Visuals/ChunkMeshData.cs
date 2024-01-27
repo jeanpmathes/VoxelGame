@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Diagnostics;
+using System;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
@@ -14,32 +14,46 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 /// <param name="SectionMeshData"></param>
 /// <param name="Sides"></param>
-public record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides)
+public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides) : IDisposable
 {
-    /// <summary>
-    ///     Discard the mesh data.
-    /// </summary>
-    public void Discard()
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
     {
-        foreach (SectionMeshData section in SectionMeshData) section.Discard();
+        if (disposed) return;
+
+        if (disposing)
+            foreach (SectionMeshData mesh in SectionMeshData)
+                mesh.Dispose();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Return all pooled structures to their pools.
+    ///     Finalizer.
     /// </summary>
-    public void ReturnPooled()
+    ~ChunkMeshData()
     {
-        foreach (SectionMeshData section in SectionMeshData) section.Release();
+        Dispose(disposing: false);
     }
+
+    #endregion IDisposable Support
 }
 
 /// <summary>
 ///     Contains the mesh data for a section.
 /// </summary>
-public class SectionMeshData
+public sealed class SectionMeshData : IDisposable
 {
-    private bool isReturnedToPool;
-
     internal SectionMeshData((IMeshing, IMeshing) basicMeshing,
         IMeshing foliageMeshing,
         IMeshing fluidMeshing)
@@ -86,29 +100,40 @@ public class SectionMeshData
         return size;
     }
 
-    /// <summary>
-    ///     Release all used resources. The data can only be returned once.
-    /// </summary>
-    public void Release()
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
     {
-        Debug.Assert(!isReturnedToPool);
+        if (disposed) return;
 
-        BasicMeshing.opaque.Release();
-        BasicMeshing.transparent.Release();
+        if (disposing)
+        {
+            BasicMeshing.opaque.Dispose();
+            BasicMeshing.transparent.Dispose();
 
-        FoliageMeshing.Release();
-        FluidMeshing.Release();
+            FoliageMeshing.Dispose();
+            FluidMeshing.Dispose();
+        }
 
-        isReturnedToPool = true;
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Discard this mesh data.
+    ///     Finalizer.
     /// </summary>
-    public void Discard()
+    ~SectionMeshData()
     {
-        if (isReturnedToPool) return;
-
-        Release();
+        Dispose(disposing: false);
     }
+
+    #endregion IDisposable Support
 }

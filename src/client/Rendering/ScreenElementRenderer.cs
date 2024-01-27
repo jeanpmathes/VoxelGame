@@ -153,20 +153,6 @@ public sealed class ScreenElementRenderer : Renderer
         data.Data = new Data(mvp.ToMatrix4(), color);
     }
 
-    #region IDisposable Support
-
-    /// <inheritdoc />
-    protected override void OnDispose(bool disposing)
-    {
-        if (disposing) disposable?.Dispose();
-        else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
-    }
-
-    #endregion IDisposable Support
-
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
@@ -229,4 +215,26 @@ public sealed class ScreenElementRenderer : Renderer
             return !left.Equals(right);
         }
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) disposable?.Dispose();
+        else
+            logger.LogWarning(
+                Events.LeakedNativeObject,
+                "Renderer disposed by GC without freeing storage");
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion IDisposable Support
 }

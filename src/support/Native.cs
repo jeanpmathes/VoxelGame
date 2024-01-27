@@ -22,7 +22,7 @@ namespace VoxelGame.Support;
 /// </summary>
 #pragma warning disable S3242 // The specific types are matched on the native side.
 #pragma warning disable S1200 // This class intentionally contains all native functions.
-public static class Native // todo: make internal, methods too
+internal static class Native
 {
     private const string DllFilePath = @".\Native.dll";
 
@@ -39,7 +39,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="message">The error message.</param>
     /// <param name="caption">The caption of the message box.</param>
-    public static void ShowErrorBox(string message, string caption)
+    internal static void ShowErrorBox(string message, string caption)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
@@ -53,7 +53,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="configuration">The configuration to use.</param>
     /// <param name="onError">The callback for any errors.</param>
     /// <returns>A pointer to the native client.</returns>
-    public static IntPtr Initialize(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError)
+    internal static IntPtr Initialize(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeConfigure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
@@ -65,7 +65,7 @@ public static class Native // todo: make internal, methods too
     ///     Finalize the native client.
     /// </summary>
     /// <param name="client">The client to finalize.</param>
-    public static void Finalize(Client client)
+    internal static void Finalize(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeFinalize(IntPtr native);
@@ -76,7 +76,7 @@ public static class Native // todo: make internal, methods too
     /// <summary>
     ///     Request that the main window is closed.
     /// </summary>
-    public static void RequestClose(Client client)
+    internal static void RequestClose(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeRequestClose(IntPtr native);
@@ -89,7 +89,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client to run.</param>
     /// <returns>The exit code.</returns>
-    public static int Run(Client client)
+    internal static int Run(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern int NativeRun(IntPtr native, int nCmdShow);
@@ -102,7 +102,7 @@ public static class Native // todo: make internal, methods too
     /// <summary>
     ///     Get current allocator statistics as a string.
     /// </summary>
-    public static string GetAllocatorStatistics(Client client)
+    internal static string GetAllocatorStatistics(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativePassAllocatorStatistics(IntPtr native, Definition.Native.NativeWStringFunc onWString);
@@ -118,7 +118,7 @@ public static class Native // todo: make internal, methods too
     ///     Get the DRED (Device Removed Extended Data) string. This is only available in debug builds and after a device
     ///     removal.
     /// </summary>
-    public static string GetDRED(Client client)
+    internal static string GetDRED(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativePassDRED(IntPtr native, Definition.Native.NativeWStringFunc onWString);
@@ -135,7 +135,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client for which to take a screenshot.</param>
     /// <param name="callback">The callback to call when the screenshot is taken.</param>
-    public static void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback)
+    internal static void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeTakeScreenshot(IntPtr native, Definition.Native.ScreenshotFunc callback);
@@ -158,7 +158,7 @@ public static class Native // todo: make internal, methods too
     ///     Toggle fullscreen mode.
     /// </summary>
     /// <param name="client">The client for which to toggle fullscreen.</param>
-    public static void ToggleFullscreen(Client client)
+    internal static void ToggleFullscreen(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeToggleFullscreen(IntPtr native);
@@ -171,7 +171,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client for which to get the mouse position.</param>
     /// <returns>The current mouse position, in client coordinates.</returns>
-    public static (int x, int y) GetMousePosition(Client client)
+    internal static (int x, int y) GetMousePosition(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeGetMousePosition(IntPtr native, out long x, out long y);
@@ -187,7 +187,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client for which to set the mouse position.</param>
     /// <param name="x">The new x position, in client coordinates.</param>
     /// <param name="y">The new y position, in client coordinates.</param>
-    public static void SetMousePosition(Client client, int x, int y)
+    internal static void SetMousePosition(Client client, int x, int y)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetMousePosition(IntPtr native, long x, long y);
@@ -200,7 +200,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client for which to set the cursor.</param>
     /// <param name="cursor">The cursor type to set.</param>
-    public static void SetCursorType(Client client, MouseCursor cursor)
+    internal static void SetCursorType(Client client, MouseCursor cursor)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetCursorType(IntPtr native, MouseCursor cursor);
@@ -214,7 +214,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client for which to set the cursor lock.</param>
     /// <param name="locked">Whether the cursor should be locked.</param>
-    public static void SetCursorLock(Client client, bool locked)
+    internal static void SetCursorLock(Client client, bool locked)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetCursorLock(IntPtr native, bool locked);
@@ -244,7 +244,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="pipeline">A description of the raytracing pipeline.</param>
     /// <returns>The shader buffer, if any is created.</returns>
-    public static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
+    internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
     {
         IntPtr buffer = NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
 
@@ -256,7 +256,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client.</param>
     /// <returns>The camera.</returns>
-    public static Camera GetCamera(Client client)
+    internal static Camera GetCamera(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeGetCamera(IntPtr native);
@@ -282,7 +282,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="client">The client.</param>
     /// <returns>The light.</returns>
-    public static Light GetLight(Client client)
+    internal static Light GetLight(Client client)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeGetLight(IntPtr native);
@@ -308,7 +308,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="light">The light.</param>
     /// <param name="direction">The new direction. Must be normalized.</param>
-    public static void SetLightDirection(Light light, Vector3 direction)
+    internal static void SetLightDirection(Light light, Vector3 direction)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetLightDirection(IntPtr light, Vector3 direction);
@@ -321,7 +321,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="camera">The camera.</param>
     /// <param name="data">The new data.</param>
-    public static void UpdateBasicCameraData(Camera camera, BasicCameraData data)
+    internal static void UpdateBasicCameraData(Camera camera, BasicCameraData data)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeUpdateBasicCameraData(IntPtr camera, BasicCameraData data);
@@ -334,7 +334,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="camera">The camera.</param>
     /// <param name="data">The new data.</param>
-    public static void UpdateAdvancedCameraData(Camera camera, AdvancedCameraData data)
+    internal static void UpdateAdvancedCameraData(Camera camera, AdvancedCameraData data)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeUpdateAdvancedCameraData(IntPtr camera, AdvancedCameraData data);
@@ -347,7 +347,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="spatial">The spatial object.</param>
     /// <param name="data">The new data.</param>
-    public static void UpdateSpatialData(Spatial spatial, SpatialData data)
+    internal static void UpdateSpatialData(Spatial spatial, SpatialData data)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeUpdateSpatialData(IntPtr spatial, SpatialData data);
@@ -361,7 +361,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="materialIndex">The material index, as defined in pipeline setup.</param>
     /// <returns>The mesh.</returns>
-    public static Mesh CreateMesh(Client client, uint materialIndex)
+    internal static Mesh CreateMesh(Client client, uint materialIndex)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeCreateMesh(IntPtr native, uint materialIndex);
@@ -376,7 +376,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="mesh">The mesh.</param>
     /// <param name="vertices">The vertices.</param>
-    public static unsafe void SetMeshVertices(Mesh mesh, Span<SpatialVertex> vertices)
+    internal static unsafe void SetMeshVertices(Mesh mesh, Span<SpatialVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetMeshVertices(IntPtr mesh, SpatialVertex* vertices, int vertexLength);
@@ -394,7 +394,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="mesh">The mesh.</param>
     /// <param name="bounds">The bounds.</param>
-    public static unsafe void SetMeshBounds(Mesh mesh, Span<SpatialBounds> bounds)
+    internal static unsafe void SetMeshBounds(Mesh mesh, Span<SpatialBounds> bounds)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetMeshVertices(IntPtr mesh, SpatialBounds* vertices, int vertexLength);
@@ -413,7 +413,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="pipeline">The pipeline to use to render the effect.</param>
     /// <returns>The effect.</returns>
-    public static Effect CreateEffect(Client client, RasterPipeline pipeline)
+    internal static Effect CreateEffect(Client client, RasterPipeline pipeline)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeCreateEffect(IntPtr native, IntPtr pipeline);
@@ -428,7 +428,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="effect">The effect.</param>
     /// <param name="vertices">The vertices.</param>
-    public static unsafe void SetEffectVertices(Effect effect, Span<EffectVertex> vertices)
+    internal static unsafe void SetEffectVertices(Effect effect, Span<EffectVertex> vertices)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetEffectVertices(IntPtr effect, EffectVertex* vertices, int vertexLength);
@@ -446,7 +446,7 @@ public static class Native // todo: make internal, methods too
     ///     Using the drawable after this call is not allowed.
     /// </summary>
     /// <param name="drawable">The drawable to return.</param>
-    public static void ReturnDrawable(Drawable drawable)
+    internal static void ReturnDrawable(Drawable drawable)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeReturnDrawable(IntPtr native);
@@ -459,7 +459,7 @@ public static class Native // todo: make internal, methods too
     /// </summary>
     /// <param name="drawable">The drawable.</param>
     /// <param name="enabled">Whether the drawable should be enabled.</param>
-    public static void SetDrawableEnabledState(Drawable drawable, bool enabled)
+    internal static void SetDrawableEnabledState(Drawable drawable, bool enabled)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
@@ -480,7 +480,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline, or null if the pipeline could not be created.</returns>
-    public static RasterPipeline? CreateRasterPipeline(
+    internal static RasterPipeline? CreateRasterPipeline(
         Client client,
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback)
@@ -504,7 +504,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer, or null if the pipeline could not be created.</returns>
-    public static (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
+    internal static (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
@@ -524,7 +524,7 @@ public static class Native // todo: make internal, methods too
     /// <summary>
     ///     Set the pipeline that should be used for rendering post processing.
     /// </summary>
-    public static void SetPostProcessingPipeline(Client client, RasterPipeline pipeline)
+    internal static void SetPostProcessingPipeline(Client client, RasterPipeline pipeline)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeDesignatePostProcessingPipeline(IntPtr native, IntPtr pipeline);
@@ -541,7 +541,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="shaderBuffer">The shader buffer.</param>
     /// <param name="data">The data to set.</param>
     /// <typeparam name="T">The type of the data.</typeparam>
-    public static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged, IEquatable<T>
+    internal static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged, IEquatable<T>
     {
         T* dataPtr = &data;
         NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
@@ -555,7 +555,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
     /// <returns>An object that allows removing the pipeline.</returns>
-    public static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
+    internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern uint NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, int priority, Draw2D.Callback callback);
@@ -584,7 +584,7 @@ public static class Native // todo: make internal, methods too
     /// <param name="client">The client.</param>
     /// <param name="texture">The texture, consisting of an image for each mip level.</param>
     /// <returns>The loaded texture.</returns>
-    public static unsafe Texture LoadTexture(Client client, Span<Image> texture)
+    internal static unsafe Texture LoadTexture(Client client, Span<Image> texture)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern IntPtr NativeLoadTexture(IntPtr client, int** data, TextureDescription description);
@@ -629,7 +629,7 @@ public static class Native // todo: make internal, methods too
     ///     Free a texture.
     /// </summary>
     /// <param name="texture">The texture.</param>
-    public static void FreeTexture(Texture texture)
+    internal static void FreeTexture(Texture texture)
     {
         [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
         static extern void NativeFreeTexture(IntPtr texture);

@@ -161,6 +161,8 @@ public sealed class SectionRenderer : Renderer
     /// <param name="meshData">The mesh data to use.</param>
     public void SetData(SectionMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
             basic.opaque ??= space.CreateMesh(basicOpaqueMaterial, position);
@@ -184,27 +186,33 @@ public sealed class SectionRenderer : Renderer
             fluid ??= space.CreateMesh(fluidMaterial, position);
             fluid.SetVertices((meshData.FluidMeshing as SpatialMeshing)!.Span);
         }
-
-        meshData.Release();
     }
 
     #region IDisposable Support
 
+    private bool disposed;
+
     /// <inheritdoc />
-    protected override void OnDispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
+        if (disposed) return;
+
         if (disposing)
         {
-            basic.opaque?.Return();
-            basic.transparent?.Return();
+            basic.opaque?.Dispose();
+            basic.transparent?.Dispose();
 
-            foliage?.Return();
-            fluid?.Return();
+            foliage?.Dispose();
+            fluid?.Dispose();
         }
         else
             logger.LogWarning(
                 Events.LeakedNativeObject,
                 "Renderer disposed by GC without freeing storage");
+
+        base.Dispose(disposing);
+
+        disposed = true;
     }
 
     #endregion IDisposable Support

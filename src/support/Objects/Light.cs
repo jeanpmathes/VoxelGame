@@ -16,6 +16,7 @@ namespace VoxelGame.Support.Objects;
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
+    private bool dirty = true;
 
     /// <summary>
     ///     Create a new light.
@@ -32,8 +33,20 @@ public class Light : Spatial
         {
             if (value == direction) return;
 
-            Native.SetLightDirection(this, value.ToVector3()); // todo: use sync instead of writing directly, but not simple sync as positional mode for light (comes later) does not fit that
             direction = value;
+            dirty = true;
         }
+    }
+
+    /// <inheritdoc />
+    internal override void Synchronize()
+    {
+        base.Synchronize();
+
+        if (!dirty) return;
+
+        dirty = false;
+
+        Native.SetLightDirection(this, direction.ToVector3());
     }
 }

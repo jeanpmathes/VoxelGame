@@ -187,6 +187,8 @@ public class Section : Core.Logic.Section
 
     #region IDisposable Support
 
+    private bool disposed;
+
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
@@ -197,6 +199,8 @@ public class Section : Core.Logic.Section
             renderer?.TearDown();
             renderer?.Dispose();
         }
+
+        base.Dispose(disposing);
 
         disposed = true;
     }

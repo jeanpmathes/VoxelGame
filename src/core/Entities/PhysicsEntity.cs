@@ -298,10 +298,7 @@ public abstract class PhysicsEntity : IDisposable
 
     #region IDisposable Support
 
-    /// <summary>
-    ///     Whether this entity is disposed.
-    /// </summary>
-    protected bool disposed;
+    private bool disposed;
 
     /// <summary>
     ///     Disposes this entity.
@@ -324,7 +321,12 @@ public abstract class PhysicsEntity : IDisposable
     ///     Disposes this entity.
     /// </summary>
     /// <param name="disposing">True if called by code.</param>
-    protected abstract void Dispose(bool disposing);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        disposed = true;
+    }
 
     #endregion IDisposable Support
 }

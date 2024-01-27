@@ -965,10 +965,7 @@ public partial class Chunk : IDisposable
 
     #region IDisposable Support
 
-    /// <summary>
-    ///     Whether this chunk is disposed.
-    /// </summary>
-    [NonSerialized] protected bool disposed;
+    [NonSerialized] private bool disposed;
 
     /// <summary>
     ///     Dispose of this chunk.

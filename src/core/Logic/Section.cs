@@ -330,13 +330,18 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Whether the section is disposed.
     /// </summary>
-    [NonSerialized] protected bool disposed;
+    [NonSerialized] private bool disposed;
 
     /// <summary>
     ///     Dispose of the section.
     /// </summary>
     /// <param name="disposing">Whether disposing is intentional or caused by GC.</param>
-    protected abstract void Dispose(bool disposing);
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        disposed = true;
+    }
 
     /// <summary>
     ///     Finalizer.

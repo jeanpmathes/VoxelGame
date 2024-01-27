@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
@@ -11,7 +12,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     The common abstract base class of objects drawn in 3D space.
 /// </summary>
-public abstract class Drawable : Spatial
+public class Drawable : Spatial, IDisposable
 {
     private bool enabled;
 
@@ -32,17 +33,45 @@ public abstract class Drawable : Spatial
         {
             if (value == enabled) return;
 
+            Throw.IfDisposed(disposed);
+
             Native.SetDrawableEnabledState(this, value);
             enabled = value;
         }
     }
 
+    #region IDisposable Support
+
+    private bool disposed;
+
     /// <summary>
-    ///     Frees the native object.
+    /// Override to implement custom dispose logic.
     /// </summary>
-    public void Return() // todo: try using IDisposable
+    protected virtual void Dispose(bool disposing)
     {
-        Deregister();
+        if (disposed) return;
+
+        if (disposing) Deregister();
+
         Native.ReturnDrawable(this);
+
+        disposed = true;
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
+    ~Drawable()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion IDisposable Support
 }

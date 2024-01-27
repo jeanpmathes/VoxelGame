@@ -243,4 +243,20 @@ public partial class Chunk : Core.Logic.Chunk
     {
         for (var index = 0; index < SectionCount; index++) GetSection(index).SetRendererEnabledState(enabled: false);
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion
 }

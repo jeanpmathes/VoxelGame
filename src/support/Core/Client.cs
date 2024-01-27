@@ -22,7 +22,7 @@ namespace VoxelGame.Support.Core;
 /// <summary>
 ///     A proxy class for the native client.
 /// </summary>
-public class Client : IDisposable // todo: get type usage count down, e.g. by pulling out events and input
+public class Client : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
@@ -148,7 +148,7 @@ public class Client : IDisposable // todo: get type usage count down, e.g. by pu
     /// <summary>
     ///     Get the space rendered by the client.
     /// </summary>
-    public Space Space { get; } // todo: check all static usages of this and go trough resources instead where possible
+    public Space Space { get; }
 
     /// <summary>
     ///     Get the native client pointer.

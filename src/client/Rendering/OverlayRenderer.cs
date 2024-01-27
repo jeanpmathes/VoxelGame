@@ -99,6 +99,8 @@ public sealed class OverlayRenderer : Renderer
     /// <param name="overlay">The texture to use.</param>
     public void SetBlockTexture(OverlayTexture overlay)
     {
+        Throw.IfDisposed(disposed);
+
         mode = BlockMode;
 
         SetAttributes(overlay);
@@ -110,6 +112,8 @@ public sealed class OverlayRenderer : Renderer
     /// <param name="overlay">The texture to use.</param>
     public void SetFluidTexture(OverlayTexture overlay)
     {
+        Throw.IfDisposed(disposed);
+
         mode = FluidMode;
 
         SetAttributes(overlay);
@@ -122,12 +126,16 @@ public sealed class OverlayRenderer : Renderer
     /// <param name="newUpperBound">The upper bound.</param>
     public void SetBounds(double newLowerBound, double newUpperBound)
     {
+        Throw.IfDisposed(disposed);
+
         lowerBound = (float) newLowerBound;
         upperBound = (float) newUpperBound;
     }
 
     private void SetAttributes(OverlayTexture overlay)
     {
+        Throw.IfDisposed(disposed);
+
         textureID = overlay.TextureIdentifier;
         tint = overlay.Tint;
         isAnimated = overlay.IsAnimated;
@@ -182,20 +190,6 @@ public sealed class OverlayRenderer : Renderer
     {
         return new Vector4i((int) attributes.a, (int) attributes.b, (int) attributes.c, (int) attributes.d);
     }
-
-    #region IDisposable Support
-
-    /// <inheritdoc />
-    protected override void OnDispose(bool disposing)
-    {
-        if (disposing) disposable?.Dispose();
-        else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
-    }
-
-    #endregion IDisposable Support
 
     /// <summary>
     ///     Data used by the shader.
@@ -283,4 +277,26 @@ public sealed class OverlayRenderer : Renderer
             return !left.Equals(right);
         }
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) disposable?.Dispose();
+        else
+            logger.LogWarning(
+                Events.LeakedNativeObject,
+                "Renderer disposed by GC without freeing storage");
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion IDisposable Support
 }

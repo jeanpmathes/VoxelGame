@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Visuals;
@@ -12,7 +13,7 @@ namespace VoxelGame.Core.Visuals;
 ///     Interface that is fed with mesh data.
 ///     The used rendering platform can implement this to create meshes in the format it needs.
 /// </summary>
-public interface IMeshing
+public interface IMeshing : IDisposable
 {
     /// <summary>
     ///     All possible primitives. The implementation can decide which ones to support.
@@ -60,9 +61,4 @@ public interface IMeshing
     /// <param name="primitive">The primitive to grow for.</param>
     /// <param name="count">The number of primitives to grow for.</param>
     void Grow(Primitive primitive, int count);
-
-    /// <summary>
-    ///     Release the mesh data and potentially pooled resources.
-    /// </summary>
-    public void Release(); // todo: search for methods like these and implement IDisposable, also do it for using classes when needed
 }

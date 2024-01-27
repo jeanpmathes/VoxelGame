@@ -85,7 +85,10 @@ public sealed class SelectionBoxRenderer : Renderer
     {
         Debug.Assert(effect != null);
 
-        effect.Return();
+        #pragma warning disable S2952 // Object has to be disposed here as it is nullified afterwards.
+        effect.Dispose();
+        #pragma warning restore S2952
+
         effect = null;
     }
 
@@ -176,19 +179,6 @@ public sealed class SelectionBoxRenderer : Renderer
         vertices.Add(new EffectVertex {Position = b, Data = 0});
     }
 
-    #region IDisposable Support
-
-    /// <inheritdoc />
-    protected override void OnDispose(bool disposing)
-    {
-        if (!disposing)
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
-    }
-
-    #endregion IDisposable Support
-
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
@@ -252,4 +242,27 @@ public sealed class SelectionBoxRenderer : Renderer
             return !left.Equals(right);
         }
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+            effect?.Dispose();
+        else
+            logger.LogWarning(
+                Events.LeakedNativeObject,
+                "Renderer disposed by GC without freeing storage");
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion IDisposable Support
 }

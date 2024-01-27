@@ -78,7 +78,7 @@ public partial class Chunk
                     {
                         Cleanup = () =>
                         {
-                            task.Result.Discard();
+                            task.Result.Dispose();
                         },
                         PrioritizeLoop = true,
                         PrioritizeDeactivation = true
@@ -120,6 +120,8 @@ public partial class Chunk
             bool finished = Chunk.DoMeshDataSetStep(meshData);
 
             if (!finished) return;
+
+            meshData.Dispose();
 
             guard.Dispose();
             SetNextActive();

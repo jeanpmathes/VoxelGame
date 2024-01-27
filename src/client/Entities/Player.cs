@@ -380,6 +380,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     #region IDisposable Support
 
+    private bool disposed;
+
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
@@ -387,6 +389,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
             return;
 
         if (disposing) visualInterface.Dispose();
+
+        base.Dispose(disposing);
 
         disposed = true;
     }

@@ -83,24 +83,16 @@ public abstract class Renderer : IDisposable
 
     private bool disposed;
 
-    private void Dispose(bool disposing)
+    /// <summary>
+    ///     Override to determine the disposing behavior.
+    /// </summary>
+    protected virtual void Dispose(bool disposing)
     {
         if (disposed) return;
 
         Debug.Assert(!IsSetUp);
 
-        OnDispose(disposing);
-
         disposed = true;
-    }
-
-    /// <summary>
-    ///     Called to dispose of resources.
-    /// </summary>
-    /// <param name="disposing">Whether to dispose of managed resources.</param>
-    protected virtual void OnDispose(bool disposing)
-    {
-        // Intentionally left empty.
     }
 
     /// <inheritdoc />
