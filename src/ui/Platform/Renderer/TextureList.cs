@@ -28,7 +28,7 @@ public sealed class TextureList : IDisposable
 
     private readonly Client client;
 
-    private readonly GappedList<Texture> textures;
+    private readonly Bag<Texture> textures;
     private readonly PooledList<Image> images = new();
     private readonly PooledList<int> usage = new();
 
@@ -52,7 +52,7 @@ public sealed class TextureList : IDisposable
         var image = Image.CreateFallback(size: 1);
         Texture sentinel = client.LoadTexture(image);
 
-        textures = new GappedList<Texture>(sentinel);
+        textures = new Bag<Texture>(sentinel);
         AddEntry(sentinel, image, allowDiscard: false);
     }
 

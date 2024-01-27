@@ -12,10 +12,11 @@ using System.Linq;
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
-///     Implements a list that allows gaps when removing items.
+///     Implements a bag, a structure that allows insertion and removal of items in O(1) time.
+///     This specific implementation uses a gap buffer.
 /// </summary>
-/// <typeparam name="T">The type of the items in the list.</typeparam>
-public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename usage
+/// <typeparam name="T">The type of the items in the bag.</typeparam>
+public class Bag<T> : IEnumerable<T>
 {
     private readonly PriorityQueue<int, int> gaps = new();
 
@@ -23,16 +24,16 @@ public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename 
     private readonly PooledList<T> items = new();
 
     /// <summary>
-    ///     Create a new gapped list.
+    ///     Create a new gapped bag.
     /// </summary>
     /// <param name="gapValue">The value to use in gaps.</param>
-    public GappedList(T gapValue)
+    public Bag(T gapValue)
     {
         this.gapValue = gapValue;
     }
 
     /// <summary>
-    ///     Access this list by index.
+    ///     Access this bag by index.
     /// </summary>
     /// <param name="index">The index to access. Cannot be larger then the item count.</param>
     public T this[int index]
@@ -53,7 +54,7 @@ public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename 
     }
 
     /// <summary>
-    ///     Gets a span of the list. This also includes gaps.
+    ///     Gets a span of the bag. This also includes gaps.
     /// </summary>
     public Span<T> AsSpan()
     {
@@ -61,7 +62,7 @@ public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename 
     }
 
     /// <summary>
-    ///     Removes a value from the list.
+    ///     Removes a value from the bag.
     /// </summary>
     /// <param name="index">The index of the item to remove.</param>
     public void RemoveAt(int index)
@@ -71,7 +72,7 @@ public class GappedList<T> : IEnumerable<T> // todo: rename to bag, also rename 
     }
 
     /// <summary>
-    ///     Adds an item to the list.
+    ///     Adds an item to the bag.
     /// </summary>
     /// <param name="item">The item to add.</param>
     /// <returns>The index of the item.</returns>

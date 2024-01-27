@@ -17,10 +17,10 @@ namespace VoxelGame.Support.Core;
 public class Synchronizer
 {
     private const int DoNotCall = -1;
-    private readonly GappedList<Entry?> objects = new(gapValue: null);
+    private readonly Bag<Entry?> objects = new(gapValue: null);
 
-    private readonly GappedList<NativeObject?> preSyncList = new(gapValue: null);
-    private readonly GappedList<NativeObject?> syncList = new(gapValue: null);
+    private readonly Bag<NativeObject?> preSyncBag = new(gapValue: null);
+    private readonly Bag<NativeObject?> syncBag = new(gapValue: null);
 
     /// <summary>
     ///     Get all registered objects.
@@ -44,8 +44,8 @@ public class Synchronizer
     /// </summary>
     public void Update()
     {
-        foreach (NativeObject? nativeObject in preSyncList.AsSpan()) nativeObject?.PrepareSynchronization();
-        foreach (NativeObject? nativeObject in syncList.AsSpan()) nativeObject?.Synchronize();
+        foreach (NativeObject? nativeObject in preSyncBag.AsSpan()) nativeObject?.PrepareSynchronization();
+        foreach (NativeObject? nativeObject in syncBag.AsSpan()) nativeObject?.Synchronize();
     }
 
     /// <summary>
@@ -55,8 +55,8 @@ public class Synchronizer
     {
         Throw.IfOutsideOfMainThread(objects);
 
-        int preSyncIndex = preSyncList.Add(nativeObject);
-        int syncIndex = syncList.Add(nativeObject);
+        int preSyncIndex = preSyncBag.Add(nativeObject);
+        int syncIndex = syncBag.Add(nativeObject);
 
         return new Handle(objects.Add(new Entry(nativeObject, preSyncIndex, syncIndex)));
     }
@@ -73,7 +73,7 @@ public class Synchronizer
 
         if (entry.PreSyncIndex == DoNotCall) return;
 
-        preSyncList.RemoveAt(entry.PreSyncIndex);
+        preSyncBag.RemoveAt(entry.PreSyncIndex);
         objects[handle.Index] = entry with {PreSyncIndex = DoNotCall};
     }
 
@@ -89,7 +89,7 @@ public class Synchronizer
 
         if (entry.SyncIndex == DoNotCall) return;
 
-        syncList.RemoveAt(entry.SyncIndex);
+        syncBag.RemoveAt(entry.SyncIndex);
         objects[handle.Index] = entry with {SyncIndex = DoNotCall};
     }
 
@@ -103,8 +103,8 @@ public class Synchronizer
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
 
-        if (entry.PreSyncIndex != DoNotCall) preSyncList.RemoveAt(entry.PreSyncIndex);
-        if (entry.SyncIndex != DoNotCall) syncList.RemoveAt(entry.SyncIndex);
+        if (entry.PreSyncIndex != DoNotCall) preSyncBag.RemoveAt(entry.PreSyncIndex);
+        if (entry.SyncIndex != DoNotCall) syncBag.RemoveAt(entry.SyncIndex);
 
         objects.RemoveAt(handle.Index);
     }
