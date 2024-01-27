@@ -4,6 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+// ReSharper disable CppRedundantEmptyStatement
+// @formatter:off
+
 #ifndef NATIVE_SHADER_PAYLOAD_RT_HLSL
 #define NATIVE_SHADER_PAYLOAD_RT_HLSL
 
@@ -34,5 +37,7 @@ namespace native
         };
     }
 }
+
+// @formatter:on
 
 #endif

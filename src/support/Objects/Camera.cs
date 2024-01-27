@@ -100,10 +100,10 @@ public class Camera : NativeObject, IView
     }
 
     /// <inheritdoc />
-    public double FarClipping => 500.0; // todo: extend this a bit further, check if close raster stuff like selection box still ok
+    public double FarClipping => 1000.0;
 
     /// <inheritdoc />
-    public double NearClipping => 0.1; // todo: move this closer to the player
+    public double NearClipping => 0.05;
 
     /// <inheritdoc />
     public Frustum Frustum => new(fov, Client.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
