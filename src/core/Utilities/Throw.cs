@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -40,5 +41,16 @@ public static class Throw
     public static void IfNull([NotNull] object? obj, string message = "")
     {
         if (obj is null) throw new ArgumentNullException(message);
+    }
+
+    /// <summary>
+    ///     Ensure that the current thread is the main thread.
+    /// </summary>
+    /// <returns>True if the current thread is the main thread.</returns>
+    public static void IfOutsideOfMainThread(object @object, [CallerMemberName] string operation = "")
+    {
+        if (ApplicationInformation.Instance.IsOnMainThread) return;
+
+        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
     }
 }

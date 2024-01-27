@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace VoxelGame.Core;
@@ -39,16 +38,9 @@ public class ApplicationInformation
     private Thread MainThread { get; }
 
     /// <summary>
-    ///     Ensure that the current thread is the main thread.
+    ///     Check if the current thread is the main thread.
     /// </summary>
-    /// <returns>True if the current thread is the main thread.</returns>
-    [Conditional("DEBUG")]
-    public void EnsureMainThread(object @object, [CallerMemberName] string operation = "") // todo: move to Throw class
-    {
-        if (Thread.CurrentThread == MainThread) return;
-
-        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
-    }
+    public bool IsOnMainThread => Thread.CurrentThread == MainThread;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ApplicationInformation" /> class.

@@ -418,7 +418,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
-        ApplicationInformation.Instance.EnsureMainThread(state.Chunk);
+        Throw.IfOutsideOfMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 

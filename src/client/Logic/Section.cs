@@ -56,7 +56,7 @@ public class Section : Core.Logic.Section
         BlockSides required = GetRequiredSides(position);
         missing = required & ~context.AvailableSides & BlockSides.All;
 
-        SectionMeshData meshData = CreateMeshData(context);
+        using SectionMeshData meshData = CreateMeshData(context);
         SetMeshDataInternal(meshData);
     }
 
