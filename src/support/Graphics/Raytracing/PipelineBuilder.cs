@@ -190,6 +190,8 @@ public class PipelineBuilder
                 {
                     ReportFailure(loadingContext, message);
                     success = false;
+
+                    Debugger.Break();
                 }
             }
         });

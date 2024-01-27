@@ -5,13 +5,13 @@
 // <author>jeanpmathes</author>
 
 #include "CommonRT.hlsl"
-#include "Payloads.hlsl"
+#include "PayloadRT.hlsl"
 
 [shader("miss")]
-void Miss(inout HitInfo payload)
+void Miss(inout native::rt::HitInfo payload)
 {
-    payload.color = float3(0.5, 0.8, 0.9);
-    payload.distance = VG_RAY_DISTANCE;
-    payload.normal = float3(0.0, 0.0, 0.0);
-    payload.alpha = 1.0;
+    payload.color = float3(0.5f, 0.8f, 0.9f);
+    payload.distance = native::rt::RAY_DISTANCE;
+    payload.normal = float3(0.0f, 0.0f, 0.0f);
+    payload.alpha = 1.0f;
 }

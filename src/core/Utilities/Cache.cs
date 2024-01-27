@@ -140,6 +140,9 @@ public sealed class Cache<TK, TV> : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~Cache()
     {
         Dispose(disposing: false);

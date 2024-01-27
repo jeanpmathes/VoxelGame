@@ -4,10 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#include "Payloads.hlsl"
+#include "PayloadRT.hlsl"
 
 [shader("miss")]
-void ShadowMiss(inout ShadowHitInfo hitInfo)
+void ShadowMiss(inout native::rt::ShadowHitInfo hitInfo)
 {
     hitInfo.isHit = false;
 }

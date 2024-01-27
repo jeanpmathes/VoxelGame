@@ -300,6 +300,9 @@ public sealed class TextureList : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~TextureList()
     {
         Dispose(disposing: false);

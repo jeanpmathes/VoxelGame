@@ -4,8 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-Texture2D gTexture : register(t0);
-SamplerState gSampler : register(s0);
+namespace pp
+{
+    Texture2D texture : register(t0);
+    SamplerState sampler : register(s0);
+}
 
 struct PSInput
 {
@@ -25,5 +28,5 @@ PSInput VSMain(const float4 position : POSITION, const float2 uv : TEXCOORD)
 
 float4 PSMain(const PSInput input) : SV_TARGET
 {
-    return gTexture.Sample(gSampler, input.uv);
+    return pp::texture.Sample(pp::sampler, input.uv);
 }

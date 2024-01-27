@@ -615,12 +615,6 @@
         <None Update="Resources\Textures\Blocks\salt.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Shaders\CommonRT.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Shaders\BasicOpaque.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\Shaders\Miss.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -630,7 +624,7 @@
         <None Update="Resources\Shaders\Shadow.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Shaders\Post.hlsl">
+        <None Update="Resources\Shaders\PostProcessing.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Shaders\Foliage.hlsl">
@@ -643,6 +637,9 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Remove="Resources\Shaders\noise.glsl"/>
+        <None Update="Resources\Shaders\BasicOpaque.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -670,25 +667,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Resources\Shaders\Payloads.hlsl"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\Shaders\Payloads.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\Shaders\Payloads.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\Shaders\Animation.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Include="Resources\Shaders\FastNoiseLite.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -702,21 +680,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Resources\Shaders\ScreenElement.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="Resources\Shaders\Space.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\Shaders\Space.hlsl">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Resources\Shaders\Animation.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

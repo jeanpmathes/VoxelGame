@@ -1,4 +1,4 @@
-//  <copyright file="Hit.hlsl" company="VoxelGame">
+//  <copyright file="BasicOpaque.hlsl" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
 // </copyright>
@@ -7,23 +7,23 @@
 #include "Section.hlsl"
 
 [shader("closesthit")]
-void BasicOpaqueSectionClosestHit(inout HitInfo payload, const Attributes attributes)
+void BasicOpaqueSectionClosestHit(inout native::rt::HitInfo payload, const native::rt::Attributes attributes)
 {
-    const Info info = GetCurrentInfo(attributes);
-    float4 baseColor = GetBasicBaseColor(info);
+    const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
+    float4 baseColor = vg::section::GetBasicBaseColor(info);
 
-    if (baseColor.a >= 0.3)
+    if (baseColor.a >= 0.3f)
     {
-        baseColor *= decode::GetTintColor(info.data);
+        baseColor *= vg::decode::GetTintColor(info.data);
     }
-    
-    baseColor.a = 1.0;
+
+    baseColor.a = 1.0f;
 
     SET_HIT_INFO(payload, info, CalculateShading(info, baseColor.rgb));
 }
 
 [shader("closesthit")]
-void BasicOpaqueShadowClosestHit(inout ShadowHitInfo hitInfo, Attributes)
+void BasicOpaqueShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)
 {
     hitInfo.isHit = true;
 }

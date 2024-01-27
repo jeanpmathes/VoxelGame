@@ -186,6 +186,9 @@ public sealed class TextSupport : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~TextSupport()
     {
         Dispose(disposing: false);

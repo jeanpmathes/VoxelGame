@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Gwen.Net.RichText;
@@ -117,7 +118,11 @@ public sealed class UIResources : IDisposable
                     settings.ShaderFile = shader;
 
                     settings.ShaderLoadingErrorCallback =
-                        exception => shaderLoadingError = exception;
+                        exception =>
+                        {
+                            shaderLoadingError = exception;
+                            Debugger.Break();
+                        };
 
                     foreach ((string _, TexturePreload texture) in textures) settings.TexturePreloads.Add(texture);
 

@@ -10,27 +10,28 @@
 #include "Decoding.hlsl"
 #include "Custom.hlsl"
 
-void ApplySway(inout SpatialVertex vertex, float2 uv, const bool isUpperPart, const bool isDoublePlant,
+void ApplySway(inout native::spatial::SpatialVertex vertex, float2 uv, const bool isUpperPart, const bool isDoublePlant,
                const in fnl_state noise)
 {
-    const float amplitude = 0.2;
-    const float speed = 0.8;
+    const float amplitude = 0.2f;
+    const float speed = 0.8f;
 
-    const float strength = (uv.y + (isUpperPart ? 1.0 : 0.0)) * (isDoublePlant ? 0.5 : 1.0);
-    const float2 position = vertex.position.xz + gWindDir.xz * gTime * speed;
+    const float strength = (uv.y + (isUpperPart ? 1.0f : 0.0)) * (isDoublePlant ? 0.5f : 1.0f);
+    const float2 position = vertex.position.xz + vg::custom.windDir.xz * native::spatial::global.time * speed;
 
-    vertex.position += gWindDir * fnlGetNoise2D(noise, position.x, position.y) * amplitude * strength;
+    vertex.position += vg::custom.windDir * fnlGetNoise2D(noise, position.x, position.y) * amplitude * strength;
 }
 
 [numthreads(16, 4, 1)]
 void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
 {
-    Submission submission = threadGroupData[groupID.x].submissions[submissionID.x];
+    native::animation::Submission submission
+        = native::animation::threadGroupData[groupID.x].submissions[submissionID.x];
 
     if (submission.count == 0) return;
 
     fnl_state noise = fnlCreateState();
-    noise.frequency = 0.35;
+    noise.frequency = 0.35f;
     noise.domain_warp_type = FNL_DOMAIN_WARP_BASICGRID;
 
     const uint threadID = submissionID.y;
@@ -39,23 +40,23 @@ void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
 
     for (uint quadID = offset; quadID < offset + count; quadID++)
     {
-        SpatialVertex quad[VG_VERTICES_PER_QUAD];
+        native::spatial::SpatialVertex quad[native::spatial::VERTICES_PER_QUAD];
         uint4 data;
 
-        for (uint index = 0; index < VG_VERTICES_PER_QUAD; index++)
+        for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {
-            quad[index] = source[submission.meshIndex][quadID * 4 + index];
+            quad[index] = native::animation::source[submission.meshIndex][quadID * 4 + index];
             data[index] = quad[index].data;
         }
 
-        const bool isUpperPart = GetFoliageFlag(data, decode::Foliage::IS_UPPER_PART);
-        const bool isDoublePlant = GetFoliageFlag(data, decode::Foliage::IS_DOUBLE_PLANT);
-        const float4x2 uvs = decode::GetUVs(data);
+        const bool isUpperPart = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
+        const bool isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
+        const float4x2 uvs = vg::decode::GetUVs(data);
 
-        for (uint index = 0; index < VG_VERTICES_PER_QUAD; index++)
+        for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {
             ApplySway(quad[index], uvs[index], isUpperPart, isDoublePlant, noise);
-            destination[submission.meshIndex][quadID * 4 + index] = quad[index];
+            native::animation::destination[submission.meshIndex][quadID * 4 + index] = quad[index];
         }
     }
 }

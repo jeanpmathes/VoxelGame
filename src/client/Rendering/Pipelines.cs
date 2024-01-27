@@ -108,7 +108,7 @@ public sealed class Pipelines : IDisposable
     {
         if (!loaded) return;
 
-        postProcessingPipeline = Require(LoadPipeline(client, "Post", new ShaderPresets.PostProcessing()));
+        postProcessingPipeline = Require(LoadPipeline(client, "PostProcessing", new ShaderPresets.PostProcessing()));
 
         CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
         bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairRenderer.SetColor(args.NewValue)));
@@ -163,6 +163,8 @@ public sealed class Pipelines : IDisposable
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
                 loaded = false;
+
+                Debugger.Break();
             });
 
         if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
@@ -190,6 +192,8 @@ public sealed class Pipelines : IDisposable
             {
                 loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
                 loaded = false;
+
+                Debugger.Break();
             });
 
         if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);

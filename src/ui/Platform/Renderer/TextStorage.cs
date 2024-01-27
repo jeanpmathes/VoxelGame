@@ -162,6 +162,9 @@ public sealed class TextStorage : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~TextStorage()
     {
         Dispose(disposing: false);

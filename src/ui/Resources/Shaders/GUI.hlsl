@@ -5,19 +5,12 @@
 //  <author>Gwen.Net, jeanpmathes</author>
 
 #include "Common.hlsl"
+#include "Draw2D.hlsl"
 
 cbuffer ScreenSizeCB : register(b0)
 {
 float2 gScreenSize;
 };
-
-cbuffer UseTextureCB : register(b1)
-{
-bool gUseTexture;
-};
-
-Texture2D gTexture : register(t0);
-SamplerState gSampler : register(s0);
 
 struct PSInput
 {
@@ -43,7 +36,7 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    if (!gUseTexture) return input.color;
+    if (!native::draw2d::useTexture.value) return input.color;
 
-    return input.color * gTexture.Sample(gSampler, input.uv);
+    return input.color * native::draw2d::texture[0].Sample(native::draw2d::sampler, input.uv);
 }

@@ -6,32 +6,22 @@
 
 #include "Common.hlsl"
 #include "TextureAnimation.hlsl"
+#include "Draw2D.hlsl"
 
 static const int BLOCK_MODE = 0;
 static const int FLUID_MODE = 1;
 
-cbuffer CustomDataCB : register(b0)
+struct CustomData
 {
-    float4x4 gMVP;
-    uint4 gAttributes;
-    float gLowerBound;
-    float gUpperBound;
-    int gMode;
-    int gFirstFluidTextureIndex;
-}
+    float4x4 mvp;
+    uint4 attributes;
+    float lowerBound;
+    float upperBound;
+    int mode;
+    int firstFluidTextureIndex;
+};
 
-cbuffer UseTextureCB : register(b1)
-{
-    bool gUseTexture;
-}
-
-cbuffer TimeCB : register(b0, space1)
-{
-    float gTime;
-}
-
-Texture2D gTexture[] : register(t0);
-SamplerState gSampler : register(s0);
+ConstantBuffer<CustomData> cb : register(b0);
 
 struct PSInput
 {
@@ -46,39 +36,40 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
 {
     PSInput result;
 
-    const bool isBlockMode = gMode == BLOCK_MODE;
+    const bool isBlockMode = cb.mode == BLOCK_MODE;
 
-    const int offset = isBlockMode ? 0 : gFirstFluidTextureIndex;
+    const int offset = isBlockMode ? 0 : cb.firstFluidTextureIndex;
 
     result.uv = uv;
     result.color = color;
-    result.position = mul(float4(position, 0.0, 1.0), gMVP);
-    result.height = (result.position.y + 1.0) * 0.5;
-    result.index = GetAnimatedTextureIndex(gAttributes, 0, gTime, isBlockMode) + offset;
+    result.position = mul(float4(position, 0.0f, 1.0f), cb.mvp);
+    result.height = (result.position.y + 1.0f) * 0.5f;
+    result.index = vg::animation::GetAnimatedTextureIndex(cb.attributes, 0, native::draw2d::time.value, isBlockMode) +
+        offset;
 
     return result;
 }
 
 float4 PSMain(const PSInput input) : SV_TARGET
 {
-    if (input.height < gLowerBound || input.height > gUpperBound)
+    if (input.height < cb.lowerBound || input.height > cb.upperBound)
         discard;
 
-    float4 color = gTexture[input.index].Sample(gSampler, input.uv);
+    float4 color = native::draw2d::texture[input.index].Sample(native::draw2d::sampler, input.uv);
 
-    switch (gMode)
+    switch (cb.mode)
     {
     case BLOCK_MODE:
-        if (color.a < 0.1) discard;
+        if (color.a < 0.1f) discard;
 
-        if (color.a >= 0.3)
-            color *= decode::GetTintColor(gAttributes);
+        if (color.a >= 0.3f)
+            color *= vg::decode::GetTintColor(cb.attributes);
 
-        color.a = 1.0;
+        color.a = 1.0f;
         break;
 
     case FLUID_MODE:
-        color *= decode::GetTintColor(gAttributes);
+        color *= vg::decode::GetTintColor(cb.attributes);
         break;
 
     default:

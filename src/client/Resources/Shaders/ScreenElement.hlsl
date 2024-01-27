@@ -5,20 +5,15 @@
 // <author>jeanpmathes</author>
 
 #include "Common.hlsl"
+#include "Draw2D.hlsl"
 
-cbuffer CustomDataCB : register(b0)
+struct CustomData
 {
-    float4x4 gMVP;
-    float4 gTextureColor;
+    float4x4 mvp;
+    float4 textureColor;
 };
 
-cbuffer UseTextureCB : register(b1)
-{
-    bool gUseTexture;
-};
-
-Texture2D gTexture : register(t0);
-SamplerState gSampler : register(s0);
+ConstantBuffer<CustomData> cb : register(b0);
 
 struct PSInput
 {
@@ -32,8 +27,8 @@ PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, con
     PSInput result;
 
     result.uv = uv;
-    result.color = gUseTexture ? gTextureColor : color;
-    result.position = mul(float4(position, 0.0, 1.0), gMVP);
+    result.color = native::draw2d::useTexture.value ? cb.textureColor : color;
+    result.position = mul(float4(position, 0.0f, 1.0f), cb.mvp);
 
     return result;
 }
@@ -42,9 +37,9 @@ float4 PSMain(const PSInput input) : SV_TARGET
 {
     float4 color = input.color;
 
-    if (gUseTexture)
+    if (native::draw2d::useTexture.value)
     {
-        color *= gTexture.Sample(gSampler, input.uv);
+        color *= native::draw2d::texture[0].Sample(native::draw2d::sampler, input.uv);
     }
 
     return color;
