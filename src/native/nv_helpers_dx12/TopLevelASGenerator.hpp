@@ -79,20 +79,21 @@ return buffers;
 
 namespace nv_helpers_dx12
 {
-    /// Helper class to generate top-level acceleration structures for raytracing
+    /**
+     * \brief Helper class to generate top-level acceleration structures for raytracing
+     */
     class TopLevelASGenerator
     {
     public:
-        /// Add an instance to the top-level acceleration structure. The instance is
-        /// represented by a bottom-level AS, a transform, an instance ID and the
-        /// index of the hit group indicating which shaders are executed upon hitting
-        /// any geometry within the instance
-        /// \param bottomLevelAS Bottom-level acceleration structure containing the actual geometric data of the instance
-        /// \param transform Transform matrix to apply to the instance, allowing the same bottom-level AS to be used at several world-space positions
-        /// \param instanceID Instance ID, which can be used in the shaders to identify this specific instance
-        /// \param hitGroupIndex Hit group index, corresponding the the index of the hit group in the Shader Binding Table that will be called upon hitting the geometry
-        /// \param inclusionMask Instance mask, which can be used in the shaders to hide instances.
-        /// \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
+        /**
+         * \brief Add an instance to the top-level acceleration structure. The instance is represented by a bottom-level AS, a transform, an instance ID and the index of the hit group indicating which shaders are executed upon hitting any geometry within the instance.
+         * \param bottomLevelAS Bottom-level acceleration structure containing the actual geometric data of the instance.
+         * \param transform Transform matrix to apply to the instance, allowing the same bottom-level AS to be used at several world-space positions.
+         * \param instanceID Instance ID, which can be used in the shaders to identify this specific instance.
+         * \param hitGroupIndex Hit group index, corresponding the the index of the hit group in the Shader Binding Table that will be called upon hitting the geometry.
+         * \param inclusionMask Instance mask, which can be used in the shaders to hide instances.
+         * \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE.
+         */
         void
         AddInstance(D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS,
                     const DirectX::XMFLOAT4X4& transform,
@@ -102,73 +103,60 @@ namespace nv_helpers_dx12
                     D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE
         );
 
-        /// Compute the size of the scratch space required to build the acceleration
-        /// structure, as well as the size of the resulting structure. The allocation
-        /// of the buffers is then left to the application
-        /// \param device Device on which the build will be performed
-        /// \param allowUpdate If true, the resulting acceleration structure will allow iterative updates
-        /// \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure
-        /// \param resultSizeInBytes Required GPU memory to store the acceleration structure
-        /// \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
+        /**
+         * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
+         * \param device Device on which the build will be performed.
+         * \param allowUpdate If true, the resulting acceleration structure will allow iterative updates.
+         * \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
+         * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
+         * \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
+         */
         void ComputeASBufferSizes(
-            ComPtr<ID3D12Device5> device,
+            const ComPtr<ID3D12Device5>& device,
             bool allowUpdate,
             UINT64* scratchSizeInBytes,
             UINT64* resultSizeInBytes,
             UINT64* descriptorsSizeInBytes
         );
 
-        /// Enqueue the construction of the acceleration structure on a command list,
-        /// using application-provided buffers and possibly a pointer to the previous
-        /// acceleration structure in case of iterative updates. Note that the update
-        /// can be done in place: the result and previousResult pointers can be the
-        /// same.
-        /// \param commandList Command list on which the build will be enqueued
-        /// \param scratchBuffer Scratch buffer used by the builder to store temporary data
-        /// \param resultBuffer Result buffer storing the acceleration structure
-        /// \param descriptorsBuffer Auxiliary result buffer containing the instance descriptors, has to be in upload heap
-        /// \param updateOnly If true, simply refit the existing acceleration
-        /// \param previousResult Optional previous acceleration structure, used if an iterative update is requested
+        /**
+         * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
+         * \param commandList Command list on which the build will be enqueued
+         * \param scratchBuffer Scratch buffer used by the builder to store temporary data
+         * \param resultBuffer Result buffer storing the acceleration structure
+         * \param descriptorsBuffer Auxiliary result buffer containing the instance descriptors, has to be in upload heap
+         * \param updateOnly If true, simply refit the existing acceleration
+         * \param previousResult Optional previous acceleration structure, used if an iterative update is requested
+         */
         void Generate(
-            ComPtr<ID3D12GraphicsCommandList4> commandList,
-            Allocation<ID3D12Resource> scratchBuffer,
-            Allocation<ID3D12Resource> resultBuffer,
-            Allocation<ID3D12Resource> descriptorsBuffer,
+            const ComPtr<ID3D12GraphicsCommandList4>& commandList,
+            const Allocation<ID3D12Resource>& scratchBuffer,
+            const Allocation<ID3D12Resource>& resultBuffer,
+            const Allocation<ID3D12Resource>& descriptorsBuffer,
             bool updateOnly = false,
-            Allocation<ID3D12Resource> previousResult = {}
-        );
+            const Allocation<ID3D12Resource>& previousResult = {}
+        ) const;
 
     private:
-        /// Helper struct storing the instance data
         struct Instance
         {
             Instance(D3D12_GPU_VIRTUAL_ADDRESS blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId, BYTE mask,
                      D3D12_RAYTRACING_INSTANCE_FLAGS f);
-            /// Bottom-level AS
+            
             D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS;
-            /// Transform matrix
-            const DirectX::XMFLOAT4X4& transform;
-            /// Instance ID visible in the shader
+            const DirectX::XMFLOAT4X4* transform;
             UINT instanceID;
-            /// Hit group index used to fetch the shaders from the SBT
             UINT hitGroupIndex;
-            /// Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE
             D3D12_RAYTRACING_INSTANCE_FLAGS flags;
-            /// Instance mask, which can be used in the shaders to hide instances.
             BYTE inclusionMask;
         };
-
-        /// Construction flags, indicating whether the AS supports iterative updates
+        
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
-        /// Instances contained in the top-level AS
         std::vector<Instance> m_instances{};
-
-        /// Size of the temporary memory used by the TLAS builder
+        
         UINT64 m_scratchSizeInBytes = 0;
-        /// Size of the buffer containing the instance descriptors
         UINT64 m_instanceDescriptionsSizeInBytes = 0;
-        /// Size of the buffer containing the TLAS
         UINT64 m_resultSizeInBytes = 0;
     };
-} // namespace nv_helpers_dx12
+}

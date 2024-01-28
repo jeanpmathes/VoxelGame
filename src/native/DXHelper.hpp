@@ -49,7 +49,7 @@ public:
     }
 };
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
 constexpr bool IS_DEBUG_BUILD = true;
 #else
 constexpr bool IS_DEBUG_BUILD = false;

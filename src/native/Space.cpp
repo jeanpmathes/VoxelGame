@@ -6,7 +6,7 @@ bool Material::IsAnimated() const
 }
 
 Space::Space(NativeClient& nativeClient) :
-    m_nativeClient(nativeClient),
+    m_nativeClient(&nativeClient),
     m_resultBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE),
     m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
     m_camera(nativeClient),
@@ -20,7 +20,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     REQUIRE(m_drawables.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient.GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient->GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
     CreateTLAS();
@@ -29,7 +29,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
     ID3D12CommandList* ppCommandLists[] = {GetCommandList().Get()};
     commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-    m_nativeClient.WaitForGPU();
+    m_nativeClient->WaitForGPU();
 
     m_camera.Initialize();
 
@@ -41,7 +41,7 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
         1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     m_sentinelTexture = util::AllocateResource<ID3D12Resource>(
-        m_nativeClient, textureDescription,
+        *m_nativeClient, textureDescription,
         D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
     m_sentinelTextureViewDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -181,7 +181,7 @@ void Space::Update(double)
 
 void Space::Render(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth, const RenderData& data)
 {
-    m_globalConstantBufferMapping->time = static_cast<float>(m_nativeClient.GetTotalRenderTime());
+    m_globalConstantBufferMapping->time = static_cast<float>(m_nativeClient->GetTotalRenderTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
@@ -211,7 +211,7 @@ void Space::CleanupRender()
 
 NativeClient& Space::GetNativeClient() const
 {
-    return m_nativeClient;
+    return *m_nativeClient;
 }
 
 ShaderBuffer* Space::GetCustomDataBuffer() const
@@ -254,13 +254,13 @@ BLAS Space::AllocateBLAS(const UINT64 resultSize, const UINT64 scratchSize)
 
 ComPtr<ID3D12Device5> Space::GetDevice() const
 {
-    return m_nativeClient.GetDevice();
+    return m_nativeClient->GetDevice();
 }
 
 void Space::CreateGlobalConstBuffer()
 {
     m_globalConstantBufferSize = sizeof(GlobalConstantBuffer);
-    m_globalConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &m_globalConstantBufferSize);
+    m_globalConstantBuffer = util::AllocateConstantBuffer(*m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
     TRY_DO(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping, 1));
@@ -334,14 +334,14 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     if (pipelineDescription.description.customDataBufferSize > 0)
     {
-        m_customDataBuffer = std::make_unique<ShaderBuffer>(m_nativeClient,
+        m_customDataBuffer = std::make_unique<ShaderBuffer>(*m_nativeClient,
                                                             pipelineDescription.description.customDataBufferSize);
     }
 
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
 
     bool ok = true;
-    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(m_nativeClient, pipelineDescription, pipeline);
+    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(*m_nativeClient, pipelineDescription, pipeline);
     if (!ok) return false;
 
     m_rayGenSignature = CreateRayGenSignature();
@@ -370,7 +370,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
                 m_rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
             });
 
-            m_effectBindings = RasterPipeline::SetupEffectBindings(m_nativeClient, graphics);
+            m_effectBindings = RasterPipeline::SetupEffectBindings(*m_nativeClient, graphics);
             // todo: update wiki article about shader resources (write section about compute resources)
         },
         [&](auto& compute)
@@ -504,13 +504,13 @@ std::unique_ptr<Material> Space::SetupMaterial(const MaterialDescription& descri
                                  : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
 
     UINT64 materialConstantBufferSize = sizeof MaterialConstantBuffer;
-    material->materialConstantBuffer = util::AllocateConstantBuffer(m_nativeClient, &materialConstantBufferSize);
+    material->materialConstantBuffer = util::AllocateConstantBuffer(*m_nativeClient, &materialConstantBufferSize);
     NAME_D3D12_OBJECT(material->materialConstantBuffer);
 
     const MaterialConstantBuffer materialConstantBufferData = {.index = index};
     TRY_DO(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
     const std::wstring debugName = description.name;
     // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
     TRY_DO(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
@@ -614,7 +614,7 @@ void Space::InitializeAnimations()
 {
     for (auto& animation : m_animations)
     {
-        animation.Initialize(m_nativeClient, m_globalShaderResources->GetComputeRootSignature());
+        animation.Initialize(*m_nativeClient, m_globalShaderResources->GetComputeRootSignature());
     }
 }
 
@@ -632,7 +632,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_colorOutputDescription.SampleDesc.Count = 1;
 
     m_colorOutput = util::AllocateResource<ID3D12Resource>(
-        m_nativeClient,
+        *m_nativeClient,
         m_colorOutputDescription,
         D3D12_HEAP_TYPE_DEFAULT,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -650,7 +650,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_depthOutputDescription.SampleDesc.Count = 1;
 
     m_depthOutput = util::AllocateResource<ID3D12Resource>(
-        m_nativeClient,
+        *m_nativeClient,
         m_depthOutputDescription,
         D3D12_HEAP_TYPE_DEFAULT,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -701,7 +701,7 @@ void Space::CreateShaderBindingTable()
     const uint32_t sbtSize = m_sbtHelper.ComputeSBTSize();
 
     util::ReAllocateBuffer(&m_sbtStorage,
-                           m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
+                           *m_nativeClient, sbtSize, D3D12_RESOURCE_FLAG_NONE,
                            D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT(m_sbtStorage);
 
@@ -765,19 +765,19 @@ void Space::CreateTLAS()
     topLevelASGenerator.ComputeASBufferSizes(GetDevice().Get(), false, &scratchSize, &resultSize,
                                              &instanceDescriptionSize);
 
-    const bool committed = m_nativeClient.SupportPIX();
+    const bool committed = m_nativeClient->SupportPIX();
 
-    util::ReAllocateBuffer(&m_topLevelASBuffers.scratch, m_nativeClient, scratchSize,
+    util::ReAllocateBuffer(&m_topLevelASBuffers.scratch, *m_nativeClient, scratchSize,
                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                            D3D12_RESOURCE_STATE_COMMON,
                            D3D12_HEAP_TYPE_DEFAULT,
                            committed);
-    util::ReAllocateBuffer(&m_topLevelASBuffers.result, m_nativeClient, resultSize,
+    util::ReAllocateBuffer(&m_topLevelASBuffers.result, *m_nativeClient, resultSize,
                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                            D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
                            D3D12_HEAP_TYPE_DEFAULT,
                            committed);
-    util::ReAllocateBuffer(&m_topLevelASBuffers.instanceDescription, m_nativeClient, instanceDescriptionSize,
+    util::ReAllocateBuffer(&m_topLevelASBuffers.instanceDescription, *m_nativeClient, instanceDescriptionSize,
                            D3D12_RESOURCE_FLAG_NONE,
                            D3D12_RESOURCE_STATE_GENERIC_READ,
                            D3D12_HEAP_TYPE_UPLOAD,

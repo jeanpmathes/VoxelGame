@@ -12,9 +12,7 @@
 #include "Concepts.hpp"
 
 /**
- * A collection to store elements in.
- * The collection allows pushing, popping and iterating over the elements.
- * All elements in the collections are addressed by a unique index.
+ * A collection to store elements in. The collection allows pushing, popping and iterating over the elements. All elements in the collections are addressed by a unique index.
  */
 template <Nullable E, UnsignedNativeSizedInteger I = size_t>
 class Bag
@@ -51,13 +49,13 @@ public:
     E Pop(I i)
     {
         const size_t index = static_cast<size_t>(i);
-        
+
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 
         auto element = std::move(m_elements[index]);
         m_elements[index] = nullptr;
-        
+
         m_gaps.push(index);
         m_size--;
 
@@ -82,7 +80,7 @@ public:
     E& operator[](I i)
     {
         const size_t index = static_cast<size_t>(i);
-        
+
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 

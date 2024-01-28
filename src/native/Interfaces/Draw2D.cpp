@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 
 draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const Callback callback)
-    : m_raster(raster), m_callback(callback), m_client(client)
+    : m_raster(raster), m_callback(callback), m_client(&client)
 {
     REQUIRE(m_raster != nullptr);
 
@@ -12,7 +12,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const C
         UINT64 alignedSize = size;
 
         const Allocation<ID3D12Resource> booleanConstantBuffer = util::AllocateConstantBuffer(
-            m_client, &alignedSize);
+            *m_client, &alignedSize);
         NAME_D3D12_OBJECT(booleanConstantBuffer);
 
         this->m_cbuffers.push_back(booleanConstantBuffer);
@@ -68,7 +68,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
             util::ReAllocateBuffer(&ctx->m_uploadBuffer,
-                                   ctx->m_client, vertexBufferSize,
+                                   *ctx->m_client, vertexBufferSize,
                                    D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
                                    D3D12_HEAP_TYPE_UPLOAD);
             NAME_D3D12_OBJECT(ctx->m_uploadBuffer);
@@ -76,7 +76,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
             TRY_DO(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
             util::ReAllocateBuffer(&ctx->m_vertexBuffer,
-                                   ctx->m_client, vertexBufferSize,
+                                   *ctx->m_client, vertexBufferSize,
                                    D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON,
                                    D3D12_HEAP_TYPE_DEFAULT);
             NAME_D3D12_OBJECT(ctx->m_vertexBuffer);

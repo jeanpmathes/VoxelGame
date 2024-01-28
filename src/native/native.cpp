@@ -34,7 +34,7 @@ NATIVE void NativeFinalize(const NativeClient* client)
     {
         delete client;
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
         IDXGIDebug1* debug = nullptr;
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
@@ -133,7 +133,7 @@ NATIVE void NativeGetMousePosition(const NativeClient* client, PLONG x, PLONG y)
     CATCH();
 }
 
-NATIVE void NativeSetMousePosition(const NativeClient* client, const LONG x, const LONG y)
+NATIVE void NativeSetMousePosition(NativeClient* client, const LONG x, const LONG y)
 {
     TRY
     {

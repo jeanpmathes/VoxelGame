@@ -35,7 +35,7 @@ enum class MouseCursor : BYTE
 class DXApp
 {
 public:
-    DXApp(Configuration configuration);
+    explicit DXApp(const Configuration& configuration);
     virtual ~DXApp();
 
     DXApp(const DXApp& other) = delete;
@@ -61,7 +61,7 @@ public:
     void Render(const StepTimer& timer);
     void Destroy();
 
-    bool CanClose() const;
+    [[nodiscard]] bool CanClose() const;
 
     void HandleSizeChanged(UINT width, UINT height, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
@@ -81,6 +81,8 @@ public:
     [[nodiscard]] UINT GetHeight() const { return m_height; }
     [[nodiscard]] const WCHAR* GetTitle() const { return m_title.c_str(); }
     [[nodiscard]] HICON GetIcon() const { return m_icon; }
+
+    [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
 
     /**
      * Whether to configure features in a way that are more friendly to PIX.
@@ -134,22 +136,14 @@ protected:
     virtual void OnWindowMoved(int xPos, int yPos) = 0;
 
     static ComPtr<IDXGIAdapter1> GetHardwareAdapter(
-        ComPtr<IDXGIFactory4> dxgiFactory,
-        ComPtr<ID3D12DeviceFactory> deviceFactory,
+        const ComPtr<IDXGIFactory4>& dxgiFactory,
+        const ComPtr<ID3D12DeviceFactory>& deviceFactory,
         bool requestHighPerformanceAdapter = false);
 
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
 
     [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
-
-    UINT m_width; // todo: make these all private, add getters (and setters if needed)
-    UINT m_height;
-    float m_aspectRatio;
-
-    RECT m_windowBounds;
-
-    bool m_tearingSupport;
 
 private:
     std::wstring m_title;
@@ -162,6 +156,13 @@ private:
 
     double m_totalUpdateTime = 0.0;
     double m_totalRenderTime = 0.0;
+
+    UINT m_width;
+    UINT m_height;
+    float m_aspectRatio;
+    RECT m_windowBounds;
+
+    bool m_tearingSupport;
 
     int m_xMousePosition = 0;
     int m_yMousePosition = 0;

@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 
-Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList> optionalCommandList)
-    : m_client(client), m_commandList(optionalCommandList), m_ownsCommandList(optionalCommandList == nullptr)
+Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>& optionalCommandList)
+    : m_client(&client), m_commandList(optionalCommandList), m_ownsCommandList(optionalCommandList == nullptr)
 {
     if (m_ownsCommandList)
     {
@@ -21,7 +21,7 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
 void Uploader::UploadTexture(
     std::byte** data,
     const TextureDescription& description,
-    const Allocation<ID3D12Resource> destination)
+    const Allocation<ID3D12Resource>& destination)
 {
     const UINT subresources = description.mipLevels;
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
@@ -62,7 +62,7 @@ void Uploader::UploadTexture(
     if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
 
-void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Allocation<ID3D12Resource> destination)
+void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Allocation<ID3D12Resource>& destination)
 {
     const Allocation<ID3D12Resource> normalUploadBuffer = util::AllocateBuffer(
         GetClient(),
@@ -89,7 +89,7 @@ void Uploader::UploadBuffer(const std::byte* data, const UINT size, const Alloca
     m_commandList->ResourceBarrier(1, &transition);
 }
 
-void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> commandQueue) const
+void Uploader::ExecuteUploads(const ComPtr<ID3D12CommandQueue>& commandQueue) const
 {
     TRY_DO(m_commandList->Close());
     ID3D12CommandList* ppCommandLists[] = {m_commandList.Get()};
@@ -98,12 +98,12 @@ void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> commandQueue) const
 
 ComPtr<ID3D12Device4> Uploader::GetDevice() const
 {
-    return m_client.GetDevice();
+    return m_client->GetDevice();
 }
 
 NativeClient& Uploader::GetClient() const
 {
-    return m_client;
+    return *m_client;
 }
 
 bool Uploader::IsUploadingIndividually() const

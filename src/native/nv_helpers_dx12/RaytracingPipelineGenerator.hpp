@@ -69,112 +69,157 @@ rtStateObject = pipeline.Generate();
 #include <vector>
 #include <wrl/client.h>
 
-namespace nv_helpers_dx12 // todo: fix all style warnings here and in other nv_helpers_dx12 files
+namespace nv_helpers_dx12
 {
-    /// Helper class to create raytracing pipelines
+    /**
+     * \brief Helper class to create raytracing pipelines.
+     */
     class RayTracingPipelineGenerator
     {
     public:
-        /// The pipeline helper requires access to the device, as well as the
-        /// raytracing device prior to Windows 10 RS5.
-        RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device);
+        /**
+         * \brief The pipeline helper requires access to the device, as well as the raytracing device prior to Windows 10 RS5.
+         * \param device The device used to create the pipeline.
+         */
+        explicit RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device);
 
-        /// Add a DXIL library to the pipeline. Note that this library has to be
-        /// compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the
-        /// names of the shaders declared in the library, although unused ones can be omitted.
+        /**
+         * \brief Add a DXIL library to the pipeline. Note that this library has to be compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the names of the shaders declared in the library, although unused ones can be omitted.
+         * \param dxilLibrary The library to add.
+         * \param symbolExports The list of exported symbols.
+         */
         void AddLibrary(IDxcBlob* dxilLibrary, const std::vector<std::wstring>& symbolExports);
 
-        /// In DXR the hit-related shaders are grouped into hit groups. Such shaders are:
-        /// - The intersection shader, which can be used to intersect custom geometry, and is called upon
-        ///   hitting the bounding box the the object. A default one exists to intersect triangles
-        /// - The any hit shader, called on each intersection, which can be used to perform early
-        ///   alpha-testing and allow the ray to continue if needed. Default is a pass-through.
-        /// - The closest hit shader, invoked on the hit point closest to the ray start.
-        /// The shaders in a hit group share the same root signature, and are only referred to by the
-        /// hit group name in other places of the program.
-        void AddHitGroup(const std::wstring& hitGroupName, const std::wstring& closestHitSymbol,
+        /**
+         * \brief Add a hit group to the pipeline. The shaders in a hit group share the same root signature, and are only referred to by the hit group name in other places of the program.
+         * \param hitGroupName The name of the hit group.
+         * \param closestHitSymbol The name of the closest hit shader, invoked on the hit point closest to the ray start.
+         * \param anyHitSymbol The name of the any hit shader, called on each intersection, which can be used to perform early alpha-testing and allow the ray to continue if needed. Default is a pass-through.
+         * \param intersectionSymbol The name of the intersection shader, which can be used to intersect custom geometry, and is called upon hitting the bounding box the the object. A default one exists to intersect triangles.
+         */
+        void AddHitGroup(const std::wstring& hitGroupName,
+                         const std::wstring& closestHitSymbol,
                          const std::wstring& anyHitSymbol = L"",
                          const std::wstring& intersectionSymbol = L"");
 
-        /// The shaders and hit groups may have various root signatures. This call associates a root
-        /// signature to one or more symbols. All imported symbols must be associated to one root
-        /// signature.
+        /** 
+         * \brief Add a root signature association to the pipeline. The root signature can be local or global. Local root signatures are used to override the global ones, and are only visible to the shaders in the same library. Global root signatures are visible to all shaders in the pipeline.
+         * \param rootSignature The root signature to associate.
+         * \param local Whether the root signature is local or global.
+         * \param symbols The list of symbols to associate with the root signature.
+         */
         void AddRootSignatureAssociation(ID3D12RootSignature* rootSignature,
                                          bool local,
                                          const std::vector<std::wstring>& symbols);
 
-        /// The payload is the way hit or miss shaders can exchange data with the shader that called
-        /// TraceRay. When several ray types are used (e.g. primary and shadow rays), this value must be
-        /// the largest possible payload size. Note that to optimize performance, this size must be kept
-        /// as low as possible.
+        /**
+         * \brief The payload is the way hit or miss shaders can exchange data with the shader that called TraceRay. When several ray types are used (e.g. primary and shadow rays), this value must be the largest possible payload size. Note that to optimize performance, this size must be kept as low as possible.
+         * \param sizeInBytes The size of the payload, in bytes.
+         */
         void SetMaxPayloadSize(UINT sizeInBytes);
 
-        /// When hitting geometry, a number of surface attributes can be generated by the intersector.
-        /// Using the built-in triangle intersector the attributes are the barycentric coordinates, with a
-        /// size 2*sizeof(float).
+        /**
+         * \brief When hitting geometry, a number of surface attributes can be generated by the intersector. Using the built-in triangle intersector the attributes are the barycentric coordinates, with a size 2*sizeof(float).
+         * \param sizeInBytes The size of the attributes, in bytes.
+         */
         void SetMaxAttributeSize(UINT sizeInBytes);
 
-        /// Upon hitting a surface, a closest hit shader can issue a new TraceRay call. This parameter
-        /// indicates the maximum level of recursion. Note that this depth should be kept as low as
-        /// possible, typically 2, to allow hit shaders to trace shadow rays. Recursive ray tracing
-        /// algorithms must be flattened to a loop in the ray generation program for best performance.
+        /**
+         * \brief Upon hitting a surface, a closest hit shader can issue a new TraceRay call. This parameter indicates the maximum level of recursion. Note that this depth should be kept as low as possible, typically 2, to allow hit shaders to trace shadow rays. Recursive ray tracing algorithms must be flattened to a loop in the ray generation program for best performance.
+         * \param maxDepth The maximum recursion depth.
+         */
         void SetMaxRecursionDepth(UINT maxDepth);
 
-        /// Compiles the raytracing state object
+        /**
+         * \brief Compile the pipeline and return the state object.
+         * \param globalRootSignature The global root signature, which is used when no local root signature is specified.
+         * \return The state object.
+         */
         Microsoft::WRL::ComPtr<ID3D12StateObject> Generate(
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> globalRootSignature);
+            const Microsoft::WRL::ComPtr<ID3D12RootSignature>& globalRootSignature);
 
     private:
-        /// Storage for DXIL libraries and their exported symbols
+        /**
+         * \brief Storage for DXIL libraries and their exported symbols.
+         */
         struct Library
         {
             Library(IDxcBlob* dxil, const std::vector<std::wstring>& exportedSymbols);
-            Library(const Library& source);
 
-            IDxcBlob* m_dxil;
-            const std::vector<std::wstring> m_exportedSymbols;
+            Library(const Library& other) = delete;
+            Library& operator=(const Library& other) = delete;
 
-            std::vector<D3D12_EXPORT_DESC> m_exports;
-            D3D12_DXIL_LIBRARY_DESC m_libDesc;
+            Library(Library&& other) = default;
+            Library& operator=(Library&& other) = default;
+
+            ~Library() = default;
+
+            IDxcBlob* dxil;
+
+            std::vector<std::wstring> exportedSymbols;
+            std::vector<D3D12_EXPORT_DESC> exports;
+
+            D3D12_DXIL_LIBRARY_DESC libDescription;
         };
 
-        /// Storage for the hit groups, binding the hit group name with the underlying intersection, any
-        /// hit and closest hit symbols
+        /**
+         * \brief Storage for the hit groups, binding the hit group name with the underlying intersection, any hit and closest hit symbols.
+         */
         struct HitGroup
         {
             HitGroup(std::wstring hitGroupName, std::wstring closestHitSymbol,
                      std::wstring anyHitSymbol = L"", std::wstring intersectionSymbol = L"");
-            HitGroup(const HitGroup& source);
 
-            std::wstring m_hitGroupName;
-            std::wstring m_closestHitSymbol;
-            std::wstring m_anyHitSymbol;
-            std::wstring m_intersectionSymbol;
-            D3D12_HIT_GROUP_DESC m_desc = {};
+            HitGroup(const HitGroup& other) = delete;
+            HitGroup& operator=(const HitGroup& other) = delete;
+
+            HitGroup(HitGroup&& other) = default;
+            HitGroup& operator=(HitGroup&& other) = default;
+
+            ~HitGroup() = default;
+
+            std::wstring hitGroupName;
+            std::wstring closestHitSymbol;
+            std::wstring anyHitSymbol;
+            std::wstring intersectionSymbol;
+
+            D3D12_HIT_GROUP_DESC desc = {};
         };
 
-        /// Storage for the association between shaders and root signatures
+        /**
+         * \brief Storage for the association between shaders and root signatures.
+         */
         struct RootSignatureAssociation
         {
             RootSignatureAssociation(ID3D12RootSignature* rootSignature,
                                      bool local,
                                      const std::vector<std::wstring>& symbols);
-            RootSignatureAssociation(const RootSignatureAssociation& source);
 
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignaturePointer;
-            bool m_local;
-            std::vector<std::wstring> m_symbols;
-            std::vector<LPCWSTR> m_symbolPointers;
-            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION m_association = {};
+            RootSignatureAssociation(const RootSignatureAssociation& other) = delete;
+            RootSignatureAssociation& operator=(const RootSignatureAssociation& other) = delete;
+
+            RootSignatureAssociation(RootSignatureAssociation&& other) = default;
+            RootSignatureAssociation& operator=(RootSignatureAssociation&& other) = default;
+
+            ~RootSignatureAssociation() = default;
+
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignaturePointer;
+            bool local;
+            std::vector<std::wstring> symbols;
+            std::vector<LPCWSTR> symbolPointers;
+            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association = {};
         };
 
-        /// The pipeline creation requires having at least one empty global and local root signatures, so
-        /// we systematically create both
+        /**
+         * \brief The pipeline creation requires having at least one empty global and local root signatures, so we systematically create both.
+         */
         void CreateDummyRootSignature();
 
-        /// Build a list containing the export symbols for the ray generation shaders, miss shaders, and
-        /// hit group names
+        /**
+         * \brief Build a list containing the export symbols for the ray generation shaders, miss shaders, and hit group names.
+         * \param exportedSymbols The list of exported symbols.
+         */
         void BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const;
 
         std::vector<Library> m_libraries = {};
@@ -182,13 +227,10 @@ namespace nv_helpers_dx12 // todo: fix all style warnings here and in other nv_h
         std::vector<RootSignatureAssociation> m_rootSignatureAssociations = {};
 
         UINT m_maxPayLoadSizeInBytes = 0;
-        /// Attribute size, initialized to 2 for the barycentric coordinates used by the built-in triangle
-        /// intersection shader
         UINT m_maxAttributeSizeInBytes = 2 * sizeof(float);
-        /// Maximum recursion depth, initialized to 1 to at least allow tracing primary rays
         UINT m_maxRecursionDepth = 1;
 
         Microsoft::WRL::ComPtr<ID3D12Device5> m_device;
         Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
     };
-} // namespace nv_helpers_dx12
+}

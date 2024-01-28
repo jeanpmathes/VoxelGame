@@ -132,6 +132,9 @@ public sealed class SpatialMeshing : IMeshing
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~SpatialMeshing()
     {
         Dispose(disposing: false);

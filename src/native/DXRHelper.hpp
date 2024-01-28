@@ -62,7 +62,7 @@ inline ComPtr<IDxcBlob> CompileShader(
     std::vector<LPCWSTR> args;
     std::vector<DxcDefine> defines;
 
-#if defined(VG_DEBUG) || defined(USE_NSIGHT_AFTERMATH)
+#if defined(NATIVE_DEBUG) || defined(USE_NSIGHT_AFTERMATH)
     args.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
     args.push_back(DXC_ARG_DEBUG);
     args.push_back(L"-Qembed_debug");

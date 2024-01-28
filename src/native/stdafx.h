@@ -120,7 +120,7 @@
 
 #include "Interfaces/Draw2D.hpp"
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
 #include <Initguid.h>
 #include <dxgidebug.h>
 #endif

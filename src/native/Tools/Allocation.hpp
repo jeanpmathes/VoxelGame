@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "D3D12MemAlloc.hpp"
 #include "DXHelper.hpp"
 
@@ -18,7 +20,6 @@ struct Allocation;
  * Allows writing to the resource.
  */
 template <typename R, typename S>
-// todo: go trough all c++ comments, use \brief, \param, \return, etc. - maybe there is a warning for this
 class Mapping
 {
 public:
@@ -178,7 +179,7 @@ struct Allocation
     {
     }
 
-    auto Get() const
+    [[nodiscard]] auto Get() const
     {
         return resource.Get();
     }

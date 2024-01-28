@@ -48,6 +48,7 @@ public:
      * The shader binds both UAV and SRV resources and occupies one space in each.
      */
     AnimationController(const ComPtr<IDxcBlob>& shader, UINT space);
+    
     void SetupResourceLayout(ShaderResources::Description* description);
     void Initialize(NativeClient& client, const ComPtr<ID3D12RootSignature>& rootSignature);
 
@@ -56,15 +57,20 @@ public:
     void RemoveMesh(Mesh& mesh);
 
     /**
-     * Updates shader resource data, must be called before running the animation.
+     * \brief Updates shader resource data, must be called before running the animation.
+     * \param resources The shader resources.
+     * \param commandList The command list to use for uploading.
      */
     void Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> commandList);
     /**
-     * Runs the animation.
+     * \brief Runs the animation.
+     * \param commandList The command list to use for running.
      */
     void Run(ComPtr<ID3D12GraphicsCommandList4> commandList);
     /**
-     * Create the BLAS for every mesh that uses this animation.
+     * \brief Create the BLAS for every mesh that uses this animation.
+     * \param commandList The command list to use for creating the BLAS.
+     * \param uavs A list that will receive the UAVs for the BLAS.
      */
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs);
 

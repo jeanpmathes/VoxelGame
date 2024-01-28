@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 
 InBufferAllocator::InBufferAllocator(NativeClient& client, const D3D12_RESOURCE_STATES state)
-    : m_client(client), m_state(state), m_pix(client.SupportPIX())
+    : m_client(&client), m_state(state), m_pix(client.SupportPIX())
 {
 }
 
@@ -75,7 +75,7 @@ AddressableBuffer InBufferAllocator::AllocateInternal(const UINT64 size)
 Allocation<ID3D12Resource> InBufferAllocator::AllocateMemory(const UINT64 size) const
 {
     const bool committed = m_pix;
-    return util::AllocateBuffer(m_client, size,
+    return util::AllocateBuffer(*m_client, size,
                                 D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
                                 m_state,
                                 D3D12_HEAP_TYPE_DEFAULT,

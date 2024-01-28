@@ -245,7 +245,7 @@ private:
     void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
-    NativeClient& m_nativeClient; // todo: make pointer, check other offenders of warning
+    NativeClient* m_nativeClient;
     Resolution m_resolution{};
 
     InBufferAllocator m_resultBufferAllocator;
@@ -305,8 +305,8 @@ private:
     ShaderResources::ListHandle m_meshGeometryBufferList = ShaderResources::ListHandle::INVALID;
 
     Drawable::BaseContainer m_drawables;
-    DrawablesGroup<Mesh> m_meshes{m_nativeClient, m_drawables};
-    DrawablesGroup<Effect> m_effects{m_nativeClient, m_drawables};
+    DrawablesGroup<Mesh> m_meshes{*m_nativeClient, m_drawables};
+    DrawablesGroup<Effect> m_effects{*m_nativeClient, m_drawables};
     std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
     TLAS m_topLevelASBuffers;

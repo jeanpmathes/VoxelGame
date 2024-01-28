@@ -92,7 +92,7 @@ public:
             ShaderResources::Table::Entry customData = ShaderResources::Table::Entry::invalid;
         };
 
-        explicit Bindings(ShaderPreset preset)
+        explicit Bindings(const ShaderPreset preset)
         {
             switch (preset)
             {

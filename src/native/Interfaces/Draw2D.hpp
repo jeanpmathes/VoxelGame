@@ -38,7 +38,7 @@ namespace draw2d
     using Callback = void(*)(Drawer);
 
     /**
-     * A pipeline wrapper for drawing 2D elements.
+     * \brief A pipeline wrapper for drawing 2D elements.
      */
     class Pipeline final
     {
@@ -46,7 +46,8 @@ namespace draw2d
         Pipeline(NativeClient& client, RasterPipeline* raster, Callback callback);
         
         /**
-         * Populate the command list with all necessary commands to draw the 2D elements.
+         * \brief Populate the command list with all necessary commands to draw the 2D elements.
+         * \param commandList The command list to populate.
          */
         void PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> commandList);
 
@@ -60,7 +61,7 @@ namespace draw2d
 
         RasterPipeline* m_raster;
         Callback m_callback;
-        NativeClient& m_client;
+        NativeClient* m_client;
 
         std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
         std::vector<ShaderResources::ConstantBufferViewDescriptor> m_constantBufferViews = {};

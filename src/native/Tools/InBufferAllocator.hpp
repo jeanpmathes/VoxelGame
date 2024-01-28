@@ -40,7 +40,7 @@ private:
     AddressableBuffer AllocateInternal(UINT64 size);
     [[nodiscard]] Allocation<ID3D12Resource> AllocateMemory(UINT64 size) const;
 
-    NativeClient& m_client;
+    NativeClient* m_client;
     D3D12_RESOURCE_STATES m_state;
     bool m_pix;
 

@@ -45,8 +45,12 @@ class Camera final : public Object
     DECLARE_OBJECT_SUBCLASS(Camera)
 
 public:
+    /**
+     * \brief Creates a new camera.
+     * \param client The client.
+     */
     explicit Camera(NativeClient& client);
-
+    
     void Initialize();
     void Update();
 
@@ -59,6 +63,10 @@ public:
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
 
+    /**
+     * \brief Get the GPU address of the camera parameter buffer. The buffer contains a CameraDataBuffer struct.
+     * \return The GPU address. Will be valid for the entire lifetime of the camera, assuming it is initialized.
+     */
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
 private:

@@ -1,13 +1,13 @@
 ﻿#include "stdafx.h"
 #include "Object.hpp"
 
-Object::Object(NativeClient& client) : m_client(client)
+Object::Object(NativeClient& client) : m_client(&client)
 {
 }
 
 NativeClient& Object::GetClient() const
 {
-    return m_client;
+    return *m_client;
 }
 
 UINT64 Object::GetID() const

@@ -68,7 +68,7 @@
 // Assert that will be called very often, like inside data structures e.g. operator[].
 // Making it non-empty can make program slow.
 #ifndef D3D12MA_HEAVY_ASSERT
-    #ifdef VG_DEBUG
+    #ifdef NATIVE_DEBUG
         #define D3D12MA_HEAVY_ASSERT(expr) D3D12MA_ASSERT(expr)
     #else
         #define D3D12MA_HEAVY_ASSERT(expr)
@@ -127,7 +127,7 @@ especially to test compatibility with D3D12_RESOURCE_HEAP_TIER_1 on modern GPUs.
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef VG_DEBUG
+#ifdef NATIVE_DEBUG
     #define D3D12MA_NAME_INTERNAL(object) object->SetName(L#object)
 #else
     #define D3D12MA_NAME_INTERNAL(object) do {} while(false)

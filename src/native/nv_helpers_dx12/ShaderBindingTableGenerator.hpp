@@ -114,87 +114,83 @@ desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
 
 namespace nv_helpers_dx12
 {
-    /// Helper class to create and maintain a Shader Binding Table
+    /**
+     * \brief Helper class to create and maintain a Shader Binding Table (SBT).
+     */
     class ShaderBindingTableGenerator
     {
     public:
-        /// Add a ray generation program by name, with its list of data pointers or values according to
-        /// the layout of its root signature
+        /**
+         * \brief Add a ray generation program by name, with its list of data pointers or values according to the layout of its root signature.
+         * \param entryPoint The name of the program.
+         * \param inputData The list of data pointers or values according to the layout of its root signature.
+         */
         void AddRayGenerationProgram(const std::wstring& entryPoint, const std::vector<void*>& inputData);
 
-        /// Add a miss program by name, with its list of data pointers or values according to
-        /// the layout of its root signature
+        /**
+         * \brief Add a miss program by name, with its list of data pointers or values according to the layout of its root signature.
+         * \param entryPoint The name of the program.
+         * \param inputData The list of data pointers or values according to the layout of its root signature.
+         */
         void AddMissProgram(const std::wstring& entryPoint, const std::vector<void*>& inputData);
 
-        /// Add a hit group by name, with its list of data pointers or values according to
-        /// the layout of its root signature
+        /**
+         * \brief Add a hit group by name, with its list of data pointers or values according to the layout of its root signature.
+         * \param entryPoint The name of the program.
+         * \param inputData The list of data pointers or values according to the layout of its root signature.
+         */
         void AddHitGroup(const std::wstring& entryPoint, const std::vector<void*>& inputData);
 
-        /// Compute the size of the SBT based on the set of programs and hit groups it contains
+        /**
+         * \brief Compute the size of the SBT based on the set of programs and hit groups it contains.
+         * \return The size in bytes of the SBT.
+         */
         uint32_t ComputeSBTSize();
 
-        /// Build the SBT and store it into sbtBuffer, which has to be pre-allocated on the upload heap.
-        /// Access to the raytracing pipeline object is required to fetch program identifiers using their
-        /// names
+        /**
+         * \brief Build the SBT and store it into sbtBuffer, which has to be pre-allocated on the upload heap.
+         * \param sbtBuffer The pre-allocated buffer on the upload heap.
+         * \param raytracingPipeline The raytracing pipeline object.
+         */
         void Generate(ID3D12Resource* sbtBuffer,
                       ID3D12StateObjectProperties* raytracingPipeline);
 
-        /// Reset the sets of programs and hit groups
+        /**
+         * \brief Reset the sets of programs and hit groups
+         */
         void Reset();
-
-        /// The following getters are used to simplify the call to DispatchRays where the offsets of the
-        /// shader programs must be exactly following the SBT layout
-
-        /// Get the size in bytes of the SBT section dedicated to ray generation programs
+        
         [[nodiscard]] UINT GetRayGenSectionSize() const;
-        /// Get the size in bytes of one ray generation program entry in the SBT
         [[nodiscard]] UINT GetRayGenEntrySize() const;
-        /// Get the offset from the start address to the SBT section dedicated to ray gen programs
         [[nodiscard]] UINT GetRayGenSectionOffset() const;
-
-        /// Get the size in bytes of the SBT section dedicated to miss programs
+        
         [[nodiscard]] UINT GetMissSectionSize() const;
-        /// Get the size in bytes of one miss program entry in the SBT
         [[nodiscard]] UINT GetMissEntrySize() const;
-        /// Get the offset from the start address to the SBT section dedicated to miss programs
         [[nodiscard]] UINT GetMissSectionOffset() const;
-
-        /// Get the size in bytes of the SBT section dedicated to hit groups
+        
         [[nodiscard]] UINT GetHitGroupSectionSize() const;
-        /// Get the size in bytes of hit group entry in the SBT
         [[nodiscard]] UINT GetHitGroupEntrySize() const;
-        /// Get the offset from the start address to the SBT section dedicated to hit groups
         [[nodiscard]] UINT GetHitGroupSectionOffset() const;
 
     private:
-        /// Wrapper for SBT entries, each consisting of the name of the program and a list of values,
-        /// which can be either pointers or raw 32-bit constants
         struct SBTEntry
         {
             SBTEntry(std::wstring entryPoint, std::vector<void*> inputData);
 
-            const std::wstring m_entryPoint;
-            const std::vector<void*> m_inputData;
+            const std::wstring entryPoint;
+            const std::vector<void*> inputData;
         };
-
-        /// For each entry, copy the shader identifier followed by its resource pointers and/or root
-        /// constants in outputData, with a stride in bytes of entrySize, and returns the size in bytes
-        /// actually written to outputData.
+        
         uint32_t CopyShaderData(ID3D12StateObjectProperties* raytracingPipeline,
                                 uint8_t* outputData, const std::vector<SBTEntry>& shaders,
                                 uint32_t entrySize) const;
-
-        /// Compute the size of the SBT entries for a set of entries, which is determined by the maximum
-        /// number of parameters of their root signature
+        
         [[nodiscard]] uint32_t GetEntrySize(const std::vector<SBTEntry>& entries) const;
 
         std::vector<SBTEntry> m_rayGen;
         std::vector<SBTEntry> m_miss;
         std::vector<SBTEntry> m_hitGroup;
-
-        /// For each category, the size of an entry in the SBT depends on the maximum number of resources
-        /// used by the shaders in that category.The helper computes those values automatically in
-        /// GetEntrySize()
+        
         uint32_t m_rayGenEntrySize = 0;
         uint32_t m_missEntrySize = 0;
         uint32_t m_hitGroupEntrySize = 0;
@@ -202,9 +198,7 @@ namespace nv_helpers_dx12
         uint32_t m_rayGenStart = 0;
         uint32_t m_missStart = 0;
         uint32_t m_hitGroupStart = 0;
-
-        /// The program names are translated into program identifiers.The size in bytes of an identifier
-        /// is provided by the device and is the same for all categories.
+        
         UINT m_programIdSize = 0;
     };
-} // namespace nv_helpers_dx12
+}

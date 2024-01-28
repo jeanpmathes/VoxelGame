@@ -65,12 +65,12 @@ public:
     /**
      * Set the mouse position in client coordinates.
      */
-    void SetMousePosition(POINT position) const;
+    void SetMousePosition(POINT position);
 
     /**
      * Get the space that is being rendered.
      */
-    Space* GetSpace() const;
+    [[nodiscard]] Space* GetSpace() const;
 
     /**
      * Add a raster pipeline to the client.
@@ -137,6 +137,8 @@ private:
     RasterInfo m_spaceViewport = {};
     RasterInfo m_postViewport = {};
     RasterInfo m_draw2dViewport = {};
+
+    POINT m_lastMousePosition = {};
 
     std::unique_ptr<Space> m_space = nullptr;
     bool m_spaceInitialized = false;

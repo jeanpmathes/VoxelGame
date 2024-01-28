@@ -7,7 +7,6 @@
 #pragma once
 
 #include "Drawable.hpp"
-#include "Spatial.hpp"
 #include "Tools/InBufferAllocator.hpp"
 
 #pragma pack(push, 4)

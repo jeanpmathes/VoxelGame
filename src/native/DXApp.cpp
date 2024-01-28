@@ -10,15 +10,15 @@
 
 using namespace Microsoft::WRL;
 
-DXApp::DXApp(const Configuration configuration) :
+DXApp::DXApp(const Configuration& configuration) :
+    m_title(configuration.title),
+    m_icon(configuration.icon),
+    m_configuration(configuration),
     m_width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH)),
     m_height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT)),
     m_aspectRatio(0.0f),
     m_windowBounds{0, 0, 0, 0},
     m_tearingSupport(false),
-    m_title(configuration.title),
-    m_icon(configuration.icon),
-    m_configuration(configuration),
     m_mainThreadId(std::this_thread::get_id())
 {
     UpdateForSizeChange(m_width, m_height);
@@ -256,9 +256,9 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
 }
 
 ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
-    ComPtr<IDXGIFactory4> dxgiFactory,
-    ComPtr<ID3D12DeviceFactory> deviceFactory,
-    bool requestHighPerformanceAdapter)
+    const ComPtr<IDXGIFactory4>& dxgiFactory,
+    const ComPtr<ID3D12DeviceFactory>& deviceFactory,
+    const bool requestHighPerformanceAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
 
@@ -275,7 +275,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
             ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
-            adapter->GetDesc1(&desc);
+            TRY_DO(adapter->GetDesc1(&desc));
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
             {
@@ -296,7 +296,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
         for (UINT adapterIndex = 0; SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
-            adapter->GetDesc1(&desc);
+            TRY_DO(adapter->GetDesc1(&desc));
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
             {

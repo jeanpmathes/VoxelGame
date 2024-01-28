@@ -77,7 +77,7 @@ void NativeClient::OnPostInit()
 
 void NativeClient::LoadDevice()
 {
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
     constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #else
     constexpr UINT dxgiFactoryFlags = 0;    
@@ -92,7 +92,7 @@ void NativeClient::LoadDevice()
     ComPtr<ID3D12DeviceFactory> deviceFactory;
     TRY_DO(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
     ComPtr<ID3D12Debug5> debug;
     if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
     {
@@ -140,7 +140,7 @@ void NativeClient::LoadDevice()
         m_device.Get()));
 #endif
 
-#if defined(VG_DEBUG)
+#if defined(NATIVE_DEBUG)
     auto callback = [](
         const D3D12_MESSAGE_CATEGORY category,
         const D3D12_MESSAGE_SEVERITY severity,
@@ -201,14 +201,14 @@ void NativeClient::LoadDevice()
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
     swapChainDesc.BufferCount = FRAME_COUNT;
-    swapChainDesc.Width = m_width;
-    swapChainDesc.Height = m_height;
+    swapChainDesc.Width = GetWidth();
+    swapChainDesc.Height = GetHeight();
     swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
 
-    swapChainDesc.Flags = m_tearingSupport ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+    swapChainDesc.Flags = IsTearingSupportEnabled() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
     ComPtr<IDXGISwapChain1> swapChain;
     TRY_DO(dxgiFactory->CreateSwapChainForHwnd(
@@ -270,7 +270,7 @@ void NativeClient::CreateFinalDepthBuffers()
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_D32_FLOAT,
-        m_width, m_height,
+        GetWidth(), GetHeight(),
         1, 1);
     depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -352,11 +352,11 @@ void NativeClient::SetupSizeDependentResources()
     UpdatePostViewAndScissor();
 
     {
-        m_draw2dViewport.viewport.Width = static_cast<float>(m_width);
-        m_draw2dViewport.viewport.Height = static_cast<float>(m_height);
+        m_draw2dViewport.viewport.Width = static_cast<float>(GetWidth());
+        m_draw2dViewport.viewport.Height = static_cast<float>(GetHeight());
 
-        m_draw2dViewport.scissorRect.right = static_cast<LONG>(m_width);
-        m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(m_height);
+        m_draw2dViewport.scissorRect.right = static_cast<LONG>(GetWidth());
+        m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(GetHeight());
     }
 
     {
@@ -490,8 +490,8 @@ void NativeClient::OnRender(const double)
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
-    const UINT syncInterval = m_tearingSupport && m_windowedMode ? 0 : 1;
-    const UINT presentFlags = m_tearingSupport && m_windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    const UINT syncInterval = IsTearingSupportEnabled() && m_windowedMode ? 0 : 1;
+    const UINT presentFlags = IsTearingSupportEnabled() && m_windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
     constexpr DXGI_PRESENT_PARAMETERS presentParameters = {};
     const HRESULT present = m_swapChain->Present1(syncInterval, presentFlags, &presentParameters);
 
@@ -547,7 +547,7 @@ void NativeClient::OnDestroy()
 
 void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool minimized)
 {
-    if ((width != m_width || height != m_height) && !minimized)
+    if ((width != GetWidth() || height != GetHeight()) && !minimized)
     {
         WaitForGPU();
 
@@ -616,8 +616,10 @@ Texture* NativeClient::LoadTexture(std::byte** data, const TextureDescription& d
     return Texture::Create(*m_uploader, data, description);
 }
 
-void NativeClient::SetMousePosition(POINT position) const
+void NativeClient::SetMousePosition(POINT position)
 {
+    m_lastMousePosition = position;
+    
     TRY_DO(ClientToScreen(Win32Application::GetHwnd(), &position));
     TRY_DO(SetCursorPos(position.x, position.y));
 }
@@ -639,7 +641,7 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
                                                        0, {m_intermediateRenderTarget});
 }
 
-UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback)
+UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priority, const draw2d::Callback callback)
 {
     // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
     // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
@@ -810,10 +812,10 @@ void NativeClient::PopulateScreenshotCommandList() const
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint = {};
     footprint.Footprint.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    footprint.Footprint.Width = m_width;
-    footprint.Footprint.Height = m_height;
+    footprint.Footprint.Width = GetWidth();
+    footprint.Footprint.Height = GetHeight();
     footprint.Footprint.Depth = 1;
-    footprint.Footprint.RowPitch = m_width * 4;
+    footprint.Footprint.RowPitch = GetWidth() * 4;
 
     const auto dst = CD3DX12_TEXTURE_COPY_LOCATION(m_screenshotBuffers[m_frameIndex].Get(), footprint);
     const auto src = CD3DX12_TEXTURE_COPY_LOCATION(m_finalRenderTargets[m_frameIndex].Get(), 0);
@@ -876,8 +878,8 @@ void NativeClient::PopulateCommandLists()
 
 void NativeClient::UpdatePostViewAndScissor()
 {
-    const auto width = static_cast<float>(m_width);
-    const auto height = static_cast<float>(m_height);
+    const auto width = static_cast<float>(GetWidth());
+    const auto height = static_cast<float>(GetHeight());
 
     const float viewWidthRatio = static_cast<float>(m_resolution.width) / width;
     const float viewHeightRatio = static_cast<float>(m_resolution.height) / height;
@@ -914,11 +916,11 @@ void NativeClient::HandleScreenshot()
     if (!m_screenshotFunc.has_value()) return;
     auto* func = m_screenshotFunc.value();
 
-    const UINT size = m_width * m_height * 4;
+    const UINT size = GetWidth() * GetHeight() * 4;
     const auto data = std::make_unique<std::byte[]>(size);
 
     TRY_DO(util::MapAndRead(m_screenshotBuffers[m_frameIndex], data.get(), size));
 
-    func(data.get(), m_width, m_height);
+    func(data.get(), GetWidth(), GetHeight());
     m_screenshotFunc = std::nullopt;
 }
