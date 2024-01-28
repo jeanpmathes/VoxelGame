@@ -20,8 +20,6 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
-    // todo: evaluate initial capacity
-
     private readonly IMeshing basicOpaqueMeshing;
     private readonly IMeshing basicTransparentMeshing;
     private readonly IMeshing foliageMeshing;
@@ -51,10 +49,10 @@ public class MeshingContext
         current = section;
 
         IMeshingFactory factory = context.MeshingFactory;
-        basicOpaqueMeshing = factory.Create(hint: 2048);
-        basicTransparentMeshing = factory.Create(hint: 2048);
-        foliageMeshing = factory.Create(hint: 2048);
-        fluidMeshing = factory.Create(hint: 2048);
+        basicOpaqueMeshing = factory.Create(hint: 1024);
+        basicTransparentMeshing = factory.Create(hint: 1024);
+        foliageMeshing = factory.Create(hint: 1024);
+        fluidMeshing = factory.Create(hint: 1024);
 
         neighbors = GetNeighborSections(position, context);
         tintColors = GetTintColors(position, context);

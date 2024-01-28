@@ -12,7 +12,7 @@ namespace VoxelGame.Logging;
 /// <summary>
 ///     Event IDs for important logging events.
 /// </summary>
-public static class Events // todo: go trough all events and make sure they are used or removed
+public static class Events
 {
     /// <summary>
     ///     The default ID, which is also used if no ID is given.

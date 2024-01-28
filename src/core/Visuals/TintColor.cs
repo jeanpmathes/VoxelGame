@@ -260,16 +260,6 @@ public readonly struct TintColor : IEquatable<TintColor>
     }
 
     /// <summary>
-    ///     Get the tint encoded into bits.
-    /// </summary>
-    /// <param name="neutral">The tint color to use as for neutral tint.</param>
-    /// <returns>The tint bits.</returns>
-    public int GetBits(TintColor neutral) // todo: remove this method
-    {
-        return (int) (IsNeutral ? neutral.ToBits : ToBits);
-    }
-
-    /// <summary>
     ///     Select this tint or the neutral tint.
     /// </summary>
     /// <param name="neutral">The neutral tint.</param>
