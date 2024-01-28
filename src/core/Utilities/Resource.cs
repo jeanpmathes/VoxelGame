@@ -103,7 +103,7 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireReader()
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         if (!CanRead) return null;
 
@@ -118,7 +118,7 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireWriter()
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         if (!CanWrite) return null;
 

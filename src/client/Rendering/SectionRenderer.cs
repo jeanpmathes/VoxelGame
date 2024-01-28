@@ -5,11 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System.IO;
-using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
 using VoxelGame.Support.Graphics.Raytracing;
@@ -22,8 +20,6 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class SectionRenderer : Renderer
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionRenderer>();
-
     /// <summary>
     ///     The basic raytracing material for opaque section parts.
     /// </summary>
@@ -206,9 +202,9 @@ public sealed class SectionRenderer : Renderer
             fluid?.Dispose();
         }
         else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
+        {
+            Throw.ForMissedDispose(nameof(SectionRenderer));
+        }
 
         base.Dispose(disposing);
 

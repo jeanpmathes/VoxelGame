@@ -352,6 +352,7 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         if (disposed) return;
 
         if (disposing) ReturnToPool();
+        else Throw.ForMissedDispose(nameof(PooledList<T>));
 
         disposed = true;
     }
@@ -368,11 +369,7 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     /// </summary>
     ~PooledList()
     {
-        if (items == null) return;
-
         Dispose(disposing: false);
-
-        Debug.Fail("The array is not returned to the pool.");
     }
 
     #endregion IDisposable Support

@@ -51,9 +51,15 @@ public class Drawable : Spatial, IDisposable
     {
         if (disposed) return;
 
-        if (disposing) Deregister();
-
-        Native.ReturnDrawable(this);
+        if (disposing)
+        {
+            Deregister();
+            Native.ReturnDrawable(this);
+        }
+        else
+        {
+            Throw.ForMissedDispose(nameof(Drawable));
+        }
 
         disposed = true;
     }

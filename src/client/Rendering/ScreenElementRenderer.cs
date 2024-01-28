@@ -7,10 +7,8 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -23,8 +21,6 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class ScreenElementRenderer : Renderer
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ScreenElementRenderer>();
-
     private readonly Support.Core.Client client;
     private readonly Vector2d relativeScreenPosition;
     private readonly ShaderBuffer<Data> data;
@@ -226,10 +222,7 @@ public sealed class ScreenElementRenderer : Renderer
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
+        else Throw.ForMissedDispose(nameof(ScreenElementRenderer));
 
         base.Dispose(disposing);
 

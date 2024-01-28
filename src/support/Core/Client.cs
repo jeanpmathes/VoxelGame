@@ -398,11 +398,6 @@ public class Client : IDisposable
 
     private bool disposed;
 
-    private void ReleaseUnmanagedResources()
-    {
-        Support.Native.Finalize(this);
-    }
-
     /// <summary>
     ///     Dispose the client.
     /// </summary>
@@ -411,12 +406,18 @@ public class Client : IDisposable
     {
         if (disposed) return;
 
-        if (disposing) logger.LogDebug(Events.ApplicationState, "Disposing client");
-
-        ReleaseUnmanagedResources();
-
         if (disposing)
+        {
+            logger.LogDebug(Events.ApplicationState, "Disposing client");
+
+            Support.Native.Finalize(this);
+
             config = new Config();
+        }
+        else
+        {
+            Throw.ForMissedDispose(nameof(Client));
+        }
 
         disposed = true;
     }

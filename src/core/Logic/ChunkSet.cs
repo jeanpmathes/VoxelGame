@@ -79,7 +79,7 @@ public sealed class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
     }

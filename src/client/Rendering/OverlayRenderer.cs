@@ -6,13 +6,11 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
-using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
@@ -26,8 +24,6 @@ public sealed class OverlayRenderer : Renderer
 {
     private const int BlockMode = 0;
     private const int FluidMode = 1;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<OverlayRenderer>();
 
     private readonly Support.Core.Client client;
     private readonly ShaderBuffer<Data> data;
@@ -288,10 +284,7 @@ public sealed class OverlayRenderer : Renderer
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
+        else Throw.ForMissedDispose(nameof(OverlayRenderer));
 
         base.Dispose(disposing);
 

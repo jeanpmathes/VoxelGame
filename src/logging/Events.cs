@@ -52,14 +52,14 @@ public static class Events // todo: go trough all events and make sure they are 
     public const int FileIO = 50;
 
     /// <summary>
-    ///     Events related to direct interaction with the user.
-    /// </summary>
-    public const int UserInteraction = 60;
-
-    /// <summary>
     ///     Events related to the in-game console.
     /// </summary>
-    public const int Console = 65;
+    public const int Console = 60;
+
+    /// <summary>
+    ///     Events related to the disposal of objects.
+    /// </summary>
+    public const int Dispose = 70;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of resources.
@@ -204,30 +204,14 @@ public static class Events // todo: go trough all events and make sure they are 
     #region RENDERING AND VISUALS
 
     /// <summary>
-    ///     Events related to setting up the rendering environment.
-    /// </summary>
-    public const int VisualsSetup = 3000;
-
-    /// <summary>
-    ///     Occurs when graphics quality settings or configurations are changed.
-    /// </summary>
-    public const int VisualQuality = 3001;
-
-    /// <summary>
     ///     Events related to render pipeline loading and compilation.
     /// </summary>
-    public const int RenderPipelineSetup = 3005;
+    public const int RenderPipelineSetup = 3000;
 
     /// <summary>
     ///     Errors that occur during render pipeline setup.
     /// </summary>
-    public const int RenderPipelineError = 3006;
-
-    /// <summary>
-    ///     Occurs when wrapper objects are incorrectly disposed and their native objects are not deleted. This causes memory
-    ///     leaks.
-    /// </summary>
-    public const int LeakedNativeObject = 3010;
+    public const int RenderPipelineError = 3001;
 
     /// <summary>
     ///     Occurs when a screenshot is taken.

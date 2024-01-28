@@ -53,7 +53,7 @@ public class Synchronizer
     /// </summary>
     internal Handle RegisterObject(NativeObject nativeObject)
     {
-        Throw.IfOutsideOfMainThread(objects);
+        Throw.IfNotOnMainThread(objects);
 
         int preSyncIndex = preSyncBag.Add(nativeObject);
         int syncIndex = syncBag.Add(nativeObject);
@@ -66,7 +66,7 @@ public class Synchronizer
     /// </summary>
     internal void DisablePreSync(Handle handle)
     {
-        Throw.IfOutsideOfMainThread(objects);
+        Throw.IfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -82,7 +82,7 @@ public class Synchronizer
     /// </summary>
     internal void DisableSync(Handle handle)
     {
-        Throw.IfOutsideOfMainThread(objects);
+        Throw.IfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -98,7 +98,7 @@ public class Synchronizer
     /// </summary>
     internal void DeRegisterObject(Handle handle)
     {
-        Throw.IfOutsideOfMainThread(objects);
+        Throw.IfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);

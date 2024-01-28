@@ -35,7 +35,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteResponse(string response, params FollowUp[] followUp)
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.WriteResponse(response, followUp);
     }
 
@@ -55,7 +55,7 @@ public class ConsoleWrapper
     /// </summary>
     public void Flush()
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         while (responses.TryDequeue(out (string message, FollowUp[] followUp) response))
             WriteResponse(response.message, response.followUp);
@@ -69,7 +69,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteError(string error, params FollowUp[] followUp)
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.WriteError(error, followUp);
     }
 
@@ -79,7 +79,7 @@ public class ConsoleWrapper
     /// </summary>
     public void Clear()
     {
-        Throw.IfOutsideOfMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.Clear();
     }
 }

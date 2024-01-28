@@ -8,14 +8,25 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
 /// <summary>
 ///     Utility class for throwing exceptions.
 /// </summary>
-public static class Throw
+public class Throw
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
+
+    #pragma warning disable
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    private static Throw instance = new();
+    #pragma warning restore
+
+    private Throw() {}
+
     /// <summary>
     ///     Throw an exception if an object is disposed.
     /// </summary>
@@ -47,10 +58,26 @@ public static class Throw
     ///     Ensure that the current thread is the main thread.
     /// </summary>
     /// <returns>True if the current thread is the main thread.</returns>
-    public static void IfOutsideOfMainThread(object @object, [CallerMemberName] string operation = "")
+    [Conditional("DEBUG")]
+    public static void IfNotOnMainThread(object @object, [CallerMemberName] string operation = "")
     {
         if (ApplicationInformation.Instance.IsOnMainThread) return;
 
         Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
+    }
+
+
+    /// <summary>
+    ///     Handle a incorrectly disposed object, meaning an object that was disposed by the GC.
+    /// </summary>
+    /// <param name="type">The type of the object that was not disposed.</param>
+    /// <param name="object">The object that was not disposed.</param>
+    /// <param name="trace">The stack trace of object creation.</param>
+    // Intentionally not conditional.
+    public static void ForMissedDispose(string type, object? @object = null, StackTrace? trace = null)
+    {
+        logger.LogWarning(Events.Dispose, "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at:\n{Trace}", type, @object, trace);
+
+        Debugger.Break();
     }
 }

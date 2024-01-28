@@ -5,8 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -15,8 +13,6 @@ namespace VoxelGame.Core.Utilities;
 /// </summary>
 public sealed class Disposer : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Disposer>();
-
     private readonly Action dispose;
 
     private bool disposed;
@@ -42,7 +38,7 @@ public sealed class Disposer : IDisposable
         if (disposed) return;
 
         if (disposing) dispose();
-        else logger.LogWarning(Events.LeakedNativeObject, "A disposer was not disposed");
+        else Throw.ForMissedDispose(nameof(Disposer));
 
         disposed = true;
     }

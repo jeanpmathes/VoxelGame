@@ -8,12 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Support.Data;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Objects;
@@ -26,8 +24,6 @@ namespace VoxelGame.Client.Rendering;
 /// </summary>
 public sealed class SelectionBoxRenderer : Renderer
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<SelectionBoxRenderer>();
-
     private readonly Support.Core.Client client;
     private readonly RasterPipeline pipeline;
     private readonly ShaderBuffer<Data> buffer;
@@ -254,10 +250,7 @@ public sealed class SelectionBoxRenderer : Renderer
 
         if (disposing)
             effect?.Dispose();
-        else
-            logger.LogWarning(
-                Events.LeakedNativeObject,
-                "Renderer disposed by GC without freeing storage");
+        else Throw.ForMissedDispose(nameof(Effect));
 
         base.Dispose(disposing);
 
