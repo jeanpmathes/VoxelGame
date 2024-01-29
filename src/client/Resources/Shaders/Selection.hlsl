@@ -33,7 +33,7 @@ PSInput VSMain(const float3 position : POSITION, const uint data : DATA)
 
 float4 PSMain(const PSInput input, out float depth : SV_DEPTH) : SV_TARGET
 {
-    depth = input.position.z - 0.0002f;
+    depth = input.position.z - 0.0001f;
     
     const int3 pixel = int3(input.position.xy, 0);
 

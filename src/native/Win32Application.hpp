@@ -15,7 +15,7 @@ class Win32Application
 public:
     static int Run(DXApp* app, HINSTANCE instance, int cmdShow);
 
-    static void ToggleFullscreenWindow(IDXGISwapChain* pSwapChain = nullptr);
+    static void ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain);
     static void SetWindowOrderToTopMost(bool setToTopMost);
 
     static HWND GetHwnd() { return m_hwnd; }
@@ -38,7 +38,10 @@ private:
     static void* m_app;
     static HWND m_hwnd;
     static bool m_fullscreenMode;
+    
     static constexpr UINT WINDOW_STYLE = WS_OVERLAPPEDWINDOW;
+    static constexpr UINT WINDOW_FULLSCREEN_STYLE = WS_POPUP | WS_SYSMENU | WS_VISIBLE;
+    
     static RECT m_windowRect;
     static size_t m_errorModeDepth;
 };

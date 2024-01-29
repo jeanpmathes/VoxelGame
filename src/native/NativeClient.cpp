@@ -561,7 +561,7 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
         TRY_DO(m_swapChain->GetDesc(&desc));
         TRY_DO(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, desc.BufferDesc.Format, desc.Flags));
 
-        BOOL fullscreenState; // todo: fullscreen should be on monitor on which window is
+        BOOL fullscreenState;
         TRY_DO(m_swapChain->GetFullscreenState(&fullscreenState, nullptr));
         m_windowedMode = !fullscreenState;
 
@@ -600,7 +600,7 @@ void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
 // ReSharper disable once CppMemberFunctionMayBeStatic
 void NativeClient::ToggleFullscreen() const
 {
-    Win32Application::ToggleFullscreenWindow();
+    Win32Application::ToggleFullscreenWindow(m_swapChain.Get());
 }
 
 void NativeClient::TakeScreenshot(ScreenshotFunc func)

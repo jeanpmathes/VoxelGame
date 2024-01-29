@@ -31,7 +31,7 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, const int cmdShow)
     m_hwnd = CreateWindow(
         windowClass.lpszClassName,
         app->GetTitle(),
-        WS_OVERLAPPEDWINDOW,
+        WINDOW_STYLE,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
         windowRect.right - windowRect.left,
@@ -69,11 +69,11 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, const int cmdShow)
     return static_cast<char>(msg.wParam);
 }
 
-void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
+void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
 {
     if (m_fullscreenMode)
     {
-        SetWindowLong(m_hwnd, GWL_STYLE, WINDOW_STYLE);
+        SetWindowLongPtr(m_hwnd, GWL_STYLE, WINDOW_STYLE);
 
         TRY_DO(SetWindowPos(
             m_hwnd,
@@ -90,24 +90,19 @@ void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
     {
         TRY_DO(GetWindowRect(m_hwnd, &m_windowRect));
 
-        SetWindowLong(m_hwnd, GWL_STYLE,
-                      WINDOW_STYLE & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
-
+        SetWindowLongPtr(m_hwnd, GWL_STYLE,
+                         WINDOW_FULLSCREEN_STYLE);
+        
         RECT fullscreenWindowRect;
         try
         {
-            if (pSwapChain)
-            {
-                ComPtr<IDXGIOutput> pOutput;
-                TRY_DO(pSwapChain->GetContainingOutput(&pOutput));
-                DXGI_OUTPUT_DESC desc;
-                TRY_DO(pOutput->GetDesc(&desc));
-                fullscreenWindowRect = desc.DesktopCoordinates;
-            }
-            else
-            {
-                throw HResultException(S_FALSE, "pSwapChain is null");
-            }
+            ComPtr<IDXGIOutput> pOutput;
+            TRY_DO(swapChain->GetContainingOutput(&pOutput));
+
+            DXGI_OUTPUT_DESC desc;
+            TRY_DO(pOutput->GetDesc(&desc));
+
+            fullscreenWindowRect = desc.DesktopCoordinates;
         }
         catch (HResultException& e)
         {
@@ -134,14 +129,13 @@ void Win32Application::ToggleFullscreenWindow(IDXGISwapChain* pSwapChain)
             fullscreenWindowRect.bottom,
             SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
-
         ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
 
     m_fullscreenMode = !m_fullscreenMode;
 }
 
-void Win32Application::SetWindowOrderToTopMost(bool setToTopMost)
+void Win32Application::SetWindowOrderToTopMost(const bool setToTopMost)
 {
     RECT windowRect;
     TRY_DO(GetWindowRect(m_hwnd, &windowRect));
