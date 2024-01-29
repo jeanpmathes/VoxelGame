@@ -66,8 +66,9 @@ inline ComPtr<IDxcBlob> CompileShader(
     args.push_back(DXC_ARG_WARNINGS_ARE_ERRORS);
     args.push_back(DXC_ARG_DEBUG);
     args.push_back(L"-Qembed_debug");
+#else
+    args.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
 #endif
-    // todo: try passing optimization 3 as argument when not in debug mode
 
     ComPtr<IDxcCompilerArgs> compilerArgs;
     TRY_DO(utils->BuildArguments(
