@@ -355,6 +355,17 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
+    case WM_SETCURSOR:
+        if (app)
+        {
+            if (LOWORD(lParam) == HTCLIENT)
+            {
+                app->DoCursorSet();
+                return TRUE;
+            }
+        }
+        return DefWindowProc(hWnd, message, wParam, lParam);
+
     case WM_SIZE:
         if (app)
         {

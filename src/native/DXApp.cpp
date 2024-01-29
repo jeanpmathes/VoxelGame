@@ -10,6 +10,66 @@
 
 using namespace Microsoft::WRL;
 
+namespace
+{
+    HCURSOR LoadCursorFromEnum(const MouseCursor cursor)
+    {
+        const TCHAR* name;
+        switch (cursor)
+        {
+        case MouseCursor::ARROW:
+            name = IDC_ARROW;
+            break;
+        case MouseCursor::I_BEAM:
+            name = IDC_IBEAM;
+            break;
+        case MouseCursor::SIZE_NS:
+            name = IDC_SIZENS;
+            break;
+        case MouseCursor::SIZE_WE:
+            name = IDC_SIZEWE;
+            break;
+        case MouseCursor::SIZE_NWSE:
+            name = IDC_SIZENWSE;
+            break;
+        case MouseCursor::SIZE_NESW:
+            name = IDC_SIZENESW;
+            break;
+        case MouseCursor::SIZE_ALL:
+            name = IDC_SIZEALL;
+            break;
+        case MouseCursor::NO:
+            name = IDC_NO;
+            break;
+        case MouseCursor::WAIT:
+            name = IDC_WAIT;
+            break;
+        case MouseCursor::HAND:
+            name = IDC_HAND;
+            break;
+        default:
+            throw NativeException("Cursor not implemented.");
+        }
+
+        const HCURSOR handle = LoadCursor(nullptr, name);
+        CHECK_RETURN(handle);
+
+        return handle;
+    }
+
+    std::map<MouseCursor, HCURSOR> LoadAllCursors()
+    {
+        std::map<MouseCursor, HCURSOR> cursors;
+
+        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++)
+        {
+            cursors[static_cast<MouseCursor>(i)] = LoadCursorFromEnum(static_cast<MouseCursor>(i));
+        }
+
+        return cursors;
+    }
+}
+
 DXApp::DXApp(const Configuration& configuration) :
     m_title(configuration.title),
     m_icon(configuration.icon),
@@ -53,6 +113,8 @@ void DXApp::Tick(const CycleFlags flags)
 
 void DXApp::Init()
 {
+    m_mouseCursors = LoadAllCursors();
+    
     OnInit();
 
     m_configuration.onInit();
@@ -159,6 +221,11 @@ void DXApp::OnMouseWheel(const double delta) const
     m_configuration.onMouseScroll(delta);
 }
 
+void DXApp::DoCursorSet() const
+{
+    SetCursor(m_mouseCursors.at(m_mouseCursor));
+}
+
 void DXApp::SetWindowBounds(const int left, const int top, const int right, const int bottom)
 {
     m_windowBounds.left = static_cast<LONG>(left);
@@ -174,50 +241,9 @@ void DXApp::UpdateForSizeChange(const UINT clientWidth, const UINT clientHeight)
     m_aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
 }
 
-void DXApp::SetMouseCursor(const MouseCursor cursor) const
-// todo: fix wrong cursor when outside of window - maybe just set it every frame if visible
+void DXApp::SetMouseCursor(const MouseCursor cursor)
 {
-    const TCHAR* cursorName;
-    switch (cursor)
-    {
-    case MouseCursor::ARROW:
-        cursorName = IDC_ARROW;
-        break;
-    case MouseCursor::I_BEAM:
-        cursorName = IDC_IBEAM;
-        break;
-    case MouseCursor::SIZE_NS:
-        cursorName = IDC_SIZENS;
-        break;
-    case MouseCursor::SIZE_WE:
-        cursorName = IDC_SIZEWE;
-        break;
-    case MouseCursor::SIZE_NWSE:
-        cursorName = IDC_SIZENWSE;
-        break;
-    case MouseCursor::SIZE_NESW:
-        cursorName = IDC_SIZENESW;
-        break;
-    case MouseCursor::SIZE_ALL:
-        cursorName = IDC_SIZEALL;
-        break;
-    case MouseCursor::NO:
-        cursorName = IDC_NO;
-        break;
-    case MouseCursor::WAIT:
-        cursorName = IDC_WAIT;
-        break;
-    case MouseCursor::HAND:
-        cursorName = IDC_HAND;
-        break;
-    default:
-        throw NativeException("Cursor not implemented.");
-    }
-
-    const HCURSOR cursorHandle = LoadCursor(nullptr, cursorName);
-    CHECK_RETURN(cursorHandle);
-
-    SetCursor(cursorHandle);
+    m_mouseCursor = cursor;
 }
 
 void DXApp::SetMouseLock(const bool lock)

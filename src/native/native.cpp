@@ -144,7 +144,7 @@ NATIVE void NativeSetMousePosition(NativeClient* client, const LONG x, const LON
     CATCH();
 }
 
-NATIVE void NativeSetCursorType(const NativeClient* client, MouseCursor cursor)
+NATIVE void NativeSetCursorType(NativeClient* client, MouseCursor cursor)
 {
     TRY
     {

@@ -26,7 +26,9 @@ enum class MouseCursor : BYTE
     SIZE_ALL,
     NO,
     WAIT,
-    HAND
+    HAND,
+
+    COUNT
 };
 
 /**
@@ -73,6 +75,8 @@ public:
     void OnMouseMove(int, int);
     void OnMouseWheel(double) const;
 
+    void DoCursorSet() const;
+
     virtual void OnDisplayChanged()
     {
     }
@@ -91,8 +95,8 @@ public:
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
-    
-    void SetMouseCursor(MouseCursor cursor) const;
+
+    void SetMouseCursor(MouseCursor cursor);
     void SetMouseLock(bool lock);
 
     [[nodiscard]] float GetAspectRatio() const;
@@ -167,6 +171,9 @@ private:
     int m_xMousePosition = 0;
     int m_yMousePosition = 0;
     bool m_mouseLocked = false;
+
+    MouseCursor m_mouseCursor = MouseCursor::ARROW;
+    std::map<MouseCursor, HCURSOR> m_mouseCursors;
 
     std::optional<Cycle> m_cycle = std::nullopt;
     std::thread::id m_mainThreadId;
