@@ -25,7 +25,7 @@ struct AdvancedCameraData
 };
 
 #pragma pack(push, 4)
-struct CameraDataBuffer
+struct CameraParametersBuffer
 {
     DirectX::XMFLOAT4X4 view;
     DirectX::XMFLOAT4X4 projection;
@@ -81,6 +81,6 @@ private:
     DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
     Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
-    Mapping<ID3D12Resource, CameraDataBuffer> m_spaceCameraBufferMapping = {};
+    Mapping<ID3D12Resource, CameraParametersBuffer> m_spaceCameraBufferMapping = {};
     UINT64 m_spaceCameraBufferSize = 0;
 };

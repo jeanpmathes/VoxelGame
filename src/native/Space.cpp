@@ -259,7 +259,7 @@ ComPtr<ID3D12Device5> Space::GetDevice() const
 
 void Space::CreateGlobalConstBuffer()
 {
-    m_globalConstantBufferSize = sizeof(GlobalConstantBuffer);
+    m_globalConstantBufferSize = sizeof(GlobalBuffer);
     m_globalConstantBuffer = util::AllocateConstantBuffer(*m_nativeClient, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
@@ -503,11 +503,11 @@ std::unique_ptr<Material> Space::SetupMaterial(const MaterialDescription& descri
                                  ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
                                  : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
 
-    UINT64 materialConstantBufferSize = sizeof MaterialConstantBuffer;
+    UINT64 materialConstantBufferSize = sizeof MaterialBuffer;
     material->materialConstantBuffer = util::AllocateConstantBuffer(*m_nativeClient, &materialConstantBufferSize);
     NAME_D3D12_OBJECT(material->materialConstantBuffer);
 
-    const MaterialConstantBuffer materialConstantBufferData = {.index = index};
+    const MaterialBuffer materialConstantBufferData = {.index = index};
     TRY_DO(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
 
 #if defined(NATIVE_DEBUG)

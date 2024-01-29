@@ -38,9 +38,9 @@ namespace native
         ConstantBuffer<Global> global : register(b2);
 
         /**
-         * \brief Per-instance data for all spatial objects.
+         * \brief Per-instance data for each mesh.
          */
-        struct Instance
+        struct MeshData
         {
             float4x4 world;
             float4x4 worldNormal;

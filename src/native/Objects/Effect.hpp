@@ -45,7 +45,7 @@ public:
      * \brief Draw this effect. May only be called by the space class.
      * \param commandList The command list to use for drawing.
      */
-    void Draw(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
+    void Draw(const ComPtr<ID3D12GraphicsCommandList4>& commandList) const;
 
     void Accept(Visitor& visitor) override;
 

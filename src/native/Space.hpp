@@ -78,7 +78,7 @@ enum class MaterialFlags : BYTE
 DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
 
 #pragma pack(push, 4)
-struct GlobalConstantBuffer
+struct GlobalBuffer
 {
     float time;
     
@@ -89,7 +89,7 @@ struct GlobalConstantBuffer
     DirectX::XMUINT2 textureSize;
 };
 
-struct MaterialConstantBuffer
+struct MaterialBuffer
 {
     UINT index;
 };
@@ -256,7 +256,7 @@ private:
 
     Allocation<ID3D12Resource> m_globalConstantBuffer = {};
     UINT64 m_globalConstantBufferSize = 0;
-    Mapping<ID3D12Resource, GlobalConstantBuffer> m_globalConstantBufferMapping = {};
+    Mapping<ID3D12Resource, GlobalBuffer> m_globalConstantBufferMapping = {};
 
     std::unique_ptr<ShaderBuffer> m_customDataBuffer = nullptr;
 

@@ -1,7 +1,10 @@
 ﻿#include "stdafx.h"
 
-draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, const Callback callback)
-    : m_raster(raster), m_callback(callback), m_client(&client)
+draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, UINT id, const Callback callback)
+    : m_raster(raster)
+      , m_callback(callback)
+      , m_client(&client)
+      , m_name(std::format(L"{} [{}]", m_raster->GetName(), id))
 {
     REQUIRE(m_raster != nullptr);
 
@@ -64,7 +67,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
 
             REQUIRE(!ctx->m_vertexBufferBound);
             ctx->m_vertexCount = vertexCount;
-            
+
             const UINT vertexBufferSize = vertexCount * sizeof(Vertex);
 
             util::ReAllocateBuffer(&ctx->m_uploadBuffer,
@@ -124,18 +127,23 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
                 ctx->m_currentTextureIndex = textureIndex;
                 ctx->BindTextures();
             }
-            
+
             ctx->m_currentCommandList->DrawInstanced(vertexCount, 1, firstVertex, 0);
         },
         .ctx = this
     };
-    
+
     m_currentCommandList = commandList.Get();
     m_callback(drawer);
     m_currentCommandList = nullptr;
-    
+
     m_initialized = false;
     m_vertexBufferBound = false;
+}
+
+LPCWSTR draw2d::Pipeline::GetName() const
+{
+    return m_name.c_str();
 }
 
 void draw2d::Pipeline::Initialize(Pipeline* ctx)
@@ -146,13 +154,13 @@ void draw2d::Pipeline::Initialize(Pipeline* ctx)
 
     ctx->m_raster->SetPipeline(ctx->m_currentCommandList);
     ctx->m_raster->BindResources(ctx->m_currentCommandList);
-    
+
     ctx->m_currentTextureIndex = 0;
     ctx->BindTextures();
-    
+
     ctx->m_currentUseTexture = FALSE;
     ctx->BindBoolean();
-    
+
     ctx->m_initialized = true;
 }
 

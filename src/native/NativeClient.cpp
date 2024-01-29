@@ -648,15 +648,17 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priorit
     UINT clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
 
     decltype(m_draw2dPipelines)::iterator iterator;
+
+    const UINT id = m_nextDraw2dPipelineID;
     
     if (m_draw2dPipelines.empty() || priority < m_draw2dPipelines.front().priority)
     {
-        m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
+        m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, id, callback}, clampedPriority);
         iterator = m_draw2dPipelines.begin();
     }
     else if (priority > m_draw2dPipelines.back().priority)
     {
-        m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, callback}, clampedPriority);
+        m_draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, id, callback}, clampedPriority);
         iterator = std::prev(m_draw2dPipelines.end());
     }
     else
@@ -666,14 +668,12 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priorit
             if (priority > it->priority)
             {
                 iterator = m_draw2dPipelines.
-                    emplace(--it, draw2d::Pipeline(*this, pipeline, callback), clampedPriority);
+                    emplace(--it, draw2d::Pipeline(*this, pipeline, id, callback), clampedPriority);
                 break;
             }
         }
 
     m_draw2dPipelineIDs[m_nextDraw2dPipelineID] = iterator;
-
-    const UINT id = m_nextDraw2dPipelineID;
     m_nextDraw2dPipelineID++;
 
     return id;
@@ -786,8 +786,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
 {
     if (m_space == nullptr) return; // Nothing to post-process.
 
-    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Post Processing");
-    // todo: all raster pipelines should use name $preset - $shader
+    PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, m_postProcessingPipeline->GetName());
 
     m_postProcessingPipeline->SetPipeline(m_2dGroup.commandList);
     m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
@@ -861,7 +860,7 @@ void NativeClient::PopulateCommandLists()
 
     for (auto& [pipeline, priority] : m_draw2dPipelines)
     {
-        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Draw2D");
+        PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, pipeline.GetName());
         pipeline.PopulateCommandList(m_2dGroup.commandList);
     }
 

@@ -43,13 +43,15 @@ namespace draw2d
     class Pipeline final
     {
     public:
-        Pipeline(NativeClient& client, RasterPipeline* raster, Callback callback);
+        Pipeline(NativeClient& client, RasterPipeline* raster, UINT id, Callback callback);
         
         /**
          * \brief Populate the command list with all necessary commands to draw the 2D elements.
          * \param commandList The command list to populate.
          */
         void PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> commandList);
+
+        [[nodiscard]] LPCWSTR GetName() const;
 
     private:
         static void Initialize(Pipeline* ctx);
@@ -62,6 +64,8 @@ namespace draw2d
         RasterPipeline* m_raster;
         Callback m_callback;
         NativeClient* m_client;
+
+        std::wstring m_name;
 
         std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
         std::vector<ShaderResources::ConstantBufferViewDescriptor> m_constantBufferViews = {};

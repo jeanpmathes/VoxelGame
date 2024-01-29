@@ -32,7 +32,7 @@ namespace native
         /**
          * \brief The instance data array.
          */
-        ConstantBuffer<spatial::Instance> instances[] : register(b4);
+        ConstantBuffer<spatial::MeshData> instances[] : register(b4);
 
         /**
          * \brief The current acceleration structure.

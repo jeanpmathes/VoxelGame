@@ -22,7 +22,7 @@ struct SpatialBounds
     DirectX::XMUINT4 data;
 };
 
-struct MeshDataBuffer // todo: check that c++ structs and respective hlsl structs have same names
+struct MeshDataBuffer
 {
     DirectX::XMFLOAT4X4 objectToWorld;
     DirectX::XMFLOAT4X4 objectToWorldNormal;

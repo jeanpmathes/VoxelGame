@@ -129,7 +129,7 @@ public:
      * Create a pipeline from an already initialized pipeline state object and associated root signature.
      */
     RasterPipeline(
-        NativeClient& client, ShaderPreset preset, D3D12_PRIMITIVE_TOPOLOGY topology,
+        NativeClient& client, ShaderPreset preset, D3D12_PRIMITIVE_TOPOLOGY topology, std::wstring name,
         std::unique_ptr<ShaderBuffer> shaderBuffer,
         std::shared_ptr<ShaderResources> resources,
         std::shared_ptr<Bindings> bindings,
@@ -149,6 +149,7 @@ public:
 
     [[nodiscard]] Bindings& GetBindings() const;
     [[nodiscard]] ShaderPreset GetPreset() const;
+    [[nodiscard]] LPCWSTR GetName() const;
     [[nodiscard]] D3D12_PRIMITIVE_TOPOLOGY GetTopology() const;
     [[nodiscard]] ShaderBuffer* GetShaderBuffer() const;
     
@@ -197,6 +198,7 @@ private:
     
     ShaderPreset m_preset;
     D3D12_PRIMITIVE_TOPOLOGY m_topology;
+    std::wstring m_name;
 
     std::shared_ptr<ShaderResources> m_resources;
     std::shared_ptr<Bindings> m_bindings;

@@ -6,7 +6,7 @@ Camera::Camera(NativeClient& client) : Object(client)
 
 void Camera::Initialize()
 {
-    m_spaceCameraBufferSize = sizeof(CameraDataBuffer);
+    m_spaceCameraBufferSize = sizeof(CameraParametersBuffer);
     m_spaceCameraBuffer = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
 
@@ -30,7 +30,7 @@ void Camera::Update()
     const auto viewI = XMMatrixInverse(&det, view);
     const auto projectionI = XMMatrixInverse(&det, projection);
 
-    CameraDataBuffer data = {};
+    CameraParametersBuffer data = {};
     XMStoreFloat4x4(&data.view, XMMatrixTranspose(view));
     XMStoreFloat4x4(&data.projection, XMMatrixTranspose(projection));
     XMStoreFloat4x4(&data.viewI, XMMatrixTranspose(viewI));

@@ -48,8 +48,10 @@ void Effect::SetNewVertices(const EffectVertex* vertices, const UINT vertexCount
     TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
 
-void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> commandList) const
+void Effect::Draw(const ComPtr<ID3D12GraphicsCommandList4>& commandList) const
 {
+    PIXScopedEvent(commandList.Get(), PIX_COLOR_DEFAULT, m_pipeline->GetName());
+    
     m_pipeline->SetPipeline(commandList);
     m_pipeline->BindResources(commandList);
 

@@ -282,6 +282,39 @@ namespace
 
         return std::make_pair(vertexShaderBlob, pixelShaderBlob);
     }
+
+    std::wstring CreateName(const RasterPipelineDescription& description)
+    {
+        std::wstring preset;
+        switch (description.shaderPreset)
+        {
+        case ShaderPreset::POST_PROCESSING:
+            preset = L"PostProcessing";
+            break;
+        case ShaderPreset::DRAW_2D:
+            preset = L"Draw2D";
+            break;
+        case ShaderPreset::SPATIAL_EFFECT:
+            preset = L"SpatialEffect";
+            break;
+        }
+
+        const std::wstring vertex = std::filesystem::path(description.vertexShaderPath).stem();
+        const std::wstring pixel = std::filesystem::path(description.pixelShaderPath).stem();
+
+        std::wstring name;
+
+        if (vertex != pixel)
+        {
+            name = std::format(L"{} - ({}, {})", preset, vertex, pixel);
+        }
+        else
+        {
+            name = std::format(L"{} - {}", preset, vertex);
+        }
+
+        return name;
+    }
 }
 
 std::unique_ptr<RasterPipeline> RasterPipeline::Create(
@@ -331,6 +364,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
         client,
         description.shaderPreset,
         topology,
+        CreateName(description),
         std::move(shaderBuffer),
         std::move(resources),
         std::move(bindings),
@@ -359,7 +393,7 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(
 }
 
 RasterPipeline::RasterPipeline(
-    NativeClient& client, const ShaderPreset preset, D3D12_PRIMITIVE_TOPOLOGY topology,
+    NativeClient& client, const ShaderPreset preset, const D3D12_PRIMITIVE_TOPOLOGY topology, std::wstring name,
     std::unique_ptr<ShaderBuffer> shaderBuffer,
     std::shared_ptr<ShaderResources> resources,
     std::shared_ptr<Bindings> bindings,
@@ -367,6 +401,7 @@ RasterPipeline::RasterPipeline(
     : Object(client)
       , m_preset(preset)
       , m_topology(topology)
+      , m_name(std::move(name))
       , m_resources(std::move(resources))
       , m_bindings(std::move(bindings))
       , m_pipelineState(std::move(pipelineState))
@@ -419,6 +454,12 @@ ShaderPreset RasterPipeline::GetPreset() const
 {
     return m_preset;
 }
+
+LPCWSTR RasterPipeline::GetName() const
+{
+    return m_name.c_str();
+}
+
 
 D3D12_PRIMITIVE_TOPOLOGY RasterPipeline::GetTopology() const
 {
