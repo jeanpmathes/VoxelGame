@@ -31,22 +31,24 @@ void AnimationController::SetupResourceLayout(ShaderResources::Description* desc
         m_threadGroupDataEntry = table.AddShaderResourceView(m_threadGroupDataLocation);
     });
 
+    auto getSourceDescriptor = [this](const UINT index)
+    {
+        return m_meshes[static_cast<Handle>(index)]->GetAnimationSourceBufferViewDescriptor();
+    };
+
+    auto getDestinationDescriptor = [this](const UINT index)
+    {
+        return m_meshes[static_cast<Handle>(index)]->GetAnimationDestinationBufferViewDescriptor();
+    };
+
     m_srcGeometryList = description->AddShaderResourceViewDescriptorList(m_inputGeometryListLocation,
                                                                          CreateSizeGetter(&m_meshes),
-                                                                         [this](const UINT index)
-                                                                         {
-                                                                             return m_meshes[index]->
-                                                                                 GetAnimationSourceBufferViewDescriptor();
-                                                                         },
+                                                                         getSourceDescriptor,
                                                                          CreateListBuilder(&m_meshes, getIndexOfMesh));
 
     m_dstGeometryList = description->AddUnorderedAccessViewDescriptorList(m_outputGeometryListLocation,
                                                                           CreateSizeGetter(&m_meshes),
-                                                                          [this](const UINT index)
-                                                                          {
-                                                                              return m_meshes[index]->
-                                                                                  GetAnimationDestinationBufferViewDescriptor();
-                                                                          },
+                                                                          getDestinationDescriptor,
                                                                           CreateListBuilder(&m_meshes, getIndexOfMesh));
 }
 
@@ -67,11 +69,11 @@ void AnimationController::AddMesh(Mesh& mesh)
     REQUIRE(mesh.GetMaterial().IsAnimated());
     REQUIRE(mesh.GetAnimationHandle() == Handle::INVALID);
 
-    size_t index = m_meshes.Push(&mesh);
-    mesh.SetAnimationHandle(static_cast<Handle>(index));
+    const Handle handle = m_meshes.Push(&mesh);
+    mesh.SetAnimationHandle(handle);
 
-    m_changedMeshes.Insert(index);
-    m_removedMeshes.Erase(index);
+    m_changedMeshes.Insert(handle);
+    m_removedMeshes.Erase(handle);
 }
 
 void AnimationController::UpdateMesh(const Mesh& mesh)
@@ -79,7 +81,7 @@ void AnimationController::UpdateMesh(const Mesh& mesh)
     REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
     REQUIRE(mesh.GetMaterial().IsAnimated());
 
-    m_changedMeshes.Insert(static_cast<size_t>(mesh.GetAnimationHandle()));
+    m_changedMeshes.Insert(mesh.GetAnimationHandle());
 }
 
 void AnimationController::RemoveMesh(Mesh& mesh)
@@ -87,19 +89,22 @@ void AnimationController::RemoveMesh(Mesh& mesh)
     REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
     REQUIRE(mesh.GetMaterial().IsAnimated());
 
-    const auto index = static_cast<size_t>(mesh.GetAnimationHandle());
-    m_meshes.Pop(index);
-
+    const Handle handle = mesh.GetAnimationHandle();
     mesh.SetAnimationHandle(Handle::INVALID);
 
-    m_changedMeshes.Erase(index);
-    m_removedMeshes.Insert(index);
+    m_meshes.Pop(handle);
+
+    m_changedMeshes.Erase(handle);
+    m_removedMeshes.Insert(handle);
 }
 
-void AnimationController::Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> commandList)
+void AnimationController::Update(ShaderResources& resources, const ComPtr<ID3D12GraphicsCommandList4>& commandList)
 {
-    resources.RequestListRefresh(m_srcGeometryList, m_changedMeshes);
-    resources.RequestListRefresh(m_dstGeometryList, m_changedMeshes);
+    // ReSharper disable once CppTemplateArgumentsCanBeDeduced
+    const IntegerSet<size_t> changed(m_changedMeshes);
+
+    resources.RequestListRefresh(m_srcGeometryList, changed);
+    resources.RequestListRefresh(m_dstGeometryList, changed);
 
     if (!m_changedMeshes.IsEmpty() || !m_removedMeshes.IsEmpty())
     {
@@ -111,7 +116,7 @@ void AnimationController::Update(ShaderResources& resources, ComPtr<ID3D12Graphi
     m_removedMeshes.Clear();
 }
 
-void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> commandList)
+void AnimationController::Run(const ComPtr<ID3D12GraphicsCommandList4>& commandList)
 {
     if (m_threadGroupData.empty()) return;
 
@@ -140,7 +145,8 @@ void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> commandList)
     commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 }
 
-void AnimationController::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs)
+void AnimationController::CreateBLAS(const ComPtr<ID3D12GraphicsCommandList4>& commandList,
+                                     std::vector<ID3D12Resource*>* uavs)
 {
     for (const auto& mesh : m_meshes)
     {

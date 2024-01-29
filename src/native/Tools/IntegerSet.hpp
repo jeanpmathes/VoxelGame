@@ -8,18 +8,35 @@
 
 #include "Concepts.hpp"
 
+class IntegerSetBase
+{
+protected:
+    using BinaryData = uint64_t;
+
+    static constexpr size_t BINARY_DATA_BITS = sizeof(BinaryData) * 8;
+    static constexpr size_t BINARY_DATA_MASK = BINARY_DATA_BITS - 1;
+
+    struct Data
+    {
+        size_t count = 0;
+        std::vector<BinaryData> data = {};
+    };
+
+    Data& data() { return m_content; }
+    [[nodiscard]] const Data& data() const { return m_content; }
+
+private:
+    Data m_content = {};
+};
+
 /**
  * \brief A bit-based set of integers.
  * \tparam I The type of the integers to store.
  */
 template <UnsignedNativeSizedInteger I = size_t>
-class IntegerSet
+class IntegerSet : IntegerSetBase
 {
 public:
-    using BinaryData = uint64_t;
-    static constexpr size_t BINARY_DATA_BITS = sizeof(BinaryData) * 8;
-    static constexpr size_t BINARY_DATA_MASK = BINARY_DATA_BITS - 1;
-
     /** 
      * \brief Creates a set with the given number of elements, all set to true.
      * \param count The number of elements to create the set with.
@@ -33,11 +50,12 @@ public:
         const size_t required = full + (remainder > 0 ? 1 : 0);
 
         IntegerSet set;
-        set.m_count = count;
-        set.m_data.resize(required, static_cast<BinaryData>(-1));
+
+        set.data().count = count;
+        set.data().data.resize(required, static_cast<BinaryData>(-1));
 
         if (remainder > 0)
-            set.m_data[full] = (static_cast<BinaryData>(1) << remainder) - 1;
+            set.data().data[full] = (static_cast<BinaryData>(1) << remainder) - 1;
 
         return set;
     }
@@ -62,8 +80,9 @@ public:
     template <UnsignedNativeSizedInteger OtherI>
     IntegerSet& operator=(const IntegerSet<OtherI>& other)
     {
-        m_count = other.m_count;
-        m_data = other.m_data;
+        data().count = other.data().count;
+        data().data = other.data().data;
+        
         return *this;
     }
 
@@ -134,16 +153,13 @@ public:
 
 private:
     static bool GetBit(BinaryData data, size_t bitIndex);
-
-    size_t m_count = 0;
-    std::vector<BinaryData> m_data = {};
 };
 
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::Clear()
 {
-    m_count = 0;
-    m_data.clear();
+    data().count = 0;
+    data().data.clear();
 }
 
 template <UnsignedNativeSizedInteger I>
@@ -154,15 +170,15 @@ void IntegerSet<I>::Insert(I element)
     const size_t dataIndex = index / BINARY_DATA_BITS;
     const size_t bitIndex = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= m_data.size())
-        m_data.resize(dataIndex + 1, 0);
+    if (dataIndex >= data().data.size())
+        data().data.resize(dataIndex + 1, 0);
 
-    size_t& data = m_data[dataIndex];
+    size_t& content = data().data[dataIndex];
 
-    if (!GetBit(data, bitIndex))
-        m_count++;
+    if (!GetBit(content, bitIndex))
+        data().count += 1;
 
-    data |= (static_cast<BinaryData>(1) << bitIndex);
+    content |= (static_cast<BinaryData>(1) << bitIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
@@ -173,15 +189,15 @@ void IntegerSet<I>::Erase(I element)
     const size_t dataIndex = index / BINARY_DATA_BITS;
     const size_t bitIndex = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= m_data.size())
+    if (dataIndex >= data().data.size())
         return;
 
-    size_t& data = m_data[dataIndex];
+    size_t& content = data().data[dataIndex];
 
-    if (GetBit(data, bitIndex))
-        m_count--;
+    if (GetBit(content, bitIndex))
+        data().count -= 1;
 
-    data &= ~(static_cast<BinaryData>(1) << bitIndex);
+    content &= ~(static_cast<BinaryData>(1) << bitIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
@@ -192,22 +208,22 @@ bool IntegerSet<I>::Contains(I element) const
     const size_t dataIndex = index / BINARY_DATA_BITS;
     const size_t bitIndex = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= m_data.size())
+    if (dataIndex >= data().data.size())
         return false;
 
-    return GetBit(m_data[dataIndex], bitIndex);
+    return GetBit(data().data[dataIndex], bitIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
 size_t IntegerSet<I>::Count() const
 {
-    return m_count;
+    return data().count;
 }
 
 template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::IsEmpty() const
 {
-    return m_count == 0;
+    return data().count == 0;
 }
 
 template <UnsignedNativeSizedInteger I>
@@ -283,13 +299,13 @@ void IntegerSet<I>::const_iterator::Advance()
 template <UnsignedNativeSizedInteger I>
 typename IntegerSet<I>::const_iterator IntegerSet<I>::begin() const
 {
-    return const_iterator(m_data.begin(), m_data.end());
+    return const_iterator(data().data.begin(), data().data.end());
 }
 
 template <UnsignedNativeSizedInteger I>
 typename IntegerSet<I>::const_iterator IntegerSet<I>::end() const
 {
-    return const_iterator(m_data.end(), m_data.end());
+    return const_iterator(data().data.end(), data().data.end());
 }
 
 template <UnsignedNativeSizedInteger I>

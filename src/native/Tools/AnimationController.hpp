@@ -61,18 +61,18 @@ public:
      * \param resources The shader resources.
      * \param commandList The command list to use for uploading.
      */
-    void Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void Update(ShaderResources& resources, const ComPtr<ID3D12GraphicsCommandList4>& commandList);
     /**
      * \brief Runs the animation.
      * \param commandList The command list to use for running.
      */
-    void Run(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void Run(const ComPtr<ID3D12GraphicsCommandList4>& commandList);
     /**
      * \brief Create the BLAS for every mesh that uses this animation.
      * \param commandList The command list to use for creating the BLAS.
      * \param uavs A list that will receive the UAVs for the BLAS.
      */
-    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs);
+    void CreateBLAS(const ComPtr<ID3D12GraphicsCommandList4>& commandList, std::vector<ID3D12Resource*>* uavs);
 
 private:
     void UpdateThreadGroupData();
@@ -84,9 +84,9 @@ private:
 
     ComPtr<ID3DBlob> m_shader = {};
 
-    Bag<Mesh*> m_meshes = {}; // todo: use Handle as index here (template parameter)
-    IntegerSet<> m_changedMeshes = {};
-    IntegerSet<> m_removedMeshes = {};
+    Bag<Mesh*, Handle> m_meshes = {};
+    IntegerSet<Handle> m_changedMeshes = {};
+    IntegerSet<Handle> m_removedMeshes = {};
 
     ShaderResources::TableHandle m_resourceTable = ShaderResources::TableHandle::INVALID;
     ShaderResources::Table::Entry m_threadGroupDataEntry = ShaderResources::Table::Entry::invalid;
