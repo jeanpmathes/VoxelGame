@@ -371,7 +371,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
             });
 
             m_effectBindings = RasterPipeline::SetupEffectBindings(*m_nativeClient, graphics);
-            // todo: update wiki article about shader resources (write section about compute resources)
+            // todo: update wiki article about shader resources (write section about graphics resources)
         },
         [&](auto& compute)
         {

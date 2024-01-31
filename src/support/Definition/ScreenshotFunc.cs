@@ -6,10 +6,10 @@
 
 namespace VoxelGame.Support.Definition;
 
-public static partial class Native
+internal static partial class Native
 {
     /// <summary>
     ///     A function that receives a screenshot.
     /// </summary>
-    public delegate void ScreenshotFunc(IntPtr data, uint width, uint height);
+    internal delegate void ScreenshotFunc(IntPtr data, uint width, uint height);
 }

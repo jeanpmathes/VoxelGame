@@ -55,6 +55,12 @@ public static class Arguments
             getDefaultValue: () => false
         );
 
+        var useGraphicsProcessingUnitBasedValidationOption = new Option<bool>(
+            "--gbv",
+            description: "Whether to use GPU-based validation. Has no effect if PIX support is enabled.",
+            getDefaultValue: () => false
+        );
+
         command.AddOption(supportGraphicalDebuggerOption);
 
         ILogger GetLogger(InvocationContext context)
@@ -76,7 +82,8 @@ public static class Arguments
                 {
                     GameParameters gameParameters = new(
                         context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
-                        context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption));
+                        context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
+                        context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
 
                     return runGame(gameParameters, logger);
                 });
@@ -113,7 +120,7 @@ public delegate int RunGame(GameParameters parameters, ILogger logger);
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly, bool SupportPIX)
+public record GameParameters(int LoadWorldDirectly, bool SupportPIX, bool UseGBV)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.

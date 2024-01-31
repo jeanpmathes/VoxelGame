@@ -20,6 +20,15 @@ using NativeBoolFunc = void(*)(BOOL);
 using NativeWStringFunc = void(*)(LPCWSTR);
 using NativeErrorFunc = void(*)(HRESULT, const char*);
 
+enum class ConfigurationOptions : UINT
+{
+    ALLOW_TEARING = 1 << 0,
+    SUPPORT_PIX = 1 << 1,
+    USE_GBV = 1 << 2,
+};
+
+DEFINE_ENUM_FLAG_OPERATORS(ConfigurationOptions)
+
 struct Configuration
 {
     NativeStepFunc onRender;
@@ -48,8 +57,7 @@ struct Configuration
 
     FLOAT renderScale;
 
-    BOOL allowTearing;
-    BOOL supportPIX;
+    ConfigurationOptions options;
 };
 
 #define TRY try

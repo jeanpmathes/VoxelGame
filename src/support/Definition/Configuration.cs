@@ -11,171 +11,210 @@ namespace VoxelGame.Support.Definition;
 /// <summary>
 ///     Contains static methods that map to the respective functions on the native side.
 /// </summary>
-public static partial class Native
+internal static partial class Native
 {
+    /// <summary>
+    ///     Builds the options from the given parameters.
+    ///     See <see cref="ConfigurationOptions" /> for more information.
+    /// </summary>
+    internal static ConfigurationOptions BuildOptions(bool allowTearing, bool supportPIX, bool useGBV)
+    {
+        var options = ConfigurationOptions.None;
+
+        if (allowTearing) options |= ConfigurationOptions.AllowTearing;
+
+        if (supportPIX) options |= ConfigurationOptions.SupportPIX;
+
+        if (useGBV) options |= ConfigurationOptions.UseGBV;
+
+        return options;
+    }
+
     /// <summary>
     ///     A callback that receives a bool value.
     /// </summary>
-    public delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] bool arg);
+    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] bool arg);
 
     /// <summary>
     ///     A simple callback function.
     /// </summary>
-    public delegate void NativeCallbackFunc();
+    internal delegate void NativeCallbackFunc();
 
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    public delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] char arg);
+    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] char arg);
 
     /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
     [return: MarshalAs(UnmanagedType.Bool)]
-    public delegate bool NativeCheckFunc();
+    internal delegate bool NativeCheckFunc();
 
     /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
-    public delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
+    internal delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
 
     /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
-    public delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] byte arg);
+    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] byte arg);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    public delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] int x, [MarshalAs(UnmanagedType.I4)] int y);
+    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] int x, [MarshalAs(UnmanagedType.I4)] int y);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
     /// </summary>
-    public delegate void NativeMouseWheelFunc(double delta);
+    internal delegate void NativeMouseWheelFunc(double delta);
 
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
     /// </summary>
-    public delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] uint width, [MarshalAs(UnmanagedType.U4)] uint height);
+    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] uint width, [MarshalAs(UnmanagedType.U4)] uint height);
 
     /// <summary>
     ///     A callback that receives a double delta time value.
     /// </summary>
-    public delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] double arg);
+    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] double arg);
 
     /// <summary>
     ///     A callback that receives a wide string value.
     /// </summary>
-    public delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] string arg);
+    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] string arg);
+
+    /// <summary>
+    ///     Flags that can be used to configure the native side.
+    /// </summary>
+    [Flags]
+    internal enum ConfigurationOptions : uint
+    {
+        /// <summary>
+        ///     No options.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        ///     Whether to allow tearing.
+        /// </summary>
+        AllowTearing = 1 << 0,
+
+        /// <summary>
+        ///     Whether to disable some features and change allocation behaviour to improve PIX support.
+        ///     In release builds, this has no effect.
+        /// </summary>
+        SupportPIX = 1 << 1,
+
+        /// <summary>
+        ///     Whether to use GPU-based validation. Has no effect if <see cref="SupportPIX" /> is set.
+        /// </summary>
+        UseGBV = 1 << 2
+    }
 
     /// <summary>
     ///     Contains the configuration of the native side.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     #pragma warning disable S3898 // No equality comparison used.
-    public struct NativeConfiguration
+    internal struct NativeConfiguration
     #pragma warning restore S3898 // No equality comparison used.
     {
         /// <summary>
         ///     Called for each rendering step.
         /// </summary>
-        public NativeStepFunc onRender;
+        internal NativeStepFunc onRender;
 
         /// <summary>
         ///     Called for each update event.
         /// </summary>
-        public NativeStepFunc onUpdate;
+        internal NativeStepFunc onUpdate;
 
         /// <summary>
         ///     Called on initialization of the native client.
         /// </summary>
-        public NativeCallbackFunc onInit;
+        internal NativeCallbackFunc onInit;
 
         /// <summary>
         ///     Called on shutdown of the native client.
         /// </summary>
-        public NativeCallbackFunc onDestroy;
+        internal NativeCallbackFunc onDestroy;
 
         /// <summary>
         ///     Decides whether the window can be closed right now.
         /// </summary>
-        public NativeCheckFunc canClose;
+        internal NativeCheckFunc canClose;
 
         /// <summary>
         ///     Called on a key down event.
         /// </summary>
-        public NativeInputFunc onKeyDown;
+        internal NativeInputFunc onKeyDown;
 
         /// <summary>
         ///     Called on a key up event.
         /// </summary>
-        public NativeInputFunc onKeyUp;
+        internal NativeInputFunc onKeyUp;
 
         /// <summary>
         ///     Called on a char event.
         /// </summary>
-        public NativeCharFunc onChar;
+        internal NativeCharFunc onChar;
 
         /// <summary>
         ///     Called on a mouse move event.
         /// </summary>
-        public NativeMouseMoveFunc onMouseMove;
+        internal NativeMouseMoveFunc onMouseMove;
 
         /// <summary>
         ///     Called on a mouse wheel event.
         /// </summary>
-        public NativeMouseWheelFunc onMouseWheel;
+        internal NativeMouseWheelFunc onMouseWheel;
 
         /// <summary>
         ///     Called on a size change event.
         /// </summary>
-        public NativeResizeFunc onResize;
+        internal NativeResizeFunc onResize;
 
         /// <summary>
         ///     Called when the window active state changes.
         /// </summary>
-        public NativeBoolFunc onActiveStateChange;
+        internal NativeBoolFunc onActiveStateChange;
 
         /// <summary>
         ///     Called when debug messages of D3D12 are received.
         /// </summary>
-        public D3D12MessageFunc onDebug;
+        internal D3D12MessageFunc onDebug;
 
         /// <summary>
         ///     The initial window width.
         /// </summary>
-        public uint width;
+        internal uint width;
 
         /// <summary>
         ///     The initial window height.
         /// </summary>
-        public uint height;
+        internal uint height;
 
         /// <summary>
         ///     The initial window title.
         /// </summary>
-        [MarshalAs(UnmanagedType.LPWStr)] public string title;
+        [MarshalAs(UnmanagedType.LPWStr)] internal string title;
 
         /// <summary>
         ///     A handle to the icon to use for the window.
         /// </summary>
-        public IntPtr icon;
+        internal IntPtr icon;
 
         /// <summary>
         ///     The scale at which the world is rendered, as a percentage of the window size.
         /// </summary>
-        public float renderScale;
+        internal float renderScale;
 
         /// <summary>
-        ///     Whether to allow tearing.
+        ///     Additional options for the native side.
         /// </summary>
-        [MarshalAs(UnmanagedType.Bool)] public bool allowTearing;
-
-        /// <summary>
-        ///     Whether to disable some features like GPU validation to improve PIX support.
-        ///     In release builds, this has no effect.
-        /// </summary>
-        [MarshalAs(UnmanagedType.Bool)] public bool supportPIX;
+        internal ConfigurationOptions options;
     }
 }

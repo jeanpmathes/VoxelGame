@@ -34,6 +34,11 @@ public record WindowSettings
     public bool SupportPIX { get; init; }
 
     /// <summary>
+    ///     Gets a value indicating whether to use GBV.
+    /// </summary>
+    public bool UseGBV { get; init; }
+
+    /// <summary>
     ///     Get a version of these settings with corrected values that are safe to use.
     /// </summary>
     public WindowSettings Corrected

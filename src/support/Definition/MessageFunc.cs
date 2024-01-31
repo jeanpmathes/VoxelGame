@@ -13,11 +13,11 @@ namespace VoxelGame.Support.Definition;
 #pragma warning disable
 // ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
-public static partial class Native
+internal static partial class Native
 {
-    public delegate void D3D12MessageFunc(D3D12_MESSAGE_CATEGORY Category, D3D12_MESSAGE_SEVERITY Severity, D3D12_MESSAGE_ID ID, [MarshalAs(UnmanagedType.LPStr)] string? pDescription, IntPtr pContext);
+    internal delegate void D3D12MessageFunc(D3D12_MESSAGE_CATEGORY Category, D3D12_MESSAGE_SEVERITY Severity, D3D12_MESSAGE_ID ID, [MarshalAs(UnmanagedType.LPStr)] string? pDescription, IntPtr pContext);
 
-    public enum D3D12_MESSAGE_CATEGORY
+    internal enum D3D12_MESSAGE_CATEGORY
     {
         D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED = 0,
         D3D12_MESSAGE_CATEGORY_MISCELLANEOUS = D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED + 1,
@@ -32,7 +32,7 @@ public static partial class Native
         D3D12_MESSAGE_CATEGORY_SHADER = D3D12_MESSAGE_CATEGORY_EXECUTION + 1
     }
 
-    public enum D3D12_MESSAGE_ID
+    internal enum D3D12_MESSAGE_ID
     {
         D3D12_MESSAGE_ID_UNKNOWN = 0,
         D3D12_MESSAGE_ID_STRING_FROM_APPLICATION = 1,
@@ -928,7 +928,7 @@ public static partial class Native
         D3D12_MESSAGE_ID_D3D12_MESSAGES_END = D3D12_MESSAGE_ID_SHADERCACHECONTROL_SHADERCACHECLEAR_NOTSUPPORTED + 1
     }
 
-    public enum D3D12_MESSAGE_SEVERITY
+    internal enum D3D12_MESSAGE_SEVERITY
     {
         D3D12_MESSAGE_SEVERITY_CORRUPTION = 0,
         D3D12_MESSAGE_SEVERITY_ERROR = D3D12_MESSAGE_SEVERITY_CORRUPTION + 1,

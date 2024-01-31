@@ -99,7 +99,7 @@ void NativeClient::LoadDevice()
         debug->EnableDebugLayer();
         debug->SetEnableAutoName(TRUE);
 
-        // if (!SupportPIX()) debug->SetEnableGPUBasedValidation(TRUE); // todo: enable after asking in DirectX discord about memory leaking
+        if (!SupportPIX() && UseGBV()) debug->SetEnableGPUBasedValidation(TRUE);
     }
 
     ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
@@ -527,7 +527,7 @@ void NativeClient::OnRender(const double)
     }
     m_frameCounter++;
 #else
-    TRY_DO(present); // todo: handle DXGI_ERROR_DEVICE_REMOVED, inform C# side
+    TRY_DO(present);
 #endif
 
     WaitForGPU();

@@ -88,10 +88,15 @@ public:
 
     [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
 
-    /**
-     * Whether to configure features in a way that are more friendly to PIX.
-     */
-    [[nodiscard]] BOOL SupportPIX() const { return m_configuration.supportPIX; }
+    [[nodiscard]] bool SupportPIX() const
+    {
+        return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX);
+    }
+
+    [[nodiscard]] bool UseGBV() const
+    {
+        return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV);
+    }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);

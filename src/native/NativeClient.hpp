@@ -26,7 +26,6 @@ class Texture;
 using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
 
 class NativeClient final : public DXApp
-    // todo: do refactoring to make this class smaller, move stuff like device setup to DXApp and utilities, but keep all the actual render stuff here
 {
 public:
     explicit NativeClient(const Configuration& configuration);

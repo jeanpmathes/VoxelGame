@@ -308,9 +308,12 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            ComPtr<ID3D12Device> testDevice; // todo: try to remove, pass nullptr (as soon as new PIX is out)
+            // Instead of passing the useless device, nullptr and __uuidof(ID3D12Device) should be passed.
+            // The current version of PIX (2312.08) does not support this.
+
+            ComPtr<ID3D12Device> uselessDevice;
             if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&uselessDevice))))
             {
                 break;
             }
@@ -329,9 +332,12 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
                 continue;
             }
 
-            ComPtr<ID3D12Device> testDevice; // todo: try to remove, pass nullptr (as soon as new PIX is out)
+            // Instead of passing the useless device, nullptr and __uuidof(ID3D12Device) should be passed.
+            // The current version of PIX (2312.08) does not support this.
+
+            ComPtr<ID3D12Device> uselessDevice;
             if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&testDevice))))
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&uselessDevice))))
             {
                 break;
             }
@@ -358,5 +364,6 @@ void DXApp::CheckTearingSupport()
         hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
     }
 
-    m_tearingSupport = SUCCEEDED(hr) && allowTearing && m_configuration.allowTearing;
+    const bool isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
+    m_tearingSupport = SUCCEEDED(hr) && allowTearing && isTearingConfigured;
 }

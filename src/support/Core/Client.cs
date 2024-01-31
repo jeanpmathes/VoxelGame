@@ -108,8 +108,10 @@ public class Client : IDisposable
             title = windowSettings.Title,
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty)?.Handle ?? IntPtr.Zero,
             renderScale = windowSettings.RenderScale,
-            allowTearing = false,
-            supportPIX = windowSettings.SupportPIX
+            options = Definition.Native.BuildOptions(
+                allowTearing: false,
+                windowSettings.SupportPIX,
+                windowSettings.UseGBV)
         };
 
         config = new Config(configuration, OnError);
