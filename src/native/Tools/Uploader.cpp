@@ -106,7 +106,7 @@ NativeClient& Uploader::GetClient() const
     return *m_client;
 }
 
-bool Uploader::IsUploadingIndividually() const
+bool Uploader::IsUploadingBeforeAnyUse() const
 {
     return m_ownsCommandList;
 }

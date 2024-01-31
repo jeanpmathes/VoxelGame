@@ -14,10 +14,10 @@ enum ColorFormat : byte
 
 struct TextureDescription
 {
-    UINT width;
-    UINT height;
-    UINT mipLevels;
-    ColorFormat format;
+    UINT width = 1;
+    UINT height = 1;
+    UINT mipLevels = 1;
+    ColorFormat format = BGRA;
 };
 
 /**
@@ -33,6 +33,14 @@ public:
      * The texture is stored in the client that is associated with the uploader.
      */
     static Texture* Create(Uploader& uploader, std::byte** data, TextureDescription description);
+
+    /**
+     * \brief Create an empty texture.
+     * \param client The client to create the texture in.
+     * \param description The description of the texture.
+     * \return The created texture.
+     */
+    static Texture* Create(NativeClient& client, TextureDescription description);
 
     Texture(
         NativeClient& client,

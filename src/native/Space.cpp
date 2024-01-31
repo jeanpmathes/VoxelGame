@@ -33,22 +33,8 @@ void Space::PerformInitialSetupStepOne(const ComPtr<ID3D12CommandQueue> commandQ
 
     m_camera.Initialize();
 
-    // todo: use the Texture class to create sentinel texture
-    
-    const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_B8G8R8A8_UNORM, 1, 1,
-        1, 1,
-        1, 0,
-        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    m_sentinelTexture = util::AllocateResource<ID3D12Resource>(
-        *m_nativeClient, textureDescription,
-        D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-
-    m_sentinelTextureViewDescription.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    m_sentinelTextureViewDescription.Format = textureDescription.Format;
-    m_sentinelTextureViewDescription.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    m_sentinelTextureViewDescription.Texture2DArray.ArraySize = textureDescription.DepthOrArraySize;
-    m_sentinelTextureViewDescription.Texture2DArray.MipLevels = textureDescription.MipLevels;
+    m_sentinelTexture = Texture::Create(*m_nativeClient, TextureDescription());
+    m_sentinelTextureSRV = m_sentinelTexture->GetView();
 }
 
 void Space::PerformResolutionDependentSetup(const Resolution& resolution)
@@ -311,8 +297,8 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
             {
                 m_globalShaderResources->CreateShaderResourceView(entry, 0,
                                                                   {
-                                                                      m_sentinelTexture,
-                                                                      &m_sentinelTextureViewDescription
+                                                                      m_sentinelTexture->GetResource(),
+                                                                      &m_sentinelTextureSRV
                                                                   });
             }
         };
@@ -361,7 +347,7 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
     m_globalShaderResources = std::make_shared<ShaderResources>();
-    m_globalShaderResources->Initialize( // todo: use two static heaps (one for the changing stuff, one for textures)
+    m_globalShaderResources->Initialize(
         [&](auto& graphics)
         {
             graphics.AddHeapDescriptorTable([&](auto& table)
@@ -371,7 +357,6 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
             });
 
             m_effectBindings = RasterPipeline::SetupEffectBindings(*m_nativeClient, graphics);
-            // todo: update wiki article about shader resources (write section about graphics resources)
         },
         [&](auto& compute)
         {
@@ -558,11 +543,15 @@ void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
     }
     description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 2});
 
-    m_commonResourceTable = description->AddHeapDescriptorTable([this](auto& table)
+    m_unchangedCommonResourceHandle = description->AddHeapDescriptorTable([this](auto& table)
     {
-        m_bvhEntry = table.AddShaderResourceView({.reg = 0});
         m_textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, m_textureSlot1.size);
         m_textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, m_textureSlot2.size);
+    });
+
+    m_changedCommonResourceHandle = description->AddHeapDescriptorTable([this](auto& table)
+    {
+        m_bvhEntry = table.AddShaderResourceView({.reg = 0});
         m_colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});
         m_depthOutputEntry = table.AddUnorderedAccessView({.reg = 1});
     });

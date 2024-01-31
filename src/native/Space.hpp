@@ -287,8 +287,8 @@ private:
         ShaderResources::Table::Entry entry = ShaderResources::Table::Entry::invalid;
     };
 
-    Allocation<ID3D12Resource> m_sentinelTexture;
-    D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureViewDescription = {};
+    Texture* m_sentinelTexture = nullptr;
+    D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureSRV = {};
     TextureSlot m_textureSlot1 = {};
     TextureSlot m_textureSlot2 = {};
 
@@ -297,7 +297,8 @@ private:
     ShaderResources::Table::Entry m_rtDepthDataForRasterEntry = ShaderResources::Table::Entry::invalid;
     std::shared_ptr<RasterPipeline::Bindings> m_effectBindings;
 
-    ShaderResources::TableHandle m_commonResourceTable = ShaderResources::TableHandle::INVALID;
+    ShaderResources::TableHandle m_unchangedCommonResourceHandle = ShaderResources::TableHandle::INVALID;
+    ShaderResources::TableHandle m_changedCommonResourceHandle = ShaderResources::TableHandle::INVALID;
     ShaderResources::Table::Entry m_colorOutputEntry = ShaderResources::Table::Entry::invalid;
     ShaderResources::Table::Entry m_depthOutputEntry = ShaderResources::Table::Entry::invalid;
     ShaderResources::Table::Entry m_bvhEntry = ShaderResources::Table::Entry::invalid;

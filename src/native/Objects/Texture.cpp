@@ -17,45 +17,88 @@ namespace
             throw NativeException("Invalid color format.");
         }
     }
+
+    void EnsureValidDescription(const TextureDescription& description)
+    {
+        REQUIRE(description.width > 0);
+        REQUIRE(description.height > 0);
+        REQUIRE(description.mipLevels > 0);
+    }
+
+    constexpr auto UPLOAD_STATE = D3D12_RESOURCE_STATE_COPY_DEST;
+    constexpr auto USABLE_STATE = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE |
+        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+
+    Allocation<ID3D12Resource> CreateTextureResource(
+        const NativeClient& client,
+        const TextureDescription& description,
+        const bool requiresUpload,
+        D3D12_SHADER_RESOURCE_VIEW_DESC* srv)
+    {
+        const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
+            GetFormat(description.format),
+            description.width,
+            description.height,
+            1,
+            static_cast<UINT16>(description.mipLevels),
+            1,
+            0,
+            D3D12_RESOURCE_FLAG_NONE);
+
+        const auto state = requiresUpload ? UPLOAD_STATE : USABLE_STATE;
+
+        Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(client,
+            textureDescription, D3D12_HEAP_TYPE_DEFAULT, state);
+        NAME_D3D12_OBJECT(texture);
+
+        if (srv != nullptr)
+        {
+            *srv = {};
+            srv->Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srv->Format = textureDescription.Format;
+            srv->ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srv->Texture2D.MipLevels = textureDescription.MipLevels;
+        }
+
+        return texture;
+    }
 }
 
-Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescription description)
+Texture* Texture::Create(Uploader& uploader, std::byte** data, const TextureDescription description)
 {
-    REQUIRE(description.width > 0);
-    REQUIRE(description.height > 0);
-    REQUIRE(description.mipLevels > 0);
+    EnsureValidDescription(description);
 
-    const D3D12_RESOURCE_DESC textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-        GetFormat(description.format),
-        description.width,
-        description.height,
-        1,
-        static_cast<UINT16>(description.mipLevels),
-        1,
-        0,
-        D3D12_RESOURCE_FLAG_NONE);
-
-    Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(uploader.GetClient(),
-        textureDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST);
-    NAME_D3D12_OBJECT(texture);
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+    Allocation<ID3D12Resource> texture = CreateTextureResource(uploader.GetClient(), description, true, &srv);
 
     uploader.UploadTexture(data, description, texture);
-
-    D3D12_SRV_DIMENSION dimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = textureDescription.Format;
-    srvDesc.ViewDimension = dimension;
-    srvDesc.Texture2D.MipLevels = textureDescription.MipLevels;
     
     auto result = std::make_unique<Texture>(uploader.GetClient(), texture,
-                                            DirectX::XMUINT2{description.width, description.height}, srvDesc);
-    auto ptr = result.get();
+                                            DirectX::XMUINT2{description.width, description.height}, srv);
+    const auto ptr = result.get();
 
-    // With an individual upload, the texture will be in safe (non-fresh) state and can be used without transition.
-    ptr->m_usable = uploader.IsUploadingIndividually();
+    // When uploading before use, the texture will be in safe (non-fresh) state and can be used without transition.
+    ptr->m_usable = uploader.IsUploadingBeforeAnyUse();
     ptr->m_handle = uploader.GetClient().StoreObject(std::move(result));
+
+    return ptr;
+}
+
+Texture* Texture::Create(NativeClient& client, const TextureDescription description)
+{
+    EnsureValidDescription(description);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+    Allocation<ID3D12Resource> texture = CreateTextureResource(client, description, false, &srv);
+
+    auto result = std::make_unique<Texture>(client, texture,
+                                            DirectX::XMUINT2{description.width, description.height}, srv);
+
+    const auto ptr = result.get();
+
+    // The texture is directly created in the usable state.
+    ptr->m_usable = true;
+    ptr->m_handle = client.StoreObject(std::move(result));
 
     return ptr;
 }
@@ -105,8 +148,8 @@ void Texture::CreateUsabilityBarrier(
 {
     const CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(),
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        UPLOAD_STATE,
+        USABLE_STATE);
 
     commandList->ResourceBarrier(1, &barrier);
 }

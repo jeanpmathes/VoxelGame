@@ -40,9 +40,9 @@ public:
     [[nodiscard]] NativeClient& GetClient() const;
 
     /**
-     * Whether the uploader is uploading individually, meaning that the command list is only used for uploading.
+     * Whether the uploader is uploading before any uses, meaning that the command list is only used for uploading.
      */
-    [[nodiscard]] bool IsUploadingIndividually() const;
+    [[nodiscard]] bool IsUploadingBeforeAnyUse() const;
 
 private:
     NativeClient* m_client;
