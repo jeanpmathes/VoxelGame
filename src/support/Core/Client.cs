@@ -64,6 +64,8 @@ public class Client : IDisposable
 
                 OnUpdate(delta);
 
+                Console.WriteLine(DateTime.Now); // todo: remove
+
                 Sync.Update();
 
                 Input.PostUpdate();
@@ -175,7 +177,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Called when the focus / active state of the window changes.
     /// </summary>
-    internal event EventHandler OnFocusChange = delegate {};
+    public event EventHandler OnFocusChange = delegate {};
 
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.

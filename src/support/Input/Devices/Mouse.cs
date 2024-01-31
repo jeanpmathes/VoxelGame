@@ -122,6 +122,10 @@ public class Mouse
 
         Native.SetCursorLock(client, locked);
 
-        if (!locked && storedPosition != null) Position = storedPosition.Value;
+        if (locked) return;
+
+        if (storedPosition != null) Position = storedPosition.Value;
+
+        isCursorLockRequiredOnFocus = false;
     }
 }

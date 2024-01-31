@@ -132,6 +132,8 @@ public sealed class GameScene : IScene
         ui.CreateControl();
         Game.Initialize(new ConsoleWrapper(ui.Console!));
 
+        Client.OnFocusChange += OnFocusChanged;
+
         logger.LogInformation(Events.SceneChange, "Loaded GameScene");
     }
 
@@ -176,7 +178,7 @@ public sealed class GameScene : IScene
                 if (uiToggle.Changed) ui.ToggleHidden();
             }
 
-            if (escapeButton.Pushed) ui.DoEscape();
+            if (escapeButton.Pushed) ui.HandleEscape();
 
             if (consoleToggle.Changed) ui.ToggleConsole();
         }
@@ -187,6 +189,8 @@ public sealed class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
+        Client.OnFocusChange -= OnFocusChanged;
+
         Game.Dispose();
         Game = null!;
     }
@@ -195,6 +199,11 @@ public sealed class GameScene : IScene
     public bool CanCloseWindow()
     {
         return false;
+    }
+
+    private void OnFocusChanged(object? sender, EventArgs e)
+    {
+        if (!Client.IsFocused) ui.HandleEscape();
     }
 
     private void RenderUI()

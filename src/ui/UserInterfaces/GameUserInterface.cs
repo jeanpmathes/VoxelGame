@@ -168,11 +168,19 @@ public class GameUserInterface : UserInterface
     }
 
     /// <summary>
-    ///     Cause an escape-action.
+    ///     Handle an escape-action.
     /// </summary>
-    public void DoEscape()
+    public void HandleEscape()
     {
-        control?.ToggleInGameMenu();
+        control?.HandleEscape();
+    }
+
+    /// <summary>
+    ///     Handle a loss of focus.
+    /// </summary>
+    public void HandleLossOfFocus()
+    {
+        control?.HandleLossOfFocus();
     }
 
     /// <summary>

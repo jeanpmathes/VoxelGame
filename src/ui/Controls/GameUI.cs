@@ -73,12 +73,24 @@ internal class GameUI : ControlBase
         hud.ToggleDebugDataView();
     }
 
-    internal void ToggleInGameMenu()
+    internal void HandleEscape()
     {
-        if (Console.IsOpen) return;
+        if (Console.IsOpen)
+        {
+            CloseConsole();
+        }
+        else
+        {
+            if (IsGameMenuOpen) CloseInGameMenu();
+            else OpenInGameMenu();
+        }
+    }
 
-        if (IsGameMenuOpen) CloseInGameMenu();
-        else OpenInGameMenu();
+    internal void HandleLossOfFocus()
+    {
+        if (IsGameMenuOpen || Console.IsOpen) return;
+
+        OpenInGameMenu();
     }
 
     internal void ToggleConsole()

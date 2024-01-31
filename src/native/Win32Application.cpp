@@ -304,6 +304,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         if (app)
         {
             const UINT button = GET_XBUTTON_WPARAM(wParam);
+            
             if (button == XBUTTON1)
             {
                 app->OnKeyDown(VK_XBUTTON1);
@@ -319,6 +320,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         if (app)
         {
             const UINT button = GET_XBUTTON_WPARAM(wParam);
+            
             if (button == XBUTTON1)
             {
                 app->OnKeyUp(VK_XBUTTON1);
