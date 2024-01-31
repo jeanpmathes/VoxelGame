@@ -87,10 +87,16 @@ DXApp::DXApp(const Configuration& configuration) :
 
 DXApp::~DXApp() = default;
 
-void DXApp::Tick(const CycleFlags flags)
+void DXApp::Tick(const CycleFlags flags, const bool timer)
 {
     if (m_inTick) return;
     m_inTick = true;
+
+    if (!timer && m_isUpdateTimerRunning)
+    {
+        CHECK_RETURN(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        m_isUpdateTimerRunning = false;
+    }
     
     if (flags & ALLOW_UPDATE)
     {
@@ -191,6 +197,32 @@ void DXApp::HandleWindowMoved(const int xPos, const int yPos)
 void DXApp::HandleActiveStateChange(const bool active) const
 {
     m_configuration.onActiveStateChange(active);
+}
+
+void DXApp::OnSizeMove(const bool enter)
+{
+    if (enter)
+    {
+        CHECK_RETURN(SetTimer(
+            Win32Application::GetHwnd(),
+            IDT_UPDATE,
+            m_updateTimer.GetTargetElapsedMilliseconds(),
+            nullptr));
+        m_isUpdateTimerRunning = true;
+    }
+    else if (m_isUpdateTimerRunning)
+    {
+        CHECK_RETURN(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        m_isUpdateTimerRunning = false;
+    }
+}
+
+void DXApp::OnTimer(const UINT_PTR id)
+{
+    if (id == IDT_UPDATE)
+    {
+        Tick(ALLOW_UPDATE, true);
+    }
 }
 
 void DXApp::OnKeyDown(const UINT8 param) const

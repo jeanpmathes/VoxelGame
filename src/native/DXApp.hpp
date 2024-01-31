@@ -55,8 +55,9 @@ public:
     /**
      * Perform a tick, which can update and render the application.
      * \param flags The flags to control which cycles are allowed.
+     * \param timer Whether the tick is being called from a timer.
      */
-    void Tick(CycleFlags flags);
+    void Tick(CycleFlags flags, bool timer = false);
 
     void Init();
     void Update(const StepTimer& timer);
@@ -68,6 +69,9 @@ public:
     void HandleSizeChanged(UINT width, UINT height, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
     void HandleActiveStateChange(bool active) const;
+
+    void OnSizeMove(bool enter);
+    void OnTimer(UINT_PTR id);
 
     void OnKeyDown(UINT8) const;
     void OnKeyUp(UINT8) const;
@@ -184,6 +188,14 @@ private:
     std::thread::id m_mainThreadId;
 
     bool m_inTick = false;
+
+    enum TimerID : UINT_PTR
+    {
+        NO_TIMER = 0,
+        IDT_UPDATE = 1,
+    };
+
+    bool m_isUpdateTimerRunning = false;
 };
 
 #define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)

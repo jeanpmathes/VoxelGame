@@ -8,7 +8,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <exception>
 
 /**
  * \brief  Helper class for animation and simulation timing.
@@ -47,9 +46,16 @@ public:
     [[nodiscard]] double GetTotalSeconds() const noexcept { return TicksToSeconds(m_totalTicks); }
 
     [[nodiscard]] uint32_t GetFrameCount() const noexcept { return m_frameCount; }
-
     [[nodiscard]] uint32_t GetFramesPerSecond() const noexcept { return m_framesPerSecond; }
 
+    [[nodiscard]] uint64_t GetTargetElapsedTicks() const noexcept { return m_targetElapsedTicks; }
+    [[nodiscard]] double GetTargetElapsedSeconds() const noexcept { return TicksToSeconds(m_targetElapsedTicks); }
+
+    [[nodiscard]] UINT GetTargetElapsedMilliseconds() const noexcept
+    {
+        return static_cast<UINT>(GetTargetElapsedSeconds() * 1000.0);
+    }
+    
     void SetFixedTimeStep(const bool isFixedTimestep) noexcept { m_isFixedTimeStep = isFixedTimestep; }
 
     void SetTargetElapsedTicks(const uint64_t targetElapsed) noexcept { m_targetElapsedTicks = targetElapsed; }

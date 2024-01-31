@@ -64,8 +64,6 @@ public class Client : IDisposable
 
                 OnUpdate(delta);
 
-                Console.WriteLine(DateTime.Now); // todo: remove
-
                 Sync.Update();
 
                 Input.PostUpdate();

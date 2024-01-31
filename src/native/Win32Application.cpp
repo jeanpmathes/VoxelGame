@@ -177,7 +177,12 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
 {
     const auto app = reinterpret_cast<DXApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-    if (IsInErrorMode()) return DefWindowProc(hWnd, message, wParam, lParam);
+    auto def = [&]
+    {
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    };
+
+    if (IsInErrorMode()) return def();
 
     switch (message)
     {
@@ -366,7 +371,21 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
                 return TRUE;
             }
         }
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return def();
+
+    case WM_ENTERSIZEMOVE:
+        if (app)
+        {
+            app->OnSizeMove(true);
+        }
+        return 0;
+
+    case WM_EXITSIZEMOVE:
+        if (app)
+        {
+            app->OnSizeMove(false);
+        }
+        return 0;
 
     case WM_SIZE:
         if (app)
@@ -382,14 +401,6 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         }
         return 0;
 
-    case WM_GETMINMAXINFO:
-        {
-            const auto minmaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
-            minmaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
-            minmaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
-        }
-        return 0;
-
     case WM_MOVE:
         if (app)
         {
@@ -400,6 +411,22 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
             const int xPos = static_cast<short>(LOWORD(lParam));
             const int yPos = static_cast<short>(HIWORD(lParam));
             app->HandleWindowMoved(xPos, yPos);
+        }
+        return 0;
+
+    case WM_TIMER:
+        if (app)
+        {
+            app->OnTimer(static_cast<UINT_PTR>(wParam));
+            return 0;
+        }
+        return def();
+
+    case WM_GETMINMAXINFO:
+        {
+            const auto minmaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
+            minmaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
+            minmaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
         }
         return 0;
 
@@ -421,6 +448,6 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         PostQuitMessage(0);
         return 0;
 
-    default: return DefWindowProc(hWnd, message, wParam, lParam);
+    default: return def();
     }
 }
