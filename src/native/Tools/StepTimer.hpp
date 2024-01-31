@@ -16,7 +16,7 @@
 class StepTimer
 {
 public:
-    StepTimer() noexcept(false) : // todo: try using std::chrono high performance counter
+    StepTimer() noexcept(false) :
         m_elapsedTicks(0),
         m_totalTicks(0),
         m_leftOverTicks(0),
@@ -25,57 +25,57 @@ public:
         m_framesThisSecond(0),
         m_qpcSecondCounter(0),
         m_isFixedTimeStep(false),
-        m_targetElapsedTicks(TicksPerSecond / 60)
+        m_targetElapsedTicks(TICKS_PER_SECOND / 60)
     {
         if (!QueryPerformanceFrequency(&m_qpcFrequency))
         {
-            throw std::exception(); // todo: use native exception and message here
+            throw NativeException("Failed to query performance frequency.");
         }
 
         if (!QueryPerformanceCounter(&m_qpcLastTime))
         {
-            throw std::exception();
+            throw NativeException("Failed to query performance counter.");
         }
 
         m_qpcMaxDelta = static_cast<uint64_t>(m_qpcFrequency.QuadPart / 10);
     }
 
-    uint64_t GetElapsedTicks() const noexcept { return m_elapsedTicks; }
-    double GetElapsedSeconds() const noexcept { return TicksToSeconds(m_elapsedTicks); }
+    [[nodiscard]] uint64_t GetElapsedTicks() const noexcept { return m_elapsedTicks; }
+    [[nodiscard]] double GetElapsedSeconds() const noexcept { return TicksToSeconds(m_elapsedTicks); }
 
-    uint64_t GetTotalTicks() const noexcept { return m_totalTicks; }
-    double GetTotalSeconds() const noexcept { return TicksToSeconds(m_totalTicks); }
+    [[nodiscard]] uint64_t GetTotalTicks() const noexcept { return m_totalTicks; }
+    [[nodiscard]] double GetTotalSeconds() const noexcept { return TicksToSeconds(m_totalTicks); }
 
-    uint32_t GetFrameCount() const noexcept { return m_frameCount; }
+    [[nodiscard]] uint32_t GetFrameCount() const noexcept { return m_frameCount; }
 
-    uint32_t GetFramesPerSecond() const noexcept { return m_framesPerSecond; }
+    [[nodiscard]] uint32_t GetFramesPerSecond() const noexcept { return m_framesPerSecond; }
 
-    void SetFixedTimeStep(bool isFixedTimestep) noexcept { m_isFixedTimeStep = isFixedTimestep; }
+    void SetFixedTimeStep(const bool isFixedTimestep) noexcept { m_isFixedTimeStep = isFixedTimestep; }
 
-    void SetTargetElapsedTicks(uint64_t targetElapsed) noexcept { m_targetElapsedTicks = targetElapsed; }
+    void SetTargetElapsedTicks(const uint64_t targetElapsed) noexcept { m_targetElapsedTicks = targetElapsed; }
 
-    void SetTargetElapsedSeconds(double targetElapsed) noexcept
+    void SetTargetElapsedSeconds(const double targetElapsed) noexcept
     {
         m_targetElapsedTicks = SecondsToTicks(targetElapsed);
     }
 
-    static constexpr uint64_t TicksPerSecond = 10000000;
+    static constexpr uint64_t TICKS_PER_SECOND = 10000000;
 
-    static constexpr double TicksToSeconds(uint64_t ticks) noexcept
+    static constexpr double TicksToSeconds(const uint64_t ticks) noexcept
     {
-        return static_cast<double>(ticks) / TicksPerSecond;
+        return static_cast<double>(ticks) / TICKS_PER_SECOND;
     }
 
-    static constexpr uint64_t SecondsToTicks(double seconds) noexcept
+    static constexpr uint64_t SecondsToTicks(const double seconds) noexcept
     {
-        return static_cast<uint64_t>(seconds * TicksPerSecond);
+        return static_cast<uint64_t>(seconds * TICKS_PER_SECOND);
     }
 
     void ResetElapsedTime()
     {
         if (!QueryPerformanceCounter(&m_qpcLastTime))
         {
-            throw std::exception();
+            throw NativeException("Failed to query performance counter.");
         }
 
         m_leftOverTicks = 0;
@@ -91,7 +91,7 @@ public:
 
         if (!QueryPerformanceCounter(&currentTime))
         {
-            throw std::exception();
+            throw NativeException("Failed to query performance counter.");
         }
 
         uint64_t timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
@@ -103,15 +103,16 @@ public:
         {
             timeDelta = m_qpcMaxDelta;
         }
-        
-        timeDelta *= TicksPerSecond;
+
+        timeDelta *= TICKS_PER_SECOND;
         timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
 
         const uint32_t lastFrameCount = m_frameCount;
 
         if (m_isFixedTimeStep)
         {
-            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks))) < TicksPerSecond
+            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks))) <
+                TICKS_PER_SECOND
                 / 4000)
             {
                 timeDelta = m_targetElapsedTicks;

@@ -149,7 +149,7 @@ namespace nv_helpers_dx12
                                          IID_PPV_ARGS(&pRootSig));
         if (FAILED(hr))
         {
-            throw std::logic_error("Cannot create root signature");
+            throw std::logic_error("Cannot create root signature.");
         }
 
         return pRootSig;

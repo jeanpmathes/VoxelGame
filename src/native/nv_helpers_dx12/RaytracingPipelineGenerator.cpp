@@ -215,7 +215,7 @@ namespace nv_helpers_dx12
 
         if (const HRESULT hr = m_device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject)); FAILED(hr))
         {
-            throw std::logic_error("Could not create the raytracing state object");
+            throw std::logic_error("Could not create the raytracing state object.");
         }
         
         return rtStateObject;
@@ -236,7 +236,7 @@ namespace nv_helpers_dx12
         
         if (FAILED(hr))
         {
-            throw std::logic_error("Could not serialize the local root signature");
+            throw std::logic_error("Could not serialize the local root signature.");
         }
         
         hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
@@ -245,7 +245,7 @@ namespace nv_helpers_dx12
 
         if (FAILED(hr))
         {
-            throw std::logic_error("Could not create the local root signature");
+            throw std::logic_error("Could not create the local root signature.");
         }
 
 #if defined(NATIVE_DEBUG)
@@ -253,7 +253,7 @@ namespace nv_helpers_dx12
 
         if (FAILED(hr))
         {
-            throw std::logic_error("Could not name the local root signature");
+            throw std::logic_error("Could not name the local root signature.");
         }
 #endif
     }
@@ -269,7 +269,7 @@ namespace nv_helpers_dx12
 #if defined(NATIVE_DEBUG)
                 if (exports.contains(exportName))
                 {
-                    throw std::logic_error("Multiple definition of a symbol in the imported DXIL libraries");
+                    throw std::logic_error("Multiple definition of a symbol in the imported DXIL libraries.");
                 }
 #endif
                 exports.insert(exportName);
@@ -283,19 +283,19 @@ namespace nv_helpers_dx12
         {
             if (!hitGroup.anyHitSymbol.empty() && !exports.contains(hitGroup.anyHitSymbol))
             {
-                throw std::logic_error("Any hit symbol not found in the imported DXIL libraries");
+                throw std::logic_error("Any hit symbol not found in the imported DXIL libraries.");
             }
 
             if (!hitGroup.closestHitSymbol.empty() &&
                 !exports.contains(hitGroup.closestHitSymbol))
             {
-                throw std::logic_error("Closest hit symbol not found in the imported DXIL libraries");
+                throw std::logic_error("Closest hit symbol not found in the imported DXIL libraries.");
             }
 
             if (!hitGroup.intersectionSymbol.empty() &&
                 !exports.contains(hitGroup.intersectionSymbol))
             {
-                throw std::logic_error("Intersection symbol not found in the imported DXIL libraries");
+                throw std::logic_error("Intersection symbol not found in the imported DXIL libraries.");
             }
 
             allExports.insert(hitGroup.hitGroupName);
@@ -308,7 +308,7 @@ namespace nv_helpers_dx12
                 if (!symbol.empty() && !allExports.contains(symbol))
                 {
                     throw std::logic_error("Root association symbol not found in the "
-                        "imported DXIL libraries and hit group names");
+                        "imported DXIL libraries and hit group names.");
                 }
             }
         }

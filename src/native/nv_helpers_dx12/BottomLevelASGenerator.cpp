@@ -176,17 +176,17 @@ namespace nv_helpers_dx12
 
         if (updateOnly && !isUpdateAllowed)
         {
-            throw std::logic_error("Cannot update a bottom-level AS not built for updates");
+            throw std::logic_error("Cannot update a bottom-level AS not built for updates.");
         }
         if (updateOnly && previousResult == 0)
         {
-            throw std::logic_error("Bottom-level hierarchy update requires the previous hierarchy");
+            throw std::logic_error("Bottom-level hierarchy update requires the previous hierarchy.");
         }
 
         if (m_resultSizeInBytes == 0 || m_scratchSizeInBytes == 0)
         {
             throw std::logic_error(
-                "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs to be called before Build");
+                "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs to be called before Build.");
         }
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;

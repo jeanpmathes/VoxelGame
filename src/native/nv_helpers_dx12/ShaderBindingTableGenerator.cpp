@@ -93,7 +93,7 @@ namespace nv_helpers_dx12
 
         if (const HRESULT hr = sbtBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData)); FAILED(hr))
         {
-            throw std::logic_error("Could not map the shader binding table");
+            throw std::logic_error("Could not map the shader binding table.");
         }
         
         uint32_t offset = 0;

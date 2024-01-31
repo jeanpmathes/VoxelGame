@@ -163,11 +163,11 @@ namespace nv_helpers_dx12
         
         if (m_flags != D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
         {
-            throw std::logic_error("Cannot update a top-level AS not originally built for updates");
+            throw std::logic_error("Cannot update a top-level AS not originally built for updates.");
         }
         if (updateOnly && !previousResult.IsSet())
         {
-            throw std::logic_error("Top-level hierarchy update requires the previous hierarchy");
+            throw std::logic_error("Top-level hierarchy update requires the previous hierarchy.");
         }
 
         flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
