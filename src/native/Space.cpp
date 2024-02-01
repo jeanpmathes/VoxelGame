@@ -41,6 +41,8 @@ void Space::PerformResolutionDependentSetup(const Resolution& resolution)
 {
     m_resolution = resolution;
     CreateRaytracingOutputBuffer();
+
+    m_camera.Update();
 }
 
 bool Space::PerformInitialSetupStepTwo(const SpacePipeline& pipeline)

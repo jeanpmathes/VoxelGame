@@ -137,7 +137,7 @@ void DXApp::Update(const StepTimer& timer)
 {
     const double delta = timer.GetElapsedSeconds();
     m_totalRenderTime += delta;
-
+    
     m_cycle = Cycle::UPDATE;
 
     m_configuration.onUpdate(delta);
@@ -194,8 +194,10 @@ void DXApp::HandleWindowMoved(const int xPos, const int yPos)
     }
 }
 
-void DXApp::HandleActiveStateChange(const bool active) const
+void DXApp::HandleActiveStateChange(const bool active)
 {
+    m_isActive = active;
+    
     m_configuration.onActiveStateChange(active);
 }
 
@@ -270,7 +272,18 @@ void DXApp::UpdateForSizeChange(const UINT clientWidth, const UINT clientHeight)
 {
     m_width = clientWidth;
     m_height = clientHeight;
+    
     m_aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
+}
+
+void DXApp::SetMousePosition(POINT position)
+{
+    if (!m_isActive) return;
+
+    m_lastMousePosition = position;
+
+    TRY_DO(ClientToScreen(Win32Application::GetHwnd(), &position));
+    TRY_DO(SetCursorPos(position.x, position.y));
 }
 
 void DXApp::SetMouseCursor(const MouseCursor cursor)

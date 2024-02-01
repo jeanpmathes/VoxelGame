@@ -616,14 +616,6 @@ Texture* NativeClient::LoadTexture(std::byte** data, const TextureDescription& d
     return Texture::Create(*m_uploader, data, description);
 }
 
-void NativeClient::SetMousePosition(POINT position)
-{
-    m_lastMousePosition = position;
-    
-    TRY_DO(ClientToScreen(Win32Application::GetHwnd(), &position));
-    TRY_DO(SetCursorPos(position.x, position.y));
-}
-
 Space* NativeClient::GetSpace() const
 {
     return m_space.get();

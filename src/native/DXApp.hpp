@@ -68,7 +68,7 @@ public:
 
     void HandleSizeChanged(UINT width, UINT height, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
-    void HandleActiveStateChange(bool active) const;
+    void HandleActiveStateChange(bool active);
 
     void OnSizeMove(bool enter);
     void OnTimer(UINT_PTR id);
@@ -105,6 +105,11 @@ public:
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
 
+    /**
+     * Set the mouse position in client coordinates.
+     */
+    void SetMousePosition(POINT position);
+    
     void SetMouseCursor(MouseCursor cursor);
     void SetMouseLock(bool lock);
 
@@ -191,11 +196,13 @@ private:
 
     enum TimerID : UINT_PTR
     {
-        NO_TIMER = 0,
         IDT_UPDATE = 1,
     };
-
+    
     bool m_isUpdateTimerRunning = false;
+
+    POINT m_lastMousePosition = {};
+    bool m_isActive = false;
 };
 
 #define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)

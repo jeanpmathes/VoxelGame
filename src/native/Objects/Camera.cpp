@@ -20,10 +20,10 @@ void Camera::Update()
     const DirectX::XMVECTOR up = XMLoadFloat3(&m_up);
     
     const float fovAngleY = m_fov * DirectX::XM_PI / 180.0f;
-
+    
     const auto view = DirectX::XMMatrixLookToRH(eye, forward, up);
     const auto projection = DirectX::XMMatrixPerspectiveFovRH(fovAngleY, GetClient().GetAspectRatio(), m_near, m_far);
-
+    
     XMStoreFloat4x4(&m_vpMatrix, view * projection);
     
     DirectX::XMVECTOR det;

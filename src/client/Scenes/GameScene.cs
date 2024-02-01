@@ -203,7 +203,7 @@ public sealed class GameScene : IScene
 
     private void OnFocusChanged(object? sender, EventArgs e)
     {
-        if (!Client.IsFocused) ui.HandleEscape();
+        if (!Client.IsFocused) ui.HandleLossOfFocus();
     }
 
     private void RenderUI()
