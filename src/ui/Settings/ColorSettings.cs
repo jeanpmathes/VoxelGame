@@ -53,6 +53,16 @@ internal class ColorSettings : Setting
         {
             set(ConvertColor(colorPicker.SelectedColor));
             Provider.Validate();
+
+            select.Disable();
+        };
+
+        select.Disable();
+
+        colorPicker.ColorChanged += (_, _) =>
+        {
+            select.Enable();
+            select.Redraw();
         };
     }
 

@@ -39,7 +39,8 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
                 Language.ScaleOfUI,
                 ScaleOfUI.Accessors,
                 min: 0.25f,
-                max: 3f));
+                max: 3f,
+                step: 0.05f));
 
         CrosshairColor = new Bindable<Color>(
             () => clientSettings.CrosshairColor,

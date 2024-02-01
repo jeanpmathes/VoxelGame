@@ -22,15 +22,15 @@ namespace VoxelGame.UI.Settings;
 internal class FloatRangeSetting : Setting
 {
     private readonly Func<float> get;
-
-
-    private readonly float max;
-    private readonly float min;
-
-    private readonly bool percentage;
     private readonly Action<float> set;
 
-    internal FloatRangeSetting(string name, float min, float max, bool percentage, Func<float> get, Action<float> set)
+    private readonly float min;
+    private readonly float max;
+
+    private readonly bool percentage;
+    private readonly float? step;
+
+    internal FloatRangeSetting(string name, float min, float max, bool percentage, float? step, Func<float> get, Action<float> set)
     {
         this.get = get;
         this.set = set;
@@ -39,6 +39,7 @@ internal class FloatRangeSetting : Setting
         this.max = max;
 
         this.percentage = percentage;
+        this.step = step;
 
         Name = name;
     }
@@ -56,6 +57,12 @@ internal class FloatRangeSetting : Setting
             Value = get()
         };
 
+        if (step is {} stepValue)
+        {
+            floatRange.NotchCount = (int) ((max - min) / stepValue);
+            floatRange.SnapToNotches = true;
+        }
+
         Label value = new(layout)
         {
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -65,8 +72,8 @@ internal class FloatRangeSetting : Setting
         void SetText()
         {
             value.Text = percentage
-                ? $"{floatRange.Value:P}"
-                : $"{floatRange.Value:F}";
+                ? $"{floatRange.Value:P0}"
+                : $"{floatRange.Value:F2}";
         }
 
         SetText();
@@ -80,8 +87,18 @@ internal class FloatRangeSetting : Setting
         {
             set(floatRange.Value);
             Provider.Validate();
+
+            select.Disable();
         };
 
-        floatRange.ValueChanged += (_, _) => { SetText(); };
+        select.Disable();
+
+        floatRange.ValueChanged += (_, _) =>
+        {
+            select.Enable();
+            select.Redraw();
+
+            SetText();
+        };
     }
 }

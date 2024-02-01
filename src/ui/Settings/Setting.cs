@@ -110,13 +110,14 @@ public abstract class Setting
     /// <param name="min">The minimum value of the setting.</param>
     /// <param name="max">The maximum value of the setting.</param>
     /// <param name="percentage">Whether the value is a percentage and should be displayed as such.</param>
+    /// <param name="step">The step size of the slider.</param>
     /// <returns>The created setting.</returns>
     public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name,
         (Func<float> get, Action<float> set) accessors,
         float min = float.MinValue, float max = float.MaxValue,
-        bool percentage = false)
+        bool percentage = false, float? step = null)
     {
-        return new FloatRangeSetting(name, min, max, percentage, accessors.get, accessors.set)
+        return new FloatRangeSetting(name, min, max, percentage, step, accessors.get, accessors.set)
         {
             Provider = provider
         };

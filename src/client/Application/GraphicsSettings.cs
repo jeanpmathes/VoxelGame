@@ -71,7 +71,8 @@ public class GraphicsSettings : ISettingsProvider
                 RenderResolutionScale.Accessors,
                 min: 0.1f,
                 max: 5f,
-                percentage: true));
+                percentage: true,
+                step: 0.1f));
     }
 
     /// <summary>
