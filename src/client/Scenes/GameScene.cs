@@ -56,6 +56,7 @@ public sealed class GameScene : IScene
 
         ui = new GameUserInterface(
             client.Input,
+            client.Settings,
             client.Resources.UI,
             drawBackground: false);
 

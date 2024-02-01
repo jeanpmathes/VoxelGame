@@ -32,10 +32,12 @@ public class GameUserInterface : UserInterface
     ///     Creates a new game user interface.
     /// </summary>
     /// <param name="input">The input.</param>
+    /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(Input input, UIResources resources, bool drawBackground) : base(
+    public GameUserInterface(Input input, IScaleProvider scale, UIResources resources, bool drawBackground) : base(
         input,
+        scale,
         resources,
         drawBackground) {}
 

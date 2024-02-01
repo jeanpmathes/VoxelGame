@@ -33,5 +33,8 @@
         <Setting Name="BrightSelectionColor" Type="System.Drawing.Color" Scope="User">
             <Value Profile="(Default)">150, 150, 150</Value>
         </Setting>
+        <Setting Name="ScaleOfUI" Type="System.Double" Scope="User">
+            <Value Profile="(Default)">1</Value>
+        </Setting>
     </Settings>
 </SettingsFile>

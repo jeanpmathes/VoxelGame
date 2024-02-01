@@ -612,4 +612,7 @@
     <data name="Update" xml:space="preserve">
         <value>Update</value>
     </data>
+    <data name="ScaleOfUI" xml:space="preserve">
+        <value>Scale of UI</value>
+    </data>
 </root>

@@ -1203,6 +1203,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Scale of UI.
+        /// </summary>
+        public static string ScaleOfUI {
+            get {
+                return ResourceManager.GetString("ScaleOfUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sea Water.
         /// </summary>
         public static string SeaWater {

@@ -55,6 +55,7 @@ public sealed class StartScene : IScene
 
         ui = new StartUserInterface(
             client.Input,
+            client.Settings,
             worldProvider,
             settingsProviders,
             client.Resources.UI,

@@ -9,6 +9,7 @@ using Gwen.Net.Control;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input;
+using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
 
@@ -17,22 +18,32 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public abstract class UserInterface : IDisposable
 {
-    private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
-    private readonly bool drawBackground;
+    private static readonly Vector2 targetSize = new(x: 1920, y: 1080);
+
     private readonly Input input;
+    private readonly IScaleProvider scale;
     private readonly UIResources resources;
+    private readonly bool drawBackground;
+
+    private readonly IDisposable scaleSubscription;
+
+    private Vector2i currentSize = Vector2i.Zero;
 
     /// <summary>
     ///     Creates a new user interface.
     /// </summary>
     /// <param name="input">The input.</param>
+    /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(Input input, UIResources resources, bool drawBackground)
+    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, bool drawBackground)
     {
-        this.drawBackground = drawBackground;
         this.input = input;
+        this.scale = scale;
         this.resources = resources;
+        this.drawBackground = drawBackground;
+
+        scaleSubscription = scale.Subscribe(_ => UpdateScale());
     }
 
     internal Context Context { get; private set; } = null!;
@@ -105,11 +116,17 @@ public abstract class UserInterface : IDisposable
     {
         resources.GUI.Resize(size);
 
-        float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
+        currentSize = size;
+        UpdateScale();
+    }
 
-        if (VMath.NearlyZero(scale)) return;
+    private void UpdateScale()
+    {
+        float newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
 
-        resources.GUI.Root.Scale = scale;
+        if (VMath.NearlyZero(newScale)) return;
+
+        resources.GUI.Root.Scale = newScale;
     }
 
     #region IDisposable Support
@@ -124,7 +141,12 @@ public abstract class UserInterface : IDisposable
     {
         if (disposed) return;
 
-        if (disposing) Root.DeleteAllChildren();
+        if (disposing)
+        {
+            Root.DeleteAllChildren();
+
+            scaleSubscription.Dispose();
+        }
 
         disposed = true;
     }

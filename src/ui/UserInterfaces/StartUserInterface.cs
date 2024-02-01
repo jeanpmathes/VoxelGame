@@ -28,13 +28,15 @@ public class StartUserInterface : UserInterface
     ///     Creates a new start user interface.
     /// </summary>
     /// <param name="input">The input.</param>
+    /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="worldProvider">The world provider.</param>
     /// <param name="settingsProviders">The settings providers.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
-    public StartUserInterface(Input input, IWorldProvider worldProvider,
+    public StartUserInterface(Input input, IScaleProvider scale, IWorldProvider worldProvider,
         ICollection<ISettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
         input,
+        scale,
         resources,
         drawBackground)
     {

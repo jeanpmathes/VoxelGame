@@ -514,6 +514,22 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector3 v)
+    {
+        return Math.Min(Math.Min(v.X, v.Y), v.Z);
+    }
+
+    /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector2 v)
+    {
+        return Math.Min(v.X, v.Y);
+    }
+
+    /// <summary>
     ///     Get the corner of a box by its index.
     /// </summary>
     /// <param name="box">The box.</param>

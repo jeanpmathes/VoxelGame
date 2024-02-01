@@ -4,7 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using Properties;
 using VoxelGame.Core.Resources.Language;
@@ -17,12 +19,28 @@ namespace VoxelGame.Client.Application;
 ///     General game settings that are not part of any other settings category.
 ///     Changed settings in this class will be saved.
 /// </summary>
-public class GeneralSettings : ISettingsProvider
+public class GeneralSettings : ISettingsProvider, IScaleProvider
 {
     private readonly List<Setting> settings = new();
 
     internal GeneralSettings(Settings clientSettings)
     {
+        ScaleOfUI = new Bindable<float>(
+            () => (float) clientSettings.ScaleOfUI,
+            f =>
+            {
+                clientSettings.ScaleOfUI = f;
+                clientSettings.Save();
+            });
+
+        settings.Add(
+            Setting.CreateFloatRangeSetting(
+                this,
+                Language.ScaleOfUI,
+                ScaleOfUI.Accessors,
+                min: 0.25f,
+                max: 3f));
+
         CrosshairColor = new Bindable<Color>(
             () => clientSettings.CrosshairColor,
             color =>
@@ -99,6 +117,12 @@ public class GeneralSettings : ISettingsProvider
     }
 
     /// <summary>
+    ///     The scale factor of the UI.
+    /// </summary>
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    public Bindable<float> ScaleOfUI { get; }
+
+    /// <summary>
     /// The color of the crosshair.
     /// </summary>
     public Bindable<Color> CrosshairColor { get; }
@@ -122,6 +146,15 @@ public class GeneralSettings : ISettingsProvider
     ///     Get or set the mouse sensitivity setting.
     /// </summary>
     public Bindable<float> MouseSensitivity { get; }
+
+    /// <inheritdoc />
+    float IScaleProvider.Scale => ScaleOfUI;
+
+    /// <inheritdoc />
+    IDisposable IScaleProvider.Subscribe(Action<float> action)
+    {
+        return ScaleOfUI.Bind(args => action(args.NewValue));
+    }
 
     /// <inheritdoc />
     string ISettingsProvider.Category => Language.General;
