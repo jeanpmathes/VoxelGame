@@ -16,13 +16,15 @@ using VoxelGame.Support.Data;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
+
+#pragma warning disable S101
 
 /// <summary>
-///     A renderer that renders instances of the <see cref="BoxCollider" /> struct.
+///     A VFX that shows instances of the <see cref="BoxCollider" /> struct.
 ///     For this multiple boxes are drawn.
 /// </summary>
-public sealed class SelectionBoxRenderer : Renderer
+public sealed class SelectionBoxVFX : VFX
 {
     private readonly Support.Core.Client client;
     private readonly RasterPipeline pipeline;
@@ -35,7 +37,7 @@ public sealed class SelectionBoxRenderer : Renderer
     private Color darkColor = Color.Black;
     private Color brightColor = Color.White;
 
-    private SelectionBoxRenderer(Support.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
+    private SelectionBoxVFX(Support.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
         this.client = client;
         this.pipeline = pipeline;
@@ -43,7 +45,7 @@ public sealed class SelectionBoxRenderer : Renderer
     }
 
     /// <summary>
-    /// Set whether the renderer is enabled.
+    /// Set whether the VFX is enabled.
     /// </summary>
     public override bool IsEnabled
     {
@@ -56,15 +58,15 @@ public sealed class SelectionBoxRenderer : Renderer
     }
 
     /// <summary>
-    /// Create a new <see cref="SelectionBoxRenderer"/>.
+    /// Create a new <see cref="SelectionBoxVFX"/>.
     /// </summary>
-    public static SelectionBoxRenderer? Create(Support.Core.Client client, Pipelines pipelines)
+    public static SelectionBoxVFX? Create(Support.Core.Client client, Pipelines pipelines)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));
 
         return result is {pipeline: var rasterPipeline, buffer: var shaderBuffer}
-            ? new SelectionBoxRenderer(client, rasterPipeline, shaderBuffer)
+            ? new SelectionBoxVFX(client, rasterPipeline, shaderBuffer)
             : null;
     }
 
@@ -115,9 +117,9 @@ public sealed class SelectionBoxRenderer : Renderer
     }
 
     /// <summary>
-    ///     Set the box collider to render.
+    ///     Set the box collider to display.
     /// </summary>
-    /// <param name="boxCollider">The box collider to render.</param>
+    /// <param name="boxCollider">The box collider to display.</param>
     public void SetBox(BoxCollider boxCollider)
     {
         if (effect == null) return;

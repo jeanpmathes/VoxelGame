@@ -1,4 +1,4 @@
-﻿// <copyright file="Renderer.cs" company="VoxelGame">
+﻿// <copyright file="VFX.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -8,23 +8,25 @@ using System;
 using System.Diagnostics;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
+
+#pragma warning disable S101
 
 /// <summary>
-///     Abstract base class for renderers, which are used to render various things.
+///     Abstract base class for VFXs, which are used to display various things.
 /// </summary>
-public abstract class Renderer : IDisposable
+public abstract class VFX : IDisposable
 {
     /// <summary>
-    ///     Whether the renderer is enabled.
+    ///     Whether the VFX is enabled.
     /// </summary>
     public abstract bool IsEnabled { get; set; }
 
     private bool IsSetUp { get; set; }
 
     /// <summary>
-    ///     Setup the renderer for active use.
-    ///     Can only be enabled after the renderer has been setup.
+    ///     Setup the VFX for active use.
+    ///     Can only be enabled after the VFX has been setup.
     /// </summary>
     public void SetUp()
     {
@@ -38,13 +40,13 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
-    ///     Use this to setup the renderer.
+    ///     Use this to setup the VFX.
     /// </summary>
     protected abstract void OnSetUp();
 
     /// <summary>
-    ///     Tear down the renderer.
-    ///     Must be called before the renderer is disposed.
+    ///     Tear down the VFX.
+    ///     Must be called before the VFX is disposed.
     ///     Can be setup again after calling this.
     /// </summary>
     public void TearDown()
@@ -59,12 +61,12 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
-    ///     Use this to tear down the renderer.
+    ///     Use this to tear down the VFX.
     /// </summary>
     protected abstract void OnTearDown();
 
     /// <summary>
-    ///     Update data for the renderer.
+    ///     Update data for the VFX.
     ///     Call this every update cycle.
     /// </summary>
     public void Update()
@@ -75,7 +77,7 @@ public abstract class Renderer : IDisposable
     }
 
     /// <summary>
-    ///     Use this to update the renderer.
+    ///     Use this to update the VFX.
     /// </summary>
     protected virtual void OnUpdate() {}
 
@@ -105,7 +107,7 @@ public abstract class Renderer : IDisposable
     /// <summary>
     ///     The finalizer.
     /// </summary>
-    ~Renderer()
+    ~VFX()
     {
         Dispose(disposing: false);
     }

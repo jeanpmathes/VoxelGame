@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 
 namespace VoxelGame.Client.Scenes;
 

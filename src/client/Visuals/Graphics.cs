@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     Utility class for graphics related commands.

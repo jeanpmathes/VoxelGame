@@ -13,12 +13,14 @@ using VoxelGame.Support.Data;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
+
+#pragma warning disable S101
 
 /// <summary>
-///     A renderer for <see cref="VoxelGame.Core.Logic.Section" />.
+///     A VFX for <see cref="VoxelGame.Core.Logic.Section" />.
 /// </summary>
-public sealed class SectionRenderer : Renderer
+public sealed class SectionVFX : VFX
 {
     /// <summary>
     ///     The basic raytracing material for opaque section parts.
@@ -50,9 +52,9 @@ public sealed class SectionRenderer : Renderer
     private Mesh? fluid;
 
     /// <summary>
-    ///     Creates a new <see cref="SectionRenderer" />.
+    ///     Creates a new <see cref="SectionVFX" />.
     /// </summary>
-    public SectionRenderer(Space space, Vector3d position)
+    public SectionVFX(Space space, Vector3d position)
     {
         this.space = space;
         this.position = position;
@@ -70,7 +72,7 @@ public sealed class SectionRenderer : Renderer
     }
 
     /// <summary>
-    ///     Initialize the required resources for the <see cref="SectionRenderer" />.
+    ///     Initialize the required resources for the <see cref="SectionVFX" />.
     /// </summary>
     /// <param name="directory">The directory in which shader files are located.</param>
     /// <param name="visuals">The visual configuration of the game.</param>
@@ -152,7 +154,7 @@ public sealed class SectionRenderer : Renderer
     }
 
     /// <summary>
-    ///     Set the section mesh data to render. Must not be discarded.
+    ///     Set the section mesh data to display. Must not be discarded.
     /// </summary>
     /// <param name="meshData">The mesh data to use.</param>
     public void SetData(SectionMeshData meshData)
@@ -203,7 +205,7 @@ public sealed class SectionRenderer : Renderer
         }
         else
         {
-            Throw.ForMissedDispose(nameof(SectionRenderer));
+            Throw.ForMissedDispose(nameof(SectionVFX));
         }
 
         base.Dispose(disposing);

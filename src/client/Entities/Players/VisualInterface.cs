@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -23,9 +23,9 @@ namespace VoxelGame.Client.Entities.Players;
 /// </summary>
 public sealed class VisualInterface : IDisposable
 {
-    private readonly SelectionBoxRenderer selectionRenderer;
-    private readonly OverlayRenderer overlayRenderer;
-    private readonly List<Renderer> renderers = new();
+    private readonly SelectionBoxVFX selectionVFX;
+    private readonly OverlayVFX overlayVFX;
+    private readonly List<VFX> renderers = new();
 
     private readonly Button debugViewButton;
 
@@ -41,13 +41,13 @@ public sealed class VisualInterface : IDisposable
     /// <param name="resources">The resources to use.</param>
     public VisualInterface(Player player, GameUserInterface ui, GameResources resources)
     {
-        selectionRenderer = RegisterRenderer(resources.Pipelines.SelectionBoxRenderer);
-        overlayRenderer = RegisterRenderer(resources.Pipelines.OverlayRenderer);
-        ScreenElementRenderer crosshairRenderer = RegisterRenderer(resources.Pipelines.CrosshairRenderer);
+        selectionVFX = RegisterRenderer(resources.Pipelines.SelectionBoxVFX);
+        overlayVFX = RegisterRenderer(resources.Pipelines.OverlayVFX);
+        ScreenElementVFX crosshairVFX = RegisterRenderer(resources.Pipelines.CrosshairVFX);
 
-        crosshairRenderer.SetTexture(resources.Player.Crosshair);
+        crosshairVFX.SetTexture(resources.Player.Crosshair);
 
-        foreach (Renderer renderer in renderers) renderer.SetUp();
+        foreach (VFX renderer in renderers) renderer.SetUp();
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -61,7 +61,7 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public bool IsOverlayAllowed { get; set; } = true;
 
-    private T RegisterRenderer<T>(T renderer) where T : Renderer
+    private T RegisterRenderer<T>(T renderer) where T : VFX
     {
         renderers.Add(renderer);
 
@@ -77,9 +77,9 @@ public sealed class VisualInterface : IDisposable
         Throw.IfDisposed(disposed);
 
         if (collider != null)
-            selectionRenderer.SetBox(collider.Value);
+            selectionVFX.SetBox(collider.Value);
 
-        selectionRenderer.IsEnabled = collider != null;
+        selectionVFX.IsEnabled = collider != null;
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public sealed class VisualInterface : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Renderer renderer in renderers) renderer.IsEnabled = true;
+        foreach (VFX renderer in renderers) renderer.IsEnabled = true;
 
         SetSelectionBox(collider: null);
 
@@ -105,7 +105,7 @@ public sealed class VisualInterface : IDisposable
 
         ui.SetActive(active: false);
 
-        foreach (Renderer renderer in renderers) renderer.IsEnabled = false;
+        foreach (VFX renderer in renderers) renderer.IsEnabled = false;
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public sealed class VisualInterface : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        overlayRenderer.IsEnabled = false;
+        overlayVFX.IsEnabled = false;
         var lowerBound = 1.0;
         var upperBound = 0.0;
 
@@ -126,11 +126,11 @@ public sealed class VisualInterface : IDisposable
 
         Overlay selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
 
-        if (selected.IsBlock) overlayRenderer.SetBlockTexture(selected.GetWithAppliedTint(player.World));
-        else overlayRenderer.SetFluidTexture(selected.GetWithAppliedTint(player.World));
+        if (selected.IsBlock) overlayVFX.SetBlockTexture(selected.GetWithAppliedTint(player.World));
+        else overlayVFX.SetFluidTexture(selected.GetWithAppliedTint(player.World));
 
-        overlayRenderer.IsEnabled = IsOverlayAllowed;
-        overlayRenderer.SetBounds(lowerBound, upperBound);
+        overlayVFX.IsEnabled = IsOverlayAllowed;
+        overlayVFX.SetBounds(lowerBound, upperBound);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public sealed class VisualInterface : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Renderer renderer in renderers) renderer.Update();
+        foreach (VFX renderer in renderers) renderer.Update();
 
         ui.UpdatePlayerDebugData();
     }
@@ -195,7 +195,7 @@ public sealed class VisualInterface : IDisposable
 
         if (disposing)
         {
-            foreach (Renderer renderer in renderers) renderer.TearDown();
+            foreach (VFX renderer in renderers) renderer.TearDown();
 
             ui.Dispose();
         }

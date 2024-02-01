@@ -6,7 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;

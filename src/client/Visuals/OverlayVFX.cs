@@ -15,12 +15,14 @@ using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
+
+#pragma warning disable S101
 
 /// <summary>
-///     A renderer for overlay textures. Any block or fluid texture can be used as an overlay.
+///     A VFX for overlay textures. Any block or fluid texture can be used as an overlay.
 /// </summary>
-public sealed class OverlayRenderer : Renderer
+public sealed class OverlayVFX : VFX
 {
     private const int BlockMode = 0;
     private const int FluidMode = 1;
@@ -46,7 +48,7 @@ public sealed class OverlayRenderer : Renderer
     private bool isVertexBufferUploaded;
     private (uint start, uint length) rangeOfVertexBuffer;
 
-    private OverlayRenderer(Support.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
+    private OverlayVFX(Support.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
         this.client = client;
         this.data = data;
@@ -57,24 +59,24 @@ public sealed class OverlayRenderer : Renderer
     public override bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Create a new <see cref="OverlayRenderer"/>.
+    /// Create a new <see cref="OverlayVFX"/>.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
     /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
-    /// <returns>The new renderer.</returns>
-    public static OverlayRenderer? Create(Support.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
+    /// <returns>The new VFX.</returns>
+    public static OverlayVFX? Create(Support.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Overlay", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
-        OverlayRenderer renderer = new(client, buffer, textures);
+        OverlayVFX vfx = new(client, buffer, textures);
 
-        renderer.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+        vfx.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, vfx.Draw);
 
-        return renderer;
+        return vfx;
     }
 
     /// <inheritdoc />
@@ -284,7 +286,7 @@ public sealed class OverlayRenderer : Renderer
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else Throw.ForMissedDispose(nameof(OverlayRenderer));
+        else Throw.ForMissedDispose(nameof(OverlayVFX));
 
         base.Dispose(disposing);
 

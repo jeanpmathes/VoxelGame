@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 
 namespace VoxelGame.Client.Console.Commands;
      #pragma warning disable CA1822

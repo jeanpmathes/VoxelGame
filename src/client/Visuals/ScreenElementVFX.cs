@@ -14,12 +14,14 @@ using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 using Image = VoxelGame.Core.Visuals.Image;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
+
+#pragma warning disable S101
 
 /// <summary>
 ///     Renders textures on the screen.
 /// </summary>
-public sealed class ScreenElementRenderer : Renderer
+public sealed class ScreenElementVFX : VFX
 {
     private readonly Support.Core.Client client;
     private readonly Vector2d relativeScreenPosition;
@@ -39,7 +41,7 @@ public sealed class ScreenElementRenderer : Renderer
     private bool isVertexBufferUploaded;
     private (uint start, uint length) rangeOfVertexBuffer;
 
-    private ScreenElementRenderer(Support.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
+    private ScreenElementVFX(Support.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
         this.client = client;
         this.relativeScreenPosition = relativeScreenPosition;
@@ -52,23 +54,23 @@ public sealed class ScreenElementRenderer : Renderer
     public override bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Create a new <see cref="ScreenElementRenderer"/>.
+    /// Create a new <see cref="ScreenElementVFX"/>.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
     /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
-    public static ScreenElementRenderer? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
+    public static ScreenElementVFX? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
-        ScreenElementRenderer renderer = new(client, relativeScreenPosition, buffer);
+        ScreenElementVFX vfx = new(client, relativeScreenPosition, buffer);
 
-        renderer.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, renderer.Draw);
+        vfx.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, vfx.Draw);
 
-        return renderer;
+        return vfx;
     }
 
     /// <inheritdoc />
@@ -121,7 +123,7 @@ public sealed class ScreenElementRenderer : Renderer
     }
 
     /// <summary>
-    ///     Set the texture to use for rendering.
+    ///     Set the texture to display.
     /// </summary>
     /// <param name="newTexture">The new texture.</param>
     public void SetTexture(Texture newTexture)
@@ -222,7 +224,7 @@ public sealed class ScreenElementRenderer : Renderer
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else Throw.ForMissedDispose(nameof(ScreenElementRenderer));
+        else Throw.ForMissedDispose(nameof(ScreenElementVFX));
 
         base.Dispose(disposing);
 

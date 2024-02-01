@@ -18,7 +18,7 @@ using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Graphics.Raytracing;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     A utility class for loading, compiling and managing graphics pipelines used by the game.
@@ -27,7 +27,7 @@ public sealed class Pipelines : IDisposable
 {
     private readonly DirectoryInfo directory;
 
-    private readonly List<Renderer> renderers = new();
+    private readonly List<VFX> renderers = new();
     private readonly List<IDisposable> bindings = new();
 
     private LoadingContext? loadingContext;
@@ -44,17 +44,17 @@ public sealed class Pipelines : IDisposable
     /// <summary>
     ///     Get the selection box renderer, which is used to draw selection boxes around blocks.
     /// </summary>
-    public SelectionBoxRenderer SelectionBoxRenderer { get; private set; } = null!;
+    public SelectionBoxVFX SelectionBoxVFX { get; private set; } = null!;
 
     /// <summary>
     ///     Get the crosshair renderer, which is used to draw the crosshair.
     /// </summary>
-    public ScreenElementRenderer CrosshairRenderer { get; private set; } = null!;
+    public ScreenElementVFX CrosshairVFX { get; private set; } = null!;
 
     /// <summary>
     ///     Get the overlay renderer, which is used to draw overlays, e.g. when stuck in a block.
     /// </summary>
-    public OverlayRenderer OverlayRenderer { get; private set; } = null!;
+    public OverlayVFX OverlayVFX { get; private set; } = null!;
 
     /// <summary>
     ///     Get the raytracing data buffer.
@@ -110,20 +110,20 @@ public sealed class Pipelines : IDisposable
 
         postProcessingPipeline = Require(LoadPipeline(client, "PostProcessing", new ShaderPresets.PostProcessing()));
 
-        CrosshairRenderer = Require(ScreenElementRenderer.Create(client, this, (0.5f, 0.5f)), renderers);
-        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairRenderer.SetColor(args.NewValue)));
-        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairRenderer.SetScale(args.NewValue)));
+        CrosshairVFX = Require(ScreenElementVFX.Create(client, this, (0.5f, 0.5f)), renderers);
+        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairVFX.SetColor(args.NewValue)));
+        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairVFX.SetScale(args.NewValue)));
 
-        OverlayRenderer = Require(OverlayRenderer.Create(client, this, textureSlots), renderers);
+        OverlayVFX = Require(OverlayVFX.Create(client, this, textureSlots), renderers);
     }
 
     private void LoadEffectRasterPipelines(Application.Client client)
     {
         if (!loaded) return;
 
-        SelectionBoxRenderer = Require(SelectionBoxRenderer.Create(client, this), renderers);
-        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => SelectionBoxRenderer.SetDarkColor(args.NewValue)));
-        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => SelectionBoxRenderer.SetBrightColor(args.NewValue)));
+        SelectionBoxVFX = Require(SelectionBoxVFX.Create(client, this), renderers);
+        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => SelectionBoxVFX.SetDarkColor(args.NewValue)));
+        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => SelectionBoxVFX.SetBrightColor(args.NewValue)));
     }
 
     private TConcrete Require<TConcrete>(TConcrete? value) where TConcrete : class
@@ -211,7 +211,7 @@ public sealed class Pipelines : IDisposable
         builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
         builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
 
-        SectionRenderer.InitializeRequiredResources(directory, visuals, builder);
+        SectionVFX.InitializeRequiredResources(directory, visuals, builder);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);
@@ -283,7 +283,7 @@ public sealed class Pipelines : IDisposable
         if (disposed) return;
         if (!disposing) return;
 
-        foreach (Renderer renderer in renderers) renderer.Dispose();
+        foreach (VFX renderer in renderers) renderer.Dispose();
         foreach (IDisposable binding in bindings) binding.Dispose();
 
         disposed = true;

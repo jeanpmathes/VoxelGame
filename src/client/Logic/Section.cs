@@ -8,7 +8,7 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -24,14 +24,14 @@ public class Section : Core.Logic.Section
 {
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private BlockSides missing;
-    [NonSerialized] private SectionRenderer? renderer;
+    [NonSerialized] private SectionVFX? renderer;
 
     /// <summary>
     ///     Create a new client section. The section is empty, requiring generation.
     /// </summary>
     public Section(SectionPosition position) : base(position)
     {
-        renderer = new SectionRenderer(Application.Client.Instance.Space, position.FirstBlock);
+        renderer = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
         renderer.SetUp();
     }
 

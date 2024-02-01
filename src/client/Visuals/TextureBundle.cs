@@ -17,7 +17,7 @@ using VoxelGame.Logging;
 using VoxelGame.Support.Graphics;
 using Image = VoxelGame.Core.Visuals.Image;
 
-namespace VoxelGame.Client.Rendering;
+namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     A list of textures that can be used by shaders.
