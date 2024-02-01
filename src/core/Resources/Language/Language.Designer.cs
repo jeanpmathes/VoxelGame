@@ -1248,6 +1248,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to by.
+        /// </summary>
+        public static string SizeBy {
+            get {
+                return ResourceManager.GetString("SizeBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Small Tiles.
         /// </summary>
         public static string SmallTiles {
@@ -1361,6 +1370,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TiledGlass {
             get {
                 return ResourceManager.GetString("TiledGlass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        public static string Update {
+            get {
+                return ResourceManager.GetString("Update", resourceCulture);
             }
         }
         

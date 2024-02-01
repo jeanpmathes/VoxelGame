@@ -606,4 +606,10 @@
     <data name="SelectionBoxBrightColor" xml:space="preserve">
         <value>Bright Color of Selection</value>
     </data>
+    <data name="SizeBy" xml:space="preserve">
+        <value>by</value>
+    </data>
+    <data name="Update" xml:space="preserve">
+        <value>Update</value>
+    </data>
 </root>

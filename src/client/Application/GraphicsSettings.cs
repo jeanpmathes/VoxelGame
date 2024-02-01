@@ -53,7 +53,8 @@ public class GraphicsSettings : ISettingsProvider
             Setting.CreateSizeSetting(
                 this,
                 Language.GraphicsWindowSize,
-                WindowSize.Accessors));
+                WindowSize.Accessors,
+                () => Client.Instance.Size));
 
         RenderResolutionScale = new Bindable<float>(
             () => (float) clientSettings.RenderResolutionScale,

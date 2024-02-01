@@ -10,6 +10,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -24,11 +25,13 @@ internal class SizeSetting : Setting
 {
     private readonly Func<Vector2i> get;
     private readonly Action<Vector2i> set;
+    private readonly Func<Vector2i>? update;
 
-    internal SizeSetting(string name, Func<Vector2i> get, Action<Vector2i> set)
+    internal SizeSetting(string name, Func<Vector2i> get, Action<Vector2i> set, Func<Vector2i>? update)
     {
         this.get = get;
         this.set = set;
+        this.update = update;
 
         Name = name;
     }
@@ -53,7 +56,7 @@ internal class SizeSetting : Setting
 
         Control.Used(new Label(layout)
         {
-            Text = "by",
+            Text = Language.SizeBy,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Center
         });
@@ -68,14 +71,33 @@ internal class SizeSetting : Setting
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
+        if (update != null)
+        {
+            Button updateButton = new(layout)
+            {
+                Text = Language.Update,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+
+            updateButton.Clicked += (_, _) =>
+            {
+                Vector2i value = update();
+                x.Value = value.X;
+                y.Value = value.Y;
+            };
+        }
+
+        x.ValueChanged += OnValueChanged;
+        y.ValueChanged += OnValueChanged;
+
+        return;
+
         void OnValueChanged(object? sender, EventArgs args)
         {
             var value = new Vector2i((int) Math.Round(x.Value), (int) Math.Round(y.Value));
             set(value);
             Provider.Validate();
         }
-
-        x.ValueChanged += OnValueChanged;
-        y.ValueChanged += OnValueChanged;
     }
 }

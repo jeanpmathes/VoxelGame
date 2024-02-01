@@ -606,4 +606,10 @@
     <data name="SelectionBoxBrightColor" xml:space="preserve">
         <value>Helle Auswahlfarbe</value>
     </data>
+    <data name="SizeBy" xml:space="preserve">
+        <value>mal</value>
+    </data>
+    <data name="Update" xml:space="preserve">
+        <value>Aktualisieren</value>
+    </data>
 </root>

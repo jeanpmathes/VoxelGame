@@ -160,11 +160,14 @@ public abstract class Setting
     /// <param name="provider">The setting provider.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
+    /// <param name="current">
+    ///     Function to get the current value used by the application, if it is possible to change it independently of the setting.
+    /// </param>
     /// <returns>The created setting.</returns>
     public static Setting CreateSizeSetting(ISettingsProvider provider, string name,
-        (Func<Vector2i> get, Action<Vector2i> set) accessors)
+        (Func<Vector2i> get, Action<Vector2i> set) accessors, Func<Vector2i>? current = null)
     {
-        return new SizeSetting(name, accessors.get, accessors.set)
+        return new SizeSetting(name, accessors.get, accessors.set, current)
         {
             Provider = provider
         };
