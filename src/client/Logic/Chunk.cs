@@ -218,7 +218,9 @@ public partial class Chunk : Core.Logic.Chunk
 
         Box3d chunkBox = VMath.CreateBox3(Position.Center, Extents);
 
-        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox))
+        const double tolerance = 16.0;
+
+        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox, tolerance))
         {
             DisableAllSectionRenderers();
 
@@ -233,7 +235,7 @@ public partial class Chunk : Core.Logic.Chunk
             Vector3d position = sectionPosition.FirstBlock;
 
             Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
-            bool visible = frustum.IsBoxVisible(sectionBox);
+            bool visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
             GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(visible);
         }

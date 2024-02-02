@@ -14,12 +14,12 @@ using OpenTK.Mathematics;
 using Properties;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
-using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Logic;
 
@@ -102,7 +102,7 @@ public class World : Core.Logic.World
     {
         if (!IsActive) return;
 
-        IView view = player!.View;
+        Frustum frustum = player!.View.Frustum;
 
         CullActiveChunks();
 
@@ -115,7 +115,7 @@ public class World : Core.Logic.World
             for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
             {
                 Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-                chunk?.Cast().CullSections(view.Frustum);
+                chunk?.Cast().CullSections(frustum);
             }
         }
     }

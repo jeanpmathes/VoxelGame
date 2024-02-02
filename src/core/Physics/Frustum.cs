@@ -304,18 +304,21 @@ public readonly struct Frustum : IEquatable<Frustum>
     ///     This differs from <see cref="IsBoxInFrustum" /> in that false-positives are possible,
     ///     e.g. a box is not culled despite being outside the frustum.
     /// </summary>
+    /// <param name="box">The box to check.</param>
+    /// <param name="tolerance">The tolerance (in world units) to use, which is an extension around the frustum.</param>
     /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
-    public bool IsBoxVisible(Box3d volume)
+    public bool IsBoxVisible(Box3d box, double tolerance = 0.0)
     {
         for (var i = 0; i < 6; i++)
         {
             Plane plane = GetPlane(i);
 
-            double px = plane.Normal.X < 0 ? volume.Min.X : volume.Max.X;
-            double py = plane.Normal.Y < 0 ? volume.Min.Y : volume.Max.Y;
-            double pz = plane.Normal.Z < 0 ? volume.Min.Z : volume.Max.Z;
+            double px = plane.Normal.X < 0 ? box.Min.X : box.Max.X;
+            double py = plane.Normal.Y < 0 ? box.Min.Y : box.Max.Y;
+            double pz = plane.Normal.Z < 0 ? box.Min.Z : box.Max.Z;
 
-            if (plane.GetDistanceTo(new Vector3d(px, py, pz)) < 0) return false;
+            if (plane.GetDistanceTo(new Vector3d(px, py, pz)) < -tolerance)
+                return false;
         }
 
         return true;
