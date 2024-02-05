@@ -93,7 +93,8 @@ public class Client : IDisposable
             onResize = (width, height) =>
             {
                 Size = new Vector2i((int) width, (int) height);
-                OnResize(Size);
+
+                OnSizeChange(this, EventArgs.Empty);
             },
             onActiveStateChange = newState =>
             {
@@ -178,6 +179,11 @@ public class Client : IDisposable
     public event EventHandler OnFocusChange = delegate {};
 
     /// <summary>
+    ///     Called when the window is resized.
+    /// </summary>
+    public event EventHandler OnSizeChange = delegate {};
+
+    /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
     internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
@@ -245,12 +251,6 @@ public class Client : IDisposable
     /// </summary>
     /// <param name="delta">The time since the last render in seconds.</param>
     protected virtual void OnRender(double delta) {}
-
-    /// <summary>
-    ///     Called when the window is resized.
-    /// </summary>
-    /// <param name="size">The new size.</param>
-    protected virtual void OnResize(Vector2i size) {}
 
     /// <summary>
     ///     Called when the client is destroyed.

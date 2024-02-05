@@ -4,8 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;
@@ -49,6 +49,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Input);
+
+        OnSizeChange += OnSizeChanged;
     }
 
     /// <summary>
@@ -152,11 +154,28 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         CurrentGame = null;
     }
 
-    /// <inheritdoc />
-    protected override void OnResize(Vector2i size)
+    private void OnSizeChanged(object? sender, EventArgs e)
     {
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", size);
+        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
 
-        sceneManager.OnResize(size);
+        sceneManager.OnResize(Size);
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) OnSizeChange -= OnSizeChanged;
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion IDisposable Support
 }

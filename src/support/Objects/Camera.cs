@@ -18,7 +18,9 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class Camera : NativeObject, IView
 {
-    private readonly double fovY = MathHelper.DegreesToRadians(degrees: 70.0);
+    private double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
+    private double fovY;
+
     private bool advancedDataDirty;
 
     private double pitch;
@@ -31,7 +33,9 @@ public class Camera : NativeObject, IView
     /// </summary>
     public Camera(IntPtr nativePointer, Space space) : base(nativePointer, space.Client)
     {
-        advancedDataDirty = true;
+        space.Client.OnSizeChange += OnSizeChanged;
+
+        RecalculateFovY();
     }
 
     /// <summary>
@@ -84,9 +88,23 @@ public class Camera : NativeObject, IView
     }
 
     /// <summary>
-    ///     Get or set the vertical (Y) field of view, in degrees.
+    ///     Set the horizontal (X) field of view, in degrees.
     /// </summary>
-    public double FovY => MathHelper.RadiansToDegrees(fovY);
+    public double FovX
+    {
+        get => MathHelper.RadiansToDegrees(fovX);
+
+        set
+        {
+            fovX = MathHelper.DegreesToRadians(value);
+            RecalculateFovY();
+        }
+    }
+
+    /// <summary>
+    ///     Get the vertical (Y) field of view, in degrees.
+    /// </summary>
+    private double FovY => MathHelper.RadiansToDegrees(fovY);
 
     /// <inheritdoc />
     public double FarClipping => 1000.0;
@@ -109,6 +127,18 @@ public class Camera : NativeObject, IView
     {
         matrix[rowIndex: 3, columnIndex: 2] *= 0.5f;
     });
+
+    private void OnSizeChanged(object? sender, EventArgs e)
+    {
+        RecalculateFovY();
+        Synchronize();
+    }
+
+    private void RecalculateFovY()
+    {
+        fovY = 2.0 * Math.Atan(Math.Tan(fovX / 2.0) / Client.AspectRatio);
+        advancedDataDirty = true;
+    }
 
     /// <summary>
     ///     Get a partial frustum, which is the view frustum with changed near and far clipping planes.

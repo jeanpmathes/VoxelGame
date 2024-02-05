@@ -121,10 +121,12 @@ NATIVE void NativeToggleFullscreen(const NativeClient* client)
     CATCH();
 }
 
-NATIVE void NativeGetMousePosition(const NativeClient* client, PLONG x, PLONG y)
+NATIVE void NativeGetMousePosition(const NativeClient* client, const PLONG x, const PLONG y)
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         const POINT position = client->GetMousePosition();
 
         *x = position.x;
@@ -137,6 +139,8 @@ NATIVE void NativeSetMousePosition(NativeClient* client, const LONG x, const LON
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         const POINT position = {x, y};
 
         client->SetMousePosition(position);
@@ -148,6 +152,8 @@ NATIVE void NativeSetCursorType(NativeClient* client, MouseCursor cursor)
 {
     TRY
     {
+        REQUIRE(CALL_ON_MAIN_THREAD(client));
+        
         client->SetMouseCursor(cursor);
     }
     CATCH();
@@ -221,7 +227,7 @@ NATIVE void NativeUpdateBasicCameraData(Camera* camera, const BasicCameraData da
 {
     TRY
     {
-        REQUIRE(CALL_IN_UPDATE(&camera->GetClient()));
+        REQUIRE(CALL_IN_UPDATE_OR_EVENT(&camera->GetClient()));
 
         camera->SetPosition(data.position);
         camera->SetOrientation(data.front, data.up);
@@ -233,7 +239,7 @@ NATIVE void NativeUpdateAdvancedCameraData(Camera* camera, const AdvancedCameraD
 {
     TRY
     {
-        REQUIRE(CALL_IN_UPDATE(&camera->GetClient()));
+        REQUIRE(CALL_IN_UPDATE_OR_EVENT(&camera->GetClient()));
 
         camera->SetFov(data.fov);
         camera->SetPlanes(data.nearDistance, data.farDistance);

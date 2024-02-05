@@ -209,5 +209,6 @@ private:
 #define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER)
 #define CALL_IN_WORKER(client) ((client)->GetCycle() == DXApp::Cycle::WORKER)
 #define CALL_OUTSIDE_CYCLE(client) (!(client)->GetCycle().has_value())
+#define CALL_IN_UPDATE_OR_EVENT(client) (CALL_IN_UPDATE(client) || CALL_OUTSIDE_CYCLE(client))
 #define CALL_INSIDE_CYCLE(client) ((client)->GetCycle().has_value() && (client)->GetCycle().value() != DXApp::Cycle::WORKER)
 #define CALL_ON_MAIN_THREAD(client) (!(client)->GetCycle().has_value() || (client)->GetCycle().value() != DXApp::Cycle::WORKER)

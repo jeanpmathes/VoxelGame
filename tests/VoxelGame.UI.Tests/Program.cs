@@ -32,6 +32,13 @@ internal class Program : Client
                 settings.SkinFile = new FileInfo("DefaultSkin2.png");
                 settings.ShaderFile = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
             }));
+
+        OnSizeChange += OnSizeChanged;
+    }
+
+    private void OnSizeChanged(object? sender, EventArgs e)
+    {
+        gui.Resize(Size);
     }
 
     [STAThread]
@@ -56,11 +63,6 @@ internal class Program : Client
         unitTestHarnessControls = new UnitTestHarnessControls(gui.Root);
     }
 
-    protected override void OnResize(Vector2i size)
-    {
-        gui.Resize(size);
-    }
-
     protected override void OnUpdate(double delta)
     {
         updateFrameTimes.Write(delta);
@@ -79,7 +81,12 @@ internal class Program : Client
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing) gui.Dispose();
+        if (disposing)
+        {
+            OnSizeChange -= OnSizeChanged;
+
+            gui.Dispose();
+        }
 
         base.Dispose(disposing);
     }
