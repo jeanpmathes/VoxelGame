@@ -9,7 +9,7 @@
 #include "PayloadRT.hlsl"
 
 /**
- * \brief Create an empty hit info struct.
+ * \brief Create an empty hit info / ray payload struct.
  * \return The empty hit info struct.
  */
 native::rt::HitInfo GetEmptyHitInfo()
@@ -20,7 +20,7 @@ native::rt::HitInfo GetEmptyHitInfo()
     payload.alpha = 0.0f;
     payload.normal = float3(0.0f, 0.0f, 0.0f);
     payload.distance = native::rt::RAY_DISTANCE; // Allows any-hit to check if it is closer then write to payload.
-
+    
     return payload;
 }
 
@@ -30,8 +30,16 @@ native::rt::HitInfo GetEmptyHitInfo()
  * \param direction The direction of the ray.
  * \param min The minimum distance of the ray.
  * \param payload The payload to write to.
+ * \param path The total path length of a ray chain, must be the total length over all previous rays.
+ *             This is used to calculate the ray footprint and is carried to the hit shaders trough the alpha component.
+ * \return The total path length of the ray chain, including the current ray. 
  */
-void Trace(const float3 origin, const float3 direction, const float min, inout native::rt::HitInfo payload)
+float Trace(
+    const float3 origin,
+    const float3 direction,
+    const float min,
+    inout native::rt::HitInfo payload,
+    inout float path)
 {
     RayDesc ray;
     ray.Origin = origin;
@@ -39,8 +47,12 @@ void Trace(const float3 origin, const float3 direction, const float min, inout n
     ray.TMin = min;
     ray.TMax = native::rt::RAY_DISTANCE;
 
+    payload.alpha = path;
+
     TraceRay(native::rt::spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, native::rt::MASK_VISIBLE, RT_HIT_ARG(0), ray,
              payload);
+
+    return path + payload.distance;
 }
 
 /**
@@ -77,25 +89,26 @@ void RayGen()
     const uint2 launchIndex = DispatchRaysIndex().xy;
     const float2 dimensions = float2(DispatchRaysDimensions().xy);
 
-    // Given the dimension (Dx, Dy), the launch index is in the range [0, Dx - 1] x [0, Dy - 1].
+    // Given the dimension (w, h), the launch index is in the range [0, w - 1] x [0, h - 1].
     // This range is transformed to NDC space, i.e. [-1, 1] x [-1, 1].
-    const float2 d = (float2(launchIndex) + 0.5f) / dimensions * 2.0f - 1.0f;
+    const float2 pixel = (float2(launchIndex) + 0.5f) / dimensions * 2.0f - 1.0f;
 
     // DirectX textures have their origin at the top-left corner, while NDC has it at the bottom-left corner.
     // Therefore, the y coordinate is inverted.
-    const float4 pixel = float4(d.x, d.y * -1, 1, 1);
+    const float4 targetInProjectionSpace = float4(pixel.x, pixel.y * -1.0f, 1.0f, 1.0f);
 
-    float3 targetInViewSpace = mul(pixel, native::rt::camera.projectionI).xyz;
-    float3 direction = mul(float4(targetInViewSpace.xyz, 0), native::rt::camera.viewI).xyz;
-    float3 origin = mul(float4(0, 0, 0, 1), native::rt::camera.viewI).xyz;
-    
-    float3 normal = float3(0, 0, 0);
+    float3 targetInViewSpace = mul(targetInProjectionSpace, native::rt::camera.projectionI).xyz;
+    float3 direction = mul(float4(targetInViewSpace.xyz, 0.0f), native::rt::camera.viewI).xyz;
+    float3 origin = mul(float4(0.0f, 0.0f, 0.0f, 1.0f), native::rt::camera.viewI).xyz;
+
+    float3 normal = float3(0.0f, 0.0f, 0.0f);
     float min = native::rt::camera.near * length(direction);
     direction = normalize(direction);
      
     int iteration = 0;
     float4 color = 0;
     float depth = 0;
+    float path = 0;
 
     float reflectance = 0.0f;
     native::rt::HitInfo reflectionHit = GetEmptyHitInfo();
@@ -103,7 +116,7 @@ void RayGen()
     while (color.a < 1.0f && iteration < 10 && any(direction))
     {
         native::rt::HitInfo hit = GetEmptyHitInfo();
-        Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit);
+        path += Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
 
         const bool incoming = dot(direction, hit.normal) < 0;
         const float n1 = incoming ? 1.00f : 1.33f;
@@ -143,7 +156,9 @@ void RayGen()
         if (reflectance > 0.0f)
         {
             reflectionHit = GetEmptyHitInfo();
-            Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit);
+            Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit, path);
+
+            // Because the reflection ray is not continued, it is not added to the path.
         }
     }
 

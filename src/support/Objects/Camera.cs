@@ -18,15 +18,13 @@ namespace VoxelGame.Support.Objects;
 /// </summary>
 public class Camera : NativeObject, IView
 {
+    private readonly double fovY = MathHelper.DegreesToRadians(degrees: 70.0);
     private bool advancedDataDirty;
 
-    private double fov = MathHelper.DegreesToRadians(degrees: 70.0);
-
-    private Vector3d front = Vector3d.UnitX;
-
     private double pitch;
-    private Vector3 preparedPosition = Vector3.Zero;
     private double yaw;
+
+    private Vector3 preparedPosition = Vector3.Zero;
 
     /// <summary>
     ///     Create a new camera.
@@ -44,7 +42,7 @@ public class Camera : NativeObject, IView
     /// <summary>
     ///     Get the front vector of the camera.
     /// </summary>
-    public Vector3d Front => front;
+    public Vector3d Front { get; private set; } = Vector3d.UnitX;
 
     /// <summary>
     ///     Get the up vector of the camera.
@@ -86,18 +84,9 @@ public class Camera : NativeObject, IView
     }
 
     /// <summary>
-    ///     Get or set the field of view, in degrees.
+    ///     Get or set the vertical (Y) field of view, in degrees.
     /// </summary>
-    public double Fov
-    {
-        get => MathHelper.RadiansToDegrees(fov);
-        set
-        {
-            double angle = MathHelper.Clamp(value, min: 1.0, max: 90.0);
-            fov = MathHelper.DegreesToRadians(angle);
-            advancedDataDirty = true;
-        }
-    }
+    public double FovY => MathHelper.RadiansToDegrees(fovY);
 
     /// <inheritdoc />
     public double FarClipping => 1000.0;
@@ -106,14 +95,14 @@ public class Camera : NativeObject, IView
     public double NearClipping => 0.05;
 
     /// <inheritdoc />
-    public Frustum Frustum => new(fov, Client.AspectRatio, (NearClipping, FarClipping), Position, front, Up, Right);
+    public Frustum Frustum => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, Front, Up, Right);
 
     /// <inheritdoc />
     public Matrix4d ViewMatrix => Matrix4d.LookAt(Position, Position + Front, Up);
 
     /// <inheritdoc />
     public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
-        fov,
+        fovY,
         Client.AspectRatio,
         NearClipping,
         FarClipping).With(matrix =>
@@ -129,7 +118,7 @@ public class Camera : NativeObject, IView
     /// <returns>The partial frustum.</returns>
     public Frustum GetPartialFrustum(double near, double far)
     {
-        return new Frustum(fov, Client.AspectRatio, (near, far), Position, front, Up, Right);
+        return new Frustum(fovY, Client.AspectRatio, (near, far), Position, Front, Up, Right);
     }
 
     internal override void PrepareSynchronization()
@@ -154,7 +143,7 @@ public class Camera : NativeObject, IView
             Native.UpdateAdvancedCameraData(this,
                 new AdvancedCameraData
                 {
-                    Fov = (float) Fov,
+                    Fov = (float) FovY,
                     Near = (float) NearClipping,
                     Far = (float) FarClipping
                 });
@@ -173,11 +162,13 @@ public class Camera : NativeObject, IView
 
     private void UpdateVectors()
     {
+        Vector3d front;
+
         front.X = Math.Cos(pitch) * Math.Cos(yaw);
         front.Y = Math.Sin(pitch);
         front.Z = Math.Cos(pitch) * Math.Sin(yaw);
 
-        front = Vector3d.Normalize(Front);
+        Front = Vector3d.Normalize(front);
 
         Right = Vector3d.Normalize(Vector3d.Cross(Front, Vector3d.UnitY));
         Up = Vector3d.Normalize(Vector3d.Cross(Right, Front));

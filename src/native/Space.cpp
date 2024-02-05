@@ -217,6 +217,11 @@ Light* Space::GetLight()
     return &m_light;
 }
 
+const Resolution& Space::GetResolution() const
+{
+    return m_resolution;
+}
+
 std::shared_ptr<ShaderResources> Space::GetShaderResources()
 {
     return m_globalShaderResources;
@@ -255,10 +260,10 @@ void Space::CreateGlobalConstBuffer()
 
     m_globalConstantBufferMapping.Write({
         .time = 0.0f,
+        .textureSize = DirectX::XMUINT3{1, 1, 1},
         .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
         .minLight = 0.4f,
-        .minShadow = 0.2f,
-        .textureSize = DirectX::XMUINT2{1, 1}
+        .minShadow = 0.2f
     });
 }
 
@@ -268,7 +273,7 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
     UpdateTopLevelAccelerationStructureView();
 
     {
-        std::optional<DirectX::XMUINT2> textureSize = std::nullopt;
+        std::optional<DirectX::XMUINT3> textureSize = std::nullopt;
 
         auto getTexturesCountInSlot = [&](UINT count) -> std::optional<UINT>
         {
@@ -311,7 +316,7 @@ void Space::InitializePipelineResourceViews(const SpacePipeline& pipeline)
         fillSlots(m_textureSlot1.entry, 0, getTexturesCountInSlot(firstSlotArraySize));
         fillSlots(m_textureSlot2.entry, firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize));
 
-        m_globalConstantBufferMapping->textureSize = textureSize.value_or(DirectX::XMUINT2{1, 1});
+        m_globalConstantBufferMapping->textureSize = textureSize.value_or(DirectX::XMUINT3{1, 1, 1});
     }
 }
 
@@ -377,8 +382,12 @@ bool Space::CreateRaytracingPipeline(const SpacePipeline& pipelineDescription)
 
     InitializeAnimations();
 
-    pipeline.SetMaxPayloadSize(8 * sizeof(float));
-    pipeline.SetMaxAttributeSize(2 * sizeof(float));
+    pipeline.SetMaxPayloadSize(sizeof(float) * (
+        3 /* Color */ +
+        1 /* Alpha */ +
+        3 /* Normal */ +
+        1 /* Distance */));
+    pipeline.SetMaxAttributeSize(sizeof(float) * 2 /* Barycentrics */);
     pipeline.SetMaxRecursionDepth(2);
 
     m_rtStateObject = pipeline.Generate(m_globalShaderResources->GetComputeRootSignature());

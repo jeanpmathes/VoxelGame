@@ -81,12 +81,11 @@ DEFINE_ENUM_FLAG_OPERATORS(MaterialFlags)
 struct GlobalBuffer
 {
     float time;
+    DirectX::XMUINT3 textureSize;
     
     DirectX::XMFLOAT3 lightDirection;
     float minLight;
     float minShadow;
-    
-    DirectX::XMUINT2 textureSize;
 };
 
 struct MaterialBuffer
@@ -181,11 +180,13 @@ public:
     /**
      * Get the native client.
      */
-    NativeClient& GetNativeClient() const;
+    [[nodiscard]] NativeClient& GetNativeClient() const;
     [[nodiscard]] ShaderBuffer* GetCustomDataBuffer() const;
     
     Camera* GetCamera();
     Light* GetLight();
+
+    [[nodiscard]] const Resolution& GetResolution() const;
 
     std::shared_ptr<ShaderResources> GetShaderResources();
     std::shared_ptr<RasterPipeline::Bindings> GetEffectBindings();
@@ -246,7 +247,7 @@ private:
     void UpdateGlobalShaderResources();
 
     NativeClient* m_nativeClient;
-    Resolution m_resolution{};
+    Resolution m_resolution = {};
 
     InBufferAllocator m_resultBufferAllocator;
     InBufferAllocator m_scratchBufferAllocator;

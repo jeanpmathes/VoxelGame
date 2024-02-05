@@ -9,7 +9,7 @@
 constexpr float NativeClient::CLEAR_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-const UINT NativeClient::AGILITY_SDK_VERSION = 711;
+const UINT NativeClient::AGILITY_SDK_VERSION = 611;
 const LPCSTR NativeClient::AGILITY_SDK_PATH = ".\\D3D12\\";
 
 NativeClient::NativeClient(const Configuration& configuration) :

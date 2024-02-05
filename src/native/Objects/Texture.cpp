@@ -22,7 +22,7 @@ namespace
     {
         REQUIRE(description.width > 0);
         REQUIRE(description.height > 0);
-        REQUIRE(description.mipLevels > 0);
+        REQUIRE(description.levels > 0);
     }
 
     constexpr auto UPLOAD_STATE = D3D12_RESOURCE_STATE_COPY_DEST;
@@ -40,7 +40,7 @@ namespace
             description.width,
             description.height,
             1,
-            static_cast<UINT16>(description.mipLevels),
+            static_cast<UINT16>(description.levels),
             1,
             0,
             D3D12_RESOURCE_FLAG_NONE);
@@ -74,7 +74,12 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, const TextureDesc
     uploader.UploadTexture(data, description, texture);
     
     auto result = std::make_unique<Texture>(uploader.GetClient(), texture,
-                                            DirectX::XMUINT2{description.width, description.height}, srv);
+                                            DirectX::XMUINT3{
+                                                description.width,
+                                                description.height,
+                                                description.levels
+                                            },
+                                            srv);
     const auto ptr = result.get();
 
     // When uploading before use, the texture will be in safe (non-fresh) state and can be used without transition.
@@ -92,7 +97,12 @@ Texture* Texture::Create(NativeClient& client, const TextureDescription descript
     Allocation<ID3D12Resource> texture = CreateTextureResource(client, description, false, &srv);
 
     auto result = std::make_unique<Texture>(client, texture,
-                                            DirectX::XMUINT2{description.width, description.height}, srv);
+                                            DirectX::XMUINT3{
+                                                description.width,
+                                                description.height,
+                                                description.levels
+                                            },
+                                            srv);
 
     const auto ptr = result.get();
 
@@ -105,8 +115,8 @@ Texture* Texture::Create(NativeClient& client, const TextureDescription descript
 
 Texture::Texture(
     NativeClient& client,
-    const Allocation<ID3D12Resource> resource,
-    DirectX::XMUINT2 size,
+    const Allocation<ID3D12Resource>& resource,
+    DirectX::XMUINT3 size,
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
     : Object(client), m_resource(resource), m_srvDesc(srvDesc), m_size(size), m_usable(false)
 {
@@ -128,7 +138,7 @@ const D3D12_SHADER_RESOURCE_VIEW_DESC& Texture::GetView() const
     return m_srvDesc;
 }
 
-DirectX::XMUINT2 Texture::GetSize() const
+DirectX::XMUINT3 Texture::GetSize() const
 {
     return m_size;
 }

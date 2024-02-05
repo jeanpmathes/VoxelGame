@@ -10,7 +10,7 @@
 void BasicTransparentSectionAnyHit(inout native::rt::HitInfo payload, const native::rt::Attributes attributes)
 {
     const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
-    float4 baseColor = vg::section::GetBasicBaseColor(info);
+    float4 baseColor = vg::section::GetBasicBaseColor(GET_PATH, info);
 
     if (baseColor.a >= 0.1f)
     {
@@ -43,7 +43,7 @@ void BasicTransparentSectionClosestHit(inout native::rt::HitInfo payload, const 
 void BasicTransparentShadowAnyHit(inout native::rt::ShadowHitInfo, const native::rt::Attributes attributes)
 {
     const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
-    float4 baseColor = vg::section::GetBasicBaseColor(info);
+    float4 baseColor = vg::section::GetBasicBaseColor(GET_SHADOW_PATH, info);
 
     const bool isHittingFront = dot(info.normal, WorldRayDirection()) > 0.0f;
 

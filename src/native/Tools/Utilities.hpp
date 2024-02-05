@@ -166,7 +166,7 @@ namespace util
 
         memcpy(data, mapping, sizeof(D) * count);
 
-        const D3D12_RANGE writeRange = {0, 0};
+        constexpr D3D12_RANGE writeRange = {0, 0};
         resource.resource->Unmap(0, &writeRange);
         return result;
     }
@@ -300,10 +300,6 @@ namespace util
                     return L"Barrier";
                 case D3D12_AUTO_BREADCRUMB_OP_BEGIN_COMMAND_LIST:
                     return L"BeginCommandList";
-                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHGRAPH:
-                    return L"DispatchGraph";
-                case D3D12_AUTO_BREADCRUMB_OP_SETPROGRAM:
-                    return L"SetProgram";
                 }
                 return L"<unknown>";
             };

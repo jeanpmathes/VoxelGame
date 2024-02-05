@@ -340,9 +340,23 @@ public class Image
         /// <summary>
         ///     Create the next level of the mipmap.
         /// </summary>
-        /// <param name="input">The input image.</param>
-        /// <returns>The next level. Must have half the size of the input.</returns>
-        public abstract Image CreateNextLevel(Image input);
+        /// <param name="previous">The previous image.</param>
+        /// <returns>The next level. Will have half the size of the input.</returns>
+        public Image CreateNextLevel(Image previous)
+        {
+            Image next = new(previous.Width / 2, previous.Height / 2);
+
+            CreateNextLevel(previous, next);
+
+            return next;
+        }
+
+        /// <summary>
+        ///     Create the data for the next level of the mipmap.
+        /// </summary>
+        /// <param name="previous">The previous image.</param>
+        /// <param name="next">The next level, has to be filled with the data.</param>
+        protected abstract void CreateNextLevel(Image previous, Image next);
 
         private sealed class AveragingAlgorithm : MipmapAlgorithm
         {
@@ -386,17 +400,15 @@ public class Image
                 return (factors, alpha);
             }
 
-            public override Image CreateNextLevel(Image input)
+            protected override void CreateNextLevel(Image previous, Image next)
             {
-                Image output = new(input.Width / 2, input.Height / 2);
-
-                for (var w = 0; w < output.Width; w++)
-                for (var h = 0; h < output.Height; h++)
+                for (var w = 0; w < next.Width; w++)
+                for (var h = 0; h < next.Height; h++)
                 {
-                    Color c1 = input.GetPixel(w * 2, h * 2);
-                    Color c2 = input.GetPixel(w * 2 + 1, h * 2);
-                    Color c3 = input.GetPixel(w * 2, h * 2 + 1);
-                    Color c4 = input.GetPixel(w * 2 + 1, h * 2 + 1);
+                    Color c1 = previous.GetPixel(w * 2, h * 2);
+                    Color c2 = previous.GetPixel(w * 2 + 1, h * 2);
+                    Color c3 = previous.GetPixel(w * 2, h * 2 + 1);
+                    Color c4 = previous.GetPixel(w * 2 + 1, h * 2 + 1);
 
                     ((int, int, int, int) factors, int alpha) = DetermineFactorsAndAlpha(c1, c2, c3, c4);
 
@@ -406,10 +418,8 @@ public class Image
                         CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
                         CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
 
-                    output.SetPixel(w, h, average);
+                    next.SetPixel(w, h, average);
                 }
-
-                return output;
             }
 
             private static int CalculateAveragedColorChannel(int c1, int c2, int c3, int c4, (int, int, int, int) factors)

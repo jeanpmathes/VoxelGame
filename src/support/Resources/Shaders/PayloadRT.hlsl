@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 // ReSharper disable CppRedundantEmptyStatement
+// ReSharper disable CppInconsistentNaming
 // @formatter:off
 
 #ifndef NATIVE_SHADER_PAYLOAD_RT_HLSL
@@ -23,7 +24,7 @@ namespace native
         struct [raypayload] HitInfo
         {
             float3 color : read(caller, anyhit, closesthit) : write(caller, anyhit, closesthit, miss);
-            float alpha : read(caller, anyhit) : write(caller, anyhit, closesthit, miss);
+            float alpha : read(caller, anyhit, closesthit) : write(caller, anyhit, closesthit, miss);
             float3 normal : read(caller, anyhit) : write(caller, anyhit, closesthit, miss);
             float distance : read(caller,anyhit) : write(caller, anyhit, closesthit, miss);
         };

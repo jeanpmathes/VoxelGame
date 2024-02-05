@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+
 #include "SpatialRT.hlsl"
 
 #include "Decoding.hlsl"

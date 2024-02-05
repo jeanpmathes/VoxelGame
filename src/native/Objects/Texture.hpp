@@ -16,7 +16,7 @@ struct TextureDescription
 {
     UINT width = 1;
     UINT height = 1;
-    UINT mipLevels = 1;
+    UINT levels = 1;
     ColorFormat format = BGRA;
 };
 
@@ -44,8 +44,8 @@ public:
 
     Texture(
         NativeClient& client,
-        Allocation<ID3D12Resource> resource,
-        DirectX::XMUINT2 size,
+        const Allocation<ID3D12Resource>& resource,
+        DirectX::XMUINT3 size,
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 
     /**
@@ -64,9 +64,9 @@ public:
     [[nodiscard]] const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
 
     /**
-     * Get the size of the texture.
+     * Get the size of the texture, in the form of width, height and level count.
      */
-    [[nodiscard]] DirectX::XMUINT2 GetSize() const;
+    [[nodiscard]] DirectX::XMUINT3 GetSize() const;
 
     /**
      * Create a transition to the usable state for fresh textures.
@@ -80,7 +80,8 @@ public:
 private:
     Allocation<ID3D12Resource> m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
-    DirectX::XMUINT2 m_size;
+
+    DirectX::XMUINT3 m_size;
 
     bool m_usable;
     NativeClient::ObjectHandle m_handle{};

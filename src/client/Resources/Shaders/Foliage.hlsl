@@ -10,7 +10,7 @@
 void FoliageSectionAnyHit(inout native::rt::HitInfo payload, const native::rt::Attributes attributes)
 {
     const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
-    float4 baseColor = vg::section::GetFoliageBaseColor(info);
+    float4 baseColor = vg::section::GetFoliageBaseColor(GET_PATH, info);
 
     if (baseColor.a >= 0.1f)
     {
@@ -43,7 +43,7 @@ void FoliageSectionClosestHit(inout native::rt::HitInfo payload, const native::r
 void FoliageShadowAnyHit(inout native::rt::ShadowHitInfo, const native::rt::Attributes attributes)
 {
     const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
-    float4 baseColor = vg::section::GetFoliageBaseColor(info);
+    float4 baseColor = vg::section::GetFoliageBaseColor(GET_SHADOW_PATH, info);
 
     const bool isHittingFront = dot(info.normal, WorldRayDirection()) > 0.0f;
 

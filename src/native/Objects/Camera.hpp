@@ -34,6 +34,8 @@ struct CameraParametersBuffer
 
     FLOAT dNear;
     FLOAT dFar;
+
+    FLOAT spread;
 };
 #pragma pack(pop)
 
@@ -69,6 +71,8 @@ public:
      */
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
+    [[nodiscard]] Space& GetSpace() const;
+    
 private:
     DirectX::XMFLOAT3 m_position = {};
     DirectX::XMFLOAT3 m_front = {};

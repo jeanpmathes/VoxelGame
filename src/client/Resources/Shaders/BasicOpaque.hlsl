@@ -10,7 +10,7 @@
 void BasicOpaqueSectionClosestHit(inout native::rt::HitInfo payload, const native::rt::Attributes attributes)
 {
     const vg::spatial::Info info = vg::spatial::GetCurrentInfo(attributes);
-    float4 baseColor = vg::section::GetBasicBaseColor(info);
+    float4 baseColor = vg::section::GetBasicBaseColor(GET_PATH, info);
 
     if (baseColor.a >= 0.3f)
     {

@@ -23,7 +23,7 @@ void Uploader::UploadTexture(
     const TextureDescription& description,
     const Allocation<ID3D12Resource>& destination)
 {
-    const UINT subresources = description.mipLevels;
+    const UINT subresources = description.levels;
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
     const Allocation<ID3D12Resource> textureUploadBuffer = util::AllocateBuffer(
@@ -42,9 +42,9 @@ void Uploader::UploadTexture(
         UINT width = description.width;
         UINT height = description.height;
 
-        for (UINT mip = 0; mip < description.mipLevels; mip++)
+        for (UINT mip = 0; mip < description.levels; mip++)
         {
-            const UINT subresource = mip + layer * description.mipLevels;
+            const UINT subresource = mip + layer * description.levels;
 
             uploadDescription[subresource].pData = data[subresource];
             uploadDescription[subresource].RowPitch = static_cast<LONG_PTR>(width) * 4;

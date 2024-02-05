@@ -39,6 +39,10 @@ void Camera::Update()
     data.dNear = m_near;
     data.dFar = m_far;
 
+    // For cone tracing, a spread angle is used to get the width of the cone.
+    // Here, an estimate is pre-calculated.
+    data.spread = std::atan(2.0f * std::tan(fovAngleY / 2.0f) / GetSpace().GetResolution().height);
+
     m_spaceCameraBufferMapping.Write(data);
 }
 
@@ -80,4 +84,9 @@ void Camera::SetPlanes(const float nearDistance, const float farDistance)
 D3D12_GPU_VIRTUAL_ADDRESS Camera::GetCameraBufferAddress() const
 {
     return m_spaceCameraBuffer.GetGPUVirtualAddress();
+}
+
+Space& Camera::GetSpace() const
+{
+    return *GetClient().GetSpace();
 }

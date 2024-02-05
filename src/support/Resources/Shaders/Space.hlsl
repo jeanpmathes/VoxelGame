@@ -29,10 +29,11 @@ namespace native
         struct Global
         {
             float time;
+            uint3 textureSize;
+            
             float3 lightDir;
             float minLight;
             float minShadow;
-            uint2 textureSize;
         };
 
         ConstantBuffer<Global> global : register(b2);
