@@ -79,6 +79,7 @@
             <MultiProcessorCompilation>true</MultiProcessorCompilation>
             <LanguageStandard>stdcpp20</LanguageStandard>
             <IntrinsicFunctions>true</IntrinsicFunctions>
+            <TreatWarningAsError>true</TreatWarningAsError>
         </ClCompile>
         <Link>
             <SubSystem>Windows</SubSystem>
@@ -115,6 +116,7 @@
             <CompileAsWinRT>false</CompileAsWinRT>
             <MultiProcessorCompilation>true</MultiProcessorCompilation>
             <LanguageStandard>stdcpp20</LanguageStandard>
+            <TreatWarningAsError>true</TreatWarningAsError>
         </ClCompile>
         <Link>
             <SubSystem>Windows</SubSystem>

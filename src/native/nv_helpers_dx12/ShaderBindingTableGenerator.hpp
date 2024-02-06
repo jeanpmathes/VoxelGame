@@ -177,8 +177,8 @@ namespace nv_helpers_dx12
         {
             SBTEntry(std::wstring entryPoint, std::vector<void*> inputData);
 
-            const std::wstring entryPoint;
-            const std::vector<void*> inputData;
+            std::wstring entryPoint;
+            std::vector<void*> inputData;
         };
         
         uint32_t CopyShaderData(ID3D12StateObjectProperties* raytracingPipeline,
