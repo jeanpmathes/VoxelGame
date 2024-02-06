@@ -25,7 +25,7 @@ public sealed class VisualInterface : IDisposable
 {
     private readonly SelectionBoxVFX selectionVFX;
     private readonly OverlayVFX overlayVFX;
-    private readonly List<VFX> renderers = new();
+    private readonly List<VFX> vfxes = new();
 
     private readonly Button debugViewButton;
 
@@ -41,13 +41,13 @@ public sealed class VisualInterface : IDisposable
     /// <param name="resources">The resources to use.</param>
     public VisualInterface(Player player, GameUserInterface ui, GameResources resources)
     {
-        selectionVFX = RegisterRenderer(resources.Pipelines.SelectionBoxVFX);
-        overlayVFX = RegisterRenderer(resources.Pipelines.OverlayVFX);
-        ScreenElementVFX crosshairVFX = RegisterRenderer(resources.Pipelines.CrosshairVFX);
+        selectionVFX = RegisterVFX(resources.Pipelines.SelectionBoxVFX);
+        overlayVFX = RegisterVFX(resources.Pipelines.OverlayVFX);
+        ScreenElementVFX crosshairVFX = RegisterVFX(resources.Pipelines.CrosshairVFX);
 
         crosshairVFX.SetTexture(resources.Player.Crosshair);
 
-        foreach (VFX renderer in renderers) renderer.SetUp();
+        foreach (VFX renderer in vfxes) renderer.SetUp();
 
         KeybindManager keybind = Application.Client.Instance.Keybinds;
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
@@ -61,11 +61,11 @@ public sealed class VisualInterface : IDisposable
     /// </summary>
     public bool IsOverlayAllowed { get; set; } = true;
 
-    private T RegisterRenderer<T>(T renderer) where T : VFX
+    private T RegisterVFX<T>(T vfx) where T : VFX
     {
-        renderers.Add(renderer);
+        vfxes.Add(vfx);
 
-        return renderer;
+        return vfx;
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public sealed class VisualInterface : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (VFX renderer in renderers) renderer.IsEnabled = true;
+        foreach (VFX renderer in vfxes) renderer.IsEnabled = true;
 
         SetSelectionBox(collider: null);
 
@@ -105,7 +105,7 @@ public sealed class VisualInterface : IDisposable
 
         ui.SetActive(active: false);
 
-        foreach (VFX renderer in renderers) renderer.IsEnabled = false;
+        foreach (VFX renderer in vfxes) renderer.IsEnabled = false;
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public sealed class VisualInterface : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (VFX renderer in renderers) renderer.Update();
+        foreach (VFX renderer in vfxes) renderer.Update();
 
         ui.UpdatePlayerDebugData();
     }
@@ -195,7 +195,7 @@ public sealed class VisualInterface : IDisposable
 
         if (disposing)
         {
-            foreach (VFX renderer in renderers) renderer.TearDown();
+            foreach (VFX renderer in vfxes) renderer.TearDown();
 
             ui.Dispose();
         }

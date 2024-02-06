@@ -47,8 +47,6 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     private readonly PlacementSelection selector;
     private readonly VisualInterface visualInterface;
 
-    private bool isFirstUpdate = true;
-
     private Vector3d movement;
 
     private Vector3i headPosition;
@@ -170,6 +168,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         Throw.IfDisposed(disposed);
 
         visualInterface.Activate();
+        visualInterface.UpdateData();
     }
 
     /// <summary>
@@ -204,25 +203,19 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         UpdateTargets();
 
-        if (scene.IsWindowFocused)
+        if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
-            if (!scene.IsOverlayOpen)
-            {
-                HandleMovementInput(deltaTime);
-                HandleLookInput();
+            HandleMovementInput(deltaTime);
+            HandleLookInput();
 
-                DoBlockFluidSelection();
-                DoWorldInteraction();
+            DoBlockFluidSelection();
+            DoWorldInteraction();
 
-                visualInterface.UpdateInput();
-            }
-
-            headPosition = camera.Position.Floor();
-
-            SetBlockAndFluidOverlays();
-
-            isFirstUpdate = false;
+            visualInterface.UpdateInput();
         }
+
+        headPosition = camera.Position.Floor();
+        SetBlockAndFluidOverlays();
 
         // Because interaction can change the target block or the bounding box,
         // we search again for the target and update the selection now.
@@ -237,7 +230,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     private void DoBlockFluidSelection()
     {
         bool isUpdated = selector.DoBlockFluidSelection();
-        if (isUpdated || isFirstUpdate) visualInterface.UpdateData();
+        if (isUpdated) visualInterface.UpdateData();
     }
 
     private void SetBlockAndFluidOverlays()
