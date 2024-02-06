@@ -65,7 +65,7 @@ void CommandAllocatorGroup::Initialize(
         group->commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&group->commandList)));
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    DXApp::SetupCommandListForAftermath(group->commandList);
+    NativeClient::SetupCommandListForAftermath(group->commandList);
 #endif
 
     TRY_DO(group->commandList->Close());

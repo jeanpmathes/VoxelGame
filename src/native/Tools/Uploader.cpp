@@ -13,7 +13,7 @@ Uploader::Uploader(NativeClient& client, const ComPtr<ID3D12GraphicsCommandList>
         NAME_D3D12_OBJECT(m_commandList);
 
 #if defined(USE_NSIGHT_AFTERMATH)
-        DXApp::SetupCommandListForAftermath(m_commandList);
+        NativeClient::SetupCommandListForAftermath(m_commandList);
 #endif
     }
 }
