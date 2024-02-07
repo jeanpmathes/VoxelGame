@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Runtime;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Visuals;
 
@@ -45,6 +47,16 @@ public class SceneManager
         current.Dispose();
 
         Graphics.Instance.Reset();
+
+        Cleanup();
+    }
+
+    private static void Cleanup()
+    {
+        #pragma warning disable S1215 // When unloading, many objects have just died.
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+        #pragma warning restore S1215 // When unloading, many objects have just died.
     }
 
     /// <summary>

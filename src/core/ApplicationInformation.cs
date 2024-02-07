@@ -18,6 +18,8 @@ public class ApplicationInformation
     {
         Version = version;
         MainThread = Thread.CurrentThread;
+
+        SetDebugMode();
     }
 
     /// <summary>
@@ -33,6 +35,11 @@ public class ApplicationInformation
     public string Version { get; }
 
     /// <summary>
+    ///     Whether the application is running on a debug build.
+    /// </summary>
+    internal bool IsDebug { get; private set; }
+
+    /// <summary>
     ///     Get the main thread of the application.
     /// </summary>
     private Thread MainThread { get; }
@@ -41,6 +48,12 @@ public class ApplicationInformation
     ///     Check if the current thread is the main thread.
     /// </summary>
     public bool IsOnMainThread => Thread.CurrentThread == MainThread;
+
+    [Conditional("DEBUG")]
+    private void SetDebugMode()
+    {
+        IsDebug = true;
+    }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ApplicationInformation" /> class.

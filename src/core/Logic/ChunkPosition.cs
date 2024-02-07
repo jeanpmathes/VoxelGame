@@ -116,11 +116,6 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     public SectionPosition FirstSection => new(X * Chunk.Size, Y * Chunk.Size, Z * Chunk.Size);
 
     /// <summary>
-    ///     Get the origin position, which is (0, 0, 0).
-    /// </summary>
-    public static ChunkPosition Origin => new(x: 0, y: 0, z: 0);
-
-    /// <summary>
     ///     Get the position of the chunk that contains the given world position.
     /// </summary>
     public static ChunkPosition From(Vector3i worldPosition)

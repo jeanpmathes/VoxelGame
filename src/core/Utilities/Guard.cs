@@ -29,7 +29,7 @@ public sealed class Guard : IDisposable
         this.resource = resource;
         this.release = release;
 
-        if (Debugger.IsAttached) stackTrace = new StackTrace(fNeedFileInfo: true);
+        if (ApplicationInformation.Instance.IsDebug) stackTrace = new StackTrace(fNeedFileInfo: true);
     }
 
     /// <summary>

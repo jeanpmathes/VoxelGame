@@ -103,8 +103,6 @@ public abstract class World : IDisposable, IGrid
         MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
 
         chunks = new ChunkSet(ChunkContext);
-
-        RequestChunk(ChunkPosition.Origin);
     }
 
     /// <summary>
@@ -626,9 +624,6 @@ public abstract class World : IDisposable, IGrid
         Debug.Assert(CurrentState != State.Deactivating);
 
         if (!IsInLimits(position)) return;
-
-        // Check if the chunk can be released
-        if (position == ChunkPosition.Origin) return; // The chunk at (0|0|0) cannot be released.
 
         chunks.Release(position);
 
