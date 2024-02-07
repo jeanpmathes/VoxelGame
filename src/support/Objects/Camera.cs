@@ -128,7 +128,7 @@ public class Camera : NativeObject, IView
         matrix[rowIndex: 3, columnIndex: 2] *= 0.5f;
     });
 
-    private void OnSizeChanged(object? sender, EventArgs e)
+    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
     {
         RecalculateFovY();
         Synchronize();

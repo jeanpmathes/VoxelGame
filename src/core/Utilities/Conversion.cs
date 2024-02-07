@@ -108,6 +108,17 @@ public static class Conversion
     }
 
     /// <summary>
+    ///     Converts a <see cref="Vector2" /> to a <see cref="Vector2i" />.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The vector.</returns>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public static Vector2i ToVector2i(this Vector2 vector)
+    {
+        return new Vector2i((int) vector.X, (int) vector.Y);
+    }
+
+    /// <summary>
     ///     Convert a bool to an int.
     /// </summary>
     public static int ToInt(this bool b)

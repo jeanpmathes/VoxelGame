@@ -16,6 +16,7 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -202,7 +203,7 @@ public sealed class GameScene : IScene
         return false;
     }
 
-    private void OnFocusChanged(object? sender, EventArgs e)
+    private void OnFocusChanged(object? sender, FocusChangeEventArgs e)
     {
         if (!Client.IsFocused) ui.HandleLossOfFocus();
     }

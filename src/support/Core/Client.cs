@@ -92,16 +92,17 @@ public class Client : IDisposable
             onMouseWheel = Input.OnMouseWheel,
             onResize = (width, height) =>
             {
+                Vector2i oldSize = Size;
                 Size = new Vector2i((int) width, (int) height);
 
-                OnSizeChange(this, EventArgs.Empty);
+                OnSizeChange(this, new SizeChangeEventArgs(oldSize, Size));
             },
             onActiveStateChange = newState =>
             {
                 bool oldState = IsFocused;
                 IsFocused = newState;
 
-                if (oldState != newState) OnFocusChange(this, EventArgs.Empty);
+                if (oldState != newState) OnFocusChange(this, new FocusChangeEventArgs(oldState, IsFocused));
             },
             onDebug = D3D12Debug.Enable(this),
             width = (uint) windowSettings.Size.X,
@@ -176,12 +177,12 @@ public class Client : IDisposable
     /// <summary>
     ///     Called when the focus / active state of the window changes.
     /// </summary>
-    public event EventHandler OnFocusChange = delegate {};
+    public event EventHandler<FocusChangeEventArgs> OnFocusChange = delegate {};
 
     /// <summary>
     ///     Called when the window is resized.
     /// </summary>
-    public event EventHandler OnSizeChange = delegate {};
+    public event EventHandler<SizeChangeEventArgs> OnSizeChange = delegate {};
 
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.

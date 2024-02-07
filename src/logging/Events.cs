@@ -1,9 +1,6 @@
 ﻿// <copyright file="LoggingEvents.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
-//
-//     Parts of the documentation of this file are from the OpenGL wiki.
-//
 // </copyright>
 // <author>jeanpmathes</author>
 

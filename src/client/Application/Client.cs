@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
@@ -154,7 +153,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         CurrentGame = null;
     }
 
-    private void OnSizeChanged(object? sender, EventArgs e)
+    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
     {
         logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
 

@@ -36,7 +36,7 @@ internal class Program : Client
         OnSizeChange += OnSizeChanged;
     }
 
-    private void OnSizeChanged(object? sender, EventArgs e)
+    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
     {
         gui.Resize(Size);
     }

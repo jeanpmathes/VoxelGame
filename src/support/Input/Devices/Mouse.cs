@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 
@@ -18,10 +19,10 @@ public class Mouse
     private readonly Client client;
 
     private Vector2d oldDelta;
-    private Vector2d oldPosition;
 
     private Vector2i? storedPosition;
 
+    private Vector2i oldPosition;
     private Vector2i position;
 
     private bool isCursorLocked;
@@ -43,6 +44,22 @@ public class Mouse
             {
                 SetCursorLock(locked: false);
                 isCursorLockRequiredOnFocus = true;
+            }
+        };
+
+        this.client.OnSizeChange += (_, e) =>
+        {
+            if (!isCursorLocked) return;
+
+            oldPosition = CalculateResizedPosition(oldPosition);
+            Position = CalculateResizedPosition(Position);
+
+            if (storedPosition != null)
+                storedPosition = CalculateResizedPosition(storedPosition.Value);
+
+            Vector2i CalculateResizedPosition(Vector2i previous)
+            {
+                return (previous.ToVector2() / e.OldSize * e.NewSize).ToVector2i();
             }
         };
     }

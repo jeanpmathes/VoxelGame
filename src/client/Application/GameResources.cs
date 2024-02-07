@@ -61,7 +61,7 @@ public sealed class GameResources : IDisposable
     public UIResources UI { get; } = new();
 
     /// <summary>
-    ///     Load the resources. This requires a valid OpenGL context.
+    ///     Load the resources.
     /// </summary>
     public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
     {
