@@ -193,6 +193,8 @@ public sealed class DirectXRenderer : RendererBase
     {
         renderPipeline.IsClippingEnabled = false;
         currentTexture = TextureList.Handle.Invalid;
+
+        renderPipeline.Reset();
     }
 
     /// <inheritdoc />

@@ -296,8 +296,8 @@ public partial class Chunk : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        blockTickManager = loaded.blockTickManager;
-        fluidTickManager = loaded.fluidTickManager;
+        VMath.Move(out blockTickManager, ref loaded.blockTickManager);
+        VMath.Move(out fluidTickManager, ref loaded.fluidTickManager);
 
         decoration = loaded.decoration;
 

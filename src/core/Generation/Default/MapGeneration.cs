@@ -592,7 +592,7 @@ public partial class Map
         for (var step = 0; step < simulationSteps; step++)
         {
             SimulateClimate(data, current, next);
-            (current, next) = (next, current);
+            VMath.Swap(ref current, ref next);
         }
 
         for (var x = 0; x < Width; x++)

@@ -20,6 +20,29 @@ public static class VMath
 {
     private const float Epsilon = 128 * float.Epsilon;
 
+
+    /// <summary>
+    ///     Swap two values.
+    /// </summary>
+    /// <param name="a">The first value, will be replaced by the second value.</param>
+    /// <param name="b">The second value, will be replaced by the first value.</param>
+    /// <typeparam name="T">The type of the values.</typeparam>
+    public static void Swap<T>(ref T a, ref T b)
+    {
+        (a, b) = (b, a);
+    }
+
+    /// <summary>
+    ///     Move a value from one variable to another.
+    /// </summary>
+    /// <param name="a">The first variable, will be replaced by the second variable.</param>
+    /// <param name="b">The second variable, will be set to null.</param>
+    /// <typeparam name="T">The type of the values.</typeparam>
+    public static void Move<T>(out T a, ref T b) where T : class
+    {
+        (a, b) = (b, null!);
+    }
+
     /// <summary>
     ///     A simple one-dimensional range.
     /// </summary>

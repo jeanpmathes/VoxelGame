@@ -219,6 +219,16 @@ public sealed class RenderPipeline : IDisposable
             ObjectPool<DrawCall>.Shared.Return(drawCall);
         }
 
+        Reset();
+    }
+
+    /// <summary>
+    ///     Clear all previously pushed rectangles and draw calls.
+    ///     Should not be called directly after submitting the draw calls,
+    ///     as these will only be drawn before the next frame.
+    /// </summary>
+    public void Reset()
+    {
         vertexBuffer.Clear();
         drawCalls.Clear();
 

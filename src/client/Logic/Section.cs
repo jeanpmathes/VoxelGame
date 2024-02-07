@@ -40,7 +40,7 @@ public class Section : Core.Logic.Section
     {
         Throw.IfDisposed(disposed);
 
-        blocks = loaded.Cast().blocks;
+        VMath.Move(out blocks, ref loaded.Cast().blocks);
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }
