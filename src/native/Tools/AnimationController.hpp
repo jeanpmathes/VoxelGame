@@ -5,23 +5,27 @@
 // <author>jeanpmathes</author>
 
 #pragma once
-#include "IntegerSet.hpp"
 
+#include "Bag.hpp"
+#include "IntegerSet.hpp"
+#include "ShaderResources.hpp"
+
+class NativeClient;
 class Mesh;
 
 namespace anim
 {
     constexpr UINT SUBMISSIONS_PER_THREAD_GROUP = 16;
-    constexpr UINT MAX_ELEMENTS_PER_SUBMISSION = 4 * 512;
+    constexpr UINT MAX_ELEMENTS_PER_SUBMISSION  = 4 * 512;
 
 #pragma pack(push, 4)
     struct Submission
     {
-        UINT meshIndex = 0;
+        UINT meshIndex     = 0;
         UINT instanceIndex = 0;
 
         UINT offset = 0;
-        UINT count = 0;
+        UINT count  = 0;
     };
 
     struct ThreadGroup
@@ -47,13 +51,13 @@ public:
      * Creates a new animation controller.
      * The shader binds both UAV and SRV resources and occupies one space in each.
      */
-    AnimationController(const ComPtr<IDxcBlob>& shader, UINT space);
-    
+    AnimationController(ComPtr<IDxcBlob> const& shader, UINT space);
+
     void SetupResourceLayout(ShaderResources::Description* description);
-    void Initialize(NativeClient& client, const ComPtr<ID3D12RootSignature>& rootSignature);
+    void Initialize(NativeClient& client, ComPtr<ID3D12RootSignature> const& rootSignature);
 
     void AddMesh(Mesh& mesh);
-    void UpdateMesh(const Mesh& mesh);
+    void UpdateMesh(Mesh const& mesh);
     void RemoveMesh(Mesh& mesh);
 
     /**
@@ -61,22 +65,22 @@ public:
      * \param resources The shader resources.
      * \param commandList The command list to use for uploading.
      */
-    void Update(ShaderResources& resources, const ComPtr<ID3D12GraphicsCommandList4>& commandList);
+    void Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
     /**
      * \brief Runs the animation.
      * \param commandList The command list to use for running.
      */
-    void Run(const ComPtr<ID3D12GraphicsCommandList4>& commandList);
+    void Run(ComPtr<ID3D12GraphicsCommandList4> const& commandList);
     /**
      * \brief Create the BLAS for every mesh that uses this animation.
      * \param commandList The command list to use for creating the BLAS.
      * \param uavs A list that will receive the UAVs for the BLAS.
      */
-    void CreateBLAS(const ComPtr<ID3D12GraphicsCommandList4>& commandList, std::vector<ID3D12Resource*>* uavs);
+    void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs);
 
 private:
     void UpdateThreadGroupData();
-    void UploadThreadGroupData(const ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void UploadThreadGroupData(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> commandList);
 
     ShaderResources::ShaderLocation m_threadGroupDataLocation;
     ShaderResources::ShaderLocation m_inputGeometryListLocation;
@@ -84,20 +88,20 @@ private:
 
     ComPtr<ID3DBlob> m_shader = {};
 
-    Bag<Mesh*, Handle> m_meshes = {};
+    Bag<Mesh*, Handle> m_meshes        = {};
     IntegerSet<Handle> m_changedMeshes = {};
     IntegerSet<Handle> m_removedMeshes = {};
 
-    ShaderResources::TableHandle m_resourceTable = ShaderResources::TableHandle::INVALID;
+    ShaderResources::TableHandle  m_resourceTable        = ShaderResources::TableHandle::INVALID;
     ShaderResources::Table::Entry m_threadGroupDataEntry = ShaderResources::Table::Entry::invalid;
-    ShaderResources::ListHandle m_srcGeometryList = ShaderResources::ListHandle::INVALID;
-    ShaderResources::ListHandle m_dstGeometryList = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle   m_srcGeometryList      = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle   m_dstGeometryList      = ShaderResources::ListHandle::INVALID;
 
-    Allocation<ID3D12Resource> m_threadGroupDataBuffer = {};
-    Allocation<ID3D12Resource> m_threadGroupDataUploadBuffer = {};
-    std::vector<anim::ThreadGroup> m_threadGroupData = {};
-    Mapping<ID3D12Resource, anim::ThreadGroup> m_threadGroupDataMapping = {};
-    D3D12_SHADER_RESOURCE_VIEW_DESC m_threadGroupDataViewDescription = {};
+    Allocation<ID3D12Resource>                 m_threadGroupDataBuffer          = {};
+    Allocation<ID3D12Resource>                 m_threadGroupDataUploadBuffer    = {};
+    std::vector<anim::ThreadGroup>             m_threadGroupData                = {};
+    Mapping<ID3D12Resource, anim::ThreadGroup> m_threadGroupDataMapping         = {};
+    D3D12_SHADER_RESOURCE_VIEW_DESC            m_threadGroupDataViewDescription = {};
 
     NativeClient* m_client = {};
     ComPtr<ID3D12PipelineState> m_pipelineState = {};

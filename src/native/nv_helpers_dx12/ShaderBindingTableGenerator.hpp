@@ -109,8 +109,8 @@ desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
 
 #include "d3d12.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace nv_helpers_dx12
 {
@@ -125,21 +125,21 @@ namespace nv_helpers_dx12
          * \param entryPoint The name of the program.
          * \param inputData The list of data pointers or values according to the layout of its root signature.
          */
-        void AddRayGenerationProgram(const std::wstring& entryPoint, const std::vector<void*>& inputData);
+        void AddRayGenerationProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData);
 
         /**
          * \brief Add a miss program by name, with its list of data pointers or values according to the layout of its root signature.
          * \param entryPoint The name of the program.
          * \param inputData The list of data pointers or values according to the layout of its root signature.
          */
-        void AddMissProgram(const std::wstring& entryPoint, const std::vector<void*>& inputData);
+        void AddMissProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData);
 
         /**
          * \brief Add a hit group by name, with its list of data pointers or values according to the layout of its root signature.
          * \param entryPoint The name of the program.
          * \param inputData The list of data pointers or values according to the layout of its root signature.
          */
-        void AddHitGroup(const std::wstring& entryPoint, const std::vector<void*>& inputData);
+        void AddHitGroup(std::wstring const& entryPoint, std::vector<void*> const& inputData);
 
         /**
          * \brief Compute the size of the SBT based on the set of programs and hit groups it contains.
@@ -152,22 +152,21 @@ namespace nv_helpers_dx12
          * \param sbtBuffer The pre-allocated buffer on the upload heap.
          * \param raytracingPipeline The raytracing pipeline object.
          */
-        void Generate(ID3D12Resource* sbtBuffer,
-                      ID3D12StateObjectProperties* raytracingPipeline);
+        void Generate(ID3D12Resource* sbtBuffer, ID3D12StateObjectProperties* raytracingPipeline);
 
         /**
          * \brief Reset the sets of programs and hit groups
          */
         void Reset();
-        
+
         [[nodiscard]] UINT GetRayGenSectionSize() const;
         [[nodiscard]] UINT GetRayGenEntrySize() const;
         [[nodiscard]] UINT GetRayGenSectionOffset() const;
-        
+
         [[nodiscard]] UINT GetMissSectionSize() const;
         [[nodiscard]] UINT GetMissEntrySize() const;
         [[nodiscard]] UINT GetMissSectionOffset() const;
-        
+
         [[nodiscard]] UINT GetHitGroupSectionSize() const;
         [[nodiscard]] UINT GetHitGroupEntrySize() const;
         [[nodiscard]] UINT GetHitGroupSectionOffset() const;
@@ -177,28 +176,28 @@ namespace nv_helpers_dx12
         {
             SBTEntry(std::wstring entryPoint, std::vector<void*> inputData);
 
-            std::wstring entryPoint;
+            std::wstring       entryPoint;
             std::vector<void*> inputData;
         };
-        
-        uint32_t CopyShaderData(ID3D12StateObjectProperties* raytracingPipeline,
-                                uint8_t* outputData, const std::vector<SBTEntry>& shaders,
-                                uint32_t entrySize) const;
-        
-        [[nodiscard]] uint32_t GetEntrySize(const std::vector<SBTEntry>& entries) const;
+
+        uint32_t CopyShaderData(
+            ID3D12StateObjectProperties* raytracingPipeline, uint8_t* outputData, std::vector<SBTEntry> const& shaders,
+            uint32_t                     entrySize) const;
+
+        [[nodiscard]] uint32_t GetEntrySize(std::vector<SBTEntry> const& entries) const;
 
         std::vector<SBTEntry> m_rayGen;
         std::vector<SBTEntry> m_miss;
         std::vector<SBTEntry> m_hitGroup;
-        
-        uint32_t m_rayGenEntrySize = 0;
-        uint32_t m_missEntrySize = 0;
+
+        uint32_t m_rayGenEntrySize   = 0;
+        uint32_t m_missEntrySize     = 0;
         uint32_t m_hitGroupEntrySize = 0;
 
-        uint32_t m_rayGenStart = 0;
-        uint32_t m_missStart = 0;
+        uint32_t m_rayGenStart   = 0;
+        uint32_t m_missStart     = 0;
         uint32_t m_hitGroupStart = 0;
-        
+
         UINT m_programIdSize = 0;
     };
 }

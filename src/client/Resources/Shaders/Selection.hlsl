@@ -22,7 +22,7 @@ struct PSInput
 
 Texture2D colorFromRT : register(t0);
 
-PSInput VSMain(const float3 position : POSITION, const uint data : DATA)
+PSInput VSMain(float3 const position : POSITION, uint const data : DATA)
 {
     PSInput result;
 
@@ -31,33 +31,33 @@ PSInput VSMain(const float3 position : POSITION, const uint data : DATA)
     return result;
 }
 
-float4 PSMain(const PSInput input, out float depth : SV_DEPTH) : SV_TARGET
+float4 PSMain(PSInput const input, out float depth : SV_DEPTH) : SV_TARGET
 {
     depth = input.position.z - 0.0001f;
-    
-    const int3 pixel = int3(input.position.xy, 0);
 
-    float3 accumulator = 0;
-    const int kernel = 3;
+    int3 const pixel = int3(input.position.xy, 0);
+
+    float3    accumulator = 0;
+    int const kernel      = 3;
     for (int x = -kernel; x <= kernel; x++)
-    {
         for (int y = -kernel; y <= kernel; y++)
         {
-            const int3 offset = int3(x, y, 0);
-            const float4 background = colorFromRT.Load(pixel + offset);
+            int3 const   offset     = int3(x, y, 0);
+            float4 const background = colorFromRT.Load(pixel + offset);
 
             accumulator.r += POW2(background.r);
             accumulator.g += POW2(background.g);
             accumulator.b += POW2(background.b);
         }
-    }
 
-    const float count = POW2(kernel * 2 + 1);
-    const float3 background = float3(sqrt(accumulator.r / count), sqrt(accumulator.g / count),
-                                     sqrt(accumulator.b / count));
+    float const  count      = POW2(kernel * 2 + 1);
+    float3 const background = float3(
+        sqrt(accumulator.r / count),
+        sqrt(accumulator.g / count),
+        sqrt(accumulator.b / count));
 
-    const float luminance = native::GetLuminance(background);
-    const float3 color = luminance > 0.2f ? cb.darkColor : cb.brightColor;
-    
+    float const  luminance = native::GetLuminance(background);
+    float3 const color     = luminance > 0.2f ? cb.darkColor : cb.brightColor;
+
     return float4(color, 1.0);
 }

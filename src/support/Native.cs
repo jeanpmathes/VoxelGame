@@ -223,7 +223,7 @@ internal static class Native
     }
 
     /// <summary>
-    /// Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
+    ///     Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
     /// </summary>
     [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
     private static extern IntPtr NativeInitializeRaytracing(IntPtr native,
@@ -551,7 +551,7 @@ internal static class Native
     ///     Add a draw 2D pipeline.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D"/>.</param>
+    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" />.</param>
     /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
     /// <returns>An object that allows removing the pipeline.</returns>

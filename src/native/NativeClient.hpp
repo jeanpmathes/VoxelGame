@@ -28,9 +28,9 @@ using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
 class NativeClient final : public DXApp
 {
 public:
-    explicit NativeClient(const Configuration& configuration);
+    explicit NativeClient(Configuration const& configuration);
 
-    [[nodiscard]] ComPtr<ID3D12Device5> GetDevice() const;
+    [[nodiscard]] ComPtr<ID3D12Device5>      GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
 
     void OnInit() override;
@@ -43,7 +43,7 @@ public:
     void OnSizeChanged(UINT width, UINT height, bool minimized) override;
     void OnWindowMoved(int xPos, int yPos) override;
 
-    void InitRaytracingPipeline(const SpacePipeline& pipeline);
+    void InitRaytracingPipeline(SpacePipeline const& pipeline);
 
     /**
      * Toggle fullscreen mode.
@@ -59,7 +59,7 @@ public:
     /**
      * Load a texture from a file.
      */
-    Texture* LoadTexture(std::byte** data, const TextureDescription& description) const;
+    Texture* LoadTexture(std::byte** data, TextureDescription const& description) const;
 
     /**
      * Get the space that is being rendered.
@@ -94,7 +94,7 @@ public:
     using ObjectHandle = size_t;
 
     ObjectHandle StoreObject(std::unique_ptr<Object> object);
-    void DeleteObject(ObjectHandle handle);
+    void         DeleteObject(ObjectHandle handle);
 
     void WaitForGPU();
     void MoveToNextFrame();
@@ -102,11 +102,11 @@ public:
     [[nodiscard]] std::wstring GetDRED() const;
 
 private:
-    static const float CLEAR_COLOR[4];
-    static const float LETTERBOX_COLOR[4];
+    static float const CLEAR_COLOR[4];
+    static float const LETTERBOX_COLOR[4];
 
-    static const UINT AGILITY_SDK_VERSION;
-    static const LPCSTR AGILITY_SDK_PATH;
+    static UINT const   AGILITY_SDK_VERSION;
+    static LPCSTR const AGILITY_SDK_PATH;
 
     struct PostVertex
     {
@@ -114,77 +114,77 @@ private:
         DirectX::XMFLOAT2 uv;
     };
 
-    ComPtr<ID3D12Device5> m_device;
+    ComPtr<ID3D12Device5>      m_device;
     ComPtr<D3D12MA::Allocator> m_allocator;
-    ComPtr<IDXGISwapChain3> m_swapChain;
-    ComPtr<ID3D12InfoQueue1> m_infoQueue;
+    ComPtr<IDXGISwapChain3>    m_swapChain;
+    ComPtr<ID3D12InfoQueue1>   m_infoQueue;
     ComPtr<ID3D12CommandQueue> m_commandQueue;
 
     Resolution m_resolution;
 
     D3D12MessageFunc m_debugCallback;
-    DWORD m_callbackCookie{};
+    DWORD            m_callbackCookie{};
 
-    std::unique_ptr<Uploader> m_uploader = nullptr;
-    Bag<std::unique_ptr<Object>> m_objects = {};
-    
-    RasterInfo m_spaceViewport = {};
-    RasterInfo m_postViewport = {};
+    std::unique_ptr<Uploader>    m_uploader = nullptr;
+    Bag<std::unique_ptr<Object>> m_objects  = {};
+
+    RasterInfo m_spaceViewport  = {};
+    RasterInfo m_postViewport   = {};
     RasterInfo m_draw2dViewport = {};
 
-    std::unique_ptr<Space> m_space = nullptr;
-    bool m_spaceInitialized = false;
-    
+    std::unique_ptr<Space> m_space            = nullptr;
+    bool                   m_spaceInitialized = false;
+
     Allocation<ID3D12Resource> m_postVertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW m_postVertexBufferView{};
+    D3D12_VERTEX_BUFFER_VIEW   m_postVertexBufferView{};
 
     struct Draw2dPipeline
     {
         draw2d::Pipeline pipeline;
-        INT priority;
+        INT              priority;
     };
 
-    std::vector<std::unique_ptr<RasterPipeline>> m_rasterPipelines = {};
-    RasterPipeline* m_postProcessingPipeline = nullptr;
-    std::list<Draw2dPipeline> m_draw2dPipelines = {};
-    std::map<UINT, decltype(m_draw2dPipelines)::iterator> m_draw2dPipelineIDs = {};
-    UINT m_nextDraw2dPipelineID = 0;
+    std::vector<std::unique_ptr<RasterPipeline>>          m_rasterPipelines        = {};
+    RasterPipeline*                                       m_postProcessingPipeline = nullptr;
+    std::list<Draw2dPipeline>                             m_draw2dPipelines        = {};
+    std::map<UINT, decltype(m_draw2dPipelines)::iterator> m_draw2dPipelineIDs      = {};
+    UINT                                                  m_nextDraw2dPipelineID   = 0;
 
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;
 
-    DescriptorHeap m_rtvHeap;
-    ComPtr<ID3D12Resource> m_finalRenderTargets[FRAME_COUNT];
+    DescriptorHeap             m_rtvHeap;
+    ComPtr<ID3D12Resource>     m_finalRenderTargets[FRAME_COUNT];
     Allocation<ID3D12Resource> m_intermediateRenderTarget;
-    bool m_intermediateRenderTargetInitialized = false;
+    bool                       m_intermediateRenderTargetInitialized = false;
 
-    DescriptorHeap m_dsvHeap;
+    DescriptorHeap             m_dsvHeap;
     Allocation<ID3D12Resource> m_finalDepthStencilBuffers[FRAME_COUNT];
-    bool m_finalDepthStencilBuffersInitialized = false;
+    bool                       m_finalDepthStencilBuffersInitialized = false;
     Allocation<ID3D12Resource> m_intermediateDepthStencilBuffer;
-    bool m_intermediateDepthStencilBufferInitialized = false;
+    bool                       m_intermediateDepthStencilBufferInitialized = false;
 
-    Allocation<ID3D12Resource> m_screenshotBuffers[FRAME_COUNT];
-    bool m_screenshotBuffersInitialized = false;
-    std::optional<ScreenshotFunc> m_screenshotFunc = std::nullopt;
+    Allocation<ID3D12Resource>    m_screenshotBuffers[FRAME_COUNT];
+    bool                          m_screenshotBuffersInitialized = false;
+    std::optional<ScreenshotFunc> m_screenshotFunc               = std::nullopt;
 
-    UINT m_frameIndex;
-    HANDLE m_fenceEvent{};
+    UINT                m_frameIndex;
+    HANDLE              m_fenceEvent{};
     ComPtr<ID3D12Fence> m_fence;
-    UINT64 m_fenceValues[FRAME_COUNT];
+    UINT64              m_fenceValues[FRAME_COUNT];
 
     bool m_windowVisible;
     bool m_windowedMode;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    UINT64 m_frameCounter = 0;
-    GpuCrashTracker::MarkerMap m_markerMap = {};
-    ShaderDatabase m_shaderDatabase = {};
-    GpuCrashTracker m_gpuCrashTracker = {m_markerMap, m_shaderDatabase};
+    UINT64                     m_frameCounter    = 0;
+    GpuCrashTracker::MarkerMap m_markerMap       = {};
+    ShaderDatabase             m_shaderDatabase  = {};
+    GpuCrashTracker            m_gpuCrashTracker = {m_markerMap, m_shaderDatabase};
 
 public:
     static void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> commandList);
-    void SetupShaderForAftermath(ComPtr<IDxcResult> result);
+    void        SetupShaderForAftermath(ComPtr<IDxcResult> result);
 
 private:
 #endif
@@ -211,6 +211,8 @@ private:
 
 #if defined(USE_NSIGHT_AFTERMATH)
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetupShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
+
+
 #else
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)
 #endif

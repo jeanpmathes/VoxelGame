@@ -36,11 +36,11 @@ namespace native
                 attributes.barycentrics.y);
         }
 
-        static const float RAY_DISTANCE = 100000.0f;
-        static const float RAY_EPSILON = 0.0001f;
+        static float const RAY_DISTANCE = 100000.0f;
+        static float const RAY_EPSILON  = 0.0001f;
 
-        static const int MASK_VISIBLE = 1 << 0;
-        static const int MASK_SHADOW = 1 << 1;
+        static int const MASK_VISIBLE = 1 << 0;
+        static int const MASK_SHADOW  = 1 << 1;
     }
 }
 

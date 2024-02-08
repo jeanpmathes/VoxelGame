@@ -23,16 +23,15 @@ namespace draw2d
 #pragma pack(pop)
 
     using InitializeTextures = void(*)(Texture** textures, UINT textureCount, Pipeline* ctx);
-    using UploadBuffer = void(*)(const Vertex* vertices, UINT vertexCount, Pipeline* ctx);
-    using DrawBuffer = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture,
-                               Pipeline* ctx);
+    using UploadBuffer = void(*)(Vertex const* vertices, UINT vertexCount, Pipeline* ctx);
+    using DrawBuffer = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture, Pipeline* ctx);
 
     struct Drawer
     {
         InitializeTextures initializeTextures;
-        UploadBuffer uploadBuffer;
-        DrawBuffer drawBuffer;
-        Pipeline* ctx;
+        UploadBuffer       uploadBuffer;
+        DrawBuffer         drawBuffer;
+        Pipeline*          ctx;
     };
 
     using Callback = void(*)(Drawer);
@@ -44,7 +43,7 @@ namespace draw2d
     {
     public:
         Pipeline(NativeClient& client, RasterPipeline* raster, UINT id, Callback callback);
-        
+
         /**
          * \brief Populate the command list with all necessary commands to draw the 2D elements.
          * \param commandList The command list to populate.
@@ -58,29 +57,29 @@ namespace draw2d
 
         void BindBoolean() const;
         void BindTextures() const;
-        
+
         void BindVertexBuffer();
 
         RasterPipeline* m_raster;
-        Callback m_callback;
-        NativeClient* m_client;
+        Callback        m_callback;
+        NativeClient*   m_client;
 
         std::wstring m_name;
 
-        std::vector<Allocation<ID3D12Resource>> m_cbuffers = {};
+        std::vector<Allocation<ID3D12Resource>>                    m_cbuffers            = {};
         std::vector<ShaderResources::ConstantBufferViewDescriptor> m_constantBufferViews = {};
-        std::vector<ShaderResources::ShaderResourceViewDescriptor> m_textures = {};
+        std::vector<ShaderResources::ShaderResourceViewDescriptor> m_textures            = {};
 
         Allocation<ID3D12Resource> m_vertexBuffer = {};
         Allocation<ID3D12Resource> m_uploadBuffer = {};
-        UINT m_vertexCount = 0;
+        UINT                       m_vertexCount  = 0;
 
-        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView = {};
-        bool m_vertexBufferBound = false;
+        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView  = {};
+        bool                     m_vertexBufferBound = false;
 
-        UINT m_currentTextureIndex = 0;
-        BOOL m_currentUseTexture = FALSE;
-        bool m_initialized = false;
-        ComPtr<ID3D12GraphicsCommandList4> m_currentCommandList = nullptr;
+        UINT                               m_currentTextureIndex = 0;
+        BOOL                               m_currentUseTexture   = FALSE;
+        bool                               m_initialized         = false;
+        ComPtr<ID3D12GraphicsCommandList4> m_currentCommandList  = nullptr;
     };
 }

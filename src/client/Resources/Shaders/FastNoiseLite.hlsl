@@ -47,6 +47,8 @@
 // VERSION: 1.1.0
 // https://github.com/Auburn/FastNoiseLite
 
+// @formatter:off
+// ReSharper disable All
 #pragma warning(disable: all)
 
 // Switch between using floats or doubles for input position

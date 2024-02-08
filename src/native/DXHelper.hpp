@@ -6,9 +6,8 @@
 
 #pragma once
 
-#include <stdexcept>
-#include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 // ReSharper disable once CppUnusedIncludeDirective
@@ -16,7 +15,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-inline std::string HResultToString(const HRESULT hr)
+inline std::string HResultToString(HRESULT const hr)
 {
     std::stringstream code;
     code << std::hex << std::showbase << hr;
@@ -27,24 +26,26 @@ inline std::string HResultToString(const HRESULT hr)
 class HResultException final : public std::runtime_error
 {
 public:
-    explicit HResultException(const HRESULT hr, const std::string& info) : std::runtime_error(
-                                                                               HResultToString(hr) + "\nInfo: " + info),
-                                                                           m_hr(hr), m_info(info)
+    explicit HResultException(HRESULT const hr, std::string const& info)
+        : std::runtime_error(HResultToString(hr) + "\nInfo: " + info)
+      , m_hr(hr)
+      , m_info(info)
     {
     }
 
-    [[nodiscard]] HRESULT Error() const { return m_hr; }
-    [[nodiscard]] const char* Info() const { return m_info.c_str(); }
+    [[nodiscard]] HRESULT     Error() const { return m_hr; }
+    [[nodiscard]] char const* Info() const { return m_info.c_str(); }
 
 private:
-    HRESULT m_hr;
+    HRESULT     m_hr;
     std::string m_info;
 };
 
 class NativeException final : public std::runtime_error
 {
 public:
-    explicit NativeException(const std::string& msg) : std::runtime_error(msg)
+    explicit NativeException(std::string const& msg)
+        : std::runtime_error(msg)
     {
     }
 };
@@ -90,7 +91,7 @@ constexpr bool IS_DEBUG_BUILD = false;
         ThrowIfFailed(TRY_DO_ok, TRY_DO_errorMessage); \
     } while (false)
 
-inline void ThrowIfFailed(const BOOL b, const std::string& message)
+inline void ThrowIfFailed(BOOL const b, std::string const& message)
 {
     if (!b)
     {
@@ -99,7 +100,7 @@ inline void ThrowIfFailed(const BOOL b, const std::string& message)
     }
 }
 
-inline void ThrowIfFailed(const HRESULT hr, const std::string& message)
+inline void ThrowIfFailed(HRESULT const hr, std::string const& message)
 {
     if (FAILED(hr))
     {
@@ -108,7 +109,7 @@ inline void ThrowIfFailed(const HRESULT hr, const std::string& message)
     }
 }
 
-inline std::wstring GetNameIndexed(const LPCWSTR name, const UINT index)
+inline std::wstring GetNameIndexed(LPCWSTR const name, UINT const index)
 {
     std::wstringstream ss;
 
@@ -120,10 +121,7 @@ inline std::wstring GetNameIndexed(const LPCWSTR name, const UINT index)
     return ss.str();
 }
 
-inline void SetName(const ComPtr<ID3D12Object>& object, const LPCWSTR name)
-{
-    TRY_DO(object->SetName(name));
-}
+inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { TRY_DO(object->SetName(name)); }
 
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.
@@ -152,28 +150,17 @@ inline UINT CalculateConstantBufferByteSize(UINT byteSize)
 
 // Resets all elements in a ComPtr array.
 template <class T>
-void ResetComPtrArray(T* comPtrArray)
-{
-    for (auto& i : *comPtrArray)
-    {
-        i.Reset();
-    }
-}
+void ResetComPtrArray(T* comPtrArray) { for (auto& i : *comPtrArray) i.Reset(); }
 
 
 // Resets all elements in a unique_ptr array.
 template <class T>
-void ResetUniquePtrArray(T* uniquePtrArray)
-{
-    for (auto& i : *uniquePtrArray)
-    {
-        i.reset();
-    }
-}
+void ResetUniquePtrArray(T* uniquePtrArray) { for (auto& i : *uniquePtrArray) i.reset(); }
 
 template <typename T>
-std::vector<T> ReadBlob(const ComPtr<ID3DBlob>& blob)
+std::vector<T> ReadBlob(ComPtr<ID3DBlob> const& blob)
 {
-    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()),
-                          static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
+    return std::vector<T>(
+        static_cast<T*>(blob->GetBufferPointer()),
+        static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
 }

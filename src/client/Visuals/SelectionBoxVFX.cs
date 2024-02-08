@@ -45,7 +45,7 @@ public sealed class SelectionBoxVFX : VFX
     }
 
     /// <summary>
-    /// Set whether the VFX is enabled.
+    ///     Set whether the VFX is enabled.
     /// </summary>
     public override bool IsEnabled
     {
@@ -58,7 +58,7 @@ public sealed class SelectionBoxVFX : VFX
     }
 
     /// <summary>
-    /// Create a new <see cref="SelectionBoxVFX"/>.
+    ///     Create a new <see cref="SelectionBoxVFX" />.
     /// </summary>
     public static SelectionBoxVFX? Create(Support.Core.Client client, Pipelines pipelines)
     {
@@ -141,10 +141,7 @@ public sealed class SelectionBoxVFX : VFX
 
         if (boundingVolume.ChildCount == 0) return;
 
-        for (var i = 0; i < boundingVolume.ChildCount; i++)
-        {
-            BuildMeshData(boundingVolume[i], vertices);
-        }
+        for (var i = 0; i < boundingVolume.ChildCount; i++) BuildMeshData(boundingVolume[i], vertices);
     }
 
     private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)

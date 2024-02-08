@@ -20,7 +20,7 @@ namespace native
         struct SpatialVertex
         {
             float3 position;
-            uint data;
+            uint   data;
         };
 
         /**
@@ -30,10 +30,10 @@ namespace native
         {
             float time;
             uint3 textureSize;
-            
+
             float3 lightDir;
-            float minLight;
-            float minShadow;
+            float  minLight;
+            float  minShadow;
         };
 
         ConstantBuffer<Global> global : register(b2);
@@ -47,7 +47,7 @@ namespace native
             float4x4 worldNormal;
         };
 
-        static const uint VERTICES_PER_QUAD = 4;
+        static uint const VERTICES_PER_QUAD = 4;
     }
 }
 

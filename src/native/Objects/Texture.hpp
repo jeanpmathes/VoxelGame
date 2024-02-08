@@ -14,9 +14,9 @@ enum ColorFormat : byte
 
 struct TextureDescription
 {
-    UINT width = 1;
-    UINT height = 1;
-    UINT levels = 1;
+    UINT        width  = 1;
+    UINT        height = 1;
+    UINT        levels = 1;
     ColorFormat format = BGRA;
 };
 
@@ -43,9 +43,7 @@ public:
     static Texture* Create(NativeClient& client, TextureDescription description);
 
     Texture(
-        NativeClient& client,
-        const Allocation<ID3D12Resource>& resource,
-        DirectX::XMUINT3 size,
+        NativeClient&                   client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size,
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc);
 
     /**
@@ -61,7 +59,7 @@ public:
     /**
      * Get the shader resource view description.
      */
-    [[nodiscard]] const D3D12_SHADER_RESOURCE_VIEW_DESC& GetView() const;
+    [[nodiscard]] D3D12_SHADER_RESOURCE_VIEW_DESC const& GetView() const;
 
     /**
      * Get the size of the texture, in the form of width, height and level count.
@@ -73,12 +71,12 @@ public:
      * This is a no-op for usable textures.
      */
     void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
-    
-    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList,
-                                       Allocation<ID3D12Resource> resource);
+
+    static void CreateUsabilityBarrier(
+        ComPtr<ID3D12GraphicsCommandList> commandList, Allocation<ID3D12Resource> resource);
 
 private:
-    Allocation<ID3D12Resource> m_resource;
+    Allocation<ID3D12Resource>      m_resource;
     D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
 
     DirectX::XMUINT3 m_size;

@@ -54,7 +54,7 @@ public sealed class ScreenElementVFX : VFX
     public override bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Create a new <see cref="ScreenElementVFX"/>.
+    ///     Create a new <see cref="ScreenElementVFX" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
@@ -105,7 +105,7 @@ public sealed class ScreenElementVFX : VFX
     }
 
     /// <summary>
-    /// Set the scale of the texture.
+    ///     Set the scale of the texture.
     /// </summary>
     /// <param name="newScaling">The new scale.</param>
     public void SetScale(float newScaling)

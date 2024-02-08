@@ -23,7 +23,8 @@ template <typename R, typename S>
 class Mapping
 {
 public:
-    Mapping() : m_resource({})
+    Mapping()
+        : m_resource({})
     {
     }
 
@@ -33,29 +34,27 @@ public:
      * \param out A pointer to a HRESULT that will be set to the result of the mapping operation.
      * \param size The size of the resource in number of elements.
      */
-    explicit Mapping(const Allocation<R>& resource, HRESULT* out, const size_t size) : m_resource(resource)
+    explicit Mapping(Allocation<R> const& resource, HRESULT* out, size_t const size)
+        : m_resource(resource)
     {
         REQUIRE(resource.resource != nullptr);
         REQUIRE(out != nullptr);
         REQUIRE(size > 0);
-        
+
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
-        *out = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
+        *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
 
         m_size = size;
 
-        const size_t requiredSizeInBytes = m_size * sizeof(S);
-        const size_t actualSizeInBytes = m_resource.resource->GetDesc().Width;
+        size_t const requiredSizeInBytes = m_size * sizeof(S);
+        size_t const actualSizeInBytes   = m_resource.resource->GetDesc().Width;
         REQUIRE(requiredSizeInBytes <= actualSizeInBytes);
     }
 
     /**
      * \return The size of the mapped resource in number of elements.
      */
-    [[nodiscard]] size_t GetSize() const
-    {
-        return m_size;
-    }
+    [[nodiscard]] size_t GetSize() const { return m_size; }
 
     /**
      * \brief Write directly to the resource.
@@ -71,10 +70,10 @@ public:
      * \brief Write data to the resource.
      * \param data The data to write.
      */
-    void Write(const S& data)
+    void Write(S const& data)
     {
         REQUIRE(m_data != nullptr);
-        
+
         *m_data = data;
     }
 
@@ -83,7 +82,7 @@ public:
      * \param data Where to read the data from.
      * \param count How many elements to write.
      */
-    void Write(const S* data, const size_t count)
+    void Write(S const* data, size_t const count)
     {
         REQUIRE(m_data != nullptr);
         REQUIRE(count <= m_size);
@@ -106,7 +105,7 @@ public:
      * \param data The data to write.
      * \param count The number of elements to write.
      */
-    void WriteOrClear(const S* data, const size_t count)
+    void WriteOrClear(S const* data, size_t const count)
     {
         if (data == nullptr || count == 0) Clear();
         else Write(data, count);
@@ -119,19 +118,16 @@ public:
         m_data = nullptr;
     }
 
-    ~Mapping()
-    {
-        if (m_data != nullptr) Unmap();
-    }
+    ~Mapping() { if (m_data != nullptr) Unmap(); }
 
-    Mapping(const Mapping&) = delete;
-    Mapping& operator=(const Mapping&) = delete;
+    Mapping(Mapping const&)            = delete;
+    Mapping& operator=(Mapping const&) = delete;
 
     Mapping(Mapping&& other) noexcept
     {
         m_resource = other.m_resource;
-        m_data = other.m_data;
-        m_size = other.m_size;
+        m_data     = other.m_data;
+        m_size     = other.m_size;
 
         other.m_data = nullptr;
     }
@@ -139,10 +135,10 @@ public:
     Mapping& operator=(Mapping&& other) noexcept
     {
         if (m_data != nullptr) Unmap();
-        
+
         m_resource = other.m_resource;
-        m_data = other.m_data;
-        m_size = other.m_size;
+        m_data     = other.m_data;
+        m_size     = other.m_size;
 
         other.m_data = nullptr;
 
@@ -151,8 +147,8 @@ public:
 
 private:
     Allocation<R> m_resource;
-    
-    S* m_data = nullptr;
+
+    S*     m_data = nullptr;
     size_t m_size = 0;
 };
 
@@ -163,9 +159,11 @@ template <typename R>
 struct Allocation
 {
     ComPtr<D3D12MA::Allocation> allocation;
-    ComPtr<R> resource;
+    ComPtr<R>                   resource;
 
-    Allocation() : allocation(nullptr), resource(nullptr)
+    Allocation()
+        : allocation(nullptr)
+      , resource(nullptr)
     {
     }
 
@@ -175,19 +173,14 @@ struct Allocation
      * \param resource The resource in the allocation.
      */
     Allocation(ComPtr<D3D12MA::Allocation> allocation, ComPtr<R> resource)
-        : allocation(allocation), resource(resource)
+        : allocation(allocation)
+      , resource(resource)
     {
     }
 
-    [[nodiscard]] auto Get() const
-    {
-        return resource.Get();
-    }
+    [[nodiscard]] auto Get() const { return resource.Get(); }
 
-    [[nodiscard]] bool IsSet() const
-    {
-        return resource != nullptr;
-    }
+    [[nodiscard]] bool IsSet() const { return resource != nullptr; }
 
     /**
      * \brief Map the resource to memory.
@@ -201,20 +194,17 @@ struct Allocation
     [[nodiscard]] HRESULT Map(Mapping<R, S>* mapping, size_t size) const
     {
         HRESULT result = S_OK;
-        *mapping = Mapping<R, S>(*this, &result, size);
+        *mapping       = Mapping<R, S>(*this, &result, size);
         return result;
     }
 
     template <typename = std::nullopt_t>
         requires std::is_same_v<R, ID3D12Resource>
-    [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const
-    {
-        return resource->GetGPUVirtualAddress();
-    }
+    [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return resource->GetGPUVirtualAddress(); }
 };
 
 template <typename T>
-void SetName(const Allocation<T>& allocation, const LPCWSTR name)
+void SetName(Allocation<T> const& allocation, LPCWSTR const name)
 {
     allocation.allocation->SetName(name);
     TRY_DO(allocation.resource->SetName(name));

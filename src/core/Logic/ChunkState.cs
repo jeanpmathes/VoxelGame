@@ -411,8 +411,9 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Try to steal access from the current state.
-    ///     If access is stolen, the state is changed to the <see cref="Chunk.Used"/> state.
-    ///     Access can be stolen if the chunk is in a state that allows stealing and the state holds write-access to all its resources.
+    ///     If access is stolen, the state is changed to the <see cref="Chunk.Used" /> state.
+    ///     Access can be stolen if the chunk is in a state that allows stealing and the state holds write-access to all its
+    ///     resources.
     ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>

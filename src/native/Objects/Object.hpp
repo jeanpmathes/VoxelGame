@@ -52,22 +52,22 @@ class NativeClient;
 class Object
 {
 public:
-    virtual ~Object() = default;
-    Object(const Object&) = delete;
-    Object(Object&&) = delete;
-    Object& operator=(const Object&) = delete;
-    Object& operator=(Object&&) = delete;
+    virtual ~Object()                = default;
+    Object(Object const&)            = delete;
+    Object(Object&&)                 = delete;
+    Object& operator=(Object const&) = delete;
+    Object& operator=(Object&&)      = delete;
 
 protected:
     explicit Object(NativeClient& client);
 
 public:
     [[nodiscard]] NativeClient& GetClient() const;
-    [[nodiscard]] UINT64 GetID() const;
+    [[nodiscard]] UINT64        GetID() const;
 
 private:
     NativeClient* m_client;
 
     static UINT64 m_nextID;
-    UINT64 m_id = m_nextID++;
+    UINT64        m_id = m_nextID++;
 };

@@ -1163,11 +1163,11 @@ public class FastNoiseLite
         const float G2 = (3 - SQRT3) / 6;
 
         /*
- * --- Skew moved to TransformNoiseCoordinate method ---
- * const FNfloat F2 = 0.5f * (SQRT3 - 1);
- * FNfloat s = (x + y) * F2;
- * x += s; y += s;
-*/
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1234,11 +1234,11 @@ public class FastNoiseLite
         // 3D OpenSimplex2 case uses two offset rotated cube grids.
 
         /*
- * --- Rotation moved to TransformNoiseCoordinate method ---
- * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
- * FNfloat r = (x + y + z) * R3; // Rotation, not skew
- * x = r - x; y = r - y; z = r - z;
-*/
+         * --- Rotation moved to TransformNoiseCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastRound(x);
         int j = FastRound(y);
@@ -1337,11 +1337,11 @@ public class FastNoiseLite
         const FNLfloat G2 = (3 - SQRT3) / 6;
 
         /*
- * --- Skew moved to TransformNoiseCoordinate method ---
- * const FNfloat F2 = 0.5f * (SQRT3 - 1);
- * FNfloat s = (x + y) * F2;
- * x += s; y += s;
-*/
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1473,11 +1473,11 @@ public class FastNoiseLite
         // 3D OpenSimplex2S case uses two offset rotated cube grids.
 
         /*
- * --- Rotation moved to TransformNoiseCoordinate method ---
- * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
- * FNfloat r = (x + y + z) * R3; // Rotation, not skew
- * x = r - x; y = r - y; z = r - z;
-*/
+         * --- Rotation moved to TransformNoiseCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -2542,11 +2542,11 @@ public class FastNoiseLite
         y *= frequency;
 
         /*
- * --- Skew moved to TransformNoiseCoordinate method ---
- * const FNfloat F2 = 0.5f * (SQRT3 - 1);
- * FNfloat s = (x + y) * F2;
- * x += s; y += s;
-*/
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -2649,11 +2649,11 @@ public class FastNoiseLite
         z *= frequency;
 
         /*
- * --- Rotation moved to TransformDomainWarpCoordinate method ---
- * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
- * FNfloat r = (x + y + z) * R3; // Rotation, not skew
- * x = r - x; y = r - y; z = r - z;
-*/
+         * --- Rotation moved to TransformDomainWarpCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastRound(x);
         int j = FastRound(y);

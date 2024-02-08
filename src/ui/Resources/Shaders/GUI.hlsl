@@ -7,10 +7,12 @@
 #include "Common.hlsl"
 #include "Draw2D.hlsl"
 
-cbuffer ScreenSizeCB : register(b0)
+struct ScreenCB
 {
-float2 gScreenSize;
+    float2 size;
 };
+
+ConstantBuffer<ScreenCB> screen : register(b0);
 
 struct PSInput
 {
@@ -19,14 +21,14 @@ struct PSInput
     float4 color : COLOR;
 };
 
-PSInput VSMain(const float2 position : POSITION, const float2 uv : TEXCOORD, const float4 color : COLOR)
+PSInput VSMain(float2 const position : POSITION, float2 const uv : TEXCOORD, float4 const color : COLOR)
 {
     PSInput result;
 
-    result.uv = uv;
+    result.uv    = uv;
     result.color = color;
 
-    float2 ndcPosition = 2.0f * (position / gScreenSize) - 1.0f;
+    float2 ndcPosition = 2.0f * (position / screen.size) - 1.0f;
     ndcPosition.y *= -1.0f;
 
     result.position = float4(ndcPosition, 0.0f, 1.0f);

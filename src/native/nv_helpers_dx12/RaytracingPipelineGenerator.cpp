@@ -46,8 +46,8 @@ compiling in debug mode.
 
 #include "dxcapi.h"
 
-#include <unordered_set>
 #include <stdexcept>
+#include <unordered_set>
 #include <wrl/client.h>
 
 #define STRING_OR_NULL(str) ((str).empty() ? nullptr : (str).c_str())
@@ -62,107 +62,95 @@ namespace nv_helpers_dx12
         CreateDummyRootSignature();
     }
 
-    void RayTracingPipelineGenerator::AddLibrary(IDxcBlob* dxilLibrary,
-                                                 const std::vector<std::wstring>& symbolExports)
+    void RayTracingPipelineGenerator::AddLibrary(IDxcBlob* dxilLibrary, std::vector<std::wstring> const& symbolExports)
     {
         m_libraries.emplace_back(dxilLibrary, symbolExports);
     }
 
-    void RayTracingPipelineGenerator::AddHitGroup(const std::wstring& hitGroupName,
-                                                  const std::wstring& closestHitSymbol,
-                                                  const std::wstring& anyHitSymbol,
-                                                  const std::wstring& intersectionSymbol)
+    void RayTracingPipelineGenerator::AddHitGroup(
+        std::wstring const& hitGroupName, std::wstring const& closestHitSymbol, std::wstring const& anyHitSymbol,
+        std::wstring const& intersectionSymbol)
     {
         m_hitGroups.emplace_back(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol);
     }
 
     void RayTracingPipelineGenerator::AddRootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, const bool local, const std::vector<std::wstring>& symbols)
+        ID3D12RootSignature* rootSignature, bool const local, std::vector<std::wstring> const& symbols)
     {
         m_rootSignatureAssociations.emplace_back(rootSignature, local, symbols);
     }
 
-    void RayTracingPipelineGenerator::SetMaxPayloadSize(const UINT sizeInBytes)
+    void RayTracingPipelineGenerator::SetMaxPayloadSize(UINT const sizeInBytes)
     {
         m_maxPayLoadSizeInBytes = sizeInBytes;
     }
 
-    void RayTracingPipelineGenerator::SetMaxAttributeSize(const UINT sizeInBytes)
+    void RayTracingPipelineGenerator::SetMaxAttributeSize(UINT const sizeInBytes)
     {
         m_maxAttributeSizeInBytes = sizeInBytes;
     }
 
-    void RayTracingPipelineGenerator::SetMaxRecursionDepth(const UINT maxDepth)
-    {
-        m_maxRecursionDepth = maxDepth;
-    }
+    void RayTracingPipelineGenerator::SetMaxRecursionDepth(UINT const maxDepth) { m_maxRecursionDepth = maxDepth; }
 
     Microsoft::WRL::ComPtr<ID3D12StateObject> RayTracingPipelineGenerator::Generate(
-        const Microsoft::WRL::ComPtr<ID3D12RootSignature>& globalRootSignature)
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature)
     {
-        const UINT64 subObjectCount =
-            m_libraries.size() +
-            m_hitGroups.size() +
-            1 + // Shader configuration.
+        UINT64 const subObjectCount = m_libraries.size() + m_hitGroups.size() + 1 + // Shader configuration.
             1 + // Shader payload.
-            2 * m_rootSignatureAssociations.size() +
-            2 + // Empty global and local root signatures.
+            2 * m_rootSignatureAssociations.size() + 2 + // Empty global and local root signatures.
             1; // Final pipeline subobject.
-        
+
         std::vector<D3D12_STATE_SUBOBJECT> subobjects(subObjectCount);
 
         UINT currentIndex = 0;
-        
-        for (const Library& lib : m_libraries)
+
+        for (Library const& lib : m_libraries)
         {
             D3D12_STATE_SUBOBJECT libSubobject;
-            libSubobject.Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
+            libSubobject.Type  = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
             libSubobject.pDesc = &lib.libDescription;
 
             subobjects[currentIndex++] = libSubobject;
         }
-        
-        for (const HitGroup& group : m_hitGroups)
+
+        for (HitGroup const& group : m_hitGroups)
         {
             D3D12_STATE_SUBOBJECT hitGroup;
-            hitGroup.Type = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
+            hitGroup.Type  = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
             hitGroup.pDesc = &group.desc;
 
             subobjects[currentIndex++] = hitGroup;
         }
 
         D3D12_RAYTRACING_SHADER_CONFIG shaderDesc;
-        shaderDesc.MaxPayloadSizeInBytes = m_maxPayLoadSizeInBytes;
+        shaderDesc.MaxPayloadSizeInBytes   = m_maxPayLoadSizeInBytes;
         shaderDesc.MaxAttributeSizeInBytes = m_maxAttributeSizeInBytes;
 
         D3D12_STATE_SUBOBJECT shaderConfigObject;
-        shaderConfigObject.Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
+        shaderConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
         shaderConfigObject.pDesc = &shaderDesc;
 
         subobjects[currentIndex++] = shaderConfigObject;
-        
-        std::vector<std::wstring> exportedSymbols = {};
-        std::vector<LPCWSTR> exportedSymbolPointers = {};
+
+        std::vector<std::wstring> exportedSymbols        = {};
+        std::vector<LPCWSTR>      exportedSymbolPointers = {};
         BuildShaderExportList(exportedSymbols);
-        
+
         exportedSymbolPointers.reserve(exportedSymbols.size());
-        for (const auto& name : exportedSymbols)
-        {
-            exportedSymbolPointers.push_back(name.c_str());
-        }
-        const WCHAR** shaderExports = exportedSymbolPointers.data();
+        for (auto const& name : exportedSymbols) exportedSymbolPointers.push_back(name.c_str());
+        WCHAR const** shaderExports = exportedSymbolPointers.data();
 
         D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION shaderPayloadAssociation;
         shaderPayloadAssociation.NumExports = static_cast<UINT>(exportedSymbols.size());
-        shaderPayloadAssociation.pExports = shaderExports;
-        
+        shaderPayloadAssociation.pExports   = shaderExports;
+
         shaderPayloadAssociation.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
 
         D3D12_STATE_SUBOBJECT shaderPayloadAssociationObject;
-        shaderPayloadAssociationObject.Type = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
+        shaderPayloadAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
         shaderPayloadAssociationObject.pDesc = &shaderPayloadAssociation;
-        subobjects[currentIndex++] = shaderPayloadAssociationObject;
-        
+        subobjects[currentIndex++]           = shaderPayloadAssociationObject;
+
         for (RootSignatureAssociation& assoc : m_rootSignatureAssociations)
         {
             D3D12_STATE_SUBOBJECT rootSigObject;
@@ -173,80 +161,78 @@ namespace nv_helpers_dx12
 
             subobjects[currentIndex++] = rootSigObject;
 
-            assoc.association.NumExports = static_cast<UINT>(assoc.symbolPointers.size());
-            assoc.association.pExports = assoc.symbolPointers.data();
+            assoc.association.NumExports            = static_cast<UINT>(assoc.symbolPointers.size());
+            assoc.association.pExports              = assoc.symbolPointers.data();
             assoc.association.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
 
             D3D12_STATE_SUBOBJECT rootSigAssociationObject;
-            rootSigAssociationObject.Type = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
+            rootSigAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
             rootSigAssociationObject.pDesc = &assoc.association;
 
             subobjects[currentIndex++] = rootSigAssociationObject;
         }
-        
+
         D3D12_STATE_SUBOBJECT globalRootSig;
-        globalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
+        globalRootSig.Type         = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
         ID3D12RootSignature* dgSig = globalRootSignature.Get();
-        globalRootSig.pDesc = &dgSig;
+        globalRootSig.pDesc        = &dgSig;
 
         subobjects[currentIndex++] = globalRootSig;
-        
+
         D3D12_STATE_SUBOBJECT dummyLocalRootSig;
-        dummyLocalRootSig.Type = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
+        dummyLocalRootSig.Type     = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
         ID3D12RootSignature* dlSig = m_dummyLocalRootSignature.Get();
-        dummyLocalRootSig.pDesc = &dlSig;
+        dummyLocalRootSig.pDesc    = &dlSig;
         subobjects[currentIndex++] = dummyLocalRootSig;
 
         D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig;
         pipelineConfig.MaxTraceRecursionDepth = m_maxRecursionDepth;
 
         D3D12_STATE_SUBOBJECT pipelineConfigObject;
-        pipelineConfigObject.Type = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
+        pipelineConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
         pipelineConfigObject.pDesc = &pipelineConfig;
 
         subobjects[currentIndex++] = pipelineConfigObject;
 
         D3D12_STATE_OBJECT_DESC pipelineDesc;
-        pipelineDesc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
+        pipelineDesc.Type          = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
         pipelineDesc.NumSubobjects = currentIndex;
-        pipelineDesc.pSubobjects = subobjects.data();
+        pipelineDesc.pSubobjects   = subobjects.data();
 
         Microsoft::WRL::ComPtr<ID3D12StateObject> rtStateObject = nullptr;
 
-        if (const HRESULT hr = m_device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject)); FAILED(hr))
-        {
+        if (HRESULT const hr = m_device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject));
+            FAILED(hr))
             throw std::logic_error("Could not create the raytracing state object.");
-        }
-        
+
         return rtStateObject;
     }
 
     void RayTracingPipelineGenerator::CreateDummyRootSignature()
     {
         D3D12_ROOT_SIGNATURE_DESC rootDesc = {};
-        rootDesc.NumParameters = 0;
-        rootDesc.pParameters = nullptr;
+        rootDesc.NumParameters             = 0;
+        rootDesc.pParameters               = nullptr;
 
         Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSignature;
         Microsoft::WRL::ComPtr<ID3DBlob> error;
-        
-        rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-        HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                                 &serializedRootSignature, &error);
-        
-        if (FAILED(hr))
-        {
-            throw std::logic_error("Could not serialize the local root signature.");
-        }
-        
-        hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(),
-                                           serializedRootSignature->GetBufferSize(),
-                                           IID_PPV_ARGS(&m_dummyLocalRootSignature));
 
-        if (FAILED(hr))
-        {
-            throw std::logic_error("Could not create the local root signature.");
-        }
+        rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
+        HRESULT hr     = D3D12SerializeRootSignature(
+            &rootDesc,
+            D3D_ROOT_SIGNATURE_VERSION_1,
+            &serializedRootSignature,
+            &error);
+
+        if (FAILED(hr)) throw std::logic_error("Could not serialize the local root signature.");
+
+        hr = m_device->CreateRootSignature(
+            0,
+            serializedRootSignature->GetBufferPointer(),
+            serializedRootSignature->GetBufferSize(),
+            IID_PPV_ARGS(&m_dummyLocalRootSignature));
+
+        if (FAILED(hr)) throw std::logic_error("Could not create the local root signature.");
 
 #if defined(NATIVE_DEBUG)
         hr = m_dummyLocalRootSignature->SetName(L"Local Root Signature");
@@ -261,10 +247,9 @@ namespace nv_helpers_dx12
     void RayTracingPipelineGenerator::BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const
     {
         std::unordered_set<std::wstring> exports;
-        
-        for (const Library& lib : m_libraries)
-        {
-            for (const auto& exportName : lib.exportedSymbols)
+
+        for (Library const& lib : m_libraries)
+            for (auto const& exportName : lib.exportedSymbols)
             {
 #if defined(NATIVE_DEBUG)
                 if (exports.contains(exportName))
@@ -274,7 +259,6 @@ namespace nv_helpers_dx12
 #endif
                 exports.insert(exportName);
             }
-        }
 
 #if defined(NATIVE_DEBUG)
         std::unordered_set<std::wstring> allExports = exports;
@@ -313,60 +297,48 @@ namespace nv_helpers_dx12
             }
         }
 #endif
-        
-        for (const auto& hitGroup : m_hitGroups)
+
+        for (auto const& hitGroup : m_hitGroups)
         {
-            if (!hitGroup.anyHitSymbol.empty())
-            {
-                exports.erase(hitGroup.anyHitSymbol);
-            }
-            if (!hitGroup.closestHitSymbol.empty())
-            {
-                exports.erase(hitGroup.closestHitSymbol);
-            }
-            if (!hitGroup.intersectionSymbol.empty())
-            {
-                exports.erase(hitGroup.intersectionSymbol);
-            }
+            if (!hitGroup.anyHitSymbol.empty()) exports.erase(hitGroup.anyHitSymbol);
+            if (!hitGroup.closestHitSymbol.empty()) exports.erase(hitGroup.closestHitSymbol);
+            if (!hitGroup.intersectionSymbol.empty()) exports.erase(hitGroup.intersectionSymbol);
             exports.insert(hitGroup.hitGroupName);
         }
 
-        for (const auto& name : exports)
-        {
-            exportedSymbols.push_back(name);
-        }
+        for (auto const& name : exports) exportedSymbols.push_back(name);
     }
 
-    RayTracingPipelineGenerator::Library::Library(IDxcBlob* dxil,
-                                                  const std::vector<std::wstring>& exportedSymbols)
-        : dxil(dxil), exportedSymbols(exportedSymbols), exports(exportedSymbols.size())
+    RayTracingPipelineGenerator::Library::Library(IDxcBlob* dxil, std::vector<std::wstring> const& exportedSymbols)
+        : dxil(dxil)
+      , exportedSymbols(exportedSymbols)
+      , exports(exportedSymbols.size())
     {
         for (size_t i = 0; i < this->exportedSymbols.size(); i++)
         {
-            exports[i] = {};
-            exports[i].Name = this->exportedSymbols[i].c_str();
+            exports[i]                = {};
+            exports[i].Name           = this->exportedSymbols[i].c_str();
             exports[i].ExportToRename = nullptr;
-            exports[i].Flags = D3D12_EXPORT_FLAG_NONE;
+            exports[i].Flags          = D3D12_EXPORT_FLAG_NONE;
         }
 
-        libDescription.DXILLibrary.BytecodeLength = this->dxil->GetBufferSize();
+        libDescription.DXILLibrary.BytecodeLength  = this->dxil->GetBufferSize();
         libDescription.DXILLibrary.pShaderBytecode = this->dxil->GetBufferPointer();
-        libDescription.NumExports = static_cast<UINT>(exports.size());
-        libDescription.pExports = exports.data();
+        libDescription.NumExports                  = static_cast<UINT>(exports.size());
+        libDescription.pExports                    = exports.data();
     }
-    
-    RayTracingPipelineGenerator::HitGroup::HitGroup(std::wstring hitGroupName,
-                                                    std::wstring closestHitSymbol,
-                                                    std::wstring anyHitSymbol,
-                                                    std::wstring intersectionSymbol)
+
+    RayTracingPipelineGenerator::HitGroup::HitGroup(
+        std::wstring hitGroupName, std::wstring closestHitSymbol, std::wstring anyHitSymbol,
+        std::wstring intersectionSymbol)
         : hitGroupName(std::move(hitGroupName))
-          , closestHitSymbol(std::move(closestHitSymbol))
-          , anyHitSymbol(std::move(anyHitSymbol))
-          , intersectionSymbol(std::move(intersectionSymbol))
+      , closestHitSymbol(std::move(closestHitSymbol))
+      , anyHitSymbol(std::move(anyHitSymbol))
+      , intersectionSymbol(std::move(intersectionSymbol))
     {
-        desc.HitGroupExport = this->hitGroupName.c_str();
-        desc.ClosestHitShaderImport = STRING_OR_NULL(this->closestHitSymbol);
-        desc.AnyHitShaderImport = STRING_OR_NULL(this->anyHitSymbol);
+        desc.HitGroupExport           = this->hitGroupName.c_str();
+        desc.ClosestHitShaderImport   = STRING_OR_NULL(this->closestHitSymbol);
+        desc.AnyHitShaderImport       = STRING_OR_NULL(this->anyHitSymbol);
         desc.IntersectionShaderImport = STRING_OR_NULL(this->intersectionSymbol);
 
         desc.Type = this->intersectionSymbol.empty()
@@ -375,13 +347,13 @@ namespace nv_helpers_dx12
     }
 
     RayTracingPipelineGenerator::RootSignatureAssociation::RootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, const bool local, const std::vector<std::wstring>& symbols)
-        : rootSignature(rootSignature), local(local), symbols(symbols), symbolPointers(symbols.size())
+        ID3D12RootSignature* rootSignature, bool const local, std::vector<std::wstring> const& symbols)
+        : rootSignature(rootSignature)
+      , local(local)
+      , symbols(symbols)
+      , symbolPointers(symbols.size())
     {
-        for (size_t i = 0; i < this->symbols.size(); i++)
-        {
-            symbolPointers[i] = this->symbols[i].c_str();
-        }
+        for (size_t i = 0; i < this->symbols.size(); i++) symbolPointers[i] = this->symbols[i].c_str();
 
         rootSignaturePointer = this->rootSignature;
     }

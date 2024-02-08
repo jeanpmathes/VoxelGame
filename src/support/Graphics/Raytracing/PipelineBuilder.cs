@@ -134,8 +134,8 @@ public class PipelineBuilder
     }
 
     /// <summary>
-    /// Set the type of the custom data buffer.
-    /// Using this will enable the creation of a custom data buffer.
+    ///     Set the type of the custom data buffer.
+    ///     Using this will enable the creation of a custom data buffer.
     /// </summary>
     /// <typeparam name="T">The type of the custom data buffer.</typeparam>
     public void SetCustomDataBufferType<T>() where T : unmanaged

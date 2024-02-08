@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <vector>
 #include <queue>
+#include <vector>
 
 #include "Concepts.hpp"
 
@@ -48,12 +48,12 @@ public:
      */
     E Pop(I i)
     {
-        const size_t index = static_cast<size_t>(i);
+        size_t const index = static_cast<size_t>(i);
 
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
 
-        auto element = std::move(m_elements[index]);
+        auto element      = std::move(m_elements[index]);
         m_elements[index] = nullptr;
 
         m_gaps.push(index);
@@ -62,24 +62,15 @@ public:
         return element;
     }
 
-    [[nodiscard]] size_t GetCount() const
-    {
-        return m_size;
-    }
+    [[nodiscard]] size_t GetCount() const { return m_size; }
 
-    [[nodiscard]] size_t GetCapacity() const
-    {
-        return m_elements.size();
-    }
+    [[nodiscard]] size_t GetCapacity() const { return m_elements.size(); }
 
-    [[nodiscard]] bool IsEmpty() const
-    {
-        return m_size == 0;
-    }
+    [[nodiscard]] bool IsEmpty() const { return m_size == 0; }
 
     E& operator[](I i)
     {
-        const size_t index = static_cast<size_t>(i);
+        size_t const index = static_cast<size_t>(i);
 
         REQUIRE(index < m_elements.size());
         REQUIRE(m_elements[index] != nullptr);
@@ -92,13 +83,8 @@ public:
     {
     public:
         explicit iterator(typename std::vector<E>::iterator iterator, typename std::vector<E>::iterator end)
-            : m_iterator(iterator), m_end(end)
-        {
-            if (m_iterator != m_end && *m_iterator == nullptr)
-            {
-                Advance();
-            }
-        }
+            : m_iterator(iterator)
+          , m_end(end) { if (m_iterator != m_end && *m_iterator == nullptr) Advance(); }
 
         iterator operator++()
         {
@@ -106,23 +92,14 @@ public:
             return *this;
         }
 
-        bool operator!=(const iterator& other) const
-        {
-            return m_iterator != other.m_iterator;
-        }
+        bool operator!=(iterator const& other) const { return m_iterator != other.m_iterator; }
 
-        E& operator*() const
-        {
-            return *m_iterator;
-        }
+        E& operator*() const { return *m_iterator; }
 
     private:
         void Advance()
         {
-            do
-            {
-                ++m_iterator;
-            }
+            do { ++m_iterator; }
             while (m_iterator != m_end && *m_iterator == nullptr);
         }
 
@@ -130,18 +107,12 @@ public:
         typename std::vector<E>::iterator m_end;
     };
 
-    iterator begin()
-    {
-        return iterator(m_elements.begin(), m_elements.end());
-    }
+    iterator begin() { return iterator(m_elements.begin(), m_elements.end()); }
 
-    iterator end()
-    {
-        return iterator(m_elements.end(), m_elements.end());
-    }
+    iterator end() { return iterator(m_elements.end(), m_elements.end()); }
 
 private:
-    std::vector<E> m_elements = {};
-    std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> m_gaps = {};
-    size_t m_size = 0;
+    std::vector<E>                                                         m_elements = {};
+    std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> m_gaps     = {};
+    size_t                                                                 m_size     = 0;
 };

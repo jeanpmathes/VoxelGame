@@ -77,7 +77,10 @@ public sealed class TextureBundle : ITextureIndexProvider
     /// <param name="client">The client that will own the texture.</param>
     /// <param name="loadingContext">The context in which loading is performed.</param>
     /// <param name="textureDirectory">The directory to load textures from.</param>
-    /// <param name="resolution">The resolution, i.e. both the width and height, of the textures. Textures that do not fit are excluded.</param>
+    /// <param name="resolution">
+    ///     The resolution, i.e. both the width and height, of the textures. Textures that do not fit are
+    ///     excluded.
+    /// </param>
     /// <param name="maxTextures">The maximum number of textures to load.</param>
     /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
     public static TextureBundle Load(
@@ -229,10 +232,7 @@ public sealed class TextureBundle : ITextureIndexProvider
                     int textureCount = image.Width / resolution;
                     indices.Add(path.GetFileNameWithoutExtension(), count);
 
-                    for (var j = 0; j < textureCount; j++)
-                    {
-                        AddTexture(image.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
-                    }
+                    for (var j = 0; j < textureCount; j++) AddTexture(image.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
                 }
                 else
                 {

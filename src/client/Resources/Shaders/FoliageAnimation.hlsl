@@ -7,41 +7,41 @@
 #include "FastNoiseLite.hlsl"
 
 #include "Animation.hlsl"
-#include "Decoding.hlsl"
 #include "Custom.hlsl"
+#include "Decoding.hlsl"
 
-void ApplySway(inout native::spatial::SpatialVertex vertex, float2 uv, const bool isUpperPart, const bool isDoublePlant,
-               const in fnl_state noise)
+void ApplySway(
+    inout native::spatial::SpatialVertex vertex, float2 uv, bool const isUpperPart, bool const isDoublePlant,
+    in fnl_state const                   noise)
 {
-    const float amplitude = 0.2f;
-    const float speed = 0.8f;
+    float const amplitude = 0.2f;
+    float const speed     = 0.8f;
 
-    const float strength = (uv.y + (isUpperPart ? 1.0f : 0.0)) * (isDoublePlant ? 0.5f : 1.0f);
-    const float2 position = vertex.position.xz + vg::custom.windDir.xz * native::spatial::global.time * speed;
+    float const  strength = (uv.y + (isUpperPart ? 1.0f : 0.0)) * (isDoublePlant ? 0.5f : 1.0f);
+    float2 const position = vertex.position.xz + vg::custom.windDir.xz * native::spatial::global.time * speed;
 
     vertex.position += vg::custom.windDir * fnlGetNoise2D(noise, position.x, position.y) * amplitude * strength;
 }
 
-[numthreads(16, 4, 1)]
-void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
+[numthreads(16, 4, 1)]void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
 {
-    native::animation::Submission submission
-        = native::animation::threadGroupData[groupID.x].submissions[submissionID.x];
+    native::animation::Submission submission = native::animation::threadGroupData[groupID.x].submissions[submissionID.
+        x];
 
     if (submission.count == 0) return;
 
-    fnl_state noise = fnlCreateState();
-    noise.frequency = 0.35f;
+    fnl_state noise        = fnlCreateState();
+    noise.frequency        = 0.35f;
     noise.domain_warp_type = FNL_DOMAIN_WARP_BASICGRID;
 
-    const uint threadID = submissionID.y;
-    const uint offset = submission.offset + (submission.count / 4) * threadID;
-    const uint count = (submission.count / 4) + (threadID == 3 ? submission.count % 4 : 0);
+    uint const threadID = submissionID.y;
+    uint const offset   = submission.offset + (submission.count / 4) * threadID;
+    uint const count    = (submission.count / 4) + (threadID == 3 ? submission.count % 4 : 0);
 
     for (uint quadID = offset; quadID < offset + count; quadID++)
     {
         native::spatial::SpatialVertex quad[native::spatial::VERTICES_PER_QUAD];
-        uint4 data;
+        uint4                          data;
 
         for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {
@@ -49,9 +49,9 @@ void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
             data[index] = quad[index].data;
         }
 
-        const bool isUpperPart = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
-        const bool isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
-        const float4x2 uvs = vg::decode::GetUVs(data);
+        bool const     isUpperPart   = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
+        bool const     isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
+        float4x2 const uvs           = vg::decode::GetUVs(data);
 
         for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {

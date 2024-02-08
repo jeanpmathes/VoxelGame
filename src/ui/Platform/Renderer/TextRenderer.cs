@@ -93,10 +93,7 @@ public sealed class TextRenderer : IDisposable
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            Texture.Dispose();
-        }
+        if (disposing) Texture.Dispose();
 
         disposed = true;
     }

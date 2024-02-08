@@ -94,14 +94,10 @@ namespace nv_helpers_dx12
          * \param inclusionMask Instance mask, which can be used in the shaders to hide instances.
          * \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE.
          */
-        void
-        AddInstance(D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS,
-                    const DirectX::XMFLOAT4X4& transform,
-                    UINT instanceID,
-                    UINT hitGroupIndex,
-                    BYTE inclusionMask,
-                    D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE
-        );
+        void AddInstance(
+            D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS, DirectX::XMFLOAT4X4 const& transform, UINT instanceID,
+            UINT                            hitGroupIndex, BYTE                       inclusionMask,
+            D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE);
 
         /**
          * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
@@ -112,12 +108,8 @@ namespace nv_helpers_dx12
          * \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
          */
         void ComputeASBufferSizes(
-            const ComPtr<ID3D12Device5>& device,
-            bool allowUpdate,
-            UINT64* scratchSizeInBytes,
-            UINT64* resultSizeInBytes,
-            UINT64* descriptorsSizeInBytes
-        );
+            ComPtr<ID3D12Device5> const& device, bool               allowUpdate, UINT64* scratchSizeInBytes,
+            UINT64*                      resultSizeInBytes, UINT64* descriptorsSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -129,34 +121,31 @@ namespace nv_helpers_dx12
          * \param previousResult Optional previous acceleration structure, used if an iterative update is requested
          */
         void Generate(
-            const ComPtr<ID3D12GraphicsCommandList4>& commandList,
-            const Allocation<ID3D12Resource>& scratchBuffer,
-            const Allocation<ID3D12Resource>& resultBuffer,
-            const Allocation<ID3D12Resource>& descriptorsBuffer,
-            bool updateOnly = false,
-            const Allocation<ID3D12Resource>& previousResult = {}
-        ) const;
+            ComPtr<ID3D12GraphicsCommandList4> const& commandList, Allocation<ID3D12Resource> const& scratchBuffer,
+            Allocation<ID3D12Resource> const& resultBuffer, Allocation<ID3D12Resource> const& descriptorsBuffer,
+            bool updateOnly = false, Allocation<ID3D12Resource> const& previousResult = {}) const;
 
     private:
         struct Instance
         {
-            Instance(D3D12_GPU_VIRTUAL_ADDRESS blAS, const DirectX::XMFLOAT4X4& tr, UINT iID, UINT hgId, BYTE mask,
-                     D3D12_RAYTRACING_INSTANCE_FLAGS f);
-            
-            D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS;
-            const DirectX::XMFLOAT4X4* transform;
-            UINT instanceID;
-            UINT hitGroupIndex;
+            Instance(
+                D3D12_GPU_VIRTUAL_ADDRESS       blAS, DirectX::XMFLOAT4X4 const& tr, UINT iID, UINT hgId, BYTE mask,
+                D3D12_RAYTRACING_INSTANCE_FLAGS f);
+
+            D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS;
+            DirectX::XMFLOAT4X4 const*      transform;
+            UINT                            instanceID;
+            UINT                            hitGroupIndex;
             D3D12_RAYTRACING_INSTANCE_FLAGS flags;
-            BYTE inclusionMask;
+            BYTE                            inclusionMask;
         };
-        
+
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
         std::vector<Instance> m_instances{};
-        
-        UINT64 m_scratchSizeInBytes = 0;
+
+        UINT64 m_scratchSizeInBytes              = 0;
         UINT64 m_instanceDescriptionsSizeInBytes = 0;
-        UINT64 m_resultSizeInBytes = 0;
+        UINT64 m_resultSizeInBytes               = 0;
     };
 }

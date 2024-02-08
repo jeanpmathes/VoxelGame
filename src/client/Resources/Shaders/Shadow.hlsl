@@ -6,8 +6,4 @@
 
 #include "PayloadRT.hlsl"
 
-[shader("miss")]
-void ShadowMiss(inout native::rt::ShadowHitInfo hitInfo)
-{
-    hitInfo.isHit = false;
-}
+[shader("miss")]void ShadowMiss(inout native::rt::ShadowHitInfo hitInfo) { hitInfo.isHit = false; }

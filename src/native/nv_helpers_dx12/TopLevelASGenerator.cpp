@@ -56,153 +56,129 @@ buffer needs to be kept until the command list execution is finished.
 namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::AddInstance(
-        const D3D12_GPU_VIRTUAL_ADDRESS bottomLevelAS,
-        const DirectX::XMFLOAT4X4& transform,
-        const UINT instanceID,
-        const UINT hitGroupIndex,
-        const BYTE inclusionMask,
-        const D3D12_RAYTRACING_INSTANCE_FLAGS flags
-    )
+        D3D12_GPU_VIRTUAL_ADDRESS const bottomLevelAS, DirectX::XMFLOAT4X4 const& transform, UINT const instanceID,
+        UINT const hitGroupIndex, BYTE const inclusionMask, D3D12_RAYTRACING_INSTANCE_FLAGS const flags)
     {
         m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags));
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
-        const ComPtr<ID3D12Device5>& device,
-        const bool allowUpdate,
-        UINT64* scratchSizeInBytes,
-        UINT64* resultSizeInBytes,
-        UINT64* descriptorsSizeInBytes
-    )
+        ComPtr<ID3D12Device5> const& device, bool const         allowUpdate, UINT64* scratchSizeInBytes,
+        UINT64*                      resultSizeInBytes, UINT64* descriptorsSizeInBytes)
     {
         m_flags = allowUpdate
                       ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
                       : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
-        
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS
-            prebuildDesc = {};
+
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc = {};
         prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
         prebuildDesc.NumDescs = static_cast<UINT>(m_instances.size());
         prebuildDesc.Flags = m_flags;
-        
+
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
 
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        info.ResultDataMaxSizeInBytes =
-            ROUND_UP(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        info.ScratchDataSizeInBytes =
-            ROUND_UP(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        info.ResultDataMaxSizeInBytes = ROUND_UP(
+            info.ResultDataMaxSizeInBytes,
+            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        info.ScratchDataSizeInBytes = ROUND_UP(
+            info.ScratchDataSizeInBytes,
+            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        m_resultSizeInBytes = info.ResultDataMaxSizeInBytes;
-        m_scratchSizeInBytes = info.ScratchDataSizeInBytes;
-        m_instanceDescriptionsSizeInBytes =
-            ROUND_UP(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(),
-                     D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        m_resultSizeInBytes               = info.ResultDataMaxSizeInBytes;
+        m_scratchSizeInBytes              = info.ScratchDataSizeInBytes;
+        m_instanceDescriptionsSizeInBytes = ROUND_UP(
+            sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(),
+            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
         if (m_instanceDescriptionsSizeInBytes == 0)
-        {
             m_instanceDescriptionsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
-        }
 
-        *scratchSizeInBytes = m_scratchSizeInBytes;
-        *resultSizeInBytes = m_resultSizeInBytes;
+        *scratchSizeInBytes     = m_scratchSizeInBytes;
+        *resultSizeInBytes      = m_resultSizeInBytes;
         *descriptorsSizeInBytes = m_instanceDescriptionsSizeInBytes;
     }
 
     void TopLevelASGenerator::Generate(
-        const ComPtr<ID3D12GraphicsCommandList4>& commandList,
-        const Allocation<ID3D12Resource>& scratchBuffer,
-        const Allocation<ID3D12Resource>& resultBuffer,
-        const Allocation<ID3D12Resource>& descriptorsBuffer,
-        const bool updateOnly,
-        const Allocation<ID3D12Resource>& previousResult
-    ) const
+        ComPtr<ID3D12GraphicsCommandList4> const& commandList, Allocation<ID3D12Resource> const&  scratchBuffer,
+        Allocation<ID3D12Resource> const&         resultBuffer, Allocation<ID3D12Resource> const& descriptorsBuffer,
+        bool const                                updateOnly, Allocation<ID3D12Resource> const&   previousResult) const
     {
         D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
-        if (const HRESULT ok = descriptorsBuffer.resource->Map(
-            0, nullptr, reinterpret_cast<void**>(&instanceDescription)); FAILED(ok) || !instanceDescription)
-        {
+        if (HRESULT const ok = descriptorsBuffer.resource->Map(
+                0,
+                nullptr,
+                reinterpret_cast<void**>(&instanceDescription));
+            FAILED(ok) || !instanceDescription)
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
-        }
 
-        const auto instanceCount = static_cast<UINT>(m_instances.size());
-        
+        auto const instanceCount = static_cast<UINT>(m_instances.size());
+
         if (!updateOnly)
-        {
             ZeroMemory(instanceDescription, m_instanceDescriptionsSizeInBytes);
-        }
 
         for (uint32_t i = 0; i < instanceCount; i++)
         {
-            instanceDescription[i].InstanceID = m_instances[i].instanceID;
+            instanceDescription[i].InstanceID                          = m_instances[i].instanceID;
             instanceDescription[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
-            instanceDescription[i].Flags = m_instances[i].flags;
+            instanceDescription[i].Flags                               = m_instances[i].flags;
 
-            const DirectX::XMMATRIX instance = XMLoadFloat4x4(m_instances[i].transform);
-            DirectX::XMMATRIX m = XMMatrixTranspose(instance);
+            DirectX::XMMATRIX const instance = XMLoadFloat4x4(m_instances[i].transform);
+            DirectX::XMMATRIX       m        = XMMatrixTranspose(instance);
             std::memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
-            
+
             instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS;
-            instanceDescription[i].InstanceMask = m_instances[i].inclusionMask;
+            instanceDescription[i].InstanceMask          = m_instances[i].inclusionMask;
         }
 
         descriptorsBuffer.resource->Unmap(0, nullptr);
-        
-        const D3D12_GPU_VIRTUAL_ADDRESS sourceAS = updateOnly
+
+        D3D12_GPU_VIRTUAL_ADDRESS const sourceAS = updateOnly
                                                        ? previousResult.GetGPUVirtualAddress<ID3D12Resource>()
                                                        : 0;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
 
         if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
-        {
             flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-        }
-        
+
         if (m_flags != D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
-        {
             throw std::logic_error("Cannot update a top-level AS not originally built for updates.");
-        }
         if (updateOnly && !previousResult.IsSet())
-        {
             throw std::logic_error("Top-level hierarchy update requires the previous hierarchy.");
-        }
 
         flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-        
+
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
-        buildDesc.Inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-        buildDesc.Inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        buildDesc.Inputs.InstanceDescs = descriptorsBuffer.GetGPUVirtualAddress<ID3D12Resource>();
-        buildDesc.Inputs.NumDescs = instanceCount;
-        buildDesc.DestAccelerationStructureData = {
-            resultBuffer.GetGPUVirtualAddress<ID3D12Resource>()
-        };
-        buildDesc.ScratchAccelerationStructureData = {
-            scratchBuffer.GetGPUVirtualAddress<ID3D12Resource>()
-        };
-        buildDesc.SourceAccelerationStructureData = sourceAS;
-        buildDesc.Inputs.Flags = flags;
-        
+        buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+        buildDesc.Inputs.DescsLayout               = D3D12_ELEMENTS_LAYOUT_ARRAY;
+        buildDesc.Inputs.InstanceDescs             = descriptorsBuffer.GetGPUVirtualAddress<ID3D12Resource>();
+        buildDesc.Inputs.NumDescs                  = instanceCount;
+        buildDesc.DestAccelerationStructureData    = {resultBuffer.GetGPUVirtualAddress<ID3D12Resource>()};
+        buildDesc.ScratchAccelerationStructureData = {scratchBuffer.GetGPUVirtualAddress<ID3D12Resource>()};
+        buildDesc.SourceAccelerationStructureData  = sourceAS;
+        buildDesc.Inputs.Flags                     = flags;
+
         commandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
-        
+
         D3D12_RESOURCE_BARRIER uavBarrier;
-        uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+        uavBarrier.Type          = D3D12_RESOURCE_BARRIER_TYPE_UAV;
         uavBarrier.UAV.pResource = resultBuffer.Get();
-        uavBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        uavBarrier.Flags         = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         commandList->ResourceBarrier(1, &uavBarrier);
     }
 
     TopLevelASGenerator::Instance::Instance(
-        const D3D12_GPU_VIRTUAL_ADDRESS blAS,
-        const DirectX::XMFLOAT4X4& tr,
-        const UINT iID,
-        const UINT hgId,
-        const BYTE mask,
-        const D3D12_RAYTRACING_INSTANCE_FLAGS f)
-        : bottomLevelAS(blAS), transform(&tr), instanceID(iID), hitGroupIndex(hgId), flags(f), inclusionMask(mask)
+        D3D12_GPU_VIRTUAL_ADDRESS const blAS, DirectX::XMFLOAT4X4 const&            tr, UINT const iID, UINT const hgId,
+        BYTE const                      mask, D3D12_RAYTRACING_INSTANCE_FLAGS const f)
+        : bottomLevelAS(blAS)
+      , transform(&tr)
+      , instanceID(iID)
+      , hitGroupIndex(hgId)
+      , flags(f)
+      , inclusionMask(mask)
     {
     }
 }

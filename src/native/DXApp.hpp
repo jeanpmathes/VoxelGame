@@ -37,19 +37,19 @@ enum class MouseCursor : BYTE
 class DXApp
 {
 public:
-    explicit DXApp(const Configuration& configuration);
-    virtual ~DXApp();
+    explicit DXApp(Configuration const& configuration);
+    virtual  ~DXApp();
 
-    DXApp(const DXApp& other) = delete;
-    DXApp& operator=(const DXApp& other) = delete;
-    DXApp(DXApp&& other) = delete;
-    DXApp& operator=(DXApp&& other) = delete;
+    DXApp(DXApp const& other)            = delete;
+    DXApp& operator=(DXApp const& other) = delete;
+    DXApp(DXApp&& other)                 = delete;
+    DXApp& operator=(DXApp&& other)      = delete;
 
     enum CycleFlags
     {
         ALLOW_UPDATE = 1 << 0,
         ALLOW_RENDER = 1 << 1,
-        ALLOW_BOTH = ALLOW_UPDATE | ALLOW_RENDER,
+        ALLOW_BOTH   = ALLOW_UPDATE | ALLOW_RENDER,
     };
 
     /**
@@ -60,8 +60,8 @@ public:
     void Tick(CycleFlags flags, bool timer = false);
 
     void Init();
-    void Update(const StepTimer& timer);
-    void Render(const StepTimer& timer);
+    void Update(StepTimer const& timer);
+    void Render(StepTimer const& timer);
     void Destroy();
 
     [[nodiscard]] bool CanClose() const;
@@ -85,10 +85,10 @@ public:
     {
     }
 
-    [[nodiscard]] UINT GetWidth() const { return m_width; }
-    [[nodiscard]] UINT GetHeight() const { return m_height; }
-    [[nodiscard]] const WCHAR* GetTitle() const { return m_title.c_str(); }
-    [[nodiscard]] HICON GetIcon() const { return m_icon; }
+    [[nodiscard]] UINT         GetWidth() const { return m_width; }
+    [[nodiscard]] UINT         GetHeight() const { return m_height; }
+    [[nodiscard]] WCHAR const* GetTitle() const { return m_title.c_str(); }
+    [[nodiscard]] HICON        GetIcon() const { return m_icon; }
 
     [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
 
@@ -109,7 +109,7 @@ public:
      * Set the mouse position in client coordinates.
      */
     void SetMousePosition(POINT position);
-    
+
     void SetMouseCursor(MouseCursor cursor);
     void SetMouseLock(bool lock);
 
@@ -154,9 +154,8 @@ protected:
     virtual void OnWindowMoved(int xPos, int yPos) = 0;
 
     static ComPtr<IDXGIAdapter1> GetHardwareAdapter(
-        const ComPtr<IDXGIFactory4>& dxgiFactory,
-        const ComPtr<ID3D12DeviceFactory>& deviceFactory,
-        bool requestHighPerformanceAdapter = false);
+        ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory,
+        bool                         requestHighPerformanceAdapter = false);
 
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
@@ -165,7 +164,7 @@ protected:
 
 private:
     std::wstring m_title;
-    HICON m_icon;
+    HICON        m_icon;
 
     Configuration m_configuration;
 
@@ -175,22 +174,22 @@ private:
     double m_totalUpdateTime = 0.0;
     double m_totalRenderTime = 0.0;
 
-    UINT m_width;
-    UINT m_height;
+    UINT  m_width;
+    UINT  m_height;
     float m_aspectRatio;
-    RECT m_windowBounds;
+    RECT  m_windowBounds;
 
     bool m_tearingSupport;
 
-    int m_xMousePosition = 0;
-    int m_yMousePosition = 0;
-    bool m_mouseLocked = false;
+    int  m_xMousePosition = 0;
+    int  m_yMousePosition = 0;
+    bool m_mouseLocked    = false;
 
-    MouseCursor m_mouseCursor = MouseCursor::ARROW;
+    MouseCursor                    m_mouseCursor = MouseCursor::ARROW;
     std::map<MouseCursor, HCURSOR> m_mouseCursors;
 
     std::optional<Cycle> m_cycle = std::nullopt;
-    std::thread::id m_mainThreadId;
+    std::thread::id      m_mainThreadId;
 
     bool m_inTick = false;
 
@@ -198,11 +197,11 @@ private:
     {
         IDT_UPDATE = 1,
     };
-    
+
     bool m_isUpdateTimerRunning = false;
 
     POINT m_lastMousePosition = {};
-    bool m_isActive = false;
+    bool  m_isActive          = false;
 };
 
 #define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)

@@ -18,13 +18,13 @@ public:
     explicit SharedIndexBuffer(Space& space);
 
     std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
-    void CleanupRender();
+    void                                        CleanupRender();
 
 private:
     Space& m_space;
 
-    std::vector<UINT> m_indices = {};
+    std::vector<UINT>          m_indices           = {};
     Allocation<ID3D12Resource> m_sharedIndexBuffer = {};
-    UINT m_sharedIndexCount = 0;
+    UINT                       m_sharedIndexCount  = 0;
     std::vector<std::pair<Allocation<ID3D12Resource>, Allocation<ID3D12Resource>>> m_indexBufferUploads = {};
 };

@@ -2,16 +2,11 @@
 
 #include "Light.hpp"
 
-Light::Light(NativeClient& client) : Spatial(client)
+Light::Light(NativeClient& client)
+    : Spatial(client)
 {
 }
 
-void Light::SetDirection(const DirectX::XMFLOAT3& direction)
-{
-    m_direction = direction;
-}
+void Light::SetDirection(DirectX::XMFLOAT3 const& direction) { m_direction = direction; }
 
-const DirectX::XMFLOAT3& Light::GetDirection() const
-{
-    return m_direction;
-}
+DirectX::XMFLOAT3 const& Light::GetDirection() const { return m_direction; }

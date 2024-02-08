@@ -7,8 +7,8 @@
 
 #include "SpatialRT.hlsl"
 
-#include "Decoding.hlsl"
 #include "Custom.hlsl"
+#include "Decoding.hlsl"
 
 // @formatter:off
 using namespace native::rt;
@@ -31,8 +31,8 @@ namespace vg
          * - The mesh must be a quad mesh.
          * - The vertex order is CW.
          */
-        void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3 posC, out float3 normal,
-                          out uint4 data)
+        void ReadMeshData(
+            out int3 indices, out float3 posA, out float3 posB, out float3 posC, out float3 normal, out uint4 data)
         {
             // A quad looks like this:
             // 1 -- 2
@@ -41,21 +41,21 @@ namespace vg
             // 0 -- 3
             // The top left triangle is the first one, the bottom right triangle is the second one.
 
-            const uint instance = InstanceID();
+            uint const instance = InstanceID();
 
-            const uint primitiveIndex = PrimitiveIndex();
-            const bool isFirst = (primitiveIndex % 2) == 0;
-            const uint vertexIndex = (primitiveIndex / 2) * native::spatial::VERTICES_PER_QUAD;
+            uint const primitiveIndex = PrimitiveIndex();
+            bool const isFirst        = (primitiveIndex % 2) == 0;
+            uint const vertexIndex    = (primitiveIndex / 2) * native::spatial::VERTICES_PER_QUAD;
 
-            indices = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
-            const int3 i = indices + vertexIndex;
+            indices      = isFirst ? int3(0, 1, 2) : int3(0, 2, 3);
+            int3 const i = indices + vertexIndex;
 
             posA = vertices[instance][i[0]].position;
             posB = vertices[instance][i[1]].position;
             posC = vertices[instance][i[2]].position;
 
-            const float3 e1 = posB - posA;
-            const float3 e2 = posC - posA;
+            float3 const e1 = posB - posA;
+            float3 const e2 = posC - posA;
 
             normal = mul(instances[instance].worldNormal, float4(normalize(cross(e1, e2)), 0.0)).xyz * -1.0;
             normal = normalize(normal);
@@ -115,10 +115,7 @@ namespace vg
              * \brief Get the position of the current intersection, using the barycentric coordinates.
              * \return The position of the current intersection.
              */
-            float3 GetPosition()
-            {
-                return a * barycentric.x + b * barycentric.y + c * barycentric.z;
-            }
+            float3 GetPosition() { return a * barycentric.x + b * barycentric.y + c * barycentric.z; }
 
             /**
              * \brief Get the distance from the current intersection to the borders of the current triangle.
@@ -126,14 +123,14 @@ namespace vg
              */
             float GetDistanceToTriangleBorders()
             {
-                const float3 p = GetPosition();
+                float3 const p = GetPosition();
 
-                const float3 ba = b - a, cb = c - b, ac = a - c;
-                const float3 pa = p - a, pb = p - b, pc = p - c;
+                float3 const ba = b - a, cb = c - b, ac = a - c;
+                float3 const pa = p - a, pb = p - b, pc = p - c;
 
-                const float3 ae = pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0f, 1.0f);
-                const float3 be = pb - cb * clamp(dot(pb, cb) / dot(cb, cb), 0.0f, 1.0f);
-                const float3 ce = pc - ac * clamp(dot(pc, ac) / dot(ac, ac), 0.0f, 1.0f);
+                float3 const ae = pa - ba * clamp(dot(pa, ba) / dot(ba, ba), 0.0f, 1.0f);
+                float3 const be = pb - cb * clamp(dot(pb, cb) / dot(cb, cb), 0.0f, 1.0f);
+                float3 const ce = pc - ac * clamp(dot(pc, ac) / dot(ac, ac), 0.0f, 1.0f);
 
                 return sqrt(min(min(dot(ae, ae), dot(be, be)), dot(ce, ce)));
             }
@@ -144,7 +141,7 @@ namespace vg
          * \param attributes The attributes of the current hit.
          * \return The current triangle info.
          */
-        Info GetCurrentInfo(const in native::rt::Attributes attributes)
+        Info GetCurrentInfo(in native::rt::Attributes const attributes)
         {
             Info info;
 
@@ -176,55 +173,52 @@ namespace vg
          * \param baseColor The base color to use, is the color of the texture.
          * \return The calculated color with shading applied.
          */
-        float3 CalculateShading(in Info info, const float3 baseColor)
+        float3 CalculateShading(in Info info, float3 const baseColor)
         {
-            const float3 dirToLight = native::spatial::global.lightDir * -1.0f;
-            const float3 normal = info.normal;
+            float3 const dirToLight = native::spatial::global.lightDir * -1.0f;
+            float3 const normal     = info.normal;
 
             float3 color = baseColor;
 
-            const bool shaded = !decode::GetUnshadedFlag(info.data);
-            float intensity;
+            bool const shaded = !decode::GetUnshadedFlag(info.data);
+            float      intensity;
 
             if (shaded)
             {
                 RayDesc ray;
-                ray.Origin = info.GetPosition();
+                ray.Origin    = info.GetPosition();
                 ray.Direction = dirToLight;
-                ray.TMin = native::rt::RAY_EPSILON;
-                ray.TMax = native::rt::RAY_DISTANCE;
+                ray.TMin      = native::rt::RAY_EPSILON;
+                ray.TMax      = native::rt::RAY_DISTANCE;
 
                 native::rt::ShadowHitInfo shadowPayload;
                 shadowPayload.isHit = false;
 
-                TraceRay(native::rt::spaceBVH, RAY_FLAG_NONE, native::rt::MASK_SHADOW, RT_HIT_ARG(1), ray,
-                         shadowPayload);
+                TraceRay(
+                    native::rt::spaceBVH,
+                    RAY_FLAG_NONE,
+                    native::rt::MASK_SHADOW,
+                    RT_HIT_ARG(1),
+                    ray,
+                    shadowPayload);
 
-                const float energy = dot(normal, dirToLight);
+                float const energy = dot(normal, dirToLight);
 
-                if (!shadowPayload.isHit)
-                {
-                    intensity = clamp(energy, native::spatial::global.minLight, 1.0f);
-                }
+                if (!shadowPayload.isHit) intensity = clamp(energy, native::spatial::global.minLight, 1.0f);
                 else
-                {
                     intensity = lerp(
                         native::spatial::global.minShadow,
                         native::spatial::global.minLight,
                         clamp(energy * -1.0f, 0.0f, 1.0f));
-                }
             }
-            else
-            {
-                intensity = 1.0f;
-            }
+            else intensity = 1.0f;
 
             color *= intensity;
 
             if (custom.wireframe)
             {
-                const float edge = info.GetDistanceToTriangleBorders();
-                color = edge < 0.005f ? 1.0f : lerp(color, 0.0f, 0.2f);
+                float const edge = info.GetDistanceToTriangleBorders();
+                color            = edge < 0.005f ? 1.0f : lerp(color, 0.0f, 0.2f);
             }
 
             return color;

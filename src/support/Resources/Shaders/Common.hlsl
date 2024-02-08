@@ -22,7 +22,7 @@ namespace native
      * \param h The hue.
      * \return The RGB color.
      */
-    float3 HUEtoRGB(const in float h)
+    float3 HUEtoRGB(in float const h)
     {
         float r = abs(h * 6 - 3) - 1;
         float g = 2 - abs(h * 6 - 2);
@@ -35,35 +35,29 @@ namespace native
      * \param color The color.
      * \return The luminance.
      */
-    float GetLuminance(const in float3 color)
-    {
-        return dot(color, float3(0.299, 0.587, 0.114));
-    }
+    float GetLuminance(in float3 const color) { return dot(color, float3(0.299, 0.587, 0.114)); }
 
     /**
      * \brief Translates the UV coordinates between the OpenGL and DirectX coordinate system.
      * \param uv The UV coordinates in the OpenGL/DirectX coordinate system.
      * \return The UV coordinates in the DirectX/OpenGL coordinate system.
      */
-    float2 TranslateUV(const in float2 uv)
-    {
-        return float2(uv.x, 1.0 - uv.y);
-    }
+    float2 TranslateUV(in float2 const uv) { return float2(uv.x, 1.0 - uv.y); }
 
     /**
      * \brief The color red.
      */
-    static const float3 RED = float3(1.0, 0.0, 0.0);
+    static float3 const RED = float3(1.0, 0.0, 0.0);
 
     /**
      * \brief The color green.
      */
-    static const float3 GREEN = float3(0.0, 1.0, 0.0);
+    static float3 const GREEN = float3(0.0, 1.0, 0.0);
 
     /**
      * \brief The color blue.
      */
-    static const float3 BLUE = float3(0.0, 0.0, 1.0);
+    static float3 const BLUE = float3(0.0, 0.0, 1.0);
 }
 
 #endif

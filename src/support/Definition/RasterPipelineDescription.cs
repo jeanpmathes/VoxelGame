@@ -69,7 +69,7 @@ public struct RasterPipelineDescription
 }
 
 /// <summary>
-/// Utility class for shader presets.
+///     Utility class for shader presets.
 /// </summary>
 public static class ShaderPresets
 {

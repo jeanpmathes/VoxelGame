@@ -26,8 +26,8 @@
 #pragma once
 
 #include <iomanip>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "GFSDK_Aftermath.h"
 #include "GFSDK_Aftermath_GpuCrashDump.h"
@@ -48,33 +48,27 @@ namespace std
         return std::string("0x") + to_hex_string(static_cast<UINT>(result));
     }
 
-    inline std::string to_string(const GFSDK_Aftermath_ShaderDebugInfoIdentifier& identifier)
+    inline std::string to_string(GFSDK_Aftermath_ShaderDebugInfoIdentifier const& identifier)
     {
         return to_hex_string(identifier.id[0]) + "-" + to_hex_string(identifier.id[1]);
     }
 
-    inline std::string to_string(const GFSDK_Aftermath_ShaderBinaryHash& hash)
-    {
-        return to_hex_string(hash.hash);
-    }
+    inline std::string to_string(GFSDK_Aftermath_ShaderBinaryHash const& hash) { return to_hex_string(hash.hash); }
 }
 
-inline bool operator<(const GFSDK_Aftermath_ShaderDebugInfoIdentifier& lhs,
-                      const GFSDK_Aftermath_ShaderDebugInfoIdentifier& rhs)
+inline bool operator<(
+    GFSDK_Aftermath_ShaderDebugInfoIdentifier const& lhs, GFSDK_Aftermath_ShaderDebugInfoIdentifier const& rhs)
 {
-    if (lhs.id[0] == rhs.id[0])
-    {
-        return lhs.id[1] < rhs.id[1];
-    }
+    if (lhs.id[0] == rhs.id[0]) return lhs.id[1] < rhs.id[1];
     return lhs.id[0] < rhs.id[0];
 }
 
-inline bool operator<(const GFSDK_Aftermath_ShaderBinaryHash& lhs, const GFSDK_Aftermath_ShaderBinaryHash& rhs)
+inline bool operator<(GFSDK_Aftermath_ShaderBinaryHash const& lhs, GFSDK_Aftermath_ShaderBinaryHash const& rhs)
 {
     return lhs.hash < rhs.hash;
 }
 
-inline bool operator<(const GFSDK_Aftermath_ShaderDebugName& lhs, const GFSDK_Aftermath_ShaderDebugName& rhs)
+inline bool operator<(GFSDK_Aftermath_ShaderDebugName const& lhs, GFSDK_Aftermath_ShaderDebugName const& rhs)
 {
     return strncmp(lhs.name, rhs.name, sizeof(lhs.name)) < 0;
 }
@@ -84,30 +78,26 @@ class AftermathException : public std::runtime_error
 public:
     AftermathException(GFSDK_Aftermath_Result result)
         : std::runtime_error(GetErrorMessage(result))
-          , m_result(result)
+      , m_result(result)
     {
     }
 
-    AftermathException Error() const
-    {
-        return m_result;
-    }
+    AftermathException Error() const { return m_result; }
 
     static std::string GetErrorMessage(GFSDK_Aftermath_Result result)
     {
         switch (result)
         {
-        case GFSDK_Aftermath_Result_FAIL_DriverVersionNotSupported:
-            return "Unsupported driver version - requires an NVIDIA R495 display driver or newer.";
-        case GFSDK_Aftermath_Result_FAIL_D3dDllInterceptionNotSupported:
-            return "Aftermath is incompatible with D3D API interception, such as PIX or Nsight Graphics.";
-        default:
-            return "Aftermath Error 0x" + std::to_hex_string(result);
+        case GFSDK_Aftermath_Result_FAIL_DriverVersionNotSupported: return
+                "Unsupported driver version - requires an NVIDIA R495 display driver or newer.";
+        case GFSDK_Aftermath_Result_FAIL_D3dDllInterceptionNotSupported: return
+                "Aftermath is incompatible with D3D API interception, such as PIX or Nsight Graphics.";
+        default: return "Aftermath Error 0x" + std::to_hex_string(result);
         }
     }
 
 private:
-    const GFSDK_Aftermath_Result m_result;
+    GFSDK_Aftermath_Result const m_result;
 };
 
 #define AFTERMATH_CHECK_ERROR(FC)                                                                       \

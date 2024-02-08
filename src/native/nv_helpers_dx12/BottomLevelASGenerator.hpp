@@ -91,14 +91,10 @@ namespace nv_helpers_dx12
          * \param transformOffsetInBytes Offset of the transform matrix in the transform buffer.
          * \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit.
          */
-        void AddVertexBuffer(const Allocation<ID3D12Resource>& vertexBuffer,
-                             UINT64 vertexOffsetInBytes,
-                             uint32_t vertexCount,
-                             UINT vertexSizeInBytes,
-                             const Allocation<ID3D12Resource>& transformBuffer,
-                             UINT64 transformOffsetInBytes,
-                             bool isOpaque = true
-        );
+        void AddVertexBuffer(
+            Allocation<ID3D12Resource> const& vertexBuffer, UINT64 vertexOffsetInBytes, uint32_t vertexCount,
+            UINT vertexSizeInBytes, Allocation<ID3D12Resource> const& transformBuffer, UINT64 transformOffsetInBytes,
+            bool isOpaque = true);
 
         /**
          * \brief Add a vertex buffer along with its index buffer in GPU memory into the acceleration structure. The vertices are supposed to be represented by 3 float32 value, and the indices are 32-bit unsigned ints
@@ -113,17 +109,11 @@ namespace nv_helpers_dx12
          * \param transformOffsetInBytes Offset of the transform matrix in the transform buffer.
          * \param isOpaque If true, the geometry is considered opaque, optimizing the search for a closest hit.
          */
-        void AddVertexBuffer(const Allocation<ID3D12Resource>& vertexBuffer,
-                             UINT64 vertexOffsetInBytes,
-                             uint32_t vertexCount,
-                             UINT vertexSizeInBytes,
-                             const Allocation<ID3D12Resource>& indexBuffer,
-                             UINT64 indexOffsetInBytes,
-                             uint32_t indexCount,
-                             const Allocation<ID3D12Resource>& transformBuffer,
-                             UINT64 transformOffsetInBytes,
-                             bool isOpaque = true
-        );
+        void AddVertexBuffer(
+            Allocation<ID3D12Resource> const& vertexBuffer, UINT64 vertexOffsetInBytes, uint32_t vertexCount,
+            UINT vertexSizeInBytes, Allocation<ID3D12Resource> const& indexBuffer, UINT64 indexOffsetInBytes,
+            uint32_t indexCount, Allocation<ID3D12Resource> const& transformBuffer, UINT64 transformOffsetInBytes,
+            bool isOpaque = true);
 
         /**
          * \brief Add a buffer containing axis-aligned bounding boxes in GPU memory into the acceleration structure.
@@ -132,11 +122,9 @@ namespace nv_helpers_dx12
          * \param boundsCount Number of bounding boxes to consider in the buffer.
          * \param boundsSizeInBytes Size of a bounding box, used to stride in the buffer.
          */
-        void AddBoundsBuffer(const Allocation<ID3D12Resource>& boundsBuffer,
-                             UINT64 boundsOffsetInBytes,
-                             uint32_t boundsCount,
-                             UINT boundsSizeInBytes
-        );
+        void AddBoundsBuffer(
+            Allocation<ID3D12Resource> const& boundsBuffer, UINT64 boundsOffsetInBytes, uint32_t boundsCount,
+            UINT                              boundsSizeInBytes);
 
         /**
          * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
@@ -146,11 +134,7 @@ namespace nv_helpers_dx12
          * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
          */
         void ComputeASBufferSizes(
-            ID3D12Device5* device,
-            bool allowUpdate,
-            UINT64* scratchSizeInBytes,
-            UINT64* resultSizeInBytes
-        );
+            ID3D12Device5* device, bool allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -161,12 +145,9 @@ namespace nv_helpers_dx12
          * \param previousResult Optional previous acceleration structure, used if an iterative update is requested.
          */
         void Generate(
-            ID3D12GraphicsCommandList4* commandList,
-            D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
-            D3D12_GPU_VIRTUAL_ADDRESS resultBuffer,
-            bool updateOnly = false,
-            D3D12_GPU_VIRTUAL_ADDRESS previousResult = 0
-        ) const;
+            ID3D12GraphicsCommandList4* commandList, D3D12_GPU_VIRTUAL_ADDRESS scratchBuffer,
+            D3D12_GPU_VIRTUAL_ADDRESS   resultBuffer, bool                     updateOnly = false,
+            D3D12_GPU_VIRTUAL_ADDRESS   previousResult                                    = 0) const;
 
     private:
         /**
@@ -180,8 +161,8 @@ namespace nv_helpers_dx12
         std::vector<Allocation<ID3D12Resource>> m_usedResources = {};
 
         UINT64 m_scratchSizeInBytes = 0;
-        UINT64 m_resultSizeInBytes = 0;
-        
+        UINT64 m_resultSizeInBytes  = 0;
+
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     };

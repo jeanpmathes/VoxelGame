@@ -21,7 +21,7 @@ public:
     /**
      * Set the data of the buffer.
      */
-    void SetData(const void* data) const;
+    void SetData(void const* data) const;
 
     /**
      * Get the GPU virtual address of the buffer.
@@ -35,7 +35,7 @@ public:
     [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor GetDescriptor() const;
 
 private:
-    UINT m_size;
+    UINT                       m_size;
     Allocation<ID3D12Resource> m_constantBuffer;
     D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc = {};
 };

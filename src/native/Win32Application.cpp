@@ -6,22 +6,22 @@
 
 #include "stdafx.h"
 
-void* Win32Application::m_app = nullptr;
-HWND Win32Application::m_hwnd = nullptr;
-bool Win32Application::m_fullscreenMode = false;
-RECT Win32Application::m_windowRect;
+void*  Win32Application::m_app            = nullptr;
+HWND   Win32Application::m_hwnd           = nullptr;
+bool   Win32Application::m_fullscreenMode = false;
+RECT   Win32Application::m_windowRect;
 size_t Win32Application::m_errorModeDepth = 0;
 
 // ReSharper disable once CppParameterMayBeConst
-int Win32Application::Run(DXApp* app, HINSTANCE instance, const int cmdShow)
+int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
 {
-    WNDCLASSEX windowClass = {0};
-    windowClass.cbSize = sizeof(WNDCLASSEX);
-    windowClass.style = CS_HREDRAW | CS_VREDRAW;
-    windowClass.lpfnWndProc = WindowProc;
-    windowClass.hInstance = instance;
-    windowClass.hIcon = app->GetIcon();
-    windowClass.hCursor = nullptr;
+    WNDCLASSEX windowClass    = {0};
+    windowClass.cbSize        = sizeof(WNDCLASSEX);
+    windowClass.style         = CS_HREDRAW | CS_VREDRAW;
+    windowClass.lpfnWndProc   = WindowProc;
+    windowClass.hInstance     = instance;
+    windowClass.hIcon         = app->GetIcon();
+    windowClass.hCursor       = nullptr;
     windowClass.lpszClassName = L"DXApp";
     RegisterClassEx(&windowClass);
 
@@ -52,17 +52,12 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, const int cmdShow)
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
-    {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        else
-        {
-            app->Tick(DXApp::ALLOW_BOTH);
-        }
-    }
+        else app->Tick(DXApp::ALLOW_BOTH);
 
     app->Destroy();
 
@@ -75,14 +70,9 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
     {
         SetWindowLongPtr(m_hwnd, GWL_STYLE, WINDOW_STYLE);
 
-        TRY_DO(SetWindowPos(
-            m_hwnd,
-            HWND_NOTOPMOST,
-            m_windowRect.left,
-            m_windowRect.top,
-            m_windowRect.right - m_windowRect.left,
-            m_windowRect.bottom - m_windowRect.top,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE));
+        TRY_DO(
+            SetWindowPos( m_hwnd, HWND_NOTOPMOST, m_windowRect.left, m_windowRect.top, m_windowRect.right - m_windowRect
+                .left, m_windowRect.bottom - m_windowRect.top, SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
         ShowWindow(m_hwnd, SW_NORMAL);
     }
@@ -90,9 +80,8 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
     {
         TRY_DO(GetWindowRect(m_hwnd, &m_windowRect));
 
-        SetWindowLongPtr(m_hwnd, GWL_STYLE,
-                         WINDOW_FULLSCREEN_STYLE);
-        
+        SetWindowLongPtr(m_hwnd, GWL_STYLE, WINDOW_FULLSCREEN_STYLE);
+
         RECT fullscreenWindowRect;
         try
         {
@@ -109,7 +98,7 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
             UNREFERENCED_PARAMETER(e);
 
             DEVMODE devMode = {};
-            devMode.dmSize = sizeof(DEVMODE);
+            devMode.dmSize  = sizeof(DEVMODE);
             EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &devMode);
 
             fullscreenWindowRect = {
@@ -120,14 +109,9 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
             };
         }
 
-        TRY_DO(SetWindowPos(
-            m_hwnd,
-            HWND_TOPMOST,
-            fullscreenWindowRect.left,
-            fullscreenWindowRect.top,
-            fullscreenWindowRect.right,
-            fullscreenWindowRect.bottom,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE));
+        TRY_DO(
+            SetWindowPos( m_hwnd, HWND_TOPMOST, fullscreenWindowRect.left, fullscreenWindowRect.top,
+                fullscreenWindowRect.right, fullscreenWindowRect.bottom, SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
         ShowWindow(m_hwnd, SW_MAXIMIZE);
     }
@@ -135,94 +119,72 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
     m_fullscreenMode = !m_fullscreenMode;
 }
 
-void Win32Application::SetWindowOrderToTopMost(const bool setToTopMost)
+void Win32Application::SetWindowOrderToTopMost(bool const setToTopMost)
 {
     RECT windowRect;
     TRY_DO(GetWindowRect(m_hwnd, &windowRect));
 
-    TRY_DO(SetWindowPos(
-        m_hwnd,
-        (setToTopMost) ? HWND_TOPMOST : HWND_NOTOPMOST,
-        windowRect.left,
-        windowRect.top,
-        windowRect.right - windowRect.left,
-        windowRect.bottom - windowRect.top,
-        SWP_FRAMECHANGED | SWP_NOACTIVATE));
+    TRY_DO(
+        SetWindowPos( m_hwnd, (setToTopMost) ? HWND_TOPMOST : HWND_NOTOPMOST, windowRect.left, windowRect.top,
+            windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_FRAMECHANGED | SWP_NOACTIVATE));
 }
 
-void Win32Application::ShowErrorMessage(const LPCWSTR message, const LPCWSTR title)
+void Win32Application::ShowErrorMessage(LPCWSTR const message, LPCWSTR const title)
 {
     EnterErrorMode();
     MessageBoxW(m_hwnd, message, title, MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
     ExitErrorMode();
 }
 
-void Win32Application::EnterErrorMode()
-{
-    ++m_errorModeDepth;
-}
+void Win32Application::EnterErrorMode() { ++m_errorModeDepth; }
 
-void Win32Application::ExitErrorMode()
-{
-    --m_errorModeDepth;
-}
+void Win32Application::ExitErrorMode() { --m_errorModeDepth; }
 
-bool Win32Application::IsInErrorMode()
-{
-    return m_errorModeDepth > 0;
-}
+bool Win32Application::IsInErrorMode() { return m_errorModeDepth > 0; }
 
 // ReSharper disable once CppParameterMayBeConst
-LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
+LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPARAM const wParam, LPARAM const lParam)
 {
-    const auto app = reinterpret_cast<DXApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    auto const app = reinterpret_cast<DXApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
-    auto def = [&]
-    {
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    };
+    auto def = [&] { return DefWindowProc(hWnd, message, wParam, lParam); };
 
     if (IsInErrorMode()) return def();
 
     switch (message)
     {
     case WM_CREATE:
-        {
-            const auto pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-        }
+    {
+        auto const pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+    }
         return 0;
 
-    case WM_MOUSEACTIVATE:
-        return MA_ACTIVATEANDEAT;
+    case WM_MOUSEACTIVATE: return MA_ACTIVATEANDEAT;
 
     case WM_ACTIVATE:
-        {
-            const bool active = LOWORD(wParam) != WA_INACTIVE;
-            if (app)
-            {
-                app->HandleActiveStateChange(active);
-            }
-        }
+    {
+        bool const active = LOWORD(wParam) != WA_INACTIVE;
+        if (app) app->HandleActiveStateChange(active);
+    }
         return 0;
 
     case WM_PAINT:
+    {
+        if (app)
         {
-            if (app)
-            {
-                app->Tick(DXApp::ALLOW_RENDER);
-                ValidateRect(m_hwnd, nullptr);
-            }
+            app->Tick(DXApp::ALLOW_RENDER);
+            ValidateRect(m_hwnd, nullptr);
         }
+    }
         return 0;
 
     case WM_KEYDOWN:
     case WM_KEYUP:
     case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-        if (app)
+    case WM_SYSKEYUP: if (app)
         {
-            WORD vkCode = LOWORD(wParam);
+            WORD vkCode   = LOWORD(wParam);
             WORD keyFlags = HIWORD(lParam);
 
             if (vkCode == VK_LWIN || vkCode == VK_RWIN) return 0;
@@ -230,165 +192,97 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
             WORD scanCode = LOBYTE(keyFlags);
             BOOL extended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
 
-            BOOL up = (keyFlags & KF_UP) == KF_UP;
+            BOOL up  = (keyFlags & KF_UP) == KF_UP;
             BOOL alt = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
 
             switch (vkCode)
             {
-            case VK_SHIFT:
-                vkCode = LOWORD(MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX));
+            case VK_SHIFT: vkCode = LOWORD(MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX));
                 break;
-            case VK_CONTROL:
-                vkCode = extended ? VK_RCONTROL : VK_LCONTROL;
+            case VK_CONTROL: vkCode = extended ? VK_RCONTROL : VK_LCONTROL;
                 break;
-            case VK_MENU:
-                vkCode = extended ? VK_RMENU : VK_LMENU;
+            case VK_MENU: vkCode = extended ? VK_RMENU : VK_LMENU;
                 break;
             default: break;
             }
-            
+
             auto vk = static_cast<UINT8>(vkCode);
 
-            if (up)
-            {
-                app->OnKeyUp(vk);
-            }
-            else
-            {
-                if (!alt)
-                {
-                    app->OnKeyDown(vk);
-                }
-            }
+            if (up) app->OnKeyUp(vk);
+            else { if (!alt) app->OnKeyDown(vk); }
         }
         return 0;
 
-    case WM_LBUTTONDOWN:
-        if (app)
-        {
-            app->OnKeyDown(VK_LBUTTON);
-        }
+    case WM_LBUTTONDOWN: if (app) app->OnKeyDown(VK_LBUTTON);
         return 0;
 
-    case WM_LBUTTONUP:
-        if (app)
-        {
-            app->OnKeyUp(VK_LBUTTON);
-        }
+    case WM_LBUTTONUP: if (app) app->OnKeyUp(VK_LBUTTON);
         return 0;
 
-    case WM_RBUTTONDOWN:
-        if (app)
-        {
-            app->OnKeyDown(VK_RBUTTON);
-        }
+    case WM_RBUTTONDOWN: if (app) app->OnKeyDown(VK_RBUTTON);
         return 0;
 
-    case WM_RBUTTONUP:
-        if (app)
-        {
-            app->OnKeyUp(VK_RBUTTON);
-        }
+    case WM_RBUTTONUP: if (app) app->OnKeyUp(VK_RBUTTON);
         return 0;
 
-    case WM_MBUTTONDOWN:
-        if (app)
-        {
-            app->OnKeyDown(VK_MBUTTON);
-        }
+    case WM_MBUTTONDOWN: if (app) app->OnKeyDown(VK_MBUTTON);
         return 0;
 
-    case WM_MBUTTONUP:
-        if (app)
-        {
-            app->OnKeyUp(VK_MBUTTON);
-        }
+    case WM_MBUTTONUP: if (app) app->OnKeyUp(VK_MBUTTON);
         return 0;
 
-    case WM_XBUTTONDOWN:
-        if (app)
+    case WM_XBUTTONDOWN: if (app)
         {
-            const UINT button = GET_XBUTTON_WPARAM(wParam);
-            
-            if (button == XBUTTON1)
-            {
-                app->OnKeyDown(VK_XBUTTON1);
-            }
-            else if (button == XBUTTON2)
-            {
-                app->OnKeyDown(VK_XBUTTON2);
-            }
+            UINT const button = GET_XBUTTON_WPARAM(wParam);
+
+            if (button == XBUTTON1) app->OnKeyDown(VK_XBUTTON1);
+            else if (button == XBUTTON2) app->OnKeyDown(VK_XBUTTON2);
         }
         return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttondown#return-value
 
-    case WM_XBUTTONUP:
-        if (app)
+    case WM_XBUTTONUP: if (app)
         {
-            const UINT button = GET_XBUTTON_WPARAM(wParam);
-            
-            if (button == XBUTTON1)
-            {
-                app->OnKeyUp(VK_XBUTTON1);
-            }
-            else if (button == XBUTTON2)
-            {
-                app->OnKeyUp(VK_XBUTTON2);
-            }
+            UINT const button = GET_XBUTTON_WPARAM(wParam);
+
+            if (button == XBUTTON1) app->OnKeyUp(VK_XBUTTON1);
+            else if (button == XBUTTON2) app->OnKeyUp(VK_XBUTTON2);
         }
         return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttonup#return-value
 
-    case WM_CHAR:
-        if (app)
-        {
-            app->OnChar(static_cast<UINT16>(wParam));
-        }
+    case WM_CHAR: if (app) app->OnChar(static_cast<UINT16>(wParam));
         return 0;
 
-    case WM_MOUSEWHEEL:
-        if (app)
+    case WM_MOUSEWHEEL: if (app)
         {
-            const double delta = GET_WHEEL_DELTA_WPARAM(wParam);
-            const double zDelta = delta / WHEEL_DELTA;
+            double const delta  = GET_WHEEL_DELTA_WPARAM(wParam);
+            double const zDelta = delta / WHEEL_DELTA;
             app->OnMouseWheel(zDelta);
         }
         return 0;
 
-    case WM_MOUSEMOVE:
-        if (app)
+    case WM_MOUSEMOVE: if (app)
         {
-            const int xPos = GET_X_LPARAM(lParam);
-            const int yPos = GET_Y_LPARAM(lParam);
+            int const xPos = GET_X_LPARAM(lParam);
+            int const yPos = GET_Y_LPARAM(lParam);
             app->OnMouseMove(xPos, yPos);
         }
         return 0;
 
-    case WM_SETCURSOR:
-        if (app)
-        {
+    case WM_SETCURSOR: if (app)
             if (LOWORD(lParam) == HTCLIENT)
             {
                 app->DoCursorSet();
                 return TRUE;
             }
-        }
         return def();
 
-    case WM_ENTERSIZEMOVE:
-        if (app)
-        {
-            app->OnSizeMove(true);
-        }
+    case WM_ENTERSIZEMOVE: if (app) app->OnSizeMove(true);
         return 0;
 
-    case WM_EXITSIZEMOVE:
-        if (app)
-        {
-            app->OnSizeMove(false);
-        }
+    case WM_EXITSIZEMOVE: if (app) app->OnSizeMove(false);
         return 0;
 
-    case WM_SIZE:
-        if (app)
+    case WM_SIZE: if (app)
         {
             RECT windowRect = {};
             TRY_DO(GetWindowRect(hWnd, &windowRect));
@@ -396,26 +290,26 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
 
             RECT clientRect = {};
             TRY_DO(GetClientRect(hWnd, &clientRect));
-            app->HandleSizeChanged(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top,
-                                   wParam == SIZE_MINIMIZED);
+            app->HandleSizeChanged(
+                clientRect.right - clientRect.left,
+                clientRect.bottom - clientRect.top,
+                wParam == SIZE_MINIMIZED);
         }
         return 0;
 
-    case WM_MOVE:
-        if (app)
+    case WM_MOVE: if (app)
         {
             RECT windowRect = {};
             TRY_DO(GetWindowRect(hWnd, &windowRect));
             app->SetWindowBounds(windowRect.left, windowRect.top, windowRect.right, windowRect.bottom);
 
-            const int xPos = static_cast<short>(LOWORD(lParam));
-            const int yPos = static_cast<short>(HIWORD(lParam));
+            int const xPos = static_cast<short>(LOWORD(lParam));
+            int const yPos = static_cast<short>(HIWORD(lParam));
             app->HandleWindowMoved(xPos, yPos);
         }
         return 0;
 
-    case WM_TIMER:
-        if (app)
+    case WM_TIMER: if (app)
         {
             app->OnTimer(static_cast<UINT_PTR>(wParam));
             return 0;
@@ -423,29 +317,21 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, const UINT message, con
         return def();
 
     case WM_GETMINMAXINFO:
-        {
-            const auto minmaxInfo = reinterpret_cast<LPMINMAXINFO>(lParam);
-            minmaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
-            minmaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
-        }
+    {
+        auto const minmaxInfo        = reinterpret_cast<LPMINMAXINFO>(lParam);
+        minmaxInfo->ptMinTrackSize.x = MINIMUM_WINDOW_WIDTH;
+        minmaxInfo->ptMinTrackSize.y = MINIMUM_WINDOW_HEIGHT;
+    }
         return 0;
 
-    case WM_DISPLAYCHANGE:
-        if (app)
-        {
-            app->OnDisplayChanged();
-        }
+    case WM_DISPLAYCHANGE: if (app) app->OnDisplayChanged();
         return 0;
 
-    case WM_CLOSE:
-        if (app && app->CanClose())
-        {
+    case WM_CLOSE: if (app && app->CanClose())
             TRY_DO(DestroyWindow(hWnd));
-        }
         return 0;
 
-    case WM_DESTROY:
-        PostQuitMessage(0);
+    case WM_DESTROY: PostQuitMessage(0);
         return 0;
 
     default: return def();

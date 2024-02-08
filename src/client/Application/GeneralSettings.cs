@@ -124,7 +124,7 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
     public Bindable<float> ScaleOfUI { get; }
 
     /// <summary>
-    /// The color of the crosshair.
+    ///     The color of the crosshair.
     /// </summary>
     public Bindable<Color> CrosshairColor { get; }
 

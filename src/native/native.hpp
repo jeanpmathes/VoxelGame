@@ -18,13 +18,13 @@ using NativeMouseScrollFunc = void(*)(double);
 using NativeResizeFunc = void(*)(UINT, UINT);
 using NativeBoolFunc = void(*)(BOOL);
 using NativeWStringFunc = void(*)(LPCWSTR);
-using NativeErrorFunc = void(*)(HRESULT, const char*);
+using NativeErrorFunc = void(*)(HRESULT, char const*);
 
 enum class ConfigurationOptions : UINT
 {
     ALLOW_TEARING = 1 << 0,
-    SUPPORT_PIX = 1 << 1,
-    USE_GBV = 1 << 2,
+    SUPPORT_PIX   = 1 << 1,
+    USE_GBV       = 1 << 2,
 };
 
 DEFINE_ENUM_FLAG_OPERATORS(ConfigurationOptions)
@@ -39,21 +39,21 @@ struct Configuration
 
     NativeCheckFunc canClose;
 
-    NativeInputFunc onKeyDown;
-    NativeInputFunc onKeyUp;
-    NativeCharFunc onChar;
-    NativeMouseMoveFunc onMouseMove;
+    NativeInputFunc       onKeyDown;
+    NativeInputFunc       onKeyUp;
+    NativeCharFunc        onChar;
+    NativeMouseMoveFunc   onMouseMove;
     NativeMouseScrollFunc onMouseScroll;
 
     NativeResizeFunc onResize;
-    NativeBoolFunc onActiveStateChange;
+    NativeBoolFunc   onActiveStateChange;
 
     D3D12MessageFunc onDebug;
 
-    UINT width;
-    UINT height;
+    UINT   width;
+    UINT   height;
     LPWSTR title;
-    HICON icon;
+    HICON  icon;
 
     FLOAT renderScale;
 

@@ -111,8 +111,8 @@ public class Mouse
     }
 
     /// <summary>
-    /// Pass a mouse move event to the mouse class.
-    /// This will not trigger a call to set the mouse position.
+    ///     Pass a mouse move event to the mouse class.
+    ///     This will not trigger a call to set the mouse position.
     /// </summary>
     internal void OnMouseMove(Vector2i newPosition)
     {
@@ -128,7 +128,7 @@ public class Mouse
     }
 
     /// <summary>
-    /// Set whether the cursor should be locked, i.e. hidden and grabbed.
+    ///     Set whether the cursor should be locked, i.e. hidden and grabbed.
     /// </summary>
     /// <param name="locked">Whether the cursor should be locked.</param>
     public void SetCursorLock(bool locked)

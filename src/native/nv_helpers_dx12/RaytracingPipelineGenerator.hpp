@@ -88,7 +88,7 @@ namespace nv_helpers_dx12
          * \param dxilLibrary The library to add.
          * \param symbolExports The list of exported symbols.
          */
-        void AddLibrary(IDxcBlob* dxilLibrary, const std::vector<std::wstring>& symbolExports);
+        void AddLibrary(IDxcBlob* dxilLibrary, std::vector<std::wstring> const& symbolExports);
 
         /**
          * \brief Add a hit group to the pipeline. The shaders in a hit group share the same root signature, and are only referred to by the hit group name in other places of the program.
@@ -97,10 +97,9 @@ namespace nv_helpers_dx12
          * \param anyHitSymbol The name of the any hit shader, called on each intersection, which can be used to perform early alpha-testing and allow the ray to continue if needed. Default is a pass-through.
          * \param intersectionSymbol The name of the intersection shader, which can be used to intersect custom geometry, and is called upon hitting the bounding box the the object. A default one exists to intersect triangles.
          */
-        void AddHitGroup(const std::wstring& hitGroupName,
-                         const std::wstring& closestHitSymbol,
-                         const std::wstring& anyHitSymbol = L"",
-                         const std::wstring& intersectionSymbol = L"");
+        void AddHitGroup(
+            std::wstring const& hitGroupName, std::wstring const&       closestHitSymbol,
+            std::wstring const& anyHitSymbol = L"", std::wstring const& intersectionSymbol = L"");
 
         /** 
          * \brief Add a root signature association to the pipeline. The root signature can be local or global. Local root signatures are used to override the global ones, and are only visible to the shaders in the same library. Global root signatures are visible to all shaders in the pipeline.
@@ -108,9 +107,8 @@ namespace nv_helpers_dx12
          * \param local Whether the root signature is local or global.
          * \param symbols The list of symbols to associate with the root signature.
          */
-        void AddRootSignatureAssociation(ID3D12RootSignature* rootSignature,
-                                         bool local,
-                                         const std::vector<std::wstring>& symbols);
+        void AddRootSignatureAssociation(
+            ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
 
         /**
          * \brief The payload is the way hit or miss shaders can exchange data with the shader that called TraceRay. When several ray types are used (e.g. primary and shadow rays), this value must be the largest possible payload size. Note that to optimize performance, this size must be kept as low as possible.
@@ -136,7 +134,7 @@ namespace nv_helpers_dx12
          * \return The state object.
          */
         Microsoft::WRL::ComPtr<ID3D12StateObject> Generate(
-            const Microsoft::WRL::ComPtr<ID3D12RootSignature>& globalRootSignature);
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature);
 
     private:
         /**
@@ -144,19 +142,19 @@ namespace nv_helpers_dx12
          */
         struct Library
         {
-            Library(IDxcBlob* dxil, const std::vector<std::wstring>& exportedSymbols);
+            Library(IDxcBlob* dxil, std::vector<std::wstring> const& exportedSymbols);
 
-            Library(const Library& other) = delete;
-            Library& operator=(const Library& other) = delete;
+            Library(Library const& other)            = delete;
+            Library& operator=(Library const& other) = delete;
 
-            Library(Library&& other) = default;
+            Library(Library&& other)            = default;
             Library& operator=(Library&& other) = default;
 
             ~Library() = default;
 
             IDxcBlob* dxil;
 
-            std::vector<std::wstring> exportedSymbols;
+            std::vector<std::wstring>      exportedSymbols;
             std::vector<D3D12_EXPORT_DESC> exports;
 
             D3D12_DXIL_LIBRARY_DESC libDescription;
@@ -167,13 +165,14 @@ namespace nv_helpers_dx12
          */
         struct HitGroup
         {
-            HitGroup(std::wstring hitGroupName, std::wstring closestHitSymbol,
-                     std::wstring anyHitSymbol = L"", std::wstring intersectionSymbol = L"");
+            HitGroup(
+                std::wstring hitGroupName, std::wstring closestHitSymbol, std::wstring anyHitSymbol = L"",
+                std::wstring intersectionSymbol                                                     = L"");
 
-            HitGroup(const HitGroup& other) = delete;
-            HitGroup& operator=(const HitGroup& other) = delete;
+            HitGroup(HitGroup const& other)            = delete;
+            HitGroup& operator=(HitGroup const& other) = delete;
 
-            HitGroup(HitGroup&& other) = default;
+            HitGroup(HitGroup&& other)            = default;
             HitGroup& operator=(HitGroup&& other) = default;
 
             ~HitGroup() = default;
@@ -191,24 +190,23 @@ namespace nv_helpers_dx12
          */
         struct RootSignatureAssociation
         {
-            RootSignatureAssociation(ID3D12RootSignature* rootSignature,
-                                     bool local,
-                                     const std::vector<std::wstring>& symbols);
+            RootSignatureAssociation(
+                ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
 
-            RootSignatureAssociation(const RootSignatureAssociation& other) = delete;
-            RootSignatureAssociation& operator=(const RootSignatureAssociation& other) = delete;
+            RootSignatureAssociation(RootSignatureAssociation const& other)            = delete;
+            RootSignatureAssociation& operator=(RootSignatureAssociation const& other) = delete;
 
-            RootSignatureAssociation(RootSignatureAssociation&& other) = default;
+            RootSignatureAssociation(RootSignatureAssociation&& other)            = default;
             RootSignatureAssociation& operator=(RootSignatureAssociation&& other) = default;
 
             ~RootSignatureAssociation() = default;
 
             Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
             Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignaturePointer;
-            bool local;
-            std::vector<std::wstring> symbols;
-            std::vector<LPCWSTR> symbolPointers;
-            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association = {};
+            bool                                        local;
+            std::vector<std::wstring>                   symbols;
+            std::vector<LPCWSTR>                        symbolPointers;
+            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION      association = {};
         };
 
         /**
@@ -222,15 +220,15 @@ namespace nv_helpers_dx12
          */
         void BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const;
 
-        std::vector<Library> m_libraries = {};
-        std::vector<HitGroup> m_hitGroups = {};
+        std::vector<Library>                  m_libraries                 = {};
+        std::vector<HitGroup>                 m_hitGroups                 = {};
         std::vector<RootSignatureAssociation> m_rootSignatureAssociations = {};
 
-        UINT m_maxPayLoadSizeInBytes = 0;
+        UINT m_maxPayLoadSizeInBytes   = 0;
         UINT m_maxAttributeSizeInBytes = 2 * sizeof(float);
-        UINT m_maxRecursionDepth = 1;
+        UINT m_maxRecursionDepth       = 1;
 
-        Microsoft::WRL::ComPtr<ID3D12Device5> m_device;
+        Microsoft::WRL::ComPtr<ID3D12Device5>       m_device;
         Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
     };
 }

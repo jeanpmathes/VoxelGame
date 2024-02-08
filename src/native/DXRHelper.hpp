@@ -22,22 +22,20 @@
 
 // Compile a HLSL file into a DXIL library.
 inline ComPtr<IDxcBlob> CompileShader(
-    LPCWSTR fileName,
-    const std::wstring& entry, const std::wstring& target,
-    std::function<void(ComPtr<IDxcResult>)> registry,
-    NativeErrorFunc errorCallback)
+    LPCWSTR                                 fileName, std::wstring const& entry, std::wstring const& target,
+    std::function<void(ComPtr<IDxcResult>)> registry, NativeErrorFunc     errorCallback)
 {
-    static ComPtr<IDxcCompiler3> compiler = nullptr;
-    static ComPtr<IDxcUtils> utils = nullptr;
+    static ComPtr<IDxcCompiler3>      compiler = nullptr;
+    static ComPtr<IDxcUtils>          utils    = nullptr;
     static ComPtr<IDxcIncludeHandler> dxcIncludeHandler;
-    
+
     if (!compiler)
     {
         TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
         TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils)));
         TRY_DO(utils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
     }
-    
+
     std::ifstream shaderFile(fileName);
     if (not shaderFile.good())
     {
@@ -59,7 +57,7 @@ inline ComPtr<IDxcBlob> CompileShader(
         .Encoding = DXC_CP_UTF8
     };
 
-    std::vector<LPCWSTR> args;
+    std::vector<LPCWSTR>   args;
     std::vector<DxcDefine> defines;
 
 #if defined(NATIVE_DEBUG) || defined(USE_NSIGHT_AFTERMATH)
@@ -71,18 +69,14 @@ inline ComPtr<IDxcBlob> CompileShader(
 #endif
 
     ComPtr<IDxcCompilerArgs> compilerArgs;
-    TRY_DO(utils->BuildArguments(
-        fileName, entry.c_str(), target.c_str(),
-        args.data(), static_cast<UINT32>(args.size()),
-        defines.data(), static_cast<UINT32>(defines.size()),
-        &compilerArgs));
+    TRY_DO(
+        utils->BuildArguments( fileName, entry.c_str(), target.c_str(), args.data(), static_cast<UINT32>(args.size()),
+            defines.data(), static_cast<UINT32>(defines.size()), &compilerArgs));
 
     ComPtr<IDxcResult> result;
-    TRY_DO(compiler->Compile(
-        &sourceBuffer,
-        compilerArgs->GetArguments(), compilerArgs->GetCount(),
-        dxcIncludeHandler.Get(),
-        IID_PPV_ARGS(&result)));
+    TRY_DO(
+        compiler->Compile( &sourceBuffer, compilerArgs->GetArguments(), compilerArgs->GetCount(), dxcIncludeHandler.Get(
+        ), IID_PPV_ARGS(&result)));
 
     HRESULT resultCode;
     TRY_DO(result->GetStatus(&resultCode));

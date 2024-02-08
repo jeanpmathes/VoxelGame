@@ -159,10 +159,10 @@ namespace D3D12MA
     class D3D12MA_API IUnknownImpl : public IUnknown
     {
     public:
-        virtual ~IUnknownImpl() = default;
+        virtual                   ~IUnknownImpl() = default;
         HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject) override;
-        ULONG STDMETHODCALLTYPE AddRef() override;
-        ULONG STDMETHODCALLTYPE Release() override;
+        ULONG STDMETHODCALLTYPE   AddRef() override;
+        ULONG STDMETHODCALLTYPE   Release() override;
 
     protected:
         virtual void ReleaseThis() { delete this; }
@@ -289,9 +289,7 @@ namespace D3D12MA
         ALLOCATION_FLAG_STRATEGY_FIRST_FIT = ALLOCATION_FLAG_STRATEGY_MIN_TIME,
 
         /// A bit mask to extract only `STRATEGY` bits from entire set of flags.
-        ALLOCATION_FLAG_STRATEGY_MASK =
-        ALLOCATION_FLAG_STRATEGY_MIN_MEMORY |
-        ALLOCATION_FLAG_STRATEGY_MIN_TIME |
+        ALLOCATION_FLAG_STRATEGY_MASK = ALLOCATION_FLAG_STRATEGY_MIN_MEMORY | ALLOCATION_FLAG_STRATEGY_MIN_TIME |
         ALLOCATION_FLAG_STRATEGY_MIN_OFFSET,
     };
 
@@ -575,7 +573,7 @@ namespace D3D12MA
         friend class DefragmentationContextPimpl;
         friend struct CommittedAllocationListItemTraits;
         template <typename T>
-        friend void D3D12MA_DELETE(const ALLOCATION_CALLBACKS&, T*);
+        friend void D3D12MA_DELETE(ALLOCATION_CALLBACKS const&, T*);
         template <typename T>
         friend class PoolAllocator;
 
@@ -588,42 +586,46 @@ namespace D3D12MA
         };
 
         AllocatorPimpl* m_Allocator;
-        UINT64 m_Size;
-        UINT64 m_Alignment;
+        UINT64          m_Size;
+        UINT64          m_Alignment;
         ID3D12Resource* m_Resource;
-        void* m_pPrivateData;
-        wchar_t* m_Name;
+        void*           m_pPrivateData;
+        wchar_t*        m_Name;
 
         union
         {
             struct
             {
                 CommittedAllocationList* list;
-                Allocation* prev;
-                Allocation* next;
-            } m_Committed;
+                Allocation*              prev;
+                Allocation*              next;
+            }                            m_Committed;
 
             struct
             {
-                AllocHandle allocHandle;
+                AllocHandle  allocHandle;
                 NormalBlock* block;
-            } m_Placed;
+            }                m_Placed;
 
             struct
             {
                 // Beginning must be compatible with m_Committed.
                 CommittedAllocationList* list;
-                Allocation* prev;
-                Allocation* next;
-                ID3D12Heap* heap;
-            } m_Heap;
+                Allocation*              prev;
+                Allocation*              next;
+                ID3D12Heap*              heap;
+            }                            m_Heap;
         };
 
         struct PackedData
         {
         public:
-            PackedData() :
-                m_Type(0), m_ResourceDimension(0), m_ResourceFlags(0), m_TextureLayout(0), m_WasZeroInitialized(0)
+            PackedData()
+                : m_Type(0)
+              , m_ResourceDimension(0)
+              , m_ResourceFlags(0)
+              , m_TextureLayout(0)
+              , m_WasZeroInitialized(0)
             {
             }
 
@@ -636,7 +638,7 @@ namespace D3D12MA
 
             D3D12_RESOURCE_FLAGS GetResourceFlags() const { return static_cast<D3D12_RESOURCE_FLAGS>(m_ResourceFlags); }
             D3D12_TEXTURE_LAYOUT GetTextureLayout() const { return static_cast<D3D12_TEXTURE_LAYOUT>(m_TextureLayout); }
-            BOOL WasZeroInitialized() const { return static_cast<BOOL>(m_WasZeroInitialized); }
+            BOOL                 WasZeroInitialized() const { return static_cast<BOOL>(m_WasZeroInitialized); }
 
             void SetType(Type type);
             void SetResourceDimension(D3D12_RESOURCE_DIMENSION resourceDimension);
@@ -645,12 +647,12 @@ namespace D3D12MA
             void SetWasZeroInitialized(BOOL wasZeroInitialized) { m_WasZeroInitialized = wasZeroInitialized ? 1 : 0; }
 
         private:
-            UINT m_Type : 2; // enum Type
-            UINT m_ResourceDimension : 3; // enum D3D12_RESOURCE_DIMENSION
-            UINT m_ResourceFlags : 24; // flags D3D12_RESOURCE_FLAGS
-            UINT m_TextureLayout : 9; // enum D3D12_TEXTURE_LAYOUT
-            UINT m_WasZeroInitialized : 1; // BOOL
-        } m_PackedData;
+            UINT m_Type               : 2;  // enum Type
+            UINT m_ResourceDimension  : 3;  // enum D3D12_RESOURCE_DIMENSION
+            UINT m_ResourceFlags      : 24; // flags D3D12_RESOURCE_FLAGS
+            UINT m_TextureLayout      : 9;  // enum D3D12_TEXTURE_LAYOUT
+            UINT m_WasZeroInitialized : 1;  // BOOL
+        }        m_PackedData;
 
         Allocation(AllocatorPimpl* allocator, UINT64 size, UINT64 alignment, BOOL wasZeroInitialized);
         //  Nothing here, everything already done in Release.
@@ -661,10 +663,10 @@ namespace D3D12MA
         void InitHeap(CommittedAllocationList* list, ID3D12Heap* heap);
         void SwapBlockAllocation(Allocation* allocation);
         // If the Allocation represents committed resource with implicit heap, returns UINT64_MAX.
-        AllocHandle GetAllocHandle() const;
+        AllocHandle  GetAllocHandle() const;
         NormalBlock* GetBlock();
         template <typename D3D12_RESOURCE_DESC_T>
-        void SetResourcePointer(ID3D12Resource* resource, const D3D12_RESOURCE_DESC_T* pResourceDesc);
+        void SetResourcePointer(ID3D12Resource* resource, D3D12_RESOURCE_DESC_T const* pResourceDesc);
         void FreeName();
 
         D3D12MA_CLASS_NO_COPY(Allocation)
@@ -688,10 +690,8 @@ namespace D3D12MA
         DEFRAGMENTATION_FLAG_ALGORITHM_FULL = 0x4,
 
         /// A bit mask to extract only `ALGORITHM` bits from entire set of flags.
-        DEFRAGMENTATION_FLAG_ALGORITHM_MASK =
-        DEFRAGMENTATION_FLAG_ALGORITHM_FAST |
-        DEFRAGMENTATION_FLAG_ALGORITHM_BALANCED |
-        DEFRAGMENTATION_FLAG_ALGORITHM_FULL
+        DEFRAGMENTATION_FLAG_ALGORITHM_MASK = DEFRAGMENTATION_FLAG_ALGORITHM_FAST |
+        DEFRAGMENTATION_FLAG_ALGORITHM_BALANCED | DEFRAGMENTATION_FLAG_ALGORITHM_FULL
     };
 
     /** \brief Parameters for defragmentation.
@@ -835,13 +835,11 @@ namespace D3D12MA
         friend class Pool;
         friend class Allocator;
         template <typename T>
-        friend void D3D12MA_DELETE(const ALLOCATION_CALLBACKS&, T*);
+        friend void D3D12MA_DELETE(ALLOCATION_CALLBACKS const&, T*);
 
         DefragmentationContextPimpl* m_Pimpl;
 
-        DefragmentationContext(AllocatorPimpl* allocator,
-                               const DEFRAGMENTATION_DESC& desc,
-                               BlockVector* poolVector);
+        DefragmentationContext(AllocatorPimpl* allocator, DEFRAGMENTATION_DESC const& desc, BlockVector* poolVector);
         ~DefragmentationContext() override;
 
         D3D12MA_CLASS_NO_COPY(DefragmentationContext)
@@ -1013,7 +1011,7 @@ namespace D3D12MA
         For more information about defragmentation, see documentation chapter:
         [Defragmentation](@ref defragmentation).
         */
-        HRESULT BeginDefragmentation(const DEFRAGMENTATION_DESC* pDesc, DefragmentationContext** ppContext);
+        HRESULT BeginDefragmentation(DEFRAGMENTATION_DESC const* pDesc, DefragmentationContext** ppContext);
 
     protected:
         void ReleaseThis() override;
@@ -1022,11 +1020,11 @@ namespace D3D12MA
         friend class Allocator;
         friend class AllocatorPimpl;
         template <typename T>
-        friend void D3D12MA_DELETE(const ALLOCATION_CALLBACKS&, T*);
+        friend void D3D12MA_DELETE(ALLOCATION_CALLBACKS const&, T*);
 
         PoolPimpl* m_Pimpl;
 
-        Pool(Allocator* allocator, const POOL_DESC& desc);
+        Pool(Allocator* allocator, POOL_DESC const& desc);
         ~Pool() override;
 
         D3D12MA_CLASS_NO_COPY(Pool)
@@ -1101,7 +1099,7 @@ namespace D3D12MA
     
         Optional, can be null. When specified, will be used for all CPU-side memory allocations.
         */
-        const ALLOCATION_CALLBACKS* pAllocationCallbacks;
+        ALLOCATION_CALLBACKS const* pAllocationCallbacks;
 
         /** DXGI Adapter object that you use for D3D12 and this allocator.
     
@@ -1123,7 +1121,7 @@ namespace D3D12MA
     {
     public:
         /// Returns cached options retrieved from D3D12 device.
-        const D3D12_FEATURE_DATA_D3D12_OPTIONS& GetD3D12Options() const;
+        D3D12_FEATURE_DATA_D3D12_OPTIONS const& GetD3D12Options() const;
         /** \brief Returns true if `D3D12_FEATURE_DATA_ARCHITECTURE1::UMA` was found to be true.
         
         For more information about how to use it, see articles in Microsoft Docs articles:
@@ -1189,13 +1187,9 @@ namespace D3D12MA
         by the user as a higher-level logic on top of it, e.g. using the \ref virtual_allocator feature.
         */
         HRESULT CreateResource(
-            const ALLOCATION_DESC* pAllocDesc,
-            const D3D12_RESOURCE_DESC* pResourceDesc,
-            D3D12_RESOURCE_STATES InitialResourceState,
-            const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-            Allocation** ppAllocation,
-            REFIID riidResource,
-            void** ppvResource);
+            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC const*         pResourceDesc,
+            D3D12_RESOURCE_STATES  InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            Allocation**           ppAllocation, REFIID                           riidResource, void** ppvResource);
 
 #ifdef __ID3D12Device8_INTERFACE_DEFINED__
         /** \brief Similar to Allocator::CreateResource, but supports new structure `D3D12_RESOURCE_DESC1`.
@@ -1205,13 +1199,9 @@ namespace D3D12MA
         To work correctly, `ID3D12Device8` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
         HRESULT CreateResource2(
-            const ALLOCATION_DESC* pAllocDesc,
-            const D3D12_RESOURCE_DESC1* pResourceDesc,
-            D3D12_RESOURCE_STATES InitialResourceState,
-            const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-            Allocation** ppAllocation,
-            REFIID riidResource,
-            void** ppvResource);
+            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC1 const*        pResourceDesc,
+            D3D12_RESOURCE_STATES  InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            Allocation**           ppAllocation, REFIID                           riidResource, void** ppvResource);
 #endif // #ifdef __ID3D12Device8_INTERFACE_DEFINED__
 
 #ifdef __ID3D12Device10_INTERFACE_DEFINED__
@@ -1222,15 +1212,11 @@ namespace D3D12MA
     
         To work correctly, `ID3D12Device10` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
-        HRESULT CreateResource3(const ALLOCATION_DESC* pAllocDesc,
-                                const D3D12_RESOURCE_DESC1* pResourceDesc,
-                                D3D12_BARRIER_LAYOUT InitialLayout,
-                                const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-                                UINT32 NumCastableFormats,
-                                DXGI_FORMAT* pCastableFormats,
-                                Allocation** ppAllocation,
-                                REFIID riidResource,
-                                void** ppvResource);
+        HRESULT CreateResource3(
+            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_BARRIER_LAYOUT InitialLayout, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            UINT32 NumCastableFormats, DXGI_FORMAT* pCastableFormats, Allocation** ppAllocation, REFIID riidResource,
+            void** ppvResource);
 #endif  // #ifdef __ID3D12Device10_INTERFACE_DEFINED__
 
         /** \brief Allocates memory without creating any resource placed in it.
@@ -1253,9 +1239,8 @@ namespace D3D12MA
         a heap that always has offset 0.
         */
         HRESULT AllocateMemory(
-            const ALLOCATION_DESC* pAllocDesc,
-            const D3D12_RESOURCE_ALLOCATION_INFO* pAllocInfo,
-            Allocation** ppAllocation);
+            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_ALLOCATION_INFO const* pAllocInfo,
+            Allocation**           ppAllocation);
 
         /** \brief Creates a new resource in place of an existing allocation. This is useful for memory aliasing.
     
@@ -1280,13 +1265,9 @@ namespace D3D12MA
         returns `E_INVALIDARG`.
         */
         HRESULT CreateAliasingResource(
-            Allocation* pAllocation,
-            UINT64 AllocationLocalOffset,
-            const D3D12_RESOURCE_DESC* pResourceDesc,
-            D3D12_RESOURCE_STATES InitialResourceState,
-            const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-            REFIID riidResource,
-            void** ppvResource);
+            Allocation*           pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC const* pResourceDesc,
+            D3D12_RESOURCE_STATES InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            REFIID                riidResource, void** ppvResource);
 
 #ifdef __ID3D12Device8_INTERFACE_DEFINED__
         /** \brief Similar to Allocator::CreateAliasingResource, but supports new structure `D3D12_RESOURCE_DESC1`.
@@ -1295,13 +1276,10 @@ namespace D3D12MA
     
         To work correctly, `ID3D12Device8` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
-        HRESULT CreateAliasingResource1(Allocation* pAllocation,
-                                        UINT64 AllocationLocalOffset,
-                                        const D3D12_RESOURCE_DESC1* pResourceDesc,
-                                        D3D12_RESOURCE_STATES InitialResourceState,
-                                        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-                                        REFIID riidResource,
-                                        void** ppvResource);
+        HRESULT CreateAliasingResource1(
+            Allocation*           pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_RESOURCE_STATES InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            REFIID                riidResource, void** ppvResource);
 #endif // #ifdef __ID3D12Device8_INTERFACE_DEFINED__
 
 #ifdef __ID3D12Device10_INTERFACE_DEFINED__
@@ -1312,22 +1290,15 @@ namespace D3D12MA
     
         To work correctly, `ID3D12Device10` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
-        HRESULT CreateAliasingResource2(Allocation* pAllocation,
-                                        UINT64 AllocationLocalOffset,
-                                        const D3D12_RESOURCE_DESC1* pResourceDesc,
-                                        D3D12_BARRIER_LAYOUT InitialLayout,
-                                        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
-                                        UINT32 NumCastableFormats,
-                                        DXGI_FORMAT* pCastableFormats,
-                                        REFIID riidResource,
-                                        void** ppvResource);
+        HRESULT CreateAliasingResource2(
+            Allocation* pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_BARRIER_LAYOUT InitialLayout, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
+            UINT32 NumCastableFormats, DXGI_FORMAT* pCastableFormats, REFIID riidResource, void** ppvResource);
 #endif  // #ifdef __ID3D12Device10_INTERFACE_DEFINED__
 
         /** \brief Creates custom pool.
         */
-        HRESULT CreatePool(
-            const POOL_DESC* pPoolDesc,
-            Pool** ppPool);
+        HRESULT CreatePool(POOL_DESC const* pPoolDesc, Pool** ppPool);
 
         /** \brief Sets the index of the current frame.
     
@@ -1386,19 +1357,19 @@ namespace D3D12MA
         For more information about defragmentation, see documentation chapter:
         [Defragmentation](@ref defragmentation).
         */
-        void BeginDefragmentation(const DEFRAGMENTATION_DESC* pDesc, DefragmentationContext** ppContext);
+        void BeginDefragmentation(DEFRAGMENTATION_DESC const* pDesc, DefragmentationContext** ppContext);
 
     protected:
         void ReleaseThis() override;
 
     private:
-        friend D3D12MA_API HRESULT CreateAllocator(const ALLOCATOR_DESC*, Allocator**);
+        friend D3D12MA_API HRESULT CreateAllocator(ALLOCATOR_DESC const*, Allocator**);
         template <typename T>
-        friend void D3D12MA_DELETE(const ALLOCATION_CALLBACKS&, T*);
+        friend void D3D12MA_DELETE(ALLOCATION_CALLBACKS const&, T*);
         friend class DefragmentationContext;
         friend class Pool;
 
-        Allocator(const ALLOCATION_CALLBACKS& allocationCallbacks, const ALLOCATOR_DESC& desc);
+        Allocator(ALLOCATION_CALLBACKS const& allocationCallbacks, ALLOCATOR_DESC const& desc);
         ~Allocator() override;
 
         AllocatorPimpl* m_Pimpl;
@@ -1445,7 +1416,7 @@ namespace D3D12MA
     
         Optional, can be null. When specified, will be used for all CPU-side memory allocations.
         */
-        const ALLOCATION_CALLBACKS* pAllocationCallbacks;
+        ALLOCATION_CALLBACKS const* pAllocationCallbacks;
     };
 
     /// \brief Bit flags to be used with VIRTUAL_ALLOCATION_DESC::Flags.
@@ -1543,7 +1514,7 @@ namespace D3D12MA
     
         If the allocation failed, `pAllocation->AllocHandle` is set to 0 and `pOffset`, if not null, is set to `UINT64_MAX`.
         */
-        HRESULT Allocate(const VIRTUAL_ALLOCATION_DESC* pDesc, VirtualAllocation* pAllocation, UINT64* pOffset);
+        HRESULT Allocate(VIRTUAL_ALLOCATION_DESC const* pDesc, VirtualAllocation* pAllocation, UINT64* pOffset);
         /** \brief Frees the allocation.
         
         Calling this function with `allocation.AllocHandle == 0` is correct and does nothing.
@@ -1579,13 +1550,13 @@ namespace D3D12MA
         void ReleaseThis() override;
 
     private:
-        friend D3D12MA_API HRESULT CreateVirtualBlock(const VIRTUAL_BLOCK_DESC*, VirtualBlock**);
+        friend D3D12MA_API HRESULT CreateVirtualBlock(VIRTUAL_BLOCK_DESC const*, VirtualBlock**);
         template <typename T>
-        friend void D3D12MA_DELETE(const ALLOCATION_CALLBACKS&, T*);
+        friend void D3D12MA_DELETE(ALLOCATION_CALLBACKS const&, T*);
 
         VirtualBlockPimpl* m_Pimpl;
 
-        VirtualBlock(const ALLOCATION_CALLBACKS& allocationCallbacks, const VIRTUAL_BLOCK_DESC& desc);
+        VirtualBlock(ALLOCATION_CALLBACKS const& allocationCallbacks, VIRTUAL_BLOCK_DESC const& desc);
         ~VirtualBlock() override;
 
         D3D12MA_CLASS_NO_COPY(VirtualBlock)
@@ -1596,13 +1567,13 @@ namespace D3D12MA
     
     You normally only need to call it once and keep a single Allocator object for your `ID3D12Device`.
     */
-    D3D12MA_API HRESULT CreateAllocator(const ALLOCATOR_DESC* pDesc, Allocator** ppAllocator);
+    D3D12MA_API HRESULT CreateAllocator(ALLOCATOR_DESC const* pDesc, Allocator** ppAllocator);
 
     /** \brief Creates new D3D12MA::VirtualBlock object and returns it through `ppVirtualBlock`.
     
     Note you don't need to create D3D12MA::Allocator to use virtual blocks.
     */
-    D3D12MA_API HRESULT CreateVirtualBlock(const VIRTUAL_BLOCK_DESC* pDesc, VirtualBlock** ppVirtualBlock);
+    D3D12MA_API HRESULT CreateVirtualBlock(VIRTUAL_BLOCK_DESC const* pDesc, VirtualBlock** ppVirtualBlock);
 } // namespace D3D12MA
 
 /// \cond INTERNAL

@@ -47,8 +47,8 @@ public class GameUserInterface : UserInterface
     public ConsoleInterface? Console => control?.Console;
 
     /// <summary>
-    /// Toggle whether the UI is hidden.
-    /// An active UI will not drawn when hidden.
+    ///     Toggle whether the UI is hidden.
+    ///     An active UI will not drawn when hidden.
     /// </summary>
     public void ToggleHidden()
     {
@@ -58,8 +58,8 @@ public class GameUserInterface : UserInterface
     }
 
     /// <summary>
-    /// Set whether the UI is active.
-    /// If the UI is not active, it will not be drawn.
+    ///     Set whether the UI is active.
+    ///     If the UI is not active, it will not be drawn.
     /// </summary>
     /// <param name="active">Whether the UI is active.</param>
     public void SetActive(bool active)

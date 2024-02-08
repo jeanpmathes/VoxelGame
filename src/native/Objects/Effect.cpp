@@ -1,13 +1,14 @@
 ﻿#include "stdafx.h"
 
-Effect::Effect(NativeClient& client) : Drawable(client)
+Effect::Effect(NativeClient& client)
+    : Drawable(client)
 {
     m_instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
-    m_instanceDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
+    m_instanceDataBuffer            = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceDataBuffer);
 
     m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.GetGPUVirtualAddress();
-    m_instanceDataBufferView.SizeInBytes = static_cast<UINT>(m_instanceDataBufferAlignedSize);
+    m_instanceDataBufferView.SizeInBytes    = static_cast<UINT>(m_instanceDataBufferAlignedSize);
 
     TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
 
@@ -24,8 +25,8 @@ void Effect::Initialize(RasterPipeline& pipeline)
 
 void Effect::Update()
 {
-    const DirectX::XMMATRIX m = XMLoadFloat4x4(&GetTransform());
-    const DirectX::XMMATRIX vp = XMLoadFloat4x4(&GetClient().GetSpace()->GetCamera()->GetViewProjectionMatrix());
+    DirectX::XMMATRIX const m  = XMLoadFloat4x4(&GetTransform());
+    DirectX::XMMATRIX const vp = XMLoadFloat4x4(&GetClient().GetSpace()->GetCamera()->GetViewProjectionMatrix());
 
     DirectX::XMFLOAT4X4 mvp;
     XMStoreFloat4x4(&mvp, XMMatrixTranspose(m * vp));
@@ -33,39 +34,42 @@ void Effect::Update()
     m_instanceConstantBufferMapping.Write({mvp});
 }
 
-void Effect::SetNewVertices(const EffectVertex* vertices, const UINT vertexCount)
+void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount)
 {
-    if (const bool uploadRequired = HandleModification(vertexCount); !uploadRequired) return;
+    if (bool const uploadRequired = HandleModification(vertexCount);
+        !uploadRequired)
+        return;
 
-    const auto vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
-    util::ReAllocateBuffer(&GetUploadDataBuffer(),
-                           GetClient(), vertexBufferSize,
-                           D3D12_RESOURCE_FLAG_NONE,
-                           D3D12_RESOURCE_STATE_GENERIC_READ,
-                           D3D12_HEAP_TYPE_UPLOAD);
+    auto const vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
+    util::ReAllocateBuffer(
+        &GetUploadDataBuffer(),
+        GetClient(),
+        vertexBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
 
-void Effect::Draw(const ComPtr<ID3D12GraphicsCommandList4>& commandList) const
+void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
 {
     PIXScopedEvent(commandList.Get(), PIX_COLOR_DEFAULT, m_pipeline->GetName());
-    
+
     m_pipeline->SetPipeline(commandList);
     m_pipeline->BindResources(commandList);
 
-    m_pipeline->CreateConstantBufferView(m_pipeline->GetBindings().SpatialEffect().instanceData, 0,
-                                         &m_instanceDataBufferView);
+    m_pipeline->CreateConstantBufferView(
+        m_pipeline->GetBindings().SpatialEffect().instanceData,
+        0,
+        &m_instanceDataBufferView);
 
     commandList->IASetVertexBuffers(0, 1, &m_geometryVBV);
     commandList->DrawInstanced(GetDataElementCount(), 1, 0, 0);
 }
 
-void Effect::Accept(Visitor& visitor)
-{
-    visitor.Visit(*this);
-}
+void Effect::Accept(Visitor& visitor) { visitor.Visit(*this); }
 
 void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
@@ -75,11 +79,12 @@ void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
         return;
     }
 
-    const auto geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
+    auto const geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
     util::ReAllocateBuffer(
         &m_geometryBuffer,
-        GetClient(), geometryBufferSize,
+        GetClient(),
+        geometryBufferSize,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_HEAP_TYPE_DEFAULT);
@@ -87,13 +92,15 @@ void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 
     commandList->CopyBufferRegion(m_geometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 
-    const D3D12_RESOURCE_BARRIER transitionCopyDestToShaderResource = {
-        CD3DX12_RESOURCE_BARRIER::Transition(m_geometryBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+    D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_geometryBuffer.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
     commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
 
-    m_geometryVBV.SizeInBytes = static_cast<UINT>(geometryBufferSize);
+    m_geometryVBV.SizeInBytes    = static_cast<UINT>(geometryBufferSize);
     m_geometryVBV.BufferLocation = m_geometryBuffer.GetGPUVirtualAddress();
 }
 

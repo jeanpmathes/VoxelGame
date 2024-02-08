@@ -70,9 +70,9 @@ public sealed class SectionMeshData : IDisposable
 
     /// <summary>
     ///     The basic mesh data.
-    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple"/>,
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex"/>, and
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight"/> meshables.
+    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />,
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex" />, and
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight" /> meshables.
     /// </summary>
     public (IMeshing opaque, IMeshing transparent) BasicMeshing { get; }
 

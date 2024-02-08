@@ -34,7 +34,7 @@ namespace native
 
         ConstantBuffer<Time> time : register(b0, space1);
 
-        Texture2D texture[] : register(t0);
+        Texture2D    texture[] : register(t0);
         SamplerState sampler : register(s0);
     }
 }

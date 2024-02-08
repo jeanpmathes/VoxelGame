@@ -11,7 +11,7 @@
  */
 struct Resolution
 {
-    UINT width = 0;
+    UINT width  = 0;
     UINT height = 0;
 
     Resolution operator*(float scale) const;
@@ -23,13 +23,13 @@ struct Resolution
 struct RasterInfo
 {
     CD3DX12_VIEWPORT viewport{0.0f, 0.0f, 0.0f, 0.0f};
-    CD3DX12_RECT scissorRect{0, 0, 0, 0};
+    CD3DX12_RECT     scissorRect{0, 0, 0, 0};
 
     void Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 };
 
-bool operator==(const Resolution& lhs, const Resolution& rhs);
-bool operator!=(const Resolution& lhs, const Resolution& rhs);
+bool operator==(Resolution const& lhs, Resolution const& rhs);
+bool operator!=(Resolution const& lhs, Resolution const& rhs);
 
 inline constexpr UINT FRAME_COUNT = 2;
 
@@ -44,14 +44,14 @@ std::wstring GetObjectName(ComPtr<ID3D12Object> object);
  * \param object The object to name.
  * \param name The name to set.
  */
-void SetObjectName(ComPtr<ID3D12Object> object, const std::wstring& name);
+void SetObjectName(ComPtr<ID3D12Object> object, std::wstring const& name);
 
 /**
  * A group of command allocators and a command list.
  */
 struct CommandAllocatorGroup
 {
-    ComPtr<ID3D12CommandAllocator> commandAllocators[FRAME_COUNT];
+    ComPtr<ID3D12CommandAllocator>     commandAllocators[FRAME_COUNT];
     ComPtr<ID3D12GraphicsCommandList4> commandList;
 
     static void Initialize(ComPtr<ID3D12Device> device, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE type);
@@ -73,7 +73,7 @@ private:
         NAME_D3D12_OBJECT((group)->commandList); \
     } while (false)
 
-inline DirectX::XMMATRIX XMMatrixToNormal(const DirectX::XMMATRIX& matrix)
+inline DirectX::XMMATRIX XMMatrixToNormal(DirectX::XMMATRIX const& matrix)
 {
     DirectX::XMMATRIX upper = matrix;
 

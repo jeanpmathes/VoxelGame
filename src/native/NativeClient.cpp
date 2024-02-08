@@ -6,37 +6,25 @@
 
 #include "stdafx.h"
 
-constexpr float NativeClient::CLEAR_COLOR[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+constexpr float NativeClient::CLEAR_COLOR[4]     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-const UINT NativeClient::AGILITY_SDK_VERSION = 611;
-const LPCSTR NativeClient::AGILITY_SDK_PATH = ".\\D3D12\\";
+UINT const   NativeClient::AGILITY_SDK_VERSION = 611;
+LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
-NativeClient::NativeClient(const Configuration& configuration) :
-    DXApp(configuration),
-    m_resolution(Resolution(configuration.width, configuration.height) * configuration.renderScale),
-    m_debugCallback(configuration.onDebug),
-    m_space(std::make_unique<Space>(*this)),
-    m_frameIndex(0),
-    m_fenceValues{},
-    m_windowVisible(true),
-    m_windowedMode(true)
-{
-    if (SupportPIX() && !PIXIsAttachedForGpuCapture())
-    {
-        PIXLoadLatestWinPixGpuCapturerLibrary();
-    }
-}
+NativeClient::NativeClient(Configuration const& configuration)
+    : DXApp(configuration)
+  , m_resolution(Resolution(configuration.width, configuration.height) * configuration.renderScale)
+  , m_debugCallback(configuration.onDebug)
+  , m_space(std::make_unique<Space>(*this))
+  , m_frameIndex(0)
+  , m_fenceValues{}
+  , m_windowVisible(true)
+  , m_windowedMode(true) { if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary(); }
 
-ComPtr<ID3D12Device5> NativeClient::GetDevice() const
-{
-    return m_device;
-}
+ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return m_device; }
 
-ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const
-{
-    return m_allocator;
-}
+ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return m_allocator; }
 
 void NativeClient::OnInit()
 {
@@ -50,9 +38,7 @@ void NativeClient::OnInit()
 
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         if (m_fenceEvent == nullptr)
-        {
             TRY_DO(HRESULT_FROM_WIN32(GetLastError()));
-        }
     }
 
     m_space->PerformInitialSetupStepOne(m_commandQueue);
@@ -80,7 +66,7 @@ void NativeClient::LoadDevice()
 #if defined(NATIVE_DEBUG)
     constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #else
-    constexpr UINT dxgiFactoryFlags = 0;    
+    constexpr UINT dxgiFactoryFlags = 0;
 #endif
 
     ComPtr<IDXGIFactory4> dxgiFactory;
@@ -118,26 +104,16 @@ void NativeClient::LoadDevice()
     m_gpuCrashTracker.Initialize();
 #endif
 
-    TRY_DO(deviceFactory->CreateDevice(
-        hardwareAdapter.Get(),
-        D3D_FEATURE_LEVEL_12_2,
-        IID_PPV_ARGS(&m_device)
-    ));
+    TRY_DO(deviceFactory->CreateDevice( hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_device) ));
     NAME_D3D12_OBJECT(m_device);
 
-    
-
 #if defined(USE_NSIGHT_AFTERMATH)
-    constexpr uint32_t aftermathFlags
-        = GFSDK_Aftermath_FeatureFlags_EnableMarkers
-        | GFSDK_Aftermath_FeatureFlags_EnableResourceTracking
-        | GFSDK_Aftermath_FeatureFlags_CallStackCapturing
-        | GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
+    constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers |
+        GFSDK_Aftermath_FeatureFlags_EnableResourceTracking | GFSDK_Aftermath_FeatureFlags_CallStackCapturing |
+        GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
 
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_Initialize(
-        GFSDK_Aftermath_Version_API,
-        aftermathFlags,
-        m_device.Get()));
+    AFTERMATH_CHECK_ERROR(
+        GFSDK_Aftermath_DX12_Initialize( GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
 #endif
 
 #if defined(NATIVE_DEBUG)
@@ -185,40 +161,35 @@ void NativeClient::LoadDevice()
 #endif
 
     D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
-    allocatorDesc.pDevice = m_device.Get();
-    allocatorDesc.pAdapter = hardwareAdapter.Get();
+    allocatorDesc.pDevice                 = m_device.Get();
+    allocatorDesc.pAdapter                = hardwareAdapter.Get();
 
     TRY_DO(D3D12MA::CreateAllocator(&allocatorDesc, &m_allocator));
 
     CheckRaytracingSupport();
 
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    queueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
     TRY_DO(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
     NAME_D3D12_OBJECT(m_commandQueue);
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-    swapChainDesc.BufferCount = FRAME_COUNT;
-    swapChainDesc.Width = GetWidth();
-    swapChainDesc.Height = GetHeight();
-    swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.SampleDesc.Count = 1;
+    swapChainDesc.BufferCount           = FRAME_COUNT;
+    swapChainDesc.Width                 = GetWidth();
+    swapChainDesc.Height                = GetHeight();
+    swapChainDesc.Format                = DXGI_FORMAT_B8G8R8A8_UNORM;
+    swapChainDesc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.SampleDesc.Count      = 1;
 
     swapChainDesc.Flags = IsTearingSupportEnabled() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
     ComPtr<IDXGISwapChain1> swapChain;
-    TRY_DO(dxgiFactory->CreateSwapChainForHwnd(
-        m_commandQueue.Get(),
-        Win32Application::GetHwnd(),
-        &swapChainDesc,
-        nullptr,
-        nullptr,
-        &swapChain
-    ));
+    TRY_DO(
+        dxgiFactory->CreateSwapChainForHwnd( m_commandQueue.Get(), Win32Application::GetHwnd(), &swapChainDesc, nullptr,
+            nullptr, &swapChain ));
 
     TRY_DO(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
 
@@ -226,22 +197,19 @@ void NativeClient::LoadDevice()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     {
-        m_rtvHeap.Create(m_device, FRAME_COUNT + 1,
-                         D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+        m_rtvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
         NAME_D3D12_OBJECT(m_rtvHeap);
     }
 
     {
-        m_dsvHeap.Create(m_device, FRAME_COUNT + 1,
-                         D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+        m_dsvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
         NAME_D3D12_OBJECT(m_dsvHeap);
     }
 }
 
 void NativeClient::LoadRasterPipeline()
 {
-    constexpr PostVertex quadVertices[] =
-    {
+    constexpr PostVertex quadVertices[] = {
         {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
         {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
         {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
@@ -249,16 +217,19 @@ void NativeClient::LoadRasterPipeline()
     };
 
     constexpr UINT vertexBufferSize = sizeof quadVertices;
-    m_postVertexBuffer = util::AllocateBuffer(*this, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE,
-                                              D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT);
+    m_postVertexBuffer              = util::AllocateBuffer(
+        *this,
+        vertexBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_COMMON,
+        D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT(m_postVertexBuffer);
 
-    m_uploader->UploadBuffer(reinterpret_cast<const std::byte*>(&quadVertices), vertexBufferSize,
-                             m_postVertexBuffer);
+    m_uploader->UploadBuffer(reinterpret_cast<std::byte const*>(&quadVertices), vertexBufferSize, m_postVertexBuffer);
 
     m_postVertexBufferView.BufferLocation = m_postVertexBuffer.GetGPUVirtualAddress();
-    m_postVertexBufferView.StrideInBytes = sizeof(PostVertex);
-    m_postVertexBufferView.SizeInBytes = vertexBufferSize;
+    m_postVertexBufferView.StrideInBytes  = sizeof(PostVertex);
+    m_postVertexBufferView.SizeInBytes    = vertexBufferSize;
 
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_uploadGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_2dGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -270,11 +241,13 @@ void NativeClient::CreateFinalDepthBuffers()
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         DXGI_FORMAT_D32_FLOAT,
-        GetWidth(), GetHeight(),
-        1, 1);
+        GetWidth(),
+        GetHeight(),
+        1,
+        1);
     depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
+    CD3DX12_CLEAR_VALUE const depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
     for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
     {
@@ -288,25 +261,23 @@ void NativeClient::CreateFinalDepthBuffers()
     }
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+    dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
     for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
-    {
-        m_device->CreateDepthStencilView(m_finalDepthStencilBuffers[frameIndex].Get(), &dsvDesc,
-                                         m_dsvHeap.GetDescriptorHandleCPU(frameIndex));
-    }
+        m_device->CreateDepthStencilView(
+            m_finalDepthStencilBuffers[frameIndex].Get(),
+            &dsvDesc,
+            m_dsvHeap.GetDescriptorHandleCPU(frameIndex));
 }
 
-void NativeClient::EnsureValidDepthBuffers(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> const commandList)
 {
     if (!m_finalDepthStencilBuffersInitialized)
     {
         for (UINT frame = 0; frame < FRAME_COUNT; frame++)
-        {
             commandList->DiscardResource(m_finalDepthStencilBuffers[frame].Get(), nullptr);
-        }
 
         m_finalDepthStencilBuffersInitialized = true;
     }
@@ -324,7 +295,7 @@ void NativeClient::CreateScreenShotBuffers()
 
     for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
     {
-        const UINT64 size = GetRequiredIntermediateSize(m_finalRenderTargets[frameIndex].Get(), 0, 1);
+        UINT64 const        size = GetRequiredIntermediateSize(m_finalRenderTargets[frameIndex].Get(), 0, 1);
         D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         m_screenshotBuffers[frameIndex] = util::AllocateResource<ID3D12Resource>(
@@ -342,9 +313,7 @@ void NativeClient::EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4
     m_screenshotBuffersInitialized = true;
 
     for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
-    {
         commandList->DiscardResource(m_screenshotBuffers[frameIndex].Get(), nullptr);
-    }
 }
 
 void NativeClient::SetupSizeDependentResources()
@@ -352,10 +321,10 @@ void NativeClient::SetupSizeDependentResources()
     UpdatePostViewAndScissor();
 
     {
-        m_draw2dViewport.viewport.Width = static_cast<float>(GetWidth());
+        m_draw2dViewport.viewport.Width  = static_cast<float>(GetWidth());
         m_draw2dViewport.viewport.Height = static_cast<float>(GetHeight());
 
-        m_draw2dViewport.scissorRect.right = static_cast<LONG>(GetWidth());
+        m_draw2dViewport.scissorRect.right  = static_cast<LONG>(GetWidth());
         m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(GetHeight());
     }
 
@@ -363,8 +332,10 @@ void NativeClient::SetupSizeDependentResources()
         for (UINT n = 0; n < FRAME_COUNT; n++)
         {
             TRY_DO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
-            m_device->CreateRenderTargetView(m_finalRenderTargets[n].Get(), nullptr,
-                                             m_rtvHeap.GetDescriptorHandleCPU(n));
+            m_device->CreateRenderTargetView(
+                m_finalRenderTargets[n].Get(),
+                nullptr,
+                m_rtvHeap.GetDescriptorHandleCPU(n));
 
             NAME_D3D12_OBJECT_INDEXED(m_finalRenderTargets, n);
         }
@@ -377,28 +348,30 @@ void NativeClient::SetupSizeDependentResources()
 void NativeClient::SetupSpaceResolutionDependentResources()
 {
     {
-        m_spaceViewport.viewport.Width = static_cast<float>(m_resolution.width);
+        m_spaceViewport.viewport.Width  = static_cast<float>(m_resolution.width);
         m_spaceViewport.viewport.Height = static_cast<float>(m_resolution.height);
 
-        m_spaceViewport.scissorRect.right = static_cast<LONG>(m_resolution.width);
+        m_spaceViewport.scissorRect.right  = static_cast<LONG>(m_resolution.width);
         m_spaceViewport.scissorRect.bottom = static_cast<LONG>(m_resolution.height);
     }
 
     UpdatePostViewAndScissor();
 
     {
-        const D3D12_RESOURCE_DESC swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
-        const CD3DX12_CLEAR_VALUE clearValue(swapChainDesc.Format, CLEAR_COLOR);
-        const CD3DX12_RESOURCE_DESC renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        D3D12_RESOURCE_DESC const   swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
+        CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR);
+        CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             swapChainDesc.Format,
             m_resolution.width,
             m_resolution.height,
-            1, 1,
+            1,
+            1,
             swapChainDesc.SampleDesc.Count,
             swapChainDesc.SampleDesc.Quality,
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
-            D3D12_TEXTURE_LAYOUT_UNKNOWN, 0u);
-        
+            D3D12_TEXTURE_LAYOUT_UNKNOWN,
+            0u);
+
         m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
             *this,
             renderTargetDesc,
@@ -420,11 +393,13 @@ void NativeClient::SetupSpaceResolutionDependentResources()
     {
         D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             DXGI_FORMAT_D32_FLOAT,
-            m_resolution.width, m_resolution.height,
-            1, 1);
+            m_resolution.width,
+            m_resolution.height,
+            1,
+            1);
         depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-        const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
+        CD3DX12_CLEAR_VALUE const depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
         m_intermediateDepthStencilBuffer = util::AllocateResource<ID3D12Resource>(
             *this,
@@ -435,20 +410,24 @@ void NativeClient::SetupSpaceResolutionDependentResources()
         NAME_D3D12_OBJECT(m_intermediateDepthStencilBuffer);
 
         D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-        dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-        dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-        dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+        dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
+        dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
+        dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-        m_device->CreateDepthStencilView(m_intermediateDepthStencilBuffer.Get(), &dsvDesc,
-                                         m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
+        m_device->CreateDepthStencilView(
+            m_intermediateDepthStencilBuffer.Get(),
+            &dsvDesc,
+            m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
     }
 
     if (m_postProcessingPipeline != nullptr)
         m_postProcessingPipeline->CreateShaderResourceView(
-            m_postProcessingPipeline->GetBindings().PostProcessing().input, 0, {m_intermediateRenderTarget});
+            m_postProcessingPipeline->GetBindings().PostProcessing().input,
+            0,
+            {m_intermediateRenderTarget});
 }
 
-void NativeClient::EnsureValidIntermediateRenderTarget(const ComPtr<ID3D12GraphicsCommandList4> commandList)
+void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> const commandList)
 {
     if (m_intermediateRenderTargetInitialized) return;
     m_intermediateRenderTargetInitialized = true;
@@ -456,10 +435,7 @@ void NativeClient::EnsureValidIntermediateRenderTarget(const ComPtr<ID3D12Graphi
     commandList->DiscardResource(m_intermediateRenderTarget.Get(), nullptr);
 }
 
-void NativeClient::OnUpdate(const double delta)
-{
-    if (m_space) m_space->Update(delta);
-}
+void NativeClient::OnUpdate(double const delta) { if (m_space) m_space->Update(delta); }
 
 void NativeClient::OnPreRender()
 {
@@ -469,7 +445,7 @@ void NativeClient::OnPreRender()
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
 
-void NativeClient::OnRender(const double)
+void NativeClient::OnRender(double const)
 {
     if (!m_windowVisible) return;
 
@@ -490,30 +466,29 @@ void NativeClient::OnRender(const double)
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
-    const UINT syncInterval = IsTearingSupportEnabled() && m_windowedMode ? 0 : 1;
-    const UINT presentFlags = IsTearingSupportEnabled() && m_windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    UINT const syncInterval = IsTearingSupportEnabled() && m_windowedMode ? 0 : 1;
+    UINT const presentFlags = IsTearingSupportEnabled() && m_windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
     constexpr DXGI_PRESENT_PARAMETERS presentParameters = {};
-    const HRESULT present = m_swapChain->Present1(syncInterval, presentFlags, &presentParameters);
+    HRESULT const present = m_swapChain->Present1(syncInterval, presentFlags, &presentParameters);
 
 #if defined(USE_NSIGHT_AFTERMATH)
     if (FAILED(present))
     {
         constexpr auto tdrTerminationTimeout = std::chrono::seconds(3);
-        const auto tStart = std::chrono::steady_clock::now();
-        auto tElapsed = std::chrono::milliseconds::zero();
+        auto const     tStart                = std::chrono::steady_clock::now();
+        auto           tElapsed              = std::chrono::milliseconds::zero();
 
         GFSDK_Aftermath_CrashDump_Status status = GFSDK_Aftermath_CrashDump_Status_Unknown;
         AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetCrashDumpStatus(&status));
 
-        while (status != GFSDK_Aftermath_CrashDump_Status_CollectingDataFailed &&
-            status != GFSDK_Aftermath_CrashDump_Status_Finished &&
-            tElapsed < tdrTerminationTimeout)
+        while (status != GFSDK_Aftermath_CrashDump_Status_CollectingDataFailed && status !=
+            GFSDK_Aftermath_CrashDump_Status_Finished && tElapsed < tdrTerminationTimeout)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetCrashDumpStatus(&status));
 
             auto tEnd = std::chrono::steady_clock::now();
-            tElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart);
+            tElapsed  = std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart);
         }
 
         if (status != GFSDK_Aftermath_CrashDump_Status_Finished)
@@ -545,7 +520,7 @@ void NativeClient::OnDestroy()
     CloseHandle(m_fenceEvent);
 }
 
-void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool minimized)
+void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const minimized)
 {
     if ((width != GetWidth() || height != GetHeight()) && !minimized)
     {
@@ -570,7 +545,7 @@ void NativeClient::OnSizeChanged(const UINT width, const UINT height, const bool
         UpdateForSizeChange(width, height);
         SetupSizeDependentResources();
 
-        if (const Resolution newResolution = Resolution(width, height) * GetRenderScale();
+        if (Resolution const newResolution = Resolution(width, height) * GetRenderScale();
             newResolution != m_resolution)
         {
             m_resolution = newResolution;
@@ -585,23 +560,14 @@ void NativeClient::OnWindowMoved(int, int)
 {
 }
 
-void NativeClient::InitRaytracingPipeline(const SpacePipeline& pipeline)
+void NativeClient::InitRaytracingPipeline(SpacePipeline const& pipeline)
 {
-    if (m_space->PerformInitialSetupStepTwo(pipeline))
-    {
-        m_spaceInitialized = true;
-    }
-    else
-    {
-        m_space = nullptr;
-    }
+    if (m_space->PerformInitialSetupStepTwo(pipeline)) m_spaceInitialized = true;
+    else m_space                                                          = nullptr;
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
-void NativeClient::ToggleFullscreen() const
-{
-    Win32Application::ToggleFullscreenWindow(m_swapChain.Get());
-}
+void NativeClient::ToggleFullscreen() const { Win32Application::ToggleFullscreenWindow(m_swapChain.Get()); }
 
 void NativeClient::TakeScreenshot(ScreenshotFunc func)
 {
@@ -609,17 +575,14 @@ void NativeClient::TakeScreenshot(ScreenshotFunc func)
     m_screenshotFunc = std::move(func);
 }
 
-Texture* NativeClient::LoadTexture(std::byte** data, const TextureDescription& description) const
+Texture* NativeClient::LoadTexture(std::byte** data, TextureDescription const& description) const
 {
     REQUIRE(m_uploader != nullptr);
 
     return Texture::Create(*m_uploader, data, description);
 }
 
-Space* NativeClient::GetSpace() const
-{
-    return m_space.get();
-}
+Space* NativeClient::GetSpace() const { return m_space.get(); }
 
 void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 {
@@ -629,11 +592,13 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
     m_postProcessingPipeline = pipeline;
-    m_postProcessingPipeline->CreateShaderResourceView(m_postProcessingPipeline->GetBindings().PostProcessing().input,
-                                                       0, {m_intermediateRenderTarget});
+    m_postProcessingPipeline->CreateShaderResourceView(
+        m_postProcessingPipeline->GetBindings().PostProcessing().input,
+        0,
+        {m_intermediateRenderTarget});
 }
 
-UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priority, const draw2d::Callback callback)
+UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
 {
     // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
     // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
@@ -641,8 +606,8 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priorit
 
     decltype(m_draw2dPipelines)::iterator iterator;
 
-    const UINT id = m_nextDraw2dPipelineID;
-    
+    UINT const id = m_nextDraw2dPipelineID;
+
     if (m_draw2dPipelines.empty() || priority < m_draw2dPipelines.front().priority)
     {
         m_draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, id, callback}, clampedPriority);
@@ -655,15 +620,15 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priorit
     }
     else
         for (auto it = m_draw2dPipelines.begin(); it != m_draw2dPipelines.end(); ++it)
-        {
             // Goal: insert after the first element with priority lower than the new one.
             if (priority > it->priority)
             {
-                iterator = m_draw2dPipelines.
-                    emplace(--it, draw2d::Pipeline(*this, pipeline, id, callback), clampedPriority);
+                iterator = m_draw2dPipelines.emplace(
+                    --it,
+                    draw2d::Pipeline(*this, pipeline, id, callback),
+                    clampedPriority);
                 break;
             }
-        }
 
     m_draw2dPipelineIDs[m_nextDraw2dPipelineID] = iterator;
     m_nextDraw2dPipelineID++;
@@ -671,9 +636,9 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, const INT priorit
     return id;
 }
 
-void NativeClient::RemoveDraw2DPipeline(const UINT id)
+void NativeClient::RemoveDraw2DPipeline(UINT const id)
 {
-    const auto iterator = m_draw2dPipelineIDs[id];
+    auto const iterator = m_draw2dPipelineIDs[id];
 
     m_draw2dPipelines.erase(iterator);
     m_draw2dPipelineIDs.erase(id);
@@ -684,10 +649,7 @@ NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> obj
     return m_objects.Push(std::move(object));
 }
 
-void NativeClient::DeleteObject(const ObjectHandle handle)
-{
-    m_objects.Pop(handle);
-}
+void NativeClient::DeleteObject(ObjectHandle const handle) { m_objects.Pop(handle); }
 
 void NativeClient::WaitForGPU()
 {
@@ -703,8 +665,8 @@ void NativeClient::MoveToNextFrame()
 {
     TRY_DO(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
-    const UINT64 currentFenceValue = m_fenceValues[static_cast<UINT64>(m_frameIndex)];
-    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+    UINT64 const currentFenceValue = m_fenceValues[static_cast<UINT64>(m_frameIndex)];
+    m_frameIndex                   = m_swapChain->GetCurrentBackBufferIndex();
 
     if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
     {
@@ -729,7 +691,7 @@ std::wstring NativeClient::GetDRED() const
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
 #if defined(USE_NSIGHT_AFTERMATH)
-void NativeClient::SetupCommandListForAftermath(const ComPtr<ID3D12GraphicsCommandList> commandList)
+void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const commandList)
 {
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
@@ -757,8 +719,7 @@ void NativeClient::CheckRaytracingSupport() const
     TRY_DO(m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
 
     if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_1)
-        throw NativeException(
-            "Raytracing not supported on device.");
+        throw NativeException("Raytracing not supported on device.");
 }
 
 void NativeClient::PopulateSpaceCommandList() const
@@ -767,11 +728,12 @@ void NativeClient::PopulateSpaceCommandList() const
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
-    
+
     m_space->Reset(m_frameIndex);
-    m_space->Render(m_intermediateRenderTarget, m_intermediateDepthStencilBuffer, {
-                        .rtv = &rtvHandle, .dsv = &dsvHandle, .viewport = &m_spaceViewport
-                    });
+    m_space->Render(
+        m_intermediateRenderTarget,
+        m_intermediateDepthStencilBuffer,
+        {.rtv = &rtvHandle, .dsv = &dsvHandle, .viewport = &m_spaceViewport});
 }
 
 void NativeClient::PopulatePostProcessingCommandList() const
@@ -784,7 +746,7 @@ void NativeClient::PopulatePostProcessingCommandList() const
     m_postProcessingPipeline->BindResources(m_2dGroup.commandList);
 
     m_postViewport.Set(m_2dGroup.commandList);
-    
+
     m_2dGroup.commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     m_2dGroup.commandList->IASetVertexBuffers(0, 1, &m_postVertexBufferView);
     m_2dGroup.commandList->DrawInstanced(4, 1, 0, 0);
@@ -796,25 +758,27 @@ void NativeClient::PopulateScreenshotCommandList() const
 
     PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Screenshot");
 
-    const D3D12_RESOURCE_BARRIER entry = CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
-                                                                              D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                                              D3D12_RESOURCE_STATE_COPY_SOURCE);
+    D3D12_RESOURCE_BARRIER const entry = CD3DX12_RESOURCE_BARRIER::Transition(
+        m_finalRenderTargets[m_frameIndex].Get(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_COPY_SOURCE);
     m_2dGroup.commandList->ResourceBarrier(1, &entry);
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint = {};
-    footprint.Footprint.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    footprint.Footprint.Width = GetWidth();
-    footprint.Footprint.Height = GetHeight();
-    footprint.Footprint.Depth = 1;
-    footprint.Footprint.RowPitch = GetWidth() * 4;
+    footprint.Footprint.Format                   = DXGI_FORMAT_B8G8R8A8_UNORM;
+    footprint.Footprint.Width                    = GetWidth();
+    footprint.Footprint.Height                   = GetHeight();
+    footprint.Footprint.Depth                    = 1;
+    footprint.Footprint.RowPitch                 = GetWidth() * 4;
 
-    const auto dst = CD3DX12_TEXTURE_COPY_LOCATION(m_screenshotBuffers[m_frameIndex].Get(), footprint);
-    const auto src = CD3DX12_TEXTURE_COPY_LOCATION(m_finalRenderTargets[m_frameIndex].Get(), 0);
+    auto const dst = CD3DX12_TEXTURE_COPY_LOCATION(m_screenshotBuffers[m_frameIndex].Get(), footprint);
+    auto const src = CD3DX12_TEXTURE_COPY_LOCATION(m_finalRenderTargets[m_frameIndex].Get(), 0);
     m_2dGroup.commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 
-    const D3D12_RESOURCE_BARRIER exit = CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
-                                                                             D3D12_RESOURCE_STATE_COPY_SOURCE,
-                                                                             D3D12_RESOURCE_STATE_RENDER_TARGET);
+    D3D12_RESOURCE_BARRIER const exit = CD3DX12_RESOURCE_BARRIER::Transition(
+        m_finalRenderTargets[m_frameIndex].Get(),
+        D3D12_RESOURCE_STATE_COPY_SOURCE,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
     m_2dGroup.commandList->ResourceBarrier(1, &exit);
 }
 
@@ -826,27 +790,28 @@ void NativeClient::PopulateCommandLists()
     EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
     D3D12_RESOURCE_BARRIER barriers[] = {
-        CD3DX12_RESOURCE_BARRIER::Transition(m_finalRenderTargets[m_frameIndex].Get(),
-                                             D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
-        CD3DX12_RESOURCE_BARRIER::Transition(m_intermediateRenderTarget.Get(),
-                                             D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_finalRenderTargets[m_frameIndex].Get(),
+            D3D12_RESOURCE_STATE_PRESENT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_intermediateRenderTarget.Get(),
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
 
     m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
 
-    if (m_space)
-        PopulateSpaceCommandList();
+    if (m_space) PopulateSpaceCommandList();
 
-    const auto rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
-    const auto dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
+    auto const rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
+    auto const dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
 
     m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
     m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
     m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-    if (m_postProcessingPipeline != nullptr)
-        PopulatePostProcessingCommandList();
+    if (m_postProcessingPipeline != nullptr) PopulatePostProcessingCommandList();
 
     m_draw2dViewport.Set(m_2dGroup.commandList);
 
@@ -859,9 +824,9 @@ void NativeClient::PopulateCommandLists()
     PopulateScreenshotCommandList();
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    barriers[0].Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
     barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-    barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
     m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
     m_2dGroup.Close();
@@ -869,37 +834,29 @@ void NativeClient::PopulateCommandLists()
 
 void NativeClient::UpdatePostViewAndScissor()
 {
-    const auto width = static_cast<float>(GetWidth());
-    const auto height = static_cast<float>(GetHeight());
+    auto const width  = static_cast<float>(GetWidth());
+    auto const height = static_cast<float>(GetHeight());
 
-    const float viewWidthRatio = static_cast<float>(m_resolution.width) / width;
-    const float viewHeightRatio = static_cast<float>(m_resolution.height) / height;
+    float const viewWidthRatio  = static_cast<float>(m_resolution.width) / width;
+    float const viewHeightRatio = static_cast<float>(m_resolution.height) / height;
 
     float x = 1.0f;
     float y = 1.0f;
 
-    if (viewWidthRatio < viewHeightRatio)
-    {
-        x = viewWidthRatio / viewHeightRatio;
-    }
-    else
-    {
-        y = viewHeightRatio / viewWidthRatio;
-    }
+    if (viewWidthRatio < viewHeightRatio) x = viewWidthRatio / viewHeightRatio;
+    else y                                  = viewHeightRatio / viewWidthRatio;
 
     m_postViewport.viewport.TopLeftX = width * (1.0f - x) / 2.0f;
     m_postViewport.viewport.TopLeftY = height * (1.0f - y) / 2.0f;
-    m_postViewport.viewport.Width = x * width;
-    m_postViewport.viewport.Height = y * height;
+    m_postViewport.viewport.Width    = x * width;
+    m_postViewport.viewport.Height   = y * height;
 
-    m_postViewport.scissorRect.left =
-        static_cast<LONG>(m_postViewport.viewport.TopLeftX);
-    m_postViewport.scissorRect.right =
-        static_cast<LONG>(m_postViewport.viewport.TopLeftX + m_postViewport.viewport.Width);
-    m_postViewport.scissorRect.top =
-        static_cast<LONG>(m_postViewport.viewport.TopLeftY);
-    m_postViewport.scissorRect.bottom =
-        static_cast<LONG>(m_postViewport.viewport.TopLeftY + m_postViewport.viewport.Height);
+    m_postViewport.scissorRect.left  = static_cast<LONG>(m_postViewport.viewport.TopLeftX);
+    m_postViewport.scissorRect.right = static_cast<LONG>(m_postViewport.viewport.TopLeftX + m_postViewport.viewport.
+        Width);
+    m_postViewport.scissorRect.top    = static_cast<LONG>(m_postViewport.viewport.TopLeftY);
+    m_postViewport.scissorRect.bottom = static_cast<LONG>(m_postViewport.viewport.TopLeftY + m_postViewport.viewport.
+        Height);
 }
 
 void NativeClient::HandleScreenshot()
@@ -907,8 +864,8 @@ void NativeClient::HandleScreenshot()
     if (!m_screenshotFunc.has_value()) return;
     auto* func = m_screenshotFunc.value();
 
-    const UINT size = GetWidth() * GetHeight() * 4;
-    const auto data = std::make_unique<std::byte[]>(size);
+    UINT const size = GetWidth() * GetHeight() * 4;
+    auto const data = std::make_unique<std::byte[]>(size);
 
     TRY_DO(util::MapAndRead(m_screenshotBuffers[m_frameIndex], data.get(), size));
 

@@ -52,15 +52,15 @@ public:
      * \param client The client.
      */
     explicit Camera(NativeClient& client);
-    
+
     void Initialize();
     void Update();
 
-    void SetPosition(const DirectX::XMFLOAT3& position);
-    void SetOrientation(const DirectX::XMFLOAT3& front, const DirectX::XMFLOAT3& up);
+    void SetPosition(DirectX::XMFLOAT3 const& position);
+    void SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 const& up);
 
-    [[nodiscard]] const DirectX::XMFLOAT3& GetPosition() const;
-    [[nodiscard]] const DirectX::XMFLOAT4X4& GetViewProjectionMatrix() const;
+    [[nodiscard]] DirectX::XMFLOAT3 const&   GetPosition() const;
+    [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewProjectionMatrix() const;
 
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
@@ -72,19 +72,19 @@ public:
     [[nodiscard]] D3D12_GPU_VIRTUAL_ADDRESS GetCameraBufferAddress() const;
 
     [[nodiscard]] Space& GetSpace() const;
-    
+
 private:
     DirectX::XMFLOAT3 m_position = {};
-    DirectX::XMFLOAT3 m_front = {};
-    DirectX::XMFLOAT3 m_up = {};
+    DirectX::XMFLOAT3 m_front    = {};
+    DirectX::XMFLOAT3 m_up       = {};
 
-    float m_fov = 0.0f;
+    float m_fov  = 0.0f;
     float m_near = 0.0f;
-    float m_far = 0.0f;
+    float m_far  = 0.0f;
 
     DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
-    Allocation<ID3D12Resource> m_spaceCameraBuffer = {};
+    Allocation<ID3D12Resource>                      m_spaceCameraBuffer        = {};
     Mapping<ID3D12Resource, CameraParametersBuffer> m_spaceCameraBufferMapping = {};
-    UINT64 m_spaceCameraBufferSize = 0;
+    UINT64                                          m_spaceCameraBufferSize    = 0;
 };

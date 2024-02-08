@@ -59,7 +59,7 @@ public sealed class OverlayVFX : VFX
     public override bool IsEnabled { get; set; }
 
     /// <summary>
-    /// Create a new <see cref="OverlayVFX"/>.
+    ///     Create a new <see cref="OverlayVFX" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>

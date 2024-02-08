@@ -27,8 +27,8 @@ namespace vg
          * \param quadFactor Factor to weight the impact of the primitive ID.
          * \return The animated texture index.
          */
-        uint GetAnimatedIndex(const uint index, const uint primitive, const float time, const uint frameCount,
-                              const float quadFactor)
+        uint GetAnimatedIndex(
+            uint const index, uint const primitive, float const time, uint const frameCount, float const quadFactor)
         {
             if (index == 0) return 0;
 
@@ -42,7 +42,7 @@ namespace vg
          * \param time The current time.
          * \return The animated texture index.
          */
-        uint GetAnimatedBlockTextureIndex(const uint index, const uint primitive, const float time)
+        uint GetAnimatedBlockTextureIndex(uint const index, uint const primitive, float const time)
         {
             return GetAnimatedIndex(index, primitive, time, 8, 0.125f);
         }
@@ -54,7 +54,7 @@ namespace vg
          * \param time The current time.
          * \return The animated texture index.
          */
-        uint GetAnimatedFluidTextureIndex(const uint index, const uint primitive, const float time)
+        uint GetAnimatedFluidTextureIndex(uint const index, uint const primitive, float const time)
         {
             return GetAnimatedIndex(index, primitive, time, 16, 0.000f);
         }
@@ -67,11 +67,11 @@ namespace vg
          * \param isBlock Whether the texture is for a block or not.
          * \return The animated texture index.
          */
-        int GetAnimatedTextureIndex(const uint4 data, const uint primitive, const float time, const bool isBlock)
+        int GetAnimatedTextureIndex(uint4 const data, uint const primitive, float const time, bool const isBlock)
         {
             uint textureIndex = decode::GetTextureIndex(data);
 
-            const bool animated = decode::GetAnimationFlag(data);
+            bool const animated = decode::GetAnimationFlag(data);
             if (animated && isBlock) textureIndex = GetAnimatedBlockTextureIndex(textureIndex, primitive, time);
             if (animated && !isBlock) textureIndex = GetAnimatedFluidTextureIndex(textureIndex, primitive, time);
 

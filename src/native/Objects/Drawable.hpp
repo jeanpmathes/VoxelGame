@@ -8,6 +8,8 @@
 
 #include <optional>
 
+#include "Spatial.hpp"
+
 class Mesh;
 class Effect;
 
@@ -75,11 +77,11 @@ public:
 
     void Reset();
 
-    [[nodiscard]] bool IsEnabled() const;
-    [[nodiscard]] BaseIndex GetHandle() const;
-    [[nodiscard]] EntryIndex GetEntryIndex() const;
+    [[nodiscard]] bool                       IsEnabled() const;
+    [[nodiscard]] BaseIndex                  GetHandle() const;
+    [[nodiscard]] EntryIndex                 GetEntryIndex() const;
     [[nodiscard]] std::optional<ActiveIndex> GetActiveIndex() const;
-    [[nodiscard]] UINT GetDataElementCount() const;
+    [[nodiscard]] UINT                       GetDataElementCount() const;
 
     class Visitor
     {
@@ -87,25 +89,25 @@ public:
 
     public:
         static Visitor Empty();
-        Visitor& OnElse(const std::function<void(Drawable&)>& drawable);
-        Visitor& OnElseFail();
+        Visitor&       OnElse(std::function<void(Drawable&)> const& drawable);
+        Visitor&       OnElseFail();
 
-        void Visit(Mesh& mesh) const;
-        Visitor& OnMesh(const std::function<void(Mesh&)>& mesh);
+        void     Visit(Mesh& mesh) const;
+        Visitor& OnMesh(std::function<void(Mesh&)> const& mesh);
 
-        void Visit(Effect& effect) const;
-        Visitor& OnEffect(const std::function<void(Effect&)>& effect);
+        void     Visit(Effect& effect) const;
+        Visitor& OnEffect(std::function<void(Effect&)> const& effect);
 
     private:
         std::function<void(Drawable&)> m_else;
-        std::function<void(Mesh&)> m_mesh;
-        std::function<void(Effect&)> m_effect;
+        std::function<void(Mesh&)>     m_mesh;
+        std::function<void(Effect&)>   m_effect;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
 
 protected:
-    bool HandleModification(UINT newElementCount);
+    bool                                      HandleModification(UINT newElementCount);
     [[nodiscard]] Allocation<ID3D12Resource>& GetUploadDataBuffer();
 
     virtual void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList) = 0;
@@ -114,14 +116,14 @@ protected:
 private:
     void UpdateActiveState();
 
-    std::optional<BaseIndex> m_base = std::nullopt;
-    std::optional<EntryIndex> m_entry = std::nullopt;
-    std::optional<ActiveIndex> m_active = std::nullopt;
-    bool m_enabled = false;
+    std::optional<BaseIndex>   m_base    = std::nullopt;
+    std::optional<EntryIndex>  m_entry   = std::nullopt;
+    std::optional<ActiveIndex> m_active  = std::nullopt;
+    bool                       m_enabled = false;
 
     bool m_uploadRequired = false;
     bool m_uploadEnqueued = false;
 
     Allocation<ID3D12Resource> m_dataBufferUpload = {};
-    UINT m_dataElementCount = 0;
+    UINT                       m_dataElementCount = 0;
 };

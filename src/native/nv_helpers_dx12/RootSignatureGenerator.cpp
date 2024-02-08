@@ -42,42 +42,39 @@ pointers will be bound.
 
 namespace nv_helpers_dx12
 {
-    void RootSignatureGenerator::AddHeapRangesParameter(
-        const std::vector<D3D12_DESCRIPTOR_RANGE>& ranges)
+    void RootSignatureGenerator::AddHeapRangesParameter(std::vector<D3D12_DESCRIPTOR_RANGE> const& ranges)
     {
         m_ranges.push_back(ranges);
-        
-        D3D12_ROOT_PARAMETER param = {};
-        param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+
+        D3D12_ROOT_PARAMETER param                = {};
+        param.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
         param.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(ranges.size());
-        param.DescriptorTable.pDescriptorRanges = nullptr;
-        
+        param.DescriptorTable.pDescriptorRanges   = nullptr;
+
         m_parameters.push_back(param);
         m_rangeLocations.push_back(static_cast<unsigned>(m_ranges.size() - 1));
     }
 
-    void RootSignatureGenerator::AddHeapRangesParameter(const std::vector<HeapRange>& ranges)
+    void RootSignatureGenerator::AddHeapRangesParameter(std::vector<HeapRange> const& ranges)
     {
         std::vector<D3D12_DESCRIPTOR_RANGE> rangeStorage;
-        for (const auto& input : ranges)
+        for (auto const& input : ranges)
         {
-            D3D12_DESCRIPTOR_RANGE r = {};
-            r.BaseShaderRegister = std::get<RSC_BASE_SHADER_REGISTER>(input);
-            r.NumDescriptors = std::get<RSC_NUM_DESCRIPTORS>(input);
-            r.RegisterSpace = std::get<RSC_REGISTER_SPACE>(input);
-            r.RangeType = std::get<RSC_RANGE_TYPE>(input);
-            r.OffsetInDescriptorsFromTableStart =
-                std::get<RSC_OFFSET_IN_DESCRIPTORS_FROM_TABLE_START>(input);
+            D3D12_DESCRIPTOR_RANGE r            = {};
+            r.BaseShaderRegister                = std::get<RSC_BASE_SHADER_REGISTER>(input);
+            r.NumDescriptors                    = std::get<RSC_NUM_DESCRIPTORS>(input);
+            r.RegisterSpace                     = std::get<RSC_REGISTER_SPACE>(input);
+            r.RangeType                         = std::get<RSC_RANGE_TYPE>(input);
+            r.OffsetInDescriptorsFromTableStart = std::get<RSC_OFFSET_IN_DESCRIPTORS_FROM_TABLE_START>(input);
             rangeStorage.push_back(r);
         }
-        
+
         AddHeapRangesParameter(rangeStorage);
     }
 
-    void RootSignatureGenerator::AddRootParameter(const D3D12_ROOT_PARAMETER_TYPE type,
-                                                  const UINT shaderRegister,
-                                                  const UINT registerSpace,
-                                                  const UINT numRootConstants)
+    void RootSignatureGenerator::AddRootParameter(
+        D3D12_ROOT_PARAMETER_TYPE const type, UINT const shaderRegister, UINT const registerSpace,
+        UINT const                      numRootConstants)
     {
         D3D12_ROOT_PARAMETER param;
         param.ParameterType = type;
@@ -85,55 +82,46 @@ namespace nv_helpers_dx12
         if (type == D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS)
         {
             param.Constants.Num32BitValues = numRootConstants;
-            param.Constants.RegisterSpace = registerSpace;
+            param.Constants.RegisterSpace  = registerSpace;
             param.Constants.ShaderRegister = shaderRegister;
         }
         else
         {
-            param.Descriptor.RegisterSpace = registerSpace;
+            param.Descriptor.RegisterSpace  = registerSpace;
             param.Descriptor.ShaderRegister = shaderRegister;
         }
-        
+
         param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-        
+
         m_parameters.push_back(param);
         m_rangeLocations.push_back(~0u);
     }
 
-    void RootSignatureGenerator::AddStaticSampler(const D3D12_STATIC_SAMPLER_DESC* sampler)
+    void RootSignatureGenerator::AddStaticSampler(D3D12_STATIC_SAMPLER_DESC const* sampler)
     {
         m_staticSamplers.push_back(*sampler);
     }
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device, const bool isLocal)
+        Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool const isLocal)
     {
         for (size_t i = 0; i < m_parameters.size(); i++)
-        {
             if (m_parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
-            {
                 m_parameters[i].DescriptorTable.pDescriptorRanges = m_ranges[m_rangeLocations[i]].data();
-            }
-        }
-        
-        D3D12_ROOT_SIGNATURE_DESC rootDesc;
-        rootDesc.NumParameters = static_cast<UINT>(m_parameters.size());
-        rootDesc.pParameters = m_parameters.data();
-        rootDesc.NumStaticSamplers = static_cast<UINT>(m_staticSamplers.size());
-        rootDesc.pStaticSamplers = m_staticSamplers.data();
-        
-        rootDesc.Flags =
-            isLocal ? D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE : D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
-        if (m_allowInputAssembler)
-        {
-            rootDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-        }
-        
+        D3D12_ROOT_SIGNATURE_DESC rootDesc;
+        rootDesc.NumParameters     = static_cast<UINT>(m_parameters.size());
+        rootDesc.pParameters       = m_parameters.data();
+        rootDesc.NumStaticSamplers = static_cast<UINT>(m_staticSamplers.size());
+        rootDesc.pStaticSamplers   = m_staticSamplers.data();
+
+        rootDesc.Flags = isLocal ? D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE : D3D12_ROOT_SIGNATURE_FLAG_NONE;
+
+        if (m_allowInputAssembler) rootDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
         Microsoft::WRL::ComPtr<ID3DBlob> pSigBlob;
         Microsoft::WRL::ComPtr<ID3DBlob> pErrorBlob;
-        HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSigBlob,
-                                                 &pErrorBlob);
+        HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSigBlob, &pErrorBlob);
         if (FAILED(hr))
         {
             std::vector<char> infoLog(pErrorBlob->GetBufferSize() + 1);
@@ -144,13 +132,12 @@ namespace nv_helpers_dx12
         }
 
         Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSig;
-        hr = device->CreateRootSignature(0,
-                                         pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(),
-                                         IID_PPV_ARGS(&pRootSig));
-        if (FAILED(hr))
-        {
-            throw std::logic_error("Cannot create root signature.");
-        }
+        hr = device->CreateRootSignature(
+            0,
+            pSigBlob->GetBufferPointer(),
+            pSigBlob->GetBufferSize(),
+            IID_PPV_ARGS(&pRootSig));
+        if (FAILED(hr)) throw std::logic_error("Cannot create root signature.");
 
         return pRootSig;
     }

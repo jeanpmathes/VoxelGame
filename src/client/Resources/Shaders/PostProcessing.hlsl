@@ -6,7 +6,7 @@
 
 namespace pp
 {
-    Texture2D texture : register(t0);
+    Texture2D    texture : register(t0);
     SamplerState sampler : register(s0);
 }
 
@@ -16,17 +16,14 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-PSInput VSMain(const float4 position : POSITION, const float2 uv : TEXCOORD)
+PSInput VSMain(float4 const position : POSITION, float2 const uv : TEXCOORD)
 {
     PSInput result;
 
     result.position = position;
-    result.uv = uv;
+    result.uv       = uv;
 
     return result;
 }
 
-float4 PSMain(const PSInput input) : SV_TARGET
-{
-    return pp::texture.Sample(pp::sampler, input.uv);
-}
+float4 PSMain(PSInput const input) : SV_TARGET { return pp::texture.Sample(pp::sampler, input.uv); }

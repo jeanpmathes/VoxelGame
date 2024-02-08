@@ -61,7 +61,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <summary>
-    /// Notifies the renderer that the loading phase is finished.
+    ///     Notifies the renderer that the loading phase is finished.
     /// </summary>
     internal void FinishLoading()
     {

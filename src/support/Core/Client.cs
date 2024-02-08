@@ -303,10 +303,11 @@ public class Client : IDisposable
     /// <summary>
     ///     Add a pipeline to the Draw2D rendering step.
     /// </summary>
-    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D"/> preset.</param>
+    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
     /// <param name="priority">
     ///     The priority of the pipeline, higher priority pipelines are rendered later.
-    ///     Use the constants <see cref="Draw2D.Foreground"/> and <see cref="Draw2D.Background"/> to add the the current front and back.
+    ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the the current
+    ///     front and back.
     /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
     /// <returns>A disposable object which can be used to remove the pipeline.</returns>

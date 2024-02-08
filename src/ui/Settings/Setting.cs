@@ -162,7 +162,8 @@ public abstract class Setting
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <param name="current">
-    ///     Function to get the current value used by the application, if it is possible to change it independently of the setting.
+    ///     Function to get the current value used by the application, if it is possible to change it independently of the
+    ///     setting.
     /// </param>
     /// <returns>The created setting.</returns>
     public static Setting CreateSizeSetting(ISettingsProvider provider, string name,

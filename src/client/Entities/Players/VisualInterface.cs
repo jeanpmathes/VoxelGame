@@ -57,7 +57,7 @@ public sealed class VisualInterface : IDisposable
     }
 
     /// <summary>
-    /// Whether overlay rendering is allowed. Building overlay is still possible, but it will not be rendered.
+    ///     Whether overlay rendering is allowed. Building overlay is still possible, but it will not be rendered.
     /// </summary>
     public bool IsOverlayAllowed { get; set; } = true;
 

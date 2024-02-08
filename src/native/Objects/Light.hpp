@@ -18,8 +18,8 @@ class Light final : public Spatial
 public:
     explicit Light(NativeClient& client);
 
-    void SetDirection(const DirectX::XMFLOAT3& direction);
-    [[nodiscard]] const DirectX::XMFLOAT3& GetDirection() const;
+    void                                   SetDirection(DirectX::XMFLOAT3 const& direction);
+    [[nodiscard]] DirectX::XMFLOAT3 const& GetDirection() const;
 
 private:
     DirectX::XMFLOAT3 m_direction = {0.0f, 0.0f, 0.0f};

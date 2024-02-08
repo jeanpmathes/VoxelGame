@@ -160,8 +160,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     }
 
     /// <summary>
-    /// Called when the world activates.
-    /// After this updates will be called.
+    ///     Called when the world activates.
+    ///     After this updates will be called.
     /// </summary>
     public void OnActivate()
     {

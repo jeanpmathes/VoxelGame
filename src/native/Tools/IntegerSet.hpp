@@ -18,12 +18,12 @@ protected:
 
     struct Data
     {
-        size_t count = 0;
-        std::vector<BinaryData> data = {};
+        size_t                  count = 0;
+        std::vector<BinaryData> data  = {};
     };
 
-    Data& data() { return m_content; }
-    [[nodiscard]] const Data& data() const { return m_content; }
+    Data&                     data() { return m_content; }
+    [[nodiscard]] Data const& data() const { return m_content; }
 
 private:
     Data m_content = {};
@@ -44,45 +44,41 @@ public:
      */
     static IntegerSet Full(size_t count)
     {
-        const size_t full = count / BINARY_DATA_BITS;
-        const size_t remainder = count & BINARY_DATA_MASK;
+        size_t const full      = count / BINARY_DATA_BITS;
+        size_t const remainder = count & BINARY_DATA_MASK;
 
-        const size_t required = full + (remainder > 0 ? 1 : 0);
+        size_t const required = full + (remainder > 0 ? 1 : 0);
 
         IntegerSet set;
 
         set.data().count = count;
         set.data().data.resize(required, static_cast<BinaryData>(-1));
 
-        if (remainder > 0)
-            set.data().data[full] = (static_cast<BinaryData>(1) << remainder) - 1;
+        if (remainder > 0) set.data().data[full] = (static_cast<BinaryData>(1) << remainder) - 1;
 
         return set;
     }
 
     IntegerSet() = default;
 
-    IntegerSet(const IntegerSet&) = default;
-    IntegerSet& operator=(const IntegerSet&) = default;
-    IntegerSet(IntegerSet&&) = default;
-    IntegerSet& operator=(IntegerSet&&) = default;
-    ~IntegerSet() = default;
+    IntegerSet(IntegerSet const&)            = default;
+    IntegerSet& operator=(IntegerSet const&) = default;
+    IntegerSet(IntegerSet&&)                 = default;
+    IntegerSet& operator=(IntegerSet&&)      = default;
+    ~IntegerSet()                            = default;
 
     template <UnsignedNativeSizedInteger OtherI>
     friend class IntegerSet;
 
     template <UnsignedNativeSizedInteger OtherI>
-    explicit IntegerSet(const IntegerSet<OtherI>& other)
-    {
-        *this = other;
-    }
+    explicit IntegerSet(IntegerSet<OtherI> const& other) { *this = other; }
 
     template <UnsignedNativeSizedInteger OtherI>
-    IntegerSet& operator=(const IntegerSet<OtherI>& other)
+    IntegerSet& operator=(IntegerSet<OtherI> const& other)
     {
         data().count = other.data().count;
-        data().data = other.data().data;
-        
+        data().data  = other.data().data;
+
         return *this;
     }
 
@@ -130,13 +126,13 @@ public:
         using value_type = I;
 
         const_iterator() = default;
-        const_iterator(std::vector<BinaryData>::const_iterator dataIterator,
-                       std::vector<BinaryData>::const_iterator dataEnd);
+        const_iterator(
+            std::vector<BinaryData>::const_iterator dataIterator, std::vector<BinaryData>::const_iterator dataEnd);
         const_iterator& operator++();
         const_iterator& operator++(int);
-        bool operator==(const const_iterator& other) const;
-        bool operator!=(const const_iterator& other) const;
-        I operator*() const;
+        bool            operator==(const_iterator const& other) const;
+        bool            operator!=(const_iterator const& other) const;
+        I               operator*() const;
 
     private:
         void Advance();
@@ -165,18 +161,16 @@ void IntegerSet<I>::Clear()
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::Insert(I element)
 {
-    const size_t index = static_cast<size_t>(element);
+    size_t const index = static_cast<size_t>(element);
 
-    const size_t dataIndex = index / BINARY_DATA_BITS;
-    const size_t bitIndex = index & BINARY_DATA_MASK;
+    size_t const dataIndex = index / BINARY_DATA_BITS;
+    size_t const bitIndex  = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= data().data.size())
-        data().data.resize(dataIndex + 1, 0);
+    if (dataIndex >= data().data.size()) data().data.resize(dataIndex + 1, 0);
 
     size_t& content = data().data[dataIndex];
 
-    if (!GetBit(content, bitIndex))
-        data().count += 1;
+    if (!GetBit(content, bitIndex)) data().count += 1;
 
     content |= (static_cast<BinaryData>(1) << bitIndex);
 }
@@ -184,18 +178,16 @@ void IntegerSet<I>::Insert(I element)
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::Erase(I element)
 {
-    const size_t index = static_cast<size_t>(element);
+    size_t const index = static_cast<size_t>(element);
 
-    const size_t dataIndex = index / BINARY_DATA_BITS;
-    const size_t bitIndex = index & BINARY_DATA_MASK;
+    size_t const dataIndex = index / BINARY_DATA_BITS;
+    size_t const bitIndex  = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= data().data.size())
-        return;
+    if (dataIndex >= data().data.size()) return;
 
     size_t& content = data().data[dataIndex];
 
-    if (GetBit(content, bitIndex))
-        data().count -= 1;
+    if (GetBit(content, bitIndex)) data().count -= 1;
 
     content &= ~(static_cast<BinaryData>(1) << bitIndex);
 }
@@ -203,43 +195,29 @@ void IntegerSet<I>::Erase(I element)
 template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::Contains(I element) const
 {
-    const size_t index = static_cast<size_t>(element);
+    size_t const index = static_cast<size_t>(element);
 
-    const size_t dataIndex = index / BINARY_DATA_BITS;
-    const size_t bitIndex = index & BINARY_DATA_MASK;
+    size_t const dataIndex = index / BINARY_DATA_BITS;
+    size_t const bitIndex  = index & BINARY_DATA_MASK;
 
-    if (dataIndex >= data().data.size())
-        return false;
+    if (dataIndex >= data().data.size()) return false;
 
     return GetBit(data().data[dataIndex], bitIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
-size_t IntegerSet<I>::Count() const
-{
-    return data().count;
-}
+size_t IntegerSet<I>::Count() const { return data().count; }
 
 template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::IsEmpty() const
-{
-    return data().count == 0;
-}
+bool IntegerSet<I>::IsEmpty() const { return data().count == 0; }
 
 template <UnsignedNativeSizedInteger I>
 IntegerSet<I>::const_iterator::const_iterator(
-    const std::vector<BinaryData>::const_iterator dataIterator,
-    const std::vector<BinaryData>::const_iterator dataEnd)
+    std::vector<BinaryData>::const_iterator const dataIterator, std::vector<BinaryData>::const_iterator const dataEnd)
     : m_dataIterator(dataIterator)
-      , m_dataEnd(dataEnd)
-      , m_inDataIndex(0)
-      , m_totalIndex(0)
-{
-    if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex))
-    {
-        Advance();
-    }
-}
+  , m_dataEnd(dataEnd)
+  , m_inDataIndex(0)
+  , m_totalIndex(0) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
 
 template <UnsignedNativeSizedInteger I>
 typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
@@ -257,22 +235,19 @@ typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator+
 }
 
 template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::const_iterator::operator==(const const_iterator& other) const
+bool IntegerSet<I>::const_iterator::operator==(const_iterator const& other) const
 {
     return std::tie(m_dataIterator, m_inDataIndex) == std::tie(other.m_dataIterator, other.m_inDataIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::const_iterator::operator!=(const const_iterator& other) const
+bool IntegerSet<I>::const_iterator::operator!=(const_iterator const& other) const
 {
     return std::tie(m_dataIterator, m_inDataIndex) != std::tie(other.m_dataIterator, other.m_inDataIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
-I IntegerSet<I>::const_iterator::operator*() const
-{
-    return static_cast<I>(m_totalIndex);
-}
+I IntegerSet<I>::const_iterator::operator*() const { return static_cast<I>(m_totalIndex); }
 
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::const_iterator::Advance()
@@ -287,7 +262,9 @@ void IntegerSet<I>::const_iterator::Advance()
     // Then search for the next data unit that has a bit set that is not read yet.
     while (m_dataIterator != m_dataEnd && *m_dataIterator >> m_inDataIndex == 0)
         std::tie(m_dataIterator, m_inDataIndex, m_totalIndex) = std::make_tuple(
-            std::next(m_dataIterator), 0, m_totalIndex + (BINARY_DATA_BITS - m_inDataIndex));
+            std::next(m_dataIterator),
+            0,
+            m_totalIndex + (BINARY_DATA_BITS - m_inDataIndex));
 
     if (m_dataIterator == m_dataEnd) return;
 
@@ -309,7 +286,7 @@ typename IntegerSet<I>::const_iterator IntegerSet<I>::end() const
 }
 
 template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::GetBit(const BinaryData data, const size_t bitIndex)
+bool IntegerSet<I>::GetBit(BinaryData const data, size_t const bitIndex)
 {
     return (data & (static_cast<BinaryData>(1) << bitIndex)) != 0;
 }

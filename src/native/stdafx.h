@@ -23,98 +23,98 @@
 #include "DirectXMath.h"
 #include "pix3.h"
 
-#include <dxgi1_6.h>
 #include <comdef.h>
+#include <dxgi1_6.h>
 
 // STD
 
-#include <string>
-#include <mutex>
 #include <algorithm>
-#include <utility>
-#include <cstdlib>
-#include <cstdint>
-#include <stdexcept>
-#include <iomanip>
-#include <sstream>
-#include <map>
-#include <vector>
-#include <set>
-#include <list>
 #include <array>
-#include <memory>
-#include <fstream>
-#include <iostream>
+#include <cstdint>
+#include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <functional>
+#include <iomanip>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 // WRL
 
-#include <wrl.h>
 #include <shellapi.h>
+#include <wrl.h>
 
 // nv_aftermath
 
 #if defined(USE_NSIGHT_AFTERMATH)
-#include "nv_aftermath/NsightAftermathHelpers.hpp"
 #include "nv_aftermath/NsightAftermathGpuCrashTracker.hpp"
+#include "nv_aftermath/NsightAftermathHelpers.hpp"
 #include "nv_aftermath/NsightAftermathShaderDatabase.hpp"
 #endif
 
 // nv_helpers_dx12
 
-#include "nv_helpers_dx12/TopLevelASGenerator.hpp"
 #include "nv_helpers_dx12/BottomLevelASGenerator.hpp"
 #include "nv_helpers_dx12/RaytracingPipelineGenerator.hpp"
-#include "nv_helpers_dx12/ShaderBindingTableGenerator.hpp"
 #include "nv_helpers_dx12/RootSignatureGenerator.hpp"
+#include "nv_helpers_dx12/ShaderBindingTableGenerator.hpp"
+#include "nv_helpers_dx12/TopLevelASGenerator.hpp"
 
 // Helpers
 
-#include "DXRHelper.hpp"
 #include "DXHelper.hpp"
+#include "DXRHelper.hpp"
 
 // D3D12 Memory Allocator
 
-#include "Tools/D3D12MemAlloc.hpp"
 #include "Tools/Allocation.hpp"
+#include "Tools/D3D12MemAlloc.hpp"
 
 // Tools
 
-#include "Tools/DescriptorHeap.hpp"
-#include "Tools/Bag.hpp"
-#include "Tools/SharedIndexBuffer.hpp"
-#include "Tools/InBufferAllocator.hpp"
-#include "Tools/ShaderResources.hpp"
 #include "Tools/AnimationController.hpp"
-#include "Tools/StepTimer.hpp"
-#include "Tools/Utilities.hpp"
-#include "Tools/Uploader.hpp"
+#include "Tools/Bag.hpp"
 #include "Tools/Common.hpp"
-#include "Tools/IntegerSet.hpp"
-#include "Tools/DrawablesGroup.hpp"
 #include "Tools/Concepts.hpp"
+#include "Tools/DescriptorHeap.hpp"
+#include "Tools/DrawablesGroup.hpp"
+#include "Tools/InBufferAllocator.hpp"
+#include "Tools/IntegerSet.hpp"
+#include "Tools/ShaderResources.hpp"
+#include "Tools/SharedIndexBuffer.hpp"
+#include "Tools/StepTimer.hpp"
+#include "Tools/Uploader.hpp"
+#include "Tools/Utilities.hpp"
 
 // General
 
 #include "DXApp.hpp"
 #include "native.hpp"
-#include "Win32Application.hpp"
 #include "NativeClient.hpp"
 #include "Space.hpp"
+#include "Win32Application.hpp"
 
 // Objects
 
-#include "Objects/Object.hpp"
-#include "Objects/Spatial.hpp"
 #include "Objects/Camera.hpp"
-#include "Objects/Light.hpp"
-#include "Objects/Mesh.hpp"
-#include "Objects/RasterPipeline.hpp"
-#include "Objects/ShaderBuffer.hpp"
-#include "Objects/Texture.hpp"
 #include "Objects/Drawable.hpp"
 #include "Objects/Effect.hpp"
+#include "Objects/Light.hpp"
+#include "Objects/Mesh.hpp"
+#include "Objects/Object.hpp"
+#include "Objects/RasterPipeline.hpp"
+#include "Objects/ShaderBuffer.hpp"
+#include "Objects/Spatial.hpp"
+#include "Objects/Texture.hpp"
 
 // Interfaces
 

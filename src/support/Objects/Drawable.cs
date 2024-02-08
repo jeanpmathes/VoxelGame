@@ -45,7 +45,7 @@ public class Drawable : Spatial, IDisposable
     private bool disposed;
 
     /// <summary>
-    /// Override to implement custom dispose logic.
+    ///     Override to implement custom dispose logic.
     /// </summary>
     protected virtual void Dispose(bool disposing)
     {

@@ -99,10 +99,7 @@ internal class D3D12Debug
             throw new InvalidOperationException("Device removed.");
         }
 
-        if (level >= LogLevel.Warning)
-        {
-            Debugger.Break();
-        }
+        if (level >= LogLevel.Warning) Debugger.Break();
     }
 
     private static LogLevel GetLevel(Definition.Native.D3D12_MESSAGE_SEVERITY severity)

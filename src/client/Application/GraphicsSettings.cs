@@ -76,7 +76,7 @@ public class GraphicsSettings : ISettingsProvider
     }
 
     /// <summary>
-    /// The rendering quality of the foliage.
+    ///     The rendering quality of the foliage.
     /// </summary>
     public Bindable<Quality> FoliageQuality { get; }
 

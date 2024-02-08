@@ -22,17 +22,14 @@ namespace vg
      * \param data The data to decode.
      * \return The texture index.
      */
-        uint GetTextureIndex(const uint4 data)
-        {
-            return data[0] & BITMASK(13);
-        }
+        uint GetTextureIndex(uint4 const data) { return data[0] & BITMASK(13); }
 
         /**
      * \brief Get the color of the tint.
      * \param data The data to decode.
      * \return The color of the tint.
      */
-        float4 GetTintColor(const uint4 data)
+        float4 GetTintColor(uint4 const data)
         {
             uint r = (data[1] >> 29) & BITMASK(3);
             uint g = (data[1] >> 26) & BITMASK(3);
@@ -46,37 +43,28 @@ namespace vg
      * \param data The data to decode.
      * \return Whether the quad is animated.
      */
-        bool GetAnimationFlag(const uint4 data)
-        {
-            return (data[1] >> 0) & BITMASK(1);
-        }
+        bool GetAnimationFlag(uint4 const data) { return (data[1] >> 0) & BITMASK(1); }
 
         /**
      * \brief Get the texture rotation flag.
      * \param data The data to decode.
      * \return Whether the quad texture is rotated.
      */
-        bool GetTextureRotationFlag(const uint4 data)
-        {
-            return (data[1] >> 1) & BITMASK(1);
-        }
+        bool GetTextureRotationFlag(uint4 const data) { return (data[1] >> 1) & BITMASK(1); }
 
         /**
      * \brief Get the unshaded flag.
      * \param data The data to decode.
      * \return Whether the quad is unshaded.
      */
-        bool GetUnshadedFlag(const uint4 data)
-        {
-            return (data[1] >> 2) & BITMASK(1);
-        }
+        bool GetUnshadedFlag(uint4 const data) { return (data[1] >> 2) & BITMASK(1); }
 
         /**
      * \brief Decode a float4 from a base 17 number.
      * \param value The value to decode.
      * \return The decoded float4.
      */
-        float4 DecodeFromBase17(const uint value)
+        float4 DecodeFromBase17(uint const value)
         {
             uint x = value % 17;
             uint y = (value / 17) % 17;
@@ -91,7 +79,7 @@ namespace vg
      * \param data The data to decode.
      * \return The UVs.
      */
-        float4x2 GetUVs(const uint4 data)
+        float4x2 GetUVs(uint4 const data)
         {
             float4 u = DecodeFromBase17((data[2] >> 15) & BITMASK(17));
             float4 v = DecodeFromBase17((data[3] >> 15) & BITMASK(17));
@@ -110,17 +98,17 @@ namespace vg
      * \param data The data to decode.
      * \return The texture repetition.
      */
-        float2 GetTextureRepetition(const uint4 data)
+        float2 GetTextureRepetition(uint4 const data)
         {
-            const uint x = (data[2] >> 4) & BITMASK(4);
-            const uint y = (data[2] >> 0) & BITMASK(4);
+            uint const x = (data[2] >> 4) & BITMASK(4);
+            uint const y = (data[2] >> 0) & BITMASK(4);
 
             return float2(x + 1, y + 1);
         }
 
         enum Foliage
         {
-            IS_UPPER_PART = 0,
+            IS_UPPER_PART   = 0,
             IS_DOUBLE_PLANT = 1,
         };
 
@@ -130,10 +118,7 @@ namespace vg
      * \param flag The flag to get.
      * \return True if the flag is set.
      */
-        bool GetFoliageFlag(const uint4 data, const Foliage flag)
-        {
-            return (data[2] >> flag) & BITMASK(1);
-        }
+        bool GetFoliageFlag(uint4 const data, Foliage const flag) { return (data[2] >> flag) & BITMASK(1); }
     }
 }
 

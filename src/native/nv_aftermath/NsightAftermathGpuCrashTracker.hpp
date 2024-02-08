@@ -39,13 +39,13 @@ public:
     constexpr static UINT MARKER_FRAME_HISTORY = 4;
     using MarkerMap = std::array<std::map<uint64_t, std::string>, MARKER_FRAME_HISTORY>;
 
-    GpuCrashTracker(const MarkerMap& markerMap, const ShaderDatabase& shaderDatabase);
+    GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase);
     ~GpuCrashTracker();
 
-    GpuCrashTracker(const GpuCrashTracker&) = delete;
-    GpuCrashTracker& operator=(const GpuCrashTracker&) = delete;
+    GpuCrashTracker(GpuCrashTracker const&)            = delete;
+    GpuCrashTracker& operator=(GpuCrashTracker const&) = delete;
 
-    GpuCrashTracker(GpuCrashTracker&&) = delete;
+    GpuCrashTracker(GpuCrashTracker&&)            = delete;
     GpuCrashTracker& operator=(GpuCrashTracker&&) = delete;
 
     /**
@@ -59,66 +59,50 @@ public:
      * \param data The data to write.
      * \param size The size of the data to write, in bytes.
      */
-    static void WriteToAftermathFile(const std::string& name, const std::byte* data, size_t size);
+    static void WriteToAftermathFile(std::string const& name, std::byte const* data, size_t size);
 
 private:
-    void OnCrashDump(const void* pGpuCrashDump, uint32_t gpuCrashDumpSize);
-    void OnShaderDebugInfo(const void* pShaderDebugInfo, uint32_t shaderDebugInfoSize);
+    void OnCrashDump(void const* pGpuCrashDump, uint32_t gpuCrashDumpSize);
+    void OnShaderDebugInfo(void const* pShaderDebugInfo, uint32_t shaderDebugInfoSize);
     void OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription);
-    void OnResolveMarker(const void* pMarkerData, uint32_t markerDataSize, void** ppResolvedMarkerData,
-                         uint32_t* pResolvedMarkerDataSize) const;
+    void OnResolveMarker(
+        void const* pMarkerData, uint32_t markerDataSize, void** ppResolvedMarkerData,
+        uint32_t*   pResolvedMarkerDataSize) const;
 
-    void WriteGpuCrashDumpToFile(const void* pGpuCrashDump, uint32_t gpuCrashDumpSize);
+    void WriteGpuCrashDumpToFile(void const* pGpuCrashDump, uint32_t gpuCrashDumpSize);
     void WriteShaderDebugInformationToFile(
-        GFSDK_Aftermath_ShaderDebugInfoIdentifier identifier,
-        const void* pShaderDebugInfo,
-        uint32_t shaderDebugInfoSize) const;
+        GFSDK_Aftermath_ShaderDebugInfoIdentifier identifier, void const* pShaderDebugInfo,
+        uint32_t                                  shaderDebugInfoSize) const;
 
     void OnShaderDebugInfoLookup(
-        const GFSDK_Aftermath_ShaderDebugInfoIdentifier& identifier,
-        PFN_GFSDK_Aftermath_SetData setShaderDebugInfo) const;
+        GFSDK_Aftermath_ShaderDebugInfoIdentifier const& identifier,
+        PFN_GFSDK_Aftermath_SetData                      setShaderDebugInfo) const;
     void OnShaderLookup(
-        const GFSDK_Aftermath_ShaderBinaryHash& shaderHash,
-        PFN_GFSDK_Aftermath_SetData setShaderBinary) const;
+        GFSDK_Aftermath_ShaderBinaryHash const& shaderHash, PFN_GFSDK_Aftermath_SetData setShaderBinary) const;
     void OnShaderSourceDebugInfoLookup(
-        const GFSDK_Aftermath_ShaderDebugName& shaderDebugName,
-        PFN_GFSDK_Aftermath_SetData setShaderBinary) const;
+        GFSDK_Aftermath_ShaderDebugName const& shaderDebugName, PFN_GFSDK_Aftermath_SetData setShaderBinary) const;
 
-    static void GpuCrashDumpCallback(
-        const void* pGpuCrashDump,
-        uint32_t gpuCrashDumpSize,
-        void* pUserData);
-    static void ShaderDebugInfoCallback(
-        const void* pShaderDebugInfo,
-        uint32_t shaderDebugInfoSize,
-        void* pUserData);
+    static void GpuCrashDumpCallback(void const* pGpuCrashDump, uint32_t gpuCrashDumpSize, void* pUserData);
+    static void ShaderDebugInfoCallback(void const* pShaderDebugInfo, uint32_t shaderDebugInfoSize, void* pUserData);
     static void CrashDumpDescriptionCallback(
-        PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription,
-        void* pUserData);
+        PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription, void* pUserData);
     static void ResolveMarkerCallback(
-        const void* pMarkerData,
-        uint32_t markerDataSize,
-        void* pUserData,
-        void** ppResolvedMarkerData,
-        uint32_t* pResolvedMarkerDataSize
-    );
+        void const* pMarkerData, uint32_t markerDataSize, void* pUserData, void** ppResolvedMarkerData,
+        uint32_t*   pResolvedMarkerDataSize);
 
     static void ShaderDebugInfoLookupCallback(
-        const GFSDK_Aftermath_ShaderDebugInfoIdentifier* pIdentifier,
-        PFN_GFSDK_Aftermath_SetData setShaderDebugInfo,
-        void* pUserData);
+        GFSDK_Aftermath_ShaderDebugInfoIdentifier const* pIdentifier, PFN_GFSDK_Aftermath_SetData setShaderDebugInfo,
+        void*                                            pUserData);
     static void ShaderLookupCallback(
-        const GFSDK_Aftermath_ShaderBinaryHash* pShaderHash,
-        PFN_GFSDK_Aftermath_SetData setShaderBinary,
-        void* pUserData);
+        GFSDK_Aftermath_ShaderBinaryHash const* pShaderHash, PFN_GFSDK_Aftermath_SetData setShaderBinary,
+        void*                                   pUserData);
     static void ShaderSourceDebugInfoLookupCallback(
-        const GFSDK_Aftermath_ShaderDebugName* pShaderDebugName,
-        PFN_GFSDK_Aftermath_SetData setShaderBinary,
-        void* pUserData);
+        GFSDK_Aftermath_ShaderDebugName const* pShaderDebugName, PFN_GFSDK_Aftermath_SetData setShaderBinary,
+        void*                                  pUserData);
 
-    bool m_initialized;
-    mutable std::mutex m_mutex;
+    bool                                                                      m_initialized;
+    mutable std::mutex                                                        m_mutex;
     std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<uint8_t>> m_shaderDebugInfo = {};
-    const MarkerMap& m_markerMap;
-    const ShaderDatabase& m_shaderDatabase;
+    MarkerMap const&                                                          m_markerMap;
+    ShaderDatabase const&                                                     m_shaderDatabase;
 };
