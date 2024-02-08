@@ -100,7 +100,7 @@
             <EntryPointName/>
         </FxCompile>
         <PostBuildEvent>
-            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" /S /E) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" /S /E /NFL /NDL /NJH /NJS /NP /NS /NC) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
             <Message>Copy all dependecies to C# project.</Message>
         </PostBuildEvent>
     </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
             </EntryPointName>
         </FxCompile>
         <PostBuildEvent>
-            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" /S /E) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
+            <Command>(robocopy "$(TargetDir)\" "$(SolutionDir)src\support\obj\native" /S /E /NFL /NDL /NJH /NJS /NP /NS /NC) ^&amp; IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0</Command>
             <Message>Copy all dependecies to C# project.</Message>
         </PostBuildEvent>
     </ItemDefinitionGroup>
