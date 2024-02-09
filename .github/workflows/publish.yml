@@ -23,7 +23,7 @@ jobs:
       run:  dotnet publish -c Release -o Publish -r win-x64 --self-contained
     - name: Build installer
       run: msbuild /p:Configuration=Installer
-    - name: Upload Installer
+    - name: Upload installer
       uses: actions/upload-artifact@v2
       with:
         name: installer
