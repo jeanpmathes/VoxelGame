@@ -10,13 +10,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4.1.1
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
     - name: Setup msbuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
     - name: Restore dependencies
       run: dotnet restore
     - name: Publish
@@ -24,7 +24,7 @@ jobs:
     - name: Build installer
       run: msbuild /p:Configuration=Installer
     - name: Upload installer
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4.3.1
       with:
         name: installer
         path: Setup/bin/x64/Release/Setup.msi
