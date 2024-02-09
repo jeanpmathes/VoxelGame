@@ -20,7 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Publish
-      run:  dotnet publish -c Release -o Publish -r win-x64 --self-contained
+      run:  dotnet publish -c Release -r win-x64 --self-contained
     - name: Build installer
       run: msbuild /p:Configuration=Installer
     - name: Upload installer
