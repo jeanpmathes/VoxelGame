@@ -22,7 +22,7 @@ jobs:
     - name: Publish
       run: msbuild -t:Publish -p:SelfContained=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64
     - name: Build installer
-      run: msbuild ./Setup/Setup.wixproj -t:Restore,Build -p:Configuration=Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64
+      run: msbuild ./Setup/Setup.wixproj -restore -t:Build -p:Configuration=Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64
     - name: Upload installer
       uses: actions/upload-artifact@v4.3.1
       with:
