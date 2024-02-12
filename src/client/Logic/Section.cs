@@ -8,9 +8,9 @@
 
 using System;
 using System.Diagnostics;
-using OpenTK.Mathematics;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic;
@@ -24,23 +24,23 @@ public class Section : Core.Logic.Section
 {
     [NonSerialized] private bool hasMesh;
     [NonSerialized] private BlockSides missing;
-    [NonSerialized] private SectionRenderer? renderer;
+    [NonSerialized] private SectionVFX? renderer;
 
     /// <summary>
-    ///     Create a new client section.
+    ///     Create a new client section. The section is empty, requiring generation.
     /// </summary>
-    public Section()
+    public Section(SectionPosition position) : base(position)
     {
-        renderer = new SectionRenderer();
-
-        hasMesh = false;
-        disposed = false;
+        renderer = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
+        renderer.SetUp();
     }
 
     /// <inheritdoc />
     public override void Setup(Core.Logic.Section loaded)
     {
-        blocks = loaded.Cast().blocks;
+        Throw.IfDisposed(disposed);
+
+        VMath.Move(out blocks, ref loaded.Cast().blocks);
 
         // Loaded section is not disposed because this section takes ownership of the resources.
     }
@@ -48,29 +48,44 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void CreateAndSetMesh(SectionPosition position, ChunkMeshingContext context)
+    public void CreateAndSetMesh(ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         BlockSides required = GetRequiredSides(position);
         missing = required & ~context.AvailableSides & BlockSides.All;
 
-        SectionMeshData meshData = CreateMeshData(position, context);
+        using SectionMeshData meshData = CreateMeshData(context);
         SetMeshDataInternal(meshData);
     }
 
     /// <summary>
     ///     Recreate and set the mesh if it is incomplete, which means that it was meshed without all required neighbors.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void RecreateIncompleteMesh(SectionPosition position, ChunkMeshingContext context)
+    public void RecreateIncompleteMesh(ChunkMeshingContext context)
     {
+        Throw.IfDisposed(disposed);
+
         if (missing == BlockSides.None) return;
 
         BlockSides required = GetRequiredSides(position);
 
-        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(position, context);
+        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
+    }
+
+    /// <summary>
+    ///     Set that the mesh of the section is incomplete.
+    ///     This should only be called on the main thread.
+    ///     No resource access is needed, as all written variables are only accessed from the main thread.
+    /// </summary>
+    /// <param name="sides">The sides that are missing for the section.</param>
+    public void SetAsIncomplete(BlockSides sides)
+    {
+        Throw.IfDisposed(disposed);
+
+        missing |= sides;
     }
 
     private static BlockSides GetRequiredSides(SectionPosition position)
@@ -93,11 +108,12 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Create mesh data for this section.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
     /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
-    public SectionMeshData CreateMeshData(SectionPosition position, ChunkMeshingContext chunkContext)
+    public SectionMeshData CreateMeshData(ChunkMeshingContext chunkContext)
     {
+        Throw.IfDisposed(disposed);
+
         MeshingContext context = new(position, chunkContext);
 
         for (var x = 0; x < Size; x++)
@@ -133,10 +149,13 @@ public class Section : Core.Logic.Section
 
     /// <summary>
     ///     Set the mesh data for this section. The mesh must be generated from this section.
+    ///     Must be called from the main thread.
     /// </summary>
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(SectionMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         // While the mesh is not necessarily complete,
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
         missing = BlockSides.None;
@@ -144,37 +163,46 @@ public class Section : Core.Logic.Section
         SetMeshDataInternal(meshData);
     }
 
+    /// <summary>
+    ///     Set whether the renderer is enabled.
+    /// </summary>
+    public void SetRendererEnabledState(bool enabled)
+    {
+        Throw.IfDisposed(disposed);
+
+        Debug.Assert(renderer != null);
+
+        renderer.IsEnabled = enabled;
+    }
+
     private void SetMeshDataInternal(SectionMeshData meshData)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(renderer != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
 
         renderer.SetData(meshData);
     }
 
-    /// <summary>
-    ///     Render this section.
-    /// </summary>
-    /// <param name="stage">The current render stage.</param>
-    /// <param name="position">The position of this section in world coordinates.</param>
-    public void Render(int stage, Vector3d position)
-    {
-        if (hasMesh) renderer?.DrawStage(stage, position);
-    }
-
     #region IDisposable Support
 
-    [NonSerialized] private bool disposed;
+    private bool disposed;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing) renderer?.Dispose();
+        if (disposed) return;
 
-            disposed = true;
+        if (disposing)
+        {
+            renderer?.TearDown();
+            renderer?.Dispose();
         }
+
+        base.Dispose(disposing);
+
+        disposed = true;
     }
 
     #endregion IDisposable Support

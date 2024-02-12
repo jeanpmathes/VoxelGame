@@ -10,7 +10,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Input.Internal;
+using VoxelGame.Support.Definition;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -26,15 +26,15 @@ namespace VoxelGame.UI.Settings;
 internal class KeyOrButtonSetting : Setting
 #pragma warning restore S2931
 {
-    private readonly Func<KeyOrButton> get;
+    private readonly Func<VirtualKeys> get;
     private readonly Action reset;
-    private readonly Action<KeyOrButton> set;
+    private readonly Action<VirtualKeys> set;
 
     private readonly Func<bool> validate;
 
     private Button rebind = null!;
 
-    internal KeyOrButtonSetting(string name, Func<KeyOrButton> get, Action<KeyOrButton> set, Func<bool> validate,
+    internal KeyOrButtonSetting(string name, Func<VirtualKeys> get, Action<VirtualKeys> set, Func<bool> validate,
         Action reset)
     {
         this.get = get;
@@ -97,4 +97,3 @@ internal class KeyOrButtonSetting : Setting
         rebind.TextColorOverride = valid ? Color.White : Color.Red;
     }
 }
-

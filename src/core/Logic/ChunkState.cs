@@ -94,6 +94,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Whether this state allows that its access is stolen.
     ///     A state must hold write-access to its core and extended data to allow stealing.
+    ///     If a state performs work on another thread, it cannot allow stealing.
     /// </summary>
     protected virtual bool AllowStealing => false;
 
@@ -114,6 +115,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Perform updates.
+    ///     This is where the state logic, e.g. the work associated with the state as well as transitions, is performed.
     /// </summary>
     protected abstract void OnUpdate();
 
@@ -166,7 +168,8 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the description.
+    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the
+    ///     description.
     ///     This is a strong activation.
     /// </summary>
     protected void SetNextReady(TransitionDescription description = new())
@@ -199,7 +202,7 @@ public abstract class ChunkState
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <param name="description">The request description.</param>
-    public void RequestNextState(ChunkState state, RequestDescription description = new())
+    private void RequestNextState(ChunkState state, RequestDescription description = new())
     {
         state.Chunk = Chunk;
         state.Context = Context;
@@ -300,7 +303,7 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    /// Deactivate the chunk.
+    ///     Deactivate the chunk.
     /// </summary>
     protected void Deactivate()
     {
@@ -342,30 +345,12 @@ public abstract class ChunkState
 
         Debug.Assert(next.Value.transition != null);
 
-        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested)
-        {
-            nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
-        }
-        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null)
-        {
-            nextState = requestedState;
-        }
-        else if (next.Value.transition.Value.isRequired)
-        {
-            nextState = next.Value.transition.Value.state;
-        }
-        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null)
-        {
-            nextState = requestedState;
-        }
-        else if (!Chunk.IsRequested)
-        {
-            nextState = CreateFinalState();
-        }
-        else
-        {
-            nextState = next.Value.transition.Value.state;
-        }
+        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested) nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
+        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null) nextState = requestedState;
+        else if (next.Value.transition.Value.isRequired) nextState = next.Value.transition.Value.state;
+        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null) nextState = requestedState;
+        else if (!Chunk.IsRequested) nextState = CreateFinalState();
+        else nextState = next.Value.transition.Value.state;
 
         if (nextState != next.Value.transition.Value.state)
             next.Value.description.Cleanup?.Invoke();
@@ -378,7 +363,7 @@ public abstract class ChunkState
     #pragma warning restore S1871
 
     /// <summary>
-    /// Update the state of a chunk.
+    ///     Update the state of a chunk. This can change the state.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
     public static void Update(ref ChunkState state)
@@ -401,8 +386,8 @@ public abstract class ChunkState
     ///     Initialize the state of a chunk.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
-    /// <param name="chunk">The chunk.</param>
-    /// <param name="context">The context.</param>
+    /// <param name="chunk">The chunk of which the state is initialized.</param>
+    /// <param name="context">The current context.</param>
     public static void Initialize(out ChunkState state, Chunk chunk, ChunkContext context)
     {
         state = new Chunk.Unloaded
@@ -426,17 +411,22 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Try to steal access from the current state.
-    ///     If access is stolen, the state is changed.
+    ///     If access is stolen, the state is changed to the <see cref="Chunk.Used" /> state.
+    ///     Access can be stolen if the chunk is in a state that allows stealing and the state holds write-access to all its
+    ///     resources.
+    ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
-        ApplicationInformation.Instance.EnsureMainThread(state.Chunk);
+        Throw.IfNotOnMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 
-        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: {}});
-        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: {}});
+        state.OnExit();
+
+        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: not null});
+        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: not null});
 
         Guard? core = state.coreGuard;
         Guard? extended = state.extendedGuard;
@@ -464,6 +454,9 @@ public abstract class ChunkState
         return GetType().Name;
     }
 
+    /// <summary>
+    ///     Check if two states are of the same type.
+    /// </summary>
     private static bool IsSameState(ChunkState a, ChunkState b)
     {
         return a.GetType() == b.GetType();
@@ -498,9 +491,9 @@ public abstract class ChunkState
     public record struct RequestDescription
     {
         /// <summary>
-        ///     Whether to keep the current request even if the same state type is already requested.
+        ///     Whether to keep the current request even if the same state type of state is already requested.
         /// </summary>
-        public bool AllowDuplicateTypes { get; init; }
+        public bool AllowDuplicateStateByType { get; init; }
 
         /// <summary>
         ///     Whether to skip this request when deactivating the chunk.
@@ -510,7 +503,7 @@ public abstract class ChunkState
         /// <summary>
         ///     Whether to allow to discard this request if the next required state is the same as this request.
         /// </summary>
-        public bool AllowDiscardOnLoop { get; init; }
+        public bool AllowDiscardOnRepeat { get; init; }
     }
 
     /// <summary>
@@ -529,15 +522,15 @@ public abstract class ChunkState
         /// <param name="description">The description of the request.</param>
         public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
         {
-            if (description.AllowDiscardOnLoop)
+            if (description.AllowDiscardOnRepeat)
             {
-                bool nextIsLoop = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
-                bool currentIsLoop = !current.isEntered && IsSameState(current, state);
+                bool nextIsRepetition = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
+                bool currentIsRepetition = !current.isEntered && IsSameState(current, state);
 
-                if (nextIsLoop || currentIsLoop) return;
+                if (nextIsRepetition || currentIsRepetition) return;
             }
 
-            if (!description.AllowDuplicateTypes)
+            if (!description.AllowDuplicateStateByType)
             {
                 bool isDuplicate = requests.Any(request => IsSameState(request.state, state));
 
@@ -582,4 +575,3 @@ public abstract class ChunkState
         }
     }
 }
-

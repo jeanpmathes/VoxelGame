@@ -4,17 +4,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.ComponentModel;
 using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input;
-using VoxelGame.Input.Devices;
 using VoxelGame.Logging;
+using VoxelGame.Support.Core;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -22,11 +17,11 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal class Client : GameWindow, IPerformanceProvider
+internal class Client : Support.Core.Client, IPerformanceProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    private readonly InputManager input;
+    private readonly GameParameters parameters;
     private readonly SceneFactory sceneFactory;
 
     private readonly SceneManager sceneManager;
@@ -36,13 +31,13 @@ internal class Client : GameWindow, IPerformanceProvider
     /// <summary>
     ///     Create a new game instance.
     /// </summary>
-    /// <param name="gameWindowSettings">The game window settings.</param>
-    /// <param name="nativeWindowSettings">The native window settings.</param>
+    /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
-    internal Client(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings,
-        GraphicsSettings graphicsSettings) : base(gameWindowSettings, nativeWindowSettings)
+    /// <param name="parameters">The parameters, passed from the command line.</param>
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters) : base(windowSettings)
     {
         Instance = this;
+        this.parameters = parameters;
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
@@ -52,15 +47,9 @@ internal class Client : GameWindow, IPerformanceProvider
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);
 
-        Load += OnLoad;
+        Keybinds = new KeybindManager(Input);
 
-        RenderFrame += OnRenderFrame;
-        UpdateFrame += OnUpdateFrame;
-
-        Closing += OnClosing;
-
-        input = new InputManager(this);
-        Keybinds = new KeybindManager(input);
+        OnSizeChange += OnSizeChanged;
     }
 
     /// <summary>
@@ -72,11 +61,6 @@ internal class Client : GameWindow, IPerformanceProvider
     ///     Get the keybinds bound for the game.
     /// </summary>
     internal KeybindManager Keybinds { get; }
-
-    /// <summary>
-    ///     Get the mouse used by the client,
-    /// </summary>
-    internal Mouse Mouse => input.Mouse;
 
     internal GeneralSettings Settings { get; }
     internal GraphicsSettings Graphics { get; }
@@ -91,27 +75,24 @@ internal class Client : GameWindow, IPerformanceProvider
     /// </summary>
     internal Game? CurrentGame { get; private set; }
 
-    private double Time { get; set; }
-
-    internal double FPS => screenBehaviour.FPS;
-    internal double UPS => screenBehaviour.UPS;
+    private double FPS => screenBehaviour.FPS;
+    private double UPS => screenBehaviour.UPS;
 
     double IPerformanceProvider.FPS => FPS;
     double IPerformanceProvider.UPS => UPS;
 
-    private new void OnLoad()
+    protected override void OnInit()
     {
         using (logger.BeginScope("Client OnLoad"))
         {
-            Resources.Prepare();
-
             screenBehaviour = new ScreenBehaviour(this);
 
             LoadingContext loadingContext = new();
 
-            Resources.Load(loadingContext);
+            Resources.Load(Graphics.VisualConfiguration, loadingContext);
 
-            sceneManager.Load(sceneFactory.CreateStartScene(loadingContext.State));
+            IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
+            sceneManager.Load(startScene);
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
 
@@ -120,43 +101,33 @@ internal class Client : GameWindow, IPerformanceProvider
         }
     }
 
-    private new void OnRenderFrame(FrameEventArgs e)
+    protected override void OnRender(double delta)
     {
         using (logger.BeginScope("RenderFrame"))
         {
-            Time += e.Time;
-
-            Resources.Shaders.SetTime((float) Time);
-
-            screenBehaviour.Clear();
-
-            sceneManager.Render((float) e.Time);
-
-            screenBehaviour.Draw(e.Time);
-
-            SwapBuffers();
+            sceneManager.Render((float) delta);
+            screenBehaviour.Draw(delta);
         }
     }
 
-    private new void OnUpdateFrame(FrameEventArgs e)
+    protected override void OnUpdate(double delta)
     {
         using (logger.BeginScope("UpdateFrame"))
         {
-            double deltaTime = MathHelper.Clamp(e.Time, min: 0f, max: 1f);
-
-            input.UpdateState(KeyboardState, MouseState);
-
-            sceneManager.Update(deltaTime);
-            screenBehaviour.Update(e.Time);
+            sceneManager.Update(delta);
+            screenBehaviour.Update(delta);
         }
     }
 
-    private new void OnClosing(CancelEventArgs e)
+    protected override void OnDestroy()
     {
-        logger.LogInformation(Events.WindowState, "Closing window");
-
         sceneManager.Unload();
-        Resources.Unload();
+        Resources.Dispose();
+    }
+
+    protected override bool CanClose()
+    {
+        return sceneManager.CanCloseWindow();
     }
 
     /// <summary>
@@ -176,16 +147,34 @@ internal class Client : GameWindow, IPerformanceProvider
     /// </summary>
     internal void ExitGame()
     {
-        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null);
+        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
         sceneManager.Load(startScene);
 
         CurrentGame = null;
     }
 
-    internal void OnResize(Vector2i size)
+    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
     {
-        sceneManager.OnResize(size);
+        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
+
+        sceneManager.OnResize(Size);
     }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) OnSizeChange -= OnSizeChanged;
+
+        base.Dispose(disposing);
+
+        disposed = true;
+    }
+
+    #endregion IDisposable Support
 }
-
-

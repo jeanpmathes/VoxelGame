@@ -33,4 +33,3 @@ public interface IMap
     /// <returns>The temperature, in degrees Celsius.</returns>
     double GetTemperature(Vector3d position);
 }
-

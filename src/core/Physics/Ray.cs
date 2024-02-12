@@ -88,4 +88,3 @@ public readonly struct Ray : IEquatable<Ray>
         return Origin.Equals(other.Origin) && Direction.Equals(other.Direction);
     }
 }
-

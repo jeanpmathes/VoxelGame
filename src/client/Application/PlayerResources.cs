@@ -4,10 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using OpenTK.Graphics.OpenGL4;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Application;
 
@@ -24,23 +23,15 @@ public class PlayerResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(LoadingContext loadingContext)
+    public void Load(Support.Core.Client client, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.ResourceLoad, "Player"))
         {
-            Crosshair = new Texture(loadingContext,
+            Crosshair = Texture.Load(
+                client,
                 FileSystem.GetResourceDirectory("Textures", "UI").GetFile("crosshair.png"),
-                TextureUnit.Texture10,
+                loadingContext,
                 fallbackResolution: 32);
         }
     }
-
-    /// <summary>
-    ///     Unloads all the resources.
-    /// </summary>
-    public void Unload()
-    {
-        Crosshair.Dispose();
-    }
 }
-

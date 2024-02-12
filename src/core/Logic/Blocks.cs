@@ -38,7 +38,7 @@ public class Blocks
     private readonly List<Block> blockList = new();
     private readonly Dictionary<string, Block> namedBlockDictionary = new();
 
-    private Blocks(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
         {
@@ -388,7 +388,7 @@ public class Blocks
             Vase = Register(new CustomModelBlock(
                 Language.Vase,
                 nameof(Vase),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "vase",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f))));
 
@@ -407,20 +407,21 @@ public class Blocks
             Carpet = Register(new TintedCustomModelBlock(
                 Language.Carpet,
                 nameof(Carpet),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "carpet",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             CarpetDecorated = Register(new TintedCustomModelBlock(
                 Language.DecoratedCarpet,
                 nameof(CarpetDecorated),
-                BlockFlags.Solid,
+                BlockFlags.Basic,
                 "carpet_decorated",
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             GlassPane = Register(new ThinConnectingBlock(
                 Language.GlassPane,
                 nameof(GlassPane),
+                isOpaque: false,
                 "pane_glass_post",
                 "pane_glass_side",
                 "pane_glass_extension"));
@@ -428,6 +429,7 @@ public class Blocks
             Bars = Register(new ThinConnectingBlock(
                 Language.Bars,
                 nameof(Bars),
+                isOpaque: true,
                 "bars_post",
                 "bars_side",
                 "bars_extension"));
@@ -628,7 +630,7 @@ public class Blocks
 
                 var id = (uint) (blockList.Count - 1);
 
-                block.Setup(id, indexProvider);
+                block.Setup(id, indexProvider, visuals);
 
                 loadingContext.ReportSuccess(Events.BlockLoad, nameof(Block), block.NamedID);
             }
@@ -648,7 +650,7 @@ public class Blocks
     public int Count => blockList.Count;
 
     /// <summary>
-    /// Get special blocks as their actual block type.
+    ///     Get special blocks as their actual block type.
     /// </summary>
     internal SpecialBlocks Specials { get; }
 
@@ -674,11 +676,11 @@ public class Blocks
     /// <summary>
     ///     Translate a named ID to the block that has that ID.
     /// </summary>
-    /// <param name="namedId">The named ID to translate.</param>
+    /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The block, or null if no block with the ID exists.</returns>
-    public Block? TranslateNamedID(string namedId)
+    public Block? TranslateNamedID(string namedID)
     {
-        namedBlockDictionary.TryGetValue(namedId, out Block? block);
+        namedBlockDictionary.TryGetValue(namedID, out Block? block);
 
         return block;
     }
@@ -686,9 +688,9 @@ public class Blocks
     /// <summary>
     ///     Loads all blocks and sets them up.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
-        Instance = new Blocks(indexProvider, loadingContext);
+        Instance = new Blocks(indexProvider, visuals, loadingContext);
     }
 
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]

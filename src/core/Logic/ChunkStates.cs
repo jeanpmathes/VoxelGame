@@ -61,14 +61,8 @@ public partial class Chunk
             {
                 guard.Dispose();
 
-                if (task.IsFaulted)
-                {
-                    HandleFaultedTask(task);
-                }
-                else
-                {
-                    HandleSuccessfulTask(task);
-                }
+                if (task.IsFaulted) HandleFaultedTask(task);
+                else HandleSuccessfulTask(task);
             }
         }
 
@@ -229,7 +223,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnEnter()
         {
-            chunks[x: 1, y: 1, z: 1] = Chunk;
+            chunks.Center = Chunk;
         }
 
         /// <inheritdoc />
@@ -427,5 +421,3 @@ public partial class Chunk
         }
     }
 }
-
-

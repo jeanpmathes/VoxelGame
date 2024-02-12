@@ -114,4 +114,3 @@ public class UnionFind
         return size[Find(p)];
     }
 }
-

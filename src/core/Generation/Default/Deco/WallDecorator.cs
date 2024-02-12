@@ -32,4 +32,3 @@ public class WallDecorator : Decorator
         return false;
     }
 }
-

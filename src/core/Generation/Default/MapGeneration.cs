@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -304,7 +305,6 @@ public partial class Map
             }
 
             if (x != 0) CheckForCollision((x - 1, y));
-
             if (y != 0) CheckForCollision((x, y - 1));
         }
 
@@ -392,6 +392,12 @@ public partial class Map
         }
     }
 
+    /// <summary>
+    ///     Handle a convergent boundary between two tectonic plates.
+    ///     A convergent boundary is where two plates move towards each other.
+    ///     If both cells are land, they are pushed upwards.
+    ///     If one cell is land and the other is not, the water cell is pushed under the land cell.
+    /// </summary>
     private static void HandleConvergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
     {
         double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
@@ -435,6 +441,11 @@ public partial class Map
         }
     }
 
+    /// <summary>
+    ///     Handle a transform boundary between two tectonic plates.
+    ///     A transform boundary is where two plates slide past each other.
+    ///     This does not affect the height of the cells, but it does cause seismic activity.
+    /// </summary>
     private static void HandleTransformBoundary(Data data, TectonicCell a, TectonicCell b)
     {
         ref Cell cellA = ref data.GetCell(a.position);
@@ -444,6 +455,13 @@ public partial class Map
         cellB.conditions |= CellConditions.SeismicActivity;
     }
 
+    /// <summary>
+    ///     Handle a divergent boundary between two tectonic plates.
+    ///     A divergent boundary is where two plates move away from each other.
+    ///     Land cells are pushed downwards, water cells are pushed upwards.
+    ///     If both cells are land, a rift is created.
+    ///     If both cells are water, a rift and vulcanism is created.
+    /// </summary>
     private static void HandleDivergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
     {
         double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
@@ -485,7 +503,7 @@ public partial class Map
 
     private static void EmitTerrainView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -494,7 +512,7 @@ public partial class Map
             view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(path.GetFile("terrain_view.png").FullName);
+        view.Save(path.GetFile("terrain_view.png"));
     }
 
     private static Color GetTerrainColor(Cell current)
@@ -541,7 +559,7 @@ public partial class Map
 
     private static void EmitTemperatureView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -550,7 +568,7 @@ public partial class Map
             view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
-        view.Save(path.GetFile("temperature_view.png").FullName);
+        view.Save(path.GetFile("temperature_view.png"));
     }
 
     private static HumidityData[] CreateInitialHumidityData()
@@ -574,7 +592,7 @@ public partial class Map
         for (var step = 0; step < simulationSteps; step++)
         {
             SimulateClimate(data, current, next);
-            (current, next) = (next, current);
+            VMath.Swap(ref current, ref next);
         }
 
         for (var x = 0; x < Width; x++)
@@ -681,7 +699,7 @@ public partial class Map
 
     private static void EmitHumidityView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -690,7 +708,7 @@ public partial class Map
             view.SetPixel(x, y, GetHumidityColor(current));
         }
 
-        view.Save(path.GetFile("precipitation_view.png").FullName);
+        view.Save(path.GetFile("precipitation_view.png"));
     }
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
@@ -700,7 +718,7 @@ public partial class Map
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -709,7 +727,7 @@ public partial class Map
             view.SetPixel(x, y, GetBiomeColor(current, biomes));
         }
 
-        view.Save(path.GetFile("biome_view.png").FullName);
+        view.Save(path.GetFile("biome_view.png"));
     }
 
     private static Color GetStoneTypeColor(Cell current)
@@ -729,7 +747,7 @@ public partial class Map
 
     private static void EmitStoneView(Data data, DirectoryInfo path)
     {
-        using Bitmap view = new(Width, Width);
+        Image view = new(Width, Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -738,7 +756,7 @@ public partial class Map
             view.SetPixel(x, y, GetStoneTypeColor(current));
         }
 
-        view.Save(path.GetFile("stone_view.png").FullName);
+        view.Save(path.GetFile("stone_view.png"));
     }
 
     private record struct HumidityData
@@ -764,5 +782,3 @@ public partial class Map
         public Vector2i position;
     }
 }
-
-

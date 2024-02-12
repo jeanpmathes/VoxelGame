@@ -51,5 +51,3 @@ public interface IWorldProvider
     /// <param name="path">The path to the world to delete.</param>
     void DeleteWorld(DirectoryInfo path);
 }
-
-

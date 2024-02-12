@@ -91,5 +91,3 @@ public static class ManualBuilder
         public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
     }
 }
-
-

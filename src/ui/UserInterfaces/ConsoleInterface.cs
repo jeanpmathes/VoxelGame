@@ -12,7 +12,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.Controls;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -245,8 +245,6 @@ public class ConsoleInterface
         consoleWindow = null;
         consoleInput = null;
         consoleOutput = null;
-
-        context.Input.AbsorbMousePress();
 
         WindowClosed(this, EventArgs.Empty);
     }

@@ -326,4 +326,3 @@ public class GeneratedStructure
         return true;
     }
 }
-

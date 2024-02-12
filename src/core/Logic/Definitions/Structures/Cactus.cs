@@ -22,4 +22,3 @@ public class Cactus : DynamicStructure
         return (new Content(Logic.Blocks.Instance.Cactus), true);
     }
 }
-

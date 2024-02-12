@@ -47,5 +47,3 @@ public class Palette
         return type == Map.StoneType.Sandstone ? sandGroundwater : gravelGroundwater;
     }
 }
-
-

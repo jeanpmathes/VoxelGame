@@ -42,6 +42,10 @@ internal sealed class FontHolder : IDisposable
     internal Font Console { get; }
     internal Font ConsoleError { get; }
 
+    #region IDisposable Support
+
+    private bool disposed;
+
     public void Dispose()
     {
         Dispose(disposing: true);
@@ -50,16 +54,24 @@ internal sealed class FontHolder : IDisposable
 
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         Title.Dispose();
         Subtitle.Dispose();
         Small.Dispose();
         Path.Dispose();
+
+        Console.Dispose();
+        ConsoleError.Dispose();
+
+        disposed = true;
     }
 
     ~FontHolder()
     {
         Dispose(disposing: false);
     }
+
+    #endregion IDisposable Support
 }

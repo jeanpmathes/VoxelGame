@@ -1,47 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>3.10</ProductVersion>
-    <ProjectGuid>a528b57b-6ae1-49b9-b725-4ba1ba264d71</ProjectGuid>
-    <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>Setup</OutputName>
-    <OutputType>Package</OutputType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <DefineConstants>Debug</DefineConstants>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <DefineConstants>Debug</DefineConstants>
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-      <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
-  </PropertyGroup>
+<Project>
+    <Import Project="Sdk.props" Sdk="WixToolset.Sdk" Version="4.0.4"/>
+    <PropertyGroup>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>x64</Platforms>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+        <DefineConstants>Debug</DefineConstants>
+        <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+        <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+    </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
         <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
         <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);HEAT5151;HEAT5150</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <ApplicationFilesPath>../src/client/bin/$(Platform)/$(Configuration)/net6.0-windows/$(RuntimeIdentifier)</ApplicationFilesPath>
+        <DefineConstants>$(DefineConstants);ApplicationFilesPath=$(ApplicationFilesPath);</DefineConstants>
+    </PropertyGroup>
+    <Target Name="ValidateApplicationFilesPath" BeforeTargets="CoreCompile">
+        <Error Condition="!Exists($(ApplicationFilesPath))" Text="The directory $(ApplicationFilesPath) does not exist. Please publish the application before building the installer."/>
+    </Target>
     <ItemGroup>
-        <Compile Include="dependencies.wxs"/>
+        <HarvestDirectory Include="$(ApplicationFilesPath)" Visible="false">
+            <ComponentGroupName>ApplicationFiles</ComponentGroupName>
+            <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+            <SuppressRootDirectory>true</SuppressRootDirectory>
+            <PreprocessorVariable>var.ApplicationFilesPath</PreprocessorVariable>
+        </HarvestDirectory>
+    </ItemGroup>
+
+    <Target Name="SetProductVersionFromClient" BeforeTargets="CoreCompile">
+        <XmlPeek XmlInputPath="../src/client/VoxelGame.Client.csproj" Query="//Project/PropertyGroup/Version/text()">
+            <Output TaskParameter="Result" ItemName="version"/>
+        </XmlPeek>
+        <Message Text="ProductVersion: @(version)" Importance="high"/>
+        <PropertyGroup>
+            <ProductVersion>@(version)</ProductVersion>
+            <DefineConstants>$(DefineConstants);ProductVersion=$(ProductVersion);</DefineConstants>
+        </PropertyGroup>
+    </Target>
+
+    <PropertyGroup>
+        <ProductName>VoxelGame</ProductName>
+        <DefineConstants>$(DefineConstants);ProductName=$(ProductName);</DefineConstants>
+
+        <ProductManufacturer>jeanpmathes</ProductManufacturer>
+        <DefineConstants>$(DefineConstants);ProductManufacturer=$(ProductManufacturer);</DefineConstants>
+
+        <ApplicationExecutablePath>$(ApplicationFilesPath)/$(ProductName).Client.exe</ApplicationExecutablePath>
+        <DefineConstants>$(DefineConstants);ApplicationExecutablePath=$(ApplicationExecutablePath);</DefineConstants>
+
+        <ResourcesDirectory>Resources</ResourcesDirectory>
+        <DefineConstants>$(DefineConstants);ResourcesDirectory=$(ResourcesDirectory);</DefineConstants>
+
+        <ImageResourcesDirectory>$(ResourcesDirectory)/Images</ImageResourcesDirectory>
+        <DefineConstants>$(DefineConstants);ImageResourcesDirectory=$(ImageResourcesDirectory);</DefineConstants>
+
+        <IconResourcesDirectory>$(ResourcesDirectory)/Icons</IconResourcesDirectory>
+        <DefineConstants>$(DefineConstants);IconResourcesDirectory=$(IconResourcesDirectory);</DefineConstants>
+
+        <ManualResourcesDirectory>$(ResourcesDirectory)/Manual</ManualResourcesDirectory>
+        <DefineConstants>$(DefineConstants);ManualResourcesDirectory=$(ManualResourcesDirectory);</DefineConstants>
+
+        <LicensePath>$(ResourcesDirectory)/license.rtf</LicensePath>
+        <DefineConstants>$(DefineConstants);LicensePath=$(LicensePath);</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
         <Compile Include="VoxelGame.wxs"/>
     </ItemGroup>
+
     <ItemGroup>
-        <Content Include="Resources\Icons\chunk_icon.ico"/>
         <Content Include="Resources\Icons\vg_icon.ico"/>
         <Content Include="Resources\Images\banner.bmp"/>
         <Content Include="Resources\Images\dialog.bmp"/>
@@ -50,27 +85,19 @@
         <Content Include="Resources\Manual\fluids.tex"/>
         <Content Include="Resources\Manual\manual.pdf"/>
         <Content Include="Resources\Manual\manual.tex"/>
-        <Content Include="Transform.xslt"/>
-        <Content Include="VoxelGame.wxi"/>
         <Content Include="Resources\license.rtf"/>
     </ItemGroup>
+
     <ItemGroup>
-        <WixExtension Include="WixUIExtension">
-            <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
-            <Name>WixUIExtension</Name>
-        </WixExtension>
+        <PackageReference Include="WixToolset.Heat" Version="4.0.4"/>
+        <PackageReference Include="WixToolset.UI.wixext" Version="4.0.4"/>
+        <PackageReference Include="WixToolset.Util.wixext" Version="4.0.4"/>
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Resources"/>
         <Folder Include="Resources\Images"/>
         <Folder Include="Resources\Icons"/>
+        <Folder Include="Resources\Manual\"/>
     </ItemGroup>
-    <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' "/>
-    <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') "/>
-    <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
-        <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/"/>
-    </Target>
-    <PropertyGroup>
-        <PreBuildEvent>"%WIX%bin\heat.exe" dir $(SolutionDir)Publish -srd -sreg -nologo -cg Dependencies -dr INSTALLFOLDER -wixvar -var wix.PublishDir -gg -g1 -o $(ProjectDir)dependencies.wxs -t $(ProjectDir)Transform.xslt</PreBuildEvent>
-    </PropertyGroup>
+    <Import Project="Sdk.targets" Sdk="WixToolset.Sdk" Version="4.0.4"/>
 </Project>

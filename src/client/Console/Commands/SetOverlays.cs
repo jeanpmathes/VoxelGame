@@ -32,7 +32,6 @@ public class SetOverlays : Command
     /// </summary>
     public static void Do(Context context, bool enabled)
     {
-        context.Player.OverlayEnabled = enabled;
+        context.Player.SetOverlayAllowed(enabled);
     }
 }
-

@@ -4,6 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Interfaces;
+
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
@@ -53,6 +56,17 @@ public enum FluidLevel
 }
 
 /// <summary>
+///     Constants for fluid levels.
+/// </summary>
+public static class FluidLevels
+{
+    /// <summary>
+    ///     Indicates that there is no fluid.
+    /// </summary>
+    public const int None = -1;
+}
+
+/// <summary>
 ///     Extension methods for <see cref="FluidLevel" />.
 /// </summary>
 public static class FluidLevelExtensions
@@ -62,7 +76,23 @@ public static class FluidLevelExtensions
     /// </summary>
     public static int GetBlockHeight(this FluidLevel level)
     {
-        return (int) level * 2 + 1;
+        return IHeightVariable.GetBlockHeightFromFluidHeight((int) level);
+    }
+
+    /// <summary>
+    ///     Get the texture coordinates for the fluid level.
+    /// </summary>
+    /// <param name="level">The fluid level.</param>
+    /// <param name="skip">How much of the face to skip, in block height units.</param>
+    /// <param name="flow">The flow direction.</param>
+    /// <returns>The texture coordinates.</returns>
+    public static (Vector2 min, Vector2 max) GetUVs(this FluidLevel level, int skip, VerticalFlow flow)
+    {
+        float size = IHeightVariable.GetSize(level.GetBlockHeight());
+        float skipped = IHeightVariable.GetSize(skip);
+
+        return flow != VerticalFlow.Upwards
+            ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))
+            : (new Vector2(x: 0, 1 - size), new Vector2(x: 1, 1 - skipped));
     }
 }
-

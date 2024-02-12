@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace VoxelGame.Core;
@@ -19,6 +18,8 @@ public class ApplicationInformation
     {
         Version = version;
         MainThread = Thread.CurrentThread;
+
+        SetDebugMode();
     }
 
     /// <summary>
@@ -34,20 +35,24 @@ public class ApplicationInformation
     public string Version { get; }
 
     /// <summary>
+    ///     Whether the application is running on a debug build.
+    /// </summary>
+    internal bool IsDebug { get; private set; }
+
+    /// <summary>
     ///     Get the main thread of the application.
     /// </summary>
     private Thread MainThread { get; }
 
     /// <summary>
-    ///     Ensure that the current thread is the main thread.
+    ///     Check if the current thread is the main thread.
     /// </summary>
-    /// <returns>True if the current thread is the main thread.</returns>
-    [Conditional("DEBUG")]
-    public void EnsureMainThread(object @object, [CallerMemberName] string operation = "")
-    {
-        if (Thread.CurrentThread == MainThread) return;
+    public bool IsOnMainThread => Thread.CurrentThread == MainThread;
 
-        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
+    [Conditional("DEBUG")]
+    private void SetDebugMode()
+    {
+        IsDebug = true;
     }
 
     /// <summary>
@@ -63,4 +68,3 @@ public class ApplicationInformation
         IsInitialized = true;
     }
 }
-

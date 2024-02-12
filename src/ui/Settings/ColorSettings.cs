@@ -53,6 +53,16 @@ internal class ColorSettings : Setting
         {
             set(ConvertColor(colorPicker.SelectedColor));
             Provider.Validate();
+
+            select.Disable();
+        };
+
+        select.Disable();
+
+        colorPicker.ColorChanged += (_, _) =>
+        {
+            select.Enable();
+            select.Redraw();
         };
     }
 
@@ -66,4 +76,3 @@ internal class ColorSettings : Setting
         return new Gwen.Net.Color(color.A, color.R, color.G, color.B);
     }
 }
-

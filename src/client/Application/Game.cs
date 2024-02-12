@@ -9,6 +9,7 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Application;
 
@@ -37,7 +38,7 @@ public sealed class Game : IDisposable
     /// <summary>
     ///     The game in which the player is playing.
     /// </summary>
-    public World World { get; }
+    private World World { get; }
 
     /// <summary>
     ///     Get the console used for the game.
@@ -47,7 +48,7 @@ public sealed class Game : IDisposable
     /// <summary>
     ///     Get the update counter used for the game.
     /// </summary>
-    public UpdateCounter UpdateCounter { get; } = new();
+    private UpdateCounter UpdateCounter { get; } = new();
 
     /// <summary>
     ///     Set up the game.
@@ -55,6 +56,8 @@ public sealed class Game : IDisposable
     /// <param name="console">The console to use.</param>
     public void Initialize(ConsoleWrapper console)
     {
+        Throw.IfDisposed(disposed);
+
         Console = console;
 
         UpdateCounter.Reset();
@@ -66,6 +69,8 @@ public sealed class Game : IDisposable
     /// <param name="deltaTime">The time since the last update.</param>
     public void Update(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         UpdateCounter.Increment();
 
         Console.Flush();
@@ -78,10 +83,14 @@ public sealed class Game : IDisposable
     /// </summary>
     public void Render()
     {
+        Throw.IfDisposed(disposed);
+
         World.Render();
     }
 
     #region IDisposable Support
+
+    private bool disposed;
 
     /// <inheritdoc />
     public void Dispose()
@@ -100,13 +109,14 @@ public sealed class Game : IDisposable
 
     private void Dispose(bool disposing)
     {
+        if (disposed) return;
         if (!disposing) return;
 
         World.Dispose();
         Player.Dispose();
+
+        disposed = true;
     }
 
     #endregion IDisposable Support
 }
-
-

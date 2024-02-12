@@ -71,4 +71,3 @@ public interface ICommand
     /// <param name="context">The command execution context.</param>
     void SetContext(Context context);
 }
-

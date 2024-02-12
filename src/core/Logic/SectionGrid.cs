@@ -54,4 +54,3 @@ public class SectionGrid : IGrid
         section.SetContent(localPosition.x, localPosition.y, localPosition.z, Section.Encode(content));
     }
 }
-

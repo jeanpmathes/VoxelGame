@@ -43,5 +43,3 @@ public class EditScript : Command
         OS.Start(path);
     }
 }
-
-

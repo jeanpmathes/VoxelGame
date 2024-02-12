@@ -60,5 +60,3 @@ public interface IWorldGenerator
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
 }
-
-

@@ -19,13 +19,20 @@ public class ChunkMeshingContext
     private readonly Chunk mid;
     private (Chunk chunk, Guard? guard)?[] neighbors;
 
-    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, BlockSides availableSides)
+    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, BlockSides availableSides, IMeshingFactory meshingFactory)
     {
         this.mid = mid;
         this.neighbors = neighbors;
 
         AvailableSides = availableSides;
+
+        MeshingFactory = meshingFactory;
     }
+
+    /// <summary>
+    ///     Get the meshing factory which can be used to create meshing instances.
+    /// </summary>
+    public IMeshingFactory MeshingFactory { get; }
 
     /// <summary>
     ///     Get the sides at which neighbors are considered.
@@ -42,8 +49,9 @@ public class ChunkMeshingContext
     ///     Use this method when meshing on a separate thread, but acquire on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to acquire the neighbors of. Must itself have sufficient access for meshing.</param>
+    /// <param name="meshingFactory">The meshing factory to use.</param>
     /// <returns>A context that can be used to mesh the chunk.</returns>
-    public static ChunkMeshingContext Acquire(Chunk chunk)
+    public static ChunkMeshingContext Acquire(Chunk chunk, IMeshingFactory meshingFactory)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
         var availableSides = BlockSides.None;
@@ -60,17 +68,18 @@ public class ChunkMeshingContext
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, meshingFactory);
     }
 
     /// <summary>
     ///     Create a meshing context using the given chunk. Use this method when meshing on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to mesh.</param>
+    /// <param name="meshingFactory">The meshing factory to use.</param>
     /// <returns>A context that can be used to mesh the chunk.</returns>
-    public static ChunkMeshingContext UsingActive(Chunk chunk)
+    public static ChunkMeshingContext UsingActive(Chunk chunk, IMeshingFactory meshingFactory)
     {
-        ApplicationInformation.Instance.EnsureMainThread(chunk);
+        Throw.IfNotOnMainThread(chunk);
 
         var foundNeighbors = new (Chunk, Guard?)?[6];
         var availableSides = BlockSides.None;
@@ -85,7 +94,7 @@ public class ChunkMeshingContext
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, meshingFactory);
     }
 
     /// <summary>
@@ -96,7 +105,7 @@ public class ChunkMeshingContext
     /// <param name="chunk">The chunk to get the sides of.</param>
     /// <param name="used">The sides which where used the last time the chunk was meshed.</param>
     /// <returns>
-    /// The sides that should be used. Is empty if no improvements are necessary or possible.
+    ///     The sides that should be used. Is empty if no improvements are necessary or possible.
     /// </returns>
     public static BlockSides DetermineImprovementSides(Chunk chunk, BlockSides used)
     {
@@ -150,4 +159,3 @@ public class ChunkMeshingContext
         neighbors = null!;
     }
 }
-

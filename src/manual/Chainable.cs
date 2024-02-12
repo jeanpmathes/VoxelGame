@@ -108,4 +108,3 @@ public abstract class Chainable
         throw new InvalidOperationException();
     }
 }
-

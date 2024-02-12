@@ -4,7 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Runtime;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Visuals;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -42,6 +45,18 @@ public class SceneManager
 
         current.Unload();
         current.Dispose();
+
+        Graphics.Instance.Reset();
+
+        Cleanup();
+    }
+
+    private static void Cleanup()
+    {
+        #pragma warning disable S1215 // When unloading, many objects have just died.
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+        #pragma warning restore S1215 // When unloading, many objects have just died.
     }
 
     /// <summary>
@@ -70,5 +85,12 @@ public class SceneManager
     {
         current?.Update(deltaTime);
     }
-}
 
+    /// <summary>
+    ///     Whether the current scene allows that the window is closed.
+    /// </summary>
+    public bool CanCloseWindow()
+    {
+        return current?.CanCloseWindow() ?? true;
+    }
+}

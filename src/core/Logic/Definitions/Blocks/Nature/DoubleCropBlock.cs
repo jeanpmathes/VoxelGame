@@ -22,10 +22,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // l: lowered
 // s: stage
 // h: height
-public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
+public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
+    private readonly List<BlockMesh> meshes = new();
     private readonly List<BoundingVolume> volumes = new();
 
     private (
@@ -33,15 +34,12 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final
         ) stages;
 
-    private int[] stageTextureIndicesLow = null!;
-    private int[] stageTextureIndicesTop = null!;
-
-    internal DoubleCropBlock(string name, string namedId, string texture, int dead, int first, int second,
+    internal DoubleCropBlock(string name, string namedID, string texture, int dead, int first, int second,
         int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth,
         (int low, int top) final) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {
@@ -52,22 +50,17 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
-    ICropPlant.MeshData ICropPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
         var stageData = (int) (info.Data & 0b00_0111);
 
         bool isUpper = (info.Data & 0b00_1000) != 0;
-        bool isLowered = (info.Data & 0b01_0000) != 0;
         bool hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
 
-        int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
-
-        return new ICropPlant.MeshData(textureIndex)
+        return new IFoliage.MeshData(meshes[(int) (info.Data & 0b01_1111)])
         {
-            HasUpper = hasUpper,
-            IsLowered = isLowered,
-            IsUpper = isUpper,
-            IsDoubleCropPlant = true
+            IsDoublePlant = hasUpper,
+            IsUpperPart = isUpper
         };
     }
 
@@ -78,13 +71,13 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         int baseIndex = indexProvider.GetTextureIndex(texture);
 
         if (baseIndex == 0) stages = (0, 0, 0, 0, (0, 0), (0, 0), (0, 0), (0, 0));
 
-        stageTextureIndicesLow = new[]
+        int[] stageTextureIndicesLow =
         {
             baseIndex + stages.dead,
             baseIndex + stages.first,
@@ -96,7 +89,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
             baseIndex + stages.final.low
         };
 
-        stageTextureIndicesTop = new[]
+        int[] stageTextureIndicesTop =
         {
             0,
             0,
@@ -107,6 +100,8 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
             baseIndex + stages.sixth.top,
             baseIndex + stages.final.top
         };
+
+        for (uint data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, stageTextureIndicesLow, stageTextureIndicesTop, visuals));
     }
 
     private static BoundingVolume CreateVolume(uint data)
@@ -120,6 +115,17 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
             return BoundingVolume.BlockWithHeight(height: 7);
 
         return BoundingVolume.BlockWithHeight(height: 15);
+    }
+
+    private static BlockMesh CreateMesh(uint data, int[] stageTextureIndicesLow, int[] stageTextureIndicesTop, VisualConfiguration visuals)
+    {
+        var stageData = (int) (data & 0b00_0111);
+        bool isUpper = (data & 0b00_1000) != 0;
+        bool isLowered = (data & 0b01_0000) != 0;
+
+        int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
+
+        return BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered);
     }
 
     /// <inheritdoc />
@@ -241,4 +247,3 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, ICropPlant
         Final = 7
     }
 }
-

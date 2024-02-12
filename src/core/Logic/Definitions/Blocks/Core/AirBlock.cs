@@ -22,11 +22,11 @@ public class AirBlock : Block, IFillable
     ///     Initializes a new instance of the <see cref="AirBlock" /> class.
     /// </summary>
     /// <param name="name">The name of this block</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
-    internal AirBlock(string name, string namedId) :
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
+    internal AirBlock(string name, string namedID) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Empty,
             BoundingVolume.Block) {}
 
@@ -42,4 +42,3 @@ public class AirBlock : Block, IFillable
         return false;
     }
 }
-

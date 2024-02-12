@@ -39,4 +39,3 @@ internal class BooleanSetting : Setting
         checkBox.CheckChanged += (_, _) => set(checkBox.IsChecked);
     }
 }
-

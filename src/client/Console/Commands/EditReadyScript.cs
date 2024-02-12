@@ -27,4 +27,3 @@ public class EditReadyScript : Command
         EditScript.Do(Context, GameConsole.WorldReadyScript);
     }
 }
-

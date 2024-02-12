@@ -26,5 +26,3 @@ public record Context(ConsoleWrapper Console, CommandInvoker Invoker, Player Pla
         return this with {IsScript = true};
     }
 }
-
-

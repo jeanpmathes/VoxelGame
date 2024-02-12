@@ -172,4 +172,3 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
         return new SectionPosition(first.X + localSection.x, first.Y + localSection.y, first.Z + localSection.z);
     }
 }
-

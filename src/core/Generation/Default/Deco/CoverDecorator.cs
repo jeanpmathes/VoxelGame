@@ -51,4 +51,3 @@ public class CoverDecorator : SurfaceDecorator
         return below.Block.Block == block;
     }
 }
-

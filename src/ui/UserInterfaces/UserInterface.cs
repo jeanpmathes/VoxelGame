@@ -6,10 +6,10 @@
 
 using System;
 using Gwen.Net.Control;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
+using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
 
@@ -18,22 +18,32 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public abstract class UserInterface : IDisposable
 {
-    private static readonly Vector2i targetSize = new(x: 1920, y: 1080);
-    private readonly bool drawBackground;
-    private readonly InputListener inputListener;
+    private static readonly Vector2 targetSize = new(x: 1920, y: 1080);
+
+    private readonly Input input;
+    private readonly IScaleProvider scale;
     private readonly UIResources resources;
+    private readonly bool drawBackground;
+
+    private readonly IDisposable scaleSubscription;
+
+    private Vector2i currentSize = Vector2i.Zero;
 
     /// <summary>
     ///     Creates a new user interface.
     /// </summary>
-    /// <param name="inputListener">The input listener.</param>
+    /// <param name="input">The input.</param>
+    /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(InputListener inputListener, UIResources resources, bool drawBackground)
+    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, bool drawBackground)
     {
-        this.drawBackground = drawBackground;
-        this.inputListener = inputListener;
+        this.input = input;
+        this.scale = scale;
         this.resources = resources;
+        this.drawBackground = drawBackground;
+
+        scaleSubscription = scale.Subscribe(_ => UpdateScale());
     }
 
     internal Context Context { get; private set; } = null!;
@@ -48,11 +58,11 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Load()
     {
+        Throw.IfDisposed(disposed);
+
         Root.ShouldDrawBackground = drawBackground;
 
-        Context = new Context(inputListener, resources);
-
-        SetSize(targetSize);
+        Context = new Context(input, resources);
     }
 
     /// <summary>
@@ -60,6 +70,8 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void CreateControl()
     {
+        Throw.IfDisposed(disposed);
+
         Root.DeleteAllChildren();
         CreateNewControl();
     }
@@ -70,15 +82,23 @@ public abstract class UserInterface : IDisposable
     protected abstract void CreateNewControl();
 
     /// <summary>
+    ///     Update the user interface. This handles the input.
+    /// </summary>
+    public void Update()
+    {
+        Throw.IfDisposed(disposed);
+
+        resources.GUI.Update();
+    }
+
+    /// <summary>
     ///     Render the user interface.
     /// </summary>
     public void Render()
     {
-        GL.Disable(EnableCap.CullFace);
+        Throw.IfDisposed(disposed);
 
         resources.GUI.Render();
-
-        GL.Enable(EnableCap.CullFace);
     }
 
     /// <summary>
@@ -87,6 +107,8 @@ public abstract class UserInterface : IDisposable
     /// <param name="size">The new size.</param>
     public void Resize(Vector2i size)
     {
+        Throw.IfDisposed(disposed);
+
         SetSize(size);
     }
 
@@ -94,11 +116,17 @@ public abstract class UserInterface : IDisposable
     {
         resources.GUI.Resize(size);
 
-        float scale = Math.Min((float) size.X / targetSize.X, (float) size.Y / targetSize.Y);
+        currentSize = size;
+        UpdateScale();
+    }
 
-        if (VMath.NearlyZero(scale)) return;
+    private void UpdateScale()
+    {
+        float newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
 
-        resources.GUI.Root.Scale = scale;
+        if (VMath.NearlyZero(newScale)) return;
+
+        resources.GUI.Root.Scale = newScale;
     }
 
     #region IDisposable Support
@@ -116,6 +144,8 @@ public abstract class UserInterface : IDisposable
         if (disposing)
         {
             Root.DeleteAllChildren();
+
+            scaleSubscription.Dispose();
         }
 
         disposed = true;

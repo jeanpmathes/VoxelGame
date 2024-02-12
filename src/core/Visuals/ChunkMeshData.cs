@@ -4,8 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Diagnostics;
-using VoxelGame.Core.Collections;
+using System;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
@@ -15,155 +14,126 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 /// <param name="SectionMeshData"></param>
 /// <param name="Sides"></param>
-public record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides)
+public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides) : IDisposable
 {
-    /// <summary>
-    ///     Discard the mesh data.
-    /// </summary>
-    public void Discard()
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
     {
-        foreach (SectionMeshData section in SectionMeshData) section.Discard();
+        if (disposed) return;
+
+        if (disposing)
+            foreach (SectionMeshData mesh in SectionMeshData)
+                mesh.Dispose();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Return all pooled structures to their pools.
+    ///     Finalizer.
     /// </summary>
-    public void ReturnPooled()
+    ~ChunkMeshData()
     {
-        foreach (SectionMeshData section in SectionMeshData) section.ReturnPooled();
+        Dispose(disposing: false);
     }
+
+    #endregion IDisposable Support
 }
 
 /// <summary>
 ///     Contains the mesh data for a section.
 /// </summary>
-public class SectionMeshData
+public sealed class SectionMeshData : IDisposable
 {
-    private bool isReturnedToPool;
-
-    internal SectionMeshData(PooledList<int> simpleVertexData,
-        PooledList<float> complexVertexPositions, PooledList<int> complexVertexData,
-        PooledList<uint> complexIndices,
-        PooledList<int> varyingHeightVertexData, PooledList<uint> varyingHeightIndices,
-        PooledList<int> crossPlantVertexData,
-        PooledList<int> cropPlantVertexData,
-        PooledList<int> opaqueFluidVertexData, PooledList<uint> opaqueFluidIndices,
-        PooledList<int> transparentFluidVertexData, PooledList<uint> transparentFluidIndices)
+    internal SectionMeshData((IMeshing, IMeshing) basicMeshing,
+        IMeshing foliageMeshing,
+        IMeshing fluidMeshing)
     {
-        this.simpleVertexData = simpleVertexData;
-
-        this.complexVertexPositions = complexVertexPositions;
-        this.complexVertexData = complexVertexData;
-        this.complexIndices = complexIndices;
-
-        this.varyingHeightVertexData = varyingHeightVertexData;
-        this.varyingHeightIndices = varyingHeightIndices;
-
-        this.crossPlantVertexData = crossPlantVertexData;
-
-        this.cropPlantVertexData = cropPlantVertexData;
-
-        this.opaqueFluidVertexData = opaqueFluidVertexData;
-        this.opaqueFluidIndices = opaqueFluidIndices;
-
-        this.transparentFluidVertexData = transparentFluidVertexData;
-        this.transparentFluidIndices = transparentFluidIndices;
+        BasicMeshing = basicMeshing;
+        FoliageMeshing = foliageMeshing;
+        FluidMeshing = fluidMeshing;
     }
-
-    private SectionMeshData()
-    {
-        simpleVertexData = new PooledList<int>();
-
-        complexVertexPositions = new PooledList<float>();
-        complexVertexData = new PooledList<int>();
-        complexIndices = new PooledList<uint>();
-
-        varyingHeightVertexData = new PooledList<int>();
-        varyingHeightIndices = new PooledList<uint>();
-
-        crossPlantVertexData = new PooledList<int>();
-
-        cropPlantVertexData = new PooledList<int>();
-
-        opaqueFluidVertexData = new PooledList<int>();
-        opaqueFluidIndices = new PooledList<uint>();
-
-        transparentFluidVertexData = new PooledList<int>();
-        transparentFluidIndices = new PooledList<uint>();
-    }
-
-    /// <summary>
-    ///     Create an empty mesh data instance.
-    /// </summary>
-    public static SectionMeshData Empty => new();
 
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => complexVertexPositions.Count != 0 || simpleVertexData.Count != 0 ||
-                            varyingHeightVertexData.Count != 0 || crossPlantVertexData.Count != 0 ||
-                            cropPlantVertexData.Count != 0 || opaqueFluidVertexData.Count != 0 ||
-                            transparentFluidVertexData.Count != 0;
+    public bool IsFilled => GetTotalSize() > 0;
 
     /// <summary>
-    ///     Return all pooled lists to the pool. The data can only be returned once.
+    ///     The basic mesh data.
+    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />,
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex" />, and
+    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight" /> meshables.
     /// </summary>
-    public void ReturnPooled()
+    public (IMeshing opaque, IMeshing transparent) BasicMeshing { get; }
+
+    /// <summary>
+    ///     The foliage mesh data.
+    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
+    /// </summary>
+    public IMeshing FoliageMeshing { get; }
+
+    /// <summary>
+    ///     The fluid mesh data.
+    /// </summary>
+    public IMeshing FluidMeshing { get; }
+
+    private int GetTotalSize()
     {
-        Debug.Assert(!isReturnedToPool);
+        var size = 0;
 
-        simpleVertexData.ReturnToPool();
+        size += BasicMeshing.opaque.Count;
+        size += BasicMeshing.transparent.Count;
 
-        complexVertexPositions.ReturnToPool();
-        complexVertexData.ReturnToPool();
-        complexIndices.ReturnToPool();
+        size += FoliageMeshing.Count;
+        size += FluidMeshing.Count;
 
-        varyingHeightVertexData.ReturnToPool();
-        varyingHeightIndices.ReturnToPool();
+        return size;
+    }
 
-        crossPlantVertexData.ReturnToPool();
+    #region IDisposable Support
 
-        cropPlantVertexData.ReturnToPool();
+    private bool disposed;
 
-        opaqueFluidVertexData.ReturnToPool();
-        opaqueFluidIndices.ReturnToPool();
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
 
-        transparentFluidVertexData.ReturnToPool();
-        transparentFluidIndices.ReturnToPool();
+        if (disposing)
+        {
+            BasicMeshing.opaque.Dispose();
+            BasicMeshing.transparent.Dispose();
 
-        isReturnedToPool = true;
+            FoliageMeshing.Dispose();
+            FluidMeshing.Dispose();
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Discard this mesh data.
+    ///     Finalizer.
     /// </summary>
-    public void Discard()
+    ~SectionMeshData()
     {
-        if (isReturnedToPool) return;
-
-        ReturnPooled();
+        Dispose(disposing: false);
     }
 
-    #pragma warning disable
-    public readonly PooledList<uint> complexIndices;
-    public readonly PooledList<int> complexVertexData;
-
-    public readonly PooledList<float> complexVertexPositions;
-
-    public readonly PooledList<int> cropPlantVertexData;
-
-    public readonly PooledList<int> crossPlantVertexData;
-    public readonly PooledList<uint> opaqueFluidIndices;
-
-    public readonly PooledList<int> opaqueFluidVertexData;
-
-    public readonly PooledList<int> simpleVertexData;
-    public readonly PooledList<uint> transparentFluidIndices;
-
-    public readonly PooledList<int> transparentFluidVertexData;
-    public readonly PooledList<uint> varyingHeightIndices;
-
-    public readonly PooledList<int> varyingHeightVertexData;
-    #pragma warning restore
+    #endregion IDisposable Support
 }
-

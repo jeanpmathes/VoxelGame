@@ -7,9 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using VoxelGame.Input.Actions;
-using VoxelGame.Input.Internal;
+using VoxelGame.Support.Definition;
+using VoxelGame.Support.Input.Actions;
 
 namespace VoxelGame.Client.Application;
 
@@ -29,7 +28,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <summary>
     ///     Get the key used by the keybind per default.
     /// </summary>
-    public KeyOrButton Default { get; }
+    public VirtualKeys Default { get; }
 
     private enum Binding
     {
@@ -38,7 +37,7 @@ public readonly struct Keybind : IEquatable<Keybind>
         SimpleButton
     }
 
-    private Keybind(string id, string name, Binding type, KeyOrButton defaultKeyOrButton)
+    private Keybind(string id, string name, Binding type, VirtualKeys defaultKeyOrButton)
     {
         this.id = id;
         Name = name;
@@ -102,29 +101,13 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterButton(string id, string name, Keys defaultKey)
+    public static Keybind RegisterButton(string id, string name, VirtualKeys defaultKey)
     {
         return Register(
             id,
             name,
             Binding.SimpleButton,
-            new KeyOrButton(defaultKey));
-    }
-
-    /// <summary>
-    ///     Register a keybind that is bound to a button.
-    /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultButton">The default button to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterButton(string id, string name, MouseButton defaultButton)
-    {
-        return Register(
-            id,
-            name,
-            Binding.SimpleButton,
-            new KeyOrButton(defaultButton));
+            defaultKey);
     }
 
     /// <summary>
@@ -134,29 +117,13 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterToggle(string id, string name, Keys defaultKey)
+    public static Keybind RegisterToggle(string id, string name, VirtualKeys defaultKey)
     {
         return Register(
             id,
             name,
             Binding.ToggleButton,
-            new KeyOrButton(defaultKey));
-    }
-
-    /// <summary>
-    ///     Register a keybind that is bound to a toggle.
-    /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultButton">The default button to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterToggle(string id, string name, MouseButton defaultButton)
-    {
-        return Register(
-            id,
-            name,
-            Binding.ToggleButton,
-            new KeyOrButton(defaultButton));
+            defaultKey);
     }
 
     /// <summary>
@@ -166,34 +133,18 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterPushButton(string id, string name, Keys defaultKey)
+    public static Keybind RegisterPushButton(string id, string name, VirtualKeys defaultKey)
     {
         return Register(
             id,
             name,
             Binding.PushButton,
-            new KeyOrButton(defaultKey));
+            defaultKey);
     }
 
-    /// <summary>
-    ///     Register a keybind that is bound to a push button.
-    /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultButton">The default button to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterPushButton(string id, string name, MouseButton defaultButton)
+    private static Keybind Register(string id, string name, Binding type, VirtualKeys defaultKey)
     {
-        return Register(
-            id,
-            name,
-            Binding.PushButton,
-            new KeyOrButton(defaultButton));
-    }
-
-    private static Keybind Register(string id, string name, Binding type, KeyOrButton defaultKeyOrButton)
-    {
-        var bind = new Keybind(id, name, type, defaultKeyOrButton);
+        var bind = new Keybind(id, name, type, defaultKey);
 
         Debug.Assert(!bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
         bindings.Add(bind);
@@ -236,4 +187,3 @@ public readonly struct Keybind : IEquatable<Keybind>
         }
     }
 }
-

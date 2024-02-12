@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace VoxelGame.Logging;
 
@@ -55,5 +56,18 @@ public static class LoggingHelper
             });
 
         return LoggerFactory.CreateLogger(category);
+    }
+
+    /// <summary>
+    ///     Setup a mock logger. All loggers creating with this helper will be null loggers.
+    /// </summary>
+    /// <returns>A mock logger.</returns>
+    public static ILogger SetupMockLogging()
+    {
+        Debug.Assert(LoggerFactory == null);
+
+        LoggerFactory = new NullLoggerFactory();
+
+        return LoggerFactory.CreateLogger("Mock");
     }
 }

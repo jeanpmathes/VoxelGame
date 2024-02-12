@@ -6,10 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -20,19 +24,27 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public sealed class StartScene : IScene
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
+
     private readonly Application.Client client;
 
     private readonly ResourceLoadingFailure? resourceLoadingFailure;
     private readonly StartUserInterface ui;
 
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure)
+    private readonly WorldProvider worldProvider;
+
+    private bool isFirstUpdate = true;
+
+    private int? loadWorldDirectly;
+
+    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
     {
         this.client = client;
-
         this.resourceLoadingFailure = resourceLoadingFailure;
+        this.loadWorldDirectly = loadWorldDirectly;
 
-        WorldProvider worldProvider = new(Program.WorldsDirectory);
-        worldProvider.WorldActivation += (_, args) => client.StartGame(args);
+        worldProvider = new WorldProvider(Program.WorldsDirectory);
+        worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
         List<ISettingsProvider> settingsProviders = new()
         {
@@ -42,51 +54,98 @@ public sealed class StartScene : IScene
         };
 
         ui = new StartUserInterface(
-            client.Keybinds.Input.Listener,
+            client.Input,
+            client.Settings,
             worldProvider,
             settingsProviders,
-            client.Resources.UIResources,
+            client.Resources.UI,
             drawBackground: true);
     }
 
     /// <inheritdoc />
     public void Load()
     {
-        Screen.SetCursor(locked: false);
-        Screen.SetWireframe(wireframe: false);
-        Screen.EnterUIDrawMode();
+        Throw.IfDisposed(disposed);
+
+        client.Input.Mouse.SetCursorLock(locked: false);
 
         ui.Load();
-        ui.Resize(Screen.Size);
+        ui.Resize(client.Size);
 
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());
 
-        if (resourceLoadingFailure != null) ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+        if (resourceLoadingFailure == null) return;
+
+        ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+
+        if (loadWorldDirectly is null) return;
+
+        logger.LogWarning("Resource loading failure prevents direct world loading, going to main menu");
+        loadWorldDirectly = null;
     }
 
     /// <inheritdoc />
     public void Update(double deltaTime)
     {
-        // Method intentionally left empty.
+        Throw.IfDisposed(disposed);
+
+        if (isFirstUpdate)
+        {
+            DoFirstUpdate();
+            isFirstUpdate = false;
+        }
+
+        ui.Update();
     }
 
     /// <inheritdoc />
     public void OnResize(Vector2i size)
     {
+        Throw.IfDisposed(disposed);
+
         ui.Resize(size);
     }
 
     /// <inheritdoc />
     public void Render(float deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         ui.Render();
     }
 
     /// <inheritdoc />
     public void Unload()
     {
+        Throw.IfDisposed(disposed);
+
         // Method intentionally left empty.
+    }
+
+    /// <inheritdoc />
+    public bool CanCloseWindow()
+    {
+        return true;
+    }
+
+    private void DoFirstUpdate()
+    {
+        if (loadWorldDirectly is not {} index) return;
+
+        worldProvider.Refresh();
+        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
+
+        if (world != default((WorldInformation, DirectoryInfo)))
+        {
+            logger.LogInformation("Loading world at index {Index} directly", index);
+
+            worldProvider.LoadWorld(world.info, world.path);
+        }
+        else
+        {
+            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
+        }
     }
 
     #region IDisposable Support
@@ -95,12 +154,11 @@ public sealed class StartScene : IScene
 
     private void Dispose(bool disposing)
     {
-        if (!disposed)
-        {
-            if (disposing) ui.Dispose();
+        if (disposed) return;
 
-            disposed = true;
-        }
+        if (disposing) ui.Dispose();
+
+        disposed = true;
     }
 
     /// <summary>
@@ -122,4 +180,3 @@ public sealed class StartScene : IScene
 
     #endregion IDisposable Support
 }
-

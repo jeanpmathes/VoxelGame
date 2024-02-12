@@ -281,5 +281,3 @@ public partial class StaticStructure : Structure
         return false;
     }
 }
-
-

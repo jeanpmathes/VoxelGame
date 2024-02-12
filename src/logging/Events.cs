@@ -1,9 +1,6 @@
 ﻿// <copyright file="LoggingEvents.cs" company="VoxelGame">
 //     MIT License
 //	   For full license see the repository.
-//
-//     Parts of the documentation of this file are from the OpenGL wiki.
-//
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -52,14 +49,14 @@ public static class Events
     public const int FileIO = 50;
 
     /// <summary>
-    ///     Events related to direct interaction with the user.
-    /// </summary>
-    public const int UserInteraction = 60;
-
-    /// <summary>
     ///     Events related to the in-game console.
     /// </summary>
-    public const int Console = 65;
+    public const int Console = 60;
+
+    /// <summary>
+    ///     Events related to the disposal of objects.
+    /// </summary>
+    public const int Dispose = 70;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of resources.
@@ -103,60 +100,6 @@ public static class Events
     public const int SceneChange = 300;
 
     #endregion GENERAL APPLICATION
-
-    #region OPENGL
-
-    // Documentation by OpenGL.
-    // OpenGL Error. (2020, May 29). OpenGL Wiki, . Retrieved 15:26, July 9, 2020 from http://www.khronos.org/opengl/wiki_opengl/index.php?title=OpenGL_Error&oldid=14669.
-
-    /// <summary>
-    ///     Given when an enumeration parameter is not a legal enumeration for that function. This is given only for local
-    ///     problems; if the spec allows the enumeration in certain circumstances, where other parameters or state dictate
-    ///     those circumstances, then <see cref="GlInvalidOperation" /> is the result instead.
-    /// </summary>
-    public const int GlInvalidEnum = 500;
-
-    /// <summary>
-    ///     Given when a value parameter is not a legal value for that function. This is only given for local problems; if the
-    ///     spec allows the value in certain circumstances, where other parameters or state dictate those circumstances, then
-    ///     <see cref="GlInvalidOperation" /> is the result instead.
-    /// </summary>
-    public const int GlInvalidValue = 501;
-
-    /// <summary>
-    ///     Given when the set of state for a command is not legal for the parameters given to that command. It is also given
-    ///     for commands where combinations of parameters define what the legal parameters are.
-    /// </summary>
-    public const int GlInvalidOperation = 502;
-
-    /// <summary>
-    ///     Given when a stack pushing operation cannot be done because it would overflow the limit of that stack's size.
-    /// </summary>
-    public const int GlStackOverflow = 503;
-
-    /// <summary>
-    ///     Given when a stack popping operation cannot be done because the stack is already at its lowest point.
-    /// </summary>
-    public const int GlStackUnderflow = 504;
-
-    /// <summary>
-    ///     Given when performing an operation that can allocate memory, and the memory cannot be allocated. The results of
-    ///     OpenGL functions that return this error are undefined; it is allowable for partial execution of an operation to
-    ///     happen in this circumstance.
-    /// </summary>
-    public const int GlOutOfMemory = 505;
-
-    /// <summary>
-    ///     Given when doing anything that would attempt to read from or write/render to a framebuffer that is not complete.
-    /// </summary>
-    public const int GlInvalidFramebufferOperation = 506;
-
-    /// <summary>
-    ///     Given if the OpenGL context has been lost, due to a graphics card reset.
-    /// </summary>
-    public const int GlContextLost = 507;
-
-    #endregion OPENGL
 
     #region WORLD LOGIC
 
@@ -258,46 +201,24 @@ public static class Events
     #region RENDERING AND VISUALS
 
     /// <summary>
-    ///     Events related to setting up the rendering environment.
+    ///     Events related to render pipeline loading and compilation.
     /// </summary>
-    public const int VisualsSetup = 3000;
+    public const int RenderPipelineSetup = 3000;
 
     /// <summary>
-    ///     Occurs when graphics quality settings or configurations are changed.
+    ///     Errors that occur during render pipeline setup.
     /// </summary>
-    public const int VisualQuality = 3001;
-
-    /// <summary>
-    ///     Events related to shader loading and compilation.
-    /// </summary>
-    public const int ShaderSetup = 3005;
-
-    /// <summary>
-    ///     Errors that occur during shader setup.
-    /// </summary>
-    public const int ShaderError = 3006;
-
-    /// <summary>
-    ///     Occurs when objects are incorrectly disposed and their OpenGL objects are not deleted. This causes memory leak.
-    /// </summary>
-    public const int UndeletedGlObjects = 3010;
-
-    /// <summary>
-    ///     Occurs when rendering objects are incorrectly disposed and their buffers are not deleted. This causes memory leaks.
-    /// </summary>
-    public const int UndeletedBuffers = 3011;
-
-    /// <summary>
-    ///     Occurs when textures are incorrectly disposed and their storage is not deleted. This causes memory leak.
-    /// </summary>
-    public const int UndeletedTexture = 3012;
+    public const int RenderPipelineError = 3001;
 
     /// <summary>
     ///     Occurs when a screenshot is taken.
     /// </summary>
     public const int Screenshot = 3150;
 
+    /// <summary>
+    ///     Occurs when DirectX issues a debug message.
+    /// </summary>
+    public const int DirectXDebug = 3500;
+
     #endregion RENDERING AND VISUALS
 }
-
-

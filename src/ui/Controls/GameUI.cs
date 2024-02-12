@@ -73,12 +73,24 @@ internal class GameUI : ControlBase
         hud.ToggleDebugDataView();
     }
 
-    internal void ToggleInGameMenu()
+    internal void HandleEscape()
     {
-        if (Console.IsOpen) return;
+        if (Console.IsOpen)
+        {
+            CloseConsole();
+        }
+        else
+        {
+            if (IsGameMenuOpen) CloseInGameMenu();
+            else OpenInGameMenu();
+        }
+    }
 
-        if (IsGameMenuOpen) CloseInGameMenu();
-        else OpenInGameMenu();
+    internal void HandleLossOfFocus()
+    {
+        if (IsGameMenuOpen || Console.IsOpen) return;
+
+        OpenInGameMenu();
     }
 
     internal void ToggleConsole()
@@ -160,7 +172,12 @@ internal class GameUI : ControlBase
             IsDraggingEnabled = false
         };
 
-        SettingsMenu menu = new(settings, settingsProviders, parent.Context);
+        Empty margins = new(settings)
+        {
+            Margin = Margin.Two
+        };
+
+        SettingsMenu menu = new(margins, settingsProviders, parent.Context);
 
         menu.Cancel += (_, _) =>
         {
@@ -174,8 +191,6 @@ internal class GameUI : ControlBase
     private void CloseInGameMenu()
     {
         if (!IsGameMenuOpen || isSettingsMenuOpen) return;
-
-        parent.Context.Input.AbsorbMousePress();
 
         Debug.Assert(gameMenu != null);
         gameMenu.Close();
@@ -202,4 +217,3 @@ internal class GameUI : ControlBase
         // Parent is informed when the console close event is invoked.
     }
 }
-

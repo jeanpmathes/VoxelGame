@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
 
@@ -49,6 +50,8 @@ public sealed class ChunkSet : IDisposable
     /// <param name="position">The position to request.</param>
     public void Request(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         if (!chunks.TryGetValue(position, out Chunk? chunk))
         {
             chunk = context.Create(position, context);
@@ -74,7 +77,9 @@ public sealed class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     private Chunk? Get(ChunkPosition position)
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfDisposed(disposed);
+
+        Throw.IfNotOnMainThread(this);
 
         return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
     }
@@ -88,6 +93,8 @@ public sealed class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist or is not active.</returns>
     public Chunk? GetActive(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         Chunk? chunk = Get(position);
 
         return chunk?.IsActive == true ? chunk : null;
@@ -101,6 +108,8 @@ public sealed class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     public Chunk? GetAny(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         return Get(position);
     }
 
@@ -109,6 +118,8 @@ public sealed class ChunkSet : IDisposable
     /// </summary>
     public void Update()
     {
+        Throw.IfDisposed(disposed);
+
         const int maxUpdates = 3;
 
         for (var count = 0; count < maxUpdates; count++)
@@ -122,6 +133,8 @@ public sealed class ChunkSet : IDisposable
     /// <param name="chunk">The chunk to unload.</param>
     public void Unload(Chunk chunk)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(!chunk.IsActive);
         Debug.Assert(!chunk.IsRequested);
 
@@ -134,6 +147,8 @@ public sealed class ChunkSet : IDisposable
     /// </summary>
     public void BeginSaving()
     {
+        Throw.IfDisposed(disposed);
+
         foreach (Chunk chunk in chunks.Values)
         {
             chunk.BeginSaving();
@@ -155,7 +170,9 @@ public sealed class ChunkSet : IDisposable
 
         if (disposing)
             foreach ((ChunkPosition _, Chunk chunk) in chunks)
+                #pragma warning disable S3966 // False positive, chunk is not disposed before.
                 chunk.Dispose();
+                #pragma warning restore S3966
 
         disposed = true;
     }
@@ -179,4 +196,3 @@ public sealed class ChunkSet : IDisposable
 
     #endregion IDisposable Support
 }
-

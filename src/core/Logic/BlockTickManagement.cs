@@ -21,7 +21,8 @@ public partial class Block
 
     /// <summary>
     ///     Schedules a tick according to the given tick offset.
-    ///     Note that the system does not guarantee that the tick will be executed exactly at the given offset, as chunks could be inactive.
+    ///     Note that the system does not guarantee that the tick will be executed exactly at the given offset, as chunks could
+    ///     be inactive.
     /// </summary>
     /// <param name="world">The world in which the block is.</param>
     /// <param name="position">The position of the block a tick should be scheduled for.</param>
@@ -126,4 +127,3 @@ public partial class Block
         }
     }
 }
-

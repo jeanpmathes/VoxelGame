@@ -22,10 +22,10 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     private readonly TextureLayout open;
     private int[] openTextureIndices = null!;
 
-    internal FluidBarrierBlock(string name, string namedId, TextureLayout closed, TextureLayout open) :
+    internal FluidBarrierBlock(string name, string namedID, TextureLayout closed, TextureLayout open) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic with {IsInteractable = true},
             closed)
     {
@@ -43,9 +43,9 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider);
+        base.OnSetup(indexProvider, visuals);
 
         openTextureIndices = open.GetTexIndexArray();
     }
@@ -67,5 +67,3 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         return mesh;
     }
 }
-
-

@@ -16,10 +16,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable
 {
-    internal CoveredGrassSpreadableBlock(string name, string namedId, TextureLayout normal, bool hasNeutralTint) :
+    internal CoveredGrassSpreadableBlock(string name, string namedID, TextureLayout normal, bool hasNeutralTint) :
         base(
             name,
-            namedId,
+            namedID,
             normal,
             normal,
             hasNeutralTint,

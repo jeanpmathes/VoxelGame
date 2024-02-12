@@ -227,4 +227,3 @@ public static class BlockColorExtensions
         };
     }
 }
-

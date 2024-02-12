@@ -42,4 +42,3 @@ public abstract class DynamicStructure : Structure
         random = new Random(seed);
     }
 }
-

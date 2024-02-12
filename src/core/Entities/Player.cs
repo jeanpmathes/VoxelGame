@@ -42,7 +42,7 @@ public abstract class Player : PhysicsEntity
     public static int LoadDistance => 2;
 
     /// <summary>
-    ///     The position the current chunk this player is in.
+    ///     The position of the current chunk this player is in.
     /// </summary>
     public ChunkPosition Chunk { get; private set; }
 
@@ -131,4 +131,3 @@ public abstract class Player : PhysicsEntity
         }
     }
 }
-

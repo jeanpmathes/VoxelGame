@@ -114,4 +114,3 @@ internal class SettingsMenu : StandardMenu
 
     internal event EventHandler Cancel = delegate {};
 }
-

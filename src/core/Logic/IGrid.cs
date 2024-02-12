@@ -33,4 +33,3 @@ public interface IGrid : IReadOnlyGrid
     /// <param name="position">The position to set the content at.</param>
     void SetContent(Content content, Vector3i position);
 }
-

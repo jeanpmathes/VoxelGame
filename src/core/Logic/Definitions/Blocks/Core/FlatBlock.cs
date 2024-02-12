@@ -22,38 +22,27 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class FlatBlock : Block, IFillable, IComplex
 {
-    private static readonly float[][] sideVertices =
-    {
-        CreateSide(Orientation.North),
-        CreateSide(Orientation.East),
-        CreateSide(Orientation.South),
-        CreateSide(Orientation.West)
-    };
-
     private readonly float climbingVelocity;
+
+    private readonly List<BlockMesh> meshes = new();
     private readonly float slidingVelocity;
 
     private readonly string texture;
-
     private readonly List<BoundingVolume> volumes = new();
-
-    private uint[] indices = null!;
-
-    private int[] textureIndices = null!;
 
     /// <summary>
     ///     Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can
     ///     use neutral tints.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The texture to use for the block.</param>
     /// <param name="climbingVelocity">The velocity of players climbing the block.</param>
     /// <param name="slidingVelocity">The velocity of players sliding along the block.</param>
-    internal FlatBlock(string name, string namedId, string texture, float climbingVelocity, float slidingVelocity) :
+    internal FlatBlock(string name, string namedID, string texture, float climbingVelocity, float slidingVelocity) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Trigger,
             BoundingVolume.Block)
     {
@@ -105,16 +94,20 @@ public class FlatBlock : Block, IFillable, IComplex
         return this.AsInstance((uint) orientation);
     }
 
-    private static float[] CreateSide(Orientation orientation)
-    {
-        return BlockModels.CreateFlatModel(orientation.ToBlockSide().Opposite(), offset: 0.01f);
-    }
-
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        indices = BlockModels.GenerateIndexDataArray(faces: 2);
-        textureIndices = BlockModels.GenerateTextureDataArray(indexProvider.GetTextureIndex(texture), length: 8);
+        int textureIndex = indexProvider.GetTextureIndex(texture);
+
+        foreach (Orientation orientation in Orientations.All)
+        {
+            BlockMesh mesh = BlockMeshes.CreateFlatModel(
+                orientation.ToBlockSide().Opposite(),
+                offset: 0.01f,
+                textureIndex);
+
+            meshes.Add(mesh);
+        }
     }
 
     /// <inheritdoc />
@@ -192,8 +185,8 @@ public class FlatBlock : Block, IFillable, IComplex
     /// </summary>
     protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return IComplex.CreateData(vertexCount: 8, sideVertices[info.Data & 0b00_0011], textureIndices, indices);
+        var meshIndex = (int) (info.Data & 0b00_0011);
+
+        return meshes[meshIndex].GetMeshData();
     }
 }
-
-

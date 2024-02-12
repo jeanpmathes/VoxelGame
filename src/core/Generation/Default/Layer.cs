@@ -69,7 +69,8 @@ public abstract class Layer
     }
 
     /// <summary>
-    /// Create a top layer, which selects an alternative when filled. The alternative block is also filled with water if possible.
+    ///     Create a top layer, which selects an alternative when filled. The alternative block is also filled with water if
+    ///     possible.
     /// </summary>
     public static Layer CreateTop(Block top, Block filled, int width)
     {
@@ -296,4 +297,3 @@ public abstract class Layer
         }
     }
 }
-

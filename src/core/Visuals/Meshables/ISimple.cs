@@ -30,33 +30,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
             MeshData mesh = GetMeshData(info with {Side = side});
 
-            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-            int[][] uvs = BlockModels.GetBlockUVs(mesh.IsTextureRotated);
-
-            (int x, int y, int z) = position;
-
-            // int: uv-- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
-            int upperDataA = (uvs[0][0] << 31) | (uvs[0][1] << 30) | ((a[0] + x) << 10) |
-                             ((a[1] + y) << 5) | (a[2] + z);
-
-            int upperDataB = (uvs[1][0] << 31) | (uvs[1][1] << 30) | ((b[0] + x) << 10) |
-                             ((b[1] + y) << 5) | (b[2] + z);
-
-            int upperDataC = (uvs[2][0] << 31) | (uvs[2][1] << 30) | ((c[0] + x) << 10) |
-                             ((c[1] + y) << 5) | (c[2] + z);
-
-            int upperDataD = (uvs[3][0] << 31) | (uvs[3][1] << 30) | ((d[0] + x) << 10) |
-                             ((d[1] + y) << 5) | (d[2] + z);
-
-            // int: tttt tttt t--n nn-a ---i iiii iiii iiii (t: tint; n: normal; a: animated; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
-                            mesh.GetAnimationBit(shift: 16) | mesh.TextureIndex;
-
-            context.GetSimpleBlockMeshFaceHolder(side).AddFace(
-                position,
-                lowerData,
-                (upperDataA, upperDataB, upperDataC, upperDataD),
-                mesh.IsTextureRotated);
+            AddSimpleMesh(position, side, mesh, IsOpaque, IsUnshaded, context);
         }
 
         MeshSimpleSide(BlockSide.Front);
@@ -89,6 +63,27 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
             Tint = mesh.Tint,
             IsAnimated = mesh.IsAnimated
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void AddSimpleMesh(
+        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, bool isUnshaded, MeshingContext context)
+    {
+        (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
+
+        Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+        Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
+        Meshing.SetFullUVs(ref data);
+
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsActuallyAnimated);
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, isUnshaded);
+
+        context.GetFullBlockMeshFaceHolder(side, isOpaque).AddFace(
+            position,
+            data,
+            mesh.IsTextureRotated,
+            isSingleSided: true);
     }
 
     /// <summary>
@@ -128,35 +123,32 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <summary>
     ///     The mesh data required for meshing with the <see cref="ISimple" /> interface.
     /// </summary>
-    protected readonly struct MeshData : IEquatable<MeshData>
+    protected internal readonly struct MeshData : IEquatable<MeshData>
     {
         /// <summary>
         ///     Get the texture index.
         /// </summary>
-        public int TextureIndex { get; init; }
+        internal int TextureIndex { get; init; }
 
         /// <summary>
         ///     Whether the texture is rotated.
         /// </summary>
-        public bool IsTextureRotated { get; init; }
+        internal bool IsTextureRotated { get; init; }
 
         /// <summary>
         ///     The block tint.
         /// </summary>
-        public TintColor Tint { get; init; }
+        internal TintColor Tint { get; init; }
 
         /// <summary>
         ///     Whether the block is animated.
         /// </summary>
-        public bool IsAnimated { get; init; }
+        internal bool IsAnimated { get; init; }
 
         /// <summary>
-        ///     Get the animation bit.
+        ///     Whether the block is actually animated, meaning animation is safe.
         /// </summary>
-        public int GetAnimationBit(int shift)
-        {
-            return IsAnimated && TextureIndex != 0 ? 1 << shift : 0;
-        }
+        internal bool IsActuallyAnimated => IsAnimated && TextureIndex != 0;
 
         /// <inheritdoc />
         public bool Equals(MeshData other)
@@ -194,5 +186,3 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         }
     }
 }
-
-

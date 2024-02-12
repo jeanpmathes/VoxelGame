@@ -30,11 +30,11 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = new();
 
-    internal BedBlock(string name, string namedId, string model) :
+    internal BedBlock(string name, string namedID, string model) :
         base(
             name,
-            namedId,
-            BlockFlags.Functional,
+            namedID,
+            BlockFlags.Functional with {IsOpaque = true},
             new BoundingVolume(
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5),
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5)))
@@ -207,5 +207,3 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }
 }
-
-

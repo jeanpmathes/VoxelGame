@@ -34,4 +34,3 @@ public interface IBlockMeshable : IBlockBase
         Debug.Assert(!IsFull, "Only special meshables accept full blocks.");
     }
 }
-

@@ -54,4 +54,3 @@ public interface IPlayerDataProvider
     /// </summary>
     public double Temperature { get; }
 }
-

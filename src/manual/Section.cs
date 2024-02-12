@@ -52,4 +52,3 @@ public class Section : Chainable
         foreach (IElement element in elements) element.Generate(writer);
     }
 }
-

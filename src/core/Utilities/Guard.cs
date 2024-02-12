@@ -6,8 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -16,10 +14,9 @@ namespace VoxelGame.Core.Utilities;
 /// </summary>
 public sealed class Guard : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Guard>();
-
     private readonly Action release;
     private readonly object resource;
+
     private readonly StackTrace? stackTrace;
 
     /// <summary>
@@ -32,7 +29,7 @@ public sealed class Guard : IDisposable
         this.resource = resource;
         this.release = release;
 
-        if (Debugger.IsAttached) stackTrace = new StackTrace(fNeedFileInfo: true);
+        if (ApplicationInformation.Instance.IsDebug) stackTrace = new StackTrace(fNeedFileInfo: true);
     }
 
     /// <summary>
@@ -42,19 +39,26 @@ public sealed class Guard : IDisposable
     /// <returns>True if the guard is guarding the resource.</returns>
     public bool IsGuarding(object @object)
     {
+        Throw.IfDisposed(disposed);
+
         return resource == @object;
     }
 
     #region IDisposable Support
+
+    private bool disposed;
 
     /// <summary>
     ///     Dispose of this guard.
     /// </summary>
     private void Dispose(bool disposing)
     {
-        if (!disposing) return;
+        if (disposed) return;
 
-        release();
+        if (disposing) release();
+        else Throw.ForMissedDispose(nameof(Guard), resource, stackTrace);
+
+        disposed = true;
     }
 
     /// <summary>
@@ -63,13 +67,6 @@ public sealed class Guard : IDisposable
     ~Guard()
     {
         Dispose(disposing: false);
-        WriteLog();
-    }
-
-    [Conditional("DEBUG")]
-    private void WriteLog()
-    {
-        logger.LogWarning("Guard for resource {Resource} was not disposed. Guard was acquired {Stacktrace}", resource, stackTrace);
     }
 
     /// <summary>
@@ -83,4 +80,3 @@ public sealed class Guard : IDisposable
 
     #endregion IDisposable Support
 }
-

@@ -28,16 +28,16 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     ///     Create a new <see cref="DirtBlock" />.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The named ID of the block.</param>
+    /// <param name="namedID">The named ID of the block.</param>
     /// <param name="normal">The normal texture layout.</param>
     /// <param name="wet">The texture layout when wet.</param>
     /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
     /// <param name="supportsFullGrowth">Whether the block supports full growth.</param>
-    protected CoveredDirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet,
+    protected CoveredDirtBlock(string name, string namedID, TextureLayout normal, TextureLayout wet,
         bool hasNeutralTint, bool supportsFullGrowth) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             normal)
     {
@@ -57,9 +57,9 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     public bool SupportsFullGrowth { get; }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider);
+        base.OnSetup(indexProvider, visuals);
 
         wetTextureIndices = wet.GetTexIndexArray();
     }
@@ -94,6 +94,3 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
-
-
-

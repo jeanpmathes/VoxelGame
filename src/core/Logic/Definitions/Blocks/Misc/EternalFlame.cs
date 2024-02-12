@@ -16,10 +16,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class EternalFlame : BasicBlock, ICombustible
 {
-    internal EternalFlame(string name, string namedId, TextureLayout layout) :
+    internal EternalFlame(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             layout) {}
 
@@ -29,4 +29,3 @@ public class EternalFlame : BasicBlock, ICombustible
         return false;
     }
 }
-

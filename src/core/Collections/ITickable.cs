@@ -19,4 +19,3 @@ public interface ITickable
     /// <param name="world">The world in which the tick occurs.</param>
     void Tick(World world);
 }
-

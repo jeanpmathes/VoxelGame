@@ -232,4 +232,3 @@ public static class OrientationExtensions
         };
     }
 }
-

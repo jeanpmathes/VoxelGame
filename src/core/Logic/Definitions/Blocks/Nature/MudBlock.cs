@@ -19,10 +19,10 @@ public class MudBlock : BasicBlock, IFillable
 {
     private readonly float maxVelocity;
 
-    internal MudBlock(string name, string namedId, TextureLayout layout, float maxVelocity) :
+    internal MudBlock(string name, string namedID, TextureLayout layout, float maxVelocity) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Collider with {IsOpaque = true},
             layout)
     {
@@ -41,5 +41,3 @@ public class MudBlock : BasicBlock, IFillable
         entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
     }
 }
-
-

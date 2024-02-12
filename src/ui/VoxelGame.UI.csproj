@@ -1,20 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-      <TargetFramework>net6.0</TargetFramework>
-      <Nullable>enable</Nullable>
-      <Version>1.2.0</Version>
-      <Platforms>x64</Platforms>
-      <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
-      <ApplicationIcon>vg_icon.ico</ApplicationIcon>
-      <LangVersion>10</LangVersion>
-      <Configurations>Debug;Release</Configurations>
-      <PackageLicenseExpression>MIT License</PackageLicenseExpression>
-      <PackageVersion>1.3.0</PackageVersion>
-      <AssemblyVersion>1.3.0.0</AssemblyVersion>
-      <FileVersion>1.3.0.0</FileVersion>
-      <Authors>jeanpmathes</Authors>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <Version>1.3.0.0</Version>
+        <Platforms>x64</Platforms>
+        <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
+        <ApplicationIcon>vg_icon.ico</ApplicationIcon>
+        <LangVersion>10</LangVersion>
+        <Configurations>Debug;Release</Configurations>
+        <PackageLicenseExpression>MIT License</PackageLicenseExpression>
+        <Authors>jeanpmathes</Authors>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
     <PropertyGroup>
         <DocumentationFile>bin\debug\VoxelGame.UI.xml</DocumentationFile>
@@ -36,28 +34,13 @@
         <Compile Remove="lib\**"/>
         <EmbeddedResource Remove="lib\**"/>
         <None Remove="lib\**"/>
-        <None Update="Resources\GUI\Icons\load.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\GUI\Icons\delete.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\GUI\Icons\reset.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\Attribution\wikimedia-textures.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Attribution\material_icons.txt">
+        <None Update="Resources\Attribution\material-icons.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Attribution\glsl-noise-generation.txt">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Attribution\noise-generation">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Attribution\oit.txt">
+        <None Update="Resources\Attribution\noise-generation.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Attribution\opentk-tutorials.txt">
@@ -66,10 +49,34 @@
         <None Update="Resources\Attribution\voxel-traversal.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\GUI\Images\start.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Attribution\nv-d3d12-helpers.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Attribution\directx-samples.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Attribution\d3d12-memory-allocator.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Shaders\GUI.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <None Update="Resources\GUI\VoxelSkin.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\GUI\Images\start.png">
+        <None Update="Resources\GUI\Icons\delete.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\load.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\reset.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Attribution\ray-tracing-gems.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
@@ -79,22 +86,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net" Version="0.2.8"/>
-        <PackageReference Include="Gwen.Net.OpenTk" Version="0.2.5"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+        <PackageReference Include="Gwen.Net" Version="0.3.5"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0"/>
-        <PackageReference Include="OpenTK" Version="4.7.1"/>
         <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0"/>
         <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+        <PackageReference Include="TextCopy" Version="6.2.1"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
-        <ProjectReference Include="..\input\VoxelGame.Input.csproj"/>
+        <ProjectReference Include="..\support\VoxelGame.Support.csproj"/>
     </ItemGroup>
 </Project>

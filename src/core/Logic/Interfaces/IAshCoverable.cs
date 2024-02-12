@@ -20,4 +20,3 @@ public interface IAshCoverable : IBlockBase
     /// <param name="position">The position of the block.</param>
     public void CoverWithAsh(World world, Vector3i position);
 }
-

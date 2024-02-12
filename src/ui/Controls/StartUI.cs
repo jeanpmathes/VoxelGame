@@ -11,6 +11,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 

@@ -110,5 +110,3 @@ public static class ContentExtensions
     }
     #pragma warning restore S4226
 }
-
-

@@ -24,13 +24,13 @@ public class SpiderWebBlock : CrossBlock, ICombustible
     ///     Creates a SpiderWeb block, a block that slows down entities that collide with it.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The texture of this block.</param>
     /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-    internal SpiderWebBlock(string name, string namedId, string texture, float maxVelocity) :
+    internal SpiderWebBlock(string name, string namedID, string texture, float maxVelocity) :
         base(
             name,
-            namedId,
+            namedID,
             texture,
             BlockFlags.Trigger,
             BoundingVolume.CrossBlock)

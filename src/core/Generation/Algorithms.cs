@@ -140,4 +140,3 @@ public static class Algorithms
         }
     }
 }
-

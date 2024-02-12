@@ -27,15 +27,16 @@ namespace VoxelGame.Core.Logic;
 public abstract class World : IDisposable, IGrid
 {
     /// <summary>
-    ///     The limit of the world size.
-    ///     The actual size of the world can be smaller, but never larger.
+    ///     The highest absolute value of a block position coordinate component.
+    ///     This value also describes the word extents in blocks, thus the world size is two times this value.
+    ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
     public const uint BlockLimit = 50_000_000;
 
     private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
 
     /// <summary>
-    ///     The limit of the world size, in sections.
+    ///     The limit of the world extents, in sections.
     /// </summary>
     public const uint SectionLimit = BlockLimit / Section.Size;
 
@@ -102,8 +103,6 @@ public abstract class World : IDisposable, IGrid
         MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
 
         chunks = new ChunkSet(ChunkContext);
-
-        RequestChunk(ChunkPosition.Origin);
     }
 
     /// <summary>
@@ -114,7 +113,7 @@ public abstract class World : IDisposable, IGrid
     private WorldInformation Information { get; }
 
     /// <summary>
-    /// Get the stored world data.
+    ///     Get the stored world data.
     /// </summary>
     public WorldData Data { get; }
 
@@ -124,7 +123,7 @@ public abstract class World : IDisposable, IGrid
     public (int upper, int lower) Seed => (Information.UpperSeed, Information.LowerSeed);
 
     /// <summary>
-    /// Get whether the world is active.
+    ///     Get whether the world is active.
     /// </summary>
     protected bool IsActive => CurrentState == State.Active;
 
@@ -219,6 +218,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Content? GetContent(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         RetrieveContent(position, out Content? content);
 
         return content;
@@ -230,6 +231,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         SetContent(content, position, tickFluid: true);
     }
 
@@ -239,10 +242,14 @@ public abstract class World : IDisposable, IGrid
     /// <param name="onFinished">The action to be called when the world is deactivated.</param>
     public void BeginDeactivating(Action onFinished)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(CurrentState == State.Active);
         CurrentState = State.Deactivating;
 
         logger.LogInformation(Events.WorldIO, "Unloading world");
+
+        OnDeactivation();
 
         chunks.BeginSaving();
 
@@ -258,6 +265,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>Whether the deactivation is finished.</returns>
     protected bool ProcessDeactivation()
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(deactivation != null);
 
         (Task saving, Action callback) = deactivation.Value;
@@ -273,6 +282,11 @@ public abstract class World : IDisposable, IGrid
 
         return true;
     }
+
+    /// <summary>
+    ///     Called when the world deactivates.
+    /// </summary>
+    protected virtual void OnDeactivation() {}
 
     private void UnloadChunk(Chunk chunk)
     {
@@ -304,6 +318,8 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public void EmitViews(DirectoryInfo directory)
     {
+        Throw.IfDisposed(disposed);
+
         generator.EmitViews(directory);
     }
 
@@ -317,6 +333,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
     {
+        Throw.IfDisposed(disposed);
+
         return generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
@@ -342,6 +360,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public BlockInstance? GetBlock(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         RetrieveContent(position, out Content? content);
 
         return content?.Block;
@@ -378,6 +398,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance? GetFluid(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         RetrieveContent(position, out Content? content);
 
         return content?.Fluid;
@@ -392,6 +414,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBlock(BlockInstance block, Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         FluidInstance? potentialFluid = GetFluid(position);
 
         if (potentialFluid is not {} fluid) return;
@@ -406,6 +430,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         BlockInstance? potentialBlock = GetBlock(position);
 
         if (potentialBlock is not {} block) return;
@@ -486,6 +512,8 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public void SetDefaultBlock(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         SetBlock(BlockInstance.Default, position);
     }
 
@@ -494,6 +522,8 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public void SetDefaultFluid(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         SetFluid(FluidInstance.Default, position);
     }
 
@@ -504,6 +534,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>True if both the fluid and block at the position received a random update.</returns>
     public bool DoRandomUpdate(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         Content? content = GetContent(position);
 
         if (content == null) return false;
@@ -525,7 +557,7 @@ public abstract class World : IDisposable, IGrid
     ///     Get whether a chunk position is in the maximum allowed world limits.
     ///     Such a position can still be outside of the reachable <see cref="Extents" />.
     /// </summary>
-    public static bool IsInLimits(ChunkPosition position)
+    private static bool IsInLimits(ChunkPosition position)
     {
         return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
@@ -543,7 +575,7 @@ public abstract class World : IDisposable, IGrid
     ///     Get whether a block position is in the maximum allowed world limits.
     ///     Such a position can still be outside of the reachable <see cref="Extents" />.
     /// </summary>
-    public static bool IsInLimits(Vector3i position)
+    private static bool IsInLimits(Vector3i position)
     {
         if (position.X is int.MinValue) return false;
         if (position.Y is int.MinValue) return false;
@@ -570,6 +602,8 @@ public abstract class World : IDisposable, IGrid
     /// <param name="position">The position of the chunk.</param>
     public void RequestChunk(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(CurrentState != State.Deactivating);
 
         if (!IsInLimits(position)) return;
@@ -585,12 +619,11 @@ public abstract class World : IDisposable, IGrid
     /// <param name="position">The position of the chunk.</param>
     public void ReleaseChunk(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         Debug.Assert(CurrentState != State.Deactivating);
 
         if (!IsInLimits(position)) return;
-
-        // Check if the chunk can be released
-        if (position == ChunkPosition.Origin) return; // The chunk at (0|0|0) cannot be released.
 
         chunks.Release(position);
 
@@ -605,6 +638,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
     public Chunk? GetActiveChunk(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         return !IsInLimits(position) ? null : chunks.GetActive(position);
     }
 
@@ -617,6 +652,8 @@ public abstract class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Chunk? GetActiveChunk(Vector3i position)
     {
+        Throw.IfDisposed(disposed);
+
         return IsInLimits(position) ? GetActiveChunk(ChunkPosition.From(position)) : null;
     }
 
@@ -627,6 +664,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>True if the chunk is active.</returns>
     protected bool IsChunkActive(ChunkPosition position)
     {
+        Throw.IfDisposed(disposed);
+
         return GetActiveChunk(position) != null;
     }
 
@@ -639,6 +678,8 @@ public abstract class World : IDisposable, IGrid
     /// <returns>True if a chunk was found.</returns>
     public bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
+        Throw.IfDisposed(disposed);
+
         chunk = chunks.GetAny(position);
 
         return chunk != null;
@@ -650,7 +691,7 @@ public abstract class World : IDisposable, IGrid
     public event EventHandler<EventArgs> Ready;
 
     /// <summary>
-    /// The world state.
+    ///     The world state.
     /// </summary>
     protected enum State
     {
@@ -706,4 +747,3 @@ public abstract class World : IDisposable, IGrid
 
     #endregion IDisposable Support
 }
-

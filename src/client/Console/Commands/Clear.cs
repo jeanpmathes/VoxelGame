@@ -27,4 +27,3 @@ public class Clear : Command
         Context.Console.Clear();
     }
 }
-

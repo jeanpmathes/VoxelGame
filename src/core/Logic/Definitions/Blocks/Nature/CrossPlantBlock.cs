@@ -4,11 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -19,37 +19,36 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 ///     Data bit usage: <c>-----l</c>
 /// </summary>
 // l: lowered
-public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
+public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
-    private int textureIndex;
+    private readonly List<BlockMesh> meshes = new();
 
     /// <summary>
     ///     Initializes a new instance of a cross plant.
     /// </summary>
     /// <param name="name">The name of this block.</param>
-    /// <param name="namedId">The unique and unlocalized name of this block.</param>
+    /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The name of the texture of this block.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="boundingVolume">The bounding box of this block.</param>
-    internal CrossPlantBlock(string name, string namedId, string texture, BlockFlags flags,
+    internal CrossPlantBlock(string name, string namedID, string texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = false, IsOpaque = false},
             boundingVolume)
     {
         this.texture = texture;
     }
 
-    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        return new ICrossPlant.MeshData(textureIndex)
+        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_0001])
         {
-            Tint = TintColor.Neutral,
-            IsLowered = (info.Data & 0b1) == 1
+            Tint = TintColor.Neutral
         };
     }
 
@@ -60,9 +59,11 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        textureIndex = indexProvider.GetTextureIndex(texture);
+        int textureIndex = indexProvider.GetTextureIndex(texture);
+
+        for (var data = 0; data <= 0b00_0001; data++) meshes.Add(BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, (data & 0b1) != 0));
     }
 
     /// <inheritdoc />
@@ -80,7 +81,6 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, ICrossPlant
     /// <inheritdoc />
     public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
-            Destroy(world, position);
+        PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -36,14 +37,8 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
             bool isModified = side != BlockSide.Bottom && !isFullHeight;
 
-            if (isModified)
-            {
-                MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
-            }
-            else
-            {
-                MeshLikeSimple(position, side, mesh, context);
-            }
+            if (isModified) MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
+            else MeshLikeSimple(position, side, mesh, IsOpaque, IsUnshaded, context);
         }
 
         MeshVaryingHeightSide(BlockSide.Front);
@@ -72,69 +67,54 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void MeshLikeSimple(Vector3i position, BlockSide side, MeshData mesh, MeshingContext context)
+    private static void MeshLikeSimple(
+        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, bool isUnshaded, MeshingContext context)
     {
-        side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-        (int x, int y, int z) = position;
-
-        // int: uv-- ---- ---- ---- -xxx xxyy yyyz zzzz (uv: texture coords; xyz: position)
-        int upperDataA = (0 << 31) | (0 << 30) | ((a[0] + x) << 10) |
-                         ((a[1] + y) << 5) | (a[2] + z);
-
-        int upperDataB = (0 << 31) | (1 << 30) | ((b[0] + x) << 10) |
-                         ((b[1] + y) << 5) | (b[2] + z);
-
-        int upperDataC = (1 << 31) | (1 << 30) | ((c[0] + x) << 10) |
-                         ((c[1] + y) << 5) | (c[2] + z);
-
-        int upperDataD = (1 << 31) | (0 << 30) | ((d[0] + x) << 10) |
-                         ((d[1] + y) << 5) | (d[2] + z);
-
-        // int: tttt tttt t--n nn-_ ---i iiii iiii iiii (t: tint; n: normal; i: texture index, _: used for simple blocks but not here)
-        int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 18) |
-                        mesh.TextureIndex;
-
-        context.GetSimpleBlockMeshFaceHolder(side).AddFace(
-            position,
-            lowerData,
-            (upperDataA, upperDataB, upperDataC, upperDataD),
-            isRotated: false);
+        ISimple.AddSimpleMesh(position,
+            side,
+            new ISimple.MeshData
+            {
+                TextureIndex = mesh.TextureIndex,
+                IsTextureRotated = false,
+                Tint = mesh.Tint,
+                IsAnimated = false
+            },
+            isOpaque,
+            isUnshaded,
+            context);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MeshLikeFluid(Vector3i position, BlockSide side, [DisallowNull] BlockInstance? blockToCheck, BlockMeshInfo info, MeshData mesh, MeshingContext context)
     {
-        side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-        (int x, int y, int z) = position;
-
         int height = GetHeight(info.Data);
 
         if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
             toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
-        // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; hl: texture repetition; xyz: position; e: lower/upper end)
-        int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) |
-                         (y << 5) | (z + a[2]);
+        (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 
-        int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) |
-                         (y << 5) | (z + b[2]);
+        Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+        Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
 
-        int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) |
-                         (y << 5) | (z + c[2]);
+        if (side is not (BlockSide.Top or BlockSide.Bottom))
+        {
+            (Vector2 min, Vector2 max) bounds = GetBounds(height);
+            Meshing.SetUVs(ref data, bounds.min, (bounds.min.X, bounds.max.Y), bounds.max, (bounds.max.X, bounds.min.Y));
+        }
+        else
+        {
+            Meshing.SetFullUVs(ref data);
+        }
 
-        int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) |
-                         (y << 5) | (z + d[2]);
-
-        // int: tttt tttt tnnn hhhh ---i iiii iiii iiii (t: tint; n: normal; h: height; i: texture index)
-        int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | ((int) side << 20) |
-                        (height << 16) | mesh.TextureIndex;
-
-        context.GetVaryingHeightMeshFaceHolder(side).AddFace(
+        context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
-            lowerData,
-            (upperDataA, upperDataB, upperDataC, upperDataD),
+            height,
+            NoHeight,
+            MeshFaceHolder.DefaultDirection,
+            data,
             isSingleSided: true,
-            isFull: false);
+            height == MaximumHeight);
     }
 
     /// <summary>
@@ -193,5 +173,3 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         }
     }
 }
-
-

@@ -43,4 +43,3 @@ public interface IFillable : IBlockBase
         return true;
     }
 }
-

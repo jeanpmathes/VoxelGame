@@ -28,4 +28,3 @@ internal class CloseHandel
         window.Close();
     }
 }
-

@@ -12,6 +12,9 @@ namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     A tint that can be applied to blocks.
+///     Additionally to three color channels, it also has a flag indicating whether it is neutral.
+///     When encoding the tint into bits for shaders, three bits are used for each color channel.
+///     If the neutral flag is set, the color is replaced with the neutral color provided externally.
 /// </summary>
 public readonly struct TintColor : IEquatable<TintColor>
 {
@@ -241,7 +244,10 @@ public readonly struct TintColor : IEquatable<TintColor>
 
     #endregion PREDEFINED COLORS
 
-    private int ToBits => ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
+    /// <summary>
+    ///     Gets the tint as bits.
+    /// </summary>
+    public uint ToBits => ((uint) (r * 7f) << 6) | ((uint) (g * 7f) << 3) | (uint) (b * 7f);
 
     /// <summary>
     ///     Convert this color to a <see cref="Color4" />.
@@ -254,13 +260,13 @@ public readonly struct TintColor : IEquatable<TintColor>
     }
 
     /// <summary>
-    ///     Get the tint encoded into bits.
+    ///     Select this tint or the neutral tint.
     /// </summary>
-    /// <param name="neutral">The tint color to use as for neutral tint.</param>
-    /// <returns>The tint bits.</returns>
-    public int GetBits(TintColor neutral)
+    /// <param name="neutral">The neutral tint.</param>
+    /// <returns>The selected tint.</returns>
+    public TintColor Select(TintColor neutral)
     {
-        return IsNeutral ? neutral.ToBits : ToBits;
+        return IsNeutral ? neutral : this;
     }
 
     /// <inheritdoc />
@@ -299,5 +305,3 @@ public readonly struct TintColor : IEquatable<TintColor>
         return !(left == right);
     }
 }
-
-

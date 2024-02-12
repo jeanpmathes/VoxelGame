@@ -28,4 +28,3 @@ public class GetSeed : Command
         Context.Console.WriteResponse($"({upper}, {lower})");
     }
 }
-

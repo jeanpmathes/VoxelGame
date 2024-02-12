@@ -73,4 +73,3 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
         return !left.Equals(right);
     }
 }
-

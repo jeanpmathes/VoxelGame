@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 
 namespace VoxelGame.Client.Console.Commands;
      #pragma warning disable CA1822
@@ -25,7 +25,6 @@ public class SetWireframe : Command
     /// <exclude />
     public void Invoke(bool enable)
     {
-        Screen.SetWireframe(enable);
+        Graphics.Instance.SetWireframe(enable);
     }
 }
-

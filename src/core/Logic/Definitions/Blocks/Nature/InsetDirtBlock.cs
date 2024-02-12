@@ -29,11 +29,11 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     private int[] dryTextureIndices = null!;
     private int[] wetTextureIndices = null!;
 
-    internal InsetDirtBlock(string name, string namedId, TextureLayout dry, TextureLayout wet,
+    internal InsetDirtBlock(string name, string namedID, TextureLayout dry, TextureLayout wet,
         bool supportsFullGrowth) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Solid with {IsOpaque = true},
             BoundingVolume.Block)
     {
@@ -80,7 +80,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         dryTextureIndices = dryLayout.GetTexIndexArray();
         wetTextureIndices = wetLayout.GetTexIndexArray();
@@ -110,5 +110,3 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
 }
-
-

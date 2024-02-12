@@ -103,7 +103,7 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireReader()
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         if (!CanRead) return null;
 
@@ -118,7 +118,7 @@ public sealed class Resource
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     public Guard? TryAcquireWriter()
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         if (!CanWrite) return null;
 
@@ -157,4 +157,3 @@ public sealed class Resource
         };
     }
 }
-

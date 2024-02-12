@@ -6,7 +6,6 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -17,51 +16,22 @@ public interface IComplex : IBlockMeshable
 {
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
-        (int x, int y, int z) = position;
+        Vector3 offset = position;
 
         MeshData mesh = GetMeshData(info);
-        float[] vertices = mesh.GetVertices();
-        int[] textureIndices = mesh.GetTextureIndices();
-        uint[] indices = mesh.GetIndices();
+        BlockMesh.Quad[] quads = mesh.Quads;
+        IMeshing meshing = context.GetBasicMesh(IsOpaque);
 
-        (PooledList<float> complexVertexPositions, PooledList<int> complexVertexData, PooledList<uint> complexIndices) =
-            context.GetComplexMeshLists();
-
-        complexIndices.AddRange(indices);
-
-        for (var i = 0; i < mesh.VertexCount; i++)
+        for (var index = 0; index < mesh.QuadCount; index++)
         {
-            complexVertexPositions.Add(vertices[i * 8 + 0] + x);
-            complexVertexPositions.Add(vertices[i * 8 + 1] + y);
-            complexVertexPositions.Add(vertices[i * 8 + 2] + z);
+            BlockMesh.Quad quad = quads[index];
 
-            // int: nnnn nooo oopp ppp- ---- --uu uuuv vvvv (nop: normal; uv: texture coords)
-            int upperData =
-                ((vertices[i * 8 + 5] < 0f
-                    ? 0b1_0000 | (int) (vertices[i * 8 + 5] * -15f)
-                    : (int) (vertices[i * 8 + 5] * 15f)) << 27) |
-                ((vertices[i * 8 + 6] < 0f
-                    ? 0b1_0000 | (int) (vertices[i * 8 + 6] * -15f)
-                    : (int) (vertices[i * 8 + 6] * 15f)) << 22) |
-                ((vertices[i * 8 + 7] < 0f
-                    ? 0b1_0000 | (int) (vertices[i * 8 + 7] * -15f)
-                    : (int) (vertices[i * 8 + 7] * 15f)) << 17) |
-                ((int) (vertices[i * 8 + 3] * 16f) << 5) |
-                (int) (vertices[i * 8 + 4] * 16f);
+            Meshing.SetTint(ref quad.data, mesh.Tint.Select(context.GetBlockTint(position)));
+            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
+            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
 
-            complexVertexData.Add(upperData);
-
-            // int: tttt tttt t--- ---a ---i iiii iiii iiii(t: tint; a: animated; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.GetBlockTint(position)) << 23) | mesh.GetAnimationBit(i, shift: 16) |
-                            textureIndices[i];
-
-            complexVertexData.Add(lowerData);
+            meshing.PushQuadWithOffset(quad.Positions, quad.data, offset);
         }
-
-        for (int i = complexIndices.Count - indices.Length; i < complexIndices.Count; i++)
-            complexIndices[i] += context.ComplexVertexCount;
-
-        context.ComplexVertexCount += mesh.VertexCount;
     }
 
     /// <summary>
@@ -70,41 +40,34 @@ public interface IComplex : IBlockMeshable
     protected MeshData GetMeshData(BlockMeshInfo info);
 
     /// <summary>
-    ///     Create the mesh data for a complex mesh.
-    /// </summary>
-    protected static MeshData CreateData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
-    {
-        return new MeshData(vertexCount, vertices, textureIndices, indices);
-    }
-
-    /// <summary>
     ///     The data that blocks have to provide for complex meshing.
     /// </summary>
     public readonly struct MeshData : IEquatable<MeshData>
     {
-        private readonly float[] vertices;
-        private readonly int[] textureIndices;
-        private readonly uint[] indices;
+        private readonly BlockMesh.Quad[] quads;
 
         /// <summary>
         ///     Create the mesh data.
         /// </summary>
-        public MeshData(uint vertexCount, float[] vertices, int[] textureIndices, uint[] indices)
+        public MeshData(BlockMesh.Quad[] quads)
         {
-            this.vertices = vertices;
-            this.textureIndices = textureIndices;
-            this.indices = indices;
+            this.quads = quads;
 
-            VertexCount = vertexCount;
+            QuadCount = (uint) quads.Length;
 
             Tint = TintColor.None;
             IsAnimated = false;
         }
 
         /// <summary>
-        ///     Get the vertex count of the mesh.
+        ///     Get the quads of the mesh.
         /// </summary>
-        public uint VertexCount { get; }
+        public BlockMesh.Quad[] Quads => quads;
+
+        /// <summary>
+        ///     Get the quad count of the mesh.
+        /// </summary>
+        public uint QuadCount { get; }
 
         /// <summary>
         ///     The block tint.
@@ -116,43 +79,11 @@ public interface IComplex : IBlockMeshable
         /// </summary>
         public bool IsAnimated { get; init; }
 
-        /// <summary>
-        ///     Get the animation bit.
-        /// </summary>
-        public int GetAnimationBit(int texture, int shift)
-        {
-            return IsAnimated && textureIndices[texture] != 0 ? 1 << shift : 0;
-        }
-
-        /// <summary>
-        ///     Get the vertex array.
-        /// </summary>
-        public float[] GetVertices()
-        {
-            return vertices;
-        }
-
-        /// <summary>
-        ///     Get the texture index array.
-        /// </summary>
-        public int[] GetTextureIndices()
-        {
-            return textureIndices;
-        }
-
-        /// <summary>
-        ///     Get the index array.
-        /// </summary>
-        public uint[] GetIndices()
-        {
-            return indices;
-        }
-
         /// <inheritdoc />
         public bool Equals(MeshData other)
         {
-            return (VertexCount, Tint, IsAnimated, vertices, textureIndices, indices) == (other.VertexCount, other.Tint,
-                other.IsAnimated, other.vertices, other.textureIndices, other.indices);
+            return (Tint, IsAnimated, quads) ==
+                   (other.Tint, other.IsAnimated, quads);
         }
 
         /// <inheritdoc />
@@ -164,7 +95,7 @@ public interface IComplex : IBlockMeshable
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(vertices, textureIndices, indices, VertexCount, Tint, IsAnimated);
+            return HashCode.Combine(quads, Tint, IsAnimated);
         }
 
         /// <summary>
@@ -184,4 +115,3 @@ public interface IComplex : IBlockMeshable
         }
     }
 }
-

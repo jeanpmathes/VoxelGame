@@ -34,5 +34,13 @@ public static class PlantBehaviour
         bool isLowered = world.IsLowered(position);
         world.SetBlock(self.AsInstance(isLowered ? 1u : 0u), position);
     }
-}
 
+    /// <summary>
+    ///     Check if the block below the plant is still valid, if not, destroy the plant.
+    /// </summary>
+    public static void NeighborUpdate(World world, IBlockBase block, Vector3i position, BlockSide side)
+    {
+        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
+            block.Destroy(world, position);
+    }
+}

@@ -60,4 +60,3 @@ public class ImportStructure : Command
         structure.Place(Context.Player.World, position, orientation);
     }
 }
-

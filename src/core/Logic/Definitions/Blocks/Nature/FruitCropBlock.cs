@@ -21,19 +21,18 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 // l: lowered
 // s: stage
-public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
+public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly Block fruit;
     private readonly string texture;
 
     private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BlockMesh> meshes = new();
 
-    private (int dead, int initial, int last) textureIndex;
-
-    internal FruitCropBlock(string name, string namedId, string texture, Block fruit) :
+    internal FruitCropBlock(string name, string namedID, string texture, Block fruit) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags(),
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f)))
     {
@@ -43,27 +42,9 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
-    ICrossPlant.MeshData ICrossPlant.GetMeshData(BlockMeshInfo info)
+    IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        var stage = (GrowthStage) ((info.Data >> 1) & 0b111);
-
-        int index = stage switch
-        {
-            GrowthStage.Initial => textureIndex.initial,
-            GrowthStage.First => textureIndex.initial,
-            GrowthStage.Second => textureIndex.last,
-            GrowthStage.Third => textureIndex.last,
-            GrowthStage.Fourth => textureIndex.last,
-            GrowthStage.Fifth => textureIndex.last,
-            GrowthStage.Ready => textureIndex.last,
-            GrowthStage.Dead => textureIndex.dead,
-            _ => 0
-        };
-
-        return new ICrossPlant.MeshData(index)
-        {
-            IsLowered = (info.Data & 0b1) == 1
-        };
+        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_1111]);
     }
 
     /// <inheritdoc />
@@ -73,16 +54,18 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         int baseTextureIndex = indexProvider.GetTextureIndex(texture);
 
-        textureIndex =
+        (int dead, int initial, int last) textureIndices =
         (
             baseTextureIndex + 0,
             baseTextureIndex + 1,
             baseTextureIndex + 2
         );
+
+        for (uint data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(data, textureIndices, visuals));
     }
 
     private static BoundingVolume CreateVolume(uint data)
@@ -96,6 +79,27 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
             : new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f));
+    }
+
+    private static BlockMesh CreateMesh(uint data, (int dead, int initial, int last) textureIndices, VisualConfiguration visuals)
+    {
+        var stage = (GrowthStage) ((data >> 1) & 0b111);
+        bool isLowered = (data & 0b1) != 0;
+
+        int textureIndex = stage switch
+        {
+            GrowthStage.Initial => textureIndices.initial,
+            GrowthStage.First => textureIndices.initial,
+            GrowthStage.Second => textureIndices.last,
+            GrowthStage.Third => textureIndices.last,
+            GrowthStage.Fourth => textureIndices.last,
+            GrowthStage.Fifth => textureIndices.last,
+            GrowthStage.Ready => textureIndices.last,
+            GrowthStage.Dead => textureIndices.dead,
+            _ => 0
+        };
+
+        return BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: true, textureIndex, isLowered);
     }
 
     /// <inheritdoc />
@@ -119,8 +123,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
     /// <inheritdoc />
     public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
-            Destroy(world, position);
+        PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
 
     /// <inheritdoc />
@@ -180,4 +183,3 @@ public class FruitCropBlock : Block, ICombustible, IFillable, ICrossPlant
         Dead
     }
 }
-

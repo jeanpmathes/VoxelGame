@@ -36,4 +36,3 @@ public partial class StaticStructure
     }
      #pragma warning restore CS1591
 }
-

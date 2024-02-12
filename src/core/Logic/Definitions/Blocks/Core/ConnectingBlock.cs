@@ -27,13 +27,13 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
     ///     Create a new connecting block.
     /// </summary>
     /// <param name="name">The name of the blocks.</param>
-    /// <param name="namedId">The string ID of the block.</param>
+    /// <param name="namedID">The string ID of the block.</param>
     /// <param name="flags">The flags describing the block.</param>
     /// <param name="boundingVolume">The block bounding box.</param>
-    protected ConnectingBlock(string name, string namedId, BlockFlags flags, BoundingVolume boundingVolume) :
+    protected ConnectingBlock(string name, string namedID, BlockFlags flags, BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags,
             boundingVolume) {}
 
@@ -63,5 +63,3 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
         }
     }
 }
-
-

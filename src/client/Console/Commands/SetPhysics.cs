@@ -35,4 +35,3 @@ public class SetPhysics : Command
         context.Player.DoPhysics = enabled;
     }
 }
-

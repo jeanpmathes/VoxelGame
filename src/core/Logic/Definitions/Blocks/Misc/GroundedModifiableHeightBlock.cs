@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GroundedModifiableHeightBlock : ModifiableHeightBlock
 {
-    internal GroundedModifiableHeightBlock(string name, string namedId, TextureLayout layout) : base(name, namedId, layout) {}
+    internal GroundedModifiableHeightBlock(string name, string namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
     public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
@@ -37,5 +37,3 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
             Destroy(world, position);
     }
 }
-
-

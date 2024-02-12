@@ -19,19 +19,17 @@ public class CrossBlock : Block, IFillable, IComplex
 {
     private readonly string texture;
 
-    private uint[] indices = null!;
-    private int[] textureIndices = null!;
-    private float[] vertices = null!;
+    private BlockMesh mesh = null!;
 
     /// <summary>
     ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
     ///     Cross blocks are never full, solid, or opaque.
     /// </summary>
-    protected CrossBlock(string name, string namedId, string texture, BlockFlags flags,
+    protected CrossBlock(string name, string namedID, string texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = false, IsOpaque = false, IsSolid = false},
             boundingVolume)
     {
@@ -40,13 +38,12 @@ public class CrossBlock : Block, IFillable, IComplex
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        return IComplex.CreateData(vertexCount: 8, vertices, textureIndices, indices);
+        return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        (vertices, indices, textureIndices) = BlockModels.CreateCrossModel(indexProvider.GetTextureIndex(texture));
+        mesh = BlockMeshes.CreateCrossMesh(indexProvider.GetTextureIndex(texture));
     }
 }
-

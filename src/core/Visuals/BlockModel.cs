@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Visuals;
@@ -36,11 +37,7 @@ public sealed class BlockModel
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
-    private bool isLocked;
-    private uint[] lockedIndices = null!;
-    private int[] lockedTextureIndices = null!;
-
-    private float[] lockedVertices = null!;
+    private BlockMesh.Quad[]? lockedQuads;
 
     /// <summary>
     ///     Create an empty block model.
@@ -79,9 +76,9 @@ public sealed class BlockModel
     {
         get
         {
-            ToData(out float[] vertices, out int[] textureIndices, out uint[] indices);
+            ToData(out BlockMesh.Quad[] quads);
 
-            return new BlockMesh((uint) VertexCount, vertices, textureIndices, indices);
+            return new BlockMesh(quads);
         }
     }
 
@@ -103,7 +100,7 @@ public sealed class BlockModel
     /// <param name="b">The second model.</param>
     public void PlaneSplit(Vector3d position, Vector3d normal, out BlockModel a, out BlockModel b)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         normal = normal.Normalized();
         List<Quad> quadsA = new();
@@ -126,11 +123,11 @@ public sealed class BlockModel
     /// <param name="movement"></param>
     public void Move(Vector3d movement)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         var xyz = Matrix4.CreateTranslation(movement.ToVector3());
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyTranslationMatrix(xyz);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     /// <summary>
@@ -140,7 +137,7 @@ public sealed class BlockModel
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
     public void RotateY(int rotations, bool rotateTopAndBottomTexture = true)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         if (rotations == 0) return;
 
@@ -149,11 +146,9 @@ public sealed class BlockModel
         Matrix4 xyz = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * Matrix4.CreateRotationY(angle) *
                       Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
-        var nop = Matrix4.CreateRotationY(angle);
-
         rotations = rotateTopAndBottomTexture ? 0 : rotations;
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, nop, rotations);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, rotations);
     }
 
     /// <summary>
@@ -186,7 +181,7 @@ public sealed class BlockModel
     public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
         CreateAllSides()
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             result;
@@ -242,7 +237,7 @@ public sealed class BlockModel
 
     private BlockModel CreateSideModel(BlockSide side)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         BlockModel copy = new(this);
 
@@ -297,22 +292,22 @@ public sealed class BlockModel
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
 
-        copy.ApplyMatrix(matrix, rotation);
+        copy.ApplyMatrix(matrix);
         copy.RotateTextureCoordinates(axis, rotations);
 
         return copy;
     }
 
-    private void ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    private void ApplyMatrix(Matrix4 xyz)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz, nop);
+        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     private void RotateTextureCoordinates(Vector3d axis, int rotations)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
     }
@@ -320,90 +315,38 @@ public sealed class BlockModel
     /// <summary>
     ///     Get this model as data that can be used for rendering.
     /// </summary>
-    public void ToData(out float[] vertices, out int[] textureIndices, out uint[] indices)
+    public void ToData(out BlockMesh.Quad[] quads)
     {
-        if (isLocked)
+        if (lockedQuads != null)
         {
-            vertices = lockedVertices;
-            textureIndices = lockedTextureIndices;
-            indices = lockedIndices;
+            quads = lockedQuads;
 
             return;
         }
 
-        var texIndexLookup = new int[TextureNames.Length];
+        var textureIndexLookup = new int[TextureNames.Length];
 
         for (var i = 0; i < TextureNames.Length; i++)
-            texIndexLookup[i] = blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
+            textureIndexLookup[i] = blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
 
-        vertices = new float[Quads.Length * 32];
-        textureIndices = new int[Quads.Length * 4];
+        quads = new BlockMesh.Quad[Quads.Length];
 
-        for (var q = 0; q < Quads.Length; q++)
+        for (var index = 0; index < Quads.Length; index++)
         {
-            Quad quad = Quads[q];
+            Quad quad = Quads[index];
 
-            // Vertex 0.
-            vertices[q * 32 + 0] = quad.Vert0.X;
-            vertices[q * 32 + 1] = quad.Vert0.Y;
-            vertices[q * 32 + 2] = quad.Vert0.Z;
-            vertices[q * 32 + 3] = MathHelper.Clamp(quad.Vert0.U, min: 0f, max: 1f);
-            vertices[q * 32 + 4] = MathHelper.Clamp(quad.Vert0.V, min: 0f, max: 1f);
-            vertices[q * 32 + 5] = MathHelper.Clamp(quad.Vert0.N, min: -1f, max: 1f);
-            vertices[q * 32 + 6] = MathHelper.Clamp(quad.Vert0.O, min: -1f, max: 1f);
-            vertices[q * 32 + 7] = MathHelper.Clamp(quad.Vert0.P, min: -1f, max: 1f);
+            quads[index].A = quad.Vert0.Position.ToVector3();
+            quads[index].B = quad.Vert1.Position.ToVector3();
+            quads[index].C = quad.Vert2.Position.ToVector3();
+            quads[index].D = quad.Vert3.Position.ToVector3();
 
-            textureIndices[q * 4 + 0] = texIndexLookup[quad.TextureId];
+            Meshing.SetTextureIndex(ref quads[index].data, textureIndexLookup[quad.TextureId]);
 
-            // Vertex 1.
-            vertices[q * 32 + 8] = quad.Vert1.X;
-            vertices[q * 32 + 9] = quad.Vert1.Y;
-            vertices[q * 32 + 10] = quad.Vert1.Z;
-            vertices[q * 32 + 11] = MathHelper.Clamp(quad.Vert1.U, min: 0f, max: 1f);
-            vertices[q * 32 + 12] = MathHelper.Clamp(quad.Vert1.V, min: 0f, max: 1f);
-            vertices[q * 32 + 13] = MathHelper.Clamp(quad.Vert1.N, min: -1f, max: 1f);
-            vertices[q * 32 + 14] = MathHelper.Clamp(quad.Vert1.O, min: -1f, max: 1f);
-            vertices[q * 32 + 15] = MathHelper.Clamp(quad.Vert1.P, min: -1f, max: 1f);
-
-            textureIndices[q * 4 + 1] = texIndexLookup[quad.TextureId];
-
-            // Vertex 2.
-            vertices[q * 32 + 16] = quad.Vert2.X;
-            vertices[q * 32 + 17] = quad.Vert2.Y;
-            vertices[q * 32 + 18] = quad.Vert2.Z;
-            vertices[q * 32 + 19] = MathHelper.Clamp(quad.Vert2.U, min: 0f, max: 1f);
-            vertices[q * 32 + 20] = MathHelper.Clamp(quad.Vert2.V, min: 0f, max: 1f);
-            vertices[q * 32 + 21] = MathHelper.Clamp(quad.Vert2.N, min: -1f, max: 1f);
-            vertices[q * 32 + 22] = MathHelper.Clamp(quad.Vert2.O, min: -1f, max: 1f);
-            vertices[q * 32 + 23] = MathHelper.Clamp(quad.Vert2.P, min: -1f, max: 1f);
-
-            textureIndices[q * 4 + 2] = texIndexLookup[quad.TextureId];
-
-            // Vertex 3.
-            vertices[q * 32 + 24] = quad.Vert3.X;
-            vertices[q * 32 + 25] = quad.Vert3.Y;
-            vertices[q * 32 + 26] = quad.Vert3.Z;
-            vertices[q * 32 + 27] = MathHelper.Clamp(quad.Vert3.U, min: 0f, max: 1f);
-            vertices[q * 32 + 28] = MathHelper.Clamp(quad.Vert3.V, min: 0f, max: 1f);
-            vertices[q * 32 + 29] = MathHelper.Clamp(quad.Vert3.N, min: -1f, max: 1f);
-            vertices[q * 32 + 30] = MathHelper.Clamp(quad.Vert3.O, min: -1f, max: 1f);
-            vertices[q * 32 + 31] = MathHelper.Clamp(quad.Vert3.P, min: -1f, max: 1f);
-
-            textureIndices[q * 4 + 3] = texIndexLookup[quad.TextureId];
-        }
-
-        indices = new uint[Quads.Length * 6];
-
-        for (var i = 0; i < Quads.Length; i++)
-        {
-            var offset = (uint) (i * 4);
-
-            indices[i * 6 + 0] = 0 + offset;
-            indices[i * 6 + 1] = 2 + offset;
-            indices[i * 6 + 2] = 1 + offset;
-            indices[i * 6 + 3] = 0 + offset;
-            indices[i * 6 + 4] = 3 + offset;
-            indices[i * 6 + 5] = 2 + offset;
+            Meshing.SetUVs(ref quads[index].data,
+                quad.Vert0.UV.ToVector2(),
+                quad.Vert1.UV.ToVector2(),
+                quad.Vert2.UV.ToVector2(),
+                quad.Vert3.UV.ToVector2());
         }
     }
 
@@ -412,25 +355,26 @@ public sealed class BlockModel
     /// </summary>
     public void Lock()
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        ToData(out lockedVertices, out lockedTextureIndices, out lockedIndices);
+        ToData(out lockedQuads);
 
-        isLocked = true;
+        Debug.Assert(lockedQuads != null);
     }
 
     /// <summary>
     ///     Save this model to a file.
     /// </summary>
-    /// <param name="name">The path to the file.</param>
-    public void Save(string name)
+    /// <param name="directory">The directory to save the file to.</param>
+    /// <param name="name">The name of the file.</param>
+    public void Save(DirectoryInfo directory, string name)
     {
-        if (isLocked) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
 
         string json = JsonSerializer.Serialize(this, options);
-        path.GetFile(GetFileName(name)).WriteAllText(json);
+        directory.GetFile(GetFileName(name)).WriteAllText(json);
     }
 
     /// <summary>
@@ -481,7 +425,7 @@ public sealed class BlockModel
         {
             logger.LogWarning(Events.ResourceLoad, "Loading of models is currently disabled, fallback will be used instead");
 
-            return CreateFallback();
+            return BlockModels.CreateFallback();
         }
 
         try
@@ -497,142 +441,7 @@ public sealed class BlockModel
         {
             loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, e);
 
-            return CreateFallback();
-        }
-    }
-
-    private static BlockModel CreateFallback()
-    {
-        const float begin = 0.275f;
-        const float size = 0.5f;
-
-        int[][] uvs = BlockModels.GetBlockUVs(isRotated: false);
-
-        Quad BuildQuad(BlockSide side)
-        {
-            Vector3i normal = side.Direction();
-
-            Vertex BuildVertex(int[] corner, int[] uv)
-            {
-                return new Vertex
-                {
-                    X = begin + corner[0] * size,
-                    Y = begin + corner[1] * size,
-                    Z = begin + corner[2] * size,
-                    U = begin + uv[0] * size,
-                    V = begin + uv[1] * size,
-                    N = normal.X,
-                    O = normal.Y,
-                    P = normal.Z
-                };
-            }
-
-            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
-
-            return new Quad
-            {
-                TextureId = 0,
-                Vert0 = BuildVertex(a, uvs[0]),
-                Vert1 = BuildVertex(b, uvs[1]),
-                Vert2 = BuildVertex(c, uvs[2]),
-                Vert3 = BuildVertex(d, uvs[3])
-            };
-        }
-
-        return new BlockModel
-        {
-            TextureNames = new[] {"missing_texture"},
-            Quads = new[]
-            {
-                BuildQuad(BlockSide.Front),
-                BuildQuad(BlockSide.Back),
-                BuildQuad(BlockSide.Left),
-                BuildQuad(BlockSide.Right),
-                BuildQuad(BlockSide.Bottom),
-                BuildQuad(BlockSide.Top)
-            }
-        };
-    }
-
-    /// <summary>
-    ///     Combine the data of multiple block models.
-    /// </summary>
-    /// <param name="vertexCount">The resulting vertex count.</param>
-    /// <param name="models">The models to combine.</param>
-    /// <returns>The combined data.</returns>
-    public static (float[] vertices, int[] textureIndices, uint[] indices) CombineData(out uint vertexCount,
-        params BlockModel[] models)
-    {
-        vertexCount = 0;
-
-        bool locked = models.Aggregate(seed: true, (current, model) => current && model.isLocked);
-
-        if (locked)
-        {
-            int vertexArrayLength = models.Sum(model => model.lockedVertices.Length);
-            int textureIndicesArrayLength = models.Sum(model => model.lockedTextureIndices.Length);
-            int indicesArrayLength = models.Sum(model => model.lockedIndices.Length);
-
-            var vertices = new float[vertexArrayLength];
-            var textureIndices = new int[textureIndicesArrayLength];
-            var indices = new uint[indicesArrayLength];
-
-            var copiedVertices = 0;
-            var copiedTextureIndices = 0;
-            var copiedIndices = 0;
-
-            foreach (BlockModel model in models)
-            {
-                Array.Copy(
-                    model.lockedVertices,
-                    sourceIndex: 0,
-                    vertices,
-                    copiedVertices,
-                    model.lockedVertices.Length);
-
-                Array.Copy(
-                    model.lockedTextureIndices,
-                    sourceIndex: 0,
-                    textureIndices,
-                    copiedTextureIndices,
-                    model.lockedTextureIndices.Length);
-
-                Array.Copy(model.lockedIndices, sourceIndex: 0, indices, copiedIndices, model.lockedIndices.Length);
-
-                for (int i = copiedIndices; i < copiedIndices + model.lockedIndices.Length; i++)
-                    indices[i] += vertexCount;
-
-                copiedVertices += model.lockedVertices.Length;
-                copiedTextureIndices += model.lockedTextureIndices.Length;
-                copiedIndices += model.lockedIndices.Length;
-
-                vertexCount += (uint) model.VertexCount;
-            }
-
-            return (vertices, textureIndices, indices);
-        }
-        else
-        {
-            List<float> vertices = new();
-            List<int> textureIndices = new();
-            List<uint> indices = new();
-
-            foreach (BlockModel model in models)
-            {
-                model.ToData(out float[] modelVertices, out int[] modelTextureIndices, out uint[] modelIndices);
-
-                int firstNewIndex = indices.Count;
-
-                vertices.AddRange(modelVertices);
-                textureIndices.AddRange(modelTextureIndices);
-                indices.AddRange(modelIndices);
-
-                for (int i = firstNewIndex; i < indices.Count; i++) indices[i] += vertexCount;
-
-                vertexCount += (uint) model.VertexCount;
-            }
-
-            return (vertices.ToArray(), textureIndices.ToArray(), indices.ToArray());
+            return BlockModels.CreateFallback();
         }
     }
 
@@ -643,9 +452,42 @@ public sealed class BlockModel
     /// <returns>The combined mesh.</returns>
     public static BlockMesh GetCombinedMesh(params BlockModel[] models)
     {
-        (float[] vertices, int[] textureIndices, uint[] indices) = CombineData(out uint vertexCount, models);
+        int totalQuadCount = models.Sum(model => model.Quads.Length);
+        bool locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
 
-        return new BlockMesh(vertexCount, vertices, textureIndices, indices);
+        if (locked)
+        {
+            var quads = new BlockMesh.Quad[totalQuadCount];
+
+            var copiedQuads = 0;
+
+            foreach (BlockMesh.Quad[]? modelQuads in models.Select(model => model.lockedQuads))
+            {
+                Debug.Assert(modelQuads != null);
+
+                Array.Copy(
+                    modelQuads,
+                    sourceIndex: 0,
+                    quads,
+                    copiedQuads,
+                    modelQuads.Length);
+
+                copiedQuads += modelQuads.Length;
+            }
+
+            return new BlockMesh(quads);
+        }
+
+
+        List<BlockMesh.Quad> vertices = new(totalQuadCount);
+
+        foreach (BlockModel model in models)
+        {
+            model.ToData(out BlockMesh.Quad[] modelQuads);
+            vertices.AddRange(modelQuads);
+        }
+
+        return new BlockMesh(vertices.ToArray());
     }
 
     #endregion STATIC METHODS
@@ -687,32 +529,21 @@ public struct Quad : IEquatable<Quad>
     public Vector3d Center => (Vert0.Position + Vert1.Position + Vert2.Position + Vert3.Position) / 4;
 
     /// <summary>
-    ///     Apply a matrix only affecting the xyz values.
+    ///     The normal of the quad.
     /// </summary>
-    /// <param name="xyz">The matrix to apply.</param>
-    /// <returns>The new quad.</returns>
-    public Quad ApplyTranslationMatrix(Matrix4 xyz)
-    {
-        Vert0 = Vert0.ApplyTranslationMatrix(xyz);
-        Vert1 = Vert1.ApplyTranslationMatrix(xyz);
-        Vert2 = Vert2.ApplyTranslationMatrix(xyz);
-        Vert3 = Vert3.ApplyTranslationMatrix(xyz);
-
-        return this;
-    }
+    private Vector3d Normal => Vector3d.Cross(Vert1.Position - Vert0.Position, Vert2.Position - Vert0.Position).Normalized();
 
     /// <summary>
     ///     Apply a matrix to this quad.
     /// </summary>
     /// <param name="xyz">The matrix to apply to the position.</param>
-    /// <param name="nop">The matrix to apply to the normals.</param>
     /// <returns>The quad with the matrices applied.</returns>
-    public Quad ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    public Quad ApplyMatrix(Matrix4 xyz)
     {
-        Vert0 = Vert0.ApplyMatrix(xyz, nop);
-        Vert1 = Vert1.ApplyMatrix(xyz, nop);
-        Vert2 = Vert2.ApplyMatrix(xyz, nop);
-        Vert3 = Vert3.ApplyMatrix(xyz, nop);
+        Vert0 = Vert0.ApplyMatrix(xyz);
+        Vert1 = Vert1.ApplyMatrix(xyz);
+        Vert2 = Vert2.ApplyMatrix(xyz);
+        Vert3 = Vert3.ApplyMatrix(xyz);
 
         return this;
     }
@@ -720,16 +551,16 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Apply a rotation matrix to this quad.
     /// </summary>
-    public Quad ApplyRotationMatrixY(Matrix4 xyz, Matrix4 nop, int rotations)
+    public Quad ApplyRotationMatrixY(Matrix4 xyz, int rotations)
     {
-        // Rotate positions and normals.
-        Vert0 = Vert0.ApplyMatrix(xyz, nop);
-        Vert1 = Vert1.ApplyMatrix(xyz, nop);
-        Vert2 = Vert2.ApplyMatrix(xyz, nop);
-        Vert3 = Vert3.ApplyMatrix(xyz, nop);
+        // Rotate positions.
+        Vert0 = Vert0.ApplyMatrix(xyz);
+        Vert1 = Vert1.ApplyMatrix(xyz);
+        Vert2 = Vert2.ApplyMatrix(xyz);
+        Vert3 = Vert3.ApplyMatrix(xyz);
 
         // Rotate UVs for top and bottom sides.
-        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) == Vector3d.UnitY)
+        if (Normal.Absolute().Rounded(digits: 2) == Vector3d.UnitY)
             for (var r = 0; r < rotations; r++)
             {
                 Vert0 = Vert0.RotateUV();
@@ -746,7 +577,7 @@ public struct Quad : IEquatable<Quad>
     /// </summary>
     public Quad RotateTextureCoordinates(Vector3d axis, int rotations)
     {
-        if (new Vector3d(Vert0.N, Vert0.O, Vert0.P).Absolute().Rounded(digits: 2) != axis) return this;
+        if (Normal.Absolute().Rounded(digits: 2) != axis) return this;
 
         for (var r = 0; r < rotations; r++)
         {
@@ -826,54 +657,25 @@ public struct Vertex : IEquatable<Vertex>
     public float V { get; set; }
 
     /// <summary>
-    ///     The first normal component.
-    /// </summary>
-    public float N { get; set; }
-
-    /// <summary>
-    ///     The second normal component.
-    /// </summary>
-    public float O { get; set; }
-
-    /// <summary>
-    ///     The third normal component.
-    /// </summary>
-    public float P { get; set; }
-
-    /// <summary>
     ///     The position of the vertex.
     /// </summary>
     public Vector3d Position => new(X, Y, Z);
 
     /// <summary>
-    ///     Apply a translation matrix to this vertex.
+    ///     The texture coordinates of the vertex.
     /// </summary>
-    public Vertex ApplyTranslationMatrix(Matrix4 xyz)
-    {
-        Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
-
-        X = position.X;
-        Y = position.Y;
-        Z = position.Z;
-
-        return this;
-    }
+    public Vector2d UV => new(U, V);
 
     /// <summary>
     ///     Apply a matrix to this vertex.
     /// </summary>
-    public Vertex ApplyMatrix(Matrix4 xyz, Matrix4 nop)
+    public Vertex ApplyMatrix(Matrix4 xyz)
     {
         Vector4 position = new Vector4(X, Y, Z, w: 1f) * xyz;
-        Vector4 normal = new Vector4(N, O, P, w: 1f) * nop;
 
         X = position.X;
         Y = position.Y;
         Z = position.Z;
-
-        N = normal.X;
-        O = normal.Y;
-        P = normal.Z;
 
         return this;
     }
@@ -894,7 +696,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <inheritdoc />
     public bool Equals(Vertex other)
     {
-        return (X, Y, Z, U, V, N, O, P) == (other.X, other.Y, other.Z, other.U, other.V, other.N, other.O, other.P);
+        return (X, Y, Z, U, V) == (other.X, other.Y, other.Z, other.U, other.V);
     }
 
     /// <inheritdoc />
@@ -906,7 +708,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Z, U, V, N, O, P);
+        return HashCode.Combine(X, Y, Z, U, V);
     }
 
     /// <summary>
@@ -923,39 +725,5 @@ public struct Vertex : IEquatable<Vertex>
     public static bool operator !=(Vertex left, Vertex right)
     {
         return !left.Equals(right);
-    }
-}
-
-/// <summary>
-///     Extension methods for <see cref="BlockModel" />.
-/// </summary>
-public static class BlockModelExtensions
-{
-    /// <summary>
-    ///     Lock a group of models.
-    /// </summary>
-    /// <param name="group">The models to lock.</param>
-    public static void Lock(
-        this (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel
-            top) group)
-    {
-        group.front.Lock();
-        group.back.Lock();
-        group.left.Lock();
-        group.right.Lock();
-        group.bottom.Lock();
-        group.top.Lock();
-    }
-
-    /// <summary>
-    ///     Lock a group of models.
-    /// </summary>
-    /// <param name="group">The group to lock.</param>
-    public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group)
-    {
-        group.north.Lock();
-        group.east.Lock();
-        group.south.Lock();
-        group.west.Lock();
     }
 }

@@ -271,5 +271,3 @@ public class FluidContactManager
         }
     }
 }
-
-

@@ -2,4 +2,5 @@
 
 # VoxelGame
 Trying to create a voxel game in C#...
-System requirements are a Windows PC and decent hardware, because the performance is not great.
+
+The game logic is written in C#, the rendering uses C++ and DirectX 12 for raytracing.

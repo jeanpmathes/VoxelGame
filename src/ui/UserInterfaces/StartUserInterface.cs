@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Input;
+using VoxelGame.Support.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
 
@@ -27,14 +27,16 @@ public class StartUserInterface : UserInterface
     /// <summary>
     ///     Creates a new start user interface.
     /// </summary>
-    /// <param name="inputListener">The input listener.</param>
+    /// <param name="input">The input.</param>
+    /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="worldProvider">The world provider.</param>
     /// <param name="settingsProviders">The settings providers.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
-    public StartUserInterface(InputListener inputListener, IWorldProvider worldProvider,
+    public StartUserInterface(Input input, IScaleProvider scale, IWorldProvider worldProvider,
         ICollection<ISettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
-        inputListener,
+        input,
+        scale,
         resources,
         drawBackground)
     {

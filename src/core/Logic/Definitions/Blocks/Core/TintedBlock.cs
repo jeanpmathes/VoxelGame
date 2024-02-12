@@ -22,11 +22,11 @@ public class TintedBlock : BasicBlock, IWideConnectable
 {
     private readonly bool isAnimated;
 
-    internal TintedBlock(string name, string namedId, BlockFlags flags, TextureLayout layout,
+    internal TintedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout,
         bool isAnimated = false) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsInteractable = true},
             layout)
     {
@@ -54,4 +54,3 @@ public class TintedBlock : BasicBlock, IWideConnectable
         entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }
 }
-

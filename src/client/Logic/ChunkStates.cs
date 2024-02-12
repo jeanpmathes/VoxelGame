@@ -7,10 +7,10 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Support.Data;
 
 namespace VoxelGame.Client.Logic;
 
@@ -19,7 +19,7 @@ public partial class Chunk
     /// <summary>
     ///     Utility to allow easier access without casting.
     /// </summary>
-    public abstract class ClientChunkState : ChunkState
+    public abstract class ChunkState : Core.Logic.ChunkState
     {
         /// <summary>
         ///     Access the client chunk.
@@ -30,7 +30,7 @@ public partial class Chunk
     /// <summary>
     ///     Meshes a chunk.
     /// </summary>
-    public class Meshing : ClientChunkState
+    public class Meshing : ChunkState
     {
         private (Task<ChunkMeshData> task, Guard guard, ChunkMeshingContext context)? activity;
 
@@ -52,7 +52,7 @@ public partial class Chunk
 
                 if (guard == null) return;
 
-                context = ChunkMeshingContext.Acquire(Chunk);
+                context = ChunkMeshingContext.Acquire(Chunk, SpatialMeshingFactory.Shared);
                 activity = (Chunk.CreateMeshDataAsync(context), guard, context);
             }
             else if (task.IsCompleted)
@@ -78,7 +78,7 @@ public partial class Chunk
                     {
                         Cleanup = () =>
                         {
-                            task.Result.Discard();
+                            task.Result.Dispose();
                         },
                         PrioritizeLoop = true,
                         PrioritizeDeactivation = true
@@ -90,7 +90,7 @@ public partial class Chunk
     /// <summary>
     ///     Sends mesh data to the GPU.
     /// </summary>
-    public class MeshDataSending : ClientChunkState
+    public class MeshDataSending : ChunkState
     {
         private readonly ChunkMeshData meshData;
         private Guard? guard;
@@ -121,10 +121,10 @@ public partial class Chunk
 
             if (!finished) return;
 
+            meshData.Dispose();
+
             guard.Dispose();
             SetNextActive();
         }
     }
 }
-
-

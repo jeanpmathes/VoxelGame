@@ -26,10 +26,10 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     private int[] textureIndices = null!;
 
     /// <inheritdoc />
-    protected VaryingHeightBlock(string name, string namedId, BlockFlags flags, TextureLayout layout) :
+    protected VaryingHeightBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             flags with {IsFull = false},
             BoundingVolume.Block)
     {
@@ -88,7 +88,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         textureIndices = layout.GetTexIndexArray();
     }

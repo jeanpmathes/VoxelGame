@@ -20,10 +20,10 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     private readonly TextureLayout wet;
     private int[] wetTextureIndices = null!;
 
-    internal DirtBlock(string name, string namedId, TextureLayout normal, TextureLayout wet) :
+    internal DirtBlock(string name, string namedID, TextureLayout normal, TextureLayout wet) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             normal)
     {
@@ -37,9 +37,9 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider);
+        base.OnSetup(indexProvider, visuals);
 
         wetTextureIndices = wet.GetTexIndexArray();
     }
@@ -76,6 +76,3 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
             : new Content(block, fluid);
     }
 }
-
-
-

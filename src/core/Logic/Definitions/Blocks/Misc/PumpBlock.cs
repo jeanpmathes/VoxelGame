@@ -19,10 +19,10 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
 {
     private readonly int pumpDistance;
 
-    internal PumpBlock(string name, string namedId, int pumpDistance, TextureLayout layout) :
+    internal PumpBlock(string name, string namedID, int pumpDistance, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic with {IsInteractable = true},
             layout)
     {
@@ -44,5 +44,3 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         Fluid.Elevate(entity.World, position, pumpDistance);
     }
 }
-
-

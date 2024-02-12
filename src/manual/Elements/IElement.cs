@@ -15,4 +15,3 @@ internal interface IElement
 {
     internal void Generate(StreamWriter writer);
 }
-

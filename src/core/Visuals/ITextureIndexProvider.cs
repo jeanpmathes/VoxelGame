@@ -18,4 +18,3 @@ public interface ITextureIndexProvider
     /// <returns>The texture index.</returns>
     int GetTextureIndex(string name);
 }
-

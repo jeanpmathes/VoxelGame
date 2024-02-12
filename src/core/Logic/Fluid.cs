@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic;
 
@@ -37,19 +38,19 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     ///     Create a new fluid.
     /// </summary>
     /// <param name="name">The name of the fluid. Can be localized.</param>
-    /// <param name="namedId">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
+    /// <param name="namedID">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
     /// <param name="density">The density of the fluid. This determines whether this is a gas or a fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid. This determines the flow speed.</param>
     /// <param name="checkContact">Whether entity contact must be checked.</param>
     /// <param name="receiveContact">Whether entity contact should be passed to the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    protected Fluid(string name, string namedId, double density, int viscosity,
+    protected Fluid(string name, string namedID, double density, int viscosity,
         bool checkContact, bool receiveContact, RenderType renderType)
     {
         Debug.Assert(density > 0);
 
         Name = name;
-        NamedID = namedId;
+        NamedID = namedID;
 
         Density = density;
 
@@ -123,7 +124,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <summary>
     ///     Gets the <see cref="Visuals.RenderType" /> of this fluid.
     /// </summary>
-    public RenderType RenderType { get; }
+    private RenderType RenderType { get; }
 
     /// <summary>
     ///     Get whether this fluids is a fluid.
@@ -182,7 +183,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     protected virtual void OnSetup(ITextureIndexProvider indexProvider) {}
 
     /// <summary>
-    /// Create the mesh for this fluid.
+    ///     Create the mesh for this fluid.
     /// </summary>
     /// <param name="position">The position of the fluid.</param>
     /// <param name="info">Info about the fluid.</param>
@@ -192,8 +193,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {IsFluidRendered: true} &&
                                                      (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
 
-        VaryingHeightMeshFaceHolder[] fluidMeshFaceHolders =
-            context.GetFluidMeshFaceHolders(RenderType == RenderType.Opaque);
+        MeshFaceHolder[] fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
         MeshFluidSide(BlockSide.Front);
         MeshFluidSide(BlockSide.Back);
@@ -218,7 +218,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             var sideHeight = (int) fluidToCheck.Level;
 
-            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = -1;
+            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = FluidLevels.None;
 
             bool flowsTowardsFace = side == BlockSide.Top
                 ? Direction == VerticalFlow.Upwards
@@ -235,43 +235,39 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            bool singleSided = !blockToCheck.IsOpaqueAndFull &&
-                               blockToCheck.IsSolidAndFull;
+            bool singleSided = blockToCheck is {IsSolidAndFull: true};
 
-            (int x, int y, int z) = position;
-            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+            (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
 
-            // int: uv-- ---- ---- ---- -xxx xxey yyyz zzzz (uv: texture coords; xyz: position; e: lower/upper end)
-            int upperDataA = (0 << 31) | (0 << 30) | ((x + a[0]) << 10) | (a[1] << 9) | (y << 5) |
-                             (z + a[2]);
+            Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+            Meshing.SetTint(ref data, mesh.Tint.Select(context.GetFluidTint(position)));
 
-            int upperDataB = (0 << 31) | (1 << 30) | ((x + b[0]) << 10) | (b[1] << 9) | (y << 5) |
-                             (z + b[2]);
+            if (side is not (BlockSide.Top or BlockSide.Bottom))
+            {
+                (Vector2 min, Vector2 max) uvs = info.Level.GetUVs(sideHeight, Direction);
+                Meshing.SetUVs(ref data, uvs.min, (uvs.min.X, uvs.max.Y), uvs.max, (uvs.max.X, uvs.min.Y));
+            }
+            else
+            {
+                Meshing.SetFullUVs(ref data);
+            }
 
-            int upperDataC = (1 << 31) | (1 << 30) | ((x + c[0]) << 10) | (c[1] << 9) | (y << 5) |
-                             (z + c[2]);
-
-            int upperDataD = (1 << 31) | (0 << 30) | ((x + d[0]) << 10) | (d[1] << 9) | (y << 5) |
-                             (z + d[2]);
-
-            // int: tttt tttt t--- -nnn hhhh dlll siii iiii (t: tint; n: normal; h: side height; d: direction; l: level; s: isStatic; i: texture index)
-            int lowerData = (mesh.Tint.GetBits(context.GetFluidTint(position)) << 23) | ((int) side << 16) |
-                            ((sideHeight + 1) << 12) |
-                            (Direction.GetBit() << 11) | ((int) info.Level << 8) |
-                            (info.IsStatic ? 1 << 7 : 0 << 7) |
-                            ((((mesh.TextureIndex - 1) >> 4) + 1) & 0b0111_1111);
+            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, value: true);
+            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, value: false);
 
             fluidMeshFaceHolders[(int) side].AddFace(
                 position,
-                lowerData,
-                (upperDataA, upperDataB, upperDataC, upperDataD),
+                info.Level.GetBlockHeight(),
+                IHeightVariable.GetBlockHeightFromFluidHeight(sideHeight),
+                Direction != VerticalFlow.Upwards,
+                data,
                 singleSided,
                 info.Level == FluidLevel.Eight);
         }
     }
 
     /// <summary>
-    /// Get the mesh data for this fluid.
+    ///     Get the mesh data for this fluid.
     /// </summary>
     protected abstract FluidMeshData GetMeshData(FluidMeshInfo info);
 
@@ -606,5 +602,3 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         return NamedID;
     }
 }
-
-

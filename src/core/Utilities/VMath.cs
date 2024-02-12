@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Utilities;
@@ -14,9 +15,33 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     A class containing different mathematical methods and extensions.
 /// </summary>
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "This are public methods for general use.")]
 public static class VMath
 {
     private const float Epsilon = 128 * float.Epsilon;
+
+
+    /// <summary>
+    ///     Swap two values.
+    /// </summary>
+    /// <param name="a">The first value, will be replaced by the second value.</param>
+    /// <param name="b">The second value, will be replaced by the first value.</param>
+    /// <typeparam name="T">The type of the values.</typeparam>
+    public static void Swap<T>(ref T a, ref T b)
+    {
+        (a, b) = (b, a);
+    }
+
+    /// <summary>
+    ///     Move a value from one variable to another.
+    /// </summary>
+    /// <param name="a">The first variable, will be replaced by the second variable.</param>
+    /// <param name="b">The second variable, will be set to null.</param>
+    /// <typeparam name="T">The type of the values.</typeparam>
+    public static void Move<T>(out T a, ref T b) where T : class
+    {
+        (a, b) = (b, null!);
+    }
 
     /// <summary>
     ///     A simple one-dimensional range.
@@ -94,56 +119,6 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Convert a double Vector3 to a float Vector3.
-    /// </summary>
-    public static Vector3 ToVector3(this Vector3d vector)
-    {
-        return new Vector3((float) vector.X, (float) vector.Y, (float) vector.Z);
-    }
-
-    /// <summary>
-    ///     Convert a double Vector4 to a float Vector4.
-    /// </summary>
-    public static Vector4 ToVector4(this Vector4d vector)
-    {
-        return new Vector4((float) vector.X, (float) vector.Y, (float) vector.Z, (float) vector.W);
-    }
-
-    /// <summary>
-    ///     Convert a double Vector2 to a float Vector3.
-    /// </summary>
-    public static Vector2 ToVector2(this Vector2d vector)
-    {
-        return new Vector2((float) vector.X, (float) vector.Y);
-    }
-
-    /// <summary>
-    ///     Convert a int Vector3 to a double Vector3.
-    /// </summary>
-    public static Vector3d ToVector3d(this Vector3i vector)
-    {
-        return new Vector3d(vector.X, vector.Y, vector.Z);
-    }
-
-    /// <summary>
-    ///     Convert a double Matrix4 to a float Matrix4.
-    /// </summary>
-    public static Matrix4 ToMatrix4(this Matrix4d matrix)
-    {
-        return new Matrix4(matrix.Row0.ToVector4(), matrix.Row1.ToVector4(), matrix.Row2.ToVector4(), matrix.Row3.ToVector4());
-    }
-
-    /// <summary>
-    ///     Get a vector as a tuple.
-    /// </summary>
-    /// <param name="vector">The vector to convert.</param>
-    /// <returns>The tuple.</returns>
-    public static (int x, int y, int z) ToTuple(this Vector3i vector)
-    {
-        return (vector.X, vector.Y, vector.Z);
-    }
-
-    /// <summary>
     ///     Creates a scale matrix.
     /// </summary>
     public static Matrix4d CreateScaleMatrix(Vector3d scale)
@@ -181,9 +156,31 @@ public static class VMath
     public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3i(
-            (int) Math.Round(vector.X, digits: 0, midpointRounding),
-            (int) Math.Round(vector.Y, digits: 0, midpointRounding),
-            (int) Math.Round(vector.Z, digits: 0, midpointRounding));
+            RoundedToInt(vector.X, midpointRounding),
+            RoundedToInt(vector.Y, midpointRounding),
+            RoundedToInt(vector.Z, midpointRounding));
+    }
+
+    /// <summary>
+    ///     Rounds a double to an integer.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded value.</returns>
+    public static int RoundedToInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return (int) Math.Round(value, digits: 0, midpointRounding);
+    }
+
+    /// <summary>
+    ///     Rounds a double to an unsigned integer.
+    /// </summary>
+    /// <param name="value">The value to round.</param>
+    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <returns>The rounded value.</returns>
+    public static uint RoundedToUInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    {
+        return (uint) Math.Round(value, digits: 0, midpointRounding);
     }
 
     /// <summary>
@@ -302,6 +299,18 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Check if two floating-point vector values are nearly equal.
+    /// </summary>
+    /// <param name="a">The first vector.</param>
+    /// <param name="b">The second vector.</param>
+    /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
+    /// <returns>True if the two vectors are nearly equal.</returns>
+    public static bool NearlyEqual(Vector3d a, Vector3d b, double epsilon = Epsilon)
+    {
+        return NearlyEqual(a.X, b.X, epsilon) && NearlyEqual(a.Y, b.Y, epsilon) && NearlyEqual(a.Z, b.Z, epsilon);
+    }
+
+    /// <summary>
     ///     Check near equality to zero.
     /// </summary>
     /// <param name="a">The value to check for near equality with zero.</param>
@@ -400,7 +409,7 @@ public static class VMath
             GetWeight(e11, e00, e10, e01, e11)
         };
 
-        var indexOfMax = 1;
+        var indexOfMax = 0;
 
         for (var index = 0; index < totalWeights.Length; index++)
             if (totalWeights[index] > totalWeights[indexOfMax])
@@ -512,6 +521,38 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get the maximum component of a vector.
+    /// </summary>
+    public static float MaxComponent(this Vector4 v)
+    {
+        return Math.Max(Math.Max(Math.Max(v.X, v.Y), v.Z), v.W);
+    }
+
+    /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector4 v)
+    {
+        return Math.Min(Math.Min(Math.Min(v.X, v.Y), v.Z), v.W);
+    }
+
+    /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector3 v)
+    {
+        return Math.Min(Math.Min(v.X, v.Y), v.Z);
+    }
+
+    /// <summary>
+    ///     Get the minimum component of a vector.
+    /// </summary>
+    public static float MinComponent(this Vector2 v)
+    {
+        return Math.Min(v.X, v.Y);
+    }
+
+    /// <summary>
     ///     Get the corner of a box by its index.
     /// </summary>
     /// <param name="box">The box.</param>
@@ -527,5 +568,20 @@ public static class VMath
             index / 4 % 2 == 0 ? box.Min.Z : box.Max.Z
         );
     }
-}
 
+    /// <summary>
+    ///     Simply gets the square of a number.
+    /// </summary>
+    public static int Square(int x)
+    {
+        return x * x;
+    }
+
+    /// <summary>
+    ///     Simply gets the cube of a number.
+    /// </summary>
+    public static int Cube(int x)
+    {
+        return x * x * x;
+    }
+}

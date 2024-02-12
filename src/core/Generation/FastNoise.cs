@@ -54,6 +54,8 @@ using System;
 using System.Runtime.CompilerServices;
 using FNLfloat = System.Double;
 
+namespace VoxelGame.Core.Generation;
+
 public class FastNoiseLite
 {
     public enum CellularDistanceFunction
@@ -151,7 +153,7 @@ public class FastNoiseLite
         -0.923879532511287f, -0.38268343236509f, -0.99144486137381f, -0.130526192220052f, -0.99144486137381f, 0.130526192220051f, -0.923879532511287f, 0.38268343236509f,
         -0.793353340291235f, 0.608761429008721f, -0.608761429008721f, 0.793353340291235f, -0.38268343236509f, 0.923879532511287f, -0.130526192220052f, 0.99144486137381f,
         0.38268343236509f, 0.923879532511287f, 0.923879532511287f, 0.38268343236509f, 0.923879532511287f, -0.38268343236509f, 0.38268343236509f, -0.923879532511287f,
-        -0.38268343236509f, -0.923879532511287f, -0.923879532511287f, -0.38268343236509f, -0.923879532511287f, 0.38268343236509f, -0.38268343236509f, 0.923879532511287f,
+        -0.38268343236509f, -0.923879532511287f, -0.923879532511287f, -0.38268343236509f, -0.923879532511287f, 0.38268343236509f, -0.38268343236509f, 0.923879532511287f
     };
 
     private static readonly float[] RandVecs2D =
@@ -187,7 +189,7 @@ public class FastNoiseLite
         0.4215262855f, -0.9068161835f, 0.4881873305f, -0.8727388672f, -0.3683854996f, -0.9296731273f, -0.9825390578f, 0.1860564427f, 0.81256471f, 0.5828709909f, 0.3196460933f, -0.9475370046f, 0.9570913859f, 0.2897862643f, -0.6876655497f, -0.7260276109f,
         -0.9988770922f, -0.047376731f, -0.1250179027f, 0.992154486f, -0.8280133617f, 0.560708367f, 0.9324863769f, -0.3612051451f, 0.6394653183f, 0.7688199442f, -0.01623847064f, -0.9998681473f, -0.9955014666f, -0.09474613458f, -0.81453315f, 0.580117012f,
         0.4037327978f, -0.9148769469f, 0.9944263371f, 0.1054336766f, -0.1624711654f, 0.9867132919f, -0.9949487814f, -0.100383875f, -0.6995302564f, 0.7146029809f, 0.5263414922f, -0.85027327f, -0.5395221479f, 0.841971408f, 0.6579370318f, 0.7530729462f,
-        0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f,
+        0.01426758847f, -0.9998982128f, -0.6734383991f, 0.7392433447f, 0.639412098f, -0.7688642071f, 0.9211571421f, 0.3891908523f, -0.146637214f, -0.9891903394f, -0.782318098f, 0.6228791163f, -0.5039610839f, -0.8637263605f, -0.7743120191f, -0.6328039957f
     };
 
     private static readonly float[] Gradients3D =
@@ -1161,11 +1163,11 @@ public class FastNoiseLite
         const float G2 = (3 - SQRT3) / 6;
 
         /*
-     * --- Skew moved to TransformNoiseCoordinate method ---
-     * const FNfloat F2 = 0.5f * (SQRT3 - 1);
-     * FNfloat s = (x + y) * F2;
-     * x += s; y += s;
-    */
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1232,11 +1234,11 @@ public class FastNoiseLite
         // 3D OpenSimplex2 case uses two offset rotated cube grids.
 
         /*
-     * --- Rotation moved to TransformNoiseCoordinate method ---
-     * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-     * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-     * x = r - x; y = r - y; z = r - z;
-    */
+         * --- Rotation moved to TransformNoiseCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastRound(x);
         int j = FastRound(y);
@@ -1335,11 +1337,11 @@ public class FastNoiseLite
         const FNLfloat G2 = (3 - SQRT3) / 6;
 
         /*
-     * --- Skew moved to TransformNoiseCoordinate method ---
-     * const FNfloat F2 = 0.5f * (SQRT3 - 1);
-     * FNfloat s = (x + y) * F2;
-     * x += s; y += s;
-    */
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -1471,11 +1473,11 @@ public class FastNoiseLite
         // 3D OpenSimplex2S case uses two offset rotated cube grids.
 
         /*
-     * --- Rotation moved to TransformNoiseCoordinate method ---
-     * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-     * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-     * x = r - x; y = r - y; z = r - z;
-    */
+         * --- Rotation moved to TransformNoiseCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -2540,11 +2542,11 @@ public class FastNoiseLite
         y *= frequency;
 
         /*
-     * --- Skew moved to TransformNoiseCoordinate method ---
-     * const FNfloat F2 = 0.5f * (SQRT3 - 1);
-     * FNfloat s = (x + y) * F2;
-     * x += s; y += s;
-    */
+         * --- Skew moved to TransformNoiseCoordinate method ---
+         * const FNfloat F2 = 0.5f * (SQRT3 - 1);
+         * FNfloat s = (x + y) * F2;
+         * x += s; y += s;
+         */
 
         int i = FastFloor(x);
         int j = FastFloor(y);
@@ -2647,11 +2649,11 @@ public class FastNoiseLite
         z *= frequency;
 
         /*
-     * --- Rotation moved to TransformDomainWarpCoordinate method ---
-     * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
-     * FNfloat r = (x + y + z) * R3; // Rotation, not skew
-     * x = r - x; y = r - y; z = r - z;
-    */
+         * --- Rotation moved to TransformDomainWarpCoordinate method ---
+         * const FNfloat R3 = (FNfloat)(2.0 / 3.0);
+         * FNfloat r = (x + y + z) * R3; // Rotation, not skew
+         * x = r - x; y = r - y; z = r - z;
+         */
 
         int i = FastRound(x);
         int j = FastRound(y);

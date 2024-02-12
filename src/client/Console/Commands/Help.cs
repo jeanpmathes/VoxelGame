@@ -120,4 +120,3 @@ public class Help : Command
 
     private sealed record Entry(string Text, FollowUp[] FollowUp);
 }
-

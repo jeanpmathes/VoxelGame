@@ -31,7 +31,10 @@ public abstract class Structure
     ///     Get the content of the structure at the given offset.
     /// </summary>
     /// <param name="offset">The offset, must be within the extents.</param>
-    /// <returns>The content at the given offset and a bool indicating whether to overwrite blocks. Can be null if the structure does not contain anything at the given offset.</returns>
+    /// <returns>
+    ///     The content at the given offset and a bool indicating whether to overwrite blocks. Can be null if the
+    ///     structure does not contain anything at the given offset.
+    /// </returns>
     protected abstract (Content content, bool overwrite)? GetContent(Vector3i offset);
 
     /// <summary>
@@ -47,7 +50,10 @@ public abstract class Structure
     /// </summary>
     /// <param name="grid">The grid to place the structure in.</param>
     /// <param name="position">The position to place the structure at.</param>
-    /// <param name="orientation">The orientation to place with. Structures are exported with orientation <see cref="Orientation.North"/>.</param>
+    /// <param name="orientation">
+    ///     The orientation to place with. Structures are exported with orientation
+    ///     <see cref="Orientation.North" />.
+    /// </param>
     public void Place(IGrid grid, Vector3i position, Orientation orientation = Orientation.North)
     {
         Vector3i orientedExtents = GetOrientedExtents(orientation);
@@ -55,9 +61,7 @@ public abstract class Structure
         for (var x = 0; x < orientedExtents.X; x++)
         for (var y = 0; y < orientedExtents.Y; y++)
         for (var z = 0; z < orientedExtents.Z; z++)
-        {
             PlaceContent(grid, position, orientation, (x, y, z));
-        }
     }
 
     /// <summary>
@@ -69,7 +73,10 @@ public abstract class Structure
     /// <param name="position">The position to place the structure at.</param>
     /// <param name="first">The first block of the area to place in.</param>
     /// <param name="last">The last block of the area to place in.</param>
-    /// <param name="orientation">The orientation to place with. Structures are exported with orientation <see cref="Orientation.North" />.</param>
+    /// <param name="orientation">
+    ///     The orientation to place with. Structures are exported with orientation
+    ///     <see cref="Orientation.North" />.
+    /// </param>
     public void PlacePartial(IGrid grid, Vector3i position, Vector3i first, Vector3i last, Orientation orientation = Orientation.North)
     {
         Vector3i orientedExtents = GetOrientedExtents(orientation);
@@ -136,6 +143,3 @@ public abstract class Structure
         return isInExtents;
     }
 }
-
-
-

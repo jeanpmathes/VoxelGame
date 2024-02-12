@@ -6,8 +6,10 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -72,10 +74,10 @@ internal class MainMenu : StandardMenu
     {
         TrueRatioImagePanel image = new(display)
         {
-            ImageName = Context.Resources.StartImage
+            ImageName = Context.Resources.StartImage,
+            Dock = Dock.Fill
         };
 
         Control.Used(image);
     }
 }
-

@@ -29,7 +29,7 @@ public class Cover
     }
 
     /// <summary>
-    /// Setup used noise with the generation seed.
+    ///     Setup used noise with the generation seed.
     /// </summary>
     /// <param name="noiseGenerator">The noise generator to use.</param>
     public void SetupNoise(FastNoiseLite noiseGenerator)
@@ -62,4 +62,3 @@ public class Cover
         return Content.Default;
     }
 }
-

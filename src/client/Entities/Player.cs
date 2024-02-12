@@ -5,14 +5,16 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Entities.Players;
+using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Support.Graphics;
+using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -25,29 +27,29 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 {
     private const float FlyingSpeedFactor = 5f;
     private const float FlyingSprintSpeedFactor = 25f;
+
+    private const float DiveSpeed = 8f;
+    private const float JumpForce = 25000f;
+    private const float Speed = 4f;
+    private const float SprintSpeed = 6f;
+    private const float SwimSpeed = 4f;
+
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
-    private readonly float diveSpeed = 8f;
 
-    private readonly PlayerInput input;
+    private readonly Input input;
 
-    private readonly float jumpForce = 25000f;
+    private readonly GameScene scene;
 
     private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
     private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
 
     private readonly PlacementSelection selector;
-
-    private readonly float speed = 4f;
-    private readonly float sprintSpeed = 6f;
-    private readonly float swimSpeed = 4f;
-
-    private readonly PlayerVisualization visualization;
-    private Vector3i headPosition;
-
-    private bool isFirstUpdate = true;
+    private readonly VisualInterface visualInterface;
 
     private Vector3d movement;
+
+    private Vector3i headPosition;
 
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
@@ -64,14 +66,17 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="ui">The ui used to display player information.</param>
     /// <param name="resources">The resources used to render the player.</param>
+    /// <param name="scene">The scene in which the player is placed.</param>
     public Player(World world, float mass, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui, PlayerResources resources) : base(world, mass, boundingVolume)
+        GameUserInterface ui, GameResources resources, GameScene scene) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;
 
-        visualization = new PlayerVisualization(this, ui, resources);
-        input = new PlayerInput(this);
+        this.scene = scene;
+
+        visualInterface = new VisualInterface(this, ui, resources);
+        input = new Input(this);
 
         selector = new PlacementSelection(input, () => targetBlock?.Block);
     }
@@ -108,32 +113,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     public override BlockSide TargetSide => targetSide;
 
     /// <summary>
-    /// Get the view of this player.
+    ///     Get the view of this player.
     /// </summary>
     public IView View => camera;
-
-    /// <summary>
-    ///     Get or set whether any overlay rendering is enabled.
-    /// </summary>
-    public bool OverlayEnabled { get; set; } = true;
-
-    /// <summary>
-    ///     Get the dimensions of the near view plane.
-    /// </summary>
-    public (Vector3d a, Vector3d b) NearDimensions
-    {
-        get
-        {
-            (double width, double height) = camera.GetDimensionsAt(camera.NearClipping);
-
-            Vector3d position = camera.Position + camera.Front * camera.NearClipping;
-
-            Vector3d up = camera.Up * height * 0.5f;
-            Vector3d right = camera.Right * width * 0.5f;
-
-            return (position - up - right, position + up + right);
-        }
-    }
 
     /// <inheritdoc />
     public override Vector3d Movement => movement;
@@ -156,102 +138,99 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     string IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
+    ///     Set whether the overlay rendering is allowed.
+    /// </summary>
+    public void SetOverlayAllowed(bool allowed)
+    {
+        Throw.IfDisposed(disposed);
+
+        visualInterface.IsOverlayAllowed = allowed;
+    }
+
+    /// <summary>
     ///     Teleport the player to a new position.
     /// </summary>
     /// <param name="position">The new position.</param>
     public void Teleport(Vector3d position)
     {
+        Throw.IfDisposed(disposed);
+
         PreviousPosition = Position;
         Position = position;
     }
 
- #pragma warning disable CA1822
     /// <summary>
-    ///     Render the visual content of this player.
+    ///     Called when the world activates.
+    ///     After this updates will be called.
     /// </summary>
-    public void Render()
- #pragma warning restore CA1822
+    public void OnActivate()
     {
-        // Intentionally empty, as player has no mesh to render.
-        // This render method is for content that has to be rendered on every player.
+        Throw.IfDisposed(disposed);
+
+        visualInterface.Activate();
+        visualInterface.UpdateData();
     }
 
     /// <summary>
-    ///     Render content that is specific to the local player.
+    ///     Called when the world deactivates.
+    ///     After this no more updates will be called.
     /// </summary>
-    public void RenderOverlays()
+    public void OnDeactivate()
     {
-        if (targetPosition is {} position)
-        {
-            (Block selectedBlock, _) = World.GetBlock(position) ?? BlockInstance.Default;
+        Throw.IfDisposed(disposed);
 
-            if (IsBlockBoundingBoxVisualized(selectedBlock))
-            {
-                Application.Client.Instance.Resources.Shaders.Selection.SetVector3(
-                    "color",
-                    new Vector3(x: 0.1f, y: 0.1f, z: 0.1f));
-
-                visualization.DrawSelectionBox(selectedBlock.GetCollider(World, position));
-            }
-        }
-
-        visualization.Draw();
-
-        if (OverlayEnabled) visualization.DrawOverlay();
+        visualInterface.Deactivate();
     }
 
-    private static bool IsBlockBoundingBoxVisualized(Block block)
+    private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)
     {
         bool visualized = !block.IsReplaceable;
 
-        [Conditional("DEBUG")]
-        static void IsVisualizedInDebugMode(Block block, ref bool b)
-        {
-            b |= block != Blocks.Instance.Air;
-        }
+        if (Program.IsDebug)
+            visualized |= block != Blocks.Instance.Air;
 
-        IsVisualizedInDebugMode(block, ref visualized);
-
-        return visualized;
+        return visualized ? block.GetCollider(world, position) : null;
     }
 
     /// <inheritdoc />
     protected override void OnUpdate(double deltaTime)
     {
+        Throw.IfDisposed(disposed);
+
         movement = Vector3d.Zero;
 
         camera.Position = Position + cameraOffset;
 
         UpdateTargets();
 
-        if (Screen.IsFocused)
+        if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
-            if (!Screen.IsOverlayLockActive)
-            {
-                HandleMovementInput(deltaTime);
-                HandleLookInput();
+            HandleMovementInput(deltaTime);
+            HandleLookInput();
 
-                DoBlockFluidSelection();
-                DoWorldInteraction();
+            DoBlockFluidSelection();
+            DoWorldInteraction();
 
-                visualization.UpdateInput();
-            }
-
-            headPosition = camera.Position.Floor();
-
-            SetBlockAndFluidOverlays();
-
-            isFirstUpdate = false;
+            visualInterface.UpdateInput();
         }
 
-        visualization.Update();
+        headPosition = camera.Position.Floor();
+        SetBlockAndFluidOverlays();
+
+        // Because interaction can change the target block or the bounding box,
+        // we search again for the target and update the selection now.
+
+        UpdateTargets();
+        UpdateSelection();
+
+        visualInterface.Update();
         input.Update(deltaTime);
     }
 
     private void DoBlockFluidSelection()
     {
         bool isUpdated = selector.DoBlockFluidSelection();
-        if (isUpdated || isFirstUpdate) visualization.UpdateData();
+        if (isUpdated) visualInterface.UpdateData();
     }
 
     private void SetBlockAndFluidOverlays()
@@ -261,7 +240,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
 
-        visualization.BuildOverlay(positions);
+        visualInterface.BuildOverlay(positions);
     }
 
     private void UpdateTargets()
@@ -285,6 +264,12 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         }
     }
 
+    private void UpdateSelection()
+    {
+        if (targetPosition is {} position && targetBlock is {} block) visualInterface.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, position));
+        else visualInterface.SetSelectionBox(collider: null);
+    }
+
     private void HandleMovementInput(double deltaTime)
     {
         if (DoPhysics)
@@ -300,19 +285,19 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private void DoNormalMovement()
     {
-        movement = input.GetMovement(speed, sprintSpeed);
+        movement = input.GetMovement(Speed, SprintSpeed);
         Move(movement, maxForce);
 
         if (!(input.ShouldJump ^ input.ShouldCrouch)) return;
 
         if (input.ShouldJump)
         {
-            if (IsGrounded) AddForce(new Vector3d(x: 0, jumpForce, z: 0));
-            else if (IsSwimming) Move(Vector3d.UnitY * swimSpeed, maxSwimForce);
+            if (IsGrounded) AddForce(new Vector3d(x: 0, JumpForce, z: 0));
+            else if (IsSwimming) Move(Vector3d.UnitY * SwimSpeed, maxSwimForce);
         }
         else
         {
-            if (IsSwimming) Move(Vector3d.UnitY * -diveSpeed, maxSwimForce);
+            if (IsSwimming) Move(Vector3d.UnitY * -DiveSpeed, maxSwimForce);
         }
     }
 
@@ -396,7 +381,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         if (disposed)
             return;
 
-        if (disposing) visualization.Dispose();
+        if (disposing) visualInterface.Dispose();
+
+        base.Dispose(disposing);
 
         disposed = true;
     }

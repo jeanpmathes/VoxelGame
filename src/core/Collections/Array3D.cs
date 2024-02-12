@@ -94,5 +94,3 @@ public class Array3D<T> : IEnumerable<T>
         GetRef(position.X, position.Y, position.Z) = value;
     }
 }
-
-

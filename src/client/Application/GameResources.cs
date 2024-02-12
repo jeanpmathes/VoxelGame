@@ -4,166 +4,159 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Windowing.Desktop;
-using VoxelGame.Client.Rendering;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics;
+using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
 using VoxelGame.UI;
-using TextureLayout = VoxelGame.Core.Visuals.TextureLayout;
 
 namespace VoxelGame.Client.Application;
 
 /// <summary>
 ///     Prepares, loads and offers game resources.
 /// </summary>
-public class GameResources
+public sealed class GameResources : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
-    private readonly Debug glDebug;
-
-    private readonly GameWindow window;
-
-    private bool prepared;
+    private readonly Client client;
 
     /// <summary>
     ///     Create the graphics resources.
     /// </summary>
-    public GameResources(GameWindow window)
+    internal GameResources(Client client)
     {
-        this.window = window;
-
-        glDebug = new Debug();
+        this.client = client;
     }
 
     /// <summary>
-    ///     Gets the <see cref="ArrayTexture" /> that contains all block textures. It is bound to unit 1, 2, 3, and 4.
+    ///     Gets the <see cref="TextureBundle" /> that contains all block textures.
     /// </summary>
-    public ArrayTexture BlockTextureArray { get; private set; } = null!;
+    private TextureBundle BlockTextures { get; set; } = null!;
 
     /// <summary>
-    ///     Gets the <see cref="ArrayTexture" /> that contains all fluid textures. It is bound to unit 5.
+    ///     Gets the <see cref="TextureBundle" /> that contains all fluid textures.
     /// </summary>
-    public ArrayTexture FluidTextureArray { get; private set; } = null!;
+    private TextureBundle FluidTextures { get; set; } = null!;
 
     /// <summary>
     ///     Get the shaders of the game.
     /// </summary>
-    public Shaders Shaders { get; private set; } = null!;
+    public Pipelines Pipelines { get; private set; } = null!;
 
     /// <summary>
     ///     The player resources.
     /// </summary>
-    public PlayerResources PlayerResources { get; } = new();
+    public PlayerResources Player { get; } = new();
 
     /// <summary>
     ///     The UI resources.
     /// </summary>
-    public UIResources UIResources { get; } = new();
+    public UIResources UI { get; } = new();
 
     /// <summary>
-    ///     Prepare resource loading and initialization. This requires a valid OpenGL context.
+    ///     Load the resources.
     /// </summary>
-    public void Prepare()
+    public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
     {
-        System.Diagnostics.Debug.Assert(!prepared);
-
-        glDebug.Enable();
-
-        prepared = true;
-    }
-
-    /// <summary>
-    ///     Load the resources. This requires a valid OpenGL context.
-    /// </summary>
-    public void Load(LoadingContext loadingContext)
-    {
-        System.Diagnostics.Debug.Assert(prepared);
+        Throw.IfDisposed(disposed);
 
         BlockModel.EnableLoading(loadingContext);
         StaticStructure.SetLoadingContext(loadingContext);
 
-        PerformLoading(loadingContext);
+        PerformLoading(visuals, loadingContext);
 
         StaticStructure.ClearLoadingContext();
         BlockModel.DisableLoading();
     }
 
-    private void PerformLoading(LoadingContext loadingContext)
+    private void PerformLoading(VisualConfiguration visuals, LoadingContext loadingContext)
     {
-        var texParams = TextureParameters.CreateForWorld(Client.Instance);
-
         using (loadingContext.BeginStep(Events.ResourceLoad, "World Textures"))
         {
             using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
             {
-                BlockTextureArray = new ArrayTexture(loadingContext,
+                BlockTextures = TextureBundle.Load(Client.Instance,
+                    loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Blocks"),
                     resolution: 32,
-                    useCustomMipmapGeneration: true,
-                    texParams,
-                    TextureUnit.Texture1,
-                    TextureUnit.Texture2,
-                    TextureUnit.Texture3,
-                    TextureUnit.Texture4);
+                    Meshing.MaxTextureCount,
+                    Image.MipmapAlgorithm.AveragingWithoutTransparency);
             }
 
             using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
             {
-                FluidTextureArray = new ArrayTexture(loadingContext,
+                FluidTextures = TextureBundle.Load(Client.Instance,
+                    loadingContext,
                     FileSystem.GetResourceDirectory("Textures", "Fluids"),
                     resolution: 32,
-                    useCustomMipmapGeneration: false,
-                    texParams,
-                    TextureUnit.Texture5);
+                    Meshing.MaxFluidTextureCount,
+                    Image.MipmapAlgorithm.AveragingWithTransparency);
             }
         }
 
-        TextureLayout.SetProviders(BlockTextureArray, FluidTextureArray);
-        BlockModel.SetBlockTextureIndexProvider(BlockTextureArray);
+        UI.Load(client, loadingContext);
 
-        BlockTextureArray.EnableLoading(loadingContext);
-        FluidTextureArray.EnableLoading(loadingContext);
+        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
 
-        Shaders = Shaders.Load(FileSystem.GetResourceDirectory("Shaders"), loadingContext);
+        TextureLayout.SetProviders(BlockTextures, FluidTextures);
+        BlockModel.SetBlockTextureIndexProvider(BlockTextures);
 
-        Blocks.Load(BlockTextureArray, loadingContext);
+        BlockTextures.EnableLoading(loadingContext);
+        FluidTextures.EnableLoading(loadingContext);
+
+        Blocks.Load(BlockTextures, visuals, loadingContext);
 
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
-            BlockTextureArray.Count / (double) Blocks.Instance.Count);
+            BlockTextures.Count / (double) Blocks.Instance.Count);
 
-        Fluids.Load(FluidTextureArray, loadingContext);
+        Fluids.Load(FluidTextures, loadingContext);
 
-        PlayerResources.Load(loadingContext);
-        UIResources.Load(window, loadingContext);
+        Player.Load(client, loadingContext);
 
         Generator.Prepare(loadingContext);
 
-        BlockTextureArray.DisableLoading();
-        FluidTextureArray.DisableLoading();
+        BlockTextures.DisableLoading();
+        FluidTextures.DisableLoading();
+    }
+
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+        if (!disposing) return;
+
+        Pipelines.Dispose();
+        UI.Dispose();
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Unload and free all resources.
+    ///     The finalizer.
     /// </summary>
-    public void Unload()
+    ~GameResources()
     {
-        Shaders.Delete();
-
-        BlockTextureArray.Dispose();
-        FluidTextureArray.Dispose();
-
-        PlayerResources.Unload();
-        UIResources.Unload();
+        Dispose(disposing: false);
     }
-}
 
+    #endregion IDisposable Support
+}

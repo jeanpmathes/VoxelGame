@@ -58,7 +58,10 @@ public class ScheduledTickManager<T> where T : ITickable
     ///     Add a tickable to the manager.
     /// </summary>
     /// <param name="tick">The tickable to add.</param>
-    /// <param name="tickOffset">The offset from the current update until the tickable should be ticked. Must be greater than 0.</param>
+    /// <param name="tickOffset">
+    ///     The offset from the current update until the tickable should be ticked. Must be greater than
+    ///     0.
+    /// </param>
     public void Add(T tick, uint tickOffset)
     {
         Debug.Assert(tickOffset > 0);
@@ -169,4 +172,3 @@ public class ScheduledTickManager<T> where T : ITickable
         }
     }
 }
-

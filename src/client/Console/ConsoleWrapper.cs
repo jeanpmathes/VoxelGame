@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Concurrent;
-using VoxelGame.Core;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console;
@@ -35,7 +35,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteResponse(string response, params FollowUp[] followUp)
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.WriteResponse(response, followUp);
     }
 
@@ -55,7 +55,7 @@ public class ConsoleWrapper
     /// </summary>
     public void Flush()
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
 
         while (responses.TryDequeue(out (string message, FollowUp[] followUp) response))
             WriteResponse(response.message, response.followUp);
@@ -69,7 +69,7 @@ public class ConsoleWrapper
     /// <param name="followUp">A group of follow-up actions.</param>
     public void WriteError(string error, params FollowUp[] followUp)
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.WriteError(error, followUp);
     }
 
@@ -79,8 +79,7 @@ public class ConsoleWrapper
     /// </summary>
     public void Clear()
     {
-        ApplicationInformation.Instance.EnsureMainThread(this);
+        Throw.IfNotOnMainThread(this);
         consoleInterface.Clear();
     }
 }
-

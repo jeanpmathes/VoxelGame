@@ -18,11 +18,11 @@ public class NoFluid : Fluid
     ///     Creates a new <see cref="NoFluid" />.
     /// </summary>
     /// <param name="name">The name of the fluid.</param>
-    /// <param name="namedId">The named ID.</param>
-    public NoFluid(string name, string namedId) :
+    /// <param name="namedID">The named ID.</param>
+    public NoFluid(string name, string namedID) :
         base(
             name,
-            namedId,
+            namedID,
             AirDensity,
             viscosity: 1,
             checkContact: false,
@@ -38,5 +38,3 @@ public class NoFluid : Fluid
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance) {}
 }
-
-

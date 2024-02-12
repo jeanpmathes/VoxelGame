@@ -15,11 +15,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class ConstructionBlock : BasicBlock, IWideConnectable, IThinConnectable
 {
-    internal ConstructionBlock(string name, string namedId, TextureLayout layout) :
+    internal ConstructionBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             BlockFlags.Basic,
             layout) {}
 }
-

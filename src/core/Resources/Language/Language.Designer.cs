@@ -519,20 +519,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Max FPS.
+        ///   Looks up a localized string similar to Rendering Resolution Scale.
         /// </summary>
-        public static string GraphicsMaxFPS {
+        public static string GraphicsRenderResolutionScale {
             get {
-                return ResourceManager.GetString("GraphicsMaxFPS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sample Count (MSAA).
-        /// </summary>
-        public static string GraphicsSampleCount {
-            get {
-                return ResourceManager.GetString("GraphicsSampleCount", resourceCulture);
+                return ResourceManager.GetString("GraphicsRenderResolutionScale", resourceCulture);
             }
         }
         
@@ -546,11 +537,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use borderless (windowed) fullscreen.
+        ///   Looks up a localized string similar to Window Size.
         /// </summary>
-        public static string GraphicsUseFullscreenBorderless {
+        public static string GraphicsWindowSize {
             get {
-                return ResourceManager.GetString("GraphicsUseFullscreenBorderless", resourceCulture);
+                return ResourceManager.GetString("GraphicsWindowSize", resourceCulture);
             }
         }
         
@@ -1212,6 +1203,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Scale of UI.
+        /// </summary>
+        public static string ScaleOfUI {
+            get {
+                return ResourceManager.GetString("ScaleOfUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sea Water.
         /// </summary>
         public static string SeaWater {
@@ -1230,11 +1230,38 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bright Color of Selection.
+        /// </summary>
+        public static string SelectionBoxBrightColor {
+            get {
+                return ResourceManager.GetString("SelectionBoxBrightColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dark Color of Selection.
+        /// </summary>
+        public static string SelectionBoxDarkColor {
+            get {
+                return ResourceManager.GetString("SelectionBoxDarkColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string Settings {
             get {
                 return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to by.
+        /// </summary>
+        public static string SizeBy {
+            get {
+                return ResourceManager.GetString("SizeBy", resourceCulture);
             }
         }
         
@@ -1352,6 +1379,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TiledGlass {
             get {
                 return ResourceManager.GetString("TiledGlass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        public static string Update {
+            get {
+                return ResourceManager.GetString("Update", resourceCulture);
             }
         }
         

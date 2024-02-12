@@ -15,10 +15,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class OrganicConstructionBlock : ConstructionBlock, ICombustible
 {
-    internal OrganicConstructionBlock(string name, string namedId, TextureLayout layout) :
+    internal OrganicConstructionBlock(string name, string namedID, TextureLayout layout) :
         base(
             name,
-            namedId,
+            namedID,
             layout) {}
 }
-

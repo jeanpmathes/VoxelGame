@@ -73,4 +73,3 @@ public class RunScript : Command
         return true;
     }
 }
-

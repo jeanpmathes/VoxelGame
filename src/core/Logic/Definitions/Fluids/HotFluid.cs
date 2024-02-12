@@ -18,12 +18,12 @@ public class HotFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="HotFluid" />.
     /// </summary>
-    public HotFluid(string name, string namedId, float density, int viscosity, bool hasNeutralTint,
+    public HotFluid(string name, string namedID, float density, int viscosity, bool hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout,
         RenderType renderType = RenderType.Opaque) :
         base(
             name,
-            namedId,
+            namedID,
             density,
             viscosity,
             hasNeutralTint,
@@ -60,4 +60,3 @@ public class HotFluid : BasicFluid
         }
     }
 }
-

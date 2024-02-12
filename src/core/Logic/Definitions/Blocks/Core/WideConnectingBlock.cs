@@ -28,21 +28,26 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
     ///     Create a new <see cref="WideConnectingBlock" />.
     /// </summary>
     /// <param name="name">The name of the block.</param>
-    /// <param name="namedId">The named ID.</param>
+    /// <param name="namedID">The named ID.</param>
     /// <param name="texture">The texture to use.</param>
+    /// <param name="isOpaque">Whether the block is opaque.</param>
     /// <param name="postModel">The name of the model for the central post.</param>
     /// <param name="extensionModel">The name of the model for the connections between posts.</param>
     /// <param name="boundingVolume">The bounding box of the post.</param>
-    protected WideConnectingBlock(string name, string namedId, string texture, string postModel,
+    protected WideConnectingBlock(
+        string name,
+        string namedID,
+        string texture,
+        bool isOpaque,
+        string postModel,
         string extensionModel,
         BoundingVolume boundingVolume) :
         base(
             name,
-            namedId,
+            namedID,
             new BlockFlags
             {
-                IsFull = false,
-                IsOpaque = false,
+                IsOpaque = isOpaque,
                 IsSolid = true
             },
             boundingVolume)
@@ -88,4 +93,3 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
         return meshes[(int) info.Data & 0b00_1111].GetMeshData();
     }
 }
-

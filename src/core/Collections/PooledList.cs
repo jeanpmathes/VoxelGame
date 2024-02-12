@@ -5,18 +5,21 @@
 
 using System;
 using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     A list that that uses a pool for its internal storage.
+///     Dispose must be called to return the internal array to the pool.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
-public class PooledList<T>
+public sealed class PooledList<T> : IEnumerable<T>, IDisposable
 {
     private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
@@ -70,13 +73,15 @@ public class PooledList<T>
     {
         get
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             return items.Length;
         }
         set
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if (value < Count)
                 throw new ArgumentOutOfRangeException(
@@ -110,7 +115,8 @@ public class PooledList<T>
     {
         get
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
@@ -122,7 +128,8 @@ public class PooledList<T>
 
         set
         {
-            Debug.Assert(items != null, NoUseAfterReturnMessage);
+            Throw.IfDisposed(disposed);
+            Throw.IfNull(items, NoUseAfterReturnMessage);
 
             if ((uint) index >= (uint) Count)
                 throw new ArgumentOutOfRangeException(
@@ -133,9 +140,29 @@ public class PooledList<T>
         }
     }
 
+    /// <summary>
+    ///     Returns an enumerator that iterates through the <see cref="PooledList{T}" />.
+    /// </summary>
+    public IEnumerator<T> GetEnumerator()
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        for (var i = 0; i < Count; i++) yield return items[i];
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        return GetEnumerator();
+    }
+
     private T[] MoveIntoNew(int newSize)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         T[] newItems = arrayPool.Rent(newSize);
 
@@ -155,7 +182,8 @@ public class PooledList<T>
     /// </param>
     public void Add(T item)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if (Count == items.Length) EnsureCapacity(Count + 1);
 
@@ -172,41 +200,41 @@ public class PooledList<T>
     /// </param>
     public void AddRange(ICollection<T> collection)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         int count = collection.Count;
 
-        if (count > 0)
-        {
-            EnsureCapacity(Count + count);
+        if (count <= 0) return;
 
-            collection.CopyTo(items, Count);
+        EnsureCapacity(Count + count);
 
-            Count += count;
-        }
+        collection.CopyTo(items, Count);
+
+        Count += count;
     }
 
     /// <summary>
-    ///     Adds the elements of the specified array to the end of the <see cref="PooledList{T}" />.
+    ///     Adds the elements of the specified span to the end of the <see cref="PooledList{T}" />.
     /// </summary>
-    /// <param name="array">
-    ///     The array whose elements should be added to the end of the <see cref="PooledList{T}" />. The array
+    /// <param name="span">
+    ///     The span whose elements should be added to the end of the <see cref="PooledList{T}" />. The span
     ///     itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference
     ///     type.
     /// </param>
-    /// <param name="count">The amount of elements to add.</param>
-    public void AddRange(T[] array, int count)
+    public void AddRange(Span<T> span)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        if (count > 0)
-        {
-            EnsureCapacity(Count + count);
+        if (span.Length <= 0) return;
 
-            Array.Copy(array, sourceIndex: 0, items, Count, count);
+        EnsureCapacity(Count + span.Length);
 
-            Count += count;
-        }
+        Span<T> destination = items;
+        span.CopyTo(destination[Count..]);
+
+        Count += span.Length;
     }
 
     /// <summary>
@@ -218,8 +246,9 @@ public class PooledList<T>
     /// </param>
     public void AddRange(PooledList<T> pooledList)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
-        Debug.Assert(pooledList.items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+        Throw.IfNull(pooledList.items, NoUseAfterReturnMessage);
 
         if (this == pooledList)
             throw new ArgumentException($@"Adding '{this}' to itself not allowed", nameof(pooledList));
@@ -241,7 +270,8 @@ public class PooledList<T>
     /// </summary>
     public void RemoveAt(int index)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if ((uint) index >= (uint) Count)
             throw new ArgumentOutOfRangeException(
@@ -254,39 +284,58 @@ public class PooledList<T>
         items[Count] = default!;
     }
 
-    private void EnsureCapacity(int min)
+    /// <summary>
+    ///     Ensures that the <see cref="PooledList{T}" /> can hold at least <paramref name="min" /> elements without resizing.
+    ///     This operation can cause the <see cref="PooledList{T}" /> to be resized.
+    /// </summary>
+    /// <param name="min">The minimum amount of elements the <see cref="PooledList{T}" /> should be able to hold.</param>
+    public void EnsureCapacity(int min)
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        if (items.Length < min)
-        {
-            int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
+        if (items.Length >= min) return;
 
-            if ((uint) newCapacity > int.MaxValue) newCapacity = int.MaxValue;
+        int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
 
-            if (newCapacity < min) newCapacity = min;
+        if ((uint) newCapacity > int.MaxValue) newCapacity = int.MaxValue;
 
-            Capacity = newCapacity;
-        }
+        if (newCapacity < min) newCapacity = min;
+
+        Capacity = newCapacity;
     }
 
     /// <summary>
-    ///     Gives access to the internal array of this <see cref="PooledList{T}" />. It has to be returned to the pool.
+    ///     Clears the list.
     /// </summary>
-    public T[] ExposeArray()
+    public void Clear()
     {
-        Debug.Assert(items != null, NoUseAfterReturnMessage);
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        return items;
+        Count = 0;
+    }
+
+    /// <summary>
+    ///     Gives access to the internal memory of this <see cref="PooledList{T}" />.
+    ///     Only valid until any other method is called on this <see cref="PooledList{T}" />.
+    /// </summary>
+    public Span<T> AsSpan()
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        return items.AsSpan(start: 0, Count);
     }
 
     /// <summary>
     ///     Return the internal array of this <see cref="PooledList{T}" /> to the pool. After calling this method, the exposed
     ///     array should no longer be used.
     /// </summary>
-    public void ReturnToPool()
+    private void ReturnToPool()
     {
-        if (items == null) Debug.Fail("The array is already returned to the pool.");
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
 
         arrayPool.Return(items);
         items = null;
@@ -294,14 +343,34 @@ public class PooledList<T>
         Count = 0;
     }
 
+    #region IDisposable Support
+
+    private bool disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) ReturnToPool();
+        else Throw.ForMissedDispose(nameof(PooledList<T>));
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
     /// <summary>
     ///     Finalizer.
     /// </summary>
     ~PooledList()
     {
-        if (items == null) return;
-
-        Debug.Fail("The array is not returned to the pool.");
+        Dispose(disposing: false);
     }
-}
 
+    #endregion IDisposable Support
+}

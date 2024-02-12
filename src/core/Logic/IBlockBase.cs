@@ -56,12 +56,20 @@ public interface IBlockBase
     public bool IsInteractable { get; }
 
     /// <summary>
-    ///     Gets whether this block always completely fills a 1x1x1 volume or not. Prefer the <see cref="IsSideFull"/> method as it handles blocks that are sometimes full.
+    ///     Gets whether this block is unshaded.
+    /// </summary>
+    public bool IsUnshaded { get; }
+
+    /// <summary>
+    ///     Gets whether this block always completely fills a 1x1x1 volume or not. Prefer the <see cref="IsSideFull" /> method
+    ///     as it handles blocks that are sometimes full.
     /// </summary>
     public bool IsFull { get; }
 
     /// <summary>
-    ///     Gets whether it is possible to see through this block. If an opaque block is not full, it is still possible to see trough the position of the block.
+    ///     Gets whether it is possible to see through this block.
+    ///     Note that this only indicates whether the actual filled portion of the block is opaque.
+    ///     If the block is not full, it is possible to see around the block.
     /// </summary>
     public bool IsOpaque { get; }
 
@@ -91,7 +99,7 @@ public interface IBlockBase
     /// <summary>
     ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.
     /// </summary>
-    /// <param name="side">The side to check. This can also be <see cref="BlockSide.All"/> to check for the entire block.</param>
+    /// <param name="side">The side to check. This can also be <see cref="BlockSide.All" /> to check for the entire block.</param>
     /// <param name="data">The block data.</param>
     /// <returns>True if the side is completely full.</returns>
     public bool IsSideFull(BlockSide side, uint data)
@@ -131,4 +139,3 @@ public interface IBlockBase
         return IsOpaque && IsSideFull(BlockSide.All, data);
     }
 }
-

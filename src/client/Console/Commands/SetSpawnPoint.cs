@@ -39,4 +39,3 @@ public class SetSpawnPoint : Command
         Context.Player.World.SpawnPosition = newSpawnPoint;
     }
 }
-

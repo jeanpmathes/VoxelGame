@@ -18,4 +18,3 @@ internal class NewLine : IElement
         writer.WriteLine(@"\newline");
     }
 }
-

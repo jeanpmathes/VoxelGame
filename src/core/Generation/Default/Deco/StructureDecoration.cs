@@ -50,4 +50,3 @@ public class StructureDecoration : Decoration
         structure.Place(grid, position - new Vector3i(xOffset, y: 0, zOffset));
     }
 }
-

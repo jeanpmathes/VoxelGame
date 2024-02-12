@@ -34,4 +34,3 @@ public interface ISettingsProvider
         foreach (Setting setting in Settings) setting.Validate();
     }
 }
-

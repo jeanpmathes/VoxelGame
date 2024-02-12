@@ -65,4 +65,3 @@ public class Polyline
         return Right(x);
     }
 }
-
