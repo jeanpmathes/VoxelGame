@@ -48,7 +48,7 @@ jobs:
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
     - name: Restore dependencies
       run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release
-    - name: Build and analyze
+    - name: Build, test and analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -56,6 +56,5 @@ jobs:
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
         msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
+        dotnet test -c Test --no-restore --no-build --verbosity normal # msbuild does not support the tests
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-    - name: Test
-      run: dotnet test -c Test --no-restore --no-build --verbosity normal # msbuild does not support the tests
