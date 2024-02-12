@@ -66,14 +66,27 @@ void GpuCrashTracker::Initialize()
 void GpuCrashTracker::WriteToAftermathFile(std::string const& name, std::byte const* data, size_t const size)
 {
     std::filesystem::path const aftermath = "aftermath";
-    create_directory(aftermath);
 
-    if (std::ofstream file(aftermath / name, std::ios::out | std::ios::binary);
-        file)
+    auto write = [&](std::filesystem::path const& destination) -> bool
     {
+        try { create_directories(destination); }
+        catch (std::filesystem::filesystem_error const&) { return false; }
+
+        std::ofstream file(destination / name, std::ios::out | std::ios::binary);
+
+        if (!file.is_open()) return false;
+        
         file.write(reinterpret_cast<char const*>(data), size);
         file.close();
-    }
+
+        return true;
+    };
+
+    if (write(aftermath)) return;
+
+    std::filesystem::path const temp = std::filesystem::temp_directory_path() / "native_engine" / aftermath;
+
+    write(temp);
 }
 
 void GpuCrashTracker::OnCrashDump(void const* pGpuCrashDump, uint32_t const gpuCrashDumpSize)

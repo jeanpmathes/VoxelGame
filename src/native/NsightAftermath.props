@@ -33,9 +33,9 @@
         <ClCompile Include="nv_aftermath\NsightAftermathShaderDatabase.cpp"/>
     </ItemGroup>
     <ItemGroup Condition="'$(NsightAftermathSdkAvailable)' == 'true'">
-        <Content Include="$(NsightAftermathLibDir)\GFSDK_Aftermath_Lib.x64.dll">
+        <None Include="$(NsightAftermathLibDir)\GFSDK_Aftermath_Lib.x64.dll" Visible="false">
             <Link>GFSDK_Aftermath_Lib.x64.dll</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        </None>
     </ItemGroup>
 </Project>

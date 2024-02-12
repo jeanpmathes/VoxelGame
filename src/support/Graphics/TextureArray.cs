@@ -45,6 +45,7 @@ public sealed class TextureArray
         // Split the full texture list into parts and create the array textures.
         var data = new Texture[count];
 
+        // ReSharper disable once RedundantAssignment
         Vector2i size = images[index: 0].Size;
 
         for (var index = 0; index < count; index++)

@@ -491,6 +491,7 @@ internal static class Native
 
         if (rasterPipeline == IntPtr.Zero) return null;
 
+        // ReSharper disable once RedundantAssignment
         IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
         Debug.Assert(shaderBuffer == IntPtr.Zero);
 
