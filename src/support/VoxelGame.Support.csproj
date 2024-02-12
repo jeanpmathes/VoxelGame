@@ -9,6 +9,8 @@
         <Version>1.3.0</Version>
         <Authors>jeanpmathes</Authors>
         <PackageIcon>vg_icon.ico</PackageIcon>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -19,6 +21,8 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <WarningsAsErrors>;NU1605;nullable</WarningsAsErrors>
         <DocumentationFile>bin\Release\VoxelGame.Support.xml</DocumentationFile>
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>

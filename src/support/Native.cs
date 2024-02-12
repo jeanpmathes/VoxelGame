@@ -24,8 +24,6 @@ namespace VoxelGame.Support;
 #pragma warning disable S1200 // This class intentionally contains all native functions.
 internal static class Native
 {
-    private const string DllFilePath = @".\Native.dll";
-
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
 
     private static readonly Dictionary<IntPtr, Light> lights = new();
@@ -41,10 +39,7 @@ internal static class Native
     /// <param name="caption">The caption of the message box.</param>
     internal static void ShowErrorBox(string message, string caption)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
-
-        NativeShowErrorBox(message, caption);
+        NativeMethods.NativeShowErrorBox(message, caption);
     }
 
     /// <summary>
@@ -55,10 +50,7 @@ internal static class Native
     /// <returns>A pointer to the native client.</returns>
     internal static IntPtr Initialize(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeConfigure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
-
-        return NativeConfigure(configuration, onError);
+        return NativeMethods.NativeConfigure(configuration, onError);
     }
 
     /// <summary>
@@ -67,10 +59,7 @@ internal static class Native
     /// <param name="client">The client to finalize.</param>
     internal static void Finalize(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeFinalize(IntPtr native);
-
-        NativeFinalize(client.Native);
+        NativeMethods.NativeFinalize(client.Native);
     }
 
     /// <summary>
@@ -78,10 +67,7 @@ internal static class Native
     /// </summary>
     internal static void RequestClose(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeRequestClose(IntPtr native);
-
-        NativeRequestClose(client.Native);
+        NativeMethods.NativeRequestClose(client.Native);
     }
 
     /// <summary>
@@ -91,12 +77,9 @@ internal static class Native
     /// <returns>The exit code.</returns>
     internal static int Run(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern int NativeRun(IntPtr native, int nCmdShow);
-
         const int nCmdShow = 1;
 
-        return NativeRun(client.Native, nCmdShow);
+        return NativeMethods.NativeRun(client.Native, nCmdShow);
     }
 
     /// <summary>
@@ -104,12 +87,9 @@ internal static class Native
     /// </summary>
     internal static string GetAllocatorStatistics(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativePassAllocatorStatistics(IntPtr native, Definition.Native.NativeWStringFunc onWString);
-
         var result = "";
 
-        NativePassAllocatorStatistics(client.Native, s => result = s);
+        NativeMethods.NativePassAllocatorStatistics(client.Native, s => result = s);
 
         return result;
     }
@@ -120,12 +100,9 @@ internal static class Native
     /// </summary>
     internal static string GetDRED(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativePassDRED(IntPtr native, Definition.Native.NativeWStringFunc onWString);
-
         var result = "";
 
-        NativePassDRED(client.Native, s => result = s);
+        NativeMethods.NativePassDRED(client.Native, s => result = s);
 
         return result;
     }
@@ -137,14 +114,11 @@ internal static class Native
     /// <param name="callback">The callback to call when the screenshot is taken.</param>
     internal static void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeTakeScreenshot(IntPtr native, Definition.Native.ScreenshotFunc callback);
-
         if (screenshotCallback != null) return;
 
         screenshotCallback = callback;
 
-        NativeTakeScreenshot(client.Native,
+        NativeMethods.NativeTakeScreenshot(client.Native,
             (data, width, height) =>
             {
                 Debug.Assert(screenshotCallback != null);
@@ -160,10 +134,7 @@ internal static class Native
     /// <param name="client">The client for which to toggle fullscreen.</param>
     internal static void ToggleFullscreen(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeToggleFullscreen(IntPtr native);
-
-        NativeToggleFullscreen(client.Native);
+        NativeMethods.NativeToggleFullscreen(client.Native);
     }
 
     /// <summary>
@@ -173,10 +144,7 @@ internal static class Native
     /// <returns>The current mouse position, in client coordinates.</returns>
     internal static (int x, int y) GetMousePosition(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeGetMousePosition(IntPtr native, out long x, out long y);
-
-        NativeGetMousePosition(client.Native, out long x, out long y);
+        NativeMethods.NativeGetMousePosition(client.Native, out long x, out long y);
 
         return ((int) x, (int) y);
     }
@@ -189,10 +157,7 @@ internal static class Native
     /// <param name="y">The new y position, in client coordinates.</param>
     internal static void SetMousePosition(Client client, int x, int y)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMousePosition(IntPtr native, long x, long y);
-
-        NativeSetMousePosition(client.Native, x, y);
+        NativeMethods.NativeSetMousePosition(client.Native, x, y);
     }
 
     /// <summary>
@@ -202,10 +167,7 @@ internal static class Native
     /// <param name="cursor">The cursor type to set.</param>
     internal static void SetCursorType(Client client, MouseCursor cursor)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetCursorType(IntPtr native, MouseCursor cursor);
-
-        NativeSetCursorType(client.Native, cursor);
+        NativeMethods.NativeSetCursorType(client.Native, cursor);
     }
 
     /// <summary>
@@ -216,26 +178,9 @@ internal static class Native
     /// <param name="locked">Whether the cursor should be locked.</param>
     internal static void SetCursorLock(Client client, bool locked)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetCursorLock(IntPtr native, bool locked);
-
-        NativeSetCursorLock(client.Native, locked);
+        NativeMethods.NativeSetCursorLock(client.Native, locked);
     }
 
-    /// <summary>
-    ///     Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
-    /// </summary>
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeInitializeRaytracing(IntPtr native,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        ShaderFileDescription[] shaderFiles,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
-        string[] symbols,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        MaterialDescription[] materials,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        IntPtr[] textures,
-        SpacePipelineDescription description);
 
     /// <summary>
     ///     Initialize raytracing.
@@ -246,7 +191,7 @@ internal static class Native
     /// <returns>The shader buffer, if any is created.</returns>
     internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
     {
-        IntPtr buffer = NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
+        IntPtr buffer = NativeMethods.NativeInitializeRaytracing(client.Native, pipeline.ShaderFiles, pipeline.Symbols, pipeline.Materials, pipeline.TexturePointers, pipeline.Description);
 
         return buffer == IntPtr.Zero ? null : new ShaderBuffer<T>(buffer, client);
     }
@@ -258,10 +203,7 @@ internal static class Native
     /// <returns>The camera.</returns>
     internal static Camera GetCamera(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeGetCamera(IntPtr native);
-
-        IntPtr camera = NativeGetCamera(client.Native);
+        IntPtr camera = NativeMethods.NativeGetCamera(client.Native);
         Camera cameraObject;
 
         if (cameras.TryGetValue(camera, out Camera? @object))
@@ -284,10 +226,7 @@ internal static class Native
     /// <returns>The light.</returns>
     internal static Light GetLight(Client client)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeGetLight(IntPtr native);
-
-        IntPtr light = NativeGetLight(client.Native);
+        IntPtr light = NativeMethods.NativeGetLight(client.Native);
         Light lightObject;
 
         if (lights.TryGetValue(light, out Light? @object))
@@ -310,10 +249,7 @@ internal static class Native
     /// <param name="direction">The new direction. Must be normalized.</param>
     internal static void SetLightDirection(Light light, Vector3 direction)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetLightDirection(IntPtr light, Vector3 direction);
-
-        NativeSetLightDirection(light.Self, direction);
+        NativeMethods.NativeSetLightDirection(light.Self, direction);
     }
 
     /// <summary>
@@ -323,10 +259,7 @@ internal static class Native
     /// <param name="data">The new data.</param>
     internal static void UpdateBasicCameraData(Camera camera, BasicCameraData data)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeUpdateBasicCameraData(IntPtr camera, BasicCameraData data);
-
-        NativeUpdateBasicCameraData(camera.Self, data);
+        NativeMethods.NativeUpdateBasicCameraData(camera.Self, data);
     }
 
     /// <summary>
@@ -336,10 +269,7 @@ internal static class Native
     /// <param name="data">The new data.</param>
     internal static void UpdateAdvancedCameraData(Camera camera, AdvancedCameraData data)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeUpdateAdvancedCameraData(IntPtr camera, AdvancedCameraData data);
-
-        NativeUpdateAdvancedCameraData(camera.Self, data);
+        NativeMethods.NativeUpdateAdvancedCameraData(camera.Self, data);
     }
 
     /// <summary>
@@ -349,10 +279,7 @@ internal static class Native
     /// <param name="data">The new data.</param>
     internal static void UpdateSpatialData(Spatial spatial, SpatialData data)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeUpdateSpatialData(IntPtr spatial, SpatialData data);
-
-        NativeUpdateSpatialData(spatial.Self, data);
+        NativeMethods.NativeUpdateSpatialData(spatial.Self, data);
     }
 
     /// <summary>
@@ -363,10 +290,7 @@ internal static class Native
     /// <returns>The mesh.</returns>
     internal static Mesh CreateMesh(Client client, uint materialIndex)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateMesh(IntPtr native, uint materialIndex);
-
-        IntPtr mesh = NativeCreateMesh(client.Native, materialIndex);
+        IntPtr mesh = NativeMethods.NativeCreateMesh(client.Native, materialIndex);
 
         return new Mesh(mesh, client.Space);
     }
@@ -378,14 +302,11 @@ internal static class Native
     /// <param name="vertices">The vertices.</param>
     internal static unsafe void SetMeshVertices(Mesh mesh, Span<SpatialVertex> vertices)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshVertices(IntPtr mesh, SpatialVertex* vertices, int vertexLength);
-
         Debug.Assert(vertices.Length >= 0);
 
         fixed (SpatialVertex* vertexData = vertices)
         {
-            NativeSetMeshVertices(mesh.Self, vertexData, vertices.Length);
+            NativeMethods.NativeSetMeshVertices(mesh.Self, vertexData, vertices.Length);
         }
     }
 
@@ -396,14 +317,11 @@ internal static class Native
     /// <param name="bounds">The bounds.</param>
     internal static unsafe void SetMeshBounds(Mesh mesh, Span<SpatialBounds> bounds)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetMeshVertices(IntPtr mesh, SpatialBounds* vertices, int vertexLength);
-
         Debug.Assert(bounds.Length >= 0);
 
         fixed (SpatialBounds* boundsData = bounds)
         {
-            NativeSetMeshVertices(mesh.Self, boundsData, bounds.Length);
+            NativeMethods.NativeSetMeshVertices(mesh.Self, boundsData, bounds.Length);
         }
     }
 
@@ -415,10 +333,7 @@ internal static class Native
     /// <returns>The effect.</returns>
     internal static Effect CreateEffect(Client client, RasterPipeline pipeline)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeCreateEffect(IntPtr native, IntPtr pipeline);
-
-        IntPtr effect = NativeCreateEffect(client.Native, pipeline.Self);
+        IntPtr effect = NativeMethods.NativeCreateEffect(client.Native, pipeline.Self);
 
         return new Effect(effect, client.Space);
     }
@@ -430,14 +345,11 @@ internal static class Native
     /// <param name="vertices">The vertices.</param>
     internal static unsafe void SetEffectVertices(Effect effect, Span<EffectVertex> vertices)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetEffectVertices(IntPtr effect, EffectVertex* vertices, int vertexLength);
-
         Debug.Assert(vertices.Length >= 0);
 
         fixed (EffectVertex* vertexData = vertices)
         {
-            NativeSetEffectVertices(effect.Self, vertexData, vertices.Length);
+            NativeMethods.NativeSetEffectVertices(effect.Self, vertexData, vertices.Length);
         }
     }
 
@@ -448,10 +360,7 @@ internal static class Native
     /// <param name="drawable">The drawable to return.</param>
     internal static void ReturnDrawable(Drawable drawable)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeReturnDrawable(IntPtr native);
-
-        NativeReturnDrawable(drawable.Self);
+        NativeMethods.NativeReturnDrawable(drawable.Self);
     }
 
     /// <summary>
@@ -461,17 +370,8 @@ internal static class Native
     /// <param name="enabled">Whether the drawable should be enabled.</param>
     internal static void SetDrawableEnabledState(Drawable drawable, bool enabled)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
-
-        NativeSetDrawableEnabledState(drawable.Self, enabled);
+        NativeMethods.NativeSetDrawableEnabledState(drawable.Self, enabled);
     }
-
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeCreateRasterPipeline(IntPtr native, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
-
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern IntPtr NativeGetRasterPipelineShaderBuffer(IntPtr rasterPipeline);
 
     /// <summary>
     ///     Create a raster pipeline. Use this overload if no shader buffer is needed.
@@ -487,12 +387,12 @@ internal static class Native
     {
         Debug.Assert(description.BufferSize == 0);
 
-        IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+        IntPtr rasterPipeline = NativeMethods.NativeCreateRasterPipeline(client.Native, description, callback);
 
         if (rasterPipeline == IntPtr.Zero) return null;
 
         // ReSharper disable once RedundantAssignment
-        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
+        IntPtr shaderBuffer = NativeMethods.NativeGetRasterPipelineShaderBuffer(rasterPipeline);
         Debug.Assert(shaderBuffer == IntPtr.Zero);
 
         return new RasterPipeline(rasterPipeline, client);
@@ -512,11 +412,11 @@ internal static class Native
     {
         description.BufferSize = (uint) Marshal.SizeOf<T>();
 
-        IntPtr rasterPipeline = NativeCreateRasterPipeline(client.Native, description, callback);
+        IntPtr rasterPipeline = NativeMethods.NativeCreateRasterPipeline(client.Native, description, callback);
 
         if (rasterPipeline == IntPtr.Zero) return null;
 
-        IntPtr shaderBuffer = NativeGetRasterPipelineShaderBuffer(rasterPipeline);
+        IntPtr shaderBuffer = NativeMethods.NativeGetRasterPipelineShaderBuffer(rasterPipeline);
         Debug.Assert(shaderBuffer != IntPtr.Zero);
 
         return (new RasterPipeline(rasterPipeline, client), new ShaderBuffer<T>(shaderBuffer, client));
@@ -527,14 +427,8 @@ internal static class Native
     /// </summary>
     internal static void SetPostProcessingPipeline(Client client, RasterPipeline pipeline)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeDesignatePostProcessingPipeline(IntPtr native, IntPtr pipeline);
-
-        NativeDesignatePostProcessingPipeline(client.Native, pipeline.Self);
+        NativeMethods.NativeDesignatePostProcessingPipeline(client.Native, pipeline.Self);
     }
-
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    private static extern unsafe void NativeSetShaderBufferData(IntPtr shaderBuffer, void* data);
 
     /// <summary>
     ///     Set the data of a shader buffer.
@@ -545,7 +439,7 @@ internal static class Native
     internal static unsafe void SetShaderBufferData<T>(ShaderBuffer<T> shaderBuffer, T data) where T : unmanaged, IEquatable<T>
     {
         T* dataPtr = &data;
-        NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
+        NativeMethods.NativeSetShaderBufferData(shaderBuffer.Self, dataPtr);
     }
 
     /// <summary>
@@ -558,14 +452,8 @@ internal static class Native
     /// <returns>An object that allows removing the pipeline.</returns>
     internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern uint NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, int priority, Draw2D.Callback callback);
-
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeRemoveDraw2DPipeline(IntPtr native, uint id);
-
         Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
-        uint id = NativeAddDraw2DPipeline(client.Native, pipeline.Self, priority, draw2dCallback);
+        uint id = NativeMethods.NativeAddDraw2DPipeline(client.Native, pipeline.Self, priority, draw2dCallback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(id));
         draw2DCallbacks[id] = draw2dCallback;
@@ -574,7 +462,7 @@ internal static class Native
         {
             Debug.Assert(draw2DCallbacks.ContainsKey(id));
 
-            NativeRemoveDraw2DPipeline(client.Native, id);
+            NativeMethods.NativeRemoveDraw2DPipeline(client.Native, id);
             draw2DCallbacks.Remove(id);
         });
     }
@@ -587,9 +475,6 @@ internal static class Native
     /// <returns>The loaded texture.</returns>
     internal static unsafe Texture LoadTexture(Client client, Span<Image> texture)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern IntPtr NativeLoadTexture(IntPtr client, int** data, TextureDescription description);
-
         Debug.Assert(texture.Length > 0);
 
         Image.Format format = texture[index: 0].StorageFormat;
@@ -618,7 +503,7 @@ internal static class Native
 
         fixed (int** subresourcesPtr = subresources)
         {
-            result = NativeLoadTexture(client.Native, subresourcesPtr, description);
+            result = NativeMethods.NativeLoadTexture(client.Native, subresourcesPtr, description);
         }
 
         for (var i = 0; i < texture.Length; i++) pins[i].Free();
@@ -632,9 +517,6 @@ internal static class Native
     /// <param name="texture">The texture.</param>
     internal static void FreeTexture(Texture texture)
     {
-        [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-        static extern void NativeFreeTexture(IntPtr texture);
-
-        NativeFreeTexture(texture.Self);
+        NativeMethods.NativeFreeTexture(texture.Self);
     }
 }

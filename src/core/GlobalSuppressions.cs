@@ -11,3 +11,5 @@ using System.Diagnostics.CodeAnalysis;
         "CA1062:Validate arguments of public methods",
         Justification = "Not a public API.",
         Scope = "module")]
+
+[assembly: SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Used for interface-based pattern where concrete class implements interface that provides methods for another, higher interface.")]

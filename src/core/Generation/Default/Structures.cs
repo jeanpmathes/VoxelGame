@@ -76,7 +76,9 @@ public class Structures
 
             foreach (GeneratedStructure structure in structures)
             {
+                // ReSharper disable once RedundantAssignment
                 bool success = Instance.structuresByName.TryAdd(structure.Name, structure);
+
                 Debug.Assert(success);
             }
         }

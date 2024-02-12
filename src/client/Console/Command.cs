@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console;
@@ -25,6 +26,7 @@ public abstract class Command : ICommand
     /// <inheritdoc />
     public abstract string HelpText { get; }
 
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Intentionally hidden.")]
     void ICommand.SetContext(Context context)
     {
         Context = context;

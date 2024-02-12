@@ -11,3 +11,5 @@ using System.Diagnostics.CodeAnalysis;
         "CA1062:Validate arguments of public methods",
         Justification = "Not a public API.",
         Scope = "module")]
+
+[assembly: SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "All controls are disposed by their parent.", Scope = "module")]

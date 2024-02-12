@@ -126,7 +126,7 @@ public sealed class SpatialMeshing : IMeshing
     }
 
     /// <inheritdoc />
-    void IDisposable.Dispose()
+    public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
