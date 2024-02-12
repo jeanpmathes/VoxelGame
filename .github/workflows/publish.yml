@@ -18,11 +18,11 @@ jobs:
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v2
     - name: Restore dependencies
-      run: dotnet restore
+      run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64
     - name: Publish
-      run:  dotnet publish -c Release -r win-x64 --self-contained
+      run: msbuild -t:Publish -p:SelfContained=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64
     - name: Build installer
-      run: msbuild /p:Configuration=Installer
+      run: msbuild ./Setup/Setup.wixproj -restore -t:Build -p:Configuration=Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64
     - name: Upload installer
       uses: actions/upload-artifact@v4.3.1
       with:
