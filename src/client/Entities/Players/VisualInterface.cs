@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application;
@@ -23,8 +24,12 @@ namespace VoxelGame.Client.Entities.Players;
 /// </summary>
 public sealed class VisualInterface : IDisposable
 {
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly SelectionBoxVFX selectionVFX;
+
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly OverlayVFX overlayVFX;
+
     private readonly List<VFX> vfxes = new();
 
     private readonly Button debugViewButton;
@@ -43,6 +48,7 @@ public sealed class VisualInterface : IDisposable
     {
         selectionVFX = RegisterVFX(resources.Pipelines.SelectionBoxVFX);
         overlayVFX = RegisterVFX(resources.Pipelines.OverlayVFX);
+
         ScreenElementVFX crosshairVFX = RegisterVFX(resources.Pipelines.CrosshairVFX);
 
         crosshairVFX.SetTexture(resources.Player.Crosshair);

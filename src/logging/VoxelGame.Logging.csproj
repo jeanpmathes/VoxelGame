@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0-windows</TargetFramework>
-        <CodeAnalysisRuleSet>..\..\.sonarlint\jeanpmathes_voxelgamecsharp.ruleset</CodeAnalysisRuleSet>
         <PackageLicenseExpression>MIT License</PackageLicenseExpression>
         <Platforms>x64</Platforms>
         <ApplicationIcon>vg_icon.ico</ApplicationIcon>
@@ -12,7 +11,8 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <DocumentationFile>bin\debug\VoxelGame.Logging.xml</DocumentationFile>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -25,10 +25,6 @@
         <OutputPath>bin\x64\Debug\</OutputPath>
         <WarningsAsErrors>nullable</WarningsAsErrors>
     </PropertyGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="..\..\.sonarlint\jeanpmathes_voxelgame\CSharp\SonarLint.xml" Link="SonarLint.xml"/>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">

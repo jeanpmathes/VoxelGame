@@ -98,6 +98,7 @@ public class GraphicsSettings : ISettingsProvider
         FoliageQuality = FoliageQuality
     };
 
+#pragma warning disable CA1033
     /// <inheritdoc />
     string ISettingsProvider.Category => Language.Graphics;
 
@@ -106,4 +107,5 @@ public class GraphicsSettings : ISettingsProvider
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
+#pragma warning restore CA1033
 }

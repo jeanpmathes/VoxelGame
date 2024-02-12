@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace VoxelGame.Core.Collections;
 
@@ -21,7 +22,7 @@ public class Bag<T> : IEnumerable<T>
     private readonly PriorityQueue<int, int> gaps = new();
 
     private readonly T gapValue;
-    private readonly PooledList<T> items = new();
+    private readonly List<T> items = new();
 
     /// <summary>
     ///     Create a new gapped bag.
@@ -58,7 +59,7 @@ public class Bag<T> : IEnumerable<T>
     /// </summary>
     public Span<T> AsSpan()
     {
-        return items.AsSpan();
+        return CollectionsMarshal.AsSpan(items);
     }
 
     /// <summary>

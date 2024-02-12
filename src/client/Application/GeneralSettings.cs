@@ -148,6 +148,8 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
     /// </summary>
     public Bindable<float> MouseSensitivity { get; }
 
+#pragma warning disable CA1033
+
     /// <inheritdoc />
     float IScaleProvider.Scale => ScaleOfUI;
 
@@ -165,4 +167,5 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
+#pragma warning restore CA1033
 }
