@@ -48,6 +48,12 @@ jobs:
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    - name: Install build wrapper
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Uri https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip -OutFile build-wrapper-win.zip
+        Expand-Archive -Path build-wrapper-win.zip -DestinationPath .\.sonar\scanner\
+        Remove-Item build-wrapper-win.zip
     - name: Restore dependencies
       run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release
     - name: Build, test and analyze
@@ -56,7 +62,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-        msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cfamily.build-wrapper-output=".\.sonar\build-wrapper-output"
+        .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
         dotnet-coverage collect "dotnet test -c Test --no-restore --no-build --verbosity normal" -f xml -o "coverage.xml" # Use dotnet because msbuild has problems with tests
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
