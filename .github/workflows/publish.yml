@@ -19,8 +19,6 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     - name: Restore dependencies
       run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64
-    - name: Build
-      run: msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release -p:RuntimeIdentifier=win-x64
     - name: Publish
       run: msbuild -t:Publish -p:RestorePackages=false -p:SelfContained=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64
     - name: Build installer
