@@ -122,33 +122,12 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     public static BoundingVolume Empty => new(Vector3d.Zero, Vector3d.Zero);
 
-    /// <inheritdoc />
-    public bool Equals(BoundingVolume? other)
-    {
-        if (!Box.Equals(other?.Box)) return false;
-        if (ChildCount != other.ChildCount) return false;
-
-        for (var i = 0; i < ChildCount; i++)
-            if (!children[i].Equals(other.children[i]))
-                return false;
-
-        return true;
-    }
-
     /// <summary>
     ///     Gets the child bounds of this bounding volume, or the bounds of this bounding volume if it has no children.
     /// </summary>
     private Box3d GetChildBoundsOrBounds()
     {
         return ChildCount == 0 ? Box : ChildBounds;
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (obj is BoundingVolume other) return Equals(other);
-
-        return false;
     }
 
     /// <summary>
@@ -271,9 +250,34 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return false;
     }
 
+    #region Equality Support
+
+    /// <inheritdoc />
+    public bool Equals(BoundingVolume? other)
+    {
+        if (!Box.Equals(other?.Box)) return false;
+        if (ChildCount != other.ChildCount) return false;
+
+        for (var i = 0; i < ChildCount; i++)
+            if (!children[i].Equals(other.children[i]))
+                return false;
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (obj is BoundingVolume other) return Equals(other);
+
+        return false;
+    }
+
     /// <inheritdoc />
     public override int GetHashCode()
     {
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }
+
+    #endregion Equality Support
 }
