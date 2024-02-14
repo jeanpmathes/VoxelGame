@@ -17,33 +17,43 @@ namespace
         TCHAR const* name;
         switch (cursor)
         {
-        case MouseCursor::ARROW: name = IDC_ARROW;
+            using enum MouseCursor;
+
+        case ARROW:
+            name = IDC_ARROW;
             break;
-        case MouseCursor::I_BEAM: name = IDC_IBEAM;
+        case I_BEAM:
+            name = IDC_IBEAM;
             break;
-        case MouseCursor::SIZE_NS: name = IDC_SIZENS;
+        case SIZE_NS:
+            name = IDC_SIZENS;
             break;
-        case MouseCursor::SIZE_WE: name = IDC_SIZEWE;
+        case SIZE_WE:
+            name = IDC_SIZEWE;
             break;
-        case MouseCursor::SIZE_NWSE: name = IDC_SIZENWSE;
+        case SIZE_NWSE:
+            name = IDC_SIZENWSE;
             break;
-        case MouseCursor::SIZE_NESW: name = IDC_SIZENESW;
+        case SIZE_NESW:
+            name = IDC_SIZENESW;
             break;
-        case MouseCursor::SIZE_ALL: name = IDC_SIZEALL;
+        case SIZE_ALL:
+            name = IDC_SIZEALL;
             break;
-        case MouseCursor::NO: name = IDC_NO;
+        case NO:
+            name = IDC_NO;
             break;
-        case MouseCursor::WAIT: name = IDC_WAIT;
+        case WAIT:
+            name = IDC_WAIT;
             break;
-        case MouseCursor::HAND: name = IDC_HAND;
+        case HAND:
+            name = IDC_HAND;
             break;
-        default: throw NativeException("Cursor not implemented.");
+        default:
+            throw NativeException("Cursor not implemented.");
         }
 
-        HCURSOR const handle = LoadCursor(nullptr, name);
-        CHECK_RETURN(handle);
-
-        return handle;
+        return CheckReturn(LoadCursor(nullptr, name));
     }
 
     std::map<MouseCursor, HCURSOR> LoadAllCursors()
@@ -63,16 +73,17 @@ DXApp::DXApp(Configuration const& configuration)
   , m_configuration(configuration)
   , m_width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH))
   , m_height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT))
-  , m_aspectRatio(0.0f)
-  , m_windowBounds{0, 0, 0, 0}
-  , m_tearingSupport(false)
-  , m_mainThreadId(std::this_thread::get_id())
 {
     UpdateForSizeChange(m_width, m_height);
     CheckTearingSupport();
 }
 
 DXApp::~DXApp() = default;
+
+bool DXApp::HasFlag(CycleFlags value, CycleFlags flag)
+{
+    return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag));
+}
 
 void DXApp::Tick(CycleFlags const flags, bool const timer)
 {
@@ -81,13 +92,13 @@ void DXApp::Tick(CycleFlags const flags, bool const timer)
 
     if (!timer && m_isUpdateTimerRunning)
     {
-        CHECK_RETURN(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        CheckReturn(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
         m_isUpdateTimerRunning = false;
     }
 
-    if (flags & ALLOW_UPDATE) m_updateTimer.Tick([&] { Update(m_updateTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_UPDATE)) m_updateTimer.Tick([this] { Update(m_updateTimer); });
 
-    if (flags & ALLOW_RENDER) m_renderTimer.Tick([&] { Render(m_renderTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_RENDER)) m_renderTimer.Tick([this] { Render(m_renderTimer); });
 
     m_inTick = false;
 }
@@ -171,18 +182,18 @@ void DXApp::OnSizeMove(bool const enter)
 {
     if (enter)
     {
-        CHECK_RETURN(
-            SetTimer( Win32Application::GetHwnd(), IDT_UPDATE, m_updateTimer.GetTargetElapsedMilliseconds(), nullptr));
+        CheckReturn(
+            SetTimer(Win32Application::GetHwnd(), IDT_UPDATE, m_updateTimer.GetTargetElapsedMilliseconds(), nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)
     {
-        CHECK_RETURN(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        CheckReturn(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
         m_isUpdateTimerRunning = false;
     }
 }
 
-void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Tick(ALLOW_UPDATE, true); }
+void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Tick(CycleFlags::ALLOW_UPDATE, true); }
 
 void DXApp::OnKeyDown(UINT8 const param) const { m_configuration.onKeyDown(param); }
 
@@ -224,8 +235,8 @@ void DXApp::SetMousePosition(POINT position)
 
     m_lastMousePosition = position;
 
-    TRY_DO(ClientToScreen(Win32Application::GetHwnd(), &position));
-    TRY_DO(SetCursorPos(position.x, position.y));
+    TryDo(ClientToScreen(Win32Application::GetHwnd(), &position));
+    TryDo(SetCursorPos(position.x, position.y));
 }
 
 void DXApp::SetMouseCursor(MouseCursor const cursor) { m_mouseCursor = cursor; }
@@ -235,12 +246,11 @@ void DXApp::SetMouseLock(bool const lock)
     if (lock)
     {
         RECT rect;
-        TRY_DO(GetWindowRect(Win32Application::GetHwnd(), &rect));
+        TryDo(GetWindowRect(Win32Application::GetHwnd(), &rect));
 
-        TRY_DO(ClipCursor(&rect));
+        TryDo(ClipCursor(&rect));
     }
-    else
-        TRY_DO(ClipCursor(nullptr));
+    else TryDo(ClipCursor(nullptr));
 
     if (m_mouseLocked != lock)
         // The function uses a display count, thus repeated calls would cause incorrect behavior.
@@ -259,8 +269,9 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
 }
 
 ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
-    ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory,
-    bool const                   requestHighPerformanceAdapter)
+    ComPtr<IDXGIFactory4> const&       dxgiFactory,
+    ComPtr<ID3D12DeviceFactory> const& deviceFactory,
+    bool const                         requestHighPerformanceAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
 
@@ -272,7 +283,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
              ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
-            TRY_DO(adapter->GetDesc1(&desc));
+            TryDo(adapter->GetDesc1(&desc));
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
@@ -289,7 +300,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
         for (UINT adapterIndex = 0; SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
-            TRY_DO(adapter->GetDesc1(&desc));
+            TryDo(adapter->GetDesc1(&desc));
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
@@ -320,6 +331,6 @@ void DXApp::CheckTearingSupport()
     if (SUCCEEDED(hr))
         hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
-    bool const isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
+    auto const isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
     m_tearingSupport               = SUCCEEDED(hr) && allowTearing && isTearingConfigured;
 }

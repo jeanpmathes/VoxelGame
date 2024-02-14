@@ -4,7 +4,7 @@
 Mesh::Mesh(NativeClient& client)
     : Drawable(client)
 {
-    REQUIRE(GetClient().GetDevice() != nullptr);
+    Require(GetClient().GetDevice() != nullptr);
 
     m_instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
     m_instanceDataBuffer            = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
@@ -13,7 +13,7 @@ Mesh::Mesh(NativeClient& client)
     m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.GetGPUVirtualAddress();
     m_instanceDataBufferView.SizeInBytes    = static_cast<UINT>(m_instanceDataBufferAlignedSize);
 
-    TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
+    TryDo(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
 
     {
         m_geometrySRV.Format                  = DXGI_FORMAT_UNKNOWN;
@@ -58,7 +58,7 @@ void Mesh::Update()
 
 void Mesh::SetNewVertices(SpatialVertex const* vertices, UINT const vertexCount)
 {
-    REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
+    Require(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
 
     UpdateGeometryViews(vertexCount, sizeof(SpatialVertex));
 
@@ -77,12 +77,12 @@ void Mesh::SetNewVertices(SpatialVertex const* vertices, UINT const vertexCount)
         D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
-    TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
+    TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
 
 void Mesh::SetNewBounds(SpatialBounds const* bounds, UINT const boundsCount)
 {
-    REQUIRE(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
+    Require(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS);
 
     UpdateGeometryViews(boundsCount, sizeof(SpatialBounds));
 
@@ -101,12 +101,12 @@ void Mesh::SetNewBounds(SpatialBounds const* bounds, UINT const boundsCount)
         D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
-    TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), bounds, boundsCount));
+    TryDo(util::MapAndWrite(GetUploadDataBuffer(), bounds, boundsCount));
 }
 
 Material const& Mesh::GetMaterial() const
 {
-    REQUIRE(m_material != nullptr);
+    Require(m_material != nullptr);
     return *m_material;
 }
 
@@ -114,13 +114,16 @@ UINT Mesh::GetGeometryUnitCount() const
 {
     switch (GetMaterial().geometryType)
     {
-    case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES: return GetDataElementCount() / 4;
-    case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS: return GetDataElementCount();
-    default: throw NativeException("Unknown geometry type.");
+    case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES:
+        return GetDataElementCount() / 4;
+    case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
+        return GetDataElementCount();
+    default:
+        throw NativeException("Unknown geometry type.");
     }
 }
 
-Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() const { return const_cast<Mesh*>(this)->GeometryBuffer(); }
+Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() { return GeometryBuffer(); }
 
 ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescriptor() const
 {
@@ -129,25 +132,27 @@ ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescripto
         static_cast<UINT>(m_instanceDataBufferAlignedSize));
 }
 
-ShaderResources::ShaderResourceViewDescriptor Mesh::GetGeometryBufferViewDescriptor() const
+ShaderResources::ShaderResourceViewDescriptor Mesh::GetGeometryBufferViewDescriptor()
 {
     return {.resource = GetGeometryBuffer(), .description = &m_geometrySRV};
 }
 
-ShaderResources::ShaderResourceViewDescriptor Mesh::GetAnimationSourceBufferViewDescriptor() const
+ShaderResources::ShaderResourceViewDescriptor Mesh::GetAnimationSourceBufferViewDescriptor()
 {
     return {.resource = m_sourceGeometryBuffer, .description = &m_geometrySRV};
 }
 
-ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBufferViewDescriptor() const
+ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBufferViewDescriptor()
 {
     return {.resource = m_destinationGeometryBuffer, .description = &m_geometryUAV};
 }
 
 void Mesh::CreateBLAS(
-    ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs, bool isForAnimation)
+    ComPtr<ID3D12GraphicsCommandList4> commandList,
+    std::vector<ID3D12Resource*>*      uavs,
+    bool                               isForAnimation)
 {
-    REQUIRE(uavs != nullptr);
+    Require(uavs != nullptr);
 
     if (isForAnimation && m_requiresFreshBLAS) return;
 
@@ -253,7 +258,7 @@ void Mesh::CreateBottomLevelASFromVertices(
     {
         m_bottomLevelASGenerator = {};
 
-        REQUIRE(vertexBuffers.size() == indexBuffers.size());
+        Require(vertexBuffers.size() == indexBuffers.size());
         for (size_t index = 0; index < vertexBuffers.size(); index++)
         {
             auto& [vertexBuffer, vertexCount] = vertexBuffers[index];
@@ -286,12 +291,8 @@ void Mesh::CreateBottomLevelASFromBounds(
     {
         m_bottomLevelASGenerator = {};
 
-        for (size_t index = 0; index < boundsBuffers.size(); index++)
-        {
-            auto& [boundsBuffer, boundsCount] = boundsBuffers[index];
-
+        for (auto const& [boundsBuffer, boundsCount] : boundsBuffers)
             m_bottomLevelASGenerator.AddBoundsBuffer(boundsBuffer, 0, boundsCount, sizeof(SpatialBounds));
-        }
     }
 
     return CreateBottomLevelAS(commandList);
@@ -326,7 +327,7 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
     }
     else
     {
-        REQUIRE(GetMaterial().IsAnimated());
+        Require(GetMaterial().IsAnimated());
 
         updateOnly     = true;
         previousResult = m_blas.result.GetAddress();

@@ -69,7 +69,9 @@ public:
      * Should a shader compile error occur, the pipeline is not created and nullptr is returned.
      */
     static std::unique_ptr<RasterPipeline> Create(
-        NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunc callback);
+        NativeClient&                    client,
+        RasterPipelineDescription const& description,
+        NativeErrorFunc                  callback);
 
     struct Bindings
     {
@@ -92,13 +94,18 @@ public:
 
         explicit Bindings(ShaderPreset const preset)
         {
+            using enum ShaderPreset;
+
             switch (preset)
             {
-            case ShaderPreset::DRAW_2D: m_preset = Draw2dBindings();
+            case DRAW_2D:
+                m_preset = Draw2dBindings();
                 break;
-            case ShaderPreset::POST_PROCESSING: m_preset = PostProcessingBindings();
+            case POST_PROCESSING:
+                m_preset = PostProcessingBindings();
                 break;
-            case ShaderPreset::SPATIAL_EFFECT: m_preset = SpatialEffectBindings();
+            case SPATIAL_EFFECT:
+                m_preset = SpatialEffectBindings();
                 break;
             }
         }
@@ -118,15 +125,28 @@ public:
      * \return The bindings to use for spatial effects.
      */
     static std::shared_ptr<Bindings> SetupEffectBindings(
-        NativeClient& client, ShaderResources::Description& description);
+        NativeClient const&           client,
+        ShaderResources::Description& description);
+
+    struct PipelineConfiguration
+    {
+        ShaderPreset             preset;
+        D3D12_PRIMITIVE_TOPOLOGY topology;
+        std::wstring             name;
+    };
+
+    struct PipelineObjects
+    {
+        std::unique_ptr<ShaderBuffer>    shaderBuffer;
+        std::shared_ptr<ShaderResources> resources;
+        std::shared_ptr<Bindings>        bindings;
+        ComPtr<ID3D12PipelineState>      pipelineState;
+    };
 
     /**
      * Create a pipeline from an already initialized pipeline state object and associated root signature.
      */
-    RasterPipeline(
-        NativeClient&                 client, ShaderPreset preset, D3D12_PRIMITIVE_TOPOLOGY topology, std::wstring name,
-        std::unique_ptr<ShaderBuffer> shaderBuffer, std::shared_ptr<ShaderResources> resources,
-        std::shared_ptr<Bindings>     bindings, ComPtr<ID3D12PipelineState> pipelineState);
+    RasterPipeline(NativeClient& client, PipelineConfiguration configuration, PipelineObjects objects);
 
     /**
      * \brief Set the pipeline state object and root signature on the command list. Will not perform resource binding.
@@ -147,13 +167,16 @@ public:
     [[nodiscard]] ShaderBuffer*            GetShaderBuffer() const;
 
     void CreateConstantBufferView(
-        ShaderResources::Table::Entry                        entry, UINT index,
+        ShaderResources::Table::Entry                        entry,
+        UINT                                                 index,
         ShaderResources::ConstantBufferViewDescriptor const& descriptor);
     void CreateShaderResourceView(
-        ShaderResources::Table::Entry                        entry, UINT index,
+        ShaderResources::Table::Entry                        entry,
+        UINT                                                 index,
         ShaderResources::ShaderResourceViewDescriptor const& descriptor);
     void CreateUnorderedAccessView(
-        ShaderResources::Table::Entry                         entry, UINT index,
+        ShaderResources::Table::Entry                         entry,
+        UINT                                                  index,
         ShaderResources::UnorderedAccessViewDescriptor const& descriptor);
 
     /**
@@ -164,7 +187,8 @@ public:
      */
     template <class Descriptor>
     void SetSelectionListContent(
-        ShaderResources::SelectionList<Descriptor>& selectionList, std::vector<Descriptor> const& descriptors)
+        ShaderResources::SelectionList<Descriptor>& selectionList,
+        std::vector<Descriptor> const&              descriptors)
     {
         m_resources->SetSelectionListContent(selectionList, descriptors);
     }
@@ -178,7 +202,8 @@ public:
      */
     template <class Descriptor>
     void BindSelectionIndex(
-        ComPtr<ID3D12GraphicsCommandList4> commandList, ShaderResources::SelectionList<Descriptor>& selectionList,
+        ComPtr<ID3D12GraphicsCommandList4> commandList,
+        ShaderResources::SelectionList<Descriptor>& selectionList,
         UINT index) { m_resources->BindSelectionListIndex(selectionList, index, commandList); }
 
 private:

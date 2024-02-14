@@ -6,7 +6,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, UINT id
   , m_client(&client)
   , m_name(std::format(L"{} [{}]", m_raster->GetName(), id))
 {
-    REQUIRE(m_raster != nullptr);
+    Require(m_raster != nullptr);
 
     auto addBuffer = [this](BOOL const value)
     {
@@ -21,7 +21,7 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, UINT id
         this->m_constantBufferViews.push_back(
             {booleanConstantBuffer.GetGPUVirtualAddress(), static_cast<UINT>(alignedSize)});
 
-        TRY_DO(util::MapAndWrite(booleanConstantBuffer, value));
+        TryDo(util::MapAndWrite(booleanConstantBuffer, value));
     };
 
     addBuffer(TRUE);
@@ -40,8 +40,8 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
     Drawer const                           drawer{
         .initializeTextures = [](Texture** textures, UINT const textureCount, Pipeline* ctx)
         {
-            REQUIRE(textureCount > 0);
-            REQUIRE(ctx->m_initialized == false);
+            Require(textureCount > 0);
+            Require(ctx->m_initialized == false);
 
             ctx->m_textures.clear();
             ctx->m_textures.reserve(textureCount);
@@ -49,7 +49,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
             for (UINT i = 0; i < textureCount; i++)
             {
                 Texture& texture = *textures[i];
-                ctx->m_textures.push_back({texture.GetResource(), &texture.GetView()});
+                ctx->m_textures.emplace_back(texture.GetResource(), &texture.GetView());
 
                 texture.TransitionToUsable(ctx->m_currentCommandList);
             }
@@ -60,10 +60,10 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
         },
         .uploadBuffer = [](Vertex const* vertices, UINT const vertexCount, Pipeline* ctx)
         {
-            REQUIRE(vertices != nullptr);
-            REQUIRE(vertexCount > 0);
+            Require(vertices != nullptr);
+            Require(vertexCount > 0);
 
-            REQUIRE(!ctx->m_vertexBufferBound);
+            Require(!ctx->m_vertexBufferBound);
             ctx->m_vertexCount = vertexCount;
 
             UINT const vertexBufferSize = vertexCount * sizeof(Vertex);
@@ -77,7 +77,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
                 D3D12_HEAP_TYPE_UPLOAD);
             NAME_D3D12_OBJECT(ctx->m_uploadBuffer);
 
-            TRY_DO(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
+            TryDo(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
             util::ReAllocateBuffer(
                 &ctx->m_vertexBuffer,
@@ -115,11 +115,15 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
             ctx->BindVertexBuffer();
         },
         .drawBuffer = [](
-        UINT const firstVertex, UINT const vertexCount, UINT const textureIndex, BOOL const useTexture, Pipeline* ctx)
+        UINT const firstVertex,
+        UINT const vertexCount,
+        UINT const textureIndex,
+        BOOL const useTexture,
+        Pipeline*  ctx)
         {
-            REQUIRE(vertexCount > 0);
+            Require(vertexCount > 0);
 
-            REQUIRE(ctx->m_vertexCount >= firstVertex + vertexCount);
+            Require(ctx->m_vertexCount >= firstVertex + vertexCount);
 
             if (!ctx->m_initialized) Initialize(ctx);
             if (!ctx->m_vertexBufferBound) ctx->BindVertexBuffer();

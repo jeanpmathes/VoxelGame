@@ -1,6 +1,6 @@
 ﻿// <copyright file="BlockModel.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 

@@ -37,28 +37,21 @@ dispatch rays description.
 #include "ShaderBindingTableGenerator.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
 
-#ifndef ROUND_UP
-#define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
-#endif
+#include "DXRHelper.hpp"
 
 namespace nv_helpers_dx12
 {
     void ShaderBindingTableGenerator::AddRayGenerationProgram(
-        std::wstring const& entryPoint, std::vector<void*> const& inputData)
-    {
-        m_rayGen.emplace_back(entryPoint, inputData);
-    }
+        std::wstring const&       entryPoint,
+        std::vector<void*> const& inputData) { m_rayGen.emplace_back(entryPoint, inputData); }
 
     void ShaderBindingTableGenerator::AddMissProgram(
-        std::wstring const& entryPoint, std::vector<void*> const& inputData)
-    {
-        m_miss.emplace_back(entryPoint, inputData);
-    }
+        std::wstring const&       entryPoint,
+        std::vector<void*> const& inputData) { m_miss.emplace_back(entryPoint, inputData); }
 
     void ShaderBindingTableGenerator::AddHitGroup(std::wstring const& entryPoint, std::vector<void*> const& inputData)
     {
@@ -76,19 +69,20 @@ namespace nv_helpers_dx12
         uint32_t const missSize     = static_cast<uint32_t>(m_miss.size()) * m_missEntrySize;
         uint32_t const hitGroupSize = static_cast<uint32_t>(m_hitGroup.size()) * m_hitGroupEntrySize;
 
-        uint32_t const totalSize = ROUND_UP(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + ROUND_UP(
+        uint32_t const totalSize = RoundUp(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
             missSize,
-            D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + ROUND_UP(
+            D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
             hitGroupSize,
             D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
-        uint32_t const sbtSize = ROUND_UP(totalSize, 256);
+        uint32_t const sbtSize = RoundUp(totalSize, 256);
 
         return sbtSize;
     }
 
     void ShaderBindingTableGenerator::Generate(
-        ID3D12Resource* sbtBuffer, ID3D12StateObjectProperties* raytracingPipeline)
+        ID3D12Resource*              sbtBuffer,
+        ID3D12StateObjectProperties* raytracingPipeline)
     {
         uint8_t* pData;
 
@@ -101,14 +95,14 @@ namespace nv_helpers_dx12
         m_rayGenStart        = offset;
 
         offset = CopyShaderData(raytracingPipeline, pData, m_rayGen, m_rayGenEntrySize);
-        offset = ROUND_UP(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+        offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
         totalOffset += offset;
         pData += offset;
         m_missStart = totalOffset;
 
         offset = CopyShaderData(raytracingPipeline, pData, m_miss, m_missEntrySize);
-        offset = ROUND_UP(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+        offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
         totalOffset += offset;
         pData += offset;
@@ -159,7 +153,9 @@ namespace nv_helpers_dx12
     UINT ShaderBindingTableGenerator::GetHitGroupSectionOffset() const { return m_hitGroupStart; }
 
     uint32_t ShaderBindingTableGenerator::CopyShaderData(
-        ID3D12StateObjectProperties* raytracingPipeline, uint8_t* outputData, std::vector<SBTEntry> const& shaders,
+        ID3D12StateObjectProperties* raytracingPipeline,
+        uint8_t*                     outputData,
+        std::vector<SBTEntry> const& shaders,
         uint32_t const               entrySize) const
     {
         uint8_t* pData = outputData;
@@ -194,7 +190,7 @@ namespace nv_helpers_dx12
         for (auto const& shader : entries) maxArgs = max(maxArgs, shader.inputData.size());
 
         uint32_t entrySize = m_programIdSize + 8 * static_cast<uint32_t>(maxArgs);
-        entrySize          = ROUND_UP(entrySize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+        entrySize          = RoundUp(entrySize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
 
         return entrySize;
     }

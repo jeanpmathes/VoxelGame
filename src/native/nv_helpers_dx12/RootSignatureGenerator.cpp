@@ -73,7 +73,9 @@ namespace nv_helpers_dx12
     }
 
     void RootSignatureGenerator::AddRootParameter(
-        D3D12_ROOT_PARAMETER_TYPE const type, UINT const shaderRegister, UINT const registerSpace,
+        D3D12_ROOT_PARAMETER_TYPE const type,
+        UINT const                      shaderRegister,
+        UINT const                      registerSpace,
         UINT const                      numRootConstants)
     {
         D3D12_ROOT_PARAMETER param;
@@ -103,7 +105,8 @@ namespace nv_helpers_dx12
     }
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(
-        Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool const isLocal)
+        Microsoft::WRL::ComPtr<ID3D12Device> const& device,
+        bool const                                  isLocal)
     {
         for (size_t i = 0; i < m_parameters.size(); i++)
             if (m_parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)

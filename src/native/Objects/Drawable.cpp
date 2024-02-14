@@ -13,8 +13,8 @@ void Drawable::SetEnabledState(bool const enabled)
 
 void Drawable::Return()
 {
-    REQUIRE(m_base.has_value());
-    REQUIRE(!m_uploadEnqueued);
+    Require(m_base.has_value());
+    Require(!m_uploadEnqueued);
 
     SetEnabledState(false);
 
@@ -24,8 +24,8 @@ void Drawable::Return()
 
 void Drawable::EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-    REQUIRE(m_uploadRequired);
-    REQUIRE(!m_uploadEnqueued);
+    Require(m_uploadRequired);
+    Require(!m_uploadEnqueued);
 
     m_uploadRequired = false;
     m_uploadEnqueued = true;
@@ -35,7 +35,7 @@ void Drawable::EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
 
 void Drawable::CleanupDataUpload()
 {
-    REQUIRE(!m_uploadRequired);
+    Require(!m_uploadRequired);
 
     m_dataBufferUpload = {};
     m_uploadEnqueued   = false;
@@ -43,10 +43,10 @@ void Drawable::CleanupDataUpload()
 
 void Drawable::AssociateWithIndices(BaseIndex base, EntryIndex entry)
 {
-    REQUIRE(!m_base.has_value());
+    Require(!m_base.has_value());
     m_base = base;
 
-    REQUIRE(!m_entry.has_value());
+    Require(!m_entry.has_value());
     m_entry = entry;
 }
 
@@ -72,13 +72,13 @@ bool Drawable::IsEnabled() const { return m_enabled; }
 
 Drawable::BaseIndex Drawable::GetHandle() const
 {
-    REQUIRE(m_base.has_value());
+    Require(m_base.has_value());
     return m_base.value();
 }
 
 Drawable::EntryIndex Drawable::GetEntryIndex() const
 {
-    REQUIRE(m_entry.has_value());
+    Require(m_entry.has_value());
     return m_entry.value();
 }
 
@@ -87,11 +87,7 @@ std::optional<Drawable::ActiveIndex> Drawable::GetActiveIndex() const { return m
 UINT Drawable::GetDataElementCount() const { return m_dataElementCount; }
 
 Drawable::Visitor::Visitor() // NOLINT(modernize-use-equals-default)
-    : m_else(
-        [](Drawable&)
-        {
-        })
-  , m_mesh([this](Mesh&     mesh) { m_else(mesh); })
+    : m_mesh([this](Mesh&   mesh) { m_else(mesh); })
   , m_effect([this](Effect& effect) { m_else(effect); })
 {
 }
@@ -104,7 +100,7 @@ Drawable::Visitor& Drawable::Visitor::OnElse(std::function<void(Drawable&)> cons
     return *this;
 }
 
-Drawable::Visitor& Drawable::Visitor::OnElseFail() { return OnElse([](Drawable&) { REQUIRE(FALSE); }); }
+Drawable::Visitor& Drawable::Visitor::OnElseFail() { return OnElse([](Drawable&) { Require(FALSE); }); }
 
 void Drawable::Visitor::Visit(Mesh& mesh) const { m_mesh(mesh); }
 
@@ -124,7 +120,7 @@ Drawable::Visitor& Drawable::Visitor::OnEffect(std::function<void(Effect&)> cons
 
 bool Drawable::HandleModification(UINT const newElementCount)
 {
-    REQUIRE(!m_uploadEnqueued);
+    Require(!m_uploadEnqueued);
 
     m_dataElementCount = newElementCount;
     m_uploadRequired   = m_dataElementCount > 0;
@@ -146,13 +142,13 @@ void Drawable::UpdateActiveState()
 
     if (shouldBeActive)
     {
-        REQUIRE(!m_active.has_value());
+        Require(!m_active.has_value());
 
         GetClient().GetSpace()->ActivateDrawable(this);
     }
     else
     {
-        REQUIRE(m_active.has_value());
+        Require(m_active.has_value());
 
         GetClient().GetSpace()->DeactivateDrawable(this);
     }

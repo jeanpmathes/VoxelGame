@@ -34,7 +34,7 @@ private:
  * \tparam I The type of the integers to store.
  */
 template <UnsignedNativeSizedInteger I = size_t>
-class IntegerSet : IntegerSetBase
+class IntegerSet : private IntegerSetBase
 {
 public:
     /** 
@@ -61,11 +61,11 @@ public:
 
     IntegerSet() = default;
 
-    IntegerSet(IntegerSet const&)            = default;
-    IntegerSet& operator=(IntegerSet const&) = default;
-    IntegerSet(IntegerSet&&)                 = default;
-    IntegerSet& operator=(IntegerSet&&)      = default;
-    ~IntegerSet()                            = default;
+    IntegerSet(IntegerSet const&)                = default;
+    IntegerSet& operator=(IntegerSet const&)     = default;
+    IntegerSet(IntegerSet&&) noexcept            = default;
+    IntegerSet& operator=(IntegerSet&&) noexcept = default;
+    ~IntegerSet()                                = default;
 
     template <UnsignedNativeSizedInteger OtherI>
     friend class IntegerSet;
@@ -127,11 +127,11 @@ public:
 
         const_iterator() = default;
         const_iterator(
-            std::vector<BinaryData>::const_iterator dataIterator, std::vector<BinaryData>::const_iterator dataEnd);
+            std::vector<BinaryData>::const_iterator dataIterator,
+            std::vector<BinaryData>::const_iterator dataEnd);
         const_iterator& operator++();
         const_iterator& operator++(int);
         bool            operator==(const_iterator const& other) const;
-        bool            operator!=(const_iterator const& other) const;
         I               operator*() const;
 
     private:
@@ -140,8 +140,8 @@ public:
         std::vector<BinaryData>::const_iterator m_dataIterator;
         std::vector<BinaryData>::const_iterator m_dataEnd;
 
-        size_t m_inDataIndex;
-        size_t m_totalIndex;
+        size_t m_inDataIndex = 0;
+        size_t m_totalIndex  = 0;
     };
 
     const_iterator begin() const;
@@ -161,7 +161,7 @@ void IntegerSet<I>::Clear()
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::Insert(I element)
 {
-    size_t const index = static_cast<size_t>(element);
+    auto const index = static_cast<size_t>(element);
 
     size_t const dataIndex = index / BINARY_DATA_BITS;
     size_t const bitIndex  = index & BINARY_DATA_MASK;
@@ -178,7 +178,7 @@ void IntegerSet<I>::Insert(I element)
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::Erase(I element)
 {
-    size_t const index = static_cast<size_t>(element);
+    auto const index = static_cast<size_t>(element);
 
     size_t const dataIndex = index / BINARY_DATA_BITS;
     size_t const bitIndex  = index & BINARY_DATA_MASK;
@@ -195,7 +195,7 @@ void IntegerSet<I>::Erase(I element)
 template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::Contains(I element) const
 {
-    size_t const index = static_cast<size_t>(element);
+    auto const index = static_cast<size_t>(element);
 
     size_t const dataIndex = index / BINARY_DATA_BITS;
     size_t const bitIndex  = index & BINARY_DATA_MASK;
@@ -213,11 +213,10 @@ bool IntegerSet<I>::IsEmpty() const { return data().count == 0; }
 
 template <UnsignedNativeSizedInteger I>
 IntegerSet<I>::const_iterator::const_iterator(
-    std::vector<BinaryData>::const_iterator const dataIterator, std::vector<BinaryData>::const_iterator const dataEnd)
+    std::vector<BinaryData>::const_iterator const dataIterator,
+    std::vector<BinaryData>::const_iterator const dataEnd)
     : m_dataIterator(dataIterator)
-  , m_dataEnd(dataEnd)
-  , m_inDataIndex(0)
-  , m_totalIndex(0) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
+  , m_dataEnd(dataEnd) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
 
 template <UnsignedNativeSizedInteger I>
 typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
@@ -238,12 +237,6 @@ template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::const_iterator::operator==(const_iterator const& other) const
 {
     return std::tie(m_dataIterator, m_inDataIndex) == std::tie(other.m_dataIterator, other.m_inDataIndex);
-}
-
-template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::const_iterator::operator!=(const_iterator const& other) const
-{
-    return std::tie(m_dataIterator, m_inDataIndex) != std::tie(other.m_dataIterator, other.m_inDataIndex);
 }
 
 template <UnsignedNativeSizedInteger I>

@@ -1,5 +1,7 @@
 ﻿namespace VoxelGame.Core.Logic.Interfaces;
 
+#pragma warning disable S4023 // No reflection, only casts are used and methods might be added in the future.
+
 /// <summary>
 ///     Allows a block to connect to industrial pipes.
 /// </summary>

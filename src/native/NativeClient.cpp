@@ -6,8 +6,8 @@
 
 #include "stdafx.h"
 
-constexpr float NativeClient::CLEAR_COLOR[4]     = {1.0f, 1.0f, 1.0f, 1.0f};
-constexpr float NativeClient::LETTERBOX_COLOR[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
+constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
 UINT const   NativeClient::AGILITY_SDK_VERSION = 611;
 LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
@@ -17,10 +17,9 @@ NativeClient::NativeClient(Configuration const& configuration)
   , m_resolution(Resolution(configuration.width, configuration.height) * configuration.renderScale)
   , m_debugCallback(configuration.onDebug)
   , m_space(std::make_unique<Space>(*this))
-  , m_frameIndex(0)
-  , m_fenceValues{}
-  , m_windowVisible(true)
-  , m_windowedMode(true) { if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary(); }
+{
+    if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
+}
 
 ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return m_device; }
 
@@ -31,14 +30,13 @@ void NativeClient::OnInit()
     LoadDevice();
 
     {
-        TRY_DO(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+        TryDo(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
         NAME_D3D12_OBJECT(m_fence);
 
         m_fenceValues[m_frameIndex]++;
 
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        if (m_fenceEvent == nullptr)
-            TRY_DO(HRESULT_FROM_WIN32(GetLastError()));
+        if (m_fenceEvent == nullptr) TryDo(HRESULT_FROM_WIN32(GetLastError()));
     }
 
     m_space->PerformInitialSetupStepOne(m_commandQueue);
@@ -70,13 +68,13 @@ void NativeClient::LoadDevice()
 #endif
 
     ComPtr<IDXGIFactory4> dxgiFactory;
-    TRY_DO(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
+    TryDo(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
 
     ComPtr<ID3D12SDKConfiguration1> sdk;
-    TRY_DO(D3D12GetInterface(CLSID_D3D12SDKConfiguration, IID_PPV_ARGS(&sdk)));
+    TryDo(D3D12GetInterface(CLSID_D3D12SDKConfiguration, IID_PPV_ARGS(&sdk)));
 
     ComPtr<ID3D12DeviceFactory> deviceFactory;
-    TRY_DO(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
+    TryDo(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
 #if defined(NATIVE_DEBUG)
     ComPtr<ID3D12Debug5> debug;
@@ -98,13 +96,13 @@ void NativeClient::LoadDevice()
     }
 #endif
 
-    ComPtr<IDXGIAdapter1> hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
+    ComPtr<IDXGIAdapter1> const hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 
 #if defined(USE_NSIGHT_AFTERMATH)
     m_gpuCrashTracker.Initialize();
 #endif
 
-    TRY_DO(deviceFactory->CreateDevice( hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_device) ));
+    TryDo(deviceFactory->CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_device)));
     NAME_D3D12_OBJECT(m_device);
 
 #if defined(USE_NSIGHT_AFTERMATH)
@@ -117,46 +115,42 @@ void NativeClient::LoadDevice()
 #endif
 
 #if defined(NATIVE_DEBUG)
-    auto callback = [](
-        const D3D12_MESSAGE_CATEGORY category,
-        const D3D12_MESSAGE_SEVERITY severity,
-        const D3D12_MESSAGE_ID id,
-        const LPCSTR description, void* context) -> void
+    auto                             callback = [](
+        D3D12_MESSAGE_CATEGORY const category,
+        D3D12_MESSAGE_SEVERITY const severity,
+        D3D12_MESSAGE_ID const       id,
+        LPCSTR const                 description,
+        void*                        context) -> void
     {
-        const auto self = static_cast<NativeClient*>(context);
+        auto const self = static_cast<NativeClient*>(context);
 
         Win32Application::EnterErrorMode();
         self->m_debugCallback(category, severity, id, description, nullptr);
         Win32Application::ExitErrorMode();
     };
 
-    HRESULT infoQueueResult = m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue));
+    HRESULT const infoQueueResult = m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue));
     if (SUCCEEDED(infoQueueResult))
     {
-        TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
-        TRY_DO(m_infoQueue->RegisterMessageCallback(
-            callback,
-            D3D12_MESSAGE_CALLBACK_FLAG_NONE,
-            this,
-            &m_callbackCookie));
+        TryDo(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
+        TryDo(
+            m_infoQueue->RegisterMessageCallback(callback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, this, &m_callbackCookie));
 
-        TRY_DO(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
+        TryDo(m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
 
         if (PIXIsAttachedForGpuCapture() && !SupportPIX())
-        {
-            TRY_DO(
-                m_infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING,
+            TryDo(
+                m_infoQueue->AddApplicationMessage(
+                    D3D12_MESSAGE_SEVERITY_WARNING,
                     "PIX detected, consider using the --pix command line argument"));
-        }
     }
     else
-    {
         m_debugCallback(
             D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED,
             D3D12_MESSAGE_SEVERITY_WARNING,
             D3D12_MESSAGE_ID_UNKNOWN,
-            "Failed to install debug callback", nullptr);
-    }
+            "Failed to install debug callback",
+            nullptr);
 
 #endif
 
@@ -164,7 +158,7 @@ void NativeClient::LoadDevice()
     allocatorDesc.pDevice                 = m_device.Get();
     allocatorDesc.pAdapter                = hardwareAdapter.Get();
 
-    TRY_DO(D3D12MA::CreateAllocator(&allocatorDesc, &m_allocator));
+    TryDo(CreateAllocator(&allocatorDesc, &m_allocator));
 
     CheckRaytracingSupport();
 
@@ -172,7 +166,7 @@ void NativeClient::LoadDevice()
     queueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-    TRY_DO(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+    TryDo(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
     NAME_D3D12_OBJECT(m_commandQueue);
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -187,13 +181,18 @@ void NativeClient::LoadDevice()
     swapChainDesc.Flags = IsTearingSupportEnabled() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
     ComPtr<IDXGISwapChain1> swapChain;
-    TRY_DO(
-        dxgiFactory->CreateSwapChainForHwnd( m_commandQueue.Get(), Win32Application::GetHwnd(), &swapChainDesc, nullptr,
-            nullptr, &swapChain ));
+    TryDo(
+        dxgiFactory->CreateSwapChainForHwnd(
+            m_commandQueue.Get(),
+            Win32Application::GetHwnd(),
+            &swapChainDesc,
+            nullptr,
+            nullptr,
+            &swapChain));
 
-    TRY_DO(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
+    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
 
-    TRY_DO(swapChain.As(&m_swapChain));
+    TryDo(swapChain.As(&m_swapChain));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     {
@@ -209,11 +208,11 @@ void NativeClient::LoadDevice()
 
 void NativeClient::LoadRasterPipeline()
 {
-    constexpr PostVertex quadVertices[] = {
-        {{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-        {{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-        {{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
+    constexpr std::array quadVertices = {
+        PostVertex{{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+        PostVertex{{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+        PostVertex{{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        PostVertex{{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
     };
 
     constexpr UINT vertexBufferSize = sizeof quadVertices;
@@ -225,7 +224,10 @@ void NativeClient::LoadRasterPipeline()
         D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT(m_postVertexBuffer);
 
-    m_uploader->UploadBuffer(reinterpret_cast<std::byte const*>(&quadVertices), vertexBufferSize, m_postVertexBuffer);
+    m_uploader->UploadBuffer(
+        static_cast<std::byte const*>(static_cast<void const*>(quadVertices.data())),
+        vertexBufferSize,
+        m_postVertexBuffer);
 
     m_postVertexBufferView.BufferLocation = m_postVertexBuffer.GetGPUVirtualAddress();
     m_postVertexBufferView.StrideInBytes  = sizeof(PostVertex);
@@ -276,8 +278,7 @@ void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> co
 {
     if (!m_finalDepthStencilBuffersInitialized)
     {
-        for (UINT frame = 0; frame < FRAME_COUNT; frame++)
-            commandList->DiscardResource(m_finalDepthStencilBuffers[frame].Get(), nullptr);
+        for (auto& buffer : m_finalDepthStencilBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
 
         m_finalDepthStencilBuffersInitialized = true;
     }
@@ -312,8 +313,7 @@ void NativeClient::EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4
 {
     m_screenshotBuffersInitialized = true;
 
-    for (UINT frameIndex = 0; frameIndex < FRAME_COUNT; frameIndex++)
-        commandList->DiscardResource(m_screenshotBuffers[frameIndex].Get(), nullptr);
+    for (auto& buffer : m_screenshotBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
 }
 
 void NativeClient::SetupSizeDependentResources()
@@ -331,7 +331,7 @@ void NativeClient::SetupSizeDependentResources()
     {
         for (UINT n = 0; n < FRAME_COUNT; n++)
         {
-            TRY_DO(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
+            TryDo(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
             m_device->CreateRenderTargetView(
                 m_finalRenderTargets[n].Get(),
                 nullptr,
@@ -359,7 +359,7 @@ void NativeClient::SetupSpaceResolutionDependentResources()
 
     {
         D3D12_RESOURCE_DESC const   swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
-        CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR);
+        CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR.data());
         CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             swapChainDesc.Format,
             m_resolution.width,
@@ -502,7 +502,7 @@ void NativeClient::OnRender(double const)
     }
     m_frameCounter++;
 #else
-    TRY_DO(present);
+    TryDo(present);
 #endif
 
     WaitForGPU();
@@ -533,11 +533,11 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
         }
 
         DXGI_SWAP_CHAIN_DESC desc = {};
-        TRY_DO(m_swapChain->GetDesc(&desc));
-        TRY_DO(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, desc.BufferDesc.Format, desc.Flags));
+        TryDo(m_swapChain->GetDesc(&desc));
+        TryDo(m_swapChain->ResizeBuffers(FRAME_COUNT, width, height, desc.BufferDesc.Format, desc.Flags));
 
         BOOL fullscreenState;
-        TRY_DO(m_swapChain->GetFullscreenState(&fullscreenState, nullptr));
+        TryDo(m_swapChain->GetFullscreenState(&fullscreenState, nullptr));
         m_windowedMode = !fullscreenState;
 
         m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -558,6 +558,7 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
 
 void NativeClient::OnWindowMoved(int, int)
 {
+    // Nothing to do, here for symmetry with other message handlers.
 }
 
 void NativeClient::InitRaytracingPipeline(SpacePipeline const& pipeline)
@@ -577,7 +578,7 @@ void NativeClient::TakeScreenshot(ScreenshotFunc func)
 
 Texture* NativeClient::LoadTexture(std::byte** data, TextureDescription const& description) const
 {
-    REQUIRE(m_uploader != nullptr);
+    Require(m_uploader != nullptr);
 
     return Texture::Create(*m_uploader, data, description);
 }
@@ -602,7 +603,7 @@ UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT const priorit
 {
     // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
     // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
-    UINT clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
+    auto clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
 
     decltype(m_draw2dPipelines)::iterator iterator;
 
@@ -653,9 +654,9 @@ void NativeClient::DeleteObject(ObjectHandle const handle) { m_objects.Pop(handl
 
 void NativeClient::WaitForGPU()
 {
-    TRY_DO(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
+    TryDo(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
-    TRY_DO(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+    TryDo(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
     WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 
     m_fenceValues[m_frameIndex]++;
@@ -663,14 +664,14 @@ void NativeClient::WaitForGPU()
 
 void NativeClient::MoveToNextFrame()
 {
-    TRY_DO(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
+    TryDo(m_commandQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
     UINT64 const currentFenceValue = m_fenceValues[static_cast<UINT64>(m_frameIndex)];
     m_frameIndex                   = m_swapChain->GetCurrentBackBufferIndex();
 
     if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
     {
-        TRY_DO(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+        TryDo(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
         WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
     }
 
@@ -680,13 +681,13 @@ void NativeClient::MoveToNextFrame()
 std::wstring NativeClient::GetDRED() const
 {
     ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
-    TRY_DO(m_device->QueryInterface(IID_PPV_ARGS(&dred)));
+    TryDo(m_device->QueryInterface(IID_PPV_ARGS(&dred)));
 
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
-    TRY_DO(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
+    TryDo(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
 
     D3D12_DRED_PAGE_FAULT_OUTPUT2 dredPageFaultOutput = {};
-    TRY_DO(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
+    TryDo(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
 
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
@@ -700,12 +701,12 @@ void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList
 void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> result)
 {
     ComPtr<IDxcBlob> objectBlob;
-    TRY_DO(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&objectBlob), nullptr));
+    TryDo(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&objectBlob), nullptr));
     std::vector<uint8_t> binary(objectBlob->GetBufferSize());
     std::memcpy(binary.data(), objectBlob->GetBufferPointer(), objectBlob->GetBufferSize());
 
     ComPtr<IDxcBlob> pdbBlob;
-    TRY_DO(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdbBlob), nullptr));
+    TryDo(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdbBlob), nullptr));
     std::vector<uint8_t> pdb(pdbBlob->GetBufferSize());
     std::memcpy(pdb.data(), pdbBlob->GetBufferPointer(), pdbBlob->GetBufferSize());
 
@@ -716,7 +717,7 @@ void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> result)
 void NativeClient::CheckRaytracingSupport() const
 {
     D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
-    TRY_DO(m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
+    TryDo(m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
 
     if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_1)
         throw NativeException("Raytracing not supported on device.");
@@ -724,7 +725,7 @@ void NativeClient::CheckRaytracingSupport() const
 
 void NativeClient::PopulateSpaceCommandList() const
 {
-    REQUIRE(m_space != nullptr);
+    Require(m_space != nullptr);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
@@ -789,7 +790,7 @@ void NativeClient::PopulateCommandLists()
     EnsureValidDepthBuffers(m_2dGroup.commandList);
     EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
-    D3D12_RESOURCE_BARRIER barriers[] = {
+    std::array<D3D12_RESOURCE_BARRIER, 2> barriers = {
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_finalRenderTargets[m_frameIndex].Get(),
             D3D12_RESOURCE_STATE_PRESENT,
@@ -800,7 +801,7 @@ void NativeClient::PopulateCommandLists()
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
 
-    m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
+    m_2dGroup.commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 
     if (m_space) PopulateSpaceCommandList();
 
@@ -808,7 +809,7 @@ void NativeClient::PopulateCommandLists()
     auto const dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);
 
     m_2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-    m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR, 0, nullptr);
+    m_2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR.data(), 0, nullptr);
     m_2dGroup.commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     if (m_postProcessingPipeline != nullptr) PopulatePostProcessingCommandList();
@@ -828,7 +829,7 @@ void NativeClient::PopulateCommandLists()
     barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    m_2dGroup.commandList->ResourceBarrier(_countof(barriers), barriers);
+    m_2dGroup.commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
     m_2dGroup.Close();
 }
 
@@ -867,7 +868,7 @@ void NativeClient::HandleScreenshot()
     UINT const size = GetWidth() * GetHeight() * 4;
     auto const data = std::make_unique<std::byte[]>(size);
 
-    TRY_DO(util::MapAndRead(m_screenshotBuffers[m_frameIndex], data.get(), size));
+    TryDo(util::MapAndRead(m_screenshotBuffers[m_frameIndex], data.get(), size));
 
     func(data.get(), GetWidth(), GetHeight());
     m_screenshotFunc = std::nullopt;

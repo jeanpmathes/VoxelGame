@@ -5,21 +5,26 @@ namespace
 {
     DXGI_FORMAT GetFormat(ColorFormat const format)
     {
+        using enum ColorFormat;
+
         switch (format)
         {
-        case RGBA: return DXGI_FORMAT_R8G8B8A8_UNORM;
+        case RGBA:
+            return DXGI_FORMAT_R8G8B8A8_UNORM;
 
-        case BGRA: return DXGI_FORMAT_B8G8R8A8_UNORM;
+        case BGRA:
+            return DXGI_FORMAT_B8G8R8A8_UNORM;
 
-        default: throw NativeException("Invalid color format.");
+        default:
+            throw NativeException("Invalid color format.");
         }
     }
 
     void EnsureValidDescription(TextureDescription const& description)
     {
-        REQUIRE(description.width > 0);
-        REQUIRE(description.height > 0);
-        REQUIRE(description.levels > 0);
+        Require(description.width > 0);
+        Require(description.height > 0);
+        Require(description.levels > 0);
     }
 
     constexpr auto UPLOAD_STATE = D3D12_RESOURCE_STATE_COPY_DEST;
@@ -27,7 +32,9 @@ namespace
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 
     Allocation<ID3D12Resource> CreateTextureResource(
-        NativeClient const&              client, TextureDescription const& description, bool const requiresUpload,
+        NativeClient const&              client,
+        TextureDescription const&        description,
+        bool const                       requiresUpload,
         D3D12_SHADER_RESOURCE_VIEW_DESC* srv)
     {
         D3D12_RESOURCE_DESC const textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
@@ -108,13 +115,14 @@ Texture* Texture::Create(NativeClient& client, TextureDescription const descript
 }
 
 Texture::Texture(
-    NativeClient&                   client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size,
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc)
+    NativeClient&                          client,
+    Allocation<ID3D12Resource> const&      resource,
+    DirectX::XMUINT3                       size,
+    D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc)
     : Object(client)
   , m_resource(resource)
   , m_srvDesc(srvDesc)
-  , m_size(size)
-  , m_usable(false) { NAME_D3D12_OBJECT_WITH_ID(m_resource); }
+  , m_size(size) { NAME_D3D12_OBJECT_WITH_ID(m_resource); }
 
 void Texture::Free() const { GetClient().DeleteObject(m_handle); }
 
@@ -134,7 +142,8 @@ void Texture::TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> const command
 }
 
 void Texture::CreateUsabilityBarrier(
-    ComPtr<ID3D12GraphicsCommandList> const commandList, Allocation<ID3D12Resource> const resource)
+    ComPtr<ID3D12GraphicsCommandList> const commandList,
+    Allocation<ID3D12Resource> const        resource)
 {
     CD3DX12_RESOURCE_BARRIER const barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         resource.Get(),

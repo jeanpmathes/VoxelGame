@@ -1,6 +1,6 @@
 ﻿// <copyright file="BasicFluid.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -307,8 +307,6 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             if (fluidNeighbor.Fluid == Logic.Fluids.Instance.None)
             {
-                isStatic = true;
-
                 Vector3i belowNeighborPosition = neighborPosition + FlowDirection;
 
                 Content? belowNeighborContent = world.GetContent(belowNeighborPosition);
@@ -335,7 +333,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 {
                     world.SetFluid(this.AsInstance(FluidLevel.One, isStatic: false), neighborPosition);
 
-                    if (isStatic) ScheduleTick(world, neighborPosition);
+                    ScheduleTick(world, neighborPosition);
 
                     bool remaining = level != FluidLevel.One;
 
@@ -429,13 +427,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         if (neighborFluid.Fluid == Logic.Fluids.Instance.None)
         {
-            isStatic = true;
-
             world.SetFluid(this.AsInstance((FluidLevel) remaining, isStatic: false), neighborPosition);
 
             remaining = -1;
 
-            if (isStatic) ScheduleTick(world, neighborPosition);
+            ScheduleTick(world, neighborPosition);
         }
         else if (neighborFluid.Fluid == this)
         {

@@ -217,10 +217,12 @@ private:
 
     bool CreateRaytracingPipeline(SpacePipeline const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
-        NativeClient&                                 nativeClient, SpacePipeline const& pipelineDescription,
+        NativeClient const&                           nativeClient,
+        SpacePipeline const&                          pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
     std::unique_ptr<Material> SetupMaterial(
-        MaterialDescription const&                    description, UINT index,
+        MaterialDescription const&                    description,
+        UINT                                          index,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
     void CreateAnimations(SpacePipeline const& pipeline);
     void SetupStaticResourceLayout(ShaderResources::Description* description);
@@ -239,7 +241,7 @@ private:
     void BuildAccelerationStructures();
     void CreateTLAS();
     void DispatchRays() const;
-    void CopyOutputToBuffers(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth) const;
+    void CopyOutputToBuffers(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth) const;
     void DrawEffects(RenderData const& data);
 
     void UpdateOutputResourceViews();

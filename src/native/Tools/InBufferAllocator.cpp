@@ -20,32 +20,33 @@ AddressableBuffer InBufferAllocator::Allocate(UINT64 const size)
 }
 
 void InBufferAllocator::CreateBarriers(
-    ComPtr<ID3D12GraphicsCommandList> commandList, std::vector<ID3D12Resource*>&& resources) const
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<ID3D12Resource*> const&      resources) const
 {
     size_t const uavCount = resources.size() + m_blocks.size();
 
     std::vector<D3D12_RESOURCE_BARRIER> barriers;
     barriers.reserve(uavCount);
 
-    for (size_t resource = 0; resource < resources.size(); ++resource)
+    for (ID3D12Resource* resource : resources)
     {
         D3D12_RESOURCE_BARRIER barrierDesc = {};
         barrierDesc.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        barrierDesc.UAV.pResource          = resources[resource];
+        barrierDesc.UAV.pResource          = resource;
         barrierDesc.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         barriers.push_back(barrierDesc);
     }
 
-    for (size_t block = 0; block < m_blocks.size(); ++block)
+    for (auto& block : m_blocks)
     {
         D3D12_RESOURCE_BARRIER barrierDesc = {};
         barrierDesc.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        barrierDesc.UAV.pResource          = m_blocks[block]->memory.Get();
+        barrierDesc.UAV.pResource          = block->GetResource();
         barrierDesc.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         barriers.push_back(barrierDesc);
     }
 
-    UINT const barrierCount = static_cast<UINT>(uavCount);
+    auto const barrierCount = static_cast<UINT>(uavCount);
     if (barrierCount == 0) return;
 
     commandList->ResourceBarrier(barrierCount, barriers.data());
@@ -65,11 +66,11 @@ AddressableBuffer InBufferAllocator::AllocateInternal(UINT64 const size)
         if (allocation.has_value()) return std::move(allocation.value());
     }
 
-    REQUIRE(m_firstFreeBlock == m_blocks.size());
+    Require(m_firstFreeBlock == m_blocks.size());
     m_blocks.emplace_back(Block::Create(*this, m_blocks.size()));
 
     allocation = m_blocks[m_firstFreeBlock]->Allocate(&description);
-    REQUIRE(allocation.has_value());
+    Require(allocation.has_value());
     return std::move(allocation.value());
 }
 
@@ -86,10 +87,11 @@ Allocation<ID3D12Resource> InBufferAllocator::AllocateMemory(UINT64 const size) 
 }
 
 std::unique_ptr<InBufferAllocator::Block> InBufferAllocator::Block::Create(
-    InBufferAllocator& allocator, size_t const index)
+    InBufferAllocator& allocator,
+    size_t const       index)
 {
     D3D12MA::VirtualBlock* block;
-    TRY_DO(CreateVirtualBlock(&allocator.m_blockDescription, &block));
+    TryDo(CreateVirtualBlock(&allocator.m_blockDescription, &block));
 
     Allocation<ID3D12Resource> memory = allocator.AllocateMemory(BLOCK_SIZE);
     NAME_D3D12_OBJECT(memory.resource);
@@ -104,9 +106,9 @@ std::optional<AddressableBuffer> InBufferAllocator::Block::Allocate(D3D12MA::VIR
     D3D12MA::VirtualAllocation allocation = {};
     UINT64                     offset;
 
-    if (HRESULT const hr = block->Allocate(description, &allocation, &offset);
+    if (HRESULT const hr = m_block->Allocate(description, &allocation, &offset);
         SUCCEEDED(hr))
-        return AddressableBuffer(memory.GetGPUVirtualAddress() + offset, allocation, this);
+        return AddressableBuffer(m_memory.GetGPUVirtualAddress() + offset, allocation, this);
 
     m_limit = description->Size;
 
@@ -115,32 +117,38 @@ std::optional<AddressableBuffer> InBufferAllocator::Block::Allocate(D3D12MA::VIR
 
 void InBufferAllocator::Block::FreeAllocation(D3D12MA::VirtualAllocation const allocation)
 {
-    block->FreeAllocation(allocation);
+    m_block->FreeAllocation(allocation);
 
     m_limit                       = BLOCK_SIZE;
     m_allocator->m_firstFreeBlock = std::min(m_allocator->m_firstFreeBlock, m_index);
 }
 
-InBufferAllocator::Block::~Block() { if (block) block->Release(); }
+ID3D12Resource* InBufferAllocator::Block::GetResource() const { return m_memory.Get(); }
+
+InBufferAllocator::Block::~Block() { if (m_block) m_block->Release(); }
 
 InBufferAllocator::Block::Block(
-    D3D12MA::VirtualBlock* block, Allocation<ID3D12Resource>&& memory, InBufferAllocator* allocator, size_t const index)
-    : block(block)
-  , memory(std::move(memory))
+    D3D12MA::VirtualBlock*       block,
+    Allocation<ID3D12Resource>&& memory,
+    InBufferAllocator*           allocator,
+    size_t const                 index)
+    : m_block(block)
+  , m_memory(std::move(memory))
   , m_allocator(allocator)
   , m_index(index)
 {
 }
 
 AddressableBuffer::AddressableBuffer(Allocation<ID3D12Resource>&& resource)
+    : m_resource(std::move(resource))
+  , m_address(m_resource.value().GetGPUVirtualAddress())
 {
-    m_address  = resource.GetGPUVirtualAddress();
-    m_resource = std::move(resource);
 }
 
 AddressableBuffer::AddressableBuffer(
-    D3D12_GPU_VIRTUAL_ADDRESS const address, D3D12MA::VirtualAllocation const allocation,
-    InBufferAllocator::Block*       block)
+    D3D12_GPU_VIRTUAL_ADDRESS const  address,
+    D3D12MA::VirtualAllocation const allocation,
+    InBufferAllocator::Block*        block)
     : m_address(address)
   , m_allocation(allocation)
   , m_block(block)

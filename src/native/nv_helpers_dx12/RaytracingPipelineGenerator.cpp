@@ -68,14 +68,18 @@ namespace nv_helpers_dx12
     }
 
     void RayTracingPipelineGenerator::AddHitGroup(
-        std::wstring const& hitGroupName, std::wstring const& closestHitSymbol, std::wstring const& anyHitSymbol,
+        std::wstring const& hitGroupName,
+        std::wstring const& closestHitSymbol,
+        std::wstring const& anyHitSymbol,
         std::wstring const& intersectionSymbol)
     {
         m_hitGroups.emplace_back(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol);
     }
 
     void RayTracingPipelineGenerator::AddRootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, bool const local, std::vector<std::wstring> const& symbols)
+        ID3D12RootSignature*             rootSignature,
+        bool const                       local,
+        std::vector<std::wstring> const& symbols)
     {
         m_rootSignatureAssociations.emplace_back(rootSignature, local, symbols);
     }
@@ -110,7 +114,8 @@ namespace nv_helpers_dx12
             libSubobject.Type  = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
             libSubobject.pDesc = &lib.libDescription;
 
-            subobjects[currentIndex++] = libSubobject;
+            subobjects[currentIndex] = libSubobject;
+            currentIndex++;
         }
 
         for (HitGroup const& group : m_hitGroups)
@@ -119,7 +124,8 @@ namespace nv_helpers_dx12
             hitGroup.Type  = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
             hitGroup.pDesc = &group.desc;
 
-            subobjects[currentIndex++] = hitGroup;
+            subobjects[currentIndex] = hitGroup;
+            currentIndex++;
         }
 
         D3D12_RAYTRACING_SHADER_CONFIG shaderDesc;
@@ -130,7 +136,8 @@ namespace nv_helpers_dx12
         shaderConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
         shaderConfigObject.pDesc = &shaderDesc;
 
-        subobjects[currentIndex++] = shaderConfigObject;
+        subobjects[currentIndex] = shaderConfigObject;
+        currentIndex++;
 
         std::vector<std::wstring> exportedSymbols        = {};
         std::vector<LPCWSTR>      exportedSymbolPointers = {};
@@ -149,7 +156,9 @@ namespace nv_helpers_dx12
         D3D12_STATE_SUBOBJECT shaderPayloadAssociationObject;
         shaderPayloadAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
         shaderPayloadAssociationObject.pDesc = &shaderPayloadAssociation;
-        subobjects[currentIndex++]           = shaderPayloadAssociationObject;
+
+        subobjects[currentIndex] = shaderPayloadAssociationObject;
+        currentIndex++;
 
         for (RootSignatureAssociation& assoc : m_rootSignatureAssociations)
         {
@@ -159,7 +168,8 @@ namespace nv_helpers_dx12
                                      : D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
             rootSigObject.pDesc = assoc.rootSignature.GetAddressOf();
 
-            subobjects[currentIndex++] = rootSigObject;
+            subobjects[currentIndex] = rootSigObject;
+            currentIndex++;
 
             assoc.association.NumExports            = static_cast<UINT>(assoc.symbolPointers.size());
             assoc.association.pExports              = assoc.symbolPointers.data();
@@ -169,7 +179,8 @@ namespace nv_helpers_dx12
             rootSigAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
             rootSigAssociationObject.pDesc = &assoc.association;
 
-            subobjects[currentIndex++] = rootSigAssociationObject;
+            subobjects[currentIndex] = rootSigAssociationObject;
+            currentIndex++;
         }
 
         D3D12_STATE_SUBOBJECT globalRootSig;
@@ -177,13 +188,16 @@ namespace nv_helpers_dx12
         ID3D12RootSignature* dgSig = globalRootSignature.Get();
         globalRootSig.pDesc        = &dgSig;
 
-        subobjects[currentIndex++] = globalRootSig;
+        subobjects[currentIndex] = globalRootSig;
+        currentIndex++;
 
         D3D12_STATE_SUBOBJECT dummyLocalRootSig;
         dummyLocalRootSig.Type     = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
         ID3D12RootSignature* dlSig = m_dummyLocalRootSignature.Get();
         dummyLocalRootSig.pDesc    = &dlSig;
-        subobjects[currentIndex++] = dummyLocalRootSig;
+
+        subobjects[currentIndex] = dummyLocalRootSig;
+        currentIndex++;
 
         D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig;
         pipelineConfig.MaxTraceRecursionDepth = m_maxRecursionDepth;
@@ -192,7 +206,8 @@ namespace nv_helpers_dx12
         pipelineConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
         pipelineConfigObject.pDesc = &pipelineConfig;
 
-        subobjects[currentIndex++] = pipelineConfigObject;
+        subobjects[currentIndex] = pipelineConfigObject;
+        currentIndex++;
 
         D3D12_STATE_OBJECT_DESC pipelineDesc;
         pipelineDesc.Type          = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
@@ -237,15 +252,15 @@ namespace nv_helpers_dx12
 #if defined(NATIVE_DEBUG)
         hr = m_dummyLocalRootSignature->SetName(L"Local Root Signature");
 
-        if (FAILED(hr))
-        {
-            throw std::logic_error("Could not name the local root signature.");
-        }
+        if (FAILED(hr)) throw std::logic_error("Could not name the local root signature.");
 #endif
     }
 
     void RayTracingPipelineGenerator::BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const
     {
+        // ReSharper disable once CppInconsistentNaming
+        using is_transparent = void;
+
         std::unordered_set<std::wstring> exports;
 
         for (Library const& lib : m_libraries)
@@ -253,9 +268,7 @@ namespace nv_helpers_dx12
             {
 #if defined(NATIVE_DEBUG)
                 if (exports.contains(exportName))
-                {
                     throw std::logic_error("Multiple definition of a symbol in the imported DXIL libraries.");
-                }
 #endif
                 exports.insert(exportName);
             }
@@ -263,39 +276,25 @@ namespace nv_helpers_dx12
 #if defined(NATIVE_DEBUG)
         std::unordered_set<std::wstring> allExports = exports;
 
-        for (const auto& hitGroup : m_hitGroups)
+        for (auto const& hitGroup : m_hitGroups)
         {
             if (!hitGroup.anyHitSymbol.empty() && !exports.contains(hitGroup.anyHitSymbol))
-            {
                 throw std::logic_error("Any hit symbol not found in the imported DXIL libraries.");
-            }
 
-            if (!hitGroup.closestHitSymbol.empty() &&
-                !exports.contains(hitGroup.closestHitSymbol))
-            {
+            if (!hitGroup.closestHitSymbol.empty() && !exports.contains(hitGroup.closestHitSymbol))
                 throw std::logic_error("Closest hit symbol not found in the imported DXIL libraries.");
-            }
 
-            if (!hitGroup.intersectionSymbol.empty() &&
-                !exports.contains(hitGroup.intersectionSymbol))
-            {
+            if (!hitGroup.intersectionSymbol.empty() && !exports.contains(hitGroup.intersectionSymbol))
                 throw std::logic_error("Intersection symbol not found in the imported DXIL libraries.");
-            }
 
             allExports.insert(hitGroup.hitGroupName);
         }
-        
-        for (const auto& assoc : m_rootSignatureAssociations)
-        {
-            for (const auto& symbol : assoc.symbols)
-            {
+
+        for (auto const& assoc : m_rootSignatureAssociations)
+            for (auto const& symbol : assoc.symbols)
                 if (!symbol.empty() && !allExports.contains(symbol))
-                {
-                    throw std::logic_error("Root association symbol not found in the "
-                        "imported DXIL libraries and hit group names.");
-                }
-            }
-        }
+                    throw std::logic_error(
+                        "Root association symbol not found in the " "imported DXIL libraries and hit group names.");
 #endif
 
         for (auto const& hitGroup : m_hitGroups)
@@ -329,7 +328,9 @@ namespace nv_helpers_dx12
     }
 
     RayTracingPipelineGenerator::HitGroup::HitGroup(
-        std::wstring hitGroupName, std::wstring closestHitSymbol, std::wstring anyHitSymbol,
+        std::wstring hitGroupName,
+        std::wstring closestHitSymbol,
+        std::wstring anyHitSymbol,
         std::wstring intersectionSymbol)
         : hitGroupName(std::move(hitGroupName))
       , closestHitSymbol(std::move(closestHitSymbol))
@@ -347,7 +348,9 @@ namespace nv_helpers_dx12
     }
 
     RayTracingPipelineGenerator::RootSignatureAssociation::RootSignatureAssociation(
-        ID3D12RootSignature* rootSignature, bool const local, std::vector<std::wstring> const& symbols)
+        ID3D12RootSignature*             rootSignature,
+        bool const                       local,
+        std::vector<std::wstring> const& symbols)
         : rootSignature(rootSignature)
       , local(local)
       , symbols(symbols)

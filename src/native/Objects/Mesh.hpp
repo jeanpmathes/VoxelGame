@@ -57,12 +57,12 @@ public:
      * Get the geometry buffer.
      * If this object is animated, this will be the destination buffer.
      */
-    [[nodiscard]] Allocation<ID3D12Resource> GetGeometryBuffer() const;
+    Allocation<ID3D12Resource> GetGeometryBuffer();
 
     [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor  GetInstanceDataViewDescriptor() const;
-    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor  GetGeometryBufferViewDescriptor() const;
-    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor  GetAnimationSourceBufferViewDescriptor() const;
-    [[nodiscard]] ShaderResources::UnorderedAccessViewDescriptor GetAnimationDestinationBufferViewDescriptor() const;
+    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor  GetGeometryBufferViewDescriptor();
+    [[nodiscard]] ShaderResources::ShaderResourceViewDescriptor  GetAnimationSourceBufferViewDescriptor();
+    [[nodiscard]] ShaderResources::UnorderedAccessViewDescriptor GetAnimationDestinationBufferViewDescriptor();
 
     /**
      * \brief Create the BLAS for this mesh.
@@ -71,7 +71,8 @@ public:
      * \param isForAnimation Whether the BLAS is created for animation. If true and the mesh is modified and a BLAS will be created later anyway, this call will be ignored.
      */
     void CreateBLAS(
-        ComPtr<ID3D12GraphicsCommandList4> commandList, std::vector<ID3D12Resource*>* uavs,
+        ComPtr<ID3D12GraphicsCommandList4> commandList,
+        std::vector<ID3D12Resource*>*      uavs,
         bool                               isForAnimation = false);
     BLAS const& GetBLAS();
 

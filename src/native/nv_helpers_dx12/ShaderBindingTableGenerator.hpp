@@ -23,88 +23,6 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 
-/*
-Contacts for feedback:
-- pgautron@nvidia.com (Pascal Gautron)
-- mlefrancois@nvidia.com (Martin-Karl Lefrancois)
-
-The ShaderBindingTable is a helper to construct the SBT. It helps to maintain the
-proper offsets of each element, required when constructing the SBT, but also when filling the
-dispatch rays description.
-
-Example:
-
-
-D3D12_GPU_DESCRIPTOR_HANDLE srvUavHeapHandle = m_srvUavHeap->GetGPUDescriptorHandleForHeapStart();
-UINT64* heapPointer = reinterpret_cast< UINT64* >(srvUavHeapHandle.ptr);
-
-m_sbtHelper.AddRayGenerationProgram(L"RayGen", {heapPointer});
-m_sbtHelper.AddMissProgram(L"Miss", {});
-
-m_sbtHelper.AddHitGroup(L"HitGroup",
-{(void*)(m_constantBuffers[i]->GetGPUVirtualAddress())});
-m_sbtHelper.AddHitGroup(L"ShadowHitGroup", {});
-
-
-// Create the SBT on the upload heap
-uint32_t sbtSize = 0;
-m_sbtHelper.ComputeSBTSize(GetRTDevice(), &sbtSize);
-m_sbtStorage = nv_helpers_dx12::CreateBuffer(m_device.Get(), sbtSize,
-D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ,
-nv_helpers_dx12::kUploadHeapProps);
-
-m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProps.Get());
-
-
-//--------------------------------------------------------------------
-Then setting the descriptor for the dispatch rays become way easier
-//--------------------------------------------------------------------
-
-D3D12_DISPATCH_RAYS_DESC desc = {};
-// The layout of the SBT is as follows: ray generation shaders, miss shaders,
-hit groups. As
-// described in the CreateShaderBindingTable method, all SBT entries have the
-same size to allow
-// a fixed stride.
-
-// The ray generation shaders are always at the beginning of the SBT. In this
-// example we have only one RG, so the size of this SBT sections is
-m_sbtEntrySize. uint32_t rayGenerationSectionSizeInBytes =
-m_sbtHelper.GetRayGenSectionSize(); desc.RayGenerationShaderRecord.StartAddress
-= m_sbtStorage->GetGPUVirtualAddress();
-desc.RayGenerationShaderRecord.SizeInBytes = rayGenerationSectionSizeInBytes;
-
-// The miss shaders are in the second SBT section, right after the ray
-generation shader. We
-// have one miss shader for the camera rays and one for the shadow rays, so this
-section has a
-// size of 2*m_sbtEntrySize. We also indicate the stride between the two miss
-shaders, which is
-// the size of a SBT entry
-uint32_t missSectionSizeInBytes = m_sbtHelper.GetMissSectionSize();
-desc.MissShaderTable.StartAddress =
-m_sbtStorage->GetGPUVirtualAddress() + rayGenerationSectionSizeInBytes;
-desc.MissShaderTable.SizeInBytes = missSectionSizeInBytes;
-desc.MissShaderTable.StrideInBytes = m_sbtHelper.GetMissEntrySize();
-
-// The hit groups section start after the miss shaders. In this sample we have 4
-hit groups: 2
-// for the triangles (1 used when hitting the geometry from a camera ray, 1 when
-hitting the
-// same geometry from a shadow ray) and 2 for the plane. We also indicate the
-stride between the
-// two miss shaders, which is the size of a SBT entry
-// #Pascal: experiment with different sizes for the SBT entries
-uint32_t hitGroupsSectionSize = m_sbtHelper.GetHitGroupSectionSize();
-desc.HitGroupTable.StartAddress =
-m_sbtStorage->GetGPUVirtualAddress() + rayGenerationSectionSizeInBytes +
-missSectionSizeInBytes; desc.HitGroupTable.SizeInBytes = hitGroupsSectionSize;
-desc.HitGroupTable.StrideInBytes = m_sbtHelper.GetHitGroupEntrySize();
-
-
-
-*/
-
 #pragma once
 
 #include "d3d12.h"
@@ -181,7 +99,9 @@ namespace nv_helpers_dx12
         };
 
         uint32_t CopyShaderData(
-            ID3D12StateObjectProperties* raytracingPipeline, uint8_t* outputData, std::vector<SBTEntry> const& shaders,
+            ID3D12StateObjectProperties* raytracingPipeline,
+            uint8_t*                     outputData,
+            std::vector<SBTEntry> const& shaders,
             uint32_t                     entrySize) const;
 
         [[nodiscard]] uint32_t GetEntrySize(std::vector<SBTEntry> const& entries) const;

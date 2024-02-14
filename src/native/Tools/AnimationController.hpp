@@ -80,7 +80,7 @@ public:
 
 private:
     void UpdateThreadGroupData();
-    void UploadThreadGroupData(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void UploadThreadGroupData(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
 
     ShaderResources::ShaderLocation m_threadGroupDataLocation;
     ShaderResources::ShaderLocation m_inputGeometryListLocation;

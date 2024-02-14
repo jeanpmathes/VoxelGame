@@ -1,6 +1,6 @@
 ﻿// <copyright file="VMath.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -417,6 +417,8 @@ public static class VMath
 
         switch (indexOfMax)
         {
+            // Note: SonarSource claims that only case 1 is reachable, but the test proves that all cases are reachable.
+            
             case 0:
                 return ref e00;
             case 1:

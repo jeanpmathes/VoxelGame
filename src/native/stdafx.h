@@ -121,6 +121,6 @@
 #include "Interfaces/Draw2D.hpp"
 
 #if defined(NATIVE_DEBUG)
-#include <Initguid.h>
 #include <dxgidebug.h>
+#include <Initguid.h>
 #endif

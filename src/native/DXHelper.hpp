@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <format>
+#include <source_location>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -44,10 +46,7 @@ private:
 class NativeException final : public std::runtime_error
 {
 public:
-    explicit NativeException(std::string const& msg)
-        : std::runtime_error(msg)
-    {
-    }
+    using std::runtime_error::runtime_error;
 };
 
 #if defined(NATIVE_DEBUG)
@@ -56,57 +55,85 @@ constexpr bool IS_DEBUG_BUILD = true;
 constexpr bool IS_DEBUG_BUILD = false;
 #endif
 
-#define IMPLIES(a, b) (!(a) || (b))
+constexpr bool Implies(bool const a, bool const b) { return !a || b; }
 
-#define REQUIRE(expression) \
-    do { \
-        if (!IS_DEBUG_BUILD) break; \
-        if (!(expression)) \
-        { \
-            std::string TRY_DO_message = "failed requirement '" #expression "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
-            if (IsDebuggerPresent()) DebugBreak(); \
-            throw NativeException(TRY_DO_message); \
-        } \
-    } while (false)
-
-#define TRY_DO(expression) \
-    do { \
-        auto TRY_DO_result = (expression); \
-        std::string TRY_DO_errorMessage; \
-        if (IS_DEBUG_BUILD) \
-            TRY_DO_errorMessage = "throwing from '" #expression "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
-        else \
-            TRY_DO_errorMessage = "throwing from '" #expression "' in " __FUNCTION__; \
-        ThrowIfFailed(TRY_DO_result, TRY_DO_errorMessage); \
-    } while (false)
-
-#define CHECK_RETURN(value) \
-    do { \
-        std::string TRY_DO_errorMessage; \
-        if (IS_DEBUG_BUILD) \
-            TRY_DO_errorMessage = "error with '" #value "' in " __FUNCTION__ " at " __FILE__ ":" + std::to_string(__LINE__); \
-        else \
-            TRY_DO_errorMessage = "error with '" #value "' in " __FUNCTION__; \
-        BOOL TRY_DO_ok = (value) != NULL; \
-        ThrowIfFailed(TRY_DO_ok, TRY_DO_errorMessage); \
-    } while (false)
-
-inline void ThrowIfFailed(BOOL const b, std::string const& message)
+/**
+ * \brief Assert that a condition is true. 
+ */
+constexpr void Require(bool const condition, std::source_location const& location = std::source_location::current())
 {
-    if (!b)
+    if constexpr (!IS_DEBUG_BUILD) return;
+
+    if (!condition)
     {
+        std::string const message = std::format(
+            "failed requirement in function {} at {}:{}:{}",
+            location.function_name(),
+            location.file_name(),
+            location.line(),
+            location.column());
+
         if (IsDebuggerPresent()) DebugBreak();
-        throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
+        throw NativeException(message);
     }
 }
 
-inline void ThrowIfFailed(HRESULT const hr, std::string const& message)
+inline std::string GetTryDoMessage(std::source_location const& location)
 {
-    if (FAILED(hr))
-    {
-        if (IsDebuggerPresent()) DebugBreak();
-        throw HResultException(hr, message);
-    }
+    if constexpr (IS_DEBUG_BUILD)
+        return std::format(
+            "throwing from function {} at {}:{}:{}",
+            location.function_name(),
+            location.file_name(),
+            location.line(),
+            location.column());
+    else return std::format("throwing from function {}", location.function_name());
+}
+
+/**
+ * \brief Try to do something, e.g. a Win32 API call, and throw an exception if it fails.
+ */
+inline void TryDo(BOOL const b, std::source_location const& location = std::source_location::current())
+{
+    if (b) return;
+
+    std::string const message = GetTryDoMessage(location);
+
+    if (IsDebuggerPresent()) DebugBreak();
+    throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
+}
+
+/**
+ * \brief Try to do something, e.g. a DirectX API call, and throw an exception if it fails.
+ */
+inline void TryDo(HRESULT const hr, std::source_location const& location = std::source_location::current())
+{
+    if (SUCCEEDED(hr)) return;
+
+    std::string const message = GetTryDoMessage(location);
+
+    if (IsDebuggerPresent()) DebugBreak();
+    throw HResultException(hr, message);
+}
+
+/**
+ * \brief Check that the return value of a function is not NULL, and throw an exception based on GetLastError if it is.
+ */
+template <typename T>
+constexpr T const& CheckReturn(T const& value, std::source_location const& location = std::source_location::current())
+{
+    if (value != NULL) return value;
+
+    std::string const message = std::format(
+        "error with value of type '{}' in function {} at {}:{}:{}",
+        typeid(T).name(),
+        location.function_name(),
+        location.file_name(),
+        location.line(),
+        location.column());
+
+    if (IsDebuggerPresent()) DebugBreak();
+    throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
 
 inline std::wstring GetNameIndexed(LPCWSTR const name, UINT const index)
@@ -121,7 +148,7 @@ inline std::wstring GetNameIndexed(LPCWSTR const name, UINT const index)
     return ss.str();
 }
 
-inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { TRY_DO(object->SetName(name)); }
+inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { TryDo(object->SetName(name)); }
 
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.

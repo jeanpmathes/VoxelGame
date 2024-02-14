@@ -11,7 +11,7 @@ void Camera::Initialize()
     m_spaceCameraBuffer     = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
     NAME_D3D12_OBJECT(m_spaceCameraBuffer);
 
-    TRY_DO(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, 1));
+    TryDo(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, 1));
 }
 
 void Camera::Update()
@@ -40,9 +40,11 @@ void Camera::Update()
     data.dNear = m_near;
     data.dFar  = m_far;
 
+    auto height = static_cast<float>(GetSpace().GetResolution().height);
+
     // For cone tracing, a spread angle is used to get the width of the cone.
     // Here, an estimate is pre-calculated.
-    data.spread = std::atan(2.0f * std::tan(fovAngleY / 2.0f) / GetSpace().GetResolution().height);
+    data.spread = std::atan(2.0f * std::tan(fovAngleY / 2.0f) / height);
 
     m_spaceCameraBufferMapping.Write(data);
 }
@@ -63,8 +65,8 @@ void Camera::SetFov(float const fov) { m_fov = fov; }
 
 void Camera::SetPlanes(float const nearDistance, float const farDistance)
 {
-    REQUIRE(nearDistance > 0.0f);
-    REQUIRE(farDistance > nearDistance);
+    Require(nearDistance > 0.0f);
+    Require(farDistance > nearDistance);
 
     m_near = nearDistance;
     m_far  = farDistance;

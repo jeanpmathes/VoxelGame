@@ -1,6 +1,6 @@
 ﻿// <copyright file="BoundingVolume.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -116,12 +116,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public static BoundingVolume CrossBlock => new(
         new Vector3d(x: 0.5, y: 0.5, z: 0.5),
         new Vector3d(x: 0.355, y: 0.5, z: 0.355));
-
-    /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> that has zero size.
-    /// </summary>
-    public static BoundingVolume Empty => new(Vector3d.Zero, Vector3d.Zero);
-
+    
     /// <summary>
     ///     Gets the child bounds of this bounding volume, or the bounds of this bounding volume if it has no children.
     /// </summary>

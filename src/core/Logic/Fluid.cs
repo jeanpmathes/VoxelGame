@@ -1,6 +1,6 @@
 ﻿// <copyright file="Fluid.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -464,6 +464,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
 
     /// <summary>
     ///     Search a flow target for a fluid.
+    ///     Performs a breadth-first search to find a potential target for the fluid.
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="position">The current fluid position.</param>
@@ -477,9 +478,9 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
         int extents = extendedRange * 2 + 1;
         Vector3i center = (extendedRange, 0, extendedRange);
 
-            #pragma warning disable CA1814
+#pragma warning disable CA1814
         var mark = new bool[extents, extents];
-            #pragma warning restore CA1814
+#pragma warning restore CA1814
 
         Queue<(Vector3i position, IFillable fillable)> queue = new();
         Queue<(Vector3i position, IFillable fillable)> nextQueue = new();

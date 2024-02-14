@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices;
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
 using VoxelGame.Core;
@@ -13,6 +14,7 @@ using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 
+[assembly: ComVisible(visibility: false)]
 namespace VoxelGame.UI.Tests;
 
 internal class Program : Client

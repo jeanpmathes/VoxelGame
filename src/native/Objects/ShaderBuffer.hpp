@@ -21,7 +21,7 @@ public:
     /**
      * Set the data of the buffer.
      */
-    void SetData(void const* data) const;
+    void SetData(std::byte const* data) const;
 
     /**
      * Get the GPU virtual address of the buffer.

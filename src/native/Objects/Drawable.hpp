@@ -99,7 +99,7 @@ public:
         Visitor& OnEffect(std::function<void(Effect&)> const& effect);
 
     private:
-        std::function<void(Drawable&)> m_else;
+        std::function<void(Drawable&)> m_else = [](Drawable const&) { /* Default does nothing. */ };
         std::function<void(Mesh&)>     m_mesh;
         std::function<void(Effect&)>   m_effect;
     };

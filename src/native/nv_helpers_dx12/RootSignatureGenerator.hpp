@@ -23,33 +23,6 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 
-/*
-Contacts for feedback:
-- pgautron@nvidia.com (Pascal Gautron)
-- mlefrancois@nvidia.com (Martin-Karl Lefrancois)
-
-Utility class to create root signatures. The order in which the addition methods are called is
-important as it will define the slots of the heap or of the Shader Binding Table to which buffer
-pointers will be bound.
-
-Example to create an empty root signature:
-nv_helpers_dx12::RootSignatureGenerator rsc;
-return rsc.Generate(m_device.Get(), true);
-
-Example to create a signature with one constant buffer:
-nv_helpers_dx12::RootSignatureGenerator rsc;
-rsc.AddRootParameter(D3D12_ROOT_PARAMETER_TYPE_CBV);
-return rsc.Generate(m_device.Get(), true);
-
-More advance root signature:
-nv_helpers_dx12::RootSignatureGenerator rsc;
-rsc.AddRangeParameter({{0,1,0, D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0},
-{0,1,0, D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1},
-{0,1,0, D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2}});
-return rsc.Generate(m_device.Get(), true);
-
-*/
-
 #pragma once
 
 #include "d3d12.h"
@@ -93,7 +66,10 @@ namespace nv_helpers_dx12
          * \param numRootConstants In case of a root constant, this parameter indicates how many successive 32-bit constants will be bound.
          */
         void AddRootParameter(
-            D3D12_ROOT_PARAMETER_TYPE type, UINT shaderRegister = 0, UINT registerSpace = 0, UINT numRootConstants = 1);
+            D3D12_ROOT_PARAMETER_TYPE type,
+            UINT                      shaderRegister   = 0,
+            UINT                      registerSpace    = 0,
+            UINT                      numRootConstants = 1);
 
         /**
          * \brief Add a static sampler to the root signature. The sampler is defined by a D3D12_STATIC_SAMPLER_DESC.
@@ -114,7 +90,8 @@ namespace nv_helpers_dx12
          * \return The root signature.
          */
         Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(
-            Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool isLocal);
+            Microsoft::WRL::ComPtr<ID3D12Device> const& device,
+            bool                                        isLocal);
 
     private:
         std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges         = {};

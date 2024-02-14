@@ -17,9 +17,12 @@ namespace util
      */
     template <typename T>
     Allocation<T> AllocateResource(
-        NativeClient const&         client, D3D12_RESOURCE_DESC const&  resourceDesc, D3D12_HEAP_TYPE const heapType,
-        D3D12_RESOURCE_STATES const initState, D3D12_CLEAR_VALUE const* optimizedClearValue = nullptr,
-        bool const                  committed                                               = false)
+        NativeClient const&         client,
+        D3D12_RESOURCE_DESC const&  resourceDesc,
+        D3D12_HEAP_TYPE const       heapType,
+        D3D12_RESOURCE_STATES const initState,
+        D3D12_CLEAR_VALUE const*    optimizedClearValue = nullptr,
+        bool const                  committed           = false)
     {
         D3D12MA::ALLOCATION_DESC allocationDesc = {};
         allocationDesc.HeapType                 = heapType;
@@ -29,9 +32,14 @@ namespace util
         ComPtr<T>                   resource;
         ComPtr<D3D12MA::Allocation> allocation;
 
-        TRY_DO(
-            client.GetAllocator()->CreateResource( &allocationDesc, &resourceDesc, initState, optimizedClearValue, &
-                allocation, IID_PPV_ARGS(&resource)));
+        TryDo(
+            client.GetAllocator()->CreateResource(
+                &allocationDesc,
+                &resourceDesc,
+                initState,
+                optimizedClearValue,
+                &allocation,
+                IID_PPV_ARGS(&resource)));
 
         return {allocation, resource};
     }
@@ -40,8 +48,12 @@ namespace util
      * Allocate a buffer with the given parameters on the default pool of the client's allocator.
      */
     inline Allocation<ID3D12Resource> AllocateBuffer(
-        NativeClient const&         client, UINT64 const             size, D3D12_RESOURCE_FLAGS const flags,
-        D3D12_RESOURCE_STATES const initState, D3D12_HEAP_TYPE const heapType, bool const             committed = false)
+        NativeClient const&         client,
+        UINT64 const                size,
+        D3D12_RESOURCE_FLAGS const  flags,
+        D3D12_RESOURCE_STATES const initState,
+        D3D12_HEAP_TYPE const       heapType,
+        bool const                  committed = false)
     {
         D3D12_RESOURCE_DESC bufferDescription;
         bufferDescription.Alignment          = 0;
@@ -70,8 +82,12 @@ namespace util
      * \param committed Whether the buffer to allocate should be committed or placed.
      */
     inline void ReAllocateBuffer(
-        Allocation<ID3D12Resource>* allocation, NativeClient const&    client, UINT64 const             size,
-        D3D12_RESOURCE_FLAGS const  flags, D3D12_RESOURCE_STATES const initState, D3D12_HEAP_TYPE const heapType,
+        Allocation<ID3D12Resource>* allocation,
+        NativeClient const&         client,
+        UINT64 const                size,
+        D3D12_RESOURCE_FLAGS const  flags,
+        D3D12_RESOURCE_STATES const initState,
+        D3D12_HEAP_TYPE const       heapType,
         bool const                  committed = false)
     {
         if (allocation->IsSet() && allocation->resource->GetDesc().Width >= size) return;
@@ -84,7 +100,7 @@ namespace util
     inline Allocation<ID3D12Resource> AllocateConstantBuffer(NativeClient const& client, UINT64* size)
     {
         UINT64 const originalSize = *size;
-        *size                     = ROUND_UP(originalSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        *size                     = RoundUp(originalSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         return AllocateBuffer(
             client,
             *size,
@@ -120,7 +136,7 @@ namespace util
     template <typename D>
     [[nodiscard]] HRESULT MapAndWrite(Allocation<ID3D12Resource> const resource, D const* data, UINT const count)
     {
-        REQUIRE(count > 0);
+        Require(count > 0);
 
         constexpr D3D12_RANGE readRange = {0, 0};
         D*                    mapping;
@@ -145,7 +161,7 @@ namespace util
     template <typename D>
     [[nodiscard]] HRESULT MapAndRead(Allocation<ID3D12Resource> const resource, D* data, UINT const count)
     {
-        REQUIRE(count > 0);
+        Require(count > 0);
 
         D3D12_RANGE const readRange = {0, sizeof(D) * count};
         D*                mapping;
@@ -161,7 +177,8 @@ namespace util
     }
 
     inline std::wstring FormatDRED(
-        D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 const& breadcrumbs, D3D12_DRED_PAGE_FAULT_OUTPUT2 const& pageFaults,
+        D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 const& breadcrumbs,
+        D3D12_DRED_PAGE_FAULT_OUTPUT2 const&       pageFaults,
         D3D12_DRED_DEVICE_STATE const&             deviceState)
     {
         std::wstringstream message;
@@ -171,15 +188,20 @@ namespace util
 
         switch (deviceState)
         {
-        case D3D12_DRED_DEVICE_STATE_UNKNOWN: message << L"Unknown";
+        case D3D12_DRED_DEVICE_STATE_UNKNOWN:
+            message << L"Unknown";
             break;
-        case D3D12_DRED_DEVICE_STATE_HUNG: message << L"Hung";
+        case D3D12_DRED_DEVICE_STATE_HUNG:
+            message << L"Hung";
             break;
-        case D3D12_DRED_DEVICE_STATE_FAULT: message << L"Fault";
+        case D3D12_DRED_DEVICE_STATE_FAULT:
+            message << L"Fault";
             break;
-        case D3D12_DRED_DEVICE_STATE_PAGEFAULT: message << L"PageFault";
+        case D3D12_DRED_DEVICE_STATE_PAGEFAULT:
+            message << L"PageFault";
             break;
-        default: message << L"Invalid";
+        default:
+            message << L"Invalid";
             break;
         }
 
@@ -187,7 +209,7 @@ namespace util
 
         message << L"1. Auto Breadcrumbs:" << std::endl;
 
-        auto str = [](wchar_t const* s) -> wchar_t const* { return s ? s : L"<unknown>"; };
+        auto str = [](wchar_t const* s) { return s ? s : L"<unknown>"; };
 
         {
             auto                               getOperationText = [&](
@@ -195,56 +217,100 @@ namespace util
             {
                 switch (op)
                 {
-                case D3D12_AUTO_BREADCRUMB_OP_SETMARKER: return L"SetMarker";
-                case D3D12_AUTO_BREADCRUMB_OP_BEGINEVENT: return L"BeginEvent";
-                case D3D12_AUTO_BREADCRUMB_OP_ENDEVENT: return L"EndEvent";
-                case D3D12_AUTO_BREADCRUMB_OP_DRAWINSTANCED: return L"DrawInstanced";
-                case D3D12_AUTO_BREADCRUMB_OP_DRAWINDEXEDINSTANCED: return L"DrawIndexedInstanced";
-                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEINDIRECT: return L"ExecuteIndirect";
-                case D3D12_AUTO_BREADCRUMB_OP_DISPATCH: return L"Dispatch";
-                case D3D12_AUTO_BREADCRUMB_OP_COPYBUFFERREGION: return L"CopyBufferRegion";
-                case D3D12_AUTO_BREADCRUMB_OP_COPYTEXTUREREGION: return L"CopyTextureRegion";
-                case D3D12_AUTO_BREADCRUMB_OP_COPYRESOURCE: return L"CopyResource";
-                case D3D12_AUTO_BREADCRUMB_OP_COPYTILES: return L"CopyTiles";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCE: return L"ResolveSubresource";
-                case D3D12_AUTO_BREADCRUMB_OP_CLEARRENDERTARGETVIEW: return L"ClearRenderTargetView";
-                case D3D12_AUTO_BREADCRUMB_OP_CLEARUNORDEREDACCESSVIEW: return L"ClearUnorderedAccessView";
-                case D3D12_AUTO_BREADCRUMB_OP_CLEARDEPTHSTENCILVIEW: return L"ClearDepthStencilView";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOURCEBARRIER: return L"ResourceBarrier";
-                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEBUNDLE: return L"ExecuteBundle";
-                case D3D12_AUTO_BREADCRUMB_OP_PRESENT: return L"Present";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEQUERYDATA: return L"ResolveQueryData";
-                case D3D12_AUTO_BREADCRUMB_OP_BEGINSUBMISSION: return L"BeginSubmission";
-                case D3D12_AUTO_BREADCRUMB_OP_ENDSUBMISSION: return L"EndSubmission";
-                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME: return L"DecodeFrame";
-                case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES: return L"ProcessFrames";
-                case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT: return L"AtomicCopyBufferUINT";
-                case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT64: return L"AtomicCopyBufferUINT64";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCEREGION: return L"ResolveSubresourceRegion";
-                case D3D12_AUTO_BREADCRUMB_OP_WRITEBUFFERIMMEDIATE: return L"WriteBufferImmediate";
-                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME1: return L"DecodeFrame1";
-                case D3D12_AUTO_BREADCRUMB_OP_SETPROTECTEDRESOURCESESSION: return L"SetProtectedResourceSession";
-                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME2: return L"DecodeFrame2";
-                case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES1: return L"ProcessFrames1";
-                case D3D12_AUTO_BREADCRUMB_OP_BUILDRAYTRACINGACCELERATIONSTRUCTURE: return
-                        L"BuildRaytracingAccelerationStructure";
-                case D3D12_AUTO_BREADCRUMB_OP_EMITRAYTRACINGACCELERATIONSTRUCTUREPOSTBUILDINFO: return
-                        L"EmitRaytracingAccelerationStructurePostBuildInfo";
-                case D3D12_AUTO_BREADCRUMB_OP_COPYRAYTRACINGACCELERATIONSTRUCTURE: return
-                        L"CopyRaytracingAccelerationStructure";
-                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHRAYS: return L"DispatchRays";
-                case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEMETACOMMAND: return L"InitializeMetaCommand";
-                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEMETACOMMAND: return L"ExecuteMetaCommand";
-                case D3D12_AUTO_BREADCRUMB_OP_ESTIMATEMOTION: return L"EstimateMotion";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEMOTIONVECTORHEAP: return L"ResolveMotionVectorHeap";
-                case D3D12_AUTO_BREADCRUMB_OP_SETPIPELINESTATE1: return L"SetPipelineState1";
-                case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEEXTENSIONCOMMAND: return L"InitializeExtensionCommand";
-                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEEXTENSIONCOMMAND: return L"ExecuteExtensionCommand";
-                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHMESH: return L"DispatchMesh";
-                case D3D12_AUTO_BREADCRUMB_OP_ENCODEFRAME: return L"EncodeFrame";
-                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEENCODEROUTPUTMETADATA: return L"ResolveEncoderOutputMetadata";
-                case D3D12_AUTO_BREADCRUMB_OP_BARRIER: return L"Barrier";
-                case D3D12_AUTO_BREADCRUMB_OP_BEGIN_COMMAND_LIST: return L"BeginCommandList";
+                case D3D12_AUTO_BREADCRUMB_OP_SETMARKER:
+                    return L"SetMarker";
+                case D3D12_AUTO_BREADCRUMB_OP_BEGINEVENT:
+                    return L"BeginEvent";
+                case D3D12_AUTO_BREADCRUMB_OP_ENDEVENT:
+                    return L"EndEvent";
+                case D3D12_AUTO_BREADCRUMB_OP_DRAWINSTANCED:
+                    return L"DrawInstanced";
+                case D3D12_AUTO_BREADCRUMB_OP_DRAWINDEXEDINSTANCED:
+                    return L"DrawIndexedInstanced";
+                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEINDIRECT:
+                    return L"ExecuteIndirect";
+                case D3D12_AUTO_BREADCRUMB_OP_DISPATCH:
+                    return L"Dispatch";
+                case D3D12_AUTO_BREADCRUMB_OP_COPYBUFFERREGION:
+                    return L"CopyBufferRegion";
+                case D3D12_AUTO_BREADCRUMB_OP_COPYTEXTUREREGION:
+                    return L"CopyTextureRegion";
+                case D3D12_AUTO_BREADCRUMB_OP_COPYRESOURCE:
+                    return L"CopyResource";
+                case D3D12_AUTO_BREADCRUMB_OP_COPYTILES:
+                    return L"CopyTiles";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCE:
+                    return L"ResolveSubresource";
+                case D3D12_AUTO_BREADCRUMB_OP_CLEARRENDERTARGETVIEW:
+                    return L"ClearRenderTargetView";
+                case D3D12_AUTO_BREADCRUMB_OP_CLEARUNORDEREDACCESSVIEW:
+                    return L"ClearUnorderedAccessView";
+                case D3D12_AUTO_BREADCRUMB_OP_CLEARDEPTHSTENCILVIEW:
+                    return L"ClearDepthStencilView";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOURCEBARRIER:
+                    return L"ResourceBarrier";
+                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEBUNDLE:
+                    return L"ExecuteBundle";
+                case D3D12_AUTO_BREADCRUMB_OP_PRESENT:
+                    return L"Present";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEQUERYDATA:
+                    return L"ResolveQueryData";
+                case D3D12_AUTO_BREADCRUMB_OP_BEGINSUBMISSION:
+                    return L"BeginSubmission";
+                case D3D12_AUTO_BREADCRUMB_OP_ENDSUBMISSION:
+                    return L"EndSubmission";
+                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME:
+                    return L"DecodeFrame";
+                case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES:
+                    return L"ProcessFrames";
+                case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT:
+                    return L"AtomicCopyBufferUINT";
+                case D3D12_AUTO_BREADCRUMB_OP_ATOMICCOPYBUFFERUINT64:
+                    return L"AtomicCopyBufferUINT64";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOLVESUBRESOURCEREGION:
+                    return L"ResolveSubresourceRegion";
+                case D3D12_AUTO_BREADCRUMB_OP_WRITEBUFFERIMMEDIATE:
+                    return L"WriteBufferImmediate";
+                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME1:
+                    return L"DecodeFrame1";
+                case D3D12_AUTO_BREADCRUMB_OP_SETPROTECTEDRESOURCESESSION:
+                    return L"SetProtectedResourceSession";
+                case D3D12_AUTO_BREADCRUMB_OP_DECODEFRAME2:
+                    return L"DecodeFrame2";
+                case D3D12_AUTO_BREADCRUMB_OP_PROCESSFRAMES1:
+                    return L"ProcessFrames1";
+                case D3D12_AUTO_BREADCRUMB_OP_BUILDRAYTRACINGACCELERATIONSTRUCTURE:
+                    return L"BuildRaytracingAccelerationStructure";
+                case D3D12_AUTO_BREADCRUMB_OP_EMITRAYTRACINGACCELERATIONSTRUCTUREPOSTBUILDINFO:
+                    return L"EmitRaytracingAccelerationStructurePostBuildInfo";
+                case D3D12_AUTO_BREADCRUMB_OP_COPYRAYTRACINGACCELERATIONSTRUCTURE:
+                    return L"CopyRaytracingAccelerationStructure";
+                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHRAYS:
+                    return L"DispatchRays";
+                case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEMETACOMMAND:
+                    return L"InitializeMetaCommand";
+                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEMETACOMMAND:
+                    return L"ExecuteMetaCommand";
+                case D3D12_AUTO_BREADCRUMB_OP_ESTIMATEMOTION:
+                    return L"EstimateMotion";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEMOTIONVECTORHEAP:
+                    return L"ResolveMotionVectorHeap";
+                case D3D12_AUTO_BREADCRUMB_OP_SETPIPELINESTATE1:
+                    return L"SetPipelineState1";
+                case D3D12_AUTO_BREADCRUMB_OP_INITIALIZEEXTENSIONCOMMAND:
+                    return L"InitializeExtensionCommand";
+                case D3D12_AUTO_BREADCRUMB_OP_EXECUTEEXTENSIONCOMMAND:
+                    return L"ExecuteExtensionCommand";
+                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHMESH:
+                    return L"DispatchMesh";
+                case D3D12_AUTO_BREADCRUMB_OP_ENCODEFRAME:
+                    return L"EncodeFrame";
+                case D3D12_AUTO_BREADCRUMB_OP_RESOLVEENCODEROUTPUTMETADATA:
+                    return L"ResolveEncoderOutputMetadata";
+                case D3D12_AUTO_BREADCRUMB_OP_BARRIER:
+                    return L"Barrier";
+                case D3D12_AUTO_BREADCRUMB_OP_BEGIN_COMMAND_LIST:
+                    return L"BeginCommandList";
                 }
                 return L"<unknown>";
             };
@@ -335,63 +401,92 @@ namespace util
                     message << L" Type:";
                     switch (current->AllocationType)
                     {
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_QUEUE: message << L" CommandQueue";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_QUEUE:
+                        message << L" CommandQueue";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_ALLOCATOR: message << L" CommandAllocator";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_ALLOCATOR:
+                        message << L" CommandAllocator";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_PIPELINE_STATE: message << L" PipelineState";
+                    case D3D12_DRED_ALLOCATION_TYPE_PIPELINE_STATE:
+                        message << L" PipelineState";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_LIST: message << L" CommandList";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_LIST:
+                        message << L" CommandList";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_FENCE: message << L" Fence";
+                    case D3D12_DRED_ALLOCATION_TYPE_FENCE:
+                        message << L" Fence";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_DESCRIPTOR_HEAP: message << L" DescriptorHeap";
+                    case D3D12_DRED_ALLOCATION_TYPE_DESCRIPTOR_HEAP:
+                        message << L" DescriptorHeap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_HEAP: message << L" Heap";
+                    case D3D12_DRED_ALLOCATION_TYPE_HEAP:
+                        message << L" Heap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_QUERY_HEAP: message << L" QueryHeap";
+                    case D3D12_DRED_ALLOCATION_TYPE_QUERY_HEAP:
+                        message << L" QueryHeap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_SIGNATURE: message << L" CommandSignature";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_SIGNATURE:
+                        message << L" CommandSignature";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_PIPELINE_LIBRARY: message << L" PipelineLibrary";
+                    case D3D12_DRED_ALLOCATION_TYPE_PIPELINE_LIBRARY:
+                        message << L" PipelineLibrary";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_DECODER: message << L" VideoDecoder";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_DECODER:
+                        message << L" VideoDecoder";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_PROCESSOR: message << L" VideoProcessor";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_PROCESSOR:
+                        message << L" VideoProcessor";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_RESOURCE: message << L" Resource";
+                    case D3D12_DRED_ALLOCATION_TYPE_RESOURCE:
+                        message << L" Resource";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_PASS: message << L" Pass";
+                    case D3D12_DRED_ALLOCATION_TYPE_PASS:
+                        message << L" Pass";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_CRYPTOSESSION: message << L" CryptoSession";
+                    case D3D12_DRED_ALLOCATION_TYPE_CRYPTOSESSION:
+                        message << L" CryptoSession";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_CRYPTOSESSIONPOLICY: message << L" CryptoSessionPolicy";
+                    case D3D12_DRED_ALLOCATION_TYPE_CRYPTOSESSIONPOLICY:
+                        message << L" CryptoSessionPolicy";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_PROTECTEDRESOURCESESSION: message << L" ProtectedResourceSession";
+                    case D3D12_DRED_ALLOCATION_TYPE_PROTECTEDRESOURCESESSION:
+                        message << L" ProtectedResourceSession";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_DECODER_HEAP: message << L" VideoDecoderHeap";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_DECODER_HEAP:
+                        message << L" VideoDecoderHeap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_POOL: message << L" CommandPool";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_POOL:
+                        message << L" CommandPool";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_RECORDER: message << L" CommandRecorder";
+                    case D3D12_DRED_ALLOCATION_TYPE_COMMAND_RECORDER:
+                        message << L" CommandRecorder";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_STATE_OBJECT: message << L" StateObject";
+                    case D3D12_DRED_ALLOCATION_TYPE_STATE_OBJECT:
+                        message << L" StateObject";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_METACOMMAND: message << L" MetaCommand";
+                    case D3D12_DRED_ALLOCATION_TYPE_METACOMMAND:
+                        message << L" MetaCommand";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_SCHEDULINGGROUP: message << L" SchedulingGroup";
+                    case D3D12_DRED_ALLOCATION_TYPE_SCHEDULINGGROUP:
+                        message << L" SchedulingGroup";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_MOTION_ESTIMATOR: message << L" VideoMotionEstimator";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_MOTION_ESTIMATOR:
+                        message << L" VideoMotionEstimator";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_MOTION_VECTOR_HEAP: message << L" VideoMotionVectorHeap";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_MOTION_VECTOR_HEAP:
+                        message << L" VideoMotionVectorHeap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_EXTENSION_COMMAND: message << L" VideoExtensionCommand";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_EXTENSION_COMMAND:
+                        message << L" VideoExtensionCommand";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_ENCODER: message << L" VideoEncoder";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_ENCODER:
+                        message << L" VideoEncoder";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_ENCODER_HEAP: message << L" VideoEncoderHeap";
+                    case D3D12_DRED_ALLOCATION_TYPE_VIDEO_ENCODER_HEAP:
+                        message << L" VideoEncoderHeap";
                         break;
-                    case D3D12_DRED_ALLOCATION_TYPE_INVALID: message << L" Invalid";
+                    case D3D12_DRED_ALLOCATION_TYPE_INVALID:
+                        message << L" Invalid";
                         break;
                     }
 

@@ -10,7 +10,7 @@ Effect::Effect(NativeClient& client)
     m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.GetGPUVirtualAddress();
     m_instanceDataBufferView.SizeInBytes    = static_cast<UINT>(m_instanceDataBufferAlignedSize);
 
-    TRY_DO(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
+    TryDo(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
 
     {
         m_geometryVBV.StrideInBytes = sizeof(SpatialVertex);
@@ -19,7 +19,7 @@ Effect::Effect(NativeClient& client)
 
 void Effect::Initialize(RasterPipeline& pipeline)
 {
-    REQUIRE(pipeline.GetPreset() == ShaderPreset::SPATIAL_EFFECT);
+    Require(pipeline.GetPreset() == ShaderPreset::SPATIAL_EFFECT);
     m_pipeline = &pipeline;
 }
 
@@ -50,7 +50,7 @@ void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount
         D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
-    TRY_DO(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
+    TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
 
 void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
