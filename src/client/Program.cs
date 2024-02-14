@@ -62,6 +62,9 @@ internal static class Program
     {
         SetDebugMode();
 
+        // Creating the directories could technically cause an exception.
+        // However, this would break a core assumption related to the special folders.
+
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
         StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");

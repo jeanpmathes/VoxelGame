@@ -26,6 +26,9 @@ public class WorldData
     /// <param name="directory">The directory of the world.</param>
     public WorldData(DirectoryInfo directory)
     {
+        // While it is technically possible that the following methods throw exceptions,
+        // we can reasonably assume that we have write access to the world directory.
+
         WorldDirectory = directory;
         directory.Create();
 

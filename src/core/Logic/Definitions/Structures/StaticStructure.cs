@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -134,28 +133,26 @@ public partial class StaticStructure : Structure
     {
         FileInfo file = directory.GetFile(GetFileName(name));
 
-        try
-        {
-            string json = file.ReadAllText();
-            Definition definition = JsonSerializer.Deserialize<Definition>(json) ?? new Definition();
+        Exception? exception = FileSystem.LoadJSON(file, out Definition definition);
 
-            if (loadingContext != null) loadingContext.ReportSuccess(Events.ResourceLoad, nameof(StaticStructure), file);
-            else logger.LogDebug(Events.CreationLoad, "Loaded StaticStructure: {Name}", name);
-
-            return new StaticStructure(definition, name);
-        }
-        catch (Exception e) when (e is IOException or FileNotFoundException or JsonException or FileFormatException)
+        if (exception != null)
         {
-            if (loadingContext != null) loadingContext.ReportFailure(Events.ResourceLoad, nameof(StaticStructure), file, e);
+            if (loadingContext != null)
+                loadingContext.ReportFailure(Events.ResourceLoad, nameof(StaticStructure), file, exception);
             else
                 logger.LogWarning(
                     Events.MissingCreation,
-                    e,
+                    exception,
                     "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead",
                     name);
 
             return CreateFallback();
         }
+
+        if (loadingContext != null) loadingContext.ReportSuccess(Events.ResourceLoad, nameof(StaticStructure), file);
+        else logger.LogDebug(Events.CreationLoad, "Loaded StaticStructure: {Name}", name);
+
+        return new StaticStructure(definition, name);
     }
 
     private static string GetFileName(string name)
@@ -261,23 +258,13 @@ public partial class StaticStructure : Structure
             Placements = placements.ToArray()
         };
 
-        try
-        {
-            string json = JsonSerializer.Serialize(definition,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+        Exception? exception = FileSystem.SaveJSON(definition, directory.GetFile(GetFileName(name)));
 
-            directory.GetFile(GetFileName(name)).WriteAllText(json);
+        if (exception == null) return false;
 
-            return true;
-        }
-        catch (Exception e) when (e is IOException or JsonException)
-        {
-            logger.LogError(Events.FileIO, e, "Could not store the structure '{Name}'", name);
-        }
+        logger.LogError(Events.FileIO, exception, "Could not store the structure '{Name}'", name);
 
         return false;
+
     }
 }

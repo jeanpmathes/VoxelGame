@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
@@ -53,7 +54,16 @@ internal class D3D12Debug
         DirectoryInfo directory = FileSystem.CreateTemporaryDirectory();
         FileInfo file = directory.GetFile($"{title}.txt");
 
-        file.WriteAllText(text);
+        try
+        {
+            file.WriteAllText(text);
+        }
+        catch (IOException)
+        {
+            logger.LogError("Failed to fill {File} with: {Text}", file.FullName, text);
+
+            return;
+        }
 
         ProcessStartInfo startInfo = new()
         {
@@ -61,7 +71,14 @@ internal class D3D12Debug
             UseShellExecute = true
         };
 
-        Process.Start(startInfo);
+        try
+        {
+            Process.Start(startInfo);
+        }
+        catch (Exception e) when (e is Win32Exception or InvalidOperationException)
+        {
+            logger.LogError(e, "Failed to start process for file {File}", file.FullName);
+        }
     }
 
     private static void DebugCallback(

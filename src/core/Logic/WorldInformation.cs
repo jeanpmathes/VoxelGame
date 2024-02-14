@@ -6,7 +6,6 @@
 
 using System;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -62,14 +61,15 @@ public class WorldInformation
     /// <param name="path">The save path.</param>
     public void Save(FileInfo path)
     {
-        JsonSerializerOptions options = new()
-        {
-            IgnoreReadOnlyProperties = true,
-            WriteIndented = true
-        };
+        Exception? exception = FileSystem.SaveJSON(this, path);
 
-        string json = JsonSerializer.Serialize(this, options);
-        path.WriteAllText(json);
+        if (exception != null) logger.LogError(Events.WorldSavingError, exception, "The meta file could not be saved: {Path}", path);
+        else
+            logger.LogDebug(
+                Events.WorldIO,
+                "WorldInformation for World '{Name}' was saved to: {Path}",
+                Name,
+                path);
     }
 
     /// <summary>
@@ -79,27 +79,17 @@ public class WorldInformation
     /// <returns>The loaded world information.</returns>
     public static WorldInformation Load(FileInfo path)
     {
-        try
-        {
-            string json = path.ReadAllText();
+        Exception? exception = FileSystem.LoadJSON(path, out WorldInformation information);
 
-            WorldInformation information =
-                JsonSerializer.Deserialize<WorldInformation>(json) ?? new WorldInformation();
-
+        if (exception != null) logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {Path}", path);
+        else
             logger.LogDebug(
                 Events.WorldIO,
                 "WorldInformation for World '{Name}' was loaded from: {Path}",
                 information.Name,
                 path);
 
-            return information;
-        }
-        catch (JsonException exception)
-        {
-            logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {Path}", path);
-
-            return new WorldInformation();
-        }
+        return information;
     }
 }
 
