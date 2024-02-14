@@ -11,7 +11,6 @@ using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
@@ -110,69 +109,11 @@ internal class WorldSelection : StandardMenu
 
         foreach ((WorldInformation info, DirectoryInfo path) in worldProvider.Worlds)
         {
-            GroupBox world = new(worldList)
-            {
-                Text = info.Name
-            };
+            WorldElement element = new(info, path, Context, worldList);
 
-            DockLayout layout = new(world);
+            element.OnLoad += (_, _) => worldProvider.LoadWorld(info, path);
 
-            VerticalLayout infoPanel = new(layout)
-            {
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            Label date = new(infoPanel)
-            {
-                Text = $"{info.Creation.ToLongDateString()} - {info.Creation.ToLongTimeString()}",
-                Font = Fonts.Small
-            };
-
-            Control.Used(date);
-
-            Label version = new(infoPanel)
-            {
-                Text = info.Version,
-                Font = Fonts.Small,
-                TextColor = ApplicationInformation.Instance.Version == info.Version ? Color.Green : Color.Red
-            };
-
-            Control.Used(version);
-
-            Label file = new(infoPanel)
-            {
-                Text = path.FullName,
-                Font = Fonts.Path,
-                TextColor = Color.Grey
-            };
-
-            Control.Used(file);
-
-            HorizontalLayout buttons = new(layout)
-            {
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            Button load = new(buttons)
-            {
-                ImageName = Context.Resources.LoadIcon,
-                ImageSize = new Size(width: 40, height: 40),
-                ToolTipText = Language.Load
-
-            };
-
-            Button delete = new(buttons)
-            {
-                ImageName = Context.Resources.DeleteIcon,
-                ImageSize = new Size(width: 40, height: 40),
-                ToolTipText = Language.Delete
-            };
-
-            load.Released += (_, _) => worldProvider.LoadWorld(info, path);
-
-            delete.Released += (_, _) => Modals.OpenBooleanModal(
+            element.OnDelete += (_, _) => Modals.OpenBooleanModal(
                 this,
                 Language.DeleteWorldQuery,
                 () =>
