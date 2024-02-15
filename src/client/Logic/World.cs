@@ -59,7 +59,7 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public World(DirectoryInfo path, WorldInformation information) : base(path, information)
+    public World(WorldData data) : base(data)
     {
         space = Application.Client.Instance.Space;
 

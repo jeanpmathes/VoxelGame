@@ -8,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using Properties;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Application.Settings;
 
 /// <summary>
 ///     General game settings that are not part of any other settings category.
@@ -23,7 +23,7 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
 {
     private readonly List<Setting> settings = new();
 
-    internal GeneralSettings(Settings clientSettings)
+    internal GeneralSettings(Properties.Settings clientSettings)
     {
         ScaleOfUI = new Bindable<float>(
             () => (float) clientSettings.ScaleOfUI,

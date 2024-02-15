@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
+using System.Linq;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -107,18 +107,22 @@ internal class WorldSelection : StandardMenu
 
         worldList.DeleteAllChildren();
 
-        foreach ((WorldInformation info, DirectoryInfo path) in worldProvider.Worlds)
+        foreach (WorldData data in worldProvider.Worlds.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue))
         {
-            WorldElement element = new(info, path, Context, worldList);
+            WorldElement element = new(
+                data,
+                worldProvider.GetDateTimeOfLastLoad(data),
+                Context,
+                worldList);
 
-            element.OnLoad += (_, _) => worldProvider.LoadWorld(info, path);
+            element.OnLoad += (_, _) => worldProvider.LoadWorld(data);
 
             element.OnDelete += (_, _) => Modals.OpenBooleanModal(
                 this,
                 Language.DeleteWorldQuery,
                 () =>
                 {
-                    worldProvider.DeleteWorld(path);
+                    worldProvider.DeleteWorld(data);
                     Refresh();
                 },
                 () => {});

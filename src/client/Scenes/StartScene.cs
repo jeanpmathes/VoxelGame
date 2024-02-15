@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application;
+using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -134,13 +133,13 @@ public sealed class StartScene : IScene
         if (loadWorldDirectly is not {} index) return;
 
         worldProvider.Refresh();
-        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
+        WorldData? data = worldProvider.Worlds.ElementAtOrDefault(index);
 
-        if (world != default((WorldInformation, DirectoryInfo)))
+        if (data != null)
         {
             logger.LogInformation("Loading world at index {Index} directly", index);
 
-            worldProvider.LoadWorld(world.info, world.path);
+            worldProvider.LoadWorld(data);
         }
         else
         {

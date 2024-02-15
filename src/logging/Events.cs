@@ -114,11 +114,6 @@ public static class Events
     public const int WorldIO = 1001;
 
     /// <summary>
-    ///     Events related to setting secondary world data.
-    /// </summary>
-    public const int WorldData = 1002;
-
-    /// <summary>
     ///     An error that occurs when saving the world.
     /// </summary>
     public const int WorldSavingError = 1010;

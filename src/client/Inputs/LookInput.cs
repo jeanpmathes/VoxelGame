@@ -7,7 +7,7 @@
 using OpenTK.Mathematics;
 using VoxelGame.Support.Input.Devices;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Inputs;
 
 /// <summary>
 ///     Wraps input sources to provide action data for look movement.

@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -16,6 +17,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Basic information about a world.
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class WorldInformation
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
@@ -37,6 +39,7 @@ public class WorldInformation
 
     /// <summary>
     ///     The size of the world, as extents.
+    ///     This means the number of blocks on each side is twice the size.
     /// </summary>
     public uint Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
 
@@ -96,6 +99,7 @@ public class WorldInformation
 /// <summary>
 ///     World spawn information.
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public struct SpawnInformation : IEquatable<SpawnInformation>
 {
     /// <summary>

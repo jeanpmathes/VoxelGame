@@ -615,4 +615,28 @@
     <data name="ScaleOfUI" xml:space="preserve">
         <value>Skalierung der Benutzeroberfläche</value>
     </data>
+    <data name="CreatedOn" xml:space="preserve">
+        <value>Erstellt am</value>
+    </data>
+    <data name="LastLoaded" xml:space="preserve">
+        <value>Zuletzt geladen</value>
+    </data>
+    <data name="TimeSinceEventNever" xml:space="preserve">
+        <value>nie</value>
+    </data>
+    <data name="TimeSinceEventMomentAgo" xml:space="preserve">
+        <value>gerade eben</value>
+    </data>
+    <data name="TimeSinceEventHours" xml:space="preserve">
+        <value>vor {0} Stunden</value>
+    </data>
+    <data name="TimeSinceEventMinutes" xml:space="preserve">
+        <value>vor {0} Minuten</value>
+    </data>
+    <data name="TimeSinceEventDays" xml:space="preserve">
+        <value>vor {0} Tagen</value>
+    </data>
+    <data name="TimeSinceEventEternity" xml:space="preserve">
+        <value>vor Ewigkeiten</value>
+    </data>
 </root>

@@ -8,14 +8,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using OpenTK.Mathematics;
-using Properties;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Application.Settings;
 
 /// <summary>
 ///     Game settings concerning the game graphics and visuals.
@@ -25,7 +24,7 @@ public class GraphicsSettings : ISettingsProvider
 {
     private readonly List<Setting> settings = new();
 
-    internal GraphicsSettings(Settings clientSettings)
+    internal GraphicsSettings(Properties.Settings clientSettings)
     {
         FoliageQuality = new Bindable<Quality>(
             () => clientSettings.FoliageQuality,

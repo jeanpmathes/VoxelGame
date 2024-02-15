@@ -18,7 +18,7 @@ using VoxelGame.Support.Input.Collections;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Inputs;
 
 internal sealed class KeybindManager : ISettingsProvider, IDisposable
 {
@@ -50,8 +50,8 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         InitializeUsages();
         InitializeSettings();
 
-        LookBind = new LookInput(Input.Mouse, Client.Instance.Settings.MouseSensitivity);
-        binding = Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
+        LookBind = new LookInput(Input.Mouse, Application.Client.Instance.Settings.MouseSensitivity);
+        binding = Application.Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
     }
 
     /// <summary>

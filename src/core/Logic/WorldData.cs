@@ -4,39 +4,57 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-///     Represents all data stored about a world on disk and provides utilities for IO operations.
+///     Represents the data directory of a world and provides utilities to access and modify it.
 /// </summary>
 public class WorldData
 {
-    private const string MetaFileName = "meta.json";
+    private const string InfoFileName = "info.json";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
+
+    private readonly List<DirectoryInfo> subdirectories = new();
 
     /// <summary>
     ///     Creates a new world data object.
+    ///     This does not perform any IO operations.
     /// </summary>
+    /// <param name="information">The information about the world.</param>
     /// <param name="directory">The directory of the world.</param>
-    public WorldData(DirectoryInfo directory)
+    public WorldData(WorldInformation information, DirectoryInfo directory)
     {
-        // While it is technically possible that the following methods throw exceptions,
-        // we can reasonably assume that we have write access to the world directory.
-
+        Information = information;
         WorldDirectory = directory;
-        directory.Create();
 
-        ChunkDirectory = FileSystem.CreateSubdirectory(directory, "Chunks");
-        BlobDirectory = FileSystem.CreateSubdirectory(directory, "Blobs");
-        DebugDirectory = FileSystem.CreateSubdirectory(directory, "Debug");
-        ScriptDirectory = FileSystem.CreateSubdirectory(directory, "Scripts");
+        ChunkDirectory = AddSubdirectory("Chunks");
+        BlobDirectory = AddSubdirectory("Blobs");
+        DebugDirectory = AddSubdirectory("Debug");
+        ScriptDirectory = AddSubdirectory("Scripts");
+
+        DirectoryInfo AddSubdirectory(string name)
+        {
+            DirectoryInfo subdirectory = directory.GetDirectory(name);
+
+            subdirectories.Add(subdirectory);
+
+            return subdirectory;
+        }
     }
+
+    /// <summary>
+    ///     Get the world information structure.
+    /// </summary>
+    public WorldInformation Information { get; }
 
     /// <summary>
     ///     The directory in which this world is stored.
@@ -62,6 +80,56 @@ public class WorldData
     ///     The directory in which scripts are stored.
     /// </summary>
     public DirectoryInfo ScriptDirectory { get; }
+
+    /// <summary>
+    ///     Ensure that the world information is valid.
+    /// </summary>
+    /// <param name="silent">If true, no log messages will be emitted.</param>
+    public void EnsureValidInformation(bool silent = false)
+    {
+        uint validWorldSize = ClampSize(Information.Size);
+
+        if (!silent && validWorldSize != Information.Size)
+        {
+            logger.LogWarning(Events.WorldState, "Loaded world size {Invalid} was invalid, changed to {Valid}", Information.Size, validWorldSize);
+            Information.Size = validWorldSize;
+        }
+
+        Vector3d validSpawn = ClampSpawn(Information.SpawnInformation).Position;
+
+        if (!silent && !VMath.NearlyEqual(validSpawn, Information.SpawnInformation.Position))
+        {
+            logger.LogWarning(Events.WorldState, "Loaded spawn position {Invalid} was invalid, changed to {Valid}", Information.SpawnInformation.Position, validSpawn);
+            Information.SpawnInformation = new SpawnInformation(validSpawn);
+        }
+    }
+
+    private static uint ClampSize(uint size)
+    {
+        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
+    }
+
+    private SpawnInformation ClampSpawn(SpawnInformation spawn)
+    {
+        Vector3d size = new(Information.Size);
+        Vector3d clamped = VMath.ClampComponents(spawn.Position, -size, size);
+
+        return new SpawnInformation(clamped);
+    }
+
+    /// <summary>
+    ///     Ensure that all directories exist and are valid.
+    /// </summary>
+    public void EnsureValidDirectory()
+    {
+        // While it is technically possible that the following methods throw exceptions,
+        // we can reasonably assume that we have write access to the world directory.
+
+        WorldDirectory.Create();
+
+        foreach (DirectoryInfo subdirectory in subdirectories)
+            subdirectory.Create();
+    }
 
     /// <summary>
     ///     Get a reader for an existing blob.
@@ -154,21 +222,24 @@ public class WorldData
     }
 
     /// <summary>
-    ///     Save the world information structure.
+    /// Save all information directly handled by this class.
+    /// This will not save any chunks or open blobs.
     /// </summary>
-    public void SaveInformation(WorldInformation information)
+    public void Save()
     {
-        information.Save(WorldDirectory.GetFile(MetaFileName));
+        Information.Save(WorldDirectory.GetFile(InfoFileName));
     }
 
     /// <summary>
-    ///     Load a world information structure.
+    ///     Load a world information structure and create the world data class.
     /// </summary>
     /// <param name="directory">The directory of the world.</param>
     /// <returns>The world information structure.</returns>
-    public static WorldInformation LoadInformation(DirectoryInfo directory)
+    public static WorldData LoadInformation(DirectoryInfo directory)
     {
-        return WorldInformation.Load(directory.GetFile(MetaFileName));
+        WorldInformation information = WorldInformation.Load(directory.GetFile(InfoFileName));
+
+        return new WorldData(information, directory);
     }
 
     /// <summary>
@@ -178,6 +249,23 @@ public class WorldData
     /// <returns>True if the directory is a world directory.</returns>
     public static bool IsWorldDirectory(DirectoryInfo directory)
     {
-        return directory.GetFile(MetaFileName).Exists;
+        return directory.GetFile(InfoFileName).Exists;
+    }
+
+    /// <summary>
+    ///     Delete the world and all its data.
+    /// </summary>
+    public void Delete()
+    {
+        try
+        {
+            WorldDirectory.Delete(recursive: true);
+
+            logger.LogInformation(Events.WorldIO, "Deleted world '{Name}'", Information.Name);
+        }
+        catch (IOException e)
+        {
+            logger.LogError(Events.WorldIO, e, "Failed to delete world");
+        }
     }
 }

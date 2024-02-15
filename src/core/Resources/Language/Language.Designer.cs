@@ -258,6 +258,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Created on.
+        /// </summary>
+        public static string CreatedOn {
+            get {
+                return ResourceManager.GetString("CreatedOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create New World.
         /// </summary>
         public static string CreateNewWorld {
@@ -834,6 +843,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last loaded.
+        /// </summary>
+        public static string LastLoaded {
+            get {
+                return ResourceManager.GetString("LastLoaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lava.
         /// </summary>
         public static string Lava {
@@ -1379,6 +1397,60 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TiledGlass {
             get {
                 return ResourceManager.GetString("TiledGlass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} days ago.
+        /// </summary>
+        public static string TimeSinceEventDays {
+            get {
+                return ResourceManager.GetString("TimeSinceEventDays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ages ago.
+        /// </summary>
+        public static string TimeSinceEventEternity {
+            get {
+                return ResourceManager.GetString("TimeSinceEventEternity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} hours ago.
+        /// </summary>
+        public static string TimeSinceEventHours {
+            get {
+                return ResourceManager.GetString("TimeSinceEventHours", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} minutes ago.
+        /// </summary>
+        public static string TimeSinceEventMinutes {
+            get {
+                return ResourceManager.GetString("TimeSinceEventMinutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to just a moment ago.
+        /// </summary>
+        public static string TimeSinceEventMomentAgo {
+            get {
+                return ResourceManager.GetString("TimeSinceEventMomentAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to never.
+        /// </summary>
+        public static string TimeSinceEventNever {
+            get {
+                return ResourceManager.GetString("TimeSinceEventNever", resourceCulture);
             }
         }
         

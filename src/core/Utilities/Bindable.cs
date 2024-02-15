@@ -5,9 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Core.Utilities;
 
 /// <summary>
 ///     Wraps a value source that allows to bind actions to it.

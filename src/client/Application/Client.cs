@@ -5,6 +5,9 @@
 // <author>jeanpmathes</author>
 
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Resources;
+using VoxelGame.Client.Application.Settings;
+using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Utilities;

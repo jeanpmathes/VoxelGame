@@ -4,8 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
-using System.IO;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.UI.Providers;
@@ -18,7 +18,14 @@ public interface IWorldProvider
     /// <summary>
     ///     Get all currently known worlds.
     /// </summary>
-    IEnumerable<(WorldInformation info, DirectoryInfo path)> Worlds { get; }
+    IEnumerable<WorldData> Worlds { get; }
+
+    /// <summary>
+    ///     Get the date and time of the last load of a world.
+    /// </summary>
+    /// <param name="data">The world.</param>
+    /// <returns>The data and time of the last load, or null if the world has never been loaded.</returns>
+    DateTime? GetDateTimeOfLastLoad(WorldData data);
 
     /// <summary>
     ///     Refresh all known worlds.
@@ -28,9 +35,8 @@ public interface IWorldProvider
     /// <summary>
     ///     Load a specific world from disk.
     /// </summary>
-    /// <param name="information">(Information describing the world to load.</param>
-    /// <param name="path">The path to the world to load.</param>
-    void LoadWorld(WorldInformation information, DirectoryInfo path);
+    /// <param name="data">The world to load.</param>
+    void LoadWorld(WorldData data);
 
     /// <summary>
     ///     Create a new world.
@@ -48,6 +54,6 @@ public interface IWorldProvider
     /// <summary>
     ///     Delete a world.
     /// </summary>
-    /// <param name="path">The path to the world to delete.</param>
-    void DeleteWorld(DirectoryInfo path);
+    /// <param name="data">The world to delete.</param>
+    void DeleteWorld(WorldData data);
 }

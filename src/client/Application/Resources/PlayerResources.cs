@@ -8,7 +8,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Objects;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Application.Resources;
 
 /// <summary>
 ///     Contains all the resources that are used to render the player and its interface.

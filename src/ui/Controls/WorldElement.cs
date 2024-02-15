@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.IO;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -20,18 +19,18 @@ namespace VoxelGame.UI.Controls;
 /// <summary>
 ///     Represents a world element in the world selection menu.
 /// </summary>
-internal sealed class WorldElement : GroupBox
+public sealed class WorldElement : GroupBox
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldElement" /> class.
     /// </summary>
-    /// <param name="info">Information about the world to display.</param>
-    /// <param name="path">The path to the world.</param>
+    /// <param name="world">Data of the world to represent.</param>
+    /// <param name="lastLoad">The last time the world was loaded.</param>
     /// <param name="context">The context in which the user interface is running.</param>
     /// <param name="parent">The parent control.</param>
-    internal WorldElement(WorldInformation info, DirectoryInfo path, Context context, ControlBase parent) : base(parent)
+    internal WorldElement(WorldData world, DateTime? lastLoad, Context context, ControlBase parent) : base(parent)
     {
-        Text = info.Name;
+        Text = world.Information.Name;
 
         DockLayout layout = new(this);
 
@@ -41,28 +40,55 @@ internal sealed class WorldElement : GroupBox
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        Label date = new(infoPanel)
+        Label creation = new(infoPanel)
         {
-            Text = $"{info.Creation.ToLongDateString()} - {info.Creation.ToLongTimeString()}",
-            Font = context.Fonts.Small
+            Text = $"{Language.CreatedOn}: {Formatter.FormatDateTime(world.Information.Creation)}",
+            Font = context.Fonts.Small,
+            TextColor = Color.Grey
         };
 
-        Control.Used(date);
+        Control.Used(creation);
+
+        HorizontalLayout last = new(infoPanel)
+        {
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        Control.Used(last);
+
+        Label text = new(last)
+        {
+            Text = $"{Language.LastLoaded}: {Formatter.FormatTimeSinceEvent(lastLoad, out bool hasOccurred)}",
+            Font = context.Fonts.Small,
+            TextColor = Color.Grey
+        };
+
+        Control.Used(text);
+
+        Label marker = new(last)
+        {
+            Text = hasOccurred ? "" : "  !!!  ",
+            Font = context.Fonts.Small,
+            TextColor = hasOccurred ? Color.Transparent : Color.GreenYellow
+        };
+
+        Control.Used(marker);
 
         Label version = new(infoPanel)
         {
-            Text = info.Version,
+            Text = world.Information.Version,
             Font = context.Fonts.Small,
-            TextColor = ApplicationInformation.Instance.Version == info.Version ? Color.Green : Color.Red
+            TextColor = ApplicationInformation.Instance.Version == world.Information.Version ? Color.Green : Color.Red
         };
 
         Control.Used(version);
 
         Label file = new(infoPanel)
         {
-            Text = path.FullName,
+            Text = world.WorldDirectory.FullName,
             Font = context.Fonts.Path,
-            TextColor = Color.Grey
+            TextColor = Color.Gray
         };
 
         Control.Used(file);

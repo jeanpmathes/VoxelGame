@@ -615,4 +615,28 @@
     <data name="ScaleOfUI" xml:space="preserve">
         <value>Scale of UI</value>
     </data>
+    <data name="CreatedOn" xml:space="preserve">
+        <value>Created on</value>
+    </data>
+    <data name="LastLoaded" xml:space="preserve">
+        <value>Last loaded</value>
+    </data>
+    <data name="TimeSinceEventNever" xml:space="preserve">
+        <value>never</value>
+    </data>
+    <data name="TimeSinceEventMomentAgo" xml:space="preserve">
+        <value>just a moment ago</value>
+    </data>
+    <data name="TimeSinceEventMinutes" xml:space="preserve">
+        <value>{0} minutes ago</value>
+    </data>
+    <data name="TimeSinceEventHours" xml:space="preserve">
+        <value>{0} hours ago</value>
+    </data>
+    <data name="TimeSinceEventDays" xml:space="preserve">
+        <value>{0} days ago</value>
+    </data>
+    <data name="TimeSinceEventEternity" xml:space="preserve">
+        <value>ages ago</value>
+    </data>
 </root>

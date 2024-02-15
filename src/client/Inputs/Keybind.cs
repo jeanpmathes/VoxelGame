@@ -10,7 +10,7 @@ using System.Diagnostics;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Input.Actions;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Inputs;
 
 /// <summary>
 ///     Represents a keybind, that associates a key with a binding.

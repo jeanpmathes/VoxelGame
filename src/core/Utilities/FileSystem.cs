@@ -48,18 +48,6 @@ public static class FileSystem
     };
 
     /// <summary>
-    ///     Creates all subdirectories along a path, starting from a parent entry.
-    /// </summary>
-    /// <param name="parent">The parent entry.</param>
-    /// <param name="subdirectories">A list of subdirectories.</param>
-    /// <returns>The subdirectory.</returns>
-    /// <exception cref="IOException">If the directory could not be created.</exception>
-    public static DirectoryInfo CreateSubdirectory(FileSystemInfo parent, params string[] subdirectories)
-    {
-        return Directory.CreateDirectory(Path.Combine(parent.FullName, Path.Combine(subdirectories)));
-    }
-
-    /// <summary>
     ///     Creates all subdirectories along a path, starting from a special folder.
     /// </summary>
     /// <param name="parent">The parent special folder.</param>
@@ -80,6 +68,17 @@ public static class FileSystem
     public static FileInfo GetFile(this DirectoryInfo parent, string fileName)
     {
         return new FileInfo(Path.Combine(parent.FullName, fileName));
+    }
+
+    /// <summary>
+    ///     Get the path of a subdirectory in a directory. This does not create the subdirectory.
+    /// </summary>
+    /// <param name="parent">The parent directory.</param>
+    /// <param name="directoryName">The subdirectory name.</param>
+    /// <returns>The subdirectory path.</returns>
+    public static DirectoryInfo GetDirectory(this DirectoryInfo parent, string directoryName)
+    {
+        return new DirectoryInfo(Path.Combine(parent.FullName, directoryName));
     }
 
     /// <summary>

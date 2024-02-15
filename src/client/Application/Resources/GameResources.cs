@@ -16,7 +16,7 @@ using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
 using VoxelGame.UI;
 
-namespace VoxelGame.Client.Application;
+namespace VoxelGame.Client.Application.Resources;
 
 /// <summary>
 ///     Prepares, loads and offers game resources.
