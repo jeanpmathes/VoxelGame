@@ -25,8 +25,8 @@ public class ScheduledTickManager<T> where T : ITickable
 
     private readonly int maxTicks;
     private TicksHolder? nextTicks;
-    [NonSerialized] private UpdateCounter updateCounter;
 
+    [NonSerialized] private UpdateCounter updateCounter;
     [NonSerialized] private World world;
 
     /// <summary>

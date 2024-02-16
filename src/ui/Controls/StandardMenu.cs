@@ -30,7 +30,14 @@ internal abstract class StandardMenu : ControlBase
 
     internal Context Context { get; }
 
-    protected FontHolder Fonts => Context.Fonts;
+    public override void Show()
+    {
+        base.Show();
+
+        OnOpen();
+    }
+
+    protected virtual void OnOpen() {}
 
     protected void CreateContent()
     {
@@ -73,7 +80,7 @@ internal abstract class StandardMenu : ControlBase
         Label title = new(bar)
         {
             Text = Language.VoxelGame,
-            Font = Fonts.Title,
+            Font = Context.Fonts.Title,
             Alignment = Alignment.Center
         };
 
@@ -82,7 +89,7 @@ internal abstract class StandardMenu : ControlBase
         Label subtitle = new(bar)
         {
             Text = ApplicationInformation.Instance.Version,
-            Font = Fonts.Subtitle,
+            Font = Context.Fonts.Subtitle,
             Alignment = Alignment.Center
         };
 

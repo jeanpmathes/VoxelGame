@@ -49,14 +49,19 @@ public static class Events
     public const int FileIO = 50;
 
     /// <summary>
+    ///     Events related to the scene system.
+    /// </summary>
+    public const int Scene = 60;
+
+    /// <summary>
     ///     Events related to the in-game console.
     /// </summary>
-    public const int Console = 60;
+    public const int Console = 70;
 
     /// <summary>
     ///     Events related to the disposal of objects.
     /// </summary>
-    public const int Dispose = 70;
+    public const int Dispose = 99;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of resources.

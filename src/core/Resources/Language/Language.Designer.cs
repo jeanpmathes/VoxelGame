@@ -375,6 +375,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred..
+        /// </summary>
+        public static string ErrorOccurred {
+            get {
+                return ResourceManager.GetString("ErrorOccurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Eternal Flame.
         /// </summary>
         public static string EternalFlame {
@@ -888,6 +897,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading.
+        /// </summary>
+        public static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Log.
         /// </summary>
         public static string Log {
@@ -992,6 +1010,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string NoFluid {
             get {
                 return ResourceManager.GetString("NoFluid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found no worlds..
+        /// </summary>
+        public static string NoWorldsFound {
+            get {
+                return ResourceManager.GetString("NoWorldsFound", resourceCulture);
             }
         }
         
@@ -1136,6 +1163,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string RedPlastic {
             get {
                 return ResourceManager.GetString("RedPlastic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        public static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
             }
         }
         

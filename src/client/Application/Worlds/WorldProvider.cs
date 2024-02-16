@@ -12,6 +12,7 @@ using System.Security;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -44,37 +45,74 @@ public class WorldProvider : IWorldProvider
         metadataFile = worldsDirectory.GetFile("meta.json");
     }
 
+    private Status Status { get; set; } = Status.Ok;
+
     /// <inheritdoc />
-    public IEnumerable<WorldData> Worlds => worlds;
+    public IEnumerable<WorldData> Worlds
+    {
+        get
+        {
+            if (Status != Status.Ok) throw new InvalidOperationException();
+
+            return worlds;
+        }
+    }
 
     /// <inheritdoc />
     public DateTime? GetDateTimeOfLastLoad(WorldData data)
     {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
         metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
 
         return fileMetadata?.LastLoad;
     }
 
     /// <inheritdoc />
-    public void Refresh()
+    public Operation Refresh()
     {
+        if (Status == Status.Running)
+            throw new InvalidOperationException();
+
+        Status = Status.Running;
+
         worlds.Clear();
 
-        metadata = WorldDirectoryMetadata.Load(metadataFile);
-
-        try
+        return Operations.Launch(() =>
         {
-            SearchForWorlds();
+            WorldDirectoryMetadata loaded = WorldDirectoryMetadata.Load(metadataFile, out Exception? exception);
 
-            logger.LogInformation(
-                Events.WorldIO,
-                "Completed world lookup, found {Count} valid directories",
-                worlds.Count);
-        }
-        catch (Exception e) when (e is IOException or SecurityException)
+            if (exception != null)
+                throw exception;
+
+            metadata = loaded;
+
+            List<WorldData>? found;
+
+            try
+            {
+                found = SearchForWorlds();
+
+                logger.LogInformation(
+                    Events.WorldIO,
+                    "Completed world lookup, found {Count} valid directories",
+                    found.Count);
+            }
+            catch (Exception e) when (e is IOException or SecurityException)
+            {
+                logger.LogError(Events.WorldIO, e, "Failed to refresh worlds");
+
+                throw;
+            }
+
+            return found;
+        }).OnCompletion(op =>
         {
-            logger.LogError(Events.WorldIO, e, "Failed to refresh worlds");
-        }
+            if (op.Result != null)
+                worlds.AddRange(op.Result);
+
+            Status = op.Status;
+        });
     }
 
     /// <inheritdoc />
@@ -82,9 +120,21 @@ public class WorldProvider : IWorldProvider
     public void LoadWorld(WorldData data)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
+        if (Status != Status.Ok) throw new InvalidOperationException();
 
         World world = new(data);
         ActivateWorld(world);
+    }
+
+    /// <inheritdoc />
+    public void DeleteWorld(WorldData data)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        data.Delete();
+
+        worlds.Remove(data);
+        metadata.Entries.Remove(GetMetadataKey(data));
     }
 
     /// <inheritdoc />
@@ -120,21 +170,14 @@ public class WorldProvider : IWorldProvider
         }
     }
 
-    /// <inheritdoc />
-    public void DeleteWorld(WorldData data)
+    private List<WorldData> SearchForWorlds()
     {
-        data.Delete();
+        List<WorldData> found = new();
 
-        worlds.Remove(data);
-        metadata.Entries.Remove(GetMetadataKey(data));
-    }
-
-    private void SearchForWorlds()
-    {
         foreach (DirectoryInfo directory in worldsDirectory.EnumerateDirectories())
             if (WorldData.IsWorldDirectory(directory))
             {
-                worlds.Add(WorldData.LoadInformation(directory));
+                found.Add(WorldData.LoadInformation(directory));
 
                 logger.LogDebug(Events.WorldIO, "Valid world directory found: {Directory}", directory);
             }
@@ -145,6 +188,8 @@ public class WorldProvider : IWorldProvider
                     "Directory has no meta file and is ignored: {Directory}",
                     directory);
             }
+
+        return found;
     }
 
     private void ActivateWorld(World world)

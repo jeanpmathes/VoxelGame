@@ -85,8 +85,6 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     private World(WorldData data, bool isNew)
     {
-        Ready += delegate {};
-
         Data = data;
         Data.EnsureValidDirectory();
 
@@ -123,7 +121,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get whether the world is active.
     /// </summary>
-    protected bool IsActive => CurrentState == State.Active;
+    public bool IsActive => CurrentState == State.Active;
 
     /// <summary>
     ///     Get the world state.
@@ -133,9 +131,11 @@ public abstract class World : IDisposable, IGrid
         get => currentState;
         set
         {
+            State oldState = currentState;
             currentState = value;
 
-            if (value == State.Active) Ready(this, EventArgs.Empty);
+            if (oldState != currentState)
+                StateChanged(this, EventArgs.Empty);
         }
     }
 
@@ -673,7 +673,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Fired anytime the world switches to the ready-state.
     /// </summary>
-    public event EventHandler<EventArgs> Ready;
+    public event EventHandler<EventArgs> StateChanged = delegate {};
 
     /// <summary>
     ///     The world state.

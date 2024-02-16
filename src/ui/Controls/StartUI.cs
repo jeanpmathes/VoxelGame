@@ -32,8 +32,6 @@ internal class StartUI : ControlBase
 
     private readonly List<StandardMenu> menus = new();
 
-    private readonly WorldSelection worldSelection;
-
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
     {
@@ -50,7 +48,7 @@ internal class StartUI : ControlBase
         SettingsMenu settingsMenu = new(this, settingsProviders, parent.Context);
         settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-        worldSelection = new WorldSelection(this, worldProvider, parent.Context);
+        WorldSelection worldSelection = new(this, worldProvider, parent.Context);
         worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
         CreditsMenu creditsMenu = new(this, parent.Context);
@@ -69,8 +67,6 @@ internal class StartUI : ControlBase
         foreach (StandardMenu menu in menus) menu.Hide();
 
         menus[index].Show();
-
-        if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
     }
 
     internal void DisableWorldSelection()

@@ -44,7 +44,7 @@ public sealed class WorldElement : GroupBox
         {
             Text = $"{Language.CreatedOn}: {Formatter.FormatDateTime(world.Information.Creation)}",
             Font = context.Fonts.Small,
-            TextColor = Color.Grey
+            TextColor = Colors.Secondary
         };
 
         Control.Used(creation);
@@ -61,7 +61,7 @@ public sealed class WorldElement : GroupBox
         {
             Text = $"{Language.LastLoaded}: {Formatter.FormatTimeSinceEvent(lastLoad, out bool hasOccurred)}",
             Font = context.Fonts.Small,
-            TextColor = Color.Grey
+            TextColor = Colors.Secondary
         };
 
         Control.Used(text);
@@ -70,7 +70,7 @@ public sealed class WorldElement : GroupBox
         {
             Text = hasOccurred ? "" : "  !!!  ",
             Font = context.Fonts.Small,
-            TextColor = hasOccurred ? Color.Transparent : Color.GreenYellow
+            TextColor = hasOccurred ? Colors.Invisible : Colors.Interesting
         };
 
         Control.Used(marker);
@@ -79,7 +79,7 @@ public sealed class WorldElement : GroupBox
         {
             Text = world.Information.Version,
             Font = context.Fonts.Small,
-            TextColor = ApplicationInformation.Instance.Version == world.Information.Version ? Color.Green : Color.Red
+            TextColor = ApplicationInformation.Instance.Version == world.Information.Version ? Colors.Good : Colors.Bad
         };
 
         Control.Used(version);
@@ -88,7 +88,7 @@ public sealed class WorldElement : GroupBox
         {
             Text = world.WorldDirectory.FullName,
             Font = context.Fonts.Path,
-            TextColor = Color.Gray
+            TextColor = Colors.Secondary
         };
 
         Control.Used(file);

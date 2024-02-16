@@ -10,6 +10,7 @@ using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -25,9 +26,11 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
     private readonly GameParameters parameters;
-    private readonly SceneFactory sceneFactory;
 
+    private readonly SceneFactory sceneFactory;
     private readonly SceneManager sceneManager;
+
+    private readonly OperationUpdateDispatch operations = new(singleton: true);
 
     private ScreenBehaviour screenBehaviour = null!;
 
@@ -117,6 +120,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (logger.BeginScope("UpdateFrame"))
         {
+            operations.Update();
+
             sceneManager.Update(delta);
             screenBehaviour.Update(delta);
         }

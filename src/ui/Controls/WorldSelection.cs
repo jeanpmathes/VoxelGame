@@ -5,9 +5,11 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
@@ -28,11 +30,14 @@ internal class WorldSelection : StandardMenu
 {
     private readonly IWorldProvider worldProvider;
 
-    private Button createNewWorldButton = null!;
+    private readonly List<Button> buttonBar = new();
+    private ControlBase? worldList;
+
+    private bool isFirstOpen = true;
+
+    private CancellationTokenSource? refreshCancellation;
 
     private Window? worldCreationWindow;
-
-    private ControlBase? worldList;
 
     internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, Context context) : base(
         parent,
@@ -79,7 +84,7 @@ internal class WorldSelection : StandardMenu
         };
 
         worldList = new VerticalLayout(scroll);
-        FillWorldList();
+        BuildWorldList();
 
         GroupBox options = new(layout)
         {
@@ -87,21 +92,88 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Bottom
         };
 
-        createNewWorldButton = new Button(options)
+        GridLayout bar = new(options);
+        bar.SetColumnWidths(0.5f, 0.25f, 0.25f);
+
+        Button createNewWorldButton = new(bar)
         {
             Text = Language.CreateNewWorld
         };
 
+        buttonBar.Add(createNewWorldButton);
         createNewWorldButton.Released += (_, _) => OpenWorldCreationWindow();
+
+        Button refreshButton = new(bar)
+        {
+            Text = Language.Refresh
+        };
+
+        buttonBar.Add(refreshButton);
+        refreshButton.Released += (_, _) => Refresh();
     }
 
-    internal void Refresh()
+    protected override void OnOpen()
     {
-        worldProvider.Refresh();
-        FillWorldList();
+        if (!isFirstOpen) return;
+
+        isFirstOpen = false;
+        Refresh();
     }
 
-    private void FillWorldList()
+    private void Refresh()
+    {
+        if (refreshCancellation != null)
+            return;
+
+        refreshCancellation = new CancellationTokenSource();
+
+        BuildTextDisplay(Language.Loading + "...");
+        SetButtonBarEnabled(enabled: false);
+
+        worldProvider.Refresh().OnCompletion(op =>
+            {
+                SetButtonBarEnabled(enabled: true);
+
+                if (op.IsOk) BuildWorldList();
+                else BuildTextDisplay(Language.ErrorOccurred, isError: true);
+
+#pragma warning disable S2952 // Must be disposed because it is overwritten.
+                refreshCancellation?.Dispose();
+                refreshCancellation = null;
+#pragma warning disable S2952
+            },
+            refreshCancellation.Token);
+    }
+
+    private void SetButtonBarEnabled(bool enabled)
+    {
+        foreach (Button button in buttonBar)
+        {
+            if (enabled) button.Enable();
+            else button.Disable();
+
+            button.Redraw();
+        }
+    }
+
+    private void BuildTextDisplay(string text, bool isError = false)
+    {
+        Debug.Assert(worldList != null);
+
+        worldList.DeleteAllChildren();
+
+        Label label = new(worldList)
+        {
+            Text = text,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            TextColor = isError ? Colors.Error : Colors.Secondary
+        };
+
+        Control.Used(label);
+    }
+
+    private void BuildWorldList()
     {
         Debug.Assert(worldList != null);
 
@@ -123,10 +195,12 @@ internal class WorldSelection : StandardMenu
                 () =>
                 {
                     worldProvider.DeleteWorld(data);
-                    Refresh();
+                    worldList.RemoveChild(element, dispose: true);
                 },
                 () => {});
         }
+
+        if (!worldProvider.Worlds.Any()) BuildTextDisplay(Language.NoWorldsFound);
     }
 
     private void OpenWorldCreationWindow()
@@ -142,13 +216,13 @@ internal class WorldSelection : StandardMenu
             Resizing = Resizing.Both
         };
 
-        createNewWorldButton.Disable();
+        SetButtonBarEnabled(enabled: false);
 
         worldCreationWindow.Closed += (_, _) =>
         {
             worldCreationWindow = null;
-            createNewWorldButton.Enable();
-            createNewWorldButton.Focus();
+
+            SetButtonBarEnabled(enabled: true);
         };
 
         VerticalLayout layout = new(worldCreationWindow)
@@ -186,7 +260,7 @@ internal class WorldSelection : StandardMenu
             string input = name.Text;
             isValid = worldProvider.IsWorldNameValid(input);
 
-            name.TextColor = isValid ? Color.White : Color.Red;
+            name.TextColor = isValid ? Colors.Primary : Colors.Error;
 
             create.IsDisabled = !isValid;
             create.UpdateColors();
@@ -201,4 +275,13 @@ internal class WorldSelection : StandardMenu
     }
 
     internal event EventHandler Cancel = delegate {};
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        refreshCancellation?.Cancel();
+        refreshCancellation?.Dispose();
+        refreshCancellation = null;
+    }
 }

@@ -71,7 +71,11 @@ public sealed class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(client);
 
-        ui.WorldExit += (_, _) => world.BeginDeactivating(client.ExitGame);
+        ui.WorldExit += (_, _) =>
+        {
+            if (world.IsActive)
+                world.BeginDeactivating(client.ExitGame);
+        };
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
@@ -93,9 +97,10 @@ public sealed class GameScene : IScene
 
         world.AddPlayer(player);
 
-        world.Ready += (_, _) =>
+        world.StateChanged += (_, _) =>
         {
-            console.OnWorldReady();
+            if (world.IsActive)
+                console.OnWorldReady();
         };
 
         Game = new Game(world, player);

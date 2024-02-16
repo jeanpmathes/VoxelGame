@@ -14,6 +14,7 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
+using VoxelGame.UI.Utility;
 
 namespace VoxelGame.UI.UserInterfaces;
 #pragma warning disable CA1001
@@ -29,9 +30,9 @@ public class ConsoleInterface
 
     private const string DefaultMarker = "[ ]";
     private const string FollowUpMarker = "[a]";
-    private static readonly Color echoColor = Color.Gray;
-    private static readonly Color responseColor = Color.White;
-    private static readonly Color errorColor = Color.Red;
+    private static readonly Color echoColor = Colors.Secondary;
+    private static readonly Color responseColor = Colors.Primary;
+    private static readonly Color errorColor = Colors.Error;
     private readonly IConsoleProvider console;
 
     private readonly LinkedList<Entry> consoleLog = new();

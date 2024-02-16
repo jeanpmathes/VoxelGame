@@ -639,4 +639,16 @@
     <data name="TimeSinceEventEternity" xml:space="preserve">
         <value>vor Ewigkeiten</value>
     </data>
+    <data name="NoWorldsFound" xml:space="preserve">
+        <value>Keine Welten gefunden.</value>
+    </data>
+    <data name="Loading" xml:space="preserve">
+        <value>Lade</value>
+    </data>
+    <data name="ErrorOccurred" xml:space="preserve">
+        <value>Es ist ein Fehler aufgetreten.</value>
+    </data>
+    <data name="Refresh" xml:space="preserve">
+        <value>Aktualisieren</value>
+    </data>
 </root>

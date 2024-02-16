@@ -80,7 +80,7 @@ public sealed class StartScene : IScene
 
         if (loadWorldDirectly is null) return;
 
-        logger.LogWarning("Resource loading failure prevents direct world loading, going to main menu");
+        logger.LogWarning(Events.Scene, "Resource loading failure prevents direct world loading, going to main menu");
         loadWorldDirectly = null;
     }
 
@@ -132,18 +132,26 @@ public sealed class StartScene : IScene
     {
         if (loadWorldDirectly is not {} index) return;
 
-        worldProvider.Refresh();
+        Exception? exception = worldProvider.Refresh().WaitForCompletion();
+
+        if (exception != null)
+        {
+            logger.LogError(Events.Scene, exception, "Could not refresh worlds to directly-load world at index {Index}, going to main menu", index);
+
+            return;
+        }
+
         WorldData? data = worldProvider.Worlds.ElementAtOrDefault(index);
 
         if (data != null)
         {
-            logger.LogInformation("Loading world at index {Index} directly", index);
+            logger.LogInformation(Events.Scene, "Loading world at index {Index} directly", index);
 
             worldProvider.LoadWorld(data);
         }
         else
         {
-            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
+            logger.LogError(Events.Scene, "Could not directly-load world at index {Index}, going to main menu", index);
         }
     }
 

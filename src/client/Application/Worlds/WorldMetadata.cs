@@ -14,7 +14,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application.Worlds;
 
-#pragma warning disable S4004 // Required for JSON serialization.
+#pragma warning disable S4004 // Unused getters required for JSON serialization.
 
 /// <summary>
 ///     Metadata associated with a world, but not stored as part of the world.
@@ -58,19 +58,28 @@ public class WorldDirectoryMetadata
 
     /// <summary>
     ///     Load the metadata from a file.
+    ///     If the file does not exist, empty metadata is returned and this is not considered a failure.
     /// </summary>
     /// <param name="file">The file to load from.</param>
-    /// <returns>The metadata, if loading fails an empty but valid object is returned.</returns>
-    public static WorldDirectoryMetadata Load(FileInfo file)
+    /// <param name="exception">The exception that occurred during loading, if any. </param>
+    /// <returns>The metadata.</returns>
+    public static WorldDirectoryMetadata Load(FileInfo file, out Exception? exception)
     {
-        Exception? exception = FileSystem.LoadJSON<WorldDirectoryMetadata>(file, out WorldDirectoryMetadata? metadata);
+        exception = FileSystem.LoadJSON(file, out WorldDirectoryMetadata metadata);
 
         if (!file.Exists)
+        {
             logger.LogDebug(Events.FileIO, "World directory metadata file does not exist: {File}", file);
+            exception = null;
+        }
         else if (exception == null)
+        {
             logger.LogDebug(Events.FileIO, "World directory metadata loaded from {File}", file);
+        }
         else
+        {
             logger.LogError(Events.FileIO, exception, "Failed to load world directory metadata from {File}", file);
+        }
 
         return metadata;
     }

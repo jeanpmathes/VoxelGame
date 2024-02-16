@@ -94,6 +94,6 @@ internal class KeyOrButtonSetting : Setting
     internal override void Validate()
     {
         bool valid = validate();
-        rebind.TextColorOverride = valid ? Color.White : Color.Red;
+        rebind.TextColorOverride = valid ? Colors.Primary : Colors.Error;
     }
 }

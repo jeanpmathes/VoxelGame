@@ -72,14 +72,12 @@ public partial class Chunk : IDisposable
     /// </summary>
     private readonly Section[] sections = new Section[SectionCount];
 
-    private ScheduledTickManager<Block.BlockTick> blockTickManager;
+    private DecorationLevels decoration = DecorationLevels.None;
 
     /// <summary>
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
     [NonSerialized] private Resource coreResource = new(nameof(Chunk) + "Core");
-
-    private DecorationLevels decoration = DecorationLevels.None;
 
     /// <summary>
     ///     Extended resources are defined by users of core, like a client or a server.
@@ -87,6 +85,7 @@ public partial class Chunk : IDisposable
     /// </summary>
     [NonSerialized] private Resource extendedResource = new(nameof(Chunk) + "Extended");
 
+    private ScheduledTickManager<Block.BlockTick> blockTickManager;
     private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
     /// <summary>
@@ -94,6 +93,9 @@ public partial class Chunk : IDisposable
     /// </summary>
     [NonSerialized] private bool isRequested;
 
+    /// <summary>
+    ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
+    /// </summary>
     [NonSerialized] private UpdateCounter localUpdateCounter = new();
 
     /// <summary>
