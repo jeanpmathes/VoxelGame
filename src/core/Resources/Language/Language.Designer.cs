@@ -339,7 +339,7 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete World?.
+        ///   Looks up a localized string similar to Delete world?.
         /// </summary>
         public static string DeleteWorldQuery {
             get {
@@ -371,15 +371,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An error occurred..
-        /// </summary>
-        public static string ErrorOccurred {
-            get {
-                return ResourceManager.GetString("ErrorOccurred", resourceCulture);
             }
         }
         
@@ -897,15 +888,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loading.
-        /// </summary>
-        public static string Loading {
-            get {
-                return ResourceManager.GetString("Loading", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Log.
         /// </summary>
         public static string Log {
@@ -1046,6 +1028,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Onions {
             get {
                 return ResourceManager.GetString("Onions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string OperationStatusError {
+            get {
+                return ResourceManager.GetString("OperationStatusError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done.
+        /// </summary>
+        public static string OperationStatusOk {
+            get {
+                return ResourceManager.GetString("OperationStatusOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running.
+        /// </summary>
+        public static string OperationStatusRunning {
+            get {
+                return ResourceManager.GetString("OperationStatusRunning", resourceCulture);
             }
         }
         
@@ -1262,6 +1271,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string ScaleOfUI {
             get {
                 return ResourceManager.GetString("ScaleOfUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching worlds.
+        /// </summary>
+        public static string SearchingWorlds {
+            get {
+                return ResourceManager.GetString("SearchingWorlds", resourceCulture);
             }
         }
         

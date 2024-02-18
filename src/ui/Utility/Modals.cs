@@ -4,11 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls.Common;
 
 namespace VoxelGame.UI.Utility;
 
@@ -39,20 +39,13 @@ internal static class Modals
     }
 
     /// <summary>
-    ///     Opens a modal window with the options yes/no.
+    /// Open a model that asks whether to delete something.
     /// </summary>
-    internal static void OpenBooleanModal(ControlBase parent, string query, Action yes, Action no)
+    internal static void OpenDeletionModal(ControlBase parent, DeletionBox.Parameters parameters, DeletionBox.Actions actions)
     {
-        MessageBox messageBox = new(parent, query, "", MessageBoxButtonTexts.Shared, MessageBoxButtons.YesNo)
-        {
-            Resizing = Resizing.None,
-            IsDraggingEnabled = false,
-            IsClosable = false
-        };
+        DeletionBox deletionBox = new(parent, parameters, actions);
 
-        messageBox.MakeModal(dim: true, background);
-
-        messageBox.Dismissed += (_, args) => { (args.Result == MessageBoxResult.Yes ? yes : no)(); };
+        deletionBox.MakeModal(dim: true, background);
     }
 
     /// <summary>

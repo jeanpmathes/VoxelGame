@@ -642,13 +642,19 @@
     <data name="NoWorldsFound" xml:space="preserve">
         <value>Keine Welten gefunden.</value>
     </data>
-    <data name="Loading" xml:space="preserve">
-        <value>Lade</value>
-    </data>
-    <data name="ErrorOccurred" xml:space="preserve">
-        <value>Es ist ein Fehler aufgetreten.</value>
-    </data>
     <data name="Refresh" xml:space="preserve">
         <value>Aktualisieren</value>
+    </data>
+    <data name="OperationStatusRunning" xml:space="preserve">
+        <value>Läuft</value>
+    </data>
+    <data name="OperationStatusOk" xml:space="preserve">
+        <value>Abgeschlossen</value>
+    </data>
+    <data name="OperationStatusError" xml:space="preserve">
+        <value>Fehler</value>
+    </data>
+    <data name="SearchingWorlds" xml:space="preserve">
+        <value>Suche nach Welten</value>
     </data>
 </root>

@@ -4,13 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.UI.Controls.Common;
+using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
 
@@ -24,11 +25,15 @@ public sealed class WorldElement : GroupBox
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldElement" /> class.
     /// </summary>
+    /// <param name="list">The list which is the direct parent of this element.</param>
     /// <param name="world">Data of the world to represent.</param>
-    /// <param name="lastLoad">The last time the world was loaded.</param>
+    /// <param name="worldProvider">Provides operations related to worlds.</param>
     /// <param name="context">The context in which the user interface is running.</param>
-    /// <param name="parent">The parent control.</param>
-    internal WorldElement(WorldData world, DateTime? lastLoad, Context context, ControlBase parent) : base(parent)
+    /// <param name="menu">
+    ///     A higher level menu control that this element is part of.
+    ///     Used as a parent to open windows and modals.
+    /// </param>
+    internal WorldElement(ControlBase list, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(list)
     {
         Text = world.Information.Name;
 
@@ -59,7 +64,7 @@ public sealed class WorldElement : GroupBox
 
         Label text = new(last)
         {
-            Text = $"{Language.LastLoaded}: {Formatter.FormatTimeSinceEvent(lastLoad, out bool hasOccurred)}",
+            Text = $"{Language.LastLoaded}: {Formatter.FormatTimeSinceEvent(worldProvider.GetDateTimeOfLastLoad(world), out bool hasOccurred)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };
@@ -107,7 +112,7 @@ public sealed class WorldElement : GroupBox
 
         };
 
-        load.Released += (_, _) => OnLoad(this, EventArgs.Empty);
+        load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
 
         Button delete = new(buttons)
         {
@@ -116,16 +121,19 @@ public sealed class WorldElement : GroupBox
             ToolTipText = Language.Delete
         };
 
-        delete.Released += (_, _) => OnDelete(this, EventArgs.Empty);
+        delete.Released += (_, _) => Modals.OpenDeletionModal(
+            menu,
+            new DeletionBox.Parameters("", Language.DeleteWorldQuery),
+            new DeletionBox.Actions(
+                () => {},
+                close =>
+                {
+                    list.RemoveChild(this, dispose: true);
+
+                    worldProvider.DeleteWorld(world).OnCompletion(op =>
+                    {
+                        close(op.Status);
+                    });
+                }));
     }
-
-    /// <summary>
-    ///     Invoked when a load operation is requested.
-    /// </summary>
-    public event EventHandler OnLoad = delegate {};
-
-    /// <summary>
-    ///     Invoked when a delete operation is requested.
-    /// </summary>
-    public event EventHandler OnDelete = delegate {};
 }

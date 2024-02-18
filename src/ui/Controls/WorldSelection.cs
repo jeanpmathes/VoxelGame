@@ -15,6 +15,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Updates;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
@@ -127,7 +128,7 @@ internal class WorldSelection : StandardMenu
 
         refreshCancellation = new CancellationTokenSource();
 
-        BuildTextDisplay(Language.Loading + "...");
+        BuildTextDisplay(Formatter.FormatOperation(Language.SearchingWorlds, Status.Running));
         SetButtonBarEnabled(enabled: false);
 
         worldProvider.Refresh().OnCompletion(op =>
@@ -135,7 +136,7 @@ internal class WorldSelection : StandardMenu
                 SetButtonBarEnabled(enabled: true);
 
                 if (op.IsOk) BuildWorldList();
-                else BuildTextDisplay(Language.ErrorOccurred, isError: true);
+                else BuildTextDisplay(Formatter.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
 
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 refreshCancellation?.Dispose();
@@ -181,23 +182,9 @@ internal class WorldSelection : StandardMenu
 
         foreach (WorldData data in worldProvider.Worlds.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue))
         {
-            WorldElement element = new(
-                data,
-                worldProvider.GetDateTimeOfLastLoad(data),
-                Context,
-                worldList);
+            WorldElement element = new(worldList, data, worldProvider, Context, this);
 
-            element.OnLoad += (_, _) => worldProvider.LoadWorld(data);
-
-            element.OnDelete += (_, _) => Modals.OpenBooleanModal(
-                this,
-                Language.DeleteWorldQuery,
-                () =>
-                {
-                    worldProvider.DeleteWorld(data);
-                    worldList.RemoveChild(element, dispose: true);
-                },
-                () => {});
+            Control.Used(element);
         }
 
         if (!worldProvider.Worlds.Any()) BuildTextDisplay(Language.NoWorldsFound);
@@ -270,7 +257,7 @@ internal class WorldSelection : StandardMenu
         {
             ValidateInput(out bool isValid);
 
-            if (isValid) worldProvider.CreateWorld(name.Text);
+            if (isValid) worldProvider.BeginCreatingWorld(name.Text);
         }
     }
 

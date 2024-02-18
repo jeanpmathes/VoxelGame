@@ -7,6 +7,7 @@
 using System;
 using System.Globalization;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.UI.Utility;
 
@@ -56,5 +57,27 @@ public static class Formatter
         {
             return string.Format(CultureInfo.CurrentCulture, pattern, (long) value);
         }
+    }
+
+    /// <summary>
+    ///     Format the status of an operation.
+    /// </summary>
+    private static string FormatStatus(Status status)
+    {
+        return status switch
+        {
+            Status.Ok => Language.OperationStatusOk,
+            Status.Running => Language.OperationStatusRunning,
+            Status.Error => Language.OperationStatusError,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, message: null)
+        };
+    }
+
+    /// <summary>
+    ///     Format an operation and its status.
+    /// </summary>
+    public static string FormatOperation(string operation, Status status)
+    {
+        return $"{operation}: {FormatStatus(status)}";
     }
 }

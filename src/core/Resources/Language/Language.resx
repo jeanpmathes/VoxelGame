@@ -412,8 +412,8 @@
     <value>Delete</value>
   </data>
     <data name="DeleteWorldQuery" xml:space="preserve">
-    <value>Delete World?</value>
-  </data>
+        <value>Delete world?</value>
+    </data>
     <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -642,13 +642,19 @@
     <data name="NoWorldsFound" xml:space="preserve">
         <value>Found no worlds.</value>
     </data>
-    <data name="Loading" xml:space="preserve">
-        <value>Loading</value>
-    </data>
-    <data name="ErrorOccurred" xml:space="preserve">
-        <value>An error occurred.</value>
-    </data>
     <data name="Refresh" xml:space="preserve">
         <value>Refresh</value>
+    </data>
+    <data name="OperationStatusRunning" xml:space="preserve">
+        <value>Running</value>
+    </data>
+    <data name="OperationStatusOk" xml:space="preserve">
+        <value>Done</value>
+    </data>
+    <data name="OperationStatusError" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="SearchingWorlds" xml:space="preserve">
+        <value>Searching worlds</value>
     </data>
 </root>

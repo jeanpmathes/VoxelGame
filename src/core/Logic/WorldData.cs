@@ -7,9 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -21,9 +23,12 @@ namespace VoxelGame.Core.Logic;
 public class WorldData
 {
     private const string InfoFileName = "info.json";
+
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
     private readonly List<DirectoryInfo> subdirectories = new();
+
+    private readonly FileInfo informationFile;
 
     /// <summary>
     ///     Creates a new world data object.
@@ -35,6 +40,8 @@ public class WorldData
     {
         Information = information;
         WorldDirectory = directory;
+
+        informationFile = directory.GetFile(InfoFileName);
 
         ChunkDirectory = AddSubdirectory("Chunks");
         BlobDirectory = AddSubdirectory("Blobs");
@@ -227,7 +234,7 @@ public class WorldData
     /// </summary>
     public void Save()
     {
-        Information.Save(WorldDirectory.GetFile(InfoFileName));
+        Information.Save(informationFile);
     }
 
     /// <summary>
@@ -254,18 +261,36 @@ public class WorldData
 
     /// <summary>
     ///     Delete the world and all its data.
+    ///     This starts an operation on a background thread.
     /// </summary>
-    public void Delete()
+    public Operation Delete()
     {
         try
         {
-            WorldDirectory.Delete(recursive: true);
+            // By deleting the information file first and on the main thread, we invalidate the world directory.
+            // As such, any searches for worlds will ignore this directory, even if the deletion is still in progress.
 
-            logger.LogInformation(Events.WorldIO, "Deleted world '{Name}'", Information.Name);
+            informationFile.Delete();
         }
-        catch (IOException e)
+        catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
         {
-            logger.LogError(Events.WorldIO, e, "Failed to delete world");
+            // Ignore, because the next step will it try again and log the error.
         }
+
+        return Operations.Launch(() =>
+        {
+            try
+            {
+                WorldDirectory.Delete(recursive: true);
+
+                logger.LogInformation(Events.WorldIO, "Deleted world '{Name}'", Information.Name);
+            }
+            catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
+            {
+                logger.LogError(Events.WorldIO, e, "Failed to delete world");
+
+                throw;
+            }
+        });
     }
 }

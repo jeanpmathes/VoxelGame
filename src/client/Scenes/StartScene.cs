@@ -147,7 +147,7 @@ public sealed class StartScene : IScene
         {
             logger.LogInformation(Events.Scene, "Loading world at index {Index} directly", index);
 
-            worldProvider.LoadWorld(data);
+            worldProvider.BeginLoadingWorld(data);
         }
         else
         {

@@ -117,7 +117,7 @@ public class WorldProvider : IWorldProvider
 
     /// <inheritdoc />
     [SuppressMessage("ReSharper", "CA2000")]
-    public void LoadWorld(WorldData data)
+    public void BeginLoadingWorld(WorldData data)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
         if (Status != Status.Ok) throw new InvalidOperationException();
@@ -127,19 +127,8 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public void DeleteWorld(WorldData data)
-    {
-        if (Status != Status.Ok) throw new InvalidOperationException();
-
-        data.Delete();
-
-        worlds.Remove(data);
-        metadata.Entries.Remove(GetMetadataKey(data));
-    }
-
-    /// <inheritdoc />
     [SuppressMessage("ReSharper", "CA2000")]
-    public void CreateWorld(string name)
+    public void BeginCreatingWorld(string name)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
@@ -149,6 +138,17 @@ public class WorldProvider : IWorldProvider
 
         World world = new(worldDirectory, name, seed);
         ActivateWorld(world);
+    }
+
+    /// <inheritdoc />
+    public Operation DeleteWorld(WorldData data)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        worlds.Remove(data);
+        metadata.Entries.Remove(GetMetadataKey(data));
+
+        return data.Delete();
     }
 
     /// <inheritdoc />

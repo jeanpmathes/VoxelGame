@@ -50,4 +50,9 @@ public static class Colors
     ///     Invisible color.
     /// </summary>
     public static readonly Color Invisible = Color.Transparent;
+
+    /// <summary>
+    ///     Signifies that an operation is dangerous.
+    /// </summary>
+    public static readonly Color Danger = Color.Red;
 }
