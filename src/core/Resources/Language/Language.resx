@@ -657,4 +657,7 @@
     <data name="SearchingWorlds" xml:space="preserve">
         <value>Searching worlds</value>
     </data>
+    <data name="TimeSinceEventWeeks" xml:space="preserve">
+        <value>{0} weeks ago</value>
+    </data>
 </root>

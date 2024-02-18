@@ -47,7 +47,7 @@ public sealed class WorldElement : GroupBox
 
         Label creation = new(infoPanel)
         {
-            Text = $"{Language.CreatedOn}: {Formatter.FormatDateTime(world.Information.Creation)}",
+            Text = $"{Language.CreatedOn}: {Texts.FormatDateTime(world.Information.Creation)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };
@@ -64,7 +64,7 @@ public sealed class WorldElement : GroupBox
 
         Label text = new(last)
         {
-            Text = $"{Language.LastLoaded}: {Formatter.FormatTimeSinceEvent(worldProvider.GetDateTimeOfLastLoad(world), out bool hasOccurred)}",
+            Text = $"{Language.LastLoaded}: {Texts.FormatTimeSinceEvent(worldProvider.GetDateTimeOfLastLoad(world), out bool hasOccurred)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };

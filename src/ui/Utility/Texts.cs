@@ -14,7 +14,7 @@ namespace VoxelGame.UI.Utility;
 /// <summary>
 ///     Utilities to format data for display.
 /// </summary>
-public static class Formatter
+public static class Texts
 {
     /// <summary>
     ///     Format a date time to display both date and time.
@@ -47,6 +47,7 @@ public static class Formatter
         return timeSince switch
         {
             {TotalDays: > 365 * 5} => Language.TimeSinceEventEternity,
+            {TotalDays: > 7} => Format(Language.TimeSinceEventWeeks, timeSince.TotalDays / 7),
             {TotalDays: > 1} => Format(Language.TimeSinceEventDays, timeSince.TotalDays),
             {TotalHours: > 1} => Format(Language.TimeSinceEventHours, timeSince.TotalHours),
             {TotalMinutes: > 5} => Format(Language.TimeSinceEventMinutes, timeSince.TotalMinutes),

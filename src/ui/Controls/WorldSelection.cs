@@ -128,7 +128,7 @@ internal class WorldSelection : StandardMenu
 
         refreshCancellation = new CancellationTokenSource();
 
-        BuildTextDisplay(Formatter.FormatOperation(Language.SearchingWorlds, Status.Running));
+        BuildTextDisplay(Texts.FormatOperation(Language.SearchingWorlds, Status.Running));
         SetButtonBarEnabled(enabled: false);
 
         worldProvider.Refresh().OnCompletion(op =>
@@ -136,7 +136,7 @@ internal class WorldSelection : StandardMenu
                 SetButtonBarEnabled(enabled: true);
 
                 if (op.IsOk) BuildWorldList();
-                else BuildTextDisplay(Formatter.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
+                else BuildTextDisplay(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
 
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 refreshCancellation?.Dispose();

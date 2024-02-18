@@ -86,7 +86,7 @@ public sealed class DeletionBox : Window
                 VerticalAlignment = VerticalAlignment.Center,
 
                 Alignment = Alignment.Center,
-                Text = Formatter.FormatOperation(Language.Delete, Status.Running)
+                Text = Texts.FormatOperation(Language.Delete, Status.Running)
             };
 
             Button ok = CreateButton(buttons, Language.Ok);
@@ -96,7 +96,7 @@ public sealed class DeletionBox : Window
 
             actions.Delete(status =>
             {
-                label.Text = Formatter.FormatOperation(Language.Delete, status);
+                label.Text = Texts.FormatOperation(Language.Delete, status);
                 label.TextColor = status == Status.Error ? Colors.Error : Colors.Primary;
 
                 ok.Enable();
