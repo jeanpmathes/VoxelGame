@@ -10,10 +10,12 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
+using Colors = VoxelGame.UI.Utility.Colors;
 
 namespace VoxelGame.UI.Controls;
 
@@ -89,12 +91,17 @@ public sealed class WorldElement : GroupBox
 
         Control.Used(version);
 
-        Label file = new(infoPanel)
+        LinkLabel file = new(infoPanel)
         {
             Text = world.WorldDirectory.FullName,
+
             Font = context.Fonts.Path,
-            TextColor = Colors.Secondary
+            HoverFont = context.Fonts.PathU,
+
+            TextColor = Colors.Linkified(Colors.Secondary)
         };
+
+        file.LinkClicked += (_, _) => OS.Start(world.WorldDirectory);
 
         Control.Used(file);
 

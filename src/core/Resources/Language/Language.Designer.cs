@@ -1032,6 +1032,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open Directory.
+        /// </summary>
+        public static string OpenDirectory {
+            get {
+                return ResourceManager.GetString("OpenDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
         public static string OperationStatusError {

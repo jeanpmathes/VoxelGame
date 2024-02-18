@@ -28,7 +28,6 @@ public class WorldProvider : IWorldProvider
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
-    private readonly DirectoryInfo worldsDirectory;
     private readonly FileInfo metadataFile;
 
     private readonly List<WorldData> worlds = new();
@@ -40,12 +39,15 @@ public class WorldProvider : IWorldProvider
     /// <param name="worldsDirectory">The directory where worlds are loaded from and saved to.</param>
     public WorldProvider(DirectoryInfo worldsDirectory)
     {
-        this.worldsDirectory = worldsDirectory;
+        WorldsDirectory = worldsDirectory;
 
         metadataFile = worldsDirectory.GetFile("meta.json");
     }
 
     private Status Status { get; set; } = Status.Ok;
+
+    /// <inheritdoc />
+    public DirectoryInfo WorldsDirectory { get; }
 
     /// <inheritdoc />
     public IEnumerable<WorldData> Worlds
@@ -134,7 +136,7 @@ public class WorldProvider : IWorldProvider
 
         (int upper, int lower) seed = (DateTime.UtcNow.GetHashCode(), RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue));
 
-        DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(worldsDirectory, name);
+        DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, name);
 
         World world = new(worldDirectory, name, seed);
         ActivateWorld(world);
@@ -174,7 +176,7 @@ public class WorldProvider : IWorldProvider
     {
         List<WorldData> found = new();
 
-        foreach (DirectoryInfo directory in worldsDirectory.EnumerateDirectories())
+        foreach (DirectoryInfo directory in WorldsDirectory.EnumerateDirectories())
             if (WorldData.IsWorldDirectory(directory))
             {
                 found.Add(WorldData.LoadInformation(directory));

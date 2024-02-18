@@ -55,4 +55,13 @@ public static class Colors
     ///     Signifies that an operation is dangerous.
     /// </summary>
     public static readonly Color Danger = Color.Red;
+
+    /// <summary>
+    ///     Create a color variation for links.
+    /// </summary>
+    /// <returns></returns>
+    public static Color Linkified(Color color)
+    {
+        return color.Multiply(amount: 0.5f).Add(Color.RoyalBlue.Multiply(amount: 0.5f));
+    }
 }

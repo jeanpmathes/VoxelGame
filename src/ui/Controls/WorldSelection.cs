@@ -16,9 +16,11 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utility;
+using Colors = VoxelGame.UI.Utility.Colors;
 
 namespace VoxelGame.UI.Controls;
 
@@ -111,6 +113,14 @@ internal class WorldSelection : StandardMenu
 
         buttonBar.Add(refreshButton);
         refreshButton.Released += (_, _) => Refresh();
+
+        Button openDirectoryButton = new(bar)
+        {
+            Text = Language.OpenDirectory
+        };
+
+        buttonBar.Add(openDirectoryButton);
+        openDirectoryButton.Released += (_, _) => OS.Start(worldProvider.WorldsDirectory);
     }
 
     protected override void OnOpen()

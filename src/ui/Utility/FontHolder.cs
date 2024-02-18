@@ -26,7 +26,9 @@ internal sealed class FontHolder : IDisposable
         Title = Font.Create(skin.Renderer, DefaultFontName, size: 30);
         Subtitle = Font.Create(skin.Renderer, DefaultFontName);
         Small = Font.Create(skin.Renderer, DefaultFontName, size: 12);
-        Path = Font.Create(skin.Renderer, DefaultFontName, style: FontStyle.Italic);
+
+        Path = Font.Create(skin.Renderer, ConsoleFontName);
+        PathU = Font.Create(skin.Renderer, ConsoleFontName, style: FontStyle.Underline);
 
         Console = Font.Create(skin.Renderer, ConsoleFontName, size: 15);
         ConsoleError = Font.Create(skin.Renderer, ConsoleFontName, size: 15, FontStyle.Bold);
@@ -38,6 +40,7 @@ internal sealed class FontHolder : IDisposable
     internal Font Subtitle { get; }
     internal Font Small { get; }
     internal Font Path { get; }
+    internal Font PathU { get; }
 
     internal Font Console { get; }
     internal Font ConsoleError { get; }

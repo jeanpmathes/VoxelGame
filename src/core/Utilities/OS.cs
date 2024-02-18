@@ -10,7 +10,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Utilities;
+namespace VoxelGame.Core.Utilities;
 
 /// <summary>
 ///     Utility functions related to operations that happen outside of the game itself.

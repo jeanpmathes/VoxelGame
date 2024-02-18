@@ -21,7 +21,7 @@ namespace VoxelGame.UI.Platform;
 
 internal sealed class VGui : IGwenGui
 {
-    private readonly List<Action> inputEvents = new();
+    private List<Action> inputEvents = new();
     private Canvas canvas = null!;
 
     private InputTranslator input = null!;
@@ -77,9 +77,13 @@ internal sealed class VGui : IGwenGui
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Action inputEvent in inputEvents) inputEvent();
+        // While handling an event, code might be executed that passes control to the OS.
+        // As such, new events might be invoked, causing problems with the iteration.
 
-        inputEvents.Clear();
+        List<Action> events = new();
+        VMath.Swap(ref events, ref inputEvents);
+
+        foreach (Action inputEvent in events) inputEvent();
     }
 
     public void Render()

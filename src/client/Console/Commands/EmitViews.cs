@@ -7,7 +7,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using VoxelGame.Client.Utilities;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;

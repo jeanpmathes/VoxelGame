@@ -660,4 +660,7 @@
     <data name="TimeSinceEventWeeks" xml:space="preserve">
         <value>vor {0} Wochen</value>
     </data>
+    <data name="OpenDirectory" xml:space="preserve">
+        <value>Verzeichnis öffnen</value>
+    </data>
 </root>

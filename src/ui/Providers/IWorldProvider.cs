@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 
@@ -16,6 +17,11 @@ namespace VoxelGame.UI.Providers;
 /// </summary>
 public interface IWorldProvider
 {
+    /// <summary>
+    ///     The directory where the worlds are stored.
+    /// </summary>
+    public DirectoryInfo WorldsDirectory { get; }
+
     /// <summary>
     ///     Get all currently known worlds.
     ///     Only valid after a successful <see cref="Refresh"/>.
