@@ -6,7 +6,7 @@
 
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     A handel that allows to close a window.

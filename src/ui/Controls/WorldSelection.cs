@@ -19,8 +19,8 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
-using Colors = VoxelGame.UI.Utility.Colors;
+using VoxelGame.UI.Utilities;
+using Colors = VoxelGame.UI.Utilities.Colors;
 
 namespace VoxelGame.UI.Controls;
 

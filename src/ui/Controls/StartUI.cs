@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
-using VoxelGame.Core.Collections;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
@@ -28,13 +28,17 @@ internal class StartUI : ControlBase
     private const int SettingsMenuIndex = 1;
     private const int WorldSelectionMenuIndex = 2;
     private const int CreditsMenuIndex = 3;
-    private readonly MainMenu mainMenu;
 
     private readonly List<StandardMenu> menus = new();
+    private readonly MainMenu mainMenu;
+
+    private readonly Context context;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
     {
+        context = parent.Context;
+
         Dock = Dock.Fill;
 
         Exit = delegate {};
@@ -74,7 +78,7 @@ internal class StartUI : ControlBase
         mainMenu.DisableWorlds();
     }
 
-    internal void OpenMissingResourcesWindow(Tree<string> resources)
+    internal void OpenMissingResourcesWindow(Property resources)
     {
         Window window = new(this)
         {
@@ -86,8 +90,9 @@ internal class StartUI : ControlBase
             MinimumSize = new Size(width: 1000, height: 1000)
         };
 
-        Tree tree = new(window);
-        tree.SetContent(resources);
+        PropertyBasedTreeControl tree = new(window, resources, context);
+
+        tree.ExpandAll();
     }
 
     internal event EventHandler Exit;

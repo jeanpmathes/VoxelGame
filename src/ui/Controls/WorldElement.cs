@@ -14,8 +14,8 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
-using Colors = VoxelGame.UI.Utility.Colors;
+using VoxelGame.UI.Utilities;
+using Colors = VoxelGame.UI.Utilities.Colors;
 
 namespace VoxelGame.UI.Controls;
 
@@ -114,9 +114,8 @@ public sealed class WorldElement : GroupBox
         Button load = new(buttons)
         {
             ImageName = context.Resources.LoadIcon,
-            ImageSize = new Size(width: 40, height: 40),
+            ImageSize = Context.DefaultIconSize,
             ToolTipText = Language.Load
-
         };
 
         load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
@@ -124,7 +123,7 @@ public sealed class WorldElement : GroupBox
         Button delete = new(buttons)
         {
             ImageName = context.Resources.DeleteIcon,
-            ImageSize = new Size(width: 40, height: 40),
+            ImageSize = Context.DefaultIconSize,
             ToolTipText = Language.Delete
         };
 

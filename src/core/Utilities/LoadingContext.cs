@@ -8,22 +8,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Collections;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
-
-using Tree = Tree<string>;
-using Node = Tree<string>.INode;
 
 /// <summary>
 ///     Describes a resource loading failure.
 /// </summary>
 /// <param name="MissingResources">The missing resources.</param>
 /// <param name="IsCritical">Whether the failure is critical.</param>
-public record ResourceLoadingFailure(Tree<string> MissingResources, bool IsCritical);
+public record ResourceLoadingFailure(Property MissingResources, bool IsCritical);
 
 /// <summary>
 ///     A context in which loading operations can be performed.
@@ -32,13 +28,8 @@ public class LoadingContext
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
 
-    /// <summary>
-    ///     Get the steps and all missing resources as a tree.
-    /// </summary>
-    private readonly Tree steps;
-
-    private string currentPath;
-    private Node currentStep;
+    private readonly Group steps;
+    private readonly Stack<(Group group, string path)> path;
 
     private bool isMissingAny;
     private bool isMissingCritical;
@@ -48,12 +39,10 @@ public class LoadingContext
     /// </summary>
     public LoadingContext()
     {
-        steps = new Tree("Base");
+        steps = new Group("Base");
+        path = new Stack<(Group group, string path)>();
 
-        currentPath = string.Empty;
-        currentStep = steps.Root;
-
-        RecalculatePath();
+        path.Push((steps, steps.Name));
     }
 
     /// <summary>
@@ -61,30 +50,19 @@ public class LoadingContext
     /// </summary>
     public ResourceLoadingFailure? State => isMissingAny ? new ResourceLoadingFailure(steps, isMissingCritical) : null;
 
-    private void RecalculatePath()
-    {
-        List<string> path = new();
-        Node? node = currentStep;
+    private string CurrentPath => path.Peek().path;
 
-        while (node != null)
-        {
-            path.Add(node.Value);
-            node = node.Parent;
-        }
-
-        currentPath = path.AsEnumerable().Reverse().Aggregate((a, b) => $"{a} > {b}");
-    }
+    private Group CurrentGroup => path.Peek().group;
 
     private void FinishStep(Step step)
     {
-        if (step.Node == currentStep)
+        if (step.Group == path.Peek().group)
         {
-            currentStep = currentStep.Parent ?? steps.Root;
-            RecalculatePath();
+            path.Pop();
         }
         else
         {
-            Debug.Fail("Step was not the last one.");
+            Debug.Fail("Wrong step finished.");
         }
 
         logger.LogInformation(step.ID, "Finished loading step '{StepName}'", step.Name);
@@ -99,19 +77,28 @@ public class LoadingContext
     {
         logger.LogDebug(id, "Starting loading step '{StepName}'", name);
 
-        currentStep = currentStep.AddChild(name);
-        RecalculatePath();
+        (Group group, string path) previous = path.Peek();
 
-        Step step = new(this, id, name, currentStep, logger.BeginScope(name));
+        Group current = new(name);
+        previous.group.Add(current);
+
+        path.Push((current, $"{previous.path} > {name}"));
+
+        Step step = new(this, id, name, current, logger.BeginScope(name));
 
         return step;
     }
 
     private void ReportMissing(string type, string resource, bool isCritical)
     {
-        currentStep.AddChild(isCritical
-            ? $"Missing critical {type} resource 'RES:{resource}'"
-            : $"Missing {type} resource 'RES:{resource}'");
+        Error error = new(
+            $"RES:{resource}",
+            isCritical
+                ? $"critical {type} resource missing"
+                : $"{type} resource missing",
+            isCritical);
+
+        CurrentGroup.Add(error);
 
         isMissingAny = true;
         isMissingCritical |= isCritical;
@@ -130,7 +117,7 @@ public class LoadingContext
     /// </summary>
     public void ReportSuccess(EventId id, string type, string resource)
     {
-        logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", currentPath, type, resource);
+        logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", CurrentPath, type, resource);
     }
 
     /// <summary>
@@ -146,7 +133,7 @@ public class LoadingContext
     /// </summary>
     public void ReportFailure(EventId id, string type, string resource, Exception exception, bool abort = false)
     {
-        logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
+        logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
         ReportMissing(type, resource, isCritical: true);
 
         if (abort) Abort();
@@ -165,7 +152,7 @@ public class LoadingContext
     /// </summary>
     public void ReportFailure(EventId id, string type, string resource, string message, bool abort = false)
     {
-        logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
+        logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
         ReportMissing(type, resource, isCritical: true);
 
         if (abort) Abort();
@@ -184,7 +171,7 @@ public class LoadingContext
     /// </summary>
     public void ReportWarning(EventId id, string type, string resource, Exception exception)
     {
-        logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", currentPath, type, resource);
+        logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
         ReportMissing(type, resource, isCritical: false);
     }
 
@@ -201,7 +188,7 @@ public class LoadingContext
     /// </summary>
     public void ReportWarning(EventId id, string type, string resource, string message)
     {
-        logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", currentPath, type, resource, message);
+        logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
         ReportMissing(type, resource, isCritical: false);
     }
 
@@ -210,7 +197,7 @@ public class LoadingContext
         throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, string Name, Node Node, IDisposable Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, EventId ID, string Name, Group Group, IDisposable Scope) : IDisposable
     {
         public void Dispose()
         {

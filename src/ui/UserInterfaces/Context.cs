@@ -4,8 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using Gwen.Net;
 using VoxelGame.Support.Input;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
 
@@ -14,6 +15,10 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 internal sealed class Context
 {
+    internal static readonly Size DefaultIconSize = new(size: 40);
+
+    internal static readonly Size SmallIconSize = new(size: 25);
+
     internal Context(Input input, UIResources resources)
     {
         Fonts = resources.Fonts;

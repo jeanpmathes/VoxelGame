@@ -15,7 +15,7 @@ using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI;
 
@@ -31,6 +31,8 @@ public sealed class UIResources : IDisposable
     internal string ResetIcon { get; } = GetIcon("reset");
     internal string LoadIcon { get; } = GetIcon("load");
     internal string DeleteIcon { get; } = GetIcon("delete");
+    internal string WarningIcon { get; } = GetIcon("warning");
+    internal string ErrorIcon { get; } = GetIcon("error");
 
     internal string StartImage { get; } = GetImage("start");
 

@@ -8,12 +8,12 @@ using System;
 using Gwen.Net;
 using Gwen.Net.Skin;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     Holds all fonts used by the user interface.
 /// </summary>
-internal sealed class FontHolder : IDisposable
+public sealed class FontHolder : IDisposable
 {
     private const string DefaultFontName = "Times New Roman";
     private const string ConsoleFontName = "Consolas";
@@ -49,6 +49,7 @@ internal sealed class FontHolder : IDisposable
 
     private bool disposed;
 
+    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
@@ -71,6 +72,9 @@ internal sealed class FontHolder : IDisposable
         disposed = true;
     }
 
+    /// <summary>
+    ///     The finalizer.
+    /// </summary>
     ~FontHolder()
     {
         Dispose(disposing: false);

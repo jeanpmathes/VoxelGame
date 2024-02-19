@@ -14,7 +14,7 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
 #pragma warning disable CA1001

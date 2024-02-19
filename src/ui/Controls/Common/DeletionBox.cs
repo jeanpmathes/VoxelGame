@@ -11,7 +11,7 @@ using Gwen.Net.Control.Layout;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Controls.Common;
 

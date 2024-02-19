@@ -6,7 +6,7 @@
 
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     Utility methods for controls.

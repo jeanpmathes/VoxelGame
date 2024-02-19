@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VoxelGame.Core.Collections;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Support.Input;
 using VoxelGame.UI.Controls;
 using VoxelGame.UI.Providers;
@@ -66,7 +66,7 @@ public class StartUserInterface : UserInterface
     /// </summary>
     /// <param name="resources">The resources that are missing.</param>
     /// <param name="isCriticalMissing">Whether a critical resource is missing, preventing the game from starting.</param>
-    public void PresentResourceLoadingFailure(Tree<string> resources, bool isCriticalMissing)
+    public void PresentResourceLoadingFailure(Property resources, bool isCriticalMissing)
     {
         Debug.Assert(control != null);
 

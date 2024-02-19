@@ -6,7 +6,7 @@
 
 using Gwen.Net;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     Defines commonly used colors and gives them meaning.
@@ -45,6 +45,11 @@ public static class Colors
     ///     Marks text that is critical and should be read.
     /// </summary>
     public static readonly Color Error = Color.Red;
+
+    /// <summary>
+    ///     Marks text that is a warning.
+    /// </summary>
+    public static readonly Color Warning = Color.Yellow;
 
     /// <summary>
     ///     Invisible color.

@@ -10,7 +10,7 @@ using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     Utility class for modal windows.

@@ -9,7 +9,7 @@ using System.Globalization;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 
-namespace VoxelGame.UI.Utility;
+namespace VoxelGame.UI.Utilities;
 
 /// <summary>
 ///     Utilities to format data for display.
