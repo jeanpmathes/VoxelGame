@@ -6,6 +6,7 @@
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -37,22 +38,11 @@ public class GetDistance : Command
 
     private void DetermineDistance(Vector3d position)
     {
-        double distance = (position - Context.Player.Position).Length;
-
-        switch (distance)
+        Length distance = new()
         {
-            case < 1:
-                Context.Console.WriteResponse($"Distance: {distance * 1000:F2} mm");
+            Meters = (position - Context.Player.Position).Length
+        };
 
-                break;
-            case < 100000:
-                Context.Console.WriteResponse($"Distance: {distance:F2} m");
-
-                break;
-            default:
-                Context.Console.WriteResponse($"Distance: {distance / 1000:F2} km");
-
-                break;
-        }
+        Context.Console.WriteResponse($"Distance: {distance}");
     }
 }

@@ -402,6 +402,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File Size.
+        /// </summary>
+        public static string FileSize {
+            get {
+                return ResourceManager.GetString("FileSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fire.
         /// </summary>
         public static string Fire {
@@ -596,6 +605,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Ignore {
             get {
                 return ResourceManager.GetString("Ignore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        public static string Info {
+            get {
+                return ResourceManager.GetString("Info", resourceCulture);
             }
         }
         
@@ -969,6 +987,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Natural Gas.
         /// </summary>
         public static string NaturalGas {
@@ -1127,6 +1154,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string PressAnyKeyOrButton {
             get {
                 return ResourceManager.GetString("PressAnyKeyOrButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Properties.
+        /// </summary>
+        public static string Properties {
+            get {
+                return ResourceManager.GetString("Properties", resourceCulture);
             }
         }
         
@@ -1298,6 +1334,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string SeaWater {
             get {
                 return ResourceManager.GetString("SeaWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seed.
+        /// </summary>
+        public static string Seed {
+            get {
+                return ResourceManager.GetString("Seed", resourceCulture);
             }
         }
         

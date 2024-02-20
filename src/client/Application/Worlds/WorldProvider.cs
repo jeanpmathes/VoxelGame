@@ -11,6 +11,7 @@ using System.IO;
 using System.Security;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -68,6 +69,12 @@ public class WorldProvider : IWorldProvider
         metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
 
         return fileMetadata?.LastLoad;
+    }
+
+    /// <inheritdoc />
+    public Operation<Property> GetWorldProperties(WorldData data)
+    {
+        return Operations.Launch(data.DetermineProperties);
     }
 
     /// <inheritdoc />

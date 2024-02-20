@@ -30,6 +30,16 @@ public static class LoggingHelper
     }
 
     /// <summary>
+    ///     Create a logger.
+    /// </summary>
+    /// <param name="category">The category of the logging.</param>
+    /// <returns>The logger.</returns>
+    public static ILogger CreateLogger(string category)
+    {
+        return LoggerFactory.CreateLogger(category);
+    }
+
+    /// <summary>
     ///     Setup to the logging system.
     /// </summary>
     /// <param name="category">The category of the logging.</param>

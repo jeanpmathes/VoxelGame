@@ -48,4 +48,12 @@ public static class CollectionExtensions
 
         return value;
     }
+
+    /// <summary>
+    ///     A fast(er) reverse iteration over a list.
+    /// </summary>
+    public static IEnumerable<T> FastReverse<T>(this IList<T> list)
+    {
+        for (int i = list.Count - 1; i >= 0; i--) yield return list[i];
+    }
 }

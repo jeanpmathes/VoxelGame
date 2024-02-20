@@ -57,5 +57,25 @@ public class PropertyBasedTreeControl : TreeControl
 
             node.SetImage(icon, Context.SmallIconSize, color);
         }
+
+        public override void Visit(Message message)
+        {
+            current.AddNode($"{message.Name}: {message.Text}");
+        }
+
+        public override void Visit(Integer integer)
+        {
+            current.AddNode($"{integer.Name}: {integer.Value}");
+        }
+
+        public override void Visit(FileSystemPath path)
+        {
+            current.AddNode($"{path.Name}: {path.Path.FullName}");
+        }
+
+        public override void Visit(Measure measure)
+        {
+            current.AddNode($"{measure.Name}: {measure.Value}");
+        }
     }
 }

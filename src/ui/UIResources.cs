@@ -33,6 +33,7 @@ public sealed class UIResources : IDisposable
     internal string DeleteIcon { get; } = GetIcon("delete");
     internal string WarningIcon { get; } = GetIcon("warning");
     internal string ErrorIcon { get; } = GetIcon("error");
+    internal string InfoIcon { get; } = GetIcon("info");
 
     internal string StartImage { get; } = GetImage("start");
 

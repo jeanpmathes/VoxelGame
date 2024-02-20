@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 
@@ -38,9 +39,21 @@ public interface IWorldProvider
     ///     Get the date and time of the last load of a world.
     ///     Only valid after a successful <see cref="Refresh"/>.
     /// </summary>
-    /// <param name="data">The world.</param>
+    /// <param name="data">The world, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
     /// <returns>The data and time of the last load, or null if the world has never been loaded.</returns>
     DateTime? GetDateTimeOfLastLoad(WorldData data);
+
+    /// <summary>
+    ///     Determine properties of a world.
+    ///     Properties are extended information that might take time to load.
+    ///     Only valid after a successful <see cref="Refresh" />.
+    /// </summary>
+    /// <param name="data">
+    ///     The world, must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    /// <returns>The operation to get the properties of the world.</returns>
+    Operation<Property> GetWorldProperties(WorldData data);
 
     /// <summary>
     ///     Load a specific world from disk.

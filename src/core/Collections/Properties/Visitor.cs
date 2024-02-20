@@ -33,4 +33,28 @@ public class Visitor
     {
         // Nothing to do here.
     }
+
+    /// <exclude />
+    public virtual void Visit(Message message)
+    {
+        // Nothing to do here.
+    }
+
+    /// <exclude />
+    public virtual void Visit(Integer integer)
+    {
+        // Nothing to do here.
+    }
+
+    /// <exclude />
+    public virtual void Visit(FileSystemPath path)
+    {
+        // Nothing to do here.
+    }
+
+    /// <exclude />
+    public virtual void Visit(Measure measure)
+    {
+        // Nothing to do here.
+    }
 }

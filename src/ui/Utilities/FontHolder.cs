@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gwen.Net;
 using Gwen.Net.Skin;
 
@@ -17,6 +19,8 @@ public sealed class FontHolder : IDisposable
 {
     private const string DefaultFontName = "Times New Roman";
     private const string ConsoleFontName = "Consolas";
+
+    private readonly List<Font> headers = new();
 
     internal FontHolder(SkinBase skin)
     {
@@ -32,6 +36,12 @@ public sealed class FontHolder : IDisposable
 
         Console = Font.Create(skin.Renderer, ConsoleFontName, size: 15);
         ConsoleError = Font.Create(skin.Renderer, ConsoleFontName, size: 15, FontStyle.Bold);
+
+        headers.Add(Title);
+        headers.Add(Font.Create(skin.Renderer, DefaultFontName, size: 25));
+        headers.Add(Font.Create(skin.Renderer, DefaultFontName, size: 20));
+        headers.Add(Font.Create(skin.Renderer, DefaultFontName, size: 18, FontStyle.Bold));
+        headers.Add(Font.Create(skin.Renderer, DefaultFontName, size: 16, FontStyle.Bold));
     }
 
     internal Font Default { get; }
@@ -44,6 +54,14 @@ public sealed class FontHolder : IDisposable
 
     internal Font Console { get; }
     internal Font ConsoleError { get; }
+
+    /// <summary>
+    ///     Get the header, using the one-based level.
+    /// </summary>
+    internal Font GetHeader(int level)
+    {
+        return headers[Math.Clamp(level - 1, min: 0, headers.Count - 1)];
+    }
 
     #region IDisposable Support
 
@@ -65,9 +83,12 @@ public sealed class FontHolder : IDisposable
         Subtitle.Dispose();
         Small.Dispose();
         Path.Dispose();
+        PathU.Dispose();
 
         Console.Dispose();
         ConsoleError.Dispose();
+
+        foreach (Font font in headers.Skip(count: 1)) font.Dispose();
 
         disposed = true;
     }

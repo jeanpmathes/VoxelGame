@@ -663,4 +663,19 @@
     <data name="OpenDirectory" xml:space="preserve">
         <value>Open Directory</value>
     </data>
+    <data name="Properties" xml:space="preserve">
+        <value>Properties</value>
+    </data>
+    <data name="Seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="Name" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="FileSize" xml:space="preserve">
+        <value>File Size</value>
+    </data>
+    <data name="Info" xml:space="preserve">
+        <value>Information</value>
+    </data>
 </root>

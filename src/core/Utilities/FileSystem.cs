@@ -7,8 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities.Units;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -18,6 +22,8 @@ namespace VoxelGame.Core.Utilities;
 #pragma warning disable S3242 // The distinction between file and directory information has semantic relevance.
 public static class FileSystem
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
+
     private static readonly ISet<string> reservedNames = new HashSet<string>
     {
         "CON",
@@ -262,5 +268,32 @@ public static class FileSystem
     public static Exception? LoadJSON<T>(FileInfo file, out T obj) where T : new()
     {
         return LoadJSON(file, out obj, () => new T());
+    }
+
+    /// <summary>
+    ///     Get the size of a file or directory.
+    /// </summary>
+    /// <param name="info">The file or directory.</param>
+    /// <returns>The size of the file or directory, or null if the size could not be determined.</returns>
+    public static Memory? GetSize(this FileSystemInfo info)
+    {
+        try
+        {
+            return new Memory
+            {
+                Bytes = info switch
+                {
+                    FileInfo fileInfo => fileInfo.Length,
+                    DirectoryInfo directoryInfo => directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length),
+                    _ => 0
+                }
+            };
+        }
+        catch (IOException exception)
+        {
+            logger.LogWarning(exception, "Could not get the size of: {Path}", info.FullName);
+
+            return null;
+        }
     }
 }
