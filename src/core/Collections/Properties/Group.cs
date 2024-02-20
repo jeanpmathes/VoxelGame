@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Collections.Properties;
 /// <summary>
 ///     A group combines multiple properties into a single unit.
 /// </summary>
-public sealed class Group : Property, IEnumerable<Property>
+public class Group : Property, IEnumerable<Property>
 {
     private readonly List<Property> children = new();
 
@@ -47,7 +47,7 @@ public sealed class Group : Property, IEnumerable<Property>
         children.Add(property);
     }
 
-    internal override void Accept(Visitor visitor)
+    internal sealed override void Accept(Visitor visitor)
     {
         visitor.Visit(this);
     }

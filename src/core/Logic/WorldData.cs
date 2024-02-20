@@ -12,7 +12,6 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -266,23 +265,7 @@ public class WorldData
     /// </summary>
     public Property DetermineProperties()
     {
-        // todo: move this to a different class to reduce type usage of WorldData
-
-        return new Group(Language.Properties,
-            new Property[]
-            {
-                new Message(Language.Name, Information.Name),
-                new FileSystemPath(Language.Path, WorldDirectory),
-                WorldDirectory.GetSize() is {} size
-                    ? new Measure(Language.FileSize, size)
-                    : new Error(Language.FileSize, Language.Error, isCritical: false),
-                new Group(Language.Seed,
-                    new[]
-                    {
-                        new Integer("L", Information.LowerSeed),
-                        new Integer("U", Information.UpperSeed)
-                    })
-            });
+        return new WorldProperties(Information, WorldDirectory);
     }
 
     /// <summary>
