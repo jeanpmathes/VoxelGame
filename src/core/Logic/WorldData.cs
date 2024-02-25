@@ -138,10 +138,8 @@ public class WorldData
     {
         StringBuilder builder = new(name.Length);
 
-        foreach (char c in name)
+        foreach (char c in name.Trim())
         {
-            if (c == ' ') continue;
-
             if (Array.Exists(Path.GetInvalidFileNameChars(), value => value == c)) continue;
             if (Array.Exists(new[] {'.', ',', '{', '}'}, value => value == c)) continue;
 
