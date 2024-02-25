@@ -92,24 +92,68 @@ public class WorldData
     /// <summary>
     ///     Ensure that the world information is valid.
     /// </summary>
-    /// <param name="silent">If true, no log messages will be emitted.</param>
-    public void EnsureValidInformation(bool silent = false)
+    public void EnsureValidInformation()
     {
-        uint validWorldSize = ClampSize(Information.Size);
+        MakeWorldInformationValid(Information, silent: true);
+    }
 
-        if (!silent && validWorldSize != Information.Size)
+    /// <summary>
+    ///     Make the given world information valid.
+    /// </summary>
+    /// <param name="information">The information to make valid.</param>
+    /// <param name="silent">If true, no log messages will be emitted.</param>
+    private static void MakeWorldInformationValid(WorldInformation information, bool silent = false)
+    {
+        string validWorldName = MakeWorldNameValid(information.Name);
+
+        if (!silent && validWorldName != information.Name)
         {
-            logger.LogWarning(Events.WorldState, "Loaded world size {Invalid} was invalid, changed to {Valid}", Information.Size, validWorldSize);
-            Information.Size = validWorldSize;
+            logger.LogWarning(Events.WorldState, "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'", information.Name, validWorldName);
+            information.Name = validWorldName;
         }
 
-        Vector3d validSpawn = ClampSpawn(Information.SpawnInformation).Position;
+        uint validWorldSize = ClampSize(information.Size);
 
-        if (!silent && !VMath.NearlyEqual(validSpawn, Information.SpawnInformation.Position))
+        if (!silent && validWorldSize != information.Size)
         {
-            logger.LogWarning(Events.WorldState, "Loaded spawn position {Invalid} was invalid, changed to {Valid}", Information.SpawnInformation.Position, validSpawn);
-            Information.SpawnInformation = new SpawnInformation(validSpawn);
+            logger.LogWarning(Events.WorldState, "Loaded world size {Invalid} was invalid, changed to {Valid}", information.Size, validWorldSize);
+            information.Size = validWorldSize;
         }
+
+        Vector3d validSpawn = ClampSpawn(information).Position;
+
+        if (!silent && !VMath.NearlyEqual(validSpawn, information.SpawnInformation.Position))
+        {
+            logger.LogWarning(Events.WorldState, "Loaded spawn position {Invalid} was invalid, changed to {Valid}", information.SpawnInformation.Position, validSpawn);
+            information.SpawnInformation = new SpawnInformation(validSpawn);
+        }
+    }
+
+    /// <summary>
+    ///     Create a valid world name from the given name.
+    /// </summary>
+    /// <param name="name">The name to make valid.</param>
+    /// <returns>The valid name.</returns>
+    public static string MakeWorldNameValid(string name)
+    {
+        StringBuilder builder = new(name.Length);
+
+        foreach (char c in name)
+        {
+            if (c == ' ') continue;
+
+            if (Array.Exists(Path.GetInvalidFileNameChars(), value => value == c)) continue;
+            if (Array.Exists(new[] {'.', ',', '{', '}'}, value => value == c)) continue;
+
+            builder.Append(c);
+
+            if (builder.Length == 64) break;
+        }
+
+        if (builder.Length == 0)
+            builder.Append("World");
+
+        return builder.ToString();
     }
 
     private static uint ClampSize(uint size)
@@ -117,10 +161,10 @@ public class WorldData
         return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
     }
 
-    private SpawnInformation ClampSpawn(SpawnInformation spawn)
+    private static SpawnInformation ClampSpawn(WorldInformation information)
     {
-        Vector3d size = new(Information.Size);
-        Vector3d clamped = VMath.ClampComponents(spawn.Position, -size, size);
+        Vector3d size = new(information.Size);
+        Vector3d clamped = VMath.ClampComponents(information.SpawnInformation.Position, -size, size);
 
         return new SpawnInformation(clamped);
     }
@@ -246,6 +290,8 @@ public class WorldData
     public static WorldData LoadInformation(DirectoryInfo directory)
     {
         WorldInformation information = WorldInformation.Load(directory.GetFile(InfoFileName));
+
+        MakeWorldInformationValid(information);
 
         return new WorldData(information, directory);
     }

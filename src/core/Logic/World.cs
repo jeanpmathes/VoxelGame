@@ -83,13 +83,13 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, bool isNew)
     {
         Data = data;
-        Data.EnsureValidDirectory();
 
-        if (!isNew)
-            Data.EnsureValidInformation();
+        Data.EnsureValidDirectory();
+        Data.EnsureValidInformation();
 
         generator = GetGenerator(this);
 
@@ -163,7 +163,7 @@ public abstract class World : IDisposable, IGrid
             uint oldSize = Data.Information.Size;
             Data.Information.Size = value;
 
-            Data.EnsureValidInformation(silent: true);
+            Data.EnsureValidInformation();
 
             if (oldSize != Data.Information.Size) logger.LogInformation(Events.WorldState, "World size has been set to: {Size}", Data.Information.Size);
         }

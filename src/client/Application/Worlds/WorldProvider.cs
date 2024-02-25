@@ -164,19 +164,9 @@ public class WorldProvider : IWorldProvider
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public bool IsWorldNameValid(string name)
     {
-        if (name.Length == 0) return false;
+        string valid = WorldData.MakeWorldNameValid(name);
 
-        if (name[^1] == ' ') return false;
-
-        if (Array.Exists(Path.GetInvalidFileNameChars(), c => !IsCharInName(c))) return false;
-        if (Array.Exists(new[] {'.', ',', '{', '}'}, c => !IsCharInName(c))) return false;
-
-        return true;
-
-        bool IsCharInName(char c)
-        {
-            return !name.Contains(c, StringComparison.Ordinal);
-        }
+        return valid == name;
     }
 
     private List<WorldData> SearchForWorlds()

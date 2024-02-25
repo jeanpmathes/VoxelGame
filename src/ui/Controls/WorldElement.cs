@@ -117,7 +117,7 @@ public sealed class WorldElement : VerticalLayout
 
         LinkLabel file = new(infoPanel)
         {
-            Text = world.WorldDirectory.FullName,
+            Text = world.WorldDirectory.FullName.Ellipsis(maxLength: 150),
 
             Font = context.Fonts.Path,
             HoverFont = context.Fonts.PathU,
