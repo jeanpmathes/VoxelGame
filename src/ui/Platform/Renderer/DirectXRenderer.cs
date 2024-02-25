@@ -149,7 +149,8 @@ public sealed class DirectXRenderer : RendererBase
         {
             FreeFont(font);
             LoadFont(font);
-            sysFont = (System.Drawing.Font) font.RendererData;
+
+            sysFont = (System.Drawing.Font) font.RendererData!;
         }
 
         if (textStorage.GetTexture(font, text) is {} texture) return new Size(texture.Width, texture.Height);

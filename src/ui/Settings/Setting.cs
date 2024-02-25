@@ -7,11 +7,13 @@
 using System;
 using System.Drawing;
 using Gwen.Net.Control;
+using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Definition;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Settings;
 
@@ -30,16 +32,20 @@ public abstract class Setting
     /// </summary>
     protected ISettingsProvider Provider { get; private set; } = null!;
 
-    internal ControlBase CreateControl(ControlBase parent, Context context)
+    internal void CreateControl(TableRow row, Context context)
     {
-        GroupBox box = new(parent)
+        VerticalLayout layout = new(row);
+
+        row.SetCellContents(column: 0, layout);
+
+        Separator separator = new(layout)
         {
             Text = Name
         };
 
-        FillControl(box, context);
+        Control.Used(separator);
 
-        return box;
+        FillControl(layout, context);
     }
 
     internal virtual void Validate() {}

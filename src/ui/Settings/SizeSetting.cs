@@ -80,7 +80,7 @@ internal class SizeSetting : Setting
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            updateButton.Clicked += (_, _) =>
+            updateButton.Released += (_, _) =>
             {
                 Vector2i value = update();
                 x.Value = value.X;

@@ -241,7 +241,7 @@ public class ConsoleInterface
         Debug.Assert(consoleInput != null);
         consoleInput.Blur();
 
-        root.RemoveChild(consoleWindow, dispose: true);
+        root.RemoveChild(consoleWindow!, dispose: true);
 
         consoleWindow = null;
         consoleInput = null;

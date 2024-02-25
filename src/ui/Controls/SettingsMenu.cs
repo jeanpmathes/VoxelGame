@@ -101,9 +101,13 @@ internal class SettingsMenu : StandardMenu
                 CanScrollV = true
             };
 
-            VerticalLayout settings = new(scroll);
+            Table settings = new(scroll)
+            {
+                ColumnCount = 1
+            };
 
-            foreach (Setting setting in settingsProvider.Settings) setting.CreateControl(settings, Context);
+            foreach (Setting setting in settingsProvider.Settings)
+                setting.CreateControl(settings.AddRow(), Context);
 
             categories.Add(category);
             category.Hide();

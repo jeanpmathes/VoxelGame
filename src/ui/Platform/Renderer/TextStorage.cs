@@ -80,7 +80,7 @@ public sealed class TextStorage : IDisposable
         Size size = rendering.MeasureText(font, text);
         Entry entry = new(new TextRenderer(size.Width, size.Height, rendering));
 
-        entry.Renderer.SetString(text, (System.Drawing.Font) font.RendererData, Brushes.White, Point.Zero, StringFormat);
+        entry.Renderer.SetString(text, (System.Drawing.Font) font.RendererData!, Brushes.White, Point.Zero, StringFormat);
         used[(text, font)] = entry;
 
         return entry.Renderer.Texture;

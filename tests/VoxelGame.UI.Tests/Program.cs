@@ -15,6 +15,7 @@ using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 
 [assembly: ComVisible(visibility: false)]
+
 namespace VoxelGame.UI.Tests;
 
 internal class Program : Client
@@ -31,7 +32,7 @@ internal class Program : Client
         gui = GwenGuiFactory.CreateFromClient(this,
             GwenGuiSettings.Default.From(settings =>
             {
-                settings.SkinFile = new FileInfo("DefaultSkin2.png");
+                settings.SkinFile = new FileInfo("DefaultSkin.png");
                 settings.ShaderFile = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
             }));
 

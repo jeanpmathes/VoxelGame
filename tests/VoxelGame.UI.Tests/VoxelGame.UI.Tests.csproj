@@ -22,7 +22,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net.Tests.Components" Version="0.1.2"/>
+        <PackageReference Include="Gwen.Net.Tests.Components" Version="0.1.4"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="DefaultSkin2.png">
+        <None Update="DefaultSkin.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="gwen.png">

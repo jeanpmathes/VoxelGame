@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -34,7 +33,9 @@ internal class WorldSelection : StandardMenu
     private readonly IWorldProvider worldProvider;
 
     private readonly List<Button> buttonBar = new();
-    private ControlBase? worldList;
+
+    private ControlBase? worldParent;
+    private Table? worldsTable;
 
     private bool isFirstOpen = true;
 
@@ -72,13 +73,13 @@ internal class WorldSelection : StandardMenu
             Margin = Margin.Ten
         };
 
-        GroupBox scrollBox = new(layout)
+        GroupBox box = new(layout)
         {
             Text = Language.Worlds,
             Dock = Dock.Fill
         };
 
-        ScrollControl scroll = new(scrollBox)
+        ScrollControl scroll = new(box)
         {
             AutoHideBars = true,
             CanScrollH = false,
@@ -86,7 +87,8 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Fill
         };
 
-        worldList = new VerticalLayout(scroll);
+        worldParent = new VerticalLayout(scroll);
+
         BuildWorldList();
 
         GroupBox options = new(layout)
@@ -167,13 +169,27 @@ internal class WorldSelection : StandardMenu
         }
     }
 
+    private Table CreateWorldTable()
+    {
+        worldsTable?.Parent?.RemoveChild(worldsTable, dispose: true);
+
+        worldsTable = new Table(worldParent!)
+        {
+            ColumnCount = 1,
+            AlternateColor = true
+        };
+
+        worldsTable.Disable();
+
+        return worldsTable;
+    }
+
     private void BuildTextDisplay(string text, bool isError = false)
     {
-        Debug.Assert(worldList != null);
+        Table worlds = CreateWorldTable();
+        TableRow row = worlds.AddRow();
 
-        worldList.DeleteAllChildren();
-
-        Label label = new(worldList)
+        Label label = new(worlds.Parent!)
         {
             Text = text,
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -181,20 +197,22 @@ internal class WorldSelection : StandardMenu
             TextColor = isError ? Colors.Error : Colors.Secondary
         };
 
-        Control.Used(label);
+        row.SetCellContents(column: 0, label);
     }
 
     private void BuildWorldList()
     {
-        Debug.Assert(worldList != null);
-
-        worldList.DeleteAllChildren();
+        Table worlds = CreateWorldTable();
 
         foreach (WorldData data in worldProvider.Worlds.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue))
         {
-            WorldElement element = new(worldList, data, worldProvider, Context, this);
+            WorldElement element = new(worlds.Parent!, data, worldProvider, Context, this)
+            {
+                Margin = Margin.Five
+            };
 
-            Control.Used(element);
+            TableRow row = worlds.AddRow();
+            row.SetCellContents(column: 0, element);
         }
 
         if (!worldProvider.Worlds.Any()) BuildTextDisplay(Language.NoWorldsFound);

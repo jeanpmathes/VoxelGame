@@ -26,7 +26,7 @@ namespace VoxelGame.UI.Controls;
 ///     Represents a world element in the world selection menu.
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-public sealed class WorldElement : GroupBox
+public sealed class WorldElement : VerticalLayout
 {
     private readonly WorldData world;
     private readonly IWorldProvider worldProvider;
@@ -40,7 +40,7 @@ public sealed class WorldElement : GroupBox
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldElement" /> class.
     /// </summary>
-    /// <param name="list">The list which is the direct parent of this element.</param>
+    /// <param name="parent">The parent control.</param>
     /// <param name="world">Data of the world to represent.</param>
     /// <param name="worldProvider">Provides operations related to worlds.</param>
     /// <param name="context">The context in which the user interface is running.</param>
@@ -48,7 +48,7 @@ public sealed class WorldElement : GroupBox
     ///     A higher level menu control that this element is part of.
     ///     Used as a parent to open windows and modals.
     /// </param>
-    internal WorldElement(ControlBase list, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(list)
+    internal WorldElement(ControlBase parent, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(parent)
     {
         this.world = world;
         this.worldProvider = worldProvider;
@@ -56,7 +56,12 @@ public sealed class WorldElement : GroupBox
         this.context = context;
         this.menu = menu;
 
-        Text = world.Information.Name;
+        Label name = new(this)
+        {
+            Text = world.Information.Name
+        };
+
+        Control.Used(name);
 
         DockLayout layout = new(this);
 
@@ -162,7 +167,7 @@ public sealed class WorldElement : GroupBox
                 () => {},
                 close =>
                 {
-                    list.RemoveChild(this, dispose: true);
+                    parent.RemoveChild(this, dispose: true);
 
                     worldProvider.DeleteWorld(world).OnCompletion(op =>
                     {

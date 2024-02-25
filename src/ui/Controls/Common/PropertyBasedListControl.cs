@@ -93,7 +93,7 @@ public class PropertyBasedListControl : ControlBase
             ListBoxRow row = AddRow(path.Name, path.Path.FullName);
 
             row.SetCellFont(ValueColumn, context.Fonts.Path);
-            row.SetCellText(ValueColumn, path.Path.FullName, Alignment.Bottom);
+            row.SetCellText(ValueColumn, path.Path.FullName, Alignment.Center);
         }
 
         public override void Visit(Measure measure)
