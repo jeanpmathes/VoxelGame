@@ -71,10 +71,10 @@ public sealed class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(client);
 
-        ui.WorldExit += (_, _) =>
+        ui.WorldExit += (_, args) =>
         {
             if (world.IsActive)
-                world.BeginDeactivating(client.ExitGame);
+                world.BeginDeactivating(() => client.ExitGame(args.ExitToOS));
         };
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();

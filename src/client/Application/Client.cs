@@ -153,12 +153,21 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// <summary>
     ///     Exit the current game.
     /// </summary>
-    internal void ExitGame()
+    /// <param name="exitToOS">Whether to exit the complete application or just to the start scene.</param>
+    internal void ExitGame(bool exitToOS)
     {
-        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
-        sceneManager.Load(startScene);
+        IScene? scene = null;
 
+        if (!exitToOS) scene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
+
+        sceneManager.Load(scene);
         CurrentGame = null;
+
+        if (!exitToOS) return;
+
+        logger.LogInformation(Events.ApplicationState, "Exiting to OS");
+
+        Close();
     }
 
     private void OnSizeChanged(object? sender, SizeChangeEventArgs e)

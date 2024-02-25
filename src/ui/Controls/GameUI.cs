@@ -139,15 +139,26 @@ internal class GameUI : ControlBase
 
         settings.Released += (_, _) => { OpenSettings(); };
 
-        Button exit = new(layout)
+        Button exitToMenu = new(layout)
         {
             Text = Language.Exit
         };
 
-        exit.Released += (_, _) =>
+        exitToMenu.Released += (_, _) =>
         {
             CloseInGameMenu();
-            parent.DoWorldExit();
+            parent.DoWorldExit(exitToOS: false);
+        };
+
+        Button exitToOS = new(layout)
+        {
+            Text = Language.ExitToOS
+        };
+
+        exitToOS.Released += (_, _) =>
+        {
+            CloseInGameMenu();
+            parent.DoWorldExit(exitToOS: true);
         };
 
         Label info = new(layout)

@@ -678,4 +678,7 @@
     <data name="Info" xml:space="preserve">
         <value>Information</value>
     </data>
+    <data name="ExitToOS" xml:space="preserve">
+        <value>Verlassen (OS)</value>
+    </data>
 </root>

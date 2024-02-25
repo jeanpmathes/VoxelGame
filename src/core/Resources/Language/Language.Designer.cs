@@ -393,6 +393,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exit to OS.
+        /// </summary>
+        public static string ExitToOS {
+            get {
+                return ResourceManager.GetString("ExitToOS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Farmland.
         /// </summary>
         public static string Farmland {
