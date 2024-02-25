@@ -66,7 +66,7 @@
         <None Update="Resources\Shaders\GUI.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\GUI\VoxelSkin.png">
+        <None Update="Resources\GUI\VoxelSkin1.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\delete.png">
@@ -88,6 +88,9 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\info.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\VoxelSkin2.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

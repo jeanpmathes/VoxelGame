@@ -135,30 +135,13 @@ public sealed class WorldElement : VerticalLayout
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        Button info = new(buttons)
-        {
-            ImageName = context.Resources.InfoIcon,
-            ImageSize = Context.DefaultIconSize,
-            ToolTipText = Language.Info
-        };
-
+        Button info = context.CreateIconButton(buttons, context.Resources.InfoIcon, Language.Info);
         info.Released += (_, _) => OpenWorldInfoWindow(info);
 
-        Button load = new(buttons)
-        {
-            ImageName = context.Resources.LoadIcon,
-            ImageSize = Context.DefaultIconSize,
-            ToolTipText = Language.Load
-        };
-
+        Button load = context.CreateIconButton(buttons, context.Resources.LoadIcon, Language.Load);
         load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
 
-        Button delete = new(buttons)
-        {
-            ImageName = context.Resources.DeleteIcon,
-            ImageSize = Context.DefaultIconSize,
-            ToolTipText = Language.Delete
-        };
+        Button delete = context.CreateIconButton(buttons, context.Resources.DeleteIcon, Language.Delete, Colors.Danger);
 
         delete.Released += (_, _) => Modals.OpenDeletionModal(
             menu,

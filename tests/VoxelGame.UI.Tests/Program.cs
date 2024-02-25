@@ -32,7 +32,7 @@ internal class Program : Client
         gui = GwenGuiFactory.CreateFromClient(this,
             GwenGuiSettings.Default.From(settings =>
             {
-                settings.SkinFile = new FileInfo("DefaultSkin.png");
+                settings.SkinFiles = new[] {new FileInfo("DefaultSkin.png")};
                 settings.ShaderFile = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
             }));
 

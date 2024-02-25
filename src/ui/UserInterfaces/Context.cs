@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using Gwen.Net;
+using Gwen.Net.Control;
 using VoxelGame.Support.Input;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -30,4 +32,22 @@ internal sealed class Context
     internal Input Input { get; }
 
     internal UIResources Resources { get; }
+
+    /// <summary>
+    ///     Create a button that uses an icon instead of text.
+    /// </summary>
+    internal Button CreateIconButton(ControlBase parent, string icon, string toolTip, Color? color = null, bool useAlternativeSkin = true)
+    {
+        IconButton button = new(parent)
+        {
+            ImageName = icon,
+            ImageSize = DefaultIconSize,
+            ToolTipText = toolTip,
+            IconOverrideColor = color
+        };
+
+        button.SetSkin(useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin, doChildren: true);
+
+        return button;
+    }
 }

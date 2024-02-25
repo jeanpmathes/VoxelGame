@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Gwen.Net.RichText;
+using Gwen.Net.Skin;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -36,6 +37,9 @@ public sealed class UIResources : IDisposable
     internal string InfoIcon { get; } = GetIcon("info");
 
     internal string StartImage { get; } = GetImage("start");
+
+    internal SkinBase DefaultSkin { get; private set; } = null!;
+    internal SkinBase AlternativeSkin { get; private set; } = null!;
 
     internal IGwenGui GUI { get; private set; } = null!;
 
@@ -101,10 +105,13 @@ public sealed class UIResources : IDisposable
 
     private void LoadGUI(Client window, LoadingContext loadingContext)
     {
-        FileInfo skin = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin.png");
+        FileInfo skin1 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin1.png");
+        FileInfo skin2 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin2.png");
         FileInfo shader = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
 
-        Exception? skinLoadingError = null;
+        List<FileInfo> skinFiles = new() {skin1, skin2};
+        Dictionary<FileInfo, Exception> skinLoadingErrors = new();
+
         string? shaderLoadingError = null;
 
         Dictionary<string, TexturePreload> textures = GetTexturePreloads();
@@ -115,8 +122,14 @@ public sealed class UIResources : IDisposable
             GwenGuiSettings.Default.From(
                 settings =>
                 {
-                    settings.SkinFile = skin;
-                    settings.SkinLoadingErrorCallback = exception => skinLoadingError = exception;
+                    settings.SkinFiles = skinFiles;
+                    settings.SkinLoadingErrorCallback = (file, exception) => skinLoadingErrors[file] = exception;
+
+                    settings.SkinLoadedCallback = (index, skin) =>
+                    {
+                        if (index == 0) DefaultSkin = skin;
+                        else if (index == 1) AlternativeSkin = skin;
+                    };
 
                     settings.ShaderFile = shader;
 
@@ -134,7 +147,8 @@ public sealed class UIResources : IDisposable
 
         GUI.Load();
 
-        ReportSkinLoading(skinLoadingError, skin, loadingContext);
+        foreach (FileInfo skinFile in skinFiles) ReportSkinLoading(skinLoadingErrors.GetValueOrDefault(skinFile), skinFile, loadingContext);
+
         ReportTextureLoading(textures, textureLoadingErrors, loadingContext);
         ReportShaderLoading(shaderLoadingError, shader, loadingContext);
 

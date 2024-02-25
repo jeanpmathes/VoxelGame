@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Gwen.Net.Skin;
 
 namespace VoxelGame.UI.Platform;
 
@@ -28,14 +29,19 @@ public class GwenGuiSettings
     private GwenGuiSettings() {}
 
     /// <summary>
-    ///     The skin file to load.
+    ///     The skin files to load. Must contain at least one file.
     /// </summary>
-    public FileInfo SkinFile { get; set; } = new("DefaultSkin.png");
+    public IEnumerable<FileInfo> SkinFiles { get; set; } = new[] {new FileInfo("DefaultSkin.png")};
 
     /// <summary>
     ///     The error callback for the skin loading.
     /// </summary>
-    public Action<Exception> SkinLoadingErrorCallback { get; set; } = e => throw e;
+    public Action<FileInfo, Exception> SkinLoadingErrorCallback { get; set; } = (_, e) => throw e;
+
+    /// <summary>
+    ///     The callback for when a skin is loaded.
+    /// </summary>
+    public Action<int, SkinBase> SkinLoadedCallback { get; set; } = (_, _) => {};
 
     /// <summary>
     ///     List of textures to preload.
