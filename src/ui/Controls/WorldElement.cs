@@ -172,6 +172,7 @@ public sealed class WorldElement : VerticalLayout
         worldInfoWindow = new Window(menu)
         {
             Title = Language.Info,
+            DeleteOnClose = true,
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,

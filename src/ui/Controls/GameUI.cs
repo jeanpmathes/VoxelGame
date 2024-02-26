@@ -112,7 +112,10 @@ internal class GameUI : ControlBase
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
+
             IsClosable = false,
+            DeleteOnClose = true,
+
             Resizing = Resizing.None,
             IsDraggingEnabled = false
         };

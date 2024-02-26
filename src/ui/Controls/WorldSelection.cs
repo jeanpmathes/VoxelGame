@@ -225,6 +225,7 @@ internal class WorldSelection : StandardMenu
         worldCreationWindow = new Window(this)
         {
             Title = Language.CreateNewWorld,
+            DeleteOnClose = true,
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,

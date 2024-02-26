@@ -66,6 +66,7 @@ public class ConsoleInterface
         consoleWindow = new Window(root)
         {
             StartPosition = StartPosition.Manual,
+            DeleteOnClose = true,
             Position = new Point(x: 0, y: 0),
             Size = new Size(width: 900, height: 400),
             HorizontalAlignment = HorizontalAlignment.Left,
@@ -73,8 +74,6 @@ public class ConsoleInterface
             Resizing = Resizing.None,
             IsDraggingEnabled = false
         };
-
-
 
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
         Context.MakeModal(consoleWindow);
