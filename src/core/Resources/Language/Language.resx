@@ -681,4 +681,7 @@
     <data name="ExitToOS" xml:space="preserve">
         <value>Exit to OS</value>
     </data>
+    <data name="Rename" xml:space="preserve">
+        <value>Rename</value>
+    </data>
 </root>

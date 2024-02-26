@@ -117,7 +117,7 @@ internal class GameUI : ControlBase
             IsDraggingEnabled = false
         };
 
-        gameMenu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
+        Context.MakeModal(gameMenu);
 
         VerticalLayout layout = new(gameMenu)
         {

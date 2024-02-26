@@ -681,4 +681,7 @@
     <data name="ExitToOS" xml:space="preserve">
         <value>Verlassen (OS)</value>
     </data>
+    <data name="Rename" xml:space="preserve">
+        <value>Umbennen</value>
+    </data>
 </root>

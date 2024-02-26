@@ -9,6 +9,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Utilities;
 
@@ -19,8 +20,6 @@ namespace VoxelGame.UI.Utilities;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal static class Modals
 {
-    private static readonly Color background = new(a: 100, r: 0, g: 0, b: 0);
-
     /// <summary>
     ///     Set up the language (text) for the modals.
     /// </summary>
@@ -45,7 +44,7 @@ internal static class Modals
     {
         DeletionBox deletionBox = new(parent, parameters, actions);
 
-        deletionBox.MakeModal(dim: true, background);
+        Context.MakeModal(deletionBox);
     }
 
     /// <summary>
@@ -64,7 +63,7 @@ internal static class Modals
             IsDraggingEnabled = false
         };
 
-        modal.MakeModal(dim: true, background);
+        Context.MakeModal(modal);
 
         Label label = new(modal)
         {

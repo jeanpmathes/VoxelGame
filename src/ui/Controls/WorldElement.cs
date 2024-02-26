@@ -56,12 +56,17 @@ public sealed class WorldElement : VerticalLayout
         this.context = context;
         this.menu = menu;
 
-        Label name = new(this)
+        Name name = new(context, menu, this)
         {
             Text = world.Information.Name
         };
 
-        Control.Used(name);
+        name.SetValidator(worldProvider.IsWorldNameValid);
+
+        name.NameChanged += (_, _) =>
+        {
+            worldProvider.RenameWorld(world, name.Text);
+        };
 
         DockLayout layout = new(this);
 
@@ -132,7 +137,7 @@ public sealed class WorldElement : VerticalLayout
         HorizontalLayout buttons = new(layout)
         {
             HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Bottom
         };
 
         Button info = context.CreateIconButton(buttons, context.Resources.InfoIcon, Language.Info);

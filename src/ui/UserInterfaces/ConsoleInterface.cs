@@ -74,8 +74,10 @@ public class ConsoleInterface
             IsDraggingEnabled = false
         };
 
+
+
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
-        consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
+        Context.MakeModal(consoleWindow);
 
         content = new Empty(consoleWindow);
 

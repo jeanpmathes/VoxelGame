@@ -18,7 +18,6 @@ namespace VoxelGame.UI.UserInterfaces;
 internal sealed class Context
 {
     internal static readonly Size DefaultIconSize = new(size: 40);
-
     internal static readonly Size SmallIconSize = new(size: 25);
 
     internal Context(Input input, UIResources resources)
@@ -36,12 +35,18 @@ internal sealed class Context
     /// <summary>
     ///     Create a button that uses an icon instead of text.
     /// </summary>
-    internal Button CreateIconButton(ControlBase parent, string icon, string toolTip, Color? color = null, bool useAlternativeSkin = true)
+    internal Button CreateIconButton(
+        ControlBase parent,
+        string icon,
+        string toolTip,
+        Color? color = null,
+        bool isSmall = false,
+        bool useAlternativeSkin = true)
     {
         IconButton button = new(parent)
         {
             ImageName = icon,
-            ImageSize = DefaultIconSize,
+            ImageSize = isSmall ? SmallIconSize : DefaultIconSize,
             ToolTipText = toolTip,
             IconOverrideColor = color
         };
@@ -49,5 +54,13 @@ internal sealed class Context
         button.SetSkin(useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin, doChildren: true);
 
         return button;
+    }
+
+    /// <summary>
+    ///     Make a window modal.
+    /// </summary>
+    internal static void MakeModal(Window window)
+    {
+        window.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
     }
 }

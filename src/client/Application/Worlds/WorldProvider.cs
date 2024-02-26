@@ -161,6 +161,14 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
+    public void RenameWorld(WorldData data, string newName)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        data.Rename(newName);
+    }
+
+    /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public bool IsWorldNameValid(string name)
     {

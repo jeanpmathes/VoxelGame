@@ -86,4 +86,14 @@ public interface IWorldProvider
     /// <param name="name">The name to check.</param>
     /// <returns>True if the given name is valid.</returns>
     bool IsWorldNameValid(string name);
+
+    /// <summary>
+    ///     Rename a world.
+    /// </summary>
+    /// <param name="data">
+    ///     The world to rename. Must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    /// <param name="newName">The new name of the world. Must be a valid name.</param>
+    void RenameWorld(WorldData data, string newName);
 }

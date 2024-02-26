@@ -346,4 +346,17 @@ public class WorldData
             }
         });
     }
+
+    /// <summary>
+    ///     Rename the world.
+    /// </summary>
+    /// <param name="newName">The new name of the world. Must be a valid name.</param>
+    public void Rename(string newName)
+    {
+        logger.LogInformation(Events.WorldIO, "Renaming world '{OldName}' to '{NewName}'", Information.Name, newName);
+
+        Information.Name = newName;
+
+        Save();
+    }
 }
