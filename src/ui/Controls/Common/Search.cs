@@ -49,13 +49,14 @@ public class Search : ControlBase
     }
 
     /// <summary>
-    ///     Get the current search filter, which is a string or null if no filter is set.
+    ///     Get the current search filter.
+    ///     If no filter is set, the string is empty.
     /// </summary>
-    public string? Filter { get; private set; }
+    public string Filter { get; private set; } = string.Empty;
 
     private void UpdateFilter(string filter)
     {
-        Filter = filter.Length > 0 ? filter : null;
+        Filter = filter;
 
         FilterChanged?.Invoke(this, EventArgs.Empty);
     }

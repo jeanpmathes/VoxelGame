@@ -10,7 +10,6 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -20,7 +19,7 @@ using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
 using Colors = VoxelGame.UI.Utilities.Colors;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.UI.Controls.Worlds;
 
 /// <summary>
 ///     Represents a world element in the world selection menu.
@@ -28,7 +27,7 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 public sealed class WorldElement : VerticalLayout
 {
-    private readonly WorldData world;
+    private readonly IWorldProvider.IWorldInfo world;
     private readonly IWorldProvider worldProvider;
 
     private readonly Context context;
@@ -48,7 +47,7 @@ public sealed class WorldElement : VerticalLayout
     ///     A higher level menu control that this element is part of.
     ///     Used as a parent to open windows and modals.
     /// </param>
-    internal WorldElement(Table table, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(table.AddRow())
+    internal WorldElement(Table table, IWorldProvider.IWorldInfo world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(table.AddRow())
     {
         this.world = world;
         this.worldProvider = worldProvider;
@@ -62,7 +61,7 @@ public sealed class WorldElement : VerticalLayout
 
         Name name = new(context, menu, this)
         {
-            Text = world.Information.Name
+            Text = world.Name
         };
 
         name.SetValidator(worldProvider.IsWorldNameValid);
@@ -82,7 +81,7 @@ public sealed class WorldElement : VerticalLayout
 
         Label creation = new(infoPanel)
         {
-            Text = $"{Language.CreatedOn}: {Texts.FormatDateTime(world.Information.Creation)}",
+            Text = $"{Language.CreatedOn}: {Texts.FormatDateTime(world.DateTimeOfCreation)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };
@@ -99,7 +98,7 @@ public sealed class WorldElement : VerticalLayout
 
         Label text = new(last)
         {
-            Text = $"{Language.LastLoaded}: {Texts.FormatTimeSinceEvent(worldProvider.GetDateTimeOfLastLoad(world), out bool hasOccurred)}",
+            Text = $"{Language.LastLoaded}: {Texts.FormatTimeSinceEvent(world.DateTimeOfLastLoad, out bool hasOccurred)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };
@@ -117,16 +116,16 @@ public sealed class WorldElement : VerticalLayout
 
         Label version = new(infoPanel)
         {
-            Text = world.Information.Version,
+            Text = world.Version,
             Font = context.Fonts.Small,
-            TextColor = ApplicationInformation.Instance.Version == world.Information.Version ? Colors.Good : Colors.Bad
+            TextColor = ApplicationInformation.Instance.Version == world.Version ? Colors.Good : Colors.Bad
         };
 
         Control.Used(version);
 
         LinkLabel file = new(infoPanel)
         {
-            Text = world.WorldDirectory.FullName.Ellipsis(maxLength: 150),
+            Text = world.Directory.FullName.Ellipsis(maxLength: 150),
 
             Font = context.Fonts.Path,
             HoverFont = context.Fonts.PathU,
@@ -134,7 +133,7 @@ public sealed class WorldElement : VerticalLayout
             TextColor = Colors.Linkified(Colors.Secondary)
         };
 
-        file.LinkClicked += (_, _) => OS.Start(world.WorldDirectory);
+        file.LinkClicked += (_, _) => OS.Start(world.Directory);
 
         Control.Used(file);
 

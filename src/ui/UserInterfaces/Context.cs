@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Support.Input;
@@ -63,6 +64,7 @@ internal sealed class Context
     /// <param name="icon">The icon name.</param>
     /// <param name="isSmall">Whether the icon should be small.</param>
     /// <returns>The created icon.</returns>
+    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     internal ImagePanel CreateIcon(ControlBase parent, string icon, bool isSmall = false)
     {
         ImagePanel image = new(parent)

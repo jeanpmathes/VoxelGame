@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 
 namespace VoxelGame.UI.Providers;
@@ -27,7 +26,7 @@ public interface IWorldProvider
     ///     Get all currently known worlds.
     ///     Only valid after a successful <see cref="Refresh"/>.
     /// </summary>
-    IEnumerable<WorldData> Worlds { get; }
+    IEnumerable<IWorldInfo> Worlds { get; }
 
     /// <summary>
     ///     Start an operation to refresh the world provider.
@@ -36,32 +35,24 @@ public interface IWorldProvider
     Operation Refresh();
 
     /// <summary>
-    ///     Get the date and time of the last load of a world.
-    ///     Only valid after a successful <see cref="Refresh"/>.
-    /// </summary>
-    /// <param name="data">The world, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
-    /// <returns>The data and time of the last load, or null if the world has never been loaded.</returns>
-    DateTime? GetDateTimeOfLastLoad(WorldData data);
-
-    /// <summary>
     ///     Determine properties of a world.
     ///     Properties are extended information that might take time to load.
     ///     Only valid after a successful <see cref="Refresh" />.
     /// </summary>
-    /// <param name="data">
+    /// <param name="info">
     ///     The world, must be an object from <see cref="Worlds" />, retrieved after a successful
     ///     <see cref="Refresh" />.
     /// </param>
     /// <returns>The operation to get the properties of the world.</returns>
-    Operation<Property> GetWorldProperties(WorldData data);
+    Operation<Property> GetWorldProperties(IWorldInfo info);
 
     /// <summary>
     ///     Load a specific world from disk.
     ///     Only valid after a successful <see cref="Refresh"/>.
     ///     Will cause a scene change.
     /// </summary>
-    /// <param name="data">The world to load, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
-    void BeginLoadingWorld(WorldData data);
+    /// <param name="info">The world to load, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
+    void BeginLoadingWorld(IWorldInfo info);
 
     /// <summary>
     ///     Create a new world and then load it. Will cause a scene change.
@@ -73,12 +64,12 @@ public interface IWorldProvider
     ///     Delete a world.
     ///     Only valid after a successful <see cref="Refresh"/>.
     /// </summary>
-    /// <param name="data">
+    /// <param name="info">
     ///     The world to delete, must be an object from <see cref="Worlds" />, retrieved after a successful
     ///     <see cref="Refresh" />.
     /// </param>
     /// <returns>The operation to delete the world.</returns>
-    Operation DeleteWorld(WorldData data);
+    Operation DeleteWorld(IWorldInfo info);
 
     /// <summary>
     ///     Check if a name is valid for a world.
@@ -90,10 +81,41 @@ public interface IWorldProvider
     /// <summary>
     ///     Rename a world.
     /// </summary>
-    /// <param name="data">
+    /// <param name="info">
     ///     The world to rename. Must be an object from <see cref="Worlds" />, retrieved after a successful
     ///     <see cref="Refresh" />.
     /// </param>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
-    void RenameWorld(WorldData data, string newName);
+    void RenameWorld(IWorldInfo info, string newName);
+
+    /// <summary>
+    ///     Information about a single world.
+    /// </summary>
+    public interface IWorldInfo
+    {
+        /// <summary>
+        ///     The name of the world.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        ///     The version of the client in which the world was saved last.
+        /// </summary>
+        string Version { get; }
+
+        /// <summary>
+        ///     The directory where the world is stored.
+        /// </summary>
+        DirectoryInfo Directory { get; }
+
+        /// <summary>
+        ///     Date and time when the world was created.
+        /// </summary>
+        DateTime DateTimeOfCreation { get; }
+
+        /// <summary>
+        ///     Date and time when the world was last loaded, or null if it was never loaded.
+        /// </summary>
+        DateTime? DateTimeOfLastLoad { get; }
+    }
 }

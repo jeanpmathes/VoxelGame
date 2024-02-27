@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,7 @@ public class WorldProvider : IWorldProvider
 
     private readonly FileInfo metadataFile;
 
-    private readonly List<WorldData> worlds = new();
+    private readonly List<IWorldProvider.IWorldInfo> worlds = new();
     private WorldDirectoryMetadata metadata = new();
 
     /// <summary>
@@ -51,7 +52,7 @@ public class WorldProvider : IWorldProvider
     public DirectoryInfo WorldsDirectory { get; }
 
     /// <inheritdoc />
-    public IEnumerable<WorldData> Worlds
+    public IEnumerable<IWorldProvider.IWorldInfo> Worlds
     {
         get
         {
@@ -62,19 +63,9 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public DateTime? GetDateTimeOfLastLoad(WorldData data)
+    public Operation<Property> GetWorldProperties(IWorldProvider.IWorldInfo info)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
-
-        metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
-
-        return fileMetadata?.LastLoad;
-    }
-
-    /// <inheritdoc />
-    public Operation<Property> GetWorldProperties(WorldData data)
-    {
-        return Operations.Launch(data.DetermineProperties);
+        return Operations.Launch(GetData(info).DetermineProperties);
     }
 
     /// <inheritdoc />
@@ -118,7 +109,7 @@ public class WorldProvider : IWorldProvider
         }).OnCompletion(op =>
         {
             if (op.Result != null)
-                worlds.AddRange(op.Result);
+                worlds.AddRange(op.Result.Select(data => new WorldInfo(data, this)));
 
             Status = op.Status;
         });
@@ -126,12 +117,12 @@ public class WorldProvider : IWorldProvider
 
     /// <inheritdoc />
     [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginLoadingWorld(WorldData data)
+    public void BeginLoadingWorld(IWorldProvider.IWorldInfo info)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
         if (Status != Status.Ok) throw new InvalidOperationException();
 
-        World world = new(data);
+        World world = new(GetData(info));
         ActivateWorld(world);
     }
 
@@ -150,22 +141,24 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public Operation DeleteWorld(WorldData data)
+    public Operation DeleteWorld(IWorldProvider.IWorldInfo info)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
-        worlds.Remove(data);
+        WorldData data = GetData(info);
+
+        worlds.Remove(info);
         metadata.Entries.Remove(GetMetadataKey(data));
 
         return data.Delete();
     }
 
     /// <inheritdoc />
-    public void RenameWorld(WorldData data, string newName)
+    public void RenameWorld(IWorldProvider.IWorldInfo info, string newName)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
-        data.Rename(newName);
+        GetData(info).Rename(newName);
     }
 
     /// <inheritdoc />
@@ -175,6 +168,15 @@ public class WorldProvider : IWorldProvider
         string valid = WorldData.MakeWorldNameValid(name);
 
         return valid == name;
+    }
+
+    private DateTime? GetDateTimeOfLastLoad(WorldData data)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
+
+        return fileMetadata?.LastLoad;
     }
 
     private List<WorldData> SearchForWorlds()
@@ -218,8 +220,25 @@ public class WorldProvider : IWorldProvider
         return data.WorldDirectory.Name;
     }
 
+    private static WorldData GetData(IWorldProvider.IWorldInfo info)
+    {
+        if (info is WorldInfo worldInfo)
+            return worldInfo.Data;
+
+        throw new InvalidOperationException();
+    }
+
     /// <summary>
     ///     Is invoked when a world is requested to be activated.
     /// </summary>
     public event EventHandler<World> WorldActivation = null!;
+
+    private sealed record WorldInfo(WorldData Data, WorldProvider Provider) : IWorldProvider.IWorldInfo
+    {
+        public string Name => Data.Information.Name;
+        public string Version => Data.Information.Version;
+        public DirectoryInfo Directory => Data.WorldDirectory;
+        public DateTime DateTimeOfCreation => Data.Information.Creation;
+        public DateTime? DateTimeOfLastLoad => Provider.GetDateTimeOfLastLoad(Data);
+    }
 }

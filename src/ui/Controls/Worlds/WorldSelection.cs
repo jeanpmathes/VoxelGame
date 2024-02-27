@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -22,23 +20,20 @@ using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
 using Colors = VoxelGame.UI.Utilities.Colors;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.UI.Controls.Worlds;
 
 /// <summary>
 ///     The menu displaying worlds, allowing to select and create worlds.
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class WorldSelection : StandardMenu
 {
     private readonly IWorldProvider worldProvider;
 
     private readonly List<Button> buttonBar = new();
 
-    private ControlBase? worldParent;
-    private Table? worldsTable;
-
-    private Search? search;
+    private Search search = null!;
+    private WorldList worlds = null!;
 
     private bool isFirstOpen = true;
 
@@ -97,12 +92,6 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Top
         };
 
-        search.FilterChanged += (_, _) =>
-        {
-            if (refreshCancellation == null)
-                BuildWorldList();
-        };
-
         Separator separator = new(content)
         {
             Dock = Dock.Top
@@ -118,9 +107,13 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Fill
         };
 
-        worldParent = new VerticalLayout(scroll);
+        worlds = new WorldList(scroll, worldProvider, Context);
 
-        BuildWorldList();
+        search.FilterChanged += (_, _) =>
+        {
+            if (refreshCancellation == null)
+                worlds.BuildList(search.Filter);
+        };
 
         GroupBox options = new(layout)
         {
@@ -171,15 +164,15 @@ internal class WorldSelection : StandardMenu
 
         refreshCancellation = new CancellationTokenSource();
 
-        BuildTextDisplay(Texts.FormatOperation(Language.SearchingWorlds, Status.Running));
+        worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, Status.Running));
         SetButtonBarEnabled(enabled: false);
 
         worldProvider.Refresh().OnCompletion(op =>
             {
                 SetButtonBarEnabled(enabled: true);
 
-                if (op.IsOk) BuildWorldList();
-                else BuildTextDisplay(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
+                if (op.IsOk) worlds.BuildList(search.Filter);
+                else worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
 
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 refreshCancellation?.Dispose();
@@ -198,60 +191,6 @@ internal class WorldSelection : StandardMenu
 
             button.Redraw();
         }
-    }
-
-    private Table CreateWorldTable()
-    {
-        worldsTable?.Parent?.RemoveChild(worldsTable, dispose: true);
-
-        worldsTable = new Table(worldParent!)
-        {
-            ColumnCount = 1,
-            AlternateColor = true
-        };
-
-        worldsTable.Disable();
-
-        return worldsTable;
-    }
-
-    private void BuildTextDisplay(string text, bool isError = false)
-    {
-        Table worlds = CreateWorldTable();
-        TableRow row = worlds.AddRow();
-
-        Label label = new(worlds.Parent!)
-        {
-            Text = text,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            TextColor = isError ? Colors.Error : Colors.Secondary
-        };
-
-        row.SetCellContents(column: 0, label);
-    }
-
-    private void BuildWorldList()
-    {
-        Table worlds = CreateWorldTable();
-
-        IEnumerable<WorldData> entries = worldProvider.Worlds;
-
-        if (search?.Filter is {} filter) entries = entries.Where(entry => entry.Information.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase));
-
-        entries = entries.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue);
-
-        foreach (WorldData data in entries)
-        {
-            WorldElement element = new(worlds, data, worldProvider, Context, this)
-            {
-                Margin = Margin.Five
-            };
-
-            Control.Used(element);
-        }
-
-        if (!worldProvider.Worlds.Any()) BuildTextDisplay(Language.NoWorldsFound);
     }
 
     private void OpenWorldCreationWindow()
