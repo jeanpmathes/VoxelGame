@@ -222,6 +222,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear.
+        /// </summary>
+        public static string ClearInput {
+            get {
+                return ResourceManager.GetString("ClearInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Coal Ore.
         /// </summary>
         public static string CoalOre {
@@ -1334,6 +1343,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string ScaleOfUI {
             get {
                 return ResourceManager.GetString("ScaleOfUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
             }
         }
         

@@ -40,7 +40,7 @@ public sealed class WorldElement : VerticalLayout
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldElement" /> class.
     /// </summary>
-    /// <param name="parent">The parent control.</param>
+    /// <param name="table">The table to add this element to.</param>
     /// <param name="world">Data of the world to represent.</param>
     /// <param name="worldProvider">Provides operations related to worlds.</param>
     /// <param name="context">The context in which the user interface is running.</param>
@@ -48,13 +48,17 @@ public sealed class WorldElement : VerticalLayout
     ///     A higher level menu control that this element is part of.
     ///     Used as a parent to open windows and modals.
     /// </param>
-    internal WorldElement(ControlBase parent, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(parent)
+    internal WorldElement(Table table, WorldData world, IWorldProvider worldProvider, Context context, ControlBase menu) : base(table.AddRow())
     {
         this.world = world;
         this.worldProvider = worldProvider;
 
         this.context = context;
         this.menu = menu;
+
+        var row = (Parent as TableRow)!;
+
+        row.SetCellContents(column: 0, this);
 
         Name name = new(context, menu, this)
         {
@@ -155,7 +159,7 @@ public sealed class WorldElement : VerticalLayout
                 () => {},
                 close =>
                 {
-                    parent.RemoveChild(this, dispose: true);
+                    table.RemoveRow(row);
 
                     worldProvider.DeleteWorld(world).OnCompletion(op =>
                     {

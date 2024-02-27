@@ -16,6 +16,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
@@ -36,6 +37,8 @@ internal class WorldSelection : StandardMenu
 
     private ControlBase? worldParent;
     private Table? worldsTable;
+
+    private Search? search;
 
     private bool isFirstOpen = true;
 
@@ -79,7 +82,35 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Fill
         };
 
-        ScrollControl scroll = new(box)
+        DockLayout content = new(box);
+
+        Empty space = new(content)
+        {
+            Dock = Dock.Top,
+            Padding = Padding.Five
+        };
+
+        Control.Used(space);
+
+        search = new Search(content, Context)
+        {
+            Dock = Dock.Top
+        };
+
+        search.FilterChanged += (_, _) =>
+        {
+            if (refreshCancellation == null)
+                BuildWorldList();
+        };
+
+        Separator separator = new(content)
+        {
+            Dock = Dock.Top
+        };
+
+        Control.Used(separator);
+
+        ScrollControl scroll = new(content)
         {
             AutoHideBars = true,
             CanScrollH = false,
@@ -204,15 +235,20 @@ internal class WorldSelection : StandardMenu
     {
         Table worlds = CreateWorldTable();
 
-        foreach (WorldData data in worldProvider.Worlds.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue))
+        IEnumerable<WorldData> entries = worldProvider.Worlds;
+
+        if (search?.Filter is {} filter) entries = entries.Where(entry => entry.Information.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase));
+
+        entries = entries.OrderByDescending(entry => worldProvider.GetDateTimeOfLastLoad(entry) ?? DateTime.MaxValue);
+
+        foreach (WorldData data in entries)
         {
-            WorldElement element = new(worlds.Parent!, data, worldProvider, Context, this)
+            WorldElement element = new(worlds, data, worldProvider, Context, this)
             {
                 Margin = Margin.Five
             };
 
-            TableRow row = worlds.AddRow();
-            row.SetCellContents(column: 0, element);
+            Control.Used(element);
         }
 
         if (!worldProvider.Worlds.Any()) BuildTextDisplay(Language.NoWorldsFound);

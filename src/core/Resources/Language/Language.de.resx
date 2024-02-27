@@ -684,4 +684,10 @@
     <data name="Rename" xml:space="preserve">
         <value>Umbennen</value>
     </data>
+    <data name="Search" xml:space="preserve">
+        <value>Suche</value>
+    </data>
+    <data name="ClearInput" xml:space="preserve">
+        <value>Löschen</value>
+    </data>
 </root>

@@ -57,6 +57,24 @@ internal sealed class Context
     }
 
     /// <summary>
+    ///     Create a non-functional icon.
+    /// </summary>
+    /// <param name="parent">The parent control.</param>
+    /// <param name="icon">The icon name.</param>
+    /// <param name="isSmall">Whether the icon should be small.</param>
+    /// <returns>The created icon.</returns>
+    internal ImagePanel CreateIcon(ControlBase parent, string icon, bool isSmall = false)
+    {
+        ImagePanel image = new(parent)
+        {
+            ImageName = icon,
+            ImageSize = isSmall ? SmallIconSize : DefaultIconSize
+        };
+
+        return image;
+    }
+
+    /// <summary>
     ///     Make a window modal.
     /// </summary>
     internal static void MakeModal(Window window)
