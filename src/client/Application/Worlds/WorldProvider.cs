@@ -78,7 +78,7 @@ public class WorldProvider : IWorldProvider
 
         worlds.Clear();
 
-        return Operations.Launch(() =>
+        Operation<List<WorldData>> refresh = Operations.Launch(() =>
         {
             WorldDirectoryMetadata loaded = WorldDirectoryMetadata.Load(metadataFile, out Exception? exception);
 
@@ -106,13 +106,17 @@ public class WorldProvider : IWorldProvider
             }
 
             return found;
-        }).OnCompletion(op =>
+        });
+
+        refresh.OnCompletion(op =>
         {
             if (op.Result != null)
                 worlds.AddRange(op.Result.Select(data => new WorldInfo(data, this)));
 
             Status = op.Status;
         });
+
+        return refresh;
     }
 
     /// <inheritdoc />
@@ -151,6 +155,31 @@ public class WorldProvider : IWorldProvider
         metadata.Entries.Remove(GetMetadataKey(data));
 
         return data.Delete();
+    }
+
+    /// <inheritdoc />
+    public Operation DuplicateWorld(IWorldProvider.IWorldInfo info, string duplicateName)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        WorldData data = GetData(info);
+
+        DirectoryInfo newDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, duplicateName);
+
+        Operation<WorldData> duplication = data.CopyTo(newDirectory).Then(duplicate =>
+        {
+            duplicate.Rename(duplicateName);
+
+            return duplicate;
+        });
+
+        duplication.OnCompletion(op =>
+        {
+            if (op.Result is {} result)
+                worlds.Add(new WorldInfo(result, this));
+        });
+
+        return duplication;
     }
 
     /// <inheritdoc />

@@ -21,7 +21,6 @@ public abstract class Operation
     private const int Working = (int) Status.Running;
 
     private int workStatus = Working;
-
     private Exception? workException;
 
     private bool started;
@@ -30,6 +29,13 @@ public abstract class Operation
     ///     Get the current status of the operation.
     /// </summary>
     public Status Status { get; private set; } = Status.Running;
+
+    /// <summary>
+    ///     Whether the work-status is OK.
+    ///     The work-status is an internal status that becomes the external status after an update.
+    ///     If this returns true, the operation is considered successful and will complete on the next update.
+    /// </summary>
+    protected bool IsWorkStatusOk => (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0) == Status.Ok;
 
     /// <summary>
     ///     Whether the operation is completed.
@@ -54,7 +60,7 @@ public abstract class Operation
     /// <summary>
     ///     Invoked when the operation has completed.
     /// </summary>
-    public event EventHandler Completion = delegate {};
+    protected event EventHandler Completion = delegate {};
 
     internal void Start()
     {
@@ -109,6 +115,18 @@ public abstract class Operation
     }
 
     /// <summary>
+    ///     Perform an action directly after the operation has successfully completed.
+    ///     Might run on a background thread.
+    ///     Not all operations support this.
+    /// </summary>
+    /// <param name="action">The action to perform. Will only run if the operation was successful.</param>
+    /// <returns>The operation that runs the action.</returns>
+    public virtual Operation Then(Action action)
+    {
+        throw new InvalidOperationException();
+    }
+
+    /// <summary>
     ///     Wait for the operation to complete.
     ///     Blocks and runs the main thread until the operation has completed.
     /// </summary>
@@ -122,13 +140,12 @@ public abstract class Operation
     }
 
     /// <summary>
-    ///     Chain an action to this operation.
-    ///     The action will run on the main thread when the operation is completed.
+    ///     Perform an action when the operation is completed.
+    ///     The action will run on the main thread.
     /// </summary>
     /// <param name="action">The action to chain.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
-    /// <returns>This operation.</returns>
-    public Operation OnCompletion(Action<Operation> action, CancellationToken token = default)
+    public void OnCompletion(Action<Operation> action, CancellationToken token = default)
     {
         if (OperationUpdateDispatch.Instance == null)
             throw new InvalidOperationException();
@@ -140,8 +157,6 @@ public abstract class Operation
 
             action(this);
         };
-
-        return this;
     }
 }
 
@@ -158,12 +173,18 @@ public abstract class Operation<T> : Operation
     {
         Completion += (_, _) =>
         {
-            var result = (T?) Interlocked.CompareExchange(ref workResult, value: null, comparand: null);
+            T? result = WorkResult;
 
             if (!Equals(result, default(T)))
                 Result = result;
         };
     }
+
+    /// <summary>
+    ///     Get the work-result, which is the result of the operation before it is set as the final result.
+    ///     Only use this from the thread that runs the operation, or when sure that the operation has completed.
+    /// </summary>
+    protected T? WorkResult => (T?) Interlocked.CompareExchange(ref workResult, value: null, comparand: null);
 
     /// <summary>
     ///     The result of the operation.
@@ -182,6 +203,19 @@ public abstract class Operation<T> : Operation
     }
 
     /// <summary>
+    ///     Perform an action directly after the operation has successfully completed.
+    ///     Might run on a background thread.
+    ///     Not all operations support this.
+    /// </summary>
+    /// <param name="function">The action to perform. Will only run if the operation was successful.</param>
+    /// <typeparam name="TNext">The type of the result of the action.</typeparam>
+    /// <returns>The operation that runs the action.</returns>
+    public virtual Operation<TNext> Then<TNext>(Func<T, TNext> function)
+    {
+        throw new InvalidOperationException();
+    }
+
+    /// <summary>
     ///     Wait for the operation to complete.
     ///     Blocks and runs the main thread until the operation has completed.
     /// </summary>
@@ -194,15 +228,12 @@ public abstract class Operation<T> : Operation
     }
 
     /// <summary>
-    ///     Chain an action to this operation.
+    ///     Perform an action on the main thread when the operation is completed.
     /// </summary>
-    /// <param name="action">The action to chain.</param>
+    /// <param name="action">The action to perform.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
-    /// <returns>This operation.</returns>
-    public Operation<T> OnCompletion(Action<Operation<T>> action, CancellationToken token = default)
+    public void OnCompletion(Action<Operation<T>> action, CancellationToken token = default)
     {
         base.OnCompletion(_ => action(this), token);
-
-        return this;
     }
 }

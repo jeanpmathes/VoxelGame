@@ -38,6 +38,7 @@ public sealed class UIResources : IDisposable
     internal string RenameIcon { get; } = GetIcon("rename");
     internal string SearchIcon { get; } = GetIcon("search");
     internal string ClearIcon { get; } = GetIcon("clear");
+    internal string DuplicateIcon { get; } = GetIcon("duplicate");
 
     internal string StartImage { get; } = GetImage("start");
 

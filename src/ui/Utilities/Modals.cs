@@ -48,6 +48,16 @@ internal static class Modals
     }
 
     /// <summary>
+    ///     Open a model that asks for a (new) name.
+    /// </summary>
+    internal static void OpenNameModal(ControlBase parent, NameBox.Parameters parameters, NameBox.Actions actions)
+    {
+        NameBox nameBox = new(parent, parameters, actions);
+
+        Context.MakeModal(nameBox);
+    }
+
+    /// <summary>
     ///     Opens a modal that blocks access to the ui, until it is closed by code.
     /// </summary>
     internal static CloseHandel OpenBlockingModal(ControlBase parent, string message)

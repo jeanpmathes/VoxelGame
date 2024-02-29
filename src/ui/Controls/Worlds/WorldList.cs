@@ -24,6 +24,7 @@ namespace VoxelGame.UI.Controls.Worlds;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 public class WorldList : ControlBase
 {
+    private readonly WorldSelection menu;
     private readonly ControlBase tableParent;
 
     private readonly IWorldProvider worldProvider;
@@ -37,9 +38,11 @@ public class WorldList : ControlBase
     /// <param name="parent">The parent control.</param>
     /// <param name="worldProvider">The world provider to use.</param>
     /// <param name="context">The context in which the control is created.</param>
-    internal WorldList(ControlBase parent, IWorldProvider worldProvider, Context context)
+    /// <param name="menu">The world selection menu that this list is part of.</param>
+    internal WorldList(ControlBase parent, IWorldProvider worldProvider, Context context, WorldSelection menu)
         : base(parent)
     {
+        this.menu = menu;
         tableParent = new VerticalLayout(this);
 
         this.worldProvider = worldProvider;
@@ -79,7 +82,7 @@ public class WorldList : ControlBase
 
         foreach (IWorldProvider.IWorldInfo data in entries)
         {
-            WorldElement element = new(worlds, data, worldProvider, context, this)
+            WorldElement element = new(worlds, data, worldProvider, context, menu)
             {
                 Margin = Margin.Five
             };

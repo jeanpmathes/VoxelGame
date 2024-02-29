@@ -5,10 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Updates;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
 
@@ -34,81 +34,18 @@ public class Name : ControlBase
 
         rename.Released += (_, _) =>
         {
-            Window window = new(menu)
-            {
-                Title = Language.Rename,
-                MinimumSize = new Size(width: 200, height: 100),
+            Modals.OpenNameModal(menu,
+                new NameBox.Parameters(Language.Rename, label.Text),
+                new NameBox.Actions(
+                    name =>
+                    {
+                        label.Text = name;
 
-                StartPosition = StartPosition.CenterCanvas,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
+                        NameChanged?.Invoke(this, EventArgs.Empty);
 
-                Resizing = Resizing.None,
-                IsDraggingEnabled = false,
-                IsClosable = false,
-                DeleteOnClose = true
-            };
-
-            Context.MakeModal(window);
-
-            VerticalLayout windowLayout = new(window)
-            {
-                Margin = Margin.Ten,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            TextBox name = new(windowLayout)
-            {
-                Text = label.Text
-            };
-
-            Empty space = new(windowLayout)
-            {
-                Padding = Padding.Five
-            };
-
-            Control.Used(space);
-
-            DockLayout buttons = new(windowLayout)
-            {
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            Button ok = new(buttons)
-            {
-                Text = Language.Ok,
-                Dock = Dock.Right
-            };
-
-            ok.Released += (_, _) =>
-            {
-                if (!validator(name.Text)) return;
-
-                string oldName = label.Text;
-                label.Text = name.Text;
-
-                if (oldName != name.Text) NameChanged?.Invoke(this, EventArgs.Empty);
-
-                window.Close();
-            };
-
-            Button cancel = new(buttons)
-            {
-                Text = Language.Cancel,
-                Dock = Dock.Left
-            };
-
-            cancel.Released += (_, _) => window.Close();
-
-            name.TextChanged += (_, _) =>
-            {
-                bool valid = validator(name.Text);
-
-                name.TextColor = valid ? Colors.Primary : Colors.Error;
-
-                ok.IsDisabled = !valid;
-                ok.Redraw();
-            };
+                        return Operations.CreateDone();
+                    },
+                    validator));
         };
     }
 

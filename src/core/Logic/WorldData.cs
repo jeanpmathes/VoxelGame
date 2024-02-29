@@ -348,6 +348,32 @@ public class WorldData
     }
 
     /// <summary>
+    ///     Copy this world to another directory.
+    /// </summary>
+    /// <param name="targetDirectory">The directory to copy the world to.</param>
+    /// <returns>The operation that will copy the world.</returns>
+    public Operation<WorldData> CopyTo(DirectoryInfo targetDirectory)
+    {
+        return Operations.Launch(() =>
+        {
+            try
+            {
+                WorldDirectory.CopyTo(targetDirectory);
+
+                logger.LogInformation(Events.WorldIO, "Copied world '{Name}' to '{Target}'", Information.Name, targetDirectory.FullName);
+
+                return LoadInformation(targetDirectory);
+            }
+            catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
+            {
+                logger.LogError(Events.WorldIO, e, "Failed to copy world");
+
+                throw;
+            }
+        });
+    }
+
+    /// <summary>
     ///     Rename the world.
     /// </summary>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>

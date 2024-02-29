@@ -72,6 +72,18 @@ public interface IWorldProvider
     Operation DeleteWorld(IWorldInfo info);
 
     /// <summary>
+    ///     Duplicate a world, it will be added to the list of worlds.
+    ///     Only valid after a successful <see cref="Refresh" />.
+    /// </summary>
+    /// <param name="info">
+    ///     The world to duplicate.
+    ///     Must be an object from <see cref="Worlds" />, retrieved after a successful <see cref="Refresh" />.
+    /// </param>
+    /// <param name="duplicateName">The name of the duplicated world. Must be a valid name.</param>
+    /// <returns>The operation that duplicates the world.</returns>
+    Operation DuplicateWorld(IWorldInfo info, string duplicateName);
+
+    /// <summary>
     ///     Check if a name is valid for a world.
     /// </summary>
     /// <param name="name">The name to check.</param>

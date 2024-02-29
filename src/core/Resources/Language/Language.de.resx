@@ -690,4 +690,7 @@
     <data name="ClearInput" xml:space="preserve">
         <value>Löschen</value>
     </data>
+    <data name="Duplicate" xml:space="preserve">
+        <value>Duplizieren</value>
+    </data>
 </root>

@@ -107,7 +107,7 @@ internal class WorldSelection : StandardMenu
             Dock = Dock.Fill
         };
 
-        worlds = new WorldList(scroll, worldProvider, Context);
+        worlds = new WorldList(scroll, worldProvider, Context, this);
 
         search.FilterChanged += (_, _) =>
         {
@@ -157,6 +157,15 @@ internal class WorldSelection : StandardMenu
         Refresh();
     }
 
+    /// <summary>
+    ///     Update the entries in the world list.
+    /// </summary>
+    internal void UpdateList()
+    {
+        if (refreshCancellation == null)
+            worlds.BuildList(search.Filter);
+    }
+
     private void Refresh()
     {
         if (refreshCancellation != null)
@@ -171,13 +180,13 @@ internal class WorldSelection : StandardMenu
             {
                 SetButtonBarEnabled(enabled: true);
 
-                if (op.IsOk) worlds.BuildList(search.Filter);
-                else worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
-
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 refreshCancellation?.Dispose();
                 refreshCancellation = null;
 #pragma warning disable S2952
+
+                if (op.IsOk) UpdateList();
+                else worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
             },
             refreshCancellation.Token);
     }

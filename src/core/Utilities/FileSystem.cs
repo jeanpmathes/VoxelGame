@@ -271,6 +271,21 @@ public static class FileSystem
     }
 
     /// <summary>
+    ///     Copy a directory to another directory.
+    ///     Will copy all content, recursively.
+    /// </summary>
+    /// <param name="source">The source directory.</param>
+    /// <param name="destination">The destination directory.</param>
+    public static void CopyTo(this DirectoryInfo source, DirectoryInfo destination)
+    {
+        destination.Create();
+
+        foreach (FileInfo file in source.EnumerateFiles()) file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+
+        foreach (DirectoryInfo directory in source.EnumerateDirectories()) directory.CopyTo(destination.GetDirectory(directory.Name));
+    }
+
+    /// <summary>
     ///     Get the size of a file or directory.
     /// </summary>
     /// <param name="info">The file or directory.</param>

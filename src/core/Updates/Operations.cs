@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace VoxelGame.Core.Updates;
@@ -12,18 +13,23 @@ namespace VoxelGame.Core.Updates;
 /// <summary>
 ///     Utility class to work with operations.
 /// </summary>
+[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Not disposing tasks is fine here.")]
 public static class Operations
 {
-                                                                                                                                                                                                                                                                                                                                                                    #pragma warning disable CA1001 // Not disposing the task is fine in this case.
-#pragma warning disable S2931 // Not disposing the task is fine in this case.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            #pragma warning disable S2931 // Not disposing the task is fine in this case.
 
     private sealed class TaskOperation : Operation
     {
-        private readonly Task task;
+        private readonly Action work;
 
-        public TaskOperation(Action action)
+        private readonly Task? previous;
+        private Task? current;
+
+        public TaskOperation(Action action, Task? previous = null)
         {
-            task = new Task(() =>
+            this.previous = previous;
+
+            work = () =>
             {
                 Exception? exception = null;
 
@@ -41,22 +47,41 @@ public static class Operations
                 {
                     Complete(exception);
                 }
-            });
+            };
         }
 
         protected override void Run()
         {
-            task.Start();
+            current = previous == null ? Task.Run(work) : previous.ContinueWith(_ => work());
+        }
+
+        public override Operation Then(Action action)
+        {
+            Operation next = new TaskOperation(() =>
+                {
+                    if (IsWorkStatusOk)
+                        action();
+                },
+                current);
+
+            RegisterOperation(next);
+
+            return next;
         }
     }
 
     private sealed class TaskOperation<T> : Operation<T>
     {
-        private readonly Task task;
+        private readonly Action work;
 
-        public TaskOperation(Func<T> function)
+        private readonly Task? previous;
+        private Task? current;
+
+        public TaskOperation(Func<T> function, Task? previous = null)
         {
-            task = new Task(() =>
+            this.previous = previous;
+
+            work = () =>
             {
                 try
                 {
@@ -69,13 +94,44 @@ public static class Operations
                 {
                     Complete(e);
                 }
-            });
+            };
         }
 
         protected override void Run()
         {
-            task.Start();
+            current = previous == null ? Task.Run(work) : previous.ContinueWith(_ => work());
         }
+
+        public override Operation Then(Action action)
+        {
+            Operation next = new TaskOperation(() =>
+                {
+                    if (IsWorkStatusOk)
+                        action();
+                },
+                current);
+
+            RegisterOperation(next);
+
+            return next;
+        }
+
+        public override Operation<TNext> Then<TNext>(Func<T, TNext> function)
+        {
+            Operation<TNext> next = new TaskOperation<TNext>(() => IsWorkStatusOk ? function(WorkResult!) : throw new InvalidOperationException(), current);
+
+            RegisterOperation(next);
+
+            return next;
+        }
+    }
+
+    private static void RegisterOperation(Operation operation)
+    {
+        if (OperationUpdateDispatch.Instance == null)
+            throw new InvalidOperationException();
+
+        OperationUpdateDispatch.Instance.Add(operation);
     }
 
     /// <summary>
@@ -86,10 +142,7 @@ public static class Operations
     {
         TaskOperation operation = new(action);
 
-        if (OperationUpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
-
-        OperationUpdateDispatch.Instance.Add(operation);
+        RegisterOperation(operation);
 
         return operation;
     }
@@ -102,11 +155,56 @@ public static class Operations
     {
         TaskOperation<T> operation = new(function);
 
-        if (OperationUpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
-
-        OperationUpdateDispatch.Instance.Add(operation);
+        RegisterOperation(operation);
 
         return operation;
+    }
+
+    private sealed class WrapperOperation<T> : Operation<T>
+    {
+        /// <summary>
+        ///     Create a new wrapper operation that directly completes with a result.
+        /// </summary>
+        /// <param name="result">The result of the operation.</param>
+        public WrapperOperation(T result)
+        {
+            CompleteWith(result);
+        }
+
+        /// <summary>
+        ///     Complete the operation with a result.
+        /// </summary>
+        /// <param name="result">The result of the operation.</param>
+        private void CompleteWith(T result)
+        {
+            Complete(result);
+            WaitForCompletion();
+        }
+
+        /// <inheritdoc />
+        protected override void Run()
+        {
+            // Nothing to do here.
+        }
+    }
+
+    /// <summary>
+    ///     Create an operation that is done immediately.
+    /// </summary>
+    /// <returns>The operation.</returns>
+    public static Operation CreateDone()
+    {
+        return new WrapperOperation<int>(result: 0);
+    }
+
+    /// <summary>
+    ///     Create an operation that is done immediately.
+    /// </summary>
+    /// <param name="result">The result of the operation.</param>
+    /// <typeparam name="T">The type of the result.</typeparam>
+    /// <returns>The operation.</returns>
+    public static Operation<T> CreateDone<T>(T result)
+    {
+        return new WrapperOperation<T>(result);
     }
 }
