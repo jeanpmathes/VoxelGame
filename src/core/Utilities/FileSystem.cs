@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
@@ -156,7 +158,26 @@ public static class FileSystem
 
         if (IsNameReserved(name)) path.Append(value: '_');
 
-        while (Directory.Exists(path.ToString())) path.Append(value: '_');
+        if (!Directory.Exists(path.ToString())) return Directory.CreateDirectory(path.ToString());
+
+        Regex pattern = new(name + @"\s\((\d+)\)");
+
+        int number = parent.EnumerateDirectories()
+            .Select(directory => pattern.Match(directory.Name))
+            .Where(match => match.Success)
+            .Select(match =>
+            {
+                int.TryParse(match.Groups[groupnum: 1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result);
+
+                return result;
+            })
+            .DefaultIfEmpty(defaultValue: 0)
+            .Max();
+
+        path.Append(value: ' ');
+        path.Append(value: '(');
+        path.Append(number + 1);
+        path.Append(value: ')');
 
         return Directory.CreateDirectory(path.ToString());
     }
