@@ -24,7 +24,7 @@ public class Name : ControlBase
     private Func<string, bool> validator = _ => true;
 
     /// <inheritdoc />
-    internal Name(Context context, ControlBase menu, ControlBase parent) : base(parent)
+    internal Name(ControlBase parent, Context context, ControlBase menu) : base(parent)
     {
         HorizontalLayout layout = new(this);
 

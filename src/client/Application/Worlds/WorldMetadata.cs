@@ -27,6 +27,11 @@ public class WorldFileMetadata
     ///     The time of the last load of the world, or null if the world has never been loaded.
     /// </summary>
     public DateTime? LastLoad { get; set; }
+
+    /// <summary>
+    ///     Whether the world is marked as a favorite.
+    /// </summary>
+    public bool IsFavorite { get; set; }
 }
 
 /// <summary>

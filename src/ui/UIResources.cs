@@ -39,6 +39,8 @@ public sealed class UIResources : IDisposable
     internal string SearchIcon { get; } = GetIcon("search");
     internal string ClearIcon { get; } = GetIcon("clear");
     internal string DuplicateIcon { get; } = GetIcon("duplicate");
+    internal string StarFilledIcon { get; } = GetIcon("star_filled");
+    internal string StarEmptyIcon { get; } = GetIcon("star_empty");
 
     internal string StartImage { get; } = GetImage("start");
 

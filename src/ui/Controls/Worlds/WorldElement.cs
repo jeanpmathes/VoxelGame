@@ -42,7 +42,9 @@ public sealed class WorldElement : VerticalLayout
 
         row.SetCellContents(column: 0, this);
 
-        Name name = new(context, menu, this)
+        DockLayout top = new(this);
+
+        Name name = new(top, context, menu)
         {
             Text = world.Name
         };
@@ -54,9 +56,24 @@ public sealed class WorldElement : VerticalLayout
             worldProvider.RenameWorld(world, name.Text);
         };
 
-        DockLayout layout = new(this);
+        IconButton favorite = context.CreateIconButton(top, context.Resources.StarEmptyIcon, Language.Favorite, isSmall: true);
+        favorite.ToggledOnIconName = context.Resources.StarFilledIcon;
+        favorite.ToggledOffIconName = context.Resources.StarEmptyIcon;
+        favorite.IsToggle = true;
+        favorite.ShouldDrawToggleDepressedWhenOn = false;
+        favorite.Dock = Dock.Right;
 
-        VerticalLayout infoPanel = new(layout)
+        favorite.ToggleState = world.IsFavorite;
+
+        favorite.Toggled += (_, _) =>
+        {
+            worldProvider.SetFavorite(world, favorite.ToggleState);
+            menu.UpdateList();
+        };
+
+        DockLayout bottom = new(this);
+
+        VerticalLayout infoPanel = new(bottom)
         {
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center
@@ -120,7 +137,7 @@ public sealed class WorldElement : VerticalLayout
 
         Control.Used(file);
 
-        WorldActions actions = new(layout, world, worldProvider, () => table.RemoveRow(row), context, menu);
+        WorldActions actions = new(bottom, world, worldProvider, () => table.RemoveRow(row), context, menu);
 
         Control.Used(actions);
     }

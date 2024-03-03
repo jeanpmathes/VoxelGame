@@ -36,7 +36,7 @@ internal sealed class Context
     /// <summary>
     ///     Create a button that uses an icon instead of text.
     /// </summary>
-    internal Button CreateIconButton(
+    internal IconButton CreateIconButton(
         ControlBase parent,
         string icon,
         string toolTip,

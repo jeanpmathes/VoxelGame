@@ -101,6 +101,13 @@ public interface IWorldProvider
     void RenameWorld(IWorldInfo info, string newName);
 
     /// <summary>
+    ///     Set whether a world is a favorite.
+    /// </summary>
+    /// <param name="info">The world for which to set the favorite status.</param>
+    /// <param name="isFavorite">Whether the world should be a favorite.</param>
+    void SetFavorite(IWorldInfo info, bool isFavorite);
+
+    /// <summary>
     ///     Information about a single world.
     /// </summary>
     public interface IWorldInfo
@@ -129,5 +136,10 @@ public interface IWorldProvider
         ///     Date and time when the world was last loaded, or null if it was never loaded.
         /// </summary>
         DateTime? DateTimeOfLastLoad { get; }
+
+        /// <summary>
+        ///     Whether the world is a favorite.
+        /// </summary>
+        bool IsFavorite { get; }
     }
 }

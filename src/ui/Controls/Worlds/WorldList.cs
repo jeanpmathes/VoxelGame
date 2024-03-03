@@ -78,7 +78,9 @@ public class WorldList : ControlBase
 
         if (filter.Length > 0) entries = entries.Where(entry => entry.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase));
 
-        entries = entries.OrderByDescending(entry => entry.DateTimeOfLastLoad ?? DateTime.MaxValue);
+        entries = entries
+            .OrderByDescending(entry => entry.IsFavorite)
+            .ThenByDescending(entry => entry.DateTimeOfLastLoad ?? DateTime.MaxValue);
 
         foreach (IWorldProvider.IWorldInfo data in entries)
         {

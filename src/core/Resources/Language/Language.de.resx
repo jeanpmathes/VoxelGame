@@ -693,4 +693,7 @@
     <data name="Duplicate" xml:space="preserve">
         <value>Duplizieren</value>
     </data>
+    <data name="Favorite" xml:space="preserve">
+        <value>Favorisieren</value>
+    </data>
 </root>

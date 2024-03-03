@@ -105,10 +105,16 @@
         <None Update="Resources\GUI\Icons\duplicate.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\GUI\Icons\star_filled.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\GUI\Icons\star_empty.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Gwen.Net" Version="0.5.3"/>
+        <PackageReference Include="Gwen.Net" Version="0.5.6"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -105,6 +105,11 @@ public class WorldProvider : IWorldProvider
                 throw;
             }
 
+            List<string> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
+
+            foreach (string key in obsoleteKeys)
+                metadata.Entries.Remove(key);
+
             return found;
         });
 
@@ -191,6 +196,15 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
+    public void SetFavorite(IWorldProvider.IWorldInfo info, bool isFavorite)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        metadata.Entries.GetOrAdd(GetMetadataKey(GetData(info))).IsFavorite = isFavorite;
+        metadata.Save(metadataFile);
+    }
+
+    /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public bool IsWorldNameValid(string name)
     {
@@ -206,6 +220,15 @@ public class WorldProvider : IWorldProvider
         metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
 
         return fileMetadata?.LastLoad;
+    }
+
+    private bool IsFavorite(WorldData data)
+    {
+        if (Status != Status.Ok) throw new InvalidOperationException();
+
+        metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
+
+        return fileMetadata?.IsFavorite ?? false;
     }
 
     private List<WorldData> SearchForWorlds()
@@ -234,11 +257,7 @@ public class WorldProvider : IWorldProvider
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        metadata.Entries[GetMetadataKey(world.Data)] = new WorldFileMetadata
-        {
-            LastLoad = DateTime.UtcNow
-        };
-
+        metadata.Entries.GetOrAdd(GetMetadataKey(world.Data)).LastLoad = DateTime.UtcNow;
         metadata.Save(metadataFile);
 
         WorldActivation(this, world);
@@ -269,5 +288,6 @@ public class WorldProvider : IWorldProvider
         public DirectoryInfo Directory => Data.WorldDirectory;
         public DateTime DateTimeOfCreation => Data.Information.Creation;
         public DateTime? DateTimeOfLastLoad => Provider.GetDateTimeOfLastLoad(Data);
+        public bool IsFavorite => Provider.IsFavorite(Data);
     }
 }
