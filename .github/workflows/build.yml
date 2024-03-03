@@ -52,7 +52,7 @@ jobs:
       shell: powershell
       run: |
         Invoke-WebRequest -Uri https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip -OutFile build-wrapper-win.zip
-        Expand-Archive -Path build-wrapper-win.zip -DestinationPath .\.sonar\scanner\
+        Expand-Archive -Force -Path build-wrapper-win.zip -DestinationPath .\.sonar\scanner\
         Remove-Item build-wrapper-win.zip
     - name: Restore dependencies
       run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release
