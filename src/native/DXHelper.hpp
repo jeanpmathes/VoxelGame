@@ -19,7 +19,7 @@ using Microsoft::WRL::ComPtr;
 
 inline std::string HResultToString(HRESULT const hr)
 {
-    return "Error: (HRESULT) " + std::format("{:#x}", hr);
+    return std::format("Error: (HRESULT) {:#x}", hr);
 }
 
 class HResultException final : public std::runtime_error
