@@ -28,16 +28,7 @@ ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return m_allocat
 void NativeClient::OnInit()
 {
     LoadDevice();
-
-    {
-        TryDo(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-        NAME_D3D12_OBJECT(m_fence);
-
-        m_fenceValues[m_frameIndex]++;
-
-        m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        if (m_fenceEvent == nullptr) TryDo(HRESULT_FROM_WIN32(GetLastError()));
-    }
+    InitializeFences();
 
     m_space->PerformInitialSetupStepOne(m_commandQueue);
 
@@ -195,15 +186,22 @@ void NativeClient::LoadDevice()
     TryDo(swapChain.As(&m_swapChain));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-    {
-        m_rtvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
-        NAME_D3D12_OBJECT(m_rtvHeap);
-    }
+    m_rtvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+    NAME_D3D12_OBJECT(m_rtvHeap);
 
-    {
-        m_dsvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
-        NAME_D3D12_OBJECT(m_dsvHeap);
-    }
+    m_dsvHeap.Create(m_device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+    NAME_D3D12_OBJECT(m_dsvHeap);
+}
+
+void NativeClient::InitializeFences()
+{
+    TryDo(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+    NAME_D3D12_OBJECT(m_fence);
+
+    m_fenceValues[m_frameIndex]++;
+
+    m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (m_fenceEvent == nullptr) TryDo(HRESULT_FROM_WIN32(GetLastError()));
 }
 
 void NativeClient::LoadRasterPipeline()
@@ -278,7 +276,7 @@ void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> co
 {
     if (!m_finalDepthStencilBuffersInitialized)
     {
-        for (auto& buffer : m_finalDepthStencilBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
+        for (auto const& buffer : m_finalDepthStencilBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
 
         m_finalDepthStencilBuffersInitialized = true;
     }
@@ -313,32 +311,25 @@ void NativeClient::EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4
 {
     m_screenshotBuffersInitialized = true;
 
-    for (auto& buffer : m_screenshotBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
+    for (auto const& buffer : m_screenshotBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
 }
 
 void NativeClient::SetupSizeDependentResources()
 {
     UpdatePostViewAndScissor();
 
+    m_draw2dViewport.viewport.Width  = static_cast<float>(GetWidth());
+    m_draw2dViewport.viewport.Height = static_cast<float>(GetHeight());
+
+    m_draw2dViewport.scissorRect.right  = static_cast<LONG>(GetWidth());
+    m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(GetHeight());
+
+    for (UINT n = 0; n < FRAME_COUNT; n++)
     {
-        m_draw2dViewport.viewport.Width  = static_cast<float>(GetWidth());
-        m_draw2dViewport.viewport.Height = static_cast<float>(GetHeight());
+        TryDo(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
+        m_device->CreateRenderTargetView(m_finalRenderTargets[n].Get(), nullptr, m_rtvHeap.GetDescriptorHandleCPU(n));
 
-        m_draw2dViewport.scissorRect.right  = static_cast<LONG>(GetWidth());
-        m_draw2dViewport.scissorRect.bottom = static_cast<LONG>(GetHeight());
-    }
-
-    {
-        for (UINT n = 0; n < FRAME_COUNT; n++)
-        {
-            TryDo(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_finalRenderTargets[n])));
-            m_device->CreateRenderTargetView(
-                m_finalRenderTargets[n].Get(),
-                nullptr,
-                m_rtvHeap.GetDescriptorHandleCPU(n));
-
-            NAME_D3D12_OBJECT_INDEXED(m_finalRenderTargets, n);
-        }
+        NAME_D3D12_OBJECT_INDEXED(m_finalRenderTargets, n);
     }
 
     CreateFinalDepthBuffers();
@@ -347,78 +338,72 @@ void NativeClient::SetupSizeDependentResources()
 
 void NativeClient::SetupSpaceResolutionDependentResources()
 {
-    {
-        m_spaceViewport.viewport.Width  = static_cast<float>(m_resolution.width);
-        m_spaceViewport.viewport.Height = static_cast<float>(m_resolution.height);
+    m_spaceViewport.viewport.Width  = static_cast<float>(m_resolution.width);
+    m_spaceViewport.viewport.Height = static_cast<float>(m_resolution.height);
 
-        m_spaceViewport.scissorRect.right  = static_cast<LONG>(m_resolution.width);
-        m_spaceViewport.scissorRect.bottom = static_cast<LONG>(m_resolution.height);
-    }
+    m_spaceViewport.scissorRect.right  = static_cast<LONG>(m_resolution.width);
+    m_spaceViewport.scissorRect.bottom = static_cast<LONG>(m_resolution.height);
 
     UpdatePostViewAndScissor();
 
-    {
-        D3D12_RESOURCE_DESC const   swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
-        CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR.data());
-        CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-            swapChainDesc.Format,
-            m_resolution.width,
-            m_resolution.height,
-            1,
-            1,
-            swapChainDesc.SampleDesc.Count,
-            swapChainDesc.SampleDesc.Quality,
-            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
-            D3D12_TEXTURE_LAYOUT_UNKNOWN,
-            0u);
+    D3D12_RESOURCE_DESC const   swapChainDesc = m_finalRenderTargets[m_frameIndex]->GetDesc();
+    CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR.data());
+    CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        swapChainDesc.Format,
+        m_resolution.width,
+        m_resolution.height,
+        1,
+        1,
+        swapChainDesc.SampleDesc.Count,
+        swapChainDesc.SampleDesc.Quality,
+        D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+        D3D12_TEXTURE_LAYOUT_UNKNOWN,
+        0u);
 
-        m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
-            *this,
-            renderTargetDesc,
-            D3D12_HEAP_TYPE_DEFAULT,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            &clearValue);
-        NAME_D3D12_OBJECT(m_intermediateRenderTarget);
+    m_intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(
+        *this,
+        renderTargetDesc,
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        &clearValue);
+    NAME_D3D12_OBJECT(m_intermediateRenderTarget);
 
-        m_intermediateRenderTargetInitialized = false;
+    m_intermediateRenderTargetInitialized = false;
 
-        m_device->CreateRenderTargetView(
-            m_intermediateRenderTarget.Get(),
-            nullptr,
-            m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
+    m_device->CreateRenderTargetView(
+        m_intermediateRenderTarget.Get(),
+        nullptr,
+        m_rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
-        if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
-    }
+    if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
 
-    {
-        D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             DXGI_FORMAT_D32_FLOAT,
             m_resolution.width,
             m_resolution.height,
             1,
             1);
-        depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    depthResourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-        CD3DX12_CLEAR_VALUE const depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
+    CD3DX12_CLEAR_VALUE const depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
-        m_intermediateDepthStencilBuffer = util::AllocateResource<ID3D12Resource>(
-            *this,
-            depthResourceDesc,
-            D3D12_HEAP_TYPE_DEFAULT,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depthOptimizedClearValue);
-        NAME_D3D12_OBJECT(m_intermediateDepthStencilBuffer);
+    m_intermediateDepthStencilBuffer = util::AllocateResource<ID3D12Resource>(
+        *this,
+        depthResourceDesc,
+        D3D12_HEAP_TYPE_DEFAULT,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthOptimizedClearValue);
+    NAME_D3D12_OBJECT(m_intermediateDepthStencilBuffer);
 
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-        dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
-        dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
-        dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-        m_device->CreateDepthStencilView(
-            m_intermediateDepthStencilBuffer.Get(),
-            &dsvDesc,
-            m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
-    }
+    m_device->CreateDepthStencilView(
+        m_intermediateDepthStencilBuffer.Get(),
+        &dsvDesc,
+        m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
     if (m_postProcessingPipeline != nullptr)
         m_postProcessingPipeline->CreateShaderResourceView(
@@ -538,7 +523,7 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
 
         BOOL fullscreenState;
         TryDo(m_swapChain->GetFullscreenState(&fullscreenState, nullptr));
-        m_windowedMode = !fullscreenState;
+        m_windowedMode = !static_cast<bool>(fullscreenState);
 
         m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 

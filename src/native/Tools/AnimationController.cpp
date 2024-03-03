@@ -248,13 +248,11 @@ void AnimationController::UploadThreadGroupData(
         0,
         static_cast<UINT>(m_threadGroupData.size() * sizeof(anim::ThreadGroup)));
 
-    {
-        std::vector const barriers = {
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                m_threadGroupDataBuffer.Get(),
-                D3D12_RESOURCE_STATE_COPY_DEST,
-                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
-        };
-        commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
-    }
+    std::vector const barriers = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_threadGroupDataBuffer.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+    };
+    commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 }

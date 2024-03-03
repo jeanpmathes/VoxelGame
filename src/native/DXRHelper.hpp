@@ -6,7 +6,6 @@
 #pragma once
 
 #include <fstream>
-#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -34,12 +33,13 @@ constexpr T RoundUp(T const value, V const alignment) { return (value + alignmen
  * \param errorCallback A function to call if the shader compilation fails.
  * \return The compiled shader blob.
  */
-inline ComPtr<IDxcBlob> CompileShader(
-    LPCWSTR                                 fileName,
-    std::wstring const&                     entry,
-    std::wstring const&                     target,
-    std::function<void(ComPtr<IDxcResult>)> registry,
-    NativeErrorFunc                         errorCallback)
+template <typename Registry>
+ComPtr<IDxcBlob> CompileShader(
+    LPCWSTR             fileName,
+    std::wstring const& entry,
+    std::wstring const& target,
+    Registry            registry,
+    NativeErrorFunc     errorCallback)
 {
     static ComPtr<IDxcCompiler3>      compiler = nullptr;
     static ComPtr<IDxcUtils>          utils    = nullptr;

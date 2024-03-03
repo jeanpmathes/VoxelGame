@@ -364,7 +364,7 @@ NATIVE Texture* NativeLoadTexture(NativeClient const* client, std::byte** data, 
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client) or CALL_IN_RENDER(client));
+        Require(CALL_OUTSIDE_CYCLE(client) || CALL_IN_RENDER(client));
 
         return client->LoadTexture(data, description);
     } CATCH();

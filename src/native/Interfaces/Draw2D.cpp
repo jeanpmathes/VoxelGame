@@ -41,7 +41,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
         .initializeTextures = [](Texture** textures, UINT const textureCount, Pipeline* ctx)
         {
             Require(textureCount > 0);
-            Require(ctx->m_initialized == false);
+            Require(!ctx->m_initialized);
 
             ctx->m_textures.clear();
             ctx->m_textures.reserve(textureCount);
@@ -134,7 +134,7 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
                 ctx->BindBoolean();
             }
 
-            if (ctx->m_currentTextureIndex != textureIndex && useTexture)
+            if (ctx->m_currentTextureIndex != textureIndex && static_cast<bool>(useTexture))
             {
                 ctx->m_currentTextureIndex = textureIndex;
                 ctx->BindTextures();

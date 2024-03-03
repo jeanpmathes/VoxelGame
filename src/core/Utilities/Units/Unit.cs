@@ -11,9 +11,18 @@ namespace VoxelGame.Core.Utilities.Units;
 /// </summary>
 public record Unit(string Symbol)
 {
-                                                                                                                                                                                                                                                                                                        #pragma warning disable CS1591 // Understandable without documentation.
+    /// <summary>
+    ///     No unit.
+    /// </summary>
     public static Unit None { get; } = new("");
+
+    /// <summary>
+    ///     A unit of distance, see <see cref="Length" />.
+    /// </summary>
     public static Unit Meter { get; } = new("m");
+
+    /// <summary>
+    ///     A unit of data size, see <see cref="Memory" />.
+    /// </summary>
     public static Unit Byte { get; } = new("B");
-#pragma warning disable SA1600 // Understandable without documentation.
 }

@@ -29,6 +29,27 @@ namespace VoxelGame.Core.Logic;
 public partial class Chunk : IDisposable
 {
     /// <summary>
+    ///     Error that occurred during loading.
+    /// </summary>
+    public enum LoadingError
+    {
+        /// <summary>
+        ///     Either no error occurred or the error is unknown.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        ///     An IO-related error occurred.
+        /// </summary>
+        IO,
+
+        /// <summary>
+        ///     A format-related error occurred.
+        /// </summary>
+        Format
+    }
+
+    /// <summary>
     ///     The number of sections in a chunk along every axis.
     /// </summary>
     public const int Size = 4;
@@ -345,16 +366,16 @@ public partial class Chunk : IDisposable
             // Thus, they are not logged as errors or warnings.
             logger.LogDebug("Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, e.Message);
 
-            return new FileError();
+            return LoadingResult.IOError;
         }
 
         logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
-        if (chunk.Position == position) return new Success(chunk);
+        if (chunk.Position == position) return LoadingResult.Success(chunk);
 
         logger.LogWarning("File for the chunk at {Position} was invalid: position did not match", position);
 
-        return new Invalid();
+        return LoadingResult.FormatError;
     }
 
     /// <summary>
@@ -920,25 +941,32 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     The result of a chunk loading operation.
+    /// The result of a chunk loading operation.
     /// </summary>
-    public record LoadingResult;
+    /// <param name="Chunk">The loaded chunk, or null if the loading failed.</param>
+    /// <param name="Error">If the loading failed, the error that occurred.</param>
+    public record LoadingResult(Chunk? Chunk, LoadingError Error)
+    {
+        /// <summary>
+        ///     Create a new loading result with an IO error.
+        /// </summary>
+        public static LoadingResult IOError => new(Chunk: null, LoadingError.IO);
 
-    /// <summary>
-    ///     A successful chunk loading operation.
-    /// </summary>
-    /// <param name="Chunk">The loaded chunk.</param>
-    public record Success(Chunk Chunk) : LoadingResult;
+        /// <summary>
+        ///     Create a new loading result with a format error.
+        /// </summary>
+        public static LoadingResult FormatError => new(Chunk: null, LoadingError.Format);
 
-    /// <summary>
-    ///     A chunk loading operation that failed due to an IO error.
-    /// </summary>
-    public record FileError : LoadingResult;
-
-    /// <summary>
-    ///     A chunk loading operation that failed due to an invalid chunk.
-    /// </summary>
-    public record Invalid : LoadingResult;
+        /// <summary>
+        ///     Create a new loading result with a chunk and no error.
+        /// </summary>
+        /// <param name="chunk">The loaded chunk.</param>
+        /// <returns>The loading result.</returns>
+        public static LoadingResult Success(Chunk chunk)
+        {
+            return new LoadingResult(chunk, LoadingError.Unknown);
+        }
+    }
 
     /// <summary>
     ///     Creates a section.

@@ -122,7 +122,7 @@ class Space
 public:
     explicit Space(NativeClient& nativeClient);
 
-    void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> commandQueue);
+    void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& commandQueue);
     void PerformResolutionDependentSetup(Resolution const& resolution);
     bool PerformInitialSetupStepTwo(SpacePipeline const& pipeline);
 

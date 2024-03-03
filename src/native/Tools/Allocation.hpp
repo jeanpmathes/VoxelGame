@@ -36,6 +36,7 @@ public:
      */
     explicit Mapping(Allocation<R> const& resource, HRESULT* out, size_t const size)
         : m_resource(resource)
+      , m_size(size)
     {
         Require(resource.resource != nullptr);
         Require(out != nullptr);
@@ -43,8 +44,6 @@ public:
 
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
         *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
-
-        m_size = size;
 
         size_t const requiredSizeInBytes = m_size * sizeof(S);
         size_t const actualSizeInBytes   = m_resource.resource->GetDesc().Width;

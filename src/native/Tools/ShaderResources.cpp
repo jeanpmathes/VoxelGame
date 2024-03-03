@@ -260,7 +260,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = m_graphicsRootParameters[parameterIndex];
 
         std::visit(
-            [&]<typename Arg>(Arg& arg)
+            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
             {
                 using T = std::decay_t<Arg>;
 
@@ -327,7 +327,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = m_computeRootParameters[parameterIndex];
 
         std::visit(
-            [&]<typename Arg>(Arg& arg)
+            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
             {
                 using T = std::decay_t<Arg>;
 
@@ -437,7 +437,7 @@ void ShaderResources::CreateConstantBufferView(
 {
     Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
@@ -459,7 +459,7 @@ void ShaderResources::CreateShaderResourceView(
 {
     Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
@@ -478,13 +478,13 @@ void ShaderResources::CreateUnorderedAccessView(
 {
     Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
     {
         auto const handles = GetDescriptorHandlesForWrite(parameter, inHeapIndex, offset);
-        for (auto& handle : handles)
+        for (auto const& handle : handles)
             m_device->CreateUnorderedAccessView(descriptor.resource.Get(), nullptr, descriptor.description, handle);
     }
     else Require(FALSE);

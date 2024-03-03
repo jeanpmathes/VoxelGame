@@ -16,7 +16,59 @@ namespace VoxelGame.Core.Updates;
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Not disposing tasks is fine here.")]
 public static class Operations
 {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            #pragma warning disable S2931 // Not disposing the task is fine in this case.
+    private static void RegisterOperation(Operation operation)
+    {
+        if (OperationUpdateDispatch.Instance == null)
+            throw new InvalidOperationException();
+
+        OperationUpdateDispatch.Instance.Add(operation);
+    }
+
+    /// <summary>
+    ///     Launch an action as an operation.
+    ///     It will run on a background thread.
+    /// </summary>
+    public static Operation Launch(Action action)
+    {
+        TaskOperation operation = new(action);
+
+        RegisterOperation(operation);
+
+        return operation;
+    }
+
+    /// <summary>
+    ///     Launch a function as an operation.
+    ///     The result will be available when the operation is finished.
+    /// </summary>
+    public static Operation<T> Launch<T>(Func<T> function)
+    {
+        TaskOperation<T> operation = new(function);
+
+        RegisterOperation(operation);
+
+        return operation;
+    }
+
+    /// <summary>
+    ///     Create an operation that is done immediately.
+    /// </summary>
+    /// <returns>The operation.</returns>
+    public static Operation CreateDone()
+    {
+        return new WrapperOperation<int>(result: 0);
+    }
+
+    /// <summary>
+    ///     Create an operation that is done immediately.
+    /// </summary>
+    /// <param name="result">The result of the operation.</param>
+    /// <typeparam name="T">The type of the result.</typeparam>
+    /// <returns>The operation.</returns>
+    public static Operation<T> CreateDone<T>(T result)
+    {
+        return new WrapperOperation<T>(result);
+    }
 
     private sealed class TaskOperation : Operation
     {
@@ -126,40 +178,6 @@ public static class Operations
         }
     }
 
-    private static void RegisterOperation(Operation operation)
-    {
-        if (OperationUpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
-
-        OperationUpdateDispatch.Instance.Add(operation);
-    }
-
-    /// <summary>
-    ///     Launch an action as an operation.
-    ///     It will run on a background thread.
-    /// </summary>
-    public static Operation Launch(Action action)
-    {
-        TaskOperation operation = new(action);
-
-        RegisterOperation(operation);
-
-        return operation;
-    }
-
-    /// <summary>
-    ///     Launch a function as an operation.
-    ///     The result will be available when the operation is finished.
-    /// </summary>
-    public static Operation<T> Launch<T>(Func<T> function)
-    {
-        TaskOperation<T> operation = new(function);
-
-        RegisterOperation(operation);
-
-        return operation;
-    }
-
     private sealed class WrapperOperation<T> : Operation<T>
     {
         /// <summary>
@@ -186,25 +204,5 @@ public static class Operations
         {
             // Nothing to do here.
         }
-    }
-
-    /// <summary>
-    ///     Create an operation that is done immediately.
-    /// </summary>
-    /// <returns>The operation.</returns>
-    public static Operation CreateDone()
-    {
-        return new WrapperOperation<int>(result: 0);
-    }
-
-    /// <summary>
-    ///     Create an operation that is done immediately.
-    /// </summary>
-    /// <param name="result">The result of the operation.</param>
-    /// <typeparam name="T">The type of the result.</typeparam>
-    /// <returns>The operation.</returns>
-    public static Operation<T> CreateDone<T>(T result)
-    {
-        return new WrapperOperation<T>(result);
     }
 }

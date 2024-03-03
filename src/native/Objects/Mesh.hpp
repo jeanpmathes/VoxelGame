@@ -92,10 +92,10 @@ private:
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers);
 
     void CreateBottomLevelASFromBounds(
-        ComPtr<ID3D12GraphicsCommandList4>                           commandList,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers);
+        ComPtr<ID3D12GraphicsCommandList4> const&                           commandList,
+        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers);
 
-    void CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> commandList);
+    void CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList);
 
     Allocation<ID3D12Resource>& GeometryBuffer();
 

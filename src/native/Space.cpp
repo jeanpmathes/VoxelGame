@@ -12,7 +12,7 @@ Space::Space(NativeClient& nativeClient)
 {
 }
 
-void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const commandQueue)
+void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& commandQueue)
 {
     Require(m_drawables.IsEmpty());
 
@@ -332,7 +332,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
     UINT currentSymbolIndex = 0;
     bool ok                 = true;
 
-    auto compileShaderLibrary = [&](UINT const shader) -> bool
+    auto compileShaderLibrary = [&](UINT const shader)
     {
         shaderBlobs[shader] = CompileShader(
             pipelineDescription.shaderFiles[shader].path,
@@ -356,7 +356,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
         return true;
     };
 
-    auto compileComputeShader = [&](UINT const shader) -> bool
+    auto compileComputeShader = [&](UINT const shader)
     {
         shaderBlobs[shader] = CompileShader(
             pipelineDescription.shaderFiles[shader].path,

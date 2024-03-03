@@ -195,6 +195,7 @@ private:
     void PopulateScreenshotCommandList() const;
 
     void LoadDevice();
+    void InitializeFences();
     void LoadRasterPipeline();
     void CreateFinalDepthBuffers();
     void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);

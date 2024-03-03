@@ -100,7 +100,7 @@ Drawable::Visitor& Drawable::Visitor::OnElse(std::function<void(Drawable&)> cons
     return *this;
 }
 
-Drawable::Visitor& Drawable::Visitor::OnElseFail() { return OnElse([](Drawable&) { Require(FALSE); }); }
+Drawable::Visitor& Drawable::Visitor::OnElseFail() { return OnElse([](Drawable const&) { Require(FALSE); }); }
 
 void Drawable::Visitor::Visit(Mesh& mesh) const { m_mesh(mesh); }
 

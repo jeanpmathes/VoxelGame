@@ -261,8 +261,8 @@ void Mesh::CreateBottomLevelASFromVertices(
         Require(vertexBuffers.size() == indexBuffers.size());
         for (size_t index = 0; index < vertexBuffers.size(); index++)
         {
-            auto& [vertexBuffer, vertexCount] = vertexBuffers[index];
-            auto& [indexBuffer, indexCount]   = indexBuffers[index];
+            auto const& [vertexBuffer, vertexCount] = vertexBuffers[index];
+            auto const& [indexBuffer, indexCount]   = indexBuffers[index];
 
             bool const isOpaque = GetMaterial().isOpaque;
 
@@ -284,8 +284,8 @@ void Mesh::CreateBottomLevelASFromVertices(
 }
 
 void Mesh::CreateBottomLevelASFromBounds(
-    ComPtr<ID3D12GraphicsCommandList4>                           commandList,
-    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> boundsBuffers)
+    ComPtr<ID3D12GraphicsCommandList4> const&                           commandList,
+    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers)
 {
     if (m_requiresFreshBLAS)
     {
@@ -298,7 +298,7 @@ void Mesh::CreateBottomLevelASFromBounds(
     return CreateBottomLevelAS(commandList);
 }
 
-void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> commandList)
+void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList)
 {
     bool                      updateOnly;
     D3D12_GPU_VIRTUAL_ADDRESS previousResult;

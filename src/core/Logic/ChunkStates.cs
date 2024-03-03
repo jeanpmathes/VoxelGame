@@ -92,45 +92,46 @@ public partial class Chunk
         {
             LoadingResult result = task.Result;
 
-            switch (result)
+            if (result.Chunk != null)
             {
-                case Success success:
+                Chunk.Setup(result.Chunk);
+                SetNextReady();
+            }
+            else
+            {
+                switch (result.Error)
                 {
-                    Chunk.Setup(success.Chunk);
-                    SetNextReady();
+                    case LoadingError.IO:
+                    {
+                        logger.LogDebug(Events.ChunkLoadingError,
+                            "The chunk file for {Position} could not be loaded, " +
+                            "which is likely because the file does not exist. " +
+                            "Position will be scheduled for generation",
+                            Chunk.Position);
 
-                    break;
+                        SetNextState<Generating>();
+
+                        break;
+                    }
+
+                    case LoadingError.Format:
+                    {
+                        logger.LogError(
+                            Events.ChunkLoadingError,
+                            "The chunk for {Position} could not be loaded, " +
+                            "which can be caused by a corrupted chunk file. " +
+                            "Position will be scheduled for generation",
+                            Chunk.Position);
+
+                        SetNextState<Generating>();
+
+                        break;
+                    }
+
+                    case LoadingError.Unknown:
+                    default:
+                        throw new InvalidOperationException();
                 }
-
-                case FileError:
-                {
-                    logger.LogDebug(Events.ChunkLoadingError,
-                        "The chunk file for {Position} could not be loaded, " +
-                        "which is likely because the file does not exist. " +
-                        "Position will be scheduled for generation",
-                        Chunk.Position);
-
-                    SetNextState<Generating>();
-
-                    break;
-                }
-
-                case Invalid:
-                {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        "The chunk for {Position} could not be loaded, " +
-                        "which can be caused by a corrupted chunk file. " +
-                        "Position will be scheduled for generation",
-                        Chunk.Position);
-
-                    SetNextState<Generating>();
-
-                    break;
-                }
-
-                default:
-                    throw new InvalidOperationException();
             }
         }
     }

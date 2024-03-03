@@ -139,7 +139,7 @@ void Win32Application::SetWindowOrderToTopMost(bool const setToTopMost)
     TryDo(
         SetWindowPos(
             m_hwnd,
-            (setToTopMost) ? HWND_TOPMOST : HWND_NOTOPMOST,
+            setToTopMost ? HWND_TOPMOST : HWND_NOTOPMOST,
             windowRect.left,
             windowRect.top,
             windowRect.right - windowRect.left,
@@ -213,10 +213,10 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
             if (vkCode == VK_LWIN || vkCode == VK_RWIN) return 0;
 
             WORD const scanCode = LOBYTE(keyFlags);
-            BOOL const extended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
+            bool const extended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
 
-            BOOL const up  = (keyFlags & KF_UP) == KF_UP;
-            BOOL const alt = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
+            bool const up  = (keyFlags & KF_UP) == KF_UP;
+            bool const alt = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
 
             switch (vkCode)
             {
