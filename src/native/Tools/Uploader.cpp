@@ -7,11 +7,15 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
 {
     if (m_ownsCommandList)
     {
-        TRY_DO(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+        TryDo(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
         NAME_D3D12_OBJECT(m_commandAllocator);
 
-        TRY_DO(
-            GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr,
+        TryDo(
+            GetDevice()->CreateCommandList(
+                0,
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                m_commandAllocator.Get(),
+                nullptr,
                 IID_PPV_ARGS(&m_commandList)));
         NAME_D3D12_OBJECT(m_commandList);
 
@@ -22,7 +26,9 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
 }
 
 void Uploader::UploadTexture(
-    std::byte** data, TextureDescription const& description, Allocation<ID3D12Resource> const& destination)
+    std::byte**                       data,
+    TextureDescription const&         description,
+    Allocation<ID3D12Resource> const& destination)
 {
     UINT const   subresources     = description.levels;
     UINT64 const uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
@@ -80,7 +86,7 @@ void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<I
 
     m_uploadBuffers.push_back(normalUploadBuffer);
 
-    TRY_DO(util::MapAndWrite(normalUploadBuffer, data, size));
+    TryDo(util::MapAndWrite(normalUploadBuffer, data, size));
 
     auto transition = CD3DX12_RESOURCE_BARRIER::Transition(
         destination.Get(),
@@ -99,9 +105,9 @@ void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<I
 
 void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> const& commandQueue) const
 {
-    TRY_DO(m_commandList->Close());
-    ID3D12CommandList* ppCommandLists[] = {m_commandList.Get()};
-    commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+    TryDo(m_commandList->Close());
+    std::array<ID3D12CommandList*, 1> const commandLists = {m_commandList.Get()};
+    commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 }
 
 ComPtr<ID3D12Device4> Uploader::GetDevice() const { return m_client->GetDevice(); }

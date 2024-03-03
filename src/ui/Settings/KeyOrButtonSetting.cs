@@ -12,7 +12,7 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Support.Definition;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Settings;
 
@@ -58,7 +58,7 @@ internal class KeyOrButtonSetting : Setting
             Dock = Dock.Fill
         };
 
-        rebind.Clicked += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
+        rebind.Released += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
         {
             CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton);
 
@@ -94,6 +94,6 @@ internal class KeyOrButtonSetting : Setting
     internal override void Validate()
     {
         bool valid = validate();
-        rebind.TextColorOverride = valid ? Color.White : Color.Red;
+        rebind.TextColorOverride = valid ? Colors.Primary : Colors.Error;
     }
 }

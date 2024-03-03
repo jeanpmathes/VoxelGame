@@ -6,6 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Platform;
@@ -21,12 +24,12 @@ namespace VoxelGame.UI.Platform;
 
 internal sealed class VGui : IGwenGui
 {
-    private readonly List<Action> inputEvents = new();
+    private readonly List<SkinBase> skins = new();
+    private List<Action> inputEvents = new();
     private Canvas canvas = null!;
 
     private InputTranslator input = null!;
     private DirectXRenderer renderer = null!;
-    private SkinBase skin = null!;
 
     internal VGui(Client parent, GwenGuiSettings settings)
     {
@@ -56,19 +59,36 @@ internal sealed class VGui : IGwenGui
             return;
         }
 
-        skin = new TexturedBase(renderer, Settings.SkinFile, Settings.SkinLoadingErrorCallback)
-        {
-            DefaultFont = new Font(renderer, "Calibri", size: 11)
-        };
+        Debug.Assert(Settings.SkinFiles.Any());
 
-        canvas = new Canvas(skin);
+        foreach ((FileInfo skinFile, int index) in Settings.SkinFiles.Select((f, i) => (f, i)))
+        {
+            var failed = false;
+
+            SkinBase skin = new TexturedBase(renderer,
+                skinFile,
+                e =>
+                {
+                    Settings.SkinLoadingErrorCallback(skinFile, e);
+                    failed = true;
+                })
+            {
+                DefaultFont = new Font(renderer, "Calibri", size: 11)
+            };
+
+            skins.Add(skin);
+
+            if (!failed) Settings.SkinLoadedCallback(index, skin);
+        }
+
+        canvas = new Canvas(skins[index: 0]);
         input = new InputTranslator(canvas);
 
         renderer.Resize(Parent.Size);
 
         canvas.SetSize(Parent.Size.X, Parent.Size.Y);
         canvas.ShouldDrawBackground = true;
-        canvas.BackgroundColor = skin.ModalBackground;
+        canvas.BackgroundColor = skins[index: 0].ModalBackground;
 
         renderer.FinishLoading();
     }
@@ -77,9 +97,13 @@ internal sealed class VGui : IGwenGui
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Action inputEvent in inputEvents) inputEvent();
+        // While handling an event, code might be executed that passes control to the OS.
+        // As such, new events might be invoked, causing problems with the iteration.
 
-        inputEvents.Clear();
+        List<Action> events = new();
+        VMath.Swap(ref events, ref inputEvents);
+
+        foreach (Action inputEvent in events) inputEvent();
     }
 
     public void Render()
@@ -168,8 +192,11 @@ internal sealed class VGui : IGwenGui
         if (!disposing) return;
 
         DetachWindowEvents();
+
         canvas.Dispose();
-        skin.Dispose();
+
+        foreach (SkinBase skin in skins) skin.Dispose();
+
         renderer.Dispose();
 
         disposed = true;

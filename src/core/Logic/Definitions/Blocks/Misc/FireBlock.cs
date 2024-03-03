@@ -1,11 +1,12 @@
 ﻿// <copyright file="FireBlock.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Entities;
@@ -101,35 +102,36 @@ public class FireBlock : Block, IFillable, IComplex
         if (data == 0) return BoundingVolume.Block;
 
         int count = BitHelper.CountSetBits(data);
+        Debug.Assert(count > 0);
 
-        var parent = BoundingVolume.Empty;
+        BoundingVolume? parent = null;
+        
         var children = new BoundingVolume[count - 1];
-
+        var next = 0;
+        
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             if (side == BlockSide.Bottom) continue;
+            if (!IsFlagSet(data, side)) continue;
 
-            if (IsFlagSet(data, side))
-            {
-                Vector3d offset = side.Direction().ToVector3() * 0.4f;
+            Vector3d offset = side.Direction().ToVector3() * 0.4f;
 
-                var child = new BoundingVolume(
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
+            var child = new BoundingVolume(
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) + offset,
+                new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) - offset.Absolute());
 
-                IncludeChild(child);
-            }
+            if (parent == null)
+                parent = child;
+            else
+                children[next++] = child;
         }
 
-        return children.Length == 0 ? parent : new BoundingVolume(parent.Center, parent.Extents, children);
+        if (parent == null)
+            return BoundingVolume.Block;
 
-        void IncludeChild(BoundingVolume child)
-        {
-            count--;
-
-            if (count == 0) parent = child;
-            else children[count - 1] = child;
-        }
+        return next == 0
+            ? parent
+            : new BoundingVolume(parent.Center, parent.Extents, children);
     }
 
     /// <inheritdoc />

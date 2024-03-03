@@ -33,17 +33,18 @@ Contacts for feedback:
 
 #include <stdexcept>
 
-#ifndef ROUND_UP
-#define ROUND_UP(v, powerOf2Alignment)                                         \
-  (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
-#endif
+#include "DXRHelper.hpp"
 
 namespace nv_helpers_dx12
 {
     void BottomLevelASGenerator::AddVertexBuffer(
-        Allocation<ID3D12Resource> const& vertexBuffer, UINT64 const vertexOffsetInBytes, uint32_t const vertexCount,
-        UINT const                        vertexSizeInBytes, Allocation<ID3D12Resource> const& transformBuffer,
-        UINT64 const                      transformOffsetInBytes, bool const isOpaque)
+        Allocation<ID3D12Resource> const& vertexBuffer,
+        UINT64 const                      vertexOffsetInBytes,
+        uint32_t const                    vertexCount,
+        UINT const                        vertexSizeInBytes,
+        Allocation<ID3D12Resource> const& transformBuffer,
+        UINT64 const                      transformOffsetInBytes,
+        bool const                        isOpaque)
     {
         AddVertexBuffer(
             vertexBuffer,
@@ -59,10 +60,16 @@ namespace nv_helpers_dx12
     }
 
     void BottomLevelASGenerator::AddVertexBuffer(
-        Allocation<ID3D12Resource> const& vertexBuffer, UINT64 const vertexOffsetInBytes, uint32_t const vertexCount,
-        UINT const vertexSizeInBytes, Allocation<ID3D12Resource> const& indexBuffer, UINT64 const indexOffsetInBytes,
-        uint32_t const indexCount, Allocation<ID3D12Resource> const& transformBuffer,
-        UINT64 const transformOffsetInBytes, bool const isOpaque)
+        Allocation<ID3D12Resource> const& vertexBuffer,
+        UINT64 const                      vertexOffsetInBytes,
+        uint32_t const                    vertexCount,
+        UINT const                        vertexSizeInBytes,
+        Allocation<ID3D12Resource> const& indexBuffer,
+        UINT64 const                      indexOffsetInBytes,
+        uint32_t const                    indexCount,
+        Allocation<ID3D12Resource> const& transformBuffer,
+        UINT64 const                      transformOffsetInBytes,
+        bool const                        isOpaque)
     {
         // Create the DX12 descriptor representing the input data, assumed to be
         // triangles, with 3xf32 vertex coordinates and 32-bit indices.
@@ -94,7 +101,9 @@ namespace nv_helpers_dx12
     }
 
     void BottomLevelASGenerator::AddBoundsBuffer(
-        Allocation<ID3D12Resource> const& boundsBuffer, UINT64 const boundsOffsetInBytes, uint32_t const boundsCount,
+        Allocation<ID3D12Resource> const& boundsBuffer,
+        UINT64 const                      boundsOffsetInBytes,
+        uint32_t const                    boundsCount,
         UINT const                        boundsSizeInBytes)
     {
         // Create the DX12 descriptor representing the input data, assumed to be
@@ -112,7 +121,10 @@ namespace nv_helpers_dx12
     }
 
     void BottomLevelASGenerator::ComputeASBufferSizes(
-        ID3D12Device5* device, bool const allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes)
+        ID3D12Device5* device,
+        bool const     allowUpdate,
+        UINT64*        scratchSizeInBytes,
+        UINT64*        resultSizeInBytes)
     {
         // The generated AS can support iterative updates. This may change the final
         // size of the AS as well as the temporary memory requirements, and hence has
@@ -131,15 +143,17 @@ namespace nv_helpers_dx12
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        *scratchSizeInBytes  = ROUND_UP(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        *resultSizeInBytes   = ROUND_UP(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        *scratchSizeInBytes  = RoundUp(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        *resultSizeInBytes   = RoundUp(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         m_scratchSizeInBytes = *scratchSizeInBytes;
         m_resultSizeInBytes  = *resultSizeInBytes;
     }
 
     void BottomLevelASGenerator::Generate(
-        ID3D12GraphicsCommandList4*     commandList, D3D12_GPU_VIRTUAL_ADDRESS const scratchBuffer,
-        D3D12_GPU_VIRTUAL_ADDRESS const resultBuffer, bool const                     updateOnly,
+        ID3D12GraphicsCommandList4*     commandList,
+        D3D12_GPU_VIRTUAL_ADDRESS const scratchBuffer,
+        D3D12_GPU_VIRTUAL_ADDRESS const resultBuffer,
+        bool const                      updateOnly,
         D3D12_GPU_VIRTUAL_ADDRESS const previousResult) const
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;

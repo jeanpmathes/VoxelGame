@@ -1,12 +1,16 @@
 ﻿// <copyright file="Client.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Resources;
+using VoxelGame.Client.Application.Settings;
+using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -22,9 +26,11 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
     private readonly GameParameters parameters;
-    private readonly SceneFactory sceneFactory;
 
+    private readonly SceneFactory sceneFactory;
     private readonly SceneManager sceneManager;
+
+    private readonly OperationUpdateDispatch operations = new(singleton: true);
 
     private ScreenBehaviour screenBehaviour = null!;
 
@@ -114,6 +120,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (logger.BeginScope("UpdateFrame"))
         {
+            operations.Update();
+
             sceneManager.Update(delta);
             screenBehaviour.Update(delta);
         }
@@ -145,12 +153,21 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// <summary>
     ///     Exit the current game.
     /// </summary>
-    internal void ExitGame()
+    /// <param name="exitToOS">Whether to exit the complete application or just to the start scene.</param>
+    internal void ExitGame(bool exitToOS)
     {
-        IScene startScene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
-        sceneManager.Load(startScene);
+        IScene? scene = null;
 
+        if (!exitToOS) scene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
+
+        sceneManager.Load(scene);
         CurrentGame = null;
+
+        if (!exitToOS) return;
+
+        logger.LogInformation(Events.ApplicationState, "Exiting to OS");
+
+        Close();
     }
 
     private void OnSizeChanged(object? sender, SizeChangeEventArgs e)

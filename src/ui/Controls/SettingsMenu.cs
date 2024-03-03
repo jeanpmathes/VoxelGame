@@ -15,7 +15,7 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Controls;
 
@@ -101,9 +101,13 @@ internal class SettingsMenu : StandardMenu
                 CanScrollV = true
             };
 
-            VerticalLayout settings = new(scroll);
+            Table settings = new(scroll)
+            {
+                ColumnCount = 1
+            };
 
-            foreach (Setting setting in settingsProvider.Settings) setting.CreateControl(settings, Context);
+            foreach (Setting setting in settingsProvider.Settings)
+                setting.CreateControl(settings.AddRow(), Context);
 
             categories.Add(category);
             category.Hide();

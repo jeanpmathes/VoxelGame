@@ -43,6 +43,6 @@ internal class QualitySetting : Setting
 
         qualitySelection.SelectedItem = items[(int) get()];
 
-        qualitySelection.ItemSelected += (_, args) => { set((Quality) ((MenuItem) args.SelectedItem).UserData); };
+        qualitySelection.ItemSelected += (_, args) => set((Quality) ((MenuItem) args.SelectedItem).UserData!);
     }
 }

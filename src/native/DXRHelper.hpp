@@ -10,20 +10,36 @@
 #include <string>
 #include <vector>
 
-#include <d3d12.h>
 #include <dxcapi.h>
 
 #include "DXHelper.hpp"
 #include "native.hpp"
 
-#ifndef ROUND_UP
-#define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
-#endif
+/**
+ * \brief Round a value up to the nearest multiple of an alignment.
+ * \param value The value to round up.
+ * \param alignment The alignment to round up to.
+ * \return The rounded up value.
+ */
+template <typename T, typename V>
+constexpr T RoundUp(T const value, V const alignment) { return (value + alignment - 1) & ~(alignment - 1); }
 
-// Compile a HLSL file into a DXIL library.
-inline ComPtr<IDxcBlob> CompileShader(
-    LPCWSTR                                 fileName, std::wstring const& entry, std::wstring const& target,
-    std::function<void(ComPtr<IDxcResult>)> registry, NativeErrorFunc     errorCallback)
+/**
+ * \brief Compile a shader to a DXIL blob.
+ * \param fileName The file name of the shader to compile.
+ * \param entry The entry point of the shader.
+ * \param target The target profile of the shader, e.g. "lib_6_3".
+ * \param registry A function to register the shader with the application for debugging purposes.
+ * \param errorCallback A function to call if the shader compilation fails.
+ * \return The compiled shader blob.
+ */
+template <typename Registry>
+ComPtr<IDxcBlob> CompileShader(
+    LPCWSTR             fileName,
+    std::wstring const& entry,
+    std::wstring const& target,
+    Registry            registry,
+    NativeErrorFunc     errorCallback)
 {
     static ComPtr<IDxcCompiler3>      compiler = nullptr;
     static ComPtr<IDxcUtils>          utils    = nullptr;
@@ -31,13 +47,13 @@ inline ComPtr<IDxcBlob> CompileShader(
 
     if (!compiler)
     {
-        TRY_DO(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
-        TRY_DO(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils)));
-        TRY_DO(utils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
+        TryDo(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
+        TryDo(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils)));
+        TryDo(utils->CreateDefaultIncludeHandler(&dxcIncludeHandler));
     }
 
     std::ifstream shaderFile(fileName);
-    if (not shaderFile.good())
+    if (!shaderFile.good())
     {
         std::string errorMsg = "Failed to open shader file";
         errorCallback(E_FAIL, errorMsg.c_str());
@@ -49,7 +65,7 @@ inline ComPtr<IDxcBlob> CompileShader(
     std::string shader = shaderStream.str();
 
     ComPtr<IDxcBlobEncoding> shaderSourceBlob;
-    TRY_DO(utils->CreateBlobFromPinned(shader.c_str(), static_cast<UINT32>(shader.size()), CP_UTF8, &shaderSourceBlob));
+    TryDo(utils->CreateBlobFromPinned(shader.c_str(), static_cast<UINT32>(shader.size()), CP_UTF8, &shaderSourceBlob));
 
     DxcBuffer sourceBuffer = {
         .Ptr = shaderSourceBlob->GetBufferPointer(),
@@ -69,21 +85,32 @@ inline ComPtr<IDxcBlob> CompileShader(
 #endif
 
     ComPtr<IDxcCompilerArgs> compilerArgs;
-    TRY_DO(
-        utils->BuildArguments( fileName, entry.c_str(), target.c_str(), args.data(), static_cast<UINT32>(args.size()),
-            defines.data(), static_cast<UINT32>(defines.size()), &compilerArgs));
+    TryDo(
+        utils->BuildArguments(
+            fileName,
+            entry.c_str(),
+            target.c_str(),
+            args.data(),
+            static_cast<UINT32>(args.size()),
+            defines.data(),
+            static_cast<UINT32>(defines.size()),
+            &compilerArgs));
 
     ComPtr<IDxcResult> result;
-    TRY_DO(
-        compiler->Compile( &sourceBuffer, compilerArgs->GetArguments(), compilerArgs->GetCount(), dxcIncludeHandler.Get(
-        ), IID_PPV_ARGS(&result)));
+    TryDo(
+        compiler->Compile(
+            &sourceBuffer,
+            compilerArgs->GetArguments(),
+            compilerArgs->GetCount(),
+            dxcIncludeHandler.Get(),
+            IID_PPV_ARGS(&result)));
 
     HRESULT resultCode;
-    TRY_DO(result->GetStatus(&resultCode));
+    TryDo(result->GetStatus(&resultCode));
     if (FAILED(resultCode))
     {
         ComPtr<IDxcBlobUtf8> error;
-        TRY_DO(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&error), nullptr));
+        TryDo(result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&error), nullptr));
         std::vector<char> infoLog(error->GetBufferSize());
         memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
 
@@ -97,7 +124,7 @@ inline ComPtr<IDxcBlob> CompileShader(
     registry(result);
 
     ComPtr<IDxcBlob> blob;
-    TRY_DO(result->GetResult(&blob));
+    TryDo(result->GetResult(&blob));
 
     return blob;
 }

@@ -45,12 +45,14 @@ public:
     DXApp(DXApp&& other)                 = delete;
     DXApp& operator=(DXApp&& other)      = delete;
 
-    enum CycleFlags
+    enum class CycleFlags
     {
         ALLOW_UPDATE = 1 << 0,
         ALLOW_RENDER = 1 << 1,
         ALLOW_BOTH   = ALLOW_UPDATE | ALLOW_RENDER,
     };
+
+    static bool HasFlag(CycleFlags value, CycleFlags flag);
 
     /**
      * Perform a tick, which can update and render the application.
@@ -80,10 +82,6 @@ public:
     void OnMouseWheel(double) const;
 
     void DoCursorSet() const;
-
-    virtual void OnDisplayChanged()
-    {
-    }
 
     [[nodiscard]] UINT         GetWidth() const { return m_width; }
     [[nodiscard]] UINT         GetHeight() const { return m_height; }
@@ -154,8 +152,9 @@ protected:
     virtual void OnWindowMoved(int xPos, int yPos) = 0;
 
     static ComPtr<IDXGIAdapter1> GetHardwareAdapter(
-        ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory,
-        bool                         requestHighPerformanceAdapter = false);
+        ComPtr<IDXGIFactory4> const&       dxgiFactory,
+        ComPtr<ID3D12DeviceFactory> const& deviceFactory,
+        bool                               requestHighPerformanceAdapter = false);
 
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
@@ -176,10 +175,10 @@ private:
 
     UINT  m_width;
     UINT  m_height;
-    float m_aspectRatio;
-    RECT  m_windowBounds;
+    float m_aspectRatio  = 0.0f;
+    RECT  m_windowBounds = {0, 0, 0, 0};
 
-    bool m_tearingSupport;
+    bool m_tearingSupport = false;
 
     int  m_xMousePosition = 0;
     int  m_yMousePosition = 0;
@@ -188,8 +187,8 @@ private:
     MouseCursor                    m_mouseCursor = MouseCursor::ARROW;
     std::map<MouseCursor, HCURSOR> m_mouseCursors;
 
-    std::optional<Cycle> m_cycle = std::nullopt;
-    std::thread::id      m_mainThreadId;
+    std::optional<Cycle> m_cycle        = std::nullopt;
+    std::thread::id      m_mainThreadId = std::this_thread::get_id();
 
     bool m_inTick = false;
 

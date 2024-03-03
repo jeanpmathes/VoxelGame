@@ -9,22 +9,23 @@ namespace
 {
     void EnsureValidDescription(RasterPipelineDescription const& description)
     {
-        REQUIRE(description.vertexShaderPath != nullptr);
-        REQUIRE(description.pixelShaderPath != nullptr);
+        Require(description.vertexShaderPath != nullptr);
+        Require(description.pixelShaderPath != nullptr);
 
-        REQUIRE(
-            description.shaderPreset == ShaderPreset::POST_PROCESSING || description.shaderPreset == ShaderPreset::
-            DRAW_2D || description.shaderPreset == ShaderPreset::SPATIAL_EFFECT);
+        Require(
+            description.shaderPreset == ShaderPreset::POST_PROCESSING || description.shaderPreset ==
+            ShaderPreset::DRAW_2D || description.shaderPreset == ShaderPreset::SPATIAL_EFFECT);
 
-        REQUIRE(description.bufferSize < D3D12_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT * 4 * 4);
+        Require(description.bufferSize < D3D12_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT * 4 * 4);
 
-        auto         ensureValidEnum = [&]<typename E>(
-            E const& field, std::vector<ShaderPreset> const& presets, std::vector<E> const& values)
+        auto                                 ensureValidEnum = [&]<typename E>(
+            E const&                         field,
+            std::vector<ShaderPreset> const& presets,
+            std::vector<E> const&            values)
         {
             if (std::ranges::find(presets, description.shaderPreset) != presets.end())
-                REQUIRE(std::ranges::find(values, field) != values.end());
-            else
-                REQUIRE(field == E{});
+                Require(std::ranges::find(values, field) != values.end());
+            else Require(field == E{});
         };
 
         ensureValidEnum(description.topology, {ShaderPreset::SPATIAL_EFFECT}, {Topology::TRIANGLE, Topology::LINE});
@@ -39,15 +40,19 @@ namespace
     {
         switch (description.filter)
         {
-        case Filter::LINEAR: return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        case Filter::CLOSEST: return D3D12_FILTER_MIN_MAG_MIP_POINT;
+        case Filter::LINEAR:
+            return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        case Filter::CLOSEST:
+            return D3D12_FILTER_MIN_MAG_MIP_POINT;
         }
 
         throw NativeException("Invalid filter.");
     }
 
     Preset GetPostProcessingPreset(
-        RasterPipelineDescription const& description, ShaderBuffer const* shaderBuffer, NativeClient const& client)
+        RasterPipelineDescription const& description,
+        ShaderBuffer const*              shaderBuffer,
+        NativeClient const&              client)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> input = {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -66,7 +71,7 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::POST_PROCESSING);
 
         resources->Initialize(
-            [&](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
             {
                 graphics.EnableInputAssembler();
                 graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
@@ -84,8 +89,9 @@ namespace
                 graphics.AddHeapDescriptorTable(
                     [&](auto& table) { bindings->PostProcessing().input = table.AddShaderResourceView({.reg = 0}); });
             },
-            [&](auto&)
+            [](auto&)
             {
+                // No compute resources.
             },
             client.GetDevice());
 
@@ -93,7 +99,9 @@ namespace
     }
 
     Preset GetDraw2dPreset(
-        RasterPipelineDescription const& description, ShaderBuffer const* shaderBuffer, NativeClient const& client)
+        RasterPipelineDescription const& description,
+        ShaderBuffer const*              shaderBuffer,
+        NativeClient const&              client)
     {
         std::vector<D3D12_INPUT_ELEMENT_DESC> input = {
             {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -121,7 +129,7 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
 
         resources->Initialize(
-            [&](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
             {
                 graphics.EnableInputAssembler();
                 graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
@@ -141,8 +149,9 @@ namespace
                     {.reg = 0},
                     ShaderResources::UNBOUNDED);
             },
-            [&](auto&)
+            [](auto&)
             {
+                // No compute resources.
             },
             client.GetDevice());
 
@@ -165,7 +174,7 @@ namespace
         };
 
         Space* space = client.GetSpace();
-        REQUIRE(space != nullptr);
+        Require(space != nullptr);
 
         std::shared_ptr<ShaderResources>          resources = space->GetShaderResources();
         std::shared_ptr<RasterPipeline::Bindings> bindings  = space->GetEffectBindings();
@@ -174,20 +183,29 @@ namespace
     }
 
     Preset GetShaderPreset(
-        RasterPipelineDescription const& description, ShaderBuffer const* shaderBuffer, NativeClient const& client)
+        RasterPipelineDescription const& description,
+        ShaderBuffer const*              shaderBuffer,
+        NativeClient const&              client)
     {
+        using enum ShaderPreset;
+
         switch (description.shaderPreset)
         {
-        case ShaderPreset::POST_PROCESSING: return GetPostProcessingPreset(description, shaderBuffer, client);
-        case ShaderPreset::DRAW_2D: return GetDraw2dPreset(description, shaderBuffer, client);
-        case ShaderPreset::SPATIAL_EFFECT: return GetSpatialEffectPreset(description, shaderBuffer, client);
-        default: throw NativeException("Invalid shader preset.");
+        case POST_PROCESSING:
+            return GetPostProcessingPreset(description, shaderBuffer, client);
+        case DRAW_2D:
+            return GetDraw2dPreset(description, shaderBuffer, client);
+        case SPATIAL_EFFECT:
+            return GetSpatialEffectPreset(description, shaderBuffer, client);
+        default:
+            throw NativeException("Invalid shader preset.");
         }
     }
 
     void ApplyDescriptionToPipeline(
-        RasterPipelineDescription const& description, D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
-        D3D12_PRIMITIVE_TOPOLOGY*        topology)
+        RasterPipelineDescription const&    description,
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC* desc,
+        D3D12_PRIMITIVE_TOPOLOGY*           topology)
     {
         switch (description.shaderPreset)
         {
@@ -219,10 +237,12 @@ namespace
         {
             switch (description.topology)
             {
-            case Topology::TRIANGLE: *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            case Topology::TRIANGLE:
+                *topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
                 desc->PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
                 break;
-            case Topology::LINE: *topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+            case Topology::LINE:
+                *topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
                 desc->PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
                 break;
             }
@@ -234,12 +254,15 @@ namespace
             desc->DepthStencilState.DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
         }
         break;
-        default: throw NativeException("Invalid shader preset.");
+        default:
+            throw NativeException("Invalid shader preset.");
         }
     }
 
     std::optional<std::pair<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>> CompileShaders(
-        NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunc callback)
+        NativeClient&                    client,
+        RasterPipelineDescription const& description,
+        NativeErrorFunc                  callback)
     {
         ComPtr<IDxcBlob> const vertexShader = CompileShader(
             description.vertexShaderPath,
@@ -250,7 +273,7 @@ namespace
         if (vertexShader == nullptr) return std::nullopt;
 
         ComPtr<ID3DBlob> vertexShaderBlob;
-        TRY_DO(vertexShader->QueryInterface(IID_PPV_ARGS(&vertexShaderBlob)));
+        TryDo(vertexShader->QueryInterface(IID_PPV_ARGS(&vertexShaderBlob)));
 
         ComPtr<IDxcBlob> const pixelShader = CompileShader(
             description.pixelShaderPath,
@@ -261,21 +284,26 @@ namespace
         if (pixelShader == nullptr) return std::nullopt;
 
         ComPtr<ID3DBlob> pixelShaderBlob;
-        TRY_DO(pixelShader->QueryInterface(IID_PPV_ARGS(&pixelShaderBlob)));
+        TryDo(pixelShader->QueryInterface(IID_PPV_ARGS(&pixelShaderBlob)));
 
         return std::make_pair(vertexShaderBlob, pixelShaderBlob);
     }
 
     std::wstring CreateName(RasterPipelineDescription const& description)
     {
+        using enum ShaderPreset;
+
         std::wstring preset;
         switch (description.shaderPreset)
         {
-        case ShaderPreset::POST_PROCESSING: preset = L"PostProcessing";
+        case POST_PROCESSING:
+            preset = L"PostProcessing";
             break;
-        case ShaderPreset::DRAW_2D: preset = L"Draw2D";
+        case DRAW_2D:
+            preset = L"Draw2D";
             break;
-        case ShaderPreset::SPATIAL_EFFECT: preset = L"SpatialEffect";
+        case SPATIAL_EFFECT:
+            preset = L"SpatialEffect";
             break;
         }
 
@@ -292,7 +320,9 @@ namespace
 }
 
 std::unique_ptr<RasterPipeline> RasterPipeline::Create(
-    NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunc callback)
+    NativeClient&                    client,
+    RasterPipelineDescription const& description,
+    NativeErrorFunc                  callback)
 {
     EnsureValidDescription(description);
 
@@ -326,28 +356,24 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     ApplyDescriptionToPipeline(description, &psoDesc, &topology);
 
     ComPtr<ID3D12PipelineState> pipelineState;
-    TRY_DO(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    TryDo(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
 
-    return std::make_unique<RasterPipeline>(
-        client,
-        description.shaderPreset,
-        topology,
-        CreateName(description),
-        std::move(shaderBuffer),
-        std::move(resources),
-        std::move(bindings),
-        pipelineState);
+    PipelineConfiguration configuration = {description.shaderPreset, topology, CreateName(description)};
+    PipelineObjects       objects = {std::move(shaderBuffer), std::move(resources), std::move(bindings), pipelineState};
+
+    return std::make_unique<RasterPipeline>(client, std::move(configuration), std::move(objects));
 }
 
 std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(
-    NativeClient& client, ShaderResources::Description& description)
+    NativeClient const&           client,
+    ShaderResources::Description& description)
 {
     auto bindings = std::make_shared<Bindings>(ShaderPreset::SPATIAL_EFFECT);
 
     description.EnableInputAssembler();
 
     description.AddHeapDescriptorTable(
-        [&](auto& table)
+        [&bindings](auto& table)
         {
             bindings->SpatialEffect().customData   = table.AddConstantBufferView({.reg = 0});
             bindings->SpatialEffect().instanceData = table.AddConstantBufferView({.reg = 1});
@@ -363,18 +389,15 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(
     return bindings;
 }
 
-RasterPipeline::RasterPipeline(
-    NativeClient& client, ShaderPreset const preset, D3D12_PRIMITIVE_TOPOLOGY const topology, std::wstring name,
-    std::unique_ptr<ShaderBuffer> shaderBuffer, std::shared_ptr<ShaderResources> resources,
-    std::shared_ptr<Bindings> bindings, ComPtr<ID3D12PipelineState> pipelineState)
+RasterPipeline::RasterPipeline(NativeClient& client, PipelineConfiguration configuration, PipelineObjects objects)
     : Object(client)
-  , m_preset(preset)
-  , m_topology(topology)
-  , m_name(std::move(name))
-  , m_resources(std::move(resources))
-  , m_bindings(std::move(bindings))
-  , m_pipelineState(std::move(pipelineState))
-  , m_shaderBuffer(std::move(shaderBuffer)) { NAME_D3D12_OBJECT_WITH_ID(m_pipelineState); }
+  , m_preset(configuration.preset)
+  , m_topology(configuration.topology)
+  , m_name(std::move(configuration.name))
+  , m_resources(std::move(objects.resources))
+  , m_bindings(std::move(objects.bindings))
+  , m_pipelineState(std::move(objects.pipelineState))
+  , m_shaderBuffer(std::move(objects.shaderBuffer)) { NAME_D3D12_OBJECT_WITH_ID(m_pipelineState); }
 
 void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {
@@ -421,7 +444,8 @@ D3D12_PRIMITIVE_TOPOLOGY RasterPipeline::GetTopology() const { return m_topology
 ShaderBuffer* RasterPipeline::GetShaderBuffer() const { return m_shaderBuffer.get(); }
 
 void RasterPipeline::CreateConstantBufferView(
-    ShaderResources::Table::Entry const                  entry, UINT const index,
+    ShaderResources::Table::Entry const                  entry,
+    UINT const                                           index,
     ShaderResources::ConstantBufferViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();
@@ -429,7 +453,8 @@ void RasterPipeline::CreateConstantBufferView(
 }
 
 void RasterPipeline::CreateShaderResourceView(
-    ShaderResources::Table::Entry const                  entry, UINT const index,
+    ShaderResources::Table::Entry const                  entry,
+    UINT const                                           index,
     ShaderResources::ShaderResourceViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();
@@ -437,7 +462,8 @@ void RasterPipeline::CreateShaderResourceView(
 }
 
 void RasterPipeline::CreateUnorderedAccessView(
-    ShaderResources::Table::Entry const                   entry, UINT const index,
+    ShaderResources::Table::Entry const                   entry,
+    UINT const                                            index,
     ShaderResources::UnorderedAccessViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();

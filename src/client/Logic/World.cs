@@ -1,6 +1,6 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -59,7 +59,7 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public World(DirectoryInfo path, WorldInformation information) : base(path, information)
+    public World(WorldData data) : base(data)
     {
         space = Application.Client.Instance.Space;
 

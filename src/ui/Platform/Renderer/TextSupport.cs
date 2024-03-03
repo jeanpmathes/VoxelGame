@@ -116,10 +116,10 @@ public sealed class TextSupport : IDisposable
         {
             FreeFont(font);
             LoadFont(font);
-            sysFont = (System.Drawing.Font) font.RendererData;
+            sysFont = (System.Drawing.Font) font.RendererData!;
         }
 
-        // from: http://csharphelper.com/blog/2014/08/get-font-metrics-in-c
+        // From: http://csharphelper.com/blog/2014/08/get-font-metrics-in-c
         float emHeight = sysFont.FontFamily.GetEmHeight(sysFont.Style);
         float emHeightPixels = ConvertToPixels(sysFont.Size, sysFont.Unit);
         float designToPixels = emHeightPixels / emHeight;

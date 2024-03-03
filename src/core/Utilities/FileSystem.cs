@@ -6,8 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities.Units;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -17,6 +24,8 @@ namespace VoxelGame.Core.Utilities;
 #pragma warning disable S3242 // The distinction between file and directory information has semantic relevance.
 public static class FileSystem
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
+
     private static readonly ISet<string> reservedNames = new HashSet<string>
     {
         "CON",
@@ -47,22 +56,12 @@ public static class FileSystem
     };
 
     /// <summary>
-    ///     Creates all subdirectories along a path, starting from a parent entry.
-    /// </summary>
-    /// <param name="parent">The parent entry.</param>
-    /// <param name="subdirectories">A list of subdirectories.</param>
-    /// <returns>The subdirectory.</returns>
-    public static DirectoryInfo CreateSubdirectory(FileSystemInfo parent, params string[] subdirectories)
-    {
-        return Directory.CreateDirectory(Path.Combine(parent.FullName, Path.Combine(subdirectories)));
-    }
-
-    /// <summary>
     ///     Creates all subdirectories along a path, starting from a special folder.
     /// </summary>
     /// <param name="parent">The parent special folder.</param>
     /// <param name="subdirectories">A list of subdirectories.</param>
     /// <returns>The subdirectory.</returns>
+    /// <exception cref="IOException">If the directory could not be created.</exception>
     public static DirectoryInfo CreateSubdirectory(Environment.SpecialFolder parent, params string[] subdirectories)
     {
         return Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(parent), Path.Combine(subdirectories)));
@@ -77,6 +76,17 @@ public static class FileSystem
     public static FileInfo GetFile(this DirectoryInfo parent, string fileName)
     {
         return new FileInfo(Path.Combine(parent.FullName, fileName));
+    }
+
+    /// <summary>
+    ///     Get the path of a subdirectory in a directory. This does not create the subdirectory.
+    /// </summary>
+    /// <param name="parent">The parent directory.</param>
+    /// <param name="directoryName">The subdirectory name.</param>
+    /// <returns>The subdirectory path.</returns>
+    public static DirectoryInfo GetDirectory(this DirectoryInfo parent, string directoryName)
+    {
+        return new DirectoryInfo(Path.Combine(parent.FullName, directoryName));
     }
 
     /// <summary>
@@ -148,7 +158,26 @@ public static class FileSystem
 
         if (IsNameReserved(name)) path.Append(value: '_');
 
-        while (Directory.Exists(path.ToString())) path.Append(value: '_');
+        if (!Directory.Exists(path.ToString())) return Directory.CreateDirectory(path.ToString());
+
+        Regex pattern = new(Regex.Escape(name) + @"\s\((\d+)\)");
+
+        int number = parent.EnumerateDirectories()
+            .Select(directory => pattern.Match(directory.Name))
+            .Where(match => match.Success)
+            .Select(match =>
+            {
+                int.TryParse(match.Groups[groupnum: 1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result);
+
+                return result;
+            })
+            .DefaultIfEmpty(defaultValue: 0)
+            .Max();
+
+        path.Append(value: ' ');
+        path.Append(value: '(');
+        path.Append(number + 1);
+        path.Append(value: ')');
 
         return Directory.CreateDirectory(path.ToString());
     }
@@ -194,5 +223,113 @@ public static class FileSystem
         } while (directory == null);
 
         return new DirectoryInfo(directory);
+    }
+
+    /// <summary>
+    ///     Save an object to a JSON file.
+    /// </summary>
+    /// <param name="obj">The object to save.</param>
+    /// <param name="file">The file to save to.</param>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <returns>An exception if the operation failed, null otherwise.</returns>
+    public static Exception? SaveJSON<T>(T obj, FileInfo file)
+    {
+        JsonSerializerOptions options = new()
+        {
+            IgnoreReadOnlyProperties = true,
+            WriteIndented = true
+        };
+
+        try
+        {
+            string json = JsonSerializer.Serialize(obj, options);
+            file.WriteAllText(json);
+
+            return null;
+        }
+        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return e;
+        }
+    }
+
+    /// <summary>
+    ///     Load an object from a JSON file.
+    /// </summary>
+    /// <param name="file">The file to load from.</param>
+    /// <param name="obj">Will be set to the loaded object or a fallback object if loading failed.</param>
+    /// <param name="fallback">Function to create a fallback object if loading failed.</param>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <returns>An exception if the operation failed, null otherwise.</returns>
+    public static Exception? LoadJSON<T>(FileInfo file, out T obj, Func<T> fallback)
+    {
+        try
+        {
+            string json = file.ReadAllText();
+
+            obj = JsonSerializer.Deserialize<T>(json) ?? fallback();
+
+            return null;
+        }
+        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
+        {
+            obj = fallback();
+
+            return e;
+        }
+    }
+
+    /// <summary>
+    ///     Load an object from a JSON file.
+    /// </summary>
+    /// <param name="file">The file to load from.</param>
+    /// <param name="obj">Will be set to the loaded object or a new object if loading failed.</param>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <returns>An exception if the operation failed, null otherwise.</returns>
+    public static Exception? LoadJSON<T>(FileInfo file, out T obj) where T : new()
+    {
+        return LoadJSON(file, out obj, () => new T());
+    }
+
+    /// <summary>
+    ///     Copy a directory to another directory.
+    ///     Will copy all content, recursively.
+    /// </summary>
+    /// <param name="source">The source directory.</param>
+    /// <param name="destination">The destination directory.</param>
+    public static void CopyTo(this DirectoryInfo source, DirectoryInfo destination)
+    {
+        destination.Create();
+
+        foreach (FileInfo file in source.EnumerateFiles()) file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+
+        foreach (DirectoryInfo directory in source.EnumerateDirectories()) directory.CopyTo(destination.GetDirectory(directory.Name));
+    }
+
+    /// <summary>
+    ///     Get the size of a file or directory.
+    /// </summary>
+    /// <param name="info">The file or directory.</param>
+    /// <returns>The size of the file or directory, or null if the size could not be determined.</returns>
+    public static Memory? GetSize(this FileSystemInfo info)
+    {
+        try
+        {
+            return new Memory
+            {
+                Bytes = info switch
+                {
+                    FileInfo fileInfo => fileInfo.Length,
+                    DirectoryInfo directoryInfo => directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length),
+                    _ => 0
+                }
+            };
+        }
+        catch (IOException exception)
+        {
+            logger.LogWarning(exception, "Could not get the size of: {Path}", info.FullName);
+
+            return null;
+        }
     }
 }

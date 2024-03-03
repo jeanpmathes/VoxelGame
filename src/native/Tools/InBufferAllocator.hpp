@@ -34,7 +34,9 @@ public:
      * Create barriers for all resources that are used by this allocator.
      * Additionally, a vector of further resources can be passed to create barriers for them as well.
      */
-    void CreateBarriers(ComPtr<ID3D12GraphicsCommandList> commandList, std::vector<ID3D12Resource*>&& resources) const;
+    void CreateBarriers(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList,
+        std::vector<ID3D12Resource*> const&      resources) const;
 
 private:
     AddressableBuffer                        AllocateInternal(UINT64 size);
@@ -50,12 +52,11 @@ private:
 
     struct Block
     {
-        D3D12MA::VirtualBlock*     block  = nullptr;
-        Allocation<ID3D12Resource> memory = {};
-
         static std::unique_ptr<Block>    Create(InBufferAllocator& allocator, size_t index);
         std::optional<AddressableBuffer> Allocate(D3D12MA::VIRTUAL_ALLOCATION_DESC const* description);
         void                             FreeAllocation(D3D12MA::VirtualAllocation allocation);
+
+        ID3D12Resource* GetResource() const;
 
         Block(Block const&)            = delete;
         Block& operator=(Block const&) = delete;
@@ -66,10 +67,15 @@ private:
         ~Block();
 
         Block(
-            D3D12MA::VirtualBlock* block, Allocation<ID3D12Resource>&& memory, InBufferAllocator* allocator,
-            size_t                 index);
+            D3D12MA::VirtualBlock*       block,
+            Allocation<ID3D12Resource>&& memory,
+            InBufferAllocator*           allocator,
+            size_t                       index);
 
     private:
+        D3D12MA::VirtualBlock*     m_block  = nullptr;
+        Allocation<ID3D12Resource> m_memory = {};
+
         InBufferAllocator* m_allocator = nullptr;
         size_t             m_index     = 0;
         UINT64             m_limit     = BLOCK_SIZE;
@@ -85,7 +91,9 @@ struct AddressableBuffer
 
     explicit AddressableBuffer(Allocation<ID3D12Resource>&& resource);
     explicit AddressableBuffer(
-        D3D12_GPU_VIRTUAL_ADDRESS address, D3D12MA::VirtualAllocation allocation, InBufferAllocator::Block* block);
+        D3D12_GPU_VIRTUAL_ADDRESS  address,
+        D3D12MA::VirtualAllocation allocation,
+        InBufferAllocator::Block*  block);
 
     AddressableBuffer(AddressableBuffer const&)            = delete;
     AddressableBuffer& operator=(AddressableBuffer const&) = delete;

@@ -1,6 +1,6 @@
 ﻿// <copyright file="BlockModel.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -371,10 +370,9 @@ public sealed class BlockModel
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        JsonSerializerOptions options = new() {IgnoreReadOnlyProperties = true, WriteIndented = true};
+        Exception? exception = FileSystem.SaveJSON(this, directory.GetFile(GetFileName(name)));
 
-        string json = JsonSerializer.Serialize(this, options);
-        directory.GetFile(GetFileName(name)).WriteAllText(json);
+        if (exception != null) logger.LogWarning(Events.FileIO, exception, "Failed to save block model");
     }
 
     /// <summary>
@@ -428,21 +426,12 @@ public sealed class BlockModel
             return BlockModels.CreateFallback();
         }
 
-        try
-        {
-            string json = path.GetFile(GetFileName(name)).ReadAllText();
-            BlockModel model = JsonSerializer.Deserialize<BlockModel>(json) ?? new BlockModel();
+        Exception? exception = FileSystem.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
 
-            loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
+        if (exception == null) loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
+        else loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, exception);
 
-            return model;
-        }
-        catch (Exception e) when (e is IOException or FileNotFoundException or JsonException)
-        {
-            loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, e);
-
-            return BlockModels.CreateFallback();
-        }
+        return model;
     }
 
     /// <summary>

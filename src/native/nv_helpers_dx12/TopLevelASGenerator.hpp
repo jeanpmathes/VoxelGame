@@ -23,49 +23,6 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 
-/*
-Contacts for feedback:
-- pgautron@nvidia.com (Pascal Gautron)
-- mlefrancois@nvidia.com (Martin-Karl Lefrancois)
-
-The top-level hierarchy is used to store a set of instances represented by
-bottom-level hierarchies in a way suitable for fast intersection at runtime. To
-be built, this data structure requires some scratch space which has to be
-allocated by the application. Similarly, the resulting data structure is stored
-in an application-controlled buffer.
-
-To be used, the application must first add all the instances to be contained in
-the final structure, using AddInstance. After all instances have been added,
-ComputeASBufferSizes will prepare the build, and provide the required sizes for
-the scratch data and the final result. The Build call will finally compute the
-acceleration structure and store it in the result buffer.
-
-Note that the build is enqueued in the command list, meaning that the scratch
-buffer needs to be kept until the command list execution is finished.
-
-
-
-Example:
-
-TopLevelASGenerator topLevelAS;
-topLevelAS.AddInstance(instances1, matrix1, instanceId1, hitGroupIndex1);
-topLevelAS.AddInstance(instances2, matrix2, instanceId2, hitGroupIndex2);
-...
-UINT64 scratchSize, resultSize, instanceDescsSize;
-topLevelAS.ComputeASBufferSizes(GetRTDevice(), true, &scratchSize, &resultSize,
-&instanceDescsSize); AccelerationStructureBuffers buffers; buffers.pScratch =
-nv_helpers_dx12::CreateBuffer(..., scratchSizeInBytes, ...); buffers.pResult =
-nv_helpers_dx12::CreateBuffer(..., resultSizeInBytes, ...);
-buffers.pInstanceDesc = nv_helpers_dx12::CreateBuffer(..., resultSizeInBytes,
-...); topLevelAS.Generate(m_commandList.Get(), rtCmdList,
-m_topLevelAS.pScratch.Get(), m_topLevelAS.pResult.Get(),
-m_topLevelAS.pInstanceDesc.Get(), updateOnly, updateOnly ?
-m_topLevelAS.pResult.Get() : nullptr);
-
-return buffers;
-
-*/
-
 #pragma once
 
 #include "d3d12.h"
@@ -95,8 +52,11 @@ namespace nv_helpers_dx12
          * \param flags Instance flags, such as D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE.
          */
         void AddInstance(
-            D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS, DirectX::XMFLOAT4X4 const& transform, UINT instanceID,
-            UINT                            hitGroupIndex, BYTE                       inclusionMask,
+            D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS,
+            DirectX::XMFLOAT4X4 const&      transform,
+            UINT                            instanceID,
+            UINT                            hitGroupIndex,
+            BYTE                            inclusionMask,
             D3D12_RAYTRACING_INSTANCE_FLAGS flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE);
 
         /**
@@ -108,8 +68,11 @@ namespace nv_helpers_dx12
          * \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
          */
         void ComputeASBufferSizes(
-            ComPtr<ID3D12Device5> const& device, bool               allowUpdate, UINT64* scratchSizeInBytes,
-            UINT64*                      resultSizeInBytes, UINT64* descriptorsSizeInBytes);
+            ComPtr<ID3D12Device5> const& device,
+            bool                         allowUpdate,
+            UINT64*                      scratchSizeInBytes,
+            UINT64*                      resultSizeInBytes,
+            UINT64*                      descriptorsSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -121,15 +84,22 @@ namespace nv_helpers_dx12
          * \param previousResult Optional previous acceleration structure, used if an iterative update is requested
          */
         void Generate(
-            ComPtr<ID3D12GraphicsCommandList4> const& commandList, Allocation<ID3D12Resource> const& scratchBuffer,
-            Allocation<ID3D12Resource> const& resultBuffer, Allocation<ID3D12Resource> const& descriptorsBuffer,
-            bool updateOnly = false, Allocation<ID3D12Resource> const& previousResult = {}) const;
+            ComPtr<ID3D12GraphicsCommandList4> const& commandList,
+            Allocation<ID3D12Resource> const&         scratchBuffer,
+            Allocation<ID3D12Resource> const&         resultBuffer,
+            Allocation<ID3D12Resource> const&         descriptorsBuffer,
+            bool                                      updateOnly     = false,
+            Allocation<ID3D12Resource> const&         previousResult = {}) const;
 
     private:
         struct Instance
         {
             Instance(
-                D3D12_GPU_VIRTUAL_ADDRESS       blAS, DirectX::XMFLOAT4X4 const& tr, UINT iID, UINT hgId, BYTE mask,
+                D3D12_GPU_VIRTUAL_ADDRESS       blAS,
+                DirectX::XMFLOAT4X4 const&      tr,
+                UINT                            iID,
+                UINT                            hgId,
+                BYTE                            mask,
                 D3D12_RAYTRACING_INSTANCE_FLAGS f);
 
             D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS;

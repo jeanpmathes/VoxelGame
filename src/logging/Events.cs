@@ -1,6 +1,6 @@
 ﻿// <copyright file="LoggingEvents.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -49,14 +49,19 @@ public static class Events
     public const int FileIO = 50;
 
     /// <summary>
+    ///     Events related to the scene system.
+    /// </summary>
+    public const int Scene = 60;
+
+    /// <summary>
     ///     Events related to the in-game console.
     /// </summary>
-    public const int Console = 60;
+    public const int Console = 70;
 
     /// <summary>
     ///     Events related to the disposal of objects.
     /// </summary>
-    public const int Dispose = 70;
+    public const int Dispose = 99;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of resources.
@@ -112,11 +117,6 @@ public static class Events
     ///     Events related to saving and loading worlds.
     /// </summary>
     public const int WorldIO = 1001;
-
-    /// <summary>
-    ///     Events related to setting secondary world data.
-    /// </summary>
-    public const int WorldData = 1002;
 
     /// <summary>
     ///     An error that occurs when saving the world.

@@ -12,7 +12,7 @@ using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Settings;
 
@@ -80,7 +80,7 @@ internal class SizeSetting : Setting
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            updateButton.Clicked += (_, _) =>
+            updateButton.Released += (_, _) =>
             {
                 Vector2i value = update();
                 x.Value = value.X;

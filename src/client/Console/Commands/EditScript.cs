@@ -6,7 +6,7 @@
 
 using System.IO;
 using JetBrains.Annotations;
-using VoxelGame.Client.Utilities;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822

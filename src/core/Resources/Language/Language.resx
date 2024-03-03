@@ -412,8 +412,8 @@
     <value>Delete</value>
   </data>
     <data name="DeleteWorldQuery" xml:space="preserve">
-    <value>Delete World?</value>
-  </data>
+        <value>Delete world?</value>
+    </data>
     <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -614,5 +614,86 @@
     </data>
     <data name="ScaleOfUI" xml:space="preserve">
         <value>Scale of UI</value>
+    </data>
+    <data name="CreatedOn" xml:space="preserve">
+        <value>Created on</value>
+    </data>
+    <data name="LastLoaded" xml:space="preserve">
+        <value>Last loaded</value>
+    </data>
+    <data name="TimeSinceEventNever" xml:space="preserve">
+        <value>never</value>
+    </data>
+    <data name="TimeSinceEventMomentAgo" xml:space="preserve">
+        <value>just a moment ago</value>
+    </data>
+    <data name="TimeSinceEventMinutes" xml:space="preserve">
+        <value>{0} minutes ago</value>
+    </data>
+    <data name="TimeSinceEventHours" xml:space="preserve">
+        <value>{0} hours ago</value>
+    </data>
+    <data name="TimeSinceEventDays" xml:space="preserve">
+        <value>{0} days ago</value>
+    </data>
+    <data name="TimeSinceEventEternity" xml:space="preserve">
+        <value>ages ago</value>
+    </data>
+    <data name="NoWorldsFound" xml:space="preserve">
+        <value>Found no worlds.</value>
+    </data>
+    <data name="Refresh" xml:space="preserve">
+        <value>Refresh</value>
+    </data>
+    <data name="OperationStatusRunning" xml:space="preserve">
+        <value>Running</value>
+    </data>
+    <data name="OperationStatusOk" xml:space="preserve">
+        <value>Done</value>
+    </data>
+    <data name="OperationStatusError" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="SearchingWorlds" xml:space="preserve">
+        <value>Searching worlds</value>
+    </data>
+    <data name="TimeSinceEventWeeks" xml:space="preserve">
+        <value>{0} weeks ago</value>
+    </data>
+    <data name="OpenDirectory" xml:space="preserve">
+        <value>Open Directory</value>
+    </data>
+    <data name="Properties" xml:space="preserve">
+        <value>Properties</value>
+    </data>
+    <data name="Seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="Name" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="FileSize" xml:space="preserve">
+        <value>File Size</value>
+    </data>
+    <data name="Info" xml:space="preserve">
+        <value>Information</value>
+    </data>
+    <data name="ExitToOS" xml:space="preserve">
+        <value>Exit to OS</value>
+    </data>
+    <data name="Rename" xml:space="preserve">
+        <value>Rename</value>
+    </data>
+    <data name="Search" xml:space="preserve">
+        <value>Search</value>
+    </data>
+    <data name="ClearInput" xml:space="preserve">
+        <value>Clear</value>
+    </data>
+    <data name="Duplicate" xml:space="preserve">
+        <value>Duplicate</value>
+    </data>
+    <data name="Favorite" xml:space="preserve">
+        <value>Favorite</value>
     </data>
 </root>

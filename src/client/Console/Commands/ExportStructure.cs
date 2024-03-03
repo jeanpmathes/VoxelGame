@@ -6,8 +6,8 @@
 
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Utilities;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;

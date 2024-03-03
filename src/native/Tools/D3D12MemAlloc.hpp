@@ -22,6 +22,8 @@
 
 #pragma once
 
+// ReSharper disable all
+
 /** \mainpage D3D12 Memory Allocator
 
 <b>Version 2.1.0-development</b> (2022-12-15)
@@ -677,7 +679,7 @@ namespace D3D12MA
     enum DEFRAGMENTATION_FLAGS
     {
         /** Use simple but fast algorithm for defragmentation.
-        May not achieve best results but will require least time to compute and least allocations to copy.
+        May not achieve best results but will Require least time to compute and least allocations to copy.
         */
         DEFRAGMENTATION_FLAG_ALGORITHM_FAST = 0x1,
         /** Default defragmentation algorithm, applied also when no `ALGORITHM` flag is specified.
@@ -1187,9 +1189,13 @@ namespace D3D12MA
         by the user as a higher-level logic on top of it, e.g. using the \ref virtual_allocator feature.
         */
         HRESULT CreateResource(
-            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC const*         pResourceDesc,
-            D3D12_RESOURCE_STATES  InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            Allocation**           ppAllocation, REFIID                           riidResource, void** ppvResource);
+            ALLOCATION_DESC const*     pAllocDesc,
+            D3D12_RESOURCE_DESC const* pResourceDesc,
+            D3D12_RESOURCE_STATES      InitialResourceState,
+            D3D12_CLEAR_VALUE const*   pOptimizedClearValue,
+            Allocation**               ppAllocation,
+            REFIID                     riidResource,
+            void**                     ppvResource);
 
 #ifdef __ID3D12Device8_INTERFACE_DEFINED__
         /** \brief Similar to Allocator::CreateResource, but supports new structure `D3D12_RESOURCE_DESC1`.
@@ -1199,9 +1205,13 @@ namespace D3D12MA
         To work correctly, `ID3D12Device8` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
         HRESULT CreateResource2(
-            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC1 const*        pResourceDesc,
-            D3D12_RESOURCE_STATES  InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            Allocation**           ppAllocation, REFIID                           riidResource, void** ppvResource);
+            ALLOCATION_DESC const*      pAllocDesc,
+            D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_RESOURCE_STATES       InitialResourceState,
+            D3D12_CLEAR_VALUE const*    pOptimizedClearValue,
+            Allocation**                ppAllocation,
+            REFIID                      riidResource,
+            void**                      ppvResource);
 #endif // #ifdef __ID3D12Device8_INTERFACE_DEFINED__
 
 #ifdef __ID3D12Device10_INTERFACE_DEFINED__
@@ -1213,10 +1223,15 @@ namespace D3D12MA
         To work correctly, `ID3D12Device10` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
         HRESULT CreateResource3(
-            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_DESC1 const* pResourceDesc,
-            D3D12_BARRIER_LAYOUT InitialLayout, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            UINT32 NumCastableFormats, DXGI_FORMAT* pCastableFormats, Allocation** ppAllocation, REFIID riidResource,
-            void** ppvResource);
+            ALLOCATION_DESC const*      pAllocDesc,
+            D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_BARRIER_LAYOUT        InitialLayout,
+            D3D12_CLEAR_VALUE const*    pOptimizedClearValue,
+            UINT32                      NumCastableFormats,
+            DXGI_FORMAT*                pCastableFormats,
+            Allocation**                ppAllocation,
+            REFIID                      riidResource,
+            void**                      ppvResource);
 #endif  // #ifdef __ID3D12Device10_INTERFACE_DEFINED__
 
         /** \brief Allocates memory without creating any resource placed in it.
@@ -1239,8 +1254,9 @@ namespace D3D12MA
         a heap that always has offset 0.
         */
         HRESULT AllocateMemory(
-            ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_ALLOCATION_INFO const* pAllocInfo,
-            Allocation**           ppAllocation);
+            ALLOCATION_DESC const*                pAllocDesc,
+            D3D12_RESOURCE_ALLOCATION_INFO const* pAllocInfo,
+            Allocation**                          ppAllocation);
 
         /** \brief Creates a new resource in place of an existing allocation. This is useful for memory aliasing.
     
@@ -1265,9 +1281,13 @@ namespace D3D12MA
         returns `E_INVALIDARG`.
         */
         HRESULT CreateAliasingResource(
-            Allocation*           pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC const* pResourceDesc,
-            D3D12_RESOURCE_STATES InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            REFIID                riidResource, void** ppvResource);
+            Allocation*                pAllocation,
+            UINT64                     AllocationLocalOffset,
+            D3D12_RESOURCE_DESC const* pResourceDesc,
+            D3D12_RESOURCE_STATES      InitialResourceState,
+            D3D12_CLEAR_VALUE const*   pOptimizedClearValue,
+            REFIID                     riidResource,
+            void**                     ppvResource);
 
 #ifdef __ID3D12Device8_INTERFACE_DEFINED__
         /** \brief Similar to Allocator::CreateAliasingResource, but supports new structure `D3D12_RESOURCE_DESC1`.
@@ -1277,9 +1297,13 @@ namespace D3D12MA
         To work correctly, `ID3D12Device8` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
         HRESULT CreateAliasingResource1(
-            Allocation*           pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC1 const* pResourceDesc,
-            D3D12_RESOURCE_STATES InitialResourceState, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            REFIID                riidResource, void** ppvResource);
+            Allocation*                 pAllocation,
+            UINT64                      AllocationLocalOffset,
+            D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_RESOURCE_STATES       InitialResourceState,
+            D3D12_CLEAR_VALUE const*    pOptimizedClearValue,
+            REFIID                      riidResource,
+            void**                      ppvResource);
 #endif // #ifdef __ID3D12Device8_INTERFACE_DEFINED__
 
 #ifdef __ID3D12Device10_INTERFACE_DEFINED__
@@ -1291,9 +1315,15 @@ namespace D3D12MA
         To work correctly, `ID3D12Device10` interface must be available in the current system. Otherwise, `E_NOINTERFACE` is returned.
         */
         HRESULT CreateAliasingResource2(
-            Allocation* pAllocation, UINT64 AllocationLocalOffset, D3D12_RESOURCE_DESC1 const* pResourceDesc,
-            D3D12_BARRIER_LAYOUT InitialLayout, D3D12_CLEAR_VALUE const* pOptimizedClearValue,
-            UINT32 NumCastableFormats, DXGI_FORMAT* pCastableFormats, REFIID riidResource, void** ppvResource);
+            Allocation*                 pAllocation,
+            UINT64                      AllocationLocalOffset,
+            D3D12_RESOURCE_DESC1 const* pResourceDesc,
+            D3D12_BARRIER_LAYOUT        InitialLayout,
+            D3D12_CLEAR_VALUE const*    pOptimizedClearValue,
+            UINT32                      NumCastableFormats,
+            DXGI_FORMAT*                pCastableFormats,
+            REFIID                      riidResource,
+            void**                      ppvResource);
 #endif  // #ifdef __ID3D12Device10_INTERFACE_DEFINED__
 
         /** \brief Creates custom pool.

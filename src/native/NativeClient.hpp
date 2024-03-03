@@ -102,8 +102,8 @@ public:
     [[nodiscard]] std::wstring GetDRED() const;
 
 private:
-    static float const CLEAR_COLOR[4];
-    static float const LETTERBOX_COLOR[4];
+    static std::array<float, 4> const CLEAR_COLOR;
+    static std::array<float, 4> const LETTERBOX_COLOR;
 
     static UINT const   AGILITY_SDK_VERSION;
     static LPCSTR const AGILITY_SDK_PATH;
@@ -153,28 +153,28 @@ private:
     CommandAllocatorGroup m_uploadGroup;
     CommandAllocatorGroup m_2dGroup;
 
-    DescriptorHeap             m_rtvHeap;
-    ComPtr<ID3D12Resource>     m_finalRenderTargets[FRAME_COUNT];
-    Allocation<ID3D12Resource> m_intermediateRenderTarget;
-    bool                       m_intermediateRenderTargetInitialized = false;
+    DescriptorHeap                                  m_rtvHeap;
+    std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> m_finalRenderTargets;
+    Allocation<ID3D12Resource>                      m_intermediateRenderTarget;
+    bool                                            m_intermediateRenderTargetInitialized = false;
 
-    DescriptorHeap             m_dsvHeap;
-    Allocation<ID3D12Resource> m_finalDepthStencilBuffers[FRAME_COUNT];
-    bool                       m_finalDepthStencilBuffersInitialized = false;
-    Allocation<ID3D12Resource> m_intermediateDepthStencilBuffer;
-    bool                       m_intermediateDepthStencilBufferInitialized = false;
+    DescriptorHeap                                      m_dsvHeap;
+    std::array<Allocation<ID3D12Resource>, FRAME_COUNT> m_finalDepthStencilBuffers;
+    bool                                                m_finalDepthStencilBuffersInitialized = false;
+    Allocation<ID3D12Resource>                          m_intermediateDepthStencilBuffer;
+    bool                                                m_intermediateDepthStencilBufferInitialized = false;
 
-    Allocation<ID3D12Resource>    m_screenshotBuffers[FRAME_COUNT];
-    bool                          m_screenshotBuffersInitialized = false;
-    std::optional<ScreenshotFunc> m_screenshotFunc               = std::nullopt;
+    std::array<Allocation<ID3D12Resource>, FRAME_COUNT> m_screenshotBuffers;
+    bool                                                m_screenshotBuffersInitialized = false;
+    std::optional<ScreenshotFunc>                       m_screenshotFunc               = std::nullopt;
 
-    UINT                m_frameIndex;
-    HANDLE              m_fenceEvent{};
-    ComPtr<ID3D12Fence> m_fence;
-    UINT64              m_fenceValues[FRAME_COUNT];
+    UINT                            m_frameIndex = 0;
+    HANDLE                          m_fenceEvent = {};
+    ComPtr<ID3D12Fence>             m_fence;
+    std::array<UINT64, FRAME_COUNT> m_fenceValues = {0};
 
-    bool m_windowVisible;
-    bool m_windowedMode;
+    bool m_windowVisible = true;
+    bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
     UINT64                     m_frameCounter    = 0;
@@ -195,6 +195,7 @@ private:
     void PopulateScreenshotCommandList() const;
 
     void LoadDevice();
+    void InitializeFences();
     void LoadRasterPipeline();
     void CreateFinalDepthBuffers();
     void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);

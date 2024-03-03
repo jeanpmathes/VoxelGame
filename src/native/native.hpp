@@ -65,4 +65,5 @@ struct Configuration
     catch (const HResultException& e) { onError(e.Error(), e.Info()); exit(1); } \
     catch (const NativeException& e) { onError(E_FAIL, e.what()); exit(1); } \
     catch (const std::exception& e) { onError(E_FAIL, e.what()); exit(1); } \
-    catch (...) { onError(E_FAIL, "Unknown error."); exit(1); }
+    catch (...) { onError(E_FAIL, "Unknown error."); exit(1); } \
+    do {} while (0)

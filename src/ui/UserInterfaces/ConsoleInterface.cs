@@ -14,6 +14,7 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
 #pragma warning disable CA1001
@@ -29,9 +30,9 @@ public class ConsoleInterface
 
     private const string DefaultMarker = "[ ]";
     private const string FollowUpMarker = "[a]";
-    private static readonly Color echoColor = Color.Gray;
-    private static readonly Color responseColor = Color.White;
-    private static readonly Color errorColor = Color.Red;
+    private static readonly Color echoColor = Colors.Secondary;
+    private static readonly Color responseColor = Colors.Primary;
+    private static readonly Color errorColor = Colors.Error;
     private readonly IConsoleProvider console;
 
     private readonly LinkedList<Entry> consoleLog = new();
@@ -65,6 +66,7 @@ public class ConsoleInterface
         consoleWindow = new Window(root)
         {
             StartPosition = StartPosition.Manual,
+            DeleteOnClose = true,
             Position = new Point(x: 0, y: 0),
             Size = new Size(width: 900, height: 400),
             HorizontalAlignment = HorizontalAlignment.Left,
@@ -74,7 +76,7 @@ public class ConsoleInterface
         };
 
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
-        consoleWindow.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
+        Context.MakeModal(consoleWindow);
 
         content = new Empty(consoleWindow);
 
@@ -240,7 +242,7 @@ public class ConsoleInterface
         Debug.Assert(consoleInput != null);
         consoleInput.Blur();
 
-        root.RemoveChild(consoleWindow, dispose: true);
+        root.RemoveChild(consoleWindow!, dispose: true);
 
         consoleWindow = null;
         consoleInput = null;

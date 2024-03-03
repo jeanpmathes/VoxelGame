@@ -1,6 +1,6 @@
 ﻿// <copyright file="GameUserInterface.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -123,9 +123,9 @@ public class GameUserInterface : UserInterface
     }
 
     /// <summary>
-    ///     Invoked when the world is exited.
+    ///     Invoked when the world should exit.
     /// </summary>
-    public event EventHandler WorldExit = delegate {};
+    public event EventHandler<ExitEventArgs> WorldExit = delegate {};
 
     /// <summary>
     ///     Invoked when any overlay is opened.
@@ -193,9 +193,9 @@ public class GameUserInterface : UserInterface
         control?.ToggleConsole();
     }
 
-    internal void DoWorldExit()
+    internal void DoWorldExit(bool exitToOS)
     {
-        WorldExit(this, EventArgs.Empty);
+        WorldExit(this, new ExitEventArgs {ExitToOS = exitToOS});
     }
 
     internal void DoOverlayOpen()
@@ -206,5 +206,16 @@ public class GameUserInterface : UserInterface
     internal void DoOverlayClose()
     {
         AnyOverlayClosed(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    ///     Arguments for the exit event.
+    /// </summary>
+    public class ExitEventArgs : EventArgs
+    {
+        /// <summary>
+        ///     Whether the complete application should be exited.
+        /// </summary>
+        public bool ExitToOS { get; set; }
     }
 }

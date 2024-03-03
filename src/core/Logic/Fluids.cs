@@ -1,6 +1,6 @@
 ﻿// <copyright file="Fluids.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -161,7 +161,10 @@ public class Fluids
             TextureLayout.Fluid("beer_static_side", "beer_static"),
             RenderType.Transparent));
 
-        if (allFluids.Count > FluidLimit) Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
+        #pragma warning disable S2583 // Could become reachable if too many fluids are added.
+        if (allFluids.Count > FluidLimit)
+            Debug.Fail($"Not more than {FluidLimit} fluids are allowed.");
+        #pragma warning restore S2583
 
         foreach (Fluid fluid in allFluids.Take(FluidLimit))
         {

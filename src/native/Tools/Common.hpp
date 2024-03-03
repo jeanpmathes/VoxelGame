@@ -15,6 +15,7 @@ struct Resolution
     UINT height = 0;
 
     Resolution operator*(float scale) const;
+    bool       operator==(Resolution const& other) const = default;
 };
 
 /**
@@ -27,9 +28,6 @@ struct RasterInfo
 
     void Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const;
 };
-
-bool operator==(Resolution const& lhs, Resolution const& rhs);
-bool operator!=(Resolution const& lhs, Resolution const& rhs);
 
 inline constexpr UINT FRAME_COUNT = 2;
 
@@ -51,16 +49,14 @@ void SetObjectName(ComPtr<ID3D12Object> object, std::wstring const& name);
  */
 struct CommandAllocatorGroup
 {
-    ComPtr<ID3D12CommandAllocator>     commandAllocators[FRAME_COUNT];
-    ComPtr<ID3D12GraphicsCommandList4> commandList;
+    std::array<ComPtr<ID3D12CommandAllocator>, FRAME_COUNT> commandAllocators;
+    ComPtr<ID3D12GraphicsCommandList4>                      commandList;
+    bool                                                    open = false;
 
     static void Initialize(ComPtr<ID3D12Device> device, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE type);
 
     void Reset(UINT frameIndex, ComPtr<ID3D12PipelineState> pipelineState = nullptr);
     void Close();
-
-private:
-    bool m_open = false;
 };
 
 #define INITIALIZE_COMMAND_ALLOCATOR_GROUP(client, group, type) \

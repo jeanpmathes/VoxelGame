@@ -1,6 +1,6 @@
 ﻿// <copyright file="ScheduledTicks.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -25,8 +25,8 @@ public class ScheduledTickManager<T> where T : ITickable
 
     private readonly int maxTicks;
     private TicksHolder? nextTicks;
-    [NonSerialized] private UpdateCounter updateCounter;
 
+    [NonSerialized] private UpdateCounter updateCounter;
     [NonSerialized] private World world;
 
     /// <summary>

@@ -24,7 +24,9 @@ public:
      * Upload a texture to the GPU.
      */
     void UploadTexture(
-        std::byte** data, TextureDescription const& description, Allocation<ID3D12Resource> const& destination);
+        std::byte**                       data,
+        TextureDescription const&         description,
+        Allocation<ID3D12Resource> const& destination);
 
     /**
      * Upload a buffer to the GPU.

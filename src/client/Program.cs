@@ -1,6 +1,6 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,6 +12,7 @@ using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
 using Properties;
 using VoxelGame.Client.Application;
+using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -62,10 +63,14 @@ internal static class Program
     {
         SetDebugMode();
 
+        // Creating the directories could technically cause an exception.
+        // However, this would break a core assumption related to the special folders.
+
         AppDataDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.ApplicationData, "voxel");
         ScreenshotDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyPictures, "VoxelGame");
         StructureDirectory = FileSystem.CreateSubdirectory(Environment.SpecialFolder.MyDocuments, "VoxelGame", "Structures");
-        WorldsDirectory = FileSystem.CreateSubdirectory(AppDataDirectory, "Worlds");
+
+        WorldsDirectory = AppDataDirectory.CreateSubdirectory("Worlds");
 
         return Arguments.Handle(commandLineArguments,
             logging =>

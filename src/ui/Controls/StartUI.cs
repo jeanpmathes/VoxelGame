@@ -1,6 +1,6 @@
 ﻿// <copyright file="StartUI.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,9 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
-using VoxelGame.Core.Collections;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Controls.Common;
+using VoxelGame.UI.Controls.Worlds;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -28,15 +29,17 @@ internal class StartUI : ControlBase
     private const int SettingsMenuIndex = 1;
     private const int WorldSelectionMenuIndex = 2;
     private const int CreditsMenuIndex = 3;
-    private readonly MainMenu mainMenu;
 
     private readonly List<StandardMenu> menus = new();
+    private readonly MainMenu mainMenu;
 
-    private readonly WorldSelection worldSelection;
+    private readonly Context context;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
     {
+        context = parent.Context;
+
         Dock = Dock.Fill;
 
         Exit = delegate {};
@@ -50,7 +53,7 @@ internal class StartUI : ControlBase
         SettingsMenu settingsMenu = new(this, settingsProviders, parent.Context);
         settingsMenu.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
-        worldSelection = new WorldSelection(this, worldProvider, parent.Context);
+        WorldSelection worldSelection = new(this, worldProvider, parent.Context);
         worldSelection.Cancel += (_, _) => OpenMenu(MainMenuIndex);
 
         CreditsMenu creditsMenu = new(this, parent.Context);
@@ -69,8 +72,6 @@ internal class StartUI : ControlBase
         foreach (StandardMenu menu in menus) menu.Hide();
 
         menus[index].Show();
-
-        if (index == WorldSelectionMenuIndex) worldSelection.Refresh();
     }
 
     internal void DisableWorldSelection()
@@ -78,7 +79,7 @@ internal class StartUI : ControlBase
         mainMenu.DisableWorlds();
     }
 
-    internal void OpenMissingResourcesWindow(Tree<string> resources)
+    internal void OpenMissingResourcesWindow(Property resources)
     {
         Window window = new(this)
         {
@@ -90,8 +91,9 @@ internal class StartUI : ControlBase
             MinimumSize = new Size(width: 1000, height: 1000)
         };
 
-        Tree tree = new(window);
-        tree.SetContent(resources);
+        PropertyBasedTreeControl tree = new(window, resources, context);
+
+        tree.ExpandAll();
     }
 
     internal event EventHandler Exit;

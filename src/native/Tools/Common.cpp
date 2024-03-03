@@ -16,13 +16,6 @@ void RasterInfo::Set(ComPtr<ID3D12GraphicsCommandList4> commandList) const
     commandList->RSSetScissorRects(1, &scissorRect);
 }
 
-bool operator==(Resolution const& lhs, Resolution const& rhs)
-{
-    return lhs.width == rhs.width && lhs.height == rhs.height;
-}
-
-bool operator!=(Resolution const& lhs, Resolution const& rhs) { return !(lhs == rhs); }
-
 std::wstring GetObjectName(ComPtr<ID3D12Object> const object)
 {
     UINT    nameSizeInByte = 0;
@@ -40,23 +33,29 @@ std::wstring GetObjectName(ComPtr<ID3D12Object> const object)
     return L"";
 }
 
-void SetObjectName(ComPtr<ID3D12Object> object, std::wstring const& name) { TRY_DO(object->SetName(name.c_str())); }
+void SetObjectName(ComPtr<ID3D12Object> object, std::wstring const& name) { TryDo(object->SetName(name.c_str())); }
 
 void CommandAllocatorGroup::Initialize(
-    ComPtr<ID3D12Device> device, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE const type)
+    ComPtr<ID3D12Device>          device,
+    CommandAllocatorGroup*        group,
+    D3D12_COMMAND_LIST_TYPE const type)
 {
     for (UINT n = 0; n < FRAME_COUNT; n++)
-        TRY_DO(device->CreateCommandAllocator(type, IID_PPV_ARGS(&group->commandAllocators[n])));
+        TryDo(device->CreateCommandAllocator(type, IID_PPV_ARGS(&group->commandAllocators[n])));
 
-    TRY_DO(
-        device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, group->commandAllocators[0].Get(), nullptr,
+    TryDo(
+        device->CreateCommandList(
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            group->commandAllocators[0].Get(),
+            nullptr,
             IID_PPV_ARGS(&group->commandList)));
 
 #if defined(USE_NSIGHT_AFTERMATH)
     NativeClient::SetupCommandListForAftermath(group->commandList);
 #endif
 
-    TRY_DO(group->commandList->Close());
+    TryDo(group->commandList->Close());
 }
 
 void CommandAllocatorGroup::Reset(UINT const frameIndex, ComPtr<ID3D12PipelineState> const pipelineState)
@@ -65,25 +64,25 @@ void CommandAllocatorGroup::Reset(UINT const frameIndex, ComPtr<ID3D12PipelineSt
     if (pipelineState != nullptr) pipelineStatePtr = pipelineState.Get();
 
 #if defined(NATIVE_DEBUG)
-    const std::wstring commandAllocatorName = GetObjectName(commandAllocators[frameIndex]);
-    const std::wstring commandListName = GetObjectName(commandList);
+    std::wstring const commandAllocatorName = GetObjectName(commandAllocators[frameIndex]);
+    std::wstring const commandListName      = GetObjectName(commandList);
 #endif
 
-    TRY_DO(commandAllocators[frameIndex]->Reset());
-    TRY_DO(commandList->Reset(commandAllocators[frameIndex].Get(), pipelineStatePtr));
+    TryDo(commandAllocators[frameIndex]->Reset());
+    TryDo(commandList->Reset(commandAllocators[frameIndex].Get(), pipelineStatePtr));
 
 #if defined(NATIVE_DEBUG)
     SetObjectName(commandAllocators[frameIndex], commandAllocatorName);
     SetObjectName(commandList, commandListName);
 #endif
 
-    m_open = true;
+    open = true;
 }
 
 void CommandAllocatorGroup::Close()
 {
-    REQUIRE(m_open);
-    m_open = false;
+    Require(open);
+    open = false;
 
-    TRY_DO(commandList->Close());
+    TryDo(commandList->Close());
 }

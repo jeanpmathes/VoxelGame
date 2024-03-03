@@ -106,7 +106,7 @@ public:
      */
     void Activate(D& drawable)
     {
-        REQUIRE(!drawable.GetActiveIndex());
+        Require(!drawable.GetActiveIndex());
 
         Drawable::ActiveIndex active = m_active.Push(&drawable);
         m_activated.Insert(active);
@@ -120,7 +120,7 @@ public:
      */
     void Deactivate(D& drawable)
     {
-        REQUIRE(drawable.GetActiveIndex());
+        Require(drawable.GetActiveIndex().has_value());
 
         Drawable::ActiveIndex const active = *drawable.GetActiveIndex();
         m_active.Pop(active);
@@ -161,7 +161,7 @@ public:
         return std::ranges::views::transform(
             m_modified,
             [this](Drawable::EntryIndex const entry) -> D* {
-                REQUIRE(m_entries[entry] != nullptr);
+                Require(m_entries[entry] != nullptr);
                 return m_entries[entry].get();
             });
     }
@@ -175,7 +175,7 @@ public:
         IntegerSet<> changed(m_activated);
         for (Drawable::EntryIndex const entry : m_modified)
         {
-            REQUIRE(m_entries[entry] != nullptr);
+            Require(m_entries[entry] != nullptr);
             auto active = m_entries[entry]->GetActiveIndex();
 
             if (active) changed.Insert(static_cast<size_t>(*active));
@@ -190,7 +190,7 @@ public:
     {
         for (Drawable::EntryIndex const entry : m_modified)
         {
-            REQUIRE(m_entries[entry] != nullptr);
+            Require(m_entries[entry] != nullptr);
             m_entries[entry]->EnqueueDataUpload(commandList);
         }
     }
@@ -199,7 +199,7 @@ public:
     {
         for (Drawable::EntryIndex const entry : m_modified)
         {
-            REQUIRE(m_entries[entry] != nullptr);
+            Require(m_entries[entry] != nullptr);
             m_entries[entry]->CleanupDataUpload();
         }
         m_modified.Clear();

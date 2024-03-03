@@ -5,7 +5,7 @@ AnimationController::AnimationController(ComPtr<IDxcBlob> const& shader, UINT co
   , m_inputGeometryListLocation({.reg = 1, .space = space})  // SRV
   , m_outputGeometryListLocation({.reg = 0, .space = space}) // UAV
 {
-    TRY_DO(shader->QueryInterface<ID3DBlob>(&m_shader));
+    TryDo(shader->QueryInterface<ID3DBlob>(&m_shader));
 
     m_threadGroupDataViewDescription.Format                     = DXGI_FORMAT_UNKNOWN;
     m_threadGroupDataViewDescription.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
@@ -20,8 +20,8 @@ void AnimationController::SetupResourceLayout(ShaderResources::Description* desc
 {
     std::function<UINT(Mesh* const&)> const getIndexOfMesh = [this](auto* mesh)
     {
-        REQUIRE(mesh != nullptr);
-        REQUIRE(mesh->GetAnimationHandle() != Handle::INVALID);
+        Require(mesh != nullptr);
+        Require(mesh->GetAnimationHandle() != Handle::INVALID);
 
         return static_cast<UINT>(mesh->GetAnimationHandle());
     };
@@ -60,14 +60,13 @@ void AnimationController::Initialize(NativeClient& client, ComPtr<ID3D12RootSign
     pipelineStateDescription.pRootSignature                    = rootSignature.Get();
     pipelineStateDescription.CS                                = CD3DX12_SHADER_BYTECODE(m_shader.Get());
 
-    TRY_DO(m_client->GetDevice()->CreateComputePipelineState(&pipelineStateDescription, IID_PPV_ARGS(&m_pipelineState)))
-    ;
+    TryDo(m_client->GetDevice()->CreateComputePipelineState(&pipelineStateDescription, IID_PPV_ARGS(&m_pipelineState)));
 }
 
 void AnimationController::AddMesh(Mesh& mesh)
 {
-    REQUIRE(mesh.GetMaterial().IsAnimated());
-    REQUIRE(mesh.GetAnimationHandle() == Handle::INVALID);
+    Require(mesh.GetMaterial().IsAnimated());
+    Require(mesh.GetAnimationHandle() == Handle::INVALID);
 
     Handle const handle = m_meshes.Push(&mesh);
     mesh.SetAnimationHandle(handle);
@@ -78,16 +77,16 @@ void AnimationController::AddMesh(Mesh& mesh)
 
 void AnimationController::UpdateMesh(Mesh const& mesh)
 {
-    REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
-    REQUIRE(mesh.GetMaterial().IsAnimated());
+    Require(mesh.GetAnimationHandle() != Handle::INVALID);
+    Require(mesh.GetMaterial().IsAnimated());
 
     m_changedMeshes.Insert(mesh.GetAnimationHandle());
 }
 
 void AnimationController::RemoveMesh(Mesh& mesh)
 {
-    REQUIRE(mesh.GetAnimationHandle() != Handle::INVALID);
-    REQUIRE(mesh.GetMaterial().IsAnimated());
+    Require(mesh.GetAnimationHandle() != Handle::INVALID);
+    Require(mesh.GetMaterial().IsAnimated());
 
     Handle const handle = mesh.GetAnimationHandle();
     mesh.SetAnimationHandle(Handle::INVALID);
@@ -146,7 +145,8 @@ void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> const& commandL
 }
 
 void AnimationController::CreateBLAS(
-    ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs)
+    ComPtr<ID3D12GraphicsCommandList4> const& commandList,
+    std::vector<ID3D12Resource*>*             uavs)
 {
     for (auto const& mesh : m_meshes)
     {
@@ -160,7 +160,10 @@ void AnimationController::UpdateThreadGroupData()
     m_threadGroupData.clear();
     UINT           currentSubmissionIndex = anim::SUBMISSIONS_PER_THREAD_GROUP;
     auto           addSubmission          = [this, &currentSubmissionIndex](
-        UINT const meshIndex, UINT const instanceIndex, UINT const offset, UINT const count)
+        UINT const meshIndex,
+        UINT const instanceIndex,
+        UINT const offset,
+        UINT const count)
     {
         if (currentSubmissionIndex >= anim::SUBMISSIONS_PER_THREAD_GROUP)
         {
@@ -168,8 +171,8 @@ void AnimationController::UpdateThreadGroupData()
             m_threadGroupData.emplace_back();
         }
 
-        REQUIRE(count > 0);
-        REQUIRE(count <= anim::MAX_ELEMENTS_PER_SUBMISSION);
+        Require(count > 0);
+        Require(count <= anim::MAX_ELEMENTS_PER_SUBMISSION);
 
         anim::Submission& submission = m_threadGroupData.back().submissions[currentSubmissionIndex++];
         submission.meshIndex         = meshIndex;
@@ -193,12 +196,13 @@ void AnimationController::UpdateThreadGroupData()
 }
 
 void AnimationController::UploadThreadGroupData(
-    ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> commandList)
+    ShaderResources const&                    resources,
+    ComPtr<ID3D12GraphicsCommandList4> const& commandList)
 {
     if (m_threadGroupDataMapping.GetSize() < m_threadGroupData.size())
     {
-        UINT const sizeInElements = static_cast<UINT>(m_threadGroupData.size());
-        UINT const sizeInBytes    = static_cast<UINT>(sizeInElements * sizeof(anim::ThreadGroup));
+        auto const sizeInElements = static_cast<UINT>(m_threadGroupData.size());
+        auto const sizeInBytes    = static_cast<UINT>(sizeInElements * sizeof(anim::ThreadGroup));
 
         util::ReAllocateBuffer(
             &m_threadGroupDataBuffer,
@@ -208,6 +212,7 @@ void AnimationController::UploadThreadGroupData(
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_HEAP_TYPE_DEFAULT);
         util::ReAllocateBuffer(
+            //
             &m_threadGroupDataUploadBuffer,
             *m_client,
             sizeInBytes,
@@ -221,7 +226,7 @@ void AnimationController::UploadThreadGroupData(
             0,
             {m_threadGroupDataBuffer, &m_threadGroupDataViewDescription});
 
-        TRY_DO(m_threadGroupDataUploadBuffer.Map(&m_threadGroupDataMapping, sizeInElements));
+        TryDo(m_threadGroupDataUploadBuffer.Map(&m_threadGroupDataMapping, sizeInElements));
     }
     else
     {
@@ -243,13 +248,11 @@ void AnimationController::UploadThreadGroupData(
         0,
         static_cast<UINT>(m_threadGroupData.size() * sizeof(anim::ThreadGroup)));
 
-    {
-        std::vector const barriers = {
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                m_threadGroupDataBuffer.Get(),
-                D3D12_RESOURCE_STATE_COPY_DEST,
-                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
-        };
-        commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
-    }
+    std::vector const barriers = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_threadGroupDataBuffer.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+    };
+    commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 }

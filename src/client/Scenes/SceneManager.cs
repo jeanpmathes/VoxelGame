@@ -1,6 +1,6 @@
 ﻿// <copyright file="SceneManager.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,8 +21,8 @@ public class SceneManager
     /// <summary>
     ///     Load a scene.
     /// </summary>
-    /// <param name="scene">The scene to load.</param>
-    public void Load(IScene scene)
+    /// <param name="scene">The scene to load, or null to just unload the current scene.</param>
+    public void Load(IScene? scene)
     {
         Unload();
 

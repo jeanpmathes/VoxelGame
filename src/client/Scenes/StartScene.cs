@@ -1,17 +1,15 @@
 ﻿// <copyright file="StartScene.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application;
-using VoxelGame.Core.Logic;
+using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -81,7 +79,7 @@ public sealed class StartScene : IScene
 
         if (loadWorldDirectly is null) return;
 
-        logger.LogWarning("Resource loading failure prevents direct world loading, going to main menu");
+        logger.LogWarning(Events.Scene, "Resource loading failure prevents direct world loading, going to main menu");
         loadWorldDirectly = null;
     }
 
@@ -133,18 +131,26 @@ public sealed class StartScene : IScene
     {
         if (loadWorldDirectly is not {} index) return;
 
-        worldProvider.Refresh();
-        (WorldInformation info, DirectoryInfo path) world = worldProvider.Worlds.ElementAtOrDefault(index);
+        Exception? exception = worldProvider.Refresh().WaitForCompletion();
 
-        if (world != default((WorldInformation, DirectoryInfo)))
+        if (exception != null)
         {
-            logger.LogInformation("Loading world at index {Index} directly", index);
+            logger.LogError(Events.Scene, exception, "Could not refresh worlds to directly-load world at index {Index}, going to main menu", index);
 
-            worldProvider.LoadWorld(world.info, world.path);
+            return;
+        }
+
+        IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
+
+        if (info != null)
+        {
+            logger.LogInformation(Events.Scene, "Loading world at index {Index} directly", index);
+
+            worldProvider.BeginLoadingWorld(info);
         }
         else
         {
-            logger.LogError("Could not directly-load world at index {Index}, going to main menu", index);
+            logger.LogError(Events.Scene, "Could not directly-load world at index {Index}, going to main menu", index);
         }
     }
 

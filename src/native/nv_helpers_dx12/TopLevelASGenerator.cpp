@@ -49,22 +49,27 @@ buffer needs to be kept until the command list execution is finished.
 
 #include <stdexcept>
 
-#ifndef ROUND_UP
-#define ROUND_UP(v, powerOf2Alignment) (((v) + (powerOf2Alignment)-1) & ~((powerOf2Alignment)-1))
-#endif
+#include "DXRHelper.hpp"
 
 namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::AddInstance(
-        D3D12_GPU_VIRTUAL_ADDRESS const bottomLevelAS, DirectX::XMFLOAT4X4 const& transform, UINT const instanceID,
-        UINT const hitGroupIndex, BYTE const inclusionMask, D3D12_RAYTRACING_INSTANCE_FLAGS const flags)
+        D3D12_GPU_VIRTUAL_ADDRESS const       bottomLevelAS,
+        DirectX::XMFLOAT4X4 const&            transform,
+        UINT const                            instanceID,
+        UINT const                            hitGroupIndex,
+        BYTE const                            inclusionMask,
+        D3D12_RAYTRACING_INSTANCE_FLAGS const flags)
     {
-        m_instances.emplace_back(Instance(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags));
+        m_instances.emplace_back(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags);
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
-        ComPtr<ID3D12Device5> const& device, bool const         allowUpdate, UINT64* scratchSizeInBytes,
-        UINT64*                      resultSizeInBytes, UINT64* descriptorsSizeInBytes)
+        ComPtr<ID3D12Device5> const& device,
+        bool const                   allowUpdate,
+        UINT64*                      scratchSizeInBytes,
+        UINT64*                      resultSizeInBytes,
+        UINT64*                      descriptorsSizeInBytes)
     {
         m_flags = allowUpdate
                       ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
@@ -80,16 +85,16 @@ namespace nv_helpers_dx12
 
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        info.ResultDataMaxSizeInBytes = ROUND_UP(
+        info.ResultDataMaxSizeInBytes = RoundUp(
             info.ResultDataMaxSizeInBytes,
             D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        info.ScratchDataSizeInBytes = ROUND_UP(
+        info.ScratchDataSizeInBytes = RoundUp(
             info.ScratchDataSizeInBytes,
             D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
         m_resultSizeInBytes               = info.ResultDataMaxSizeInBytes;
         m_scratchSizeInBytes              = info.ScratchDataSizeInBytes;
-        m_instanceDescriptionsSizeInBytes = ROUND_UP(
+        m_instanceDescriptionsSizeInBytes = RoundUp(
             sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(),
             D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
@@ -102,9 +107,12 @@ namespace nv_helpers_dx12
     }
 
     void TopLevelASGenerator::Generate(
-        ComPtr<ID3D12GraphicsCommandList4> const& commandList, Allocation<ID3D12Resource> const&  scratchBuffer,
-        Allocation<ID3D12Resource> const&         resultBuffer, Allocation<ID3D12Resource> const& descriptorsBuffer,
-        bool const                                updateOnly, Allocation<ID3D12Resource> const&   previousResult) const
+        ComPtr<ID3D12GraphicsCommandList4> const& commandList,
+        Allocation<ID3D12Resource> const&         scratchBuffer,
+        Allocation<ID3D12Resource> const&         resultBuffer,
+        Allocation<ID3D12Resource> const&         descriptorsBuffer,
+        bool const                                updateOnly,
+        Allocation<ID3D12Resource> const&         previousResult) const
     {
         D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
         if (HRESULT const ok = descriptorsBuffer.resource->Map(
@@ -171,8 +179,12 @@ namespace nv_helpers_dx12
     }
 
     TopLevelASGenerator::Instance::Instance(
-        D3D12_GPU_VIRTUAL_ADDRESS const blAS, DirectX::XMFLOAT4X4 const&            tr, UINT const iID, UINT const hgId,
-        BYTE const                      mask, D3D12_RAYTRACING_INSTANCE_FLAGS const f)
+        D3D12_GPU_VIRTUAL_ADDRESS const       blAS,
+        DirectX::XMFLOAT4X4 const&            tr,
+        UINT const                            iID,
+        UINT const                            hgId,
+        BYTE const                            mask,
+        D3D12_RAYTRACING_INSTANCE_FLAGS const f)
         : bottomLevelAS(blAS)
       , transform(&tr)
       , instanceID(iID)

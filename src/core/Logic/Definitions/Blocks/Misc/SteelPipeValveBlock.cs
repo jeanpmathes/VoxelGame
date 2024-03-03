@@ -1,6 +1,6 @@
 ﻿// <copyright file="SteelPipeValveBlock.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -52,7 +52,12 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         meshes.Add(closedZ.Mesh);
         meshes.Add(item: null);
 
-        for (uint data = 0; data <= 0b00_0111; data++) volumes.Add(CreateVolume(data));
+        for (uint data = 0; data <= 0b00_0111; data++)
+        {
+            if ((data & 0b00_0011) == 0b11) continue;
+
+            volumes.Add(CreateVolume(data));
+        }
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -88,8 +93,6 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
 
     private BoundingVolume CreateVolume(uint data)
     {
-        if ((data & 0b00_0011) == 0b11) return BoundingVolume.Empty;
-
         var axis = (Axis) (data & 0b00_0011);
 
         return new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), axis.Vector3(onAxis: 0.5f, diameter));

@@ -36,19 +36,18 @@ public:
      */
     explicit Mapping(Allocation<R> const& resource, HRESULT* out, size_t const size)
         : m_resource(resource)
+      , m_size(size)
     {
-        REQUIRE(resource.resource != nullptr);
-        REQUIRE(out != nullptr);
-        REQUIRE(size > 0);
+        Require(resource.resource != nullptr);
+        Require(out != nullptr);
+        Require(size > 0);
 
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
         *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
 
-        m_size = size;
-
         size_t const requiredSizeInBytes = m_size * sizeof(S);
         size_t const actualSizeInBytes   = m_resource.resource->GetDesc().Width;
-        REQUIRE(requiredSizeInBytes <= actualSizeInBytes);
+        Require(requiredSizeInBytes <= actualSizeInBytes);
     }
 
     /**
@@ -62,7 +61,7 @@ public:
      */
     S* operator->()
     {
-        REQUIRE(m_data != nullptr);
+        Require(m_data != nullptr);
         return m_data;
     }
 
@@ -72,7 +71,7 @@ public:
      */
     void Write(S const& data)
     {
-        REQUIRE(m_data != nullptr);
+        Require(m_data != nullptr);
 
         *m_data = data;
     }
@@ -84,8 +83,8 @@ public:
      */
     void Write(S const* data, size_t const count)
     {
-        REQUIRE(m_data != nullptr);
-        REQUIRE(count <= m_size);
+        Require(m_data != nullptr);
+        Require(count <= m_size);
 
         std::memcpy(m_data, data, count * sizeof(S));
     }
@@ -95,7 +94,7 @@ public:
      */
     void Clear()
     {
-        REQUIRE(m_data != nullptr);
+        Require(m_data != nullptr);
 
         std::memset(m_data, 0, m_size * sizeof(S));
     }
@@ -113,28 +112,35 @@ public:
 
     void Unmap()
     {
-        REQUIRE(m_data != nullptr);
+        Require(m_data != nullptr);
         m_resource.resource->Unmap(0, nullptr);
         m_data = nullptr;
     }
 
-    ~Mapping() { if (m_data != nullptr) Unmap(); }
+    void UnmapSafe()
+    {
+        if (m_data == nullptr) return;
+
+        try { Unmap(); }
+        catch (...)
+        {
+            // Should not cause any problems for the rest of the program.
+        }
+    }
+
+    ~Mapping() { UnmapSafe(); }
 
     Mapping(Mapping const&)            = delete;
     Mapping& operator=(Mapping const&) = delete;
 
     Mapping(Mapping&& other) noexcept
-    {
-        m_resource = other.m_resource;
-        m_data     = other.m_data;
-        m_size     = other.m_size;
-
-        other.m_data = nullptr;
-    }
+        : m_resource(other.m_resource)
+      , m_data(other.m_data)
+      , m_size(other.m_size) { other.m_data = nullptr; }
 
     Mapping& operator=(Mapping&& other) noexcept
     {
-        if (m_data != nullptr) Unmap();
+        UnmapSafe();
 
         m_resource = other.m_resource;
         m_data     = other.m_data;
@@ -193,8 +199,8 @@ struct Allocation
         requires std::is_same_v<R, ID3D12Resource>
     [[nodiscard]] HRESULT Map(Mapping<R, S>* mapping, size_t size) const
     {
-        HRESULT result = S_OK;
-        *mapping       = Mapping<R, S>(*this, &result, size);
+        auto result = S_OK;
+        *mapping    = Mapping<R, S>(*this, &result, size);
         return result;
     }
 
@@ -207,5 +213,5 @@ template <typename T>
 void SetName(Allocation<T> const& allocation, LPCWSTR const name)
 {
     allocation.allocation->SetName(name);
-    TRY_DO(allocation.resource->SetName(name));
+    TryDo(allocation.resource->SetName(name));
 }

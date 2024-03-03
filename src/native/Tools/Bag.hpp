@@ -24,7 +24,7 @@ public:
      */
     I Push(E element)
     {
-        REQUIRE(element != nullptr);
+        Require(element != nullptr);
 
         size_t index;
         if (m_gaps.empty())
@@ -48,10 +48,10 @@ public:
      */
     E Pop(I i)
     {
-        size_t const index = static_cast<size_t>(i);
+        auto const index = static_cast<size_t>(i);
 
-        REQUIRE(index < m_elements.size());
-        REQUIRE(m_elements[index] != nullptr);
+        Require(index < m_elements.size());
+        Require(m_elements[index] != nullptr);
 
         auto element      = std::move(m_elements[index]);
         m_elements[index] = nullptr;
@@ -70,10 +70,10 @@ public:
 
     E& operator[](I i)
     {
-        size_t const index = static_cast<size_t>(i);
+        auto const index = static_cast<size_t>(i);
 
-        REQUIRE(index < m_elements.size());
-        REQUIRE(m_elements[index] != nullptr);
+        Require(index < m_elements.size());
+        Require(m_elements[index] != nullptr);
 
         return m_elements[index];
     }

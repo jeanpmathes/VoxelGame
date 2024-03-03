@@ -4,9 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.UI.Providers;
 
@@ -16,27 +18,70 @@ namespace VoxelGame.UI.Providers;
 public interface IWorldProvider
 {
     /// <summary>
-    ///     Get all currently known worlds.
+    ///     The directory where the worlds are stored.
     /// </summary>
-    IEnumerable<(WorldInformation info, DirectoryInfo path)> Worlds { get; }
+    public DirectoryInfo WorldsDirectory { get; }
 
     /// <summary>
-    ///     Refresh all known worlds.
+    ///     Get all currently known worlds.
+    ///     Only valid after a successful <see cref="Refresh"/>.
     /// </summary>
-    void Refresh();
+    IEnumerable<IWorldInfo> Worlds { get; }
+
+    /// <summary>
+    ///     Start an operation to refresh the world provider.
+    ///     This will change the status of the world provider.
+    /// </summary>
+    Operation Refresh();
+
+    /// <summary>
+    ///     Determine properties of a world.
+    ///     Properties are extended information that might take time to load.
+    ///     Only valid after a successful <see cref="Refresh" />.
+    /// </summary>
+    /// <param name="info">
+    ///     The world, must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    /// <returns>The operation to get the properties of the world.</returns>
+    Operation<Property> GetWorldProperties(IWorldInfo info);
 
     /// <summary>
     ///     Load a specific world from disk.
+    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Will cause a scene change.
     /// </summary>
-    /// <param name="information">(Information describing the world to load.</param>
-    /// <param name="path">The path to the world to load.</param>
-    void LoadWorld(WorldInformation information, DirectoryInfo path);
+    /// <param name="info">The world to load, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
+    void BeginLoadingWorld(IWorldInfo info);
 
     /// <summary>
-    ///     Create a new world.
+    ///     Create a new world and then load it. Will cause a scene change.
     /// </summary>
     /// <param name="name">The name of the world to create.</param>
-    void CreateWorld(string name);
+    void BeginCreatingWorld(string name);
+
+    /// <summary>
+    ///     Delete a world.
+    ///     Only valid after a successful <see cref="Refresh"/>.
+    /// </summary>
+    /// <param name="info">
+    ///     The world to delete, must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    /// <returns>The operation to delete the world.</returns>
+    Operation DeleteWorld(IWorldInfo info);
+
+    /// <summary>
+    ///     Duplicate a world, it will be added to the list of worlds.
+    ///     Only valid after a successful <see cref="Refresh" />.
+    /// </summary>
+    /// <param name="info">
+    ///     The world to duplicate.
+    ///     Must be an object from <see cref="Worlds" />, retrieved after a successful <see cref="Refresh" />.
+    /// </param>
+    /// <param name="duplicateName">The name of the duplicated world. Must be a valid name.</param>
+    /// <returns>The operation that duplicates the world.</returns>
+    Operation DuplicateWorld(IWorldInfo info, string duplicateName);
 
     /// <summary>
     ///     Check if a name is valid for a world.
@@ -46,8 +91,55 @@ public interface IWorldProvider
     bool IsWorldNameValid(string name);
 
     /// <summary>
-    ///     Delete a world.
+    ///     Rename a world.
     /// </summary>
-    /// <param name="path">The path to the world to delete.</param>
-    void DeleteWorld(DirectoryInfo path);
+    /// <param name="info">
+    ///     The world to rename. Must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    /// <param name="newName">The new name of the world. Must be a valid name.</param>
+    void RenameWorld(IWorldInfo info, string newName);
+
+    /// <summary>
+    ///     Set whether a world is a favorite.
+    /// </summary>
+    /// <param name="info">The world for which to set the favorite status.</param>
+    /// <param name="isFavorite">Whether the world should be a favorite.</param>
+    void SetFavorite(IWorldInfo info, bool isFavorite);
+
+    /// <summary>
+    ///     Information about a single world.
+    /// </summary>
+    public interface IWorldInfo
+    {
+        /// <summary>
+        ///     The name of the world.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        ///     The version of the client in which the world was saved last.
+        /// </summary>
+        string Version { get; }
+
+        /// <summary>
+        ///     The directory where the world is stored.
+        /// </summary>
+        DirectoryInfo Directory { get; }
+
+        /// <summary>
+        ///     Date and time when the world was created.
+        /// </summary>
+        DateTime DateTimeOfCreation { get; }
+
+        /// <summary>
+        ///     Date and time when the world was last loaded, or null if it was never loaded.
+        /// </summary>
+        DateTime? DateTimeOfLastLoad { get; }
+
+        /// <summary>
+        ///     Whether the world is a favorite.
+        /// </summary>
+        bool IsFavorite { get; }
+    }
 }

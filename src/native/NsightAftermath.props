@@ -11,7 +11,7 @@
     </PropertyGroup>
     <Target Name="NsightAftermathSdkCheck" BeforeTargets="ClCompile">
         <Message Importance="high" Condition="'$(NsightAftermathSdkAvailable)' == 'true'" Text="Nsight Aftermath SDK found at '$(NSIGHT_AFTERMATH_SDK)'."/>
-        <Message Importance="high" Condition="'$(NsightAftermathSdkAvailable)' == 'false'" Text="Nsight Aftermath SDK not found or this is a RELEASE build, it will not be used in build."/>
+        <Message Importance="high" Condition="'$(NsightAftermathSdkAvailable)' == 'false'" Text="Nsight Aftermath SDK not found or this is not a RELEASE build, it will not be used in build."/>
     </Target>
     <ItemDefinitionGroup Condition="'$(NsightAftermathSdkAvailable)' == 'true'">
         <ClCompile>

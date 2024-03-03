@@ -222,6 +222,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear.
+        /// </summary>
+        public static string ClearInput {
+            get {
+                return ResourceManager.GetString("ClearInput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Coal Ore.
         /// </summary>
         public static string CoalOre {
@@ -254,6 +263,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Create {
             get {
                 return ResourceManager.GetString("Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Created on.
+        /// </summary>
+        public static string CreatedOn {
+            get {
+                return ResourceManager.GetString("CreatedOn", resourceCulture);
             }
         }
         
@@ -330,7 +348,7 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete World?.
+        ///   Looks up a localized string similar to Delete world?.
         /// </summary>
         public static string DeleteWorldQuery {
             get {
@@ -344,6 +362,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Dirt {
             get {
                 return ResourceManager.GetString("Dirt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate.
+        /// </summary>
+        public static string Duplicate {
+            get {
+                return ResourceManager.GetString("Duplicate", resourceCulture);
             }
         }
         
@@ -384,11 +411,38 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exit to OS.
+        /// </summary>
+        public static string ExitToOS {
+            get {
+                return ResourceManager.GetString("ExitToOS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Farmland.
         /// </summary>
         public static string Farmland {
             get {
                 return ResourceManager.GetString("Farmland", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Favorite.
+        /// </summary>
+        public static string Favorite {
+            get {
+                return ResourceManager.GetString("Favorite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File Size.
+        /// </summary>
+        public static string FileSize {
+            get {
+                return ResourceManager.GetString("FileSize", resourceCulture);
             }
         }
         
@@ -587,6 +641,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Ignore {
             get {
                 return ResourceManager.GetString("Ignore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        public static string Info {
+            get {
+                return ResourceManager.GetString("Info", resourceCulture);
             }
         }
         
@@ -834,6 +897,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last loaded.
+        /// </summary>
+        public static string LastLoaded {
+            get {
+                return ResourceManager.GetString("LastLoaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lava.
         /// </summary>
         public static string Lava {
@@ -951,6 +1023,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Natural Gas.
         /// </summary>
         public static string NaturalGas {
@@ -978,6 +1059,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Found no worlds..
+        /// </summary>
+        public static string NoWorldsFound {
+            get {
+                return ResourceManager.GetString("NoWorldsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Obsidian.
         /// </summary>
         public static string Obsidian {
@@ -1001,6 +1091,42 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Onions {
             get {
                 return ResourceManager.GetString("Onions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Directory.
+        /// </summary>
+        public static string OpenDirectory {
+            get {
+                return ResourceManager.GetString("OpenDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string OperationStatusError {
+            get {
+                return ResourceManager.GetString("OperationStatusError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done.
+        /// </summary>
+        public static string OperationStatusOk {
+            get {
+                return ResourceManager.GetString("OperationStatusOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running.
+        /// </summary>
+        public static string OperationStatusRunning {
+            get {
+                return ResourceManager.GetString("OperationStatusRunning", resourceCulture);
             }
         }
         
@@ -1068,6 +1194,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Properties.
+        /// </summary>
+        public static string Properties {
+            get {
+                return ResourceManager.GetString("Properties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pulsating Block.
         /// </summary>
         public static string PulsatingBlock {
@@ -1118,6 +1253,24 @@ namespace VoxelGame.Core.Resources.Language {
         public static string RedPlastic {
             get {
                 return ResourceManager.GetString("RedPlastic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        public static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename.
+        /// </summary>
+        public static string Rename {
+            get {
+                return ResourceManager.GetString("Rename", resourceCulture);
             }
         }
         
@@ -1212,11 +1365,38 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching worlds.
+        /// </summary>
+        public static string SearchingWorlds {
+            get {
+                return ResourceManager.GetString("SearchingWorlds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Sea Water.
         /// </summary>
         public static string SeaWater {
             get {
                 return ResourceManager.GetString("SeaWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seed.
+        /// </summary>
+        public static string Seed {
+            get {
+                return ResourceManager.GetString("Seed", resourceCulture);
             }
         }
         
@@ -1379,6 +1559,69 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TiledGlass {
             get {
                 return ResourceManager.GetString("TiledGlass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} days ago.
+        /// </summary>
+        public static string TimeSinceEventDays {
+            get {
+                return ResourceManager.GetString("TimeSinceEventDays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ages ago.
+        /// </summary>
+        public static string TimeSinceEventEternity {
+            get {
+                return ResourceManager.GetString("TimeSinceEventEternity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} hours ago.
+        /// </summary>
+        public static string TimeSinceEventHours {
+            get {
+                return ResourceManager.GetString("TimeSinceEventHours", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} minutes ago.
+        /// </summary>
+        public static string TimeSinceEventMinutes {
+            get {
+                return ResourceManager.GetString("TimeSinceEventMinutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to just a moment ago.
+        /// </summary>
+        public static string TimeSinceEventMomentAgo {
+            get {
+                return ResourceManager.GetString("TimeSinceEventMomentAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to never.
+        /// </summary>
+        public static string TimeSinceEventNever {
+            get {
+                return ResourceManager.GetString("TimeSinceEventNever", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} weeks ago.
+        /// </summary>
+        public static string TimeSinceEventWeeks {
+            get {
+                return ResourceManager.GetString("TimeSinceEventWeeks", resourceCulture);
             }
         }
         

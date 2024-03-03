@@ -1,6 +1,6 @@
 ﻿// <copyright file="GameUI.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -14,7 +14,7 @@ using VoxelGame.Core;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utility;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Controls;
 
@@ -112,12 +112,15 @@ internal class GameUI : ControlBase
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
+
             IsClosable = false,
+            DeleteOnClose = true,
+
             Resizing = Resizing.None,
             IsDraggingEnabled = false
         };
 
-        gameMenu.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
+        Context.MakeModal(gameMenu);
 
         VerticalLayout layout = new(gameMenu)
         {
@@ -139,15 +142,26 @@ internal class GameUI : ControlBase
 
         settings.Released += (_, _) => { OpenSettings(); };
 
-        Button exit = new(layout)
+        Button exitToMenu = new(layout)
         {
             Text = Language.Exit
         };
 
-        exit.Released += (_, _) =>
+        exitToMenu.Released += (_, _) =>
         {
             CloseInGameMenu();
-            parent.DoWorldExit();
+            parent.DoWorldExit(exitToOS: false);
+        };
+
+        Button exitToOS = new(layout)
+        {
+            Text = Language.ExitToOS
+        };
+
+        exitToOS.Released += (_, _) =>
+        {
+            CloseInGameMenu();
+            parent.DoWorldExit(exitToOS: true);
         };
 
         Label info = new(layout)

@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -40,7 +41,12 @@ public class Bag<T> : IEnumerable<T>
     public T this[int index]
     {
         get => items[index];
-        set => items[index] = value;
+        set
+        {
+            Debug.Assert(!Equals(value, gapValue));
+
+            items[index] = value;
+        }
     }
 
     /// <inheritdoc />
@@ -83,6 +89,22 @@ public class Bag<T> : IEnumerable<T>
         items[gap] = item;
 
         return gap;
+    }
+
+    /// <summary>
+    ///     Apply a function to all items in the bag.
+    /// </summary>
+    /// <param name="function">The function. If the function returns false, the item is removed.</param>
+    public void Apply(Func<T, bool> function)
+    {
+        int count = items.Count;
+
+        for (var index = 0; index < count; index++)
+        {
+            if (Equals(items[index], gapValue)) continue;
+
+            if (!function(items[index])) RemoveAt(index);
+        }
     }
 
     private int GetNextGap()

@@ -1,6 +1,6 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -55,17 +55,18 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     protected World(DirectoryInfo path, string name, (int upper, int lower) seed) :
         this(
-            new WorldInformation
-            {
-                Name = name,
-                UpperSeed = seed.upper,
-                LowerSeed = seed.lower,
-                Creation = DateTime.Now,
-                Version = ApplicationInformation.Instance.Version
-            },
-            path)
+            new WorldData(new WorldInformation
+                {
+                    Name = name,
+                    UpperSeed = seed.upper,
+                    LowerSeed = seed.lower,
+                    Creation = DateTime.UtcNow,
+                    Version = ApplicationInformation.Instance.Version
+                },
+                path),
+            isNew: true)
     {
-        Data.SaveInformation(Information);
+        Data.Save();
 
         logger.LogInformation(Events.WorldIO, "Created new world");
     }
@@ -73,10 +74,8 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    protected World(DirectoryInfo path, WorldInformation information) :
-        this(
-            information,
-            path)
+    protected World(WorldData data) :
+        this(data, isNew: false)
     {
         logger.LogInformation(Events.WorldIO, "Loaded existing world");
     }
@@ -84,14 +83,13 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
-    private World(WorldInformation information, DirectoryInfo directory)
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
+    private World(WorldData data, bool isNew)
     {
-        Ready += delegate {};
+        Data = data;
 
-        Information = information;
-        ValidateInformation();
-
-        Data = new WorldData(directory);
+        Data.EnsureValidDirectory();
+        Data.EnsureValidInformation();
 
         generator = GetGenerator(this);
 
@@ -110,8 +108,6 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     protected ChunkContext ChunkContext { get; }
 
-    private WorldInformation Information { get; }
-
     /// <summary>
     ///     Get the stored world data.
     /// </summary>
@@ -120,12 +116,12 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the world creation seed.
     /// </summary>
-    public (int upper, int lower) Seed => (Information.UpperSeed, Information.LowerSeed);
+    public (int upper, int lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
 
     /// <summary>
     ///     Get whether the world is active.
     /// </summary>
-    protected bool IsActive => CurrentState == State.Active;
+    public bool IsActive => CurrentState == State.Active;
 
     /// <summary>
     ///     Get the world state.
@@ -135,9 +131,11 @@ public abstract class World : IDisposable, IGrid
         get => currentState;
         set
         {
+            State oldState = currentState;
             currentState = value;
 
-            if (value == State.Active) Ready(this, EventArgs.Empty);
+            if (oldState != currentState)
+                StateChanged(this, EventArgs.Empty);
         }
     }
 
@@ -146,11 +144,11 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public Vector3d SpawnPosition
     {
-        get => Information.SpawnInformation.Position;
+        get => Data.Information.SpawnInformation.Position;
         set
         {
-            Information.SpawnInformation = new SpawnInformation(value);
-            logger.LogInformation(Events.WorldData, "World spawn position has been set to: {Position}", value);
+            Data.Information.SpawnInformation = new SpawnInformation(value);
+            logger.LogInformation(Events.WorldState, "World spawn position has been set to: {Position}", value);
         }
     }
 
@@ -159,13 +157,15 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public uint SizeInBlocks
     {
-        get => Information.Size;
+        get => Data.Information.Size;
         set
         {
-            uint oldSize = Information.Size;
-            Information.Size = ClampSize(value);
+            uint oldSize = Data.Information.Size;
+            Data.Information.Size = value;
 
-            if (oldSize != Information.Size) logger.LogInformation(Events.WorldData, "World size has been set to: {Size}", Information.Size);
+            Data.EnsureValidInformation();
+
+            if (oldSize != Data.Information.Size) logger.LogInformation(Events.WorldState, "World size has been set to: {Size}", Data.Information.Size);
         }
     }
 
@@ -253,8 +253,8 @@ public abstract class World : IDisposable, IGrid
 
         chunks.BeginSaving();
 
-        Information.Version = ApplicationInformation.Instance.Version;
-        Task saving = Task.Run(() => Data.SaveInformation(Information));
+        Data.Information.Version = ApplicationInformation.Instance.Version;
+        Task saving = Task.Run(Data.Save);
 
         deactivation = (saving, onFinished);
     }
@@ -291,21 +291,6 @@ public abstract class World : IDisposable, IGrid
     private void UnloadChunk(Chunk chunk)
     {
         chunks.Unload(chunk);
-    }
-
-    private void ValidateInformation()
-    {
-        uint validWorldSize = ClampSize(Information.Size);
-
-        if (validWorldSize == Information.Size) return;
-
-        Information.Size = validWorldSize;
-        logger.LogWarning(Events.WorldData, "Loaded world size was invalid, changed to {Value}", validWorldSize);
-    }
-
-    private static uint ClampSize(uint size)
-    {
-        return Math.Clamp(size, 16 * Chunk.BlockSize, BlockLimit - Chunk.BlockSize);
     }
 
     private static IWorldGenerator GetGenerator(World world)
@@ -688,7 +673,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Fired anytime the world switches to the ready-state.
     /// </summary>
-    public event EventHandler<EventArgs> Ready;
+    public event EventHandler<EventArgs> StateChanged = delegate {};
 
     /// <summary>
     ///     The world state.

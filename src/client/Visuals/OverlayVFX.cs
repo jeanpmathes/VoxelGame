@@ -1,6 +1,6 @@
 ﻿// <copyright file="OverlayRenderer.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -184,11 +184,6 @@ public sealed class OverlayVFX : VFX
         drawer.DrawBuffer(rangeOfVertexBuffer, textureIndex: 0, useTexture: true);
     }
 
-    private static Vector4i EncodeAttributes((uint a, uint b, uint c, uint d) attributes)
-    {
-        return new Vector4i((int) attributes.a, (int) attributes.b, (int) attributes.c, (int) attributes.d);
-    }
-
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
@@ -236,6 +231,11 @@ public sealed class OverlayVFX : VFX
             UpperBound = bounds.upper;
             Mode = mode;
             FirstFluidTextureIndex = firstFluidTextureIndex;
+        }
+
+        private static Vector4i EncodeAttributes((uint a, uint b, uint c, uint d) attributes)
+        {
+            return new Vector4i((int) attributes.a, (int) attributes.b, (int) attributes.c, (int) attributes.d);
         }
 
         /// <summary>

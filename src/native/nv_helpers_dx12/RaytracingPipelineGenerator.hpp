@@ -23,42 +23,6 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 
-/*
-Contacts for feedback:
-- pgautron@nvidia.com (Pascal Gautron)
-- mlefrancois@nvidia.com (Martin-Karl Lefrancois)
-
-The raytracing pipeline combines the raytracing shaders into a state object,
-that can be thought of as an executable GPU program. For that, it requires the
-shaders compiled as DXIL libraries, where each library exports symbols in a way
-similar to DLLs. Those symbols are then used to refer to these shaders libraries
-when creating hit groups, associating the shaders to their root signatures and
-declaring the steps of the pipeline. All the calls to this helper class can be
-done in arbitrary order. Some basic sanity checks are also performed when
-compiling in debug mode.
-
-Simple usage of this class:
-
-pipeline.AddLibrary(m_rayGenLibrary.Get(), {L"RayGen"});
-pipeline.AddLibrary(m_missLibrary.Get(), {L"Miss"});
-pipeline.AddLibrary(m_hitLibrary.Get(), {L"ClosestHit"});
-
-pipeline.AddHitGroup(L"HitGroup", L"ClosestHit");
-
-pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), {L"RayGen"});
-pipeline.AddRootSignatureAssociation(m_missSignature.Get(), {L"Miss"});
-pipeline.AddRootSignatureAssociation(m_hitSignature.Get(), {L"HitGroup"});
-
-pipeline.SetMaxPayloadSize(4 * sizeof(float)); // RGB + distance
-
-pipeline.SetMaxAttributeSize(2 * sizeof(float)); // barycentric coordinates
-
-pipeline.SetMaxRecursionDepth(1);
-
-rtStateObject = pipeline.Generate();
-
-*/
-
 #pragma once
 
 #include "d3d12.h"
@@ -98,8 +62,10 @@ namespace nv_helpers_dx12
          * \param intersectionSymbol The name of the intersection shader, which can be used to intersect custom geometry, and is called upon hitting the bounding box the the object. A default one exists to intersect triangles.
          */
         void AddHitGroup(
-            std::wstring const& hitGroupName, std::wstring const&       closestHitSymbol,
-            std::wstring const& anyHitSymbol = L"", std::wstring const& intersectionSymbol = L"");
+            std::wstring const& hitGroupName,
+            std::wstring const& closestHitSymbol,
+            std::wstring const& anyHitSymbol       = L"",
+            std::wstring const& intersectionSymbol = L"");
 
         /** 
          * \brief Add a root signature association to the pipeline. The root signature can be local or global. Local root signatures are used to override the global ones, and are only visible to the shaders in the same library. Global root signatures are visible to all shaders in the pipeline.
@@ -108,7 +74,9 @@ namespace nv_helpers_dx12
          * \param symbols The list of symbols to associate with the root signature.
          */
         void AddRootSignatureAssociation(
-            ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
+            ID3D12RootSignature*             rootSignature,
+            bool                             local,
+            std::vector<std::wstring> const& symbols);
 
         /**
          * \brief The payload is the way hit or miss shaders can exchange data with the shader that called TraceRay. When several ray types are used (e.g. primary and shadow rays), this value must be the largest possible payload size. Note that to optimize performance, this size must be kept as low as possible.
@@ -166,8 +134,10 @@ namespace nv_helpers_dx12
         struct HitGroup
         {
             HitGroup(
-                std::wstring hitGroupName, std::wstring closestHitSymbol, std::wstring anyHitSymbol = L"",
-                std::wstring intersectionSymbol                                                     = L"");
+                std::wstring hitGroupName,
+                std::wstring closestHitSymbol,
+                std::wstring anyHitSymbol       = L"",
+                std::wstring intersectionSymbol = L"");
 
             HitGroup(HitGroup const& other)            = delete;
             HitGroup& operator=(HitGroup const& other) = delete;
@@ -191,7 +161,9 @@ namespace nv_helpers_dx12
         struct RootSignatureAssociation
         {
             RootSignatureAssociation(
-                ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
+                ID3D12RootSignature*             rootSignature,
+                bool                             local,
+                std::vector<std::wstring> const& symbols);
 
             RootSignatureAssociation(RootSignatureAssociation const& other)            = delete;
             RootSignatureAssociation& operator=(RootSignatureAssociation const& other) = delete;

@@ -33,7 +33,7 @@
     #include <shared_mutex>
 #endif
 
-#include "..\DXHelper.hpp"
+#include "DXHelper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@
 #endif
 
 #ifndef D3D12MA_ASSERT
-    #define D3D12MA_ASSERT(cond) REQUIRE(cond)
+    #define D3D12MA_ASSERT(cond) Require(cond)
 #endif
 
 // Assert that will be called very often, like inside data structures e.g. operator[].

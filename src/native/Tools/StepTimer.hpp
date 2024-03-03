@@ -16,15 +16,6 @@ class StepTimer
 {
 public:
     StepTimer() noexcept(false)
-        : m_elapsedTicks(0)
-      , m_totalTicks(0)
-      , m_leftOverTicks(0)
-      , m_frameCount(0)
-      , m_framesPerSecond(0)
-      , m_framesThisSecond(0)
-      , m_qpcSecondCounter(0)
-      , m_isFixedTimeStep(false)
-      , m_targetElapsedTicks(TICKS_PER_SECOND / 60)
     {
         if (!QueryPerformanceFrequency(&m_qpcFrequency))
             throw NativeException("Failed to query performance frequency.");
@@ -89,7 +80,7 @@ public:
 
         if (!QueryPerformanceCounter(&currentTime)) throw NativeException("Failed to query performance counter.");
 
-        uint64_t timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
+        auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
 
         m_qpcLastTime = currentTime;
         m_qpcSecondCounter += timeDelta;
@@ -143,15 +134,15 @@ private:
     LARGE_INTEGER m_qpcLastTime{};
     uint64_t      m_qpcMaxDelta;
 
-    uint64_t m_elapsedTicks;
-    uint64_t m_totalTicks;
-    uint64_t m_leftOverTicks;
+    uint64_t m_elapsedTicks  = 0;
+    uint64_t m_totalTicks    = 0;
+    uint64_t m_leftOverTicks = 0;
 
-    uint32_t m_frameCount;
-    uint32_t m_framesPerSecond;
-    uint32_t m_framesThisSecond;
-    uint64_t m_qpcSecondCounter;
+    uint32_t m_frameCount       = 0;
+    uint32_t m_framesPerSecond  = 0;
+    uint32_t m_framesThisSecond = 0;
+    uint64_t m_qpcSecondCounter = 0;
 
-    bool m_isFixedTimeStep;
-    uint64_t m_targetElapsedTicks;
+    bool     m_isFixedTimeStep    = false;
+    uint64_t m_targetElapsedTicks = TICKS_PER_SECOND / 60;
 };

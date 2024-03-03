@@ -1,12 +1,12 @@
 ﻿// <copyright file="Player.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application;
+using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Entities.Players;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Entities;

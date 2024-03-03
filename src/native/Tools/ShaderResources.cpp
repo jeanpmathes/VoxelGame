@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 
 ShaderResources::ConstantBufferViewDescriptor::ConstantBufferViewDescriptor(
-    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress, UINT const size)
+    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress,
+    UINT const                      size)
     : gpuAddress(gpuAddress)
   , size(size)
 {
@@ -15,7 +16,8 @@ ShaderResources::ConstantBufferViewDescriptor::ConstantBufferViewDescriptor(
 }
 
 void ShaderResources::ConstantBufferViewDescriptor::Create(
-    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+    ComPtr<ID3D12Device>        device,
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
 {
     D3D12_CONSTANT_BUFFER_VIEW_DESC description;
     description.BufferLocation = gpuAddress;
@@ -25,13 +27,15 @@ void ShaderResources::ConstantBufferViewDescriptor::Create(
 }
 
 void ShaderResources::ShaderResourceViewDescriptor::Create(
-    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+    ComPtr<ID3D12Device>        device,
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
 {
     device->CreateShaderResourceView(resource.Get(), description, cpuHandle);
 }
 
 void ShaderResources::UnorderedAccessViewDescriptor::Create(
-    ComPtr<ID3D12Device> device, D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+    ComPtr<ID3D12Device>        device,
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
 {
     device->CreateUnorderedAccessView(resource.Get(), nullptr, description, cpuHandle);
 }
@@ -50,28 +54,24 @@ bool ShaderResources::Table::Entry::IsValid() const
 ShaderResources::Table::Entry ShaderResources::Table::Entry::invalid = Entry(UINT_MAX, UINT_MAX);
 
 ShaderResources::Table::Entry ShaderResources::Table::AddConstantBufferView(
-    ShaderLocation const location, UINT const count)
-{
-    return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_CBV);
-}
+    ShaderLocation const location,
+    UINT const           count) { return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_CBV); }
 
 ShaderResources::Table::Entry ShaderResources::Table::AddUnorderedAccessView(
-    ShaderLocation const location, UINT const count)
-{
-    return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_UAV);
-}
+    ShaderLocation const location,
+    UINT const           count) { return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_UAV); }
 
 ShaderResources::Table::Entry ShaderResources::Table::AddShaderResourceView(
-    ShaderLocation const location, UINT const count)
-{
-    return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_SRV);
-}
+    ShaderLocation const location,
+    UINT const           count) { return AddView(location, count, D3D12_DESCRIPTOR_RANGE_TYPE_SRV); }
 
 ShaderResources::Table::Entry ShaderResources::Table::AddView(
-    ShaderLocation location, UINT count, D3D12_DESCRIPTOR_RANGE_TYPE type)
+    ShaderLocation              location,
+    UINT                        count,
+    D3D12_DESCRIPTOR_RANGE_TYPE type)
 {
     UINT const offset = m_offsets.back();
-    UINT const index  = static_cast<UINT>(m_offsets.size()) - 1;
+    auto const index  = static_cast<UINT>(m_offsets.size()) - 1;
 
     m_offsets.push_back(offset + count);
     m_heapRanges.push_back({location.reg, count, location.space, type, offset});
@@ -85,35 +85,39 @@ ShaderResources::Table::Table(UINT const heap)
 }
 
 ShaderResources::ConstantHandle ShaderResources::Description::AddRootConstant(
-    std::function<Value32()> const& getter, ShaderLocation const location)
+    std::function<Value32()> const& getter,
+    ShaderLocation const            location)
 {
-    UINT const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+    auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
 
     m_rootSignatureGenerator.AddRootParameter(
         D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
         location.reg,
         location.space,
         1);
-    m_rootParameters.push_back(RootConstant{});
+    m_rootParameters.emplace_back(RootConstant{});
     m_rootConstants.push_back(getter);
 
     return static_cast<ConstantHandle>(handle);
 }
 
 void ShaderResources::Description::AddConstantBufferView(
-    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress, ShaderLocation const location)
+    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress,
+    ShaderLocation const            location)
 {
     AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_CBV, RootConstantBufferView{gpuAddress});
 }
 
 void ShaderResources::Description::AddShaderResourceView(
-    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress, ShaderLocation const location)
+    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress,
+    ShaderLocation const            location)
 {
     AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_SRV, RootShaderResourceView{gpuAddress});
 }
 
 void ShaderResources::Description::AddUnorderedAccessView(
-    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress, ShaderLocation const location)
+    D3D12_GPU_VIRTUAL_ADDRESS const gpuAddress,
+    ShaderLocation const            location)
 {
     AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_UAV, RootUnorderedAccessView{gpuAddress});
 }
@@ -121,7 +125,7 @@ void ShaderResources::Description::AddUnorderedAccessView(
 ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTable(
     std::function<void(Table&)> const& builder)
 {
-    UINT const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+    auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
     Table      table(handle);
 
     builder(table);
@@ -158,49 +162,51 @@ void ShaderResources::Description::AddStaticSampler(ShaderLocation const locatio
 void ShaderResources::Description::EnableInputAssembler() { m_rootSignatureGenerator.SetInputAssembler(true); }
 
 ShaderResources::ListHandle ShaderResources::Description::AddConstantBufferViewDescriptorList(
-    ShaderLocation const location, SizeGetter count, DescriptorGetter<ConstantBufferViewDescriptor> const& descriptor,
-    ListBuilder          builder)
+    ShaderLocation const                                  location,
+    SizeGetter                                            count,
+    DescriptorGetter<ConstantBufferViewDescriptor> const& descriptor,
+    ListBuilder                                           builder)
 {
     return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddShaderResourceViewDescriptorList(
-    ShaderLocation const location, SizeGetter count, DescriptorGetter<ShaderResourceViewDescriptor> const& descriptor,
-    ListBuilder          builder)
+    ShaderLocation const                                  location,
+    SizeGetter                                            count,
+    DescriptorGetter<ShaderResourceViewDescriptor> const& descriptor,
+    ListBuilder                                           builder)
 {
     return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::ListHandle ShaderResources::Description::AddUnorderedAccessViewDescriptorList(
-    ShaderLocation const location, SizeGetter count, DescriptorGetter<UnorderedAccessViewDescriptor> const& descriptor,
-    ListBuilder          builder)
+    ShaderLocation const                                   location,
+    SizeGetter                                             count,
+    DescriptorGetter<UnorderedAccessViewDescriptor> const& descriptor,
+    ListBuilder                                            builder)
 {
     return AddDescriptorList(location, std::move(count), descriptor, std::move(builder), std::nullopt);
 }
 
 ShaderResources::SelectionList<ShaderResources::ConstantBufferViewDescriptor>
 ShaderResources::Description::AddConstantBufferViewDescriptorSelectionList(
-    ShaderLocation const location, UINT const window)
-{
-    return AddSelectionList<ConstantBufferViewDescriptor>(location, window);
-}
+    ShaderLocation const location,
+    UINT const           window) { return AddSelectionList<ConstantBufferViewDescriptor>(location, window); }
 
 ShaderResources::SelectionList<ShaderResources::ShaderResourceViewDescriptor>
 ShaderResources::Description::AddShaderResourceViewDescriptorSelectionList(
-    ShaderLocation const location, UINT const window)
-{
-    return AddSelectionList<ShaderResourceViewDescriptor>(location, window);
-}
+    ShaderLocation const location,
+    UINT const           window) { return AddSelectionList<ShaderResourceViewDescriptor>(location, window); }
 
 ShaderResources::SelectionList<ShaderResources::UnorderedAccessViewDescriptor>
 ShaderResources::Description::AddUnorderedAccessViewDescriptorSelectionList(
-    ShaderLocation const location, UINT const window)
-{
-    return AddSelectionList<UnorderedAccessViewDescriptor>(location, window);
-}
+    ShaderLocation const location,
+    UINT const           window) { return AddSelectionList<UnorderedAccessViewDescriptor>(location, window); }
 
 void ShaderResources::Description::AddRootParameter(
-    ShaderLocation const location, D3D12_ROOT_PARAMETER_TYPE const type, RootParameter&& parameter)
+    ShaderLocation const            location,
+    D3D12_ROOT_PARAMETER_TYPE const type,
+    RootParameter&&                 parameter)
 {
     m_rootSignatureGenerator.AddRootParameter(type, location.reg, location.space);
     m_rootParameters.emplace_back(std::move(parameter));
@@ -216,118 +222,6 @@ ShaderResources::Description::Description(UINT const existingRootParameterCount)
 {
 }
 
-void ShaderResources::Initialize(Builder const& graphics, Builder const& compute, ComPtr<ID3D12Device5> device)
-{
-    m_device = device;
-
-    UINT        rootParameterCount = 0;
-    Description graphicsDescription(rootParameterCount);
-    graphics(graphicsDescription);
-
-    rootParameterCount = static_cast<UINT>(graphicsDescription.m_rootParameters.size());
-    Description computeDescription(rootParameterCount);
-    compute(computeDescription);
-
-    m_graphicsRootSignature  = graphicsDescription.GenerateRootSignature(device);
-    m_graphicsRootParameters = std::move(graphicsDescription.m_rootParameters);
-    NAME_D3D12_OBJECT(m_graphicsRootSignature);
-
-    m_computeRootSignature  = computeDescription.GenerateRootSignature(device);
-    m_computeRootParameters = std::move(computeDescription.m_rootParameters);
-    NAME_D3D12_OBJECT(m_computeRootSignature);
-
-    auto                            initializeConstants = [&](
-        std::vector<RootParameter>& rootParameters, std::vector<std::function<Value32()>>&& getters)
-    {
-        UINT constantIndex = 0;
-
-        for (auto& parameter : rootParameters)
-            if (std::holds_alternative<RootConstant>(parameter))
-            {
-                auto& [index] = std::get<RootConstant>(parameter);
-                index         = constantIndex;
-
-                auto& [getter] = m_constants.emplace_back();
-                getter         = std::move(getters[constantIndex]);
-
-                constantIndex++;
-            }
-    };
-
-    initializeConstants(m_graphicsRootParameters, std::move(graphicsDescription.m_rootConstants));
-    initializeConstants(m_computeRootParameters, std::move(computeDescription.m_rootConstants));
-
-    m_totalTableDescriptorCount = graphicsDescription.m_heapDescriptorTableCount + computeDescription.
-        m_heapDescriptorTableCount;
-
-    auto                            initializeDescriptorTables = [&](
-        std::vector<RootParameter>& rootParameters, std::vector<std::vector<UINT>> const& internalOffsets,
-        UINT*                       externalOffset)
-    {
-        UINT tableIndex = 0;
-
-        for (auto& parameter : rootParameters)
-            if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
-            {
-                UINT const size = internalOffsets[tableIndex].back();
-
-                auto& tableParameter = std::get<RootHeapDescriptorTable>(parameter);
-                tableParameter.index = static_cast<UINT>(m_descriptorTables.size());
-
-                auto& tableData = m_descriptorTables.emplace_back();
-                tableData.heap.Create(device, size, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, false);
-                tableData.parameter       = &tableParameter;
-                tableData.internalOffsets = std::move(internalOffsets[tableIndex]);
-                tableData.externalOffset  = *externalOffset;
-
-                NAME_D3D12_OBJECT(tableData.heap);
-
-                *externalOffset += size;
-                tableIndex++;
-            }
-    };
-
-    m_totalTableOffset = 0;
-
-    initializeDescriptorTables(
-        m_graphicsRootParameters,
-        graphicsDescription.m_heapDescriptorTableOffsets,
-        &m_totalTableOffset);
-    initializeDescriptorTables(
-        m_computeRootParameters,
-        computeDescription.m_heapDescriptorTableOffsets,
-        &m_totalTableOffset);
-
-    auto initializeDescriptorLists = [&](std::vector<RootParameter>& rootParameters, auto const& descriptions)
-    {
-        UINT listIndex = 0;
-
-        for (auto& parameter : rootParameters)
-            if (std::holds_alternative<RootHeapDescriptorList>(parameter))
-            {
-                auto& listParameter = std::get<RootHeapDescriptorList>(parameter);
-                listParameter.index = static_cast<UINT>(m_descriptorLists.size());
-
-                auto& description = descriptions[listIndex];
-
-                auto& listData              = m_descriptorLists.emplace_back();
-                listData.sizeGetter         = description.sizeGetter;
-                listData.descriptorAssigner = description.descriptorAssigner;
-                listData.listBuilder        = description.listBuilder;
-                listData.parameter          = &listParameter;
-
-                listParameter.isSelectionList = description.isSelectionList;
-
-                listIndex++;
-            }
-    };
-
-    initializeDescriptorLists(m_graphicsRootParameters, graphicsDescription.m_descriptorListDescriptions);
-    initializeDescriptorLists(m_computeRootParameters, computeDescription.m_descriptorListDescriptions);
-
-    Update();
-}
-
 bool ShaderResources::IsInitialized() const { return m_device != nullptr; }
 
 ComPtr<ID3D12RootSignature> ShaderResources::GetGraphicsRootSignature() const { return m_graphicsRootSignature; }
@@ -336,9 +230,9 @@ ComPtr<ID3D12RootSignature> ShaderResources::GetComputeRootSignature() const { r
 
 void ShaderResources::RequestListRefresh(ListHandle listHandle, IntegerSet<> const& indices)
 {
-    REQUIRE(listHandle != ListHandle::INVALID);
+    Require(listHandle != ListHandle::INVALID);
 
-    UINT const           parameterIndex = static_cast<UINT>(listHandle);
+    auto const           parameterIndex = static_cast<UINT>(listHandle);
     RootParameter const& parameter      = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorList>(parameter))
@@ -346,8 +240,7 @@ void ShaderResources::RequestListRefresh(ListHandle listHandle, IntegerSet<> con
         auto& list        = m_descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
         list.dirtyIndices = indices;
     }
-    else
-        REQUIRE(FALSE);
+    else Require(FALSE);
 }
 
 void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
@@ -367,7 +260,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = m_graphicsRootParameters[parameterIndex];
 
         std::visit(
-            [&]<typename Arg>(Arg& arg)
+            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
             {
                 using T = std::decay_t<Arg>;
 
@@ -424,8 +317,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
                     }
                     else commandList->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
                 }
-                else
-                    REQUIRE(FALSE);
+                else Require(FALSE);
             },
             parameter);
     }
@@ -435,7 +327,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = m_computeRootParameters[parameterIndex];
 
         std::visit(
-            [&]<typename Arg>(Arg& arg)
+            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
             {
                 using T = std::decay_t<Arg>;
 
@@ -492,8 +384,7 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
                     }
                     else commandList->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
                 }
-                else
-                    REQUIRE(FALSE);
+                else Require(FALSE);
             },
             parameter);
     }
@@ -501,14 +392,16 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
 
 void ShaderResources::Update()
 {
-    UINT       indexOfFirstResizedList, totalListDescriptorCount;
+    UINT indexOfFirstResizedList;
+    UINT totalListDescriptorCount;
+
     bool const resized = CheckListSizeUpdate(&indexOfFirstResizedList, &totalListDescriptorCount);
 
     if (resized || !m_cpuDescriptorHeap.IsCreated() || !m_gpuDescriptorHeap.IsCreated())
     {
         PerformSizeUpdate(indexOfFirstResizedList, totalListDescriptorCount);
 
-        for (auto& table : m_descriptorTables) table.heap.CopyTo(m_cpuDescriptorHeap, table.externalOffset);
+        for (auto const& table : m_descriptorTables) table.heap.CopyTo(m_cpuDescriptorHeap, table.externalOffset);
 
         m_cpuDescriptorHeapDirty = true;
     }
@@ -538,11 +431,13 @@ void ShaderResources::Update()
 }
 
 void ShaderResources::CreateConstantBufferView(
-    Table::Entry entry, UINT const offset, ConstantBufferViewDescriptor const& descriptor) const
+    Table::Entry                        entry,
+    UINT const                          offset,
+    ConstantBufferViewDescriptor const& descriptor) const
 {
-    REQUIRE(entry.IsValid());
+    Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
@@ -554,16 +449,17 @@ void ShaderResources::CreateConstantBufferView(
         auto const handles = GetDescriptorHandlesForWrite(parameter, inHeapIndex, offset);
         for (auto& handle : handles) m_device->CreateConstantBufferView(&description, handle);
     }
-    else
-        REQUIRE(FALSE);
+    else Require(FALSE);
 }
 
 void ShaderResources::CreateShaderResourceView(
-    Table::Entry entry, UINT const offset, ShaderResourceViewDescriptor const& descriptor) const
+    Table::Entry                        entry,
+    UINT const                          offset,
+    ShaderResourceViewDescriptor const& descriptor) const
 {
-    REQUIRE(entry.IsValid());
+    Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
@@ -572,31 +468,31 @@ void ShaderResources::CreateShaderResourceView(
         for (auto& handle : handles)
             m_device->CreateShaderResourceView(descriptor.resource.Get(), descriptor.description, handle);
     }
-    else
-        REQUIRE(FALSE);
+    else Require(FALSE);
 }
 
 void ShaderResources::CreateUnorderedAccessView(
-    Table::Entry entry, UINT const offset, UnorderedAccessViewDescriptor const& descriptor) const
+    Table::Entry                         entry,
+    UINT const                           offset,
+    UnorderedAccessViewDescriptor const& descriptor) const
 {
-    REQUIRE(entry.IsValid());
+    Require(entry.IsValid());
 
-    auto&       [parameterIndex, inHeapIndex] = entry;
+    auto const& [parameterIndex, inHeapIndex] = entry;
     auto const& parameter                     = GetRootParameter(parameterIndex);
 
     if (std::holds_alternative<RootHeapDescriptorTable>(parameter))
     {
         auto const handles = GetDescriptorHandlesForWrite(parameter, inHeapIndex, offset);
-        for (auto& handle : handles)
+        for (auto const& handle : handles)
             m_device->CreateUnorderedAccessView(descriptor.resource.Get(), nullptr, descriptor.description, handle);
     }
-    else
-        REQUIRE(FALSE);
+    else Require(FALSE);
 }
 
 ShaderResources::RootParameter const& ShaderResources::GetRootParameter(UINT const index) const
 {
-    REQUIRE(index < m_graphicsRootParameters.size() + m_computeRootParameters.size());
+    Require(index < m_graphicsRootParameters.size() + m_computeRootParameters.size());
 
     return m_graphicsRootParameters.size() > index
                ? m_graphicsRootParameters[index]
@@ -604,7 +500,9 @@ ShaderResources::RootParameter const& ShaderResources::GetRootParameter(UINT con
 }
 
 std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> ShaderResources::GetDescriptorHandlesForWrite(
-    RootParameter const& parameter, UINT const inHeapIndex, UINT const offset) const
+    RootParameter const& parameter,
+    UINT const           inHeapIndex,
+    UINT const           offset) const
 {
     UINT const  descriptorTableIndex = std::get<RootHeapDescriptorTable>(parameter).index;
     auto const& table                = m_descriptorTables[descriptorTableIndex];
@@ -630,10 +528,10 @@ bool ShaderResources::CheckListSizeUpdate(UINT* firstResizedList, UINT* totalLis
 
     for (UINT index = 0; index < m_descriptorLists.size(); ++index)
     {
-        auto&      list         = m_descriptorLists[index];
-        UINT const requiredSize = list.sizeGetter();
+        auto& list = m_descriptorLists[index];
 
-        if (list.size < requiredSize || list.size == 0)
+        if (UINT const requiredSize = list.sizeGetter();
+            list.size < requiredSize || list.size == 0)
         {
             do { list.size = std::max(4u, list.size * 2u); }
             while (list.size < requiredSize);
@@ -668,8 +566,8 @@ void ShaderResources::PerformSizeUpdate(UINT const firstResizedListIndex, UINT c
 
         if (list.parameter->index >= firstResizedListIndex)
         {
-            auto assigner = list.descriptorAssigner;
-            auto builder  = [this, externalOffset, assigner](UINT const index)
+            auto const& assigner = list.descriptorAssigner;
+            auto        builder  = [this, externalOffset, assigner](UINT const index)
             {
                 UINT const internalOffset = externalOffset + index;
                 assigner(m_device.Get(), index, m_cpuDescriptorHeap.GetDescriptorHandleCPU(internalOffset));

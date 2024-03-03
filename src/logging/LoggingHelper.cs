@@ -1,6 +1,6 @@
 ﻿// <copyright file="Logging.cs" company="VoxelGame">
 //     MIT License
-//	   For full license see the repository.
+//     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -27,6 +27,16 @@ public static class LoggingHelper
     public static ILogger CreateLogger<T>()
     {
         return LoggerFactory.CreateLogger<T>();
+    }
+
+    /// <summary>
+    ///     Create a logger.
+    /// </summary>
+    /// <param name="category">The category of the logging.</param>
+    /// <returns>The logger.</returns>
+    public static ILogger CreateLogger(string category)
+    {
+        return LoggerFactory.CreateLogger(category);
     }
 
     /// <summary>
