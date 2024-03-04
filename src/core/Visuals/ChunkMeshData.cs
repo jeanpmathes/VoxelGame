@@ -54,15 +54,6 @@ public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides
 /// </summary>
 public sealed class SectionMeshData : IDisposable
 {
-    internal SectionMeshData((IMeshing, IMeshing) basicMeshing,
-        IMeshing foliageMeshing,
-        IMeshing fluidMeshing)
-    {
-        BasicMeshing = basicMeshing;
-        FoliageMeshing = foliageMeshing;
-        FluidMeshing = fluidMeshing;
-    }
-
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
@@ -74,18 +65,18 @@ public sealed class SectionMeshData : IDisposable
     ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex" />, and
     ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight" /> meshables.
     /// </summary>
-    public (IMeshing opaque, IMeshing transparent) BasicMeshing { get; }
+    public required (IMeshing opaque, IMeshing transparent) BasicMeshing { get; init; }
 
     /// <summary>
     ///     The foliage mesh data.
     ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
     /// </summary>
-    public IMeshing FoliageMeshing { get; }
+    public required IMeshing FoliageMeshing { get; init; }
 
     /// <summary>
     ///     The fluid mesh data.
     /// </summary>
-    public IMeshing FluidMeshing { get; }
+    public required IMeshing FluidMeshing { get; init; }
 
     private int GetTotalSize()
     {

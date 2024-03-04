@@ -5,11 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application;
 using VoxelGame.Client.Console.Commands;
-using VoxelGame.Client.Entities;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -28,40 +27,42 @@ public class GameConsole : IConsoleProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
+    private readonly Game game;
     private readonly CommandInvoker commandInvoker;
 
     /// <summary>
     ///     Create a new game console.
     /// </summary>
+    /// <param name="game">The game that this console is for.</param>
     /// <param name="commandInvoker">The invoker that will invoke all commands for this game console.</param>
-    public GameConsole(CommandInvoker commandInvoker)
+    public GameConsole(Game game, CommandInvoker commandInvoker)
     {
+        this.game = game;
         this.commandInvoker = commandInvoker;
     }
-
-    private static ConsoleWrapper Console => Application.Client.Instance.CurrentGame!.Console;
 
     /// <inheritdoc />
     public void ProcessInput(string input)
     {
-        Debug.Assert(Application.Client.Instance.CurrentGame != null);
+        if (game.Console == null)
+            throw new InvalidOperationException();
 
         logger.LogDebug(Events.Console, "Processing console input: {Command}", input);
 
         commandInvoker.InvokeCommand(
             input,
-            new Context(Console, commandInvoker, Application.Client.Instance.CurrentGame.Player));
+            new Context(game.Console, commandInvoker, game.Player));
     }
 
     /// <inheritdoc />
     public void OnWorldReady()
     {
-        Debug.Assert(Application.Client.Instance.CurrentGame != null);
-        Player player = Application.Client.Instance.CurrentGame.Player;
+        if (game.Console == null)
+            throw new InvalidOperationException();
 
         logger.LogDebug("Trying to execute world ready script");
 
-        bool executed = RunScript.Do(new Context(Console, commandInvoker, player), WorldReadyScript, ignoreErrors: true);
+        bool executed = RunScript.Do(new Context(game.Console, commandInvoker, game.Player), WorldReadyScript, ignoreErrors: true);
 
         if (executed) logger.LogInformation(Events.Console, "Executed world ready script");
         else logger.LogDebug("No world ready script found");

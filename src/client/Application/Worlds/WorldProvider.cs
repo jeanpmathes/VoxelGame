@@ -279,7 +279,7 @@ public class WorldProvider : IWorldProvider
     /// <summary>
     ///     Is invoked when a world is requested to be activated.
     /// </summary>
-    public event EventHandler<World> WorldActivation = null!;
+    public event EventHandler<World>? WorldActivation;
 
     private sealed record WorldInfo(WorldData Data, WorldProvider Provider) : IWorldProvider.IWorldInfo
     {

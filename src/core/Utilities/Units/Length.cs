@@ -11,15 +11,15 @@ namespace VoxelGame.Core.Utilities.Units;
 /// <summary>
 ///     A measure for length
 /// </summary>
-public struct Length : IMeasure, IEquatable<Length>
+public readonly struct Length : IMeasure, IEquatable<Length>
 {
     /// <summary>
     ///     Get the length, in meters.
     /// </summary>
-    public double Meters { get; set; }
+    public double Meters { get; init; }
 
     /// <inheritdoc />
-    public Unit Unit => Unit.Meter;
+    public static Unit Unit => Unit.Meter;
 
     /// <inheritdoc />
     double IMeasure.Value => Meters;

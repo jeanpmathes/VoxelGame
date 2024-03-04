@@ -39,63 +39,14 @@ public sealed class GameScene : IScene
     private readonly GameUserInterface ui;
     private readonly ToggleButton uiToggle;
 
-    internal GameScene(Application.Client client, World world, IConsoleProvider console)
+    internal GameScene(Application.Client client, World world)
     {
-        void OnOverlayClose()
-        {
-            IsOverlayOpen = false;
-            client.Input.Mouse.SetCursorLock(locked: true);
-        }
+        Client = client;
 
-        void OnOverlayOpen()
-        {
-            IsOverlayOpen = true;
-            client.Input.Mouse.SetCursorLock(locked: false);
-        }
+        ui = CreateUI(client);
+        Game = CreateGame(client, world);
 
-        OnOverlayClose();
-
-        ui = new GameUserInterface(
-            client.Input,
-            client.Settings,
-            client.Resources.UI,
-            drawBackground: false);
-
-        List<SettingsProvider> settingsProviders = new()
-        {
-            SettingsProvider.Wrap(client.Settings),
-            SettingsProvider.Wrap(Application.Client.Instance.Keybinds)
-        };
-
-        ui.SetSettingsProviders(settingsProviders);
-        ui.SetConsoleProvider(console);
-        ui.SetPerformanceProvider(client);
-
-        ui.WorldExit += (_, args) =>
-        {
-            if (world.IsActive)
-                world.BeginDeactivating(() => client.ExitGame(args.ExitToOS));
-        };
-
-        ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
-        ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
-
-        uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
-
-        screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
-        consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
-        escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
-
-        Player player = new(
-            world,
-            mass: 70f,
-            client.Space.Camera,
-            new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            ui,
-            client.Resources,
-            this);
-
-        world.AddPlayer(player);
+        GameConsole console = new(Game, client.Resources.Commands);
 
         world.StateChanged += (_, _) =>
         {
@@ -103,8 +54,13 @@ public sealed class GameScene : IScene
                 console.OnWorldReady();
         };
 
-        Game = new Game(world, player);
-        Client = client;
+        SetupUI(client, world, console);
+
+        uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
+
+        screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
+        consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
+        escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
     }
 
     /// <summary>
@@ -137,7 +93,9 @@ public sealed class GameScene : IScene
         ui.Resize(Client.Size);
 
         ui.CreateControl();
-        Game.Initialize(new ConsoleWrapper(ui.Console!));
+
+        if (ui.Console != null)
+            Game.Initialize(new ConsoleWrapper(ui.Console));
 
         Client.OnFocusChange += OnFocusChanged;
 
@@ -206,6 +164,69 @@ public sealed class GameScene : IScene
     public bool CanCloseWindow()
     {
         return false;
+    }
+
+    private static GameUserInterface CreateUI(Application.Client client)
+    {
+        return new GameUserInterface(
+            client.Input,
+            client.Settings,
+            client.Resources.UI,
+            drawBackground: false);
+    }
+
+    private Game CreateGame(Application.Client client, World world)
+    {
+        Player player = new(
+            world,
+            mass: 70f,
+            client.Space.Camera,
+            new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
+            ui,
+            client.Resources,
+            this);
+
+        world.AddPlayer(player);
+
+        return new Game(world, player);
+    }
+
+    private void SetupUI(Application.Client client, Core.Logic.World world, IConsoleProvider console)
+    {
+        OnOverlayClose();
+
+        List<SettingsProvider> settingsProviders = new()
+        {
+            SettingsProvider.Wrap(client.Settings),
+            SettingsProvider.Wrap(client.Keybinds)
+        };
+
+        ui.SetSettingsProviders(settingsProviders);
+        ui.SetConsoleProvider(console);
+        ui.SetPerformanceProvider(client);
+
+        ui.WorldExit += (_, args) =>
+        {
+            if (world.IsActive)
+                world.BeginDeactivating(() => client.ExitGame(args.ExitToOS));
+        };
+
+        ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
+        ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
+
+        return;
+
+        void OnOverlayOpen()
+        {
+            IsOverlayOpen = true;
+            client.Input.Mouse.SetCursorLock(locked: false);
+        }
+
+        void OnOverlayClose()
+        {
+            IsOverlayOpen = false;
+            client.Input.Mouse.SetCursorLock(locked: true);
+        }
     }
 
     private void OnFocusChanged(object? sender, FocusChangeEventArgs e)

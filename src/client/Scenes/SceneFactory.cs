@@ -37,7 +37,7 @@ public class SceneFactory
     /// <returns>The created game scene.</returns>
     public IScene CreateGameScene(World world, out Game game)
     {
-        GameScene scene = new(client, world, new GameConsole(commandInvoker));
+        GameScene scene = new(client, world);
         game = scene.Game;
 
         return scene;

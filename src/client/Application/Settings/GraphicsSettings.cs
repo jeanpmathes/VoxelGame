@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Application.Settings;
 ///     Game settings concerning the game graphics and visuals.
 /// </summary>
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public class GraphicsSettings : ISettingsProvider
+public sealed class GraphicsSettings : ISettingsProvider
 {
     private readonly List<Setting> settings = new();
 

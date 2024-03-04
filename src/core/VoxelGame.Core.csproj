@@ -8,6 +8,7 @@
         <Platforms>x64</Platforms>
         <Configurations>Debug;Release</Configurations>
         <PackageId>VoxelGame.Core</PackageId>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
 
     <PropertyGroup>

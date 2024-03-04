@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Application.Settings;
 ///     General game settings that are not part of any other settings category.
 ///     Changed settings in this class will be saved.
 /// </summary>
-public class GeneralSettings : ISettingsProvider, IScaleProvider
+public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
 {
     private readonly List<Setting> settings = new();
 
