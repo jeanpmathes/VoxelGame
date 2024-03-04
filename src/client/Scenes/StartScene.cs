@@ -44,11 +44,11 @@ public sealed class StartScene : IScene
         worldProvider = new WorldProvider(Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
-        List<ISettingsProvider> settingsProviders = new()
+        List<SettingsProvider> settingsProviders = new()
         {
-            client.Settings,
-            Application.Client.Instance.Keybinds,
-            client.Graphics
+            SettingsProvider.Wrap(client.Settings),
+            SettingsProvider.Wrap(Application.Client.Instance.Keybinds),
+            SettingsProvider.Wrap(client.Graphics)
         };
 
         ui = new StartUserInterface(
@@ -124,7 +124,7 @@ public sealed class StartScene : IScene
     /// <inheritdoc />
     public bool CanCloseWindow()
     {
-        return true;
+        return ui.IsSafeToClose;
     }
 
     private void DoFirstUpdate()

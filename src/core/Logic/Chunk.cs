@@ -353,9 +353,9 @@ public partial class Chunk : IDisposable
         {
             using Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
 
+#pragma warning disable // Will be replaced with custom serialization
             IFormatter formatter = new BinaryFormatter();
 
- #pragma warning disable // Will be replaced with custom serialization
             // Allocation issue flagged here, remove suppression when serialization and deserialization is reworked.
             chunk = (Chunk) formatter.Deserialize(stream);
  #pragma warning restore
@@ -426,8 +426,8 @@ public partial class Chunk : IDisposable
         chunkFile.Directory?.Create();
 
         using Stream stream = chunkFile.Open(FileMode.Create, FileAccess.Write, FileShare.None);
-        IFormatter formatter = new BinaryFormatter();
 #pragma warning disable // Will be replaced with custom serialization
+        IFormatter formatter = new BinaryFormatter();
         formatter.Serialize(stream, this);
 #pragma warning restore
 

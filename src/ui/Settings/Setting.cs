@@ -30,7 +30,7 @@ public abstract class Setting
     /// <summary>
     ///     The provider which provided this setting.
     /// </summary>
-    protected ISettingsProvider Provider { get; private set; } = null!;
+    public required ISettingsValidator Validator { get; init; } = null!;
 
     internal void CreateControl(TableRow row, Context context)
     {
@@ -55,62 +55,62 @@ public abstract class Setting
     /// <summary>
     ///     Create a setting for key-or-button values.
     /// </summary>
-    /// <param name="provider">The settings provider.</param>
+    /// <param name="validator">The settings validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="get">Function that gets the current setting value.</param>
     /// <param name="set">Function that sets the current setting value.</param>
     /// <param name="validate">Function that validates the current setting value.</param>
     /// <param name="reset">Function that resets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateKeyOrButtonSetting(ISettingsProvider provider, string name,
+    public static Setting CreateKeyOrButtonSetting(ISettingsValidator validator, string name,
         Func<VirtualKeys> get, Action<VirtualKeys> set,
         Func<bool> validate, Action reset)
     {
         return new KeyOrButtonSetting(name, get, set, validate, reset)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a setting for integer values.
     /// </summary>
-    /// <param name="provider">The settings provider.</param>
+    /// <param name="validator">The settings validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <param name="min">The minimum allowed value.</param>
     /// <param name="max">The maximum allowed value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateIntegerSetting(ISettingsProvider provider, string name,
+    public static Setting CreateIntegerSetting(ISettingsValidator validator, string name,
         (Func<int> get, Action<int> set) accessors,
         int min = int.MinValue, int max = int.MaxValue)
     {
         return new IntegerSetting(name, min, max, accessors.get, accessors.set)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a setting for color values.
     /// </summary>
-    /// <param name="provider">The setting provider.</param>
+    /// <param name="validator">The setting validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateColorSetting(ISettingsProvider provider, string name,
+    public static Setting CreateColorSetting(ISettingsValidator validator, string name,
         (Func<Color> get, Action<Color> set) accessors)
     {
         return new ColorSettings(name, accessors.get, accessors.set)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a setting for values in a float range.
     /// </summary>
-    /// <param name="provider">The setting provider.</param>
+    /// <param name="validator">The setting validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <param name="min">The minimum value of the setting.</param>
@@ -118,53 +118,53 @@ public abstract class Setting
     /// <param name="percentage">Whether the value is a percentage and should be displayed as such.</param>
     /// <param name="step">The step size of the slider.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateFloatRangeSetting(ISettingsProvider provider, string name,
+    public static Setting CreateFloatRangeSetting(ISettingsValidator validator, string name,
         (Func<float> get, Action<float> set) accessors,
         float min = float.MinValue, float max = float.MaxValue,
         bool percentage = false, float? step = null)
     {
         return new FloatRangeSetting(name, min, max, percentage, step, accessors.get, accessors.set)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a quality setting.
     /// </summary>
-    /// <param name="provider">The setting provider.</param>
+    /// <param name="validator">The setting validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateQualitySetting(ISettingsProvider provider, string name,
+    public static Setting CreateQualitySetting(ISettingsValidator validator, string name,
         (Func<Quality> get, Action<Quality> set) accessors)
     {
         return new QualitySetting(name, accessors.get, accessors.set)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a setting for a boolean value.
     /// </summary>
-    /// <param name="provider">The setting provider.</param>
+    /// <param name="validator">The setting validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateBooleanSetting(ISettingsProvider provider, string name,
+    public static Setting CreateBooleanSetting(ISettingsValidator validator, string name,
         (Func<bool> get, Action<bool> set) accessors)
     {
         return new BooleanSetting(name, accessors.get, accessors.set)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 
     /// <summary>
     ///     Create a setting for a size value.
     /// </summary>
-    /// <param name="provider">The setting provider.</param>
+    /// <param name="validator">The setting validator.</param>
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <param name="current">
@@ -172,12 +172,12 @@ public abstract class Setting
     ///     setting.
     /// </param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateSizeSetting(ISettingsProvider provider, string name,
+    public static Setting CreateSizeSetting(ISettingsValidator validator, string name,
         (Func<Vector2i> get, Action<Vector2i> set) accessors, Func<Vector2i>? current = null)
     {
         return new SizeSetting(name, accessors.get, accessors.set, current)
         {
-            Provider = provider
+            Validator = validator
         };
     }
 }

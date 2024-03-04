@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Entities.Players;
@@ -23,6 +24,7 @@ namespace VoxelGame.Client.Entities;
 /// <summary>
 ///     The client player, controlled by the user. There can only be one client player.
 /// </summary>
+[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "False positive.")]
 public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 {
     private const float FlyingSpeedFactor = 5f;

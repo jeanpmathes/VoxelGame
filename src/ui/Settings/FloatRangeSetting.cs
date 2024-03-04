@@ -86,7 +86,7 @@ internal class FloatRangeSetting : Setting
         select.Released += (_, _) =>
         {
             set(floatRange.Value);
-            Provider.Validate();
+            Validator.Validate();
 
             select.Disable();
         };

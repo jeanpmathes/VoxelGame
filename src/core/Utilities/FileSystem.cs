@@ -160,7 +160,7 @@ public static class FileSystem
 
         if (!Directory.Exists(path.ToString())) return Directory.CreateDirectory(path.ToString());
 
-        Regex pattern = new(Regex.Escape(name) + @"\s\((\d+)\)");
+        Regex pattern = new(Regex.Escape(name) + @"\s\((\d+)\)", RegexOptions.NonBacktracking);
 
         int number = parent.EnumerateDirectories()
             .Select(directory => pattern.Match(directory.Name))

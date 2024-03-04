@@ -29,12 +29,12 @@ internal class GameUI : ControlBase
     private readonly GameUserInterface parent;
     private readonly IPerformanceProvider performanceProvider;
     private readonly IPlayerDataProvider playerDataProvider;
-    private readonly ICollection<ISettingsProvider> settingsProviders;
+    private readonly ICollection<SettingsProvider> settingsProviders;
 
     private Window? gameMenu;
     private bool isSettingsMenuOpen;
 
-    internal GameUI(GameUserInterface parent, ICollection<ISettingsProvider> settingsProviders,
+    internal GameUI(GameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
         IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
         IPerformanceProvider performanceProvider) : base(parent.Root)
     {
@@ -120,7 +120,7 @@ internal class GameUI : ControlBase
             IsDraggingEnabled = false
         };
 
-        Context.MakeModal(gameMenu);
+        parent.Context.MakeModal(gameMenu);
 
         VerticalLayout layout = new(gameMenu)
         {

@@ -61,10 +61,10 @@ public sealed class GameScene : IScene
             client.Resources.UI,
             drawBackground: false);
 
-        List<ISettingsProvider> settingsProviders = new()
+        List<SettingsProvider> settingsProviders = new()
         {
-            client.Settings,
-            Application.Client.Instance.Keybinds
+            SettingsProvider.Wrap(client.Settings),
+            SettingsProvider.Wrap(Application.Client.Instance.Keybinds)
         };
 
         ui.SetSettingsProviders(settingsProviders);

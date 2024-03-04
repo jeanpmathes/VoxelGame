@@ -23,7 +23,7 @@ public class GameUserInterface : UserInterface
     private IConsoleProvider? consoleProvider;
     private IPerformanceProvider? performanceProvider;
     private IPlayerDataProvider? playerDataProvider;
-    private ICollection<ISettingsProvider>? settingsProviders;
+    private ICollection<SettingsProvider>? settingsProviders;
 
     private bool isActive;
     private bool isHidden;
@@ -88,7 +88,7 @@ public class GameUserInterface : UserInterface
     /// <summary>
     ///     Set the settings providers.
     /// </summary>
-    public void SetSettingsProviders(ICollection<ISettingsProvider> newSettingsProviders)
+    public void SetSettingsProviders(ICollection<SettingsProvider> newSettingsProviders)
     {
         settingsProviders = newSettingsProviders;
     }

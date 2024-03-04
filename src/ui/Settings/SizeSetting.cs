@@ -97,7 +97,7 @@ internal class SizeSetting : Setting
         {
             var value = new Vector2i((int) Math.Round(x.Value), (int) Math.Round(y.Value));
             set(value);
-            Provider.Validate();
+            Validator.Validate();
         }
     }
 }
