@@ -27,8 +27,8 @@ public sealed class Pipelines : IDisposable
 {
     private readonly DirectoryInfo directory;
 
-    private readonly List<VFX> renderers = new();
-    private readonly List<IDisposable> bindings = new();
+    private readonly List<VFX> renderers = [];
+    private readonly List<IDisposable> bindings = [];
 
     private LoadingContext? loadingContext;
     private bool loaded;
@@ -207,9 +207,9 @@ public sealed class Pipelines : IDisposable
 
         PipelineBuilder builder = new();
 
-        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: new[] {"RayGen"});
-        builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: new[] {"Miss"});
-        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: new[] {"ShadowMiss"});
+        builder.AddShaderFile(directory.GetFile("RayGen.hlsl"), names: ["RayGen"]);
+        builder.AddShaderFile(directory.GetFile("Miss.hlsl"), names: ["Miss"]);
+        builder.AddShaderFile(directory.GetFile("Shadow.hlsl"), names: ["ShadowMiss"]);
 
         SectionVFX.InitializeRequiredResources(directory, visuals, builder);
 

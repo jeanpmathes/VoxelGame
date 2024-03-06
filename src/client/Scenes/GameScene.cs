@@ -195,11 +195,11 @@ public sealed class GameScene : IScene
     {
         OnOverlayClose();
 
-        List<SettingsProvider> settingsProviders = new()
-        {
+        List<SettingsProvider> settingsProviders =
+        [
             SettingsProvider.Wrap(client.Settings),
             SettingsProvider.Wrap(client.Keybinds)
-        };
+        ];
 
         ui.SetSettingsProviders(settingsProviders);
         ui.SetConsoleProvider(console);

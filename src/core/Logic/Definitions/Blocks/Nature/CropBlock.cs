@@ -26,8 +26,8 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
-    private readonly List<BoundingVolume> volumes = new();
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BoundingVolume> volumes = [];
+    private readonly List<BlockMesh> meshes = [];
 
     private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
 
@@ -65,7 +65,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
         if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
 
         int[] stageTextureIndices =
-        {
+        [
             baseIndex,
             baseIndex + stages.second,
             baseIndex + stages.third,
@@ -74,7 +74,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.sixth,
             baseIndex + stages.final,
             baseIndex + stages.dead
-        };
+        ];
 
         for (uint data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, stageTextureIndices, data));
     }

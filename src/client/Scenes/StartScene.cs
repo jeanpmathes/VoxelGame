@@ -44,12 +44,12 @@ public sealed class StartScene : IScene
         worldProvider = new WorldProvider(Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
-        List<SettingsProvider> settingsProviders = new()
-        {
+        List<SettingsProvider> settingsProviders =
+        [
             SettingsProvider.Wrap(client.Settings),
             SettingsProvider.Wrap(Application.Client.Instance.Keybinds),
             SettingsProvider.Wrap(client.Graphics)
-        };
+        ];
 
         ui = new StartUserInterface(
             client.Input,

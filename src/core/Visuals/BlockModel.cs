@@ -102,8 +102,8 @@ public sealed class BlockModel
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         normal = normal.Normalized();
-        List<Quad> quadsA = new();
-        List<Quad> quadsB = new();
+        List<Quad> quadsA = [];
+        List<Quad> quadsB = [];
 
         foreach (Quad quad in Quads)
             if (Vector3d.Dot(quad.Center - position, normal) > 0) quadsA.Add(quad);
@@ -156,7 +156,7 @@ public sealed class BlockModel
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(string newTexture)
     {
-        TextureNames = new[] {newTexture};
+        TextureNames = [newTexture];
 
         for (var i = 0; i < Quads.Length; i++)
         {

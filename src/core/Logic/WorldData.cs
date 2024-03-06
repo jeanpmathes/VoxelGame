@@ -27,7 +27,7 @@ public class WorldData
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
-    private readonly List<DirectoryInfo> subdirectories = new();
+    private readonly List<DirectoryInfo> subdirectories = [];
 
     private readonly FileInfo informationFile;
 
@@ -141,7 +141,7 @@ public class WorldData
         foreach (char c in name.Trim())
         {
             if (Array.Exists(Path.GetInvalidFileNameChars(), value => value == c)) continue;
-            if (Array.Exists(new[] {'.', ',', '{', '}'}, value => value == c)) continue;
+            if (Array.Exists(['.', ',', '{', '}'], value => value == c)) continue;
 
             builder.Append(c);
 

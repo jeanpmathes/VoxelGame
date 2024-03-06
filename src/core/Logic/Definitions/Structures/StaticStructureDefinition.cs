@@ -13,7 +13,7 @@ public partial class StaticStructure
  #pragma warning disable CS1591
     public class Vector
     {
-        public int[] Values { get; set; } = {0, 0, 0};
+        public int[] Values { get; set; } = [0, 0, 0];
     }
 
     public class Placement

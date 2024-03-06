@@ -64,13 +64,13 @@ public class Structures
         {
             Instance = new Structures();
 
-            List<GeneratedStructure> structures = new()
-            {
+            List<GeneratedStructure> structures =
+            [
                 Instance.SmallPyramid,
                 Instance.LargeTropicalTree,
                 Instance.OldTower,
                 Instance.BuriedTower
-            };
+            ];
 
             Instance.All = structures;
 

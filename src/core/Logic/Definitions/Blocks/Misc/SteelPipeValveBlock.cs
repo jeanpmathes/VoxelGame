@@ -27,7 +27,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     private readonly float diameter;
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
     internal SteelPipeValveBlock(string name, string namedID, float diameter, string openModel,
         string closedModel) :

@@ -150,10 +150,10 @@ public readonly unsafe struct Draw2D
         };
 
         Vertex[] vertices =
-        {
+        [
             bottomLeft, topLeft, topRight,
             bottomLeft, topRight, bottomRight
-        };
+        ];
 
         UploadBuffer(vertices);
 

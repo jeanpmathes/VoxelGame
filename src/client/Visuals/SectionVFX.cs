@@ -91,10 +91,10 @@ public sealed class SectionVFX : VFX
         PipelineBuilder.HitGroup fluidSectionHitGroup = new("FluidSectionClosestHit");
         PipelineBuilder.HitGroup fluidShadowHitGroup = new("FluidShadowClosestHit");
 
-        builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), new[] {basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), new[] {basicTransparentSectionHitGroup, basicTransparentShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), new[] {foliageSectionHitGroup, foliageShadowHitGroup});
-        builder.AddShaderFile(directory.GetFile("Fluid.hlsl"), new[] {fluidSectionHitGroup, fluidShadowHitGroup});
+        builder.AddShaderFile(directory.GetFile("BasicOpaque.hlsl"), [basicOpaqueSectionHitGroup, basicOpaqueShadowHitGroup]);
+        builder.AddShaderFile(directory.GetFile("BasicTransparent.hlsl"), [basicTransparentSectionHitGroup, basicTransparentShadowHitGroup]);
+        builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), [foliageSectionHitGroup, foliageShadowHitGroup]);
+        builder.AddShaderFile(directory.GetFile("Fluid.hlsl"), [fluidSectionHitGroup, fluidShadowHitGroup]);
 
         basicOpaqueMaterial = builder.AddMaterial(
             nameof(basicOpaqueMaterial),

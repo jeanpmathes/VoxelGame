@@ -27,11 +27,11 @@ public static class Algorithms
     /// <returns>The normal array based adjacency list.</returns>
     public static List<List<short>> BuildAdjacencyList(Dictionary<short, HashSet<short>> adjacencyHashed)
     {
-        List<List<short>> adjacency = new();
+        List<List<short>> adjacency = [];
 
         for (short id = 0; id < adjacencyHashed.Count; id++)
         {
-            List<short> neighbors = new(adjacencyHashed[id]);
+            List<short> neighbors = [..adjacencyHashed[id]];
             neighbors.Sort();
             adjacency.Add(neighbors);
         }
