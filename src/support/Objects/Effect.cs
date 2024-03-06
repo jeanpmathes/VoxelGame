@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
 
@@ -12,6 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     An effect is a object positioned in 3D space that is rendered with a raster pipeline.
 /// </summary>
+[NativeMarshalling(typeof(EffectMarshaller))]
 public class Effect : Drawable
 {
     /// <summary>
@@ -28,3 +30,19 @@ public class Effect : Drawable
         Native.SetEffectVertices(this, vertices);
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Effect), MarshalMode.ManagedToUnmanagedIn, typeof(EffectMarshaller))]
+internal static class EffectMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Effect managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

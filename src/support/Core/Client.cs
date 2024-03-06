@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -22,6 +23,7 @@ namespace VoxelGame.Support.Core;
 /// <summary>
 ///     A proxy class for the native client.
 /// </summary>
+[NativeMarshalling(typeof(ClientMarshaller))]
 public class Client : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
@@ -118,7 +120,7 @@ public class Client : IDisposable
 
         config = new Config(configuration, OnError);
 
-        Native = Support.Native.Initialize(config.Configuration, config.ErrorFunc);
+        Native = NativeMethods.Configure(config.Configuration, config.ErrorFunc);
         Space = new Space(this);
     }
 
@@ -187,9 +189,9 @@ public class Client : IDisposable
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipeline pipeline) where T : unmanaged, IEquatable<T>
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
     {
-        return Support.Native.InitializeRaytracing<T>(this, pipeline);
+        return Support.Native.InitializeRaytracing<T>(this, description);
     }
 
     private static string FormatErrorMessage(int hr, string message)
@@ -225,7 +227,7 @@ public class Client : IDisposable
     /// </summary>
     public void Close()
     {
-        Support.Native.RequestClose(this);
+        NativeMethods.RequestClose(this);
     }
 
     /// <summary>
@@ -297,7 +299,7 @@ public class Client : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Support.Native.SetPostProcessingPipeline(this, pipeline);
+        NativeMethods.DesignatePostProcessingPipeline(this, pipeline);
     }
 
     /// <summary>
@@ -327,7 +329,7 @@ public class Client : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        return Support.Native.LoadTexture(this, new[] {image});
+        return Support.Native.LoadTexture(this, [image]);
     }
 
     /// <summary>
@@ -349,7 +351,7 @@ public class Client : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Support.Native.ToggleFullscreen(this);
+        NativeMethods.ToggleFullscreen(this);
     }
 
     /// <summary>
@@ -360,7 +362,7 @@ public class Client : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Support.Native.TakeScreenshot(this,
+        Support.Native.EnqueueScreenshot(this,
             (data, width, height) =>
             {
                 var copy = new int[width * height];
@@ -387,7 +389,7 @@ public class Client : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        int exit = Support.Native.Run(this);
+        int exit = NativeMethods.Run(this);
 
         logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
 
@@ -414,7 +416,7 @@ public class Client : IDisposable
         {
             logger.LogDebug(Events.ApplicationState, "Disposing client");
 
-            Support.Native.Finalize(this);
+            NativeMethods.Finalize(this);
 
             config = new Config();
         }
@@ -444,4 +446,18 @@ public class Client : IDisposable
     }
 
     #endregion
+}
+
+[CustomMarshaller(typeof(Client), MarshalMode.ManagedToUnmanagedIn, typeof(ClientMarshaller))]
+internal static class ClientMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Client managed)
+    {
+        return managed.Native;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
 }

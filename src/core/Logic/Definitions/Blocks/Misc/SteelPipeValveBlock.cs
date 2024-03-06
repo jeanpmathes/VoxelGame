@@ -54,9 +54,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
 
         for (uint data = 0; data <= 0b00_0111; data++)
         {
-            if ((data & 0b00_0011) == 0b11) continue;
-
-            volumes.Add(CreateVolume(data));
+            volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
         }
     }
 

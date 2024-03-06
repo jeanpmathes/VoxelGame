@@ -73,7 +73,7 @@ public class Mouse
         private set
         {
             position = value;
-            Native.SetMousePosition(client, position.X, position.Y);
+            NativeMethods.SetMousePosition(client, position.X, position.Y);
         }
     }
 
@@ -85,7 +85,8 @@ public class Mouse
 
     internal void Update()
     {
-        position = Native.GetMousePosition(client);
+        NativeMethods.GetMousePosition(client, out long x, out long y);
+        position = new Vector2i((int) x, (int) y);
 
         Vector2d delta = Position - oldPosition;
 
@@ -124,7 +125,7 @@ public class Mouse
     /// </summary>
     public void SetCursorType(MouseCursor cursor)
     {
-        Native.SetCursorType(client, cursor);
+        NativeMethods.SetCursorType(client, cursor);
     }
 
     /// <summary>
@@ -137,7 +138,7 @@ public class Mouse
 
         if (locked) storedPosition = Position;
 
-        Native.SetCursorLock(client, locked);
+        NativeMethods.SetCursorLock(client, locked);
 
         if (locked) return;
 

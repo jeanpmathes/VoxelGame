@@ -4,7 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using JetBrains.Annotations;
+using VoxelGame.Support.Interop;
 
 namespace VoxelGame.Support.Definition;
 
@@ -14,39 +16,39 @@ namespace VoxelGame.Support.Definition;
 /// <summary>
 ///     Describes a pipeline for raster-based rendering.
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
+[NativeMarshalling(typeof(RasterPipelineDescriptionMarshaller))]
 public struct RasterPipelineDescription
 {
     /// <summary>
     ///     Path to the vertex shader.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPWStr)] private string VertexShaderPath;
+    internal string VertexShaderPath { get; private init; }
 
     /// <summary>
     ///     Path to the pixel shader.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPWStr)] private string PixelShaderPath;
+    internal string PixelShaderPath { get; private init; }
 
     /// <summary>
     ///     The shader preset.
     /// </summary>
-    private ShaderPresets.ShaderPreset ShaderPreset;
+    internal ShaderPresets.ShaderPreset ShaderPreset { get; private init; }
 
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
     /// </summary>
-    internal uint BufferSize;
+    internal uint BufferSize { get; set; }
 
     /// <summary>
     ///     The topology of the mesh. Only used for <see cref="ShaderPresets.ShaderPreset.SpatialEffect" />.
     /// </summary>
-    private Topology Topology;
+    internal Topology Topology { get; private init; }
 
     /// <summary>
     ///     The filter set on the texture sampler. Only used for <see cref="ShaderPresets.ShaderPreset.PostProcessing" /> and
     ///     <see cref="ShaderPresets.ShaderPreset.Draw2D" />.
     /// </summary>
-    private Filter Filter;
+    internal Filter Filter { get; private init; }
 
     /// <summary>
     ///     Creates a new pipeline description.
@@ -65,6 +67,40 @@ public struct RasterPipelineDescription
             Topology = preset.Topology,
             Filter = preset.Filter
         };
+    }
+}
+
+[CustomMarshaller(typeof(RasterPipelineDescription), MarshalMode.ManagedToUnmanagedIn, typeof(RasterPipelineDescriptionMarshaller))]
+internal static class RasterPipelineDescriptionMarshaller
+{
+    internal static Unmanaged ConvertToUnmanaged(RasterPipelineDescription managed)
+    {
+        return new Unmanaged
+        {
+            vertexShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.VertexShaderPath),
+            pixelShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.PixelShaderPath),
+            shaderPreset = managed.ShaderPreset,
+            bufferSize = managed.BufferSize,
+            topology = managed.Topology,
+            filter = managed.Filter
+        };
+    }
+
+    internal static void Free(Unmanaged unmanaged)
+    {
+        UnicodeStringMarshaller.Free(unmanaged.vertexShaderPath);
+        UnicodeStringMarshaller.Free(unmanaged.pixelShaderPath);
+    }
+
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    internal struct Unmanaged
+    {
+        internal IntPtr vertexShaderPath;
+        internal IntPtr pixelShaderPath;
+        internal ShaderPresets.ShaderPreset shaderPreset;
+        internal uint bufferSize;
+        internal Topology topology;
+        internal Filter filter;
     }
 }
 

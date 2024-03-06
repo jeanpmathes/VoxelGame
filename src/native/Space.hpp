@@ -48,25 +48,21 @@ struct ShaderFileDescription
 
 struct SpacePipelineDescription
 {
-    UINT shaderCount;
-    UINT materialCount;
+    ShaderFileDescription* shaderFiles;
+    UINT                   shaderCount;
 
-    UINT textureCountFirstSlot;
-    UINT textureCountSecondSlot;
+    LPWSTR* symbols;
+
+    MaterialDescription* materials;
+    UINT                 materialCount;
+
+    Texture** textures;
+    UINT      textureCountFirstSlot;
+    UINT      textureCountSecondSlot;
 
     UINT customDataBufferSize;
 
     NativeErrorFunc onShaderLoadingError;
-};
-
-class SpacePipeline
-{
-public:
-    ShaderFileDescription*   shaderFiles;
-    LPWSTR*                  symbols;
-    MaterialDescription*     materials;
-    Texture**                textures;
-    SpacePipelineDescription description;
 };
 
 enum class MaterialFlags : BYTE
@@ -124,7 +120,7 @@ public:
 
     void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& commandQueue);
     void PerformResolutionDependentSetup(Resolution const& resolution);
-    bool PerformInitialSetupStepTwo(SpacePipeline const& pipeline);
+    bool PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline);
 
     /**
      * Create a new mesh with a given material. 
@@ -213,18 +209,18 @@ private:
 
     void CreateGlobalConstBuffer();
 
-    void InitializePipelineResourceViews(SpacePipeline const& pipeline);
+    void InitializePipelineResourceViews(SpacePipelineDescription const& pipeline);
 
-    bool CreateRaytracingPipeline(SpacePipeline const& pipelineDescription);
+    bool CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
         NativeClient const&                           nativeClient,
-        SpacePipeline const&                          pipelineDescription,
+        SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
     std::unique_ptr<Material> SetupMaterial(
         MaterialDescription const&                    description,
         UINT                                          index,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
-    void CreateAnimations(SpacePipeline const& pipeline);
+    void CreateAnimations(SpacePipelineDescription const& pipeline);
     void SetupStaticResourceLayout(ShaderResources::Description* description);
     void SetupDynamicResourceLayout(ShaderResources::Description* description);
     void SetupAnimationResourceLayout(ShaderResources::Description* description);

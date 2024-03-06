@@ -42,7 +42,7 @@ void Space::PerformResolutionDependentSetup(Resolution const& resolution)
     m_camera.Update();
 }
 
-bool Space::PerformInitialSetupStepTwo(SpacePipeline const& pipeline)
+bool Space::PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline)
 {
     CreateGlobalConstBuffer();
 
@@ -200,7 +200,7 @@ void Space::CreateGlobalConstBuffer()
         });
 }
 
-void Space::InitializePipelineResourceViews(SpacePipeline const& pipeline)
+void Space::InitializePipelineResourceViews(SpacePipelineDescription const& pipeline)
 {
     UpdateOutputResourceViews();
     UpdateTopLevelAccelerationStructureView();
@@ -243,8 +243,8 @@ void Space::InitializePipelineResourceViews(SpacePipeline const& pipeline)
                     {m_sentinelTexture->GetResource(), &m_sentinelTextureSRV});
         };
 
-        UINT const firstSlotArraySize  = pipeline.description.textureCountFirstSlot;
-        UINT const secondSlotArraySize = pipeline.description.textureCountSecondSlot;
+        UINT const firstSlotArraySize  = pipeline.textureCountFirstSlot;
+        UINT const secondSlotArraySize = pipeline.textureCountSecondSlot;
 
         fillSlots(m_textureSlot1.entry, 0, getTexturesCountInSlot(firstSlotArraySize));
         fillSlots(m_textureSlot2.entry, firstSlotArraySize, getTexturesCountInSlot(secondSlotArraySize));
@@ -253,15 +253,15 @@ void Space::InitializePipelineResourceViews(SpacePipeline const& pipeline)
     }
 }
 
-bool Space::CreateRaytracingPipeline(SpacePipeline const& pipelineDescription)
+bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription)
 {
-    m_textureSlot1.size = std::max(pipelineDescription.description.textureCountFirstSlot, 1u);
-    m_textureSlot2.size = std::max(pipelineDescription.description.textureCountSecondSlot, 1u);
+    m_textureSlot1.size = std::max(pipelineDescription.textureCountFirstSlot, 1u);
+    m_textureSlot2.size = std::max(pipelineDescription.textureCountSecondSlot, 1u);
 
-    if (pipelineDescription.description.customDataBufferSize > 0)
+    if (pipelineDescription.customDataBufferSize > 0)
         m_customDataBuffer = std::make_unique<ShaderBuffer>(
             *m_nativeClient,
-            pipelineDescription.description.customDataBufferSize);
+            pipelineDescription.customDataBufferSize);
 
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
 
@@ -275,7 +275,7 @@ bool Space::CreateRaytracingPipeline(SpacePipeline const& pipelineDescription)
     m_missSignature = CreateMissSignature();
     NAME_D3D12_OBJECT(m_missSignature);
 
-    for (UINT index = 0; index < pipelineDescription.description.materialCount; index++)
+    for (UINT index = 0; index < pipelineDescription.materialCount; index++)
         m_materials.push_back(SetupMaterial(pipelineDescription.materials[index], index, pipeline));
 
     CreateAnimations(pipelineDescription);
@@ -324,10 +324,10 @@ bool Space::CreateRaytracingPipeline(SpacePipeline const& pipelineDescription)
 
 std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
     NativeClient const&                           nativeClient,
-    SpacePipeline const&                          pipelineDescription,
+    SpacePipelineDescription const&               pipelineDescription,
     nv_helpers_dx12::RayTracingPipelineGenerator& pipeline)
 {
-    std::vector<ComPtr<IDxcBlob>> shaderBlobs(pipelineDescription.description.shaderCount);
+    std::vector<ComPtr<IDxcBlob>> shaderBlobs(pipelineDescription.shaderCount);
 
     UINT currentSymbolIndex = 0;
     bool ok                 = true;
@@ -339,7 +339,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
             L"",
             L"lib_6_7",
             VG_SHADER_REGISTRY(nativeClient),
-            pipelineDescription.description.onShaderLoadingError);
+            pipelineDescription.onShaderLoadingError);
 
         if (shaderBlobs[shader] == nullptr) return false;
 
@@ -363,12 +363,12 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
             L"Main",
             L"cs_6_7",
             VG_SHADER_REGISTRY(nativeClient),
-            pipelineDescription.description.onShaderLoadingError);
+            pipelineDescription.onShaderLoadingError);
 
         return shaderBlobs[shader] != nullptr;
     };
 
-    for (UINT shader = 0; shader < pipelineDescription.description.shaderCount; shader++)
+    for (UINT shader = 0; shader < pipelineDescription.shaderCount; shader++)
         if (pipelineDescription.shaderFiles[shader].symbolCount > 0) ok &= compileShaderLibrary(shader);
         else ok &= compileComputeShader(shader);
 
@@ -441,11 +441,11 @@ std::unique_ptr<Material> Space::SetupMaterial(
     return material;
 }
 
-void Space::CreateAnimations(SpacePipeline const& pipeline)
+void Space::CreateAnimations(SpacePipelineDescription const& pipeline)
 {
     std::map<UINT, UINT> animationShaderIndexToID;
 
-    for (UINT shaderIndex = 0; shaderIndex < pipeline.description.shaderCount; shaderIndex++)
+    for (UINT shaderIndex = 0; shaderIndex < pipeline.shaderCount; shaderIndex++)
     {
         if (auto const& [path, symbolCount] = pipeline.shaderFiles[shaderIndex];
             symbolCount > 0)
@@ -460,7 +460,7 @@ void Space::CreateAnimations(SpacePipeline const& pipeline)
         animationShaderIndexToID[shaderIndex] = animationID;
     }
 
-    for (UINT materialID = 0; materialID < pipeline.description.materialCount; materialID++)
+    for (UINT materialID = 0; materialID < pipeline.materialCount; materialID++)
     {
         MaterialDescription const& materialDescription = pipeline.materials[materialID];
         if (materialDescription.isAnimated)

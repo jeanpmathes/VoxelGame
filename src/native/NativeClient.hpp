@@ -43,7 +43,7 @@ public:
     void OnSizeChanged(UINT width, UINT height, bool minimized) override;
     void OnWindowMoved(int xPos, int yPos) override;
 
-    void InitRaytracingPipeline(SpacePipeline const& pipeline);
+    void InitRaytracingPipeline(SpacePipelineDescription const& pipeline);
 
     /**
      * Toggle fullscreen mode.

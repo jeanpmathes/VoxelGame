@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
 
@@ -12,6 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A mesh, positioned in 3D space and target of raytracing.
 /// </summary>
+[NativeMarshalling(typeof(MeshMarshaller))]
 public class Mesh : Drawable
 {
     /// <summary>
@@ -39,3 +41,19 @@ public class Mesh : Drawable
         Native.SetMeshBounds(this, bounds);
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Mesh), MarshalMode.ManagedToUnmanagedIn, typeof(MeshMarshaller))]
+internal static class MeshMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Mesh managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

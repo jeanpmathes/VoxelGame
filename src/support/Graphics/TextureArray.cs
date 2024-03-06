@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Collections;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
@@ -15,7 +16,7 @@ namespace VoxelGame.Support.Graphics;
 /// <summary>
 ///     Represents an array of textures, where all textures are the same size.
 /// </summary>
-public sealed class TextureArray
+public sealed class TextureArray : IEnumerable<Texture>
 {
     private readonly Texture[] textures;
 
@@ -28,6 +29,17 @@ public sealed class TextureArray
     ///     Get the number of textures in the array.
     /// </summary>
     public int Count => textures.Length;
+
+    /// <inheritdoc />
+    public IEnumerator<Texture> GetEnumerator()
+    {
+        return textures.AsEnumerable().GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
     /// <summary>
     ///     Load a new array texture. It will be filled with all textures found in the given directory.
@@ -58,16 +70,6 @@ public sealed class TextureArray
         }
 
         return new TextureArray(data);
-    }
-
-    /// <summary>
-    ///     Get the pointers to the sub-units of the array texture.
-    ///     Note that the pointers each point to an array texture, not every single texture contained in the array.
-    /// </summary>
-    /// <returns>The pointers.</returns>
-    internal IEnumerable<IntPtr> GetTexturePointers()
-    {
-        return textures.Select(p => p.Self);
     }
 
     /// <summary>

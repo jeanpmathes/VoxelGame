@@ -54,13 +54,13 @@ NATIVE void NativeRequestClose(NativeClient const* client)
     } CATCH();
 }
 
-NATIVE int NativeRun(NativeClient* client, int const nCmdShow)
+NATIVE int NativeRun(NativeClient* client)
 {
     TRY
     {
         Require(CALL_OUTSIDE_CYCLE(client));
 
-        return Win32Application::Run(client, GetModuleHandle(nullptr), nCmdShow);
+        return Win32Application::Run(client, GetModuleHandle(nullptr), 1);
     } CATCH();
 }
 
@@ -152,17 +152,13 @@ NATIVE void NativeSetCursorLock(NativeClient* client, bool const lock)
 
 NATIVE ShaderBuffer* NativeInitializeRaytracing(
     NativeClient*                  client,
-    ShaderFileDescription*         shaderFiles,
-    LPWSTR*                        symbols,
-    MaterialDescription*           materials,
-    Texture**                      textures,
     SpacePipelineDescription const description)
 {
     TRY
     {
         Require(CALL_OUTSIDE_CYCLE(client));
 
-        client->InitRaytracingPipeline({shaderFiles, symbols, materials, textures, description});
+        client->InitRaytracingPipeline(description);
 
         if (client->GetSpace() == nullptr) return nullptr;
 

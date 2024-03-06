@@ -4,55 +4,85 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Support.Interop;
 
 namespace VoxelGame.Support.Definition;
+
+#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     Data of a camera that is often updated.
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
-#pragma warning disable S3898 // No equality comparison used.
-public struct BasicCameraData
-#pragma warning restore S3898 // No equality comparison used.
+/// <param name="Position">The position.</param>
+/// <param name="Front">The front vector.</param>
+/// <param name="Up">The up vector.</param>
+[NativeMarshalling(typeof(BasicCameraDataMarshaller))]
+public record struct BasicCameraData(Vector3 Position, Vector3 Front, Vector3 Up);
+
+[CustomMarshaller(typeof(BasicCameraData), MarshalMode.ManagedToUnmanagedIn, typeof(BasicCameraDataMarshaller))]
+internal static class BasicCameraDataMarshaller
 {
-    /// <summary>
-    ///     The position.
-    /// </summary>
-    public Vector3 Position;
+    internal static Unmanaged ConvertToUnmanaged(BasicCameraData managed)
+    {
+        return new Unmanaged
+        {
+            position = Vector3Marshaller.ConvertToUnmanaged(managed.Position),
+            front = Vector3Marshaller.ConvertToUnmanaged(managed.Front),
+            up = Vector3Marshaller.ConvertToUnmanaged(managed.Up)
+        };
+    }
 
-    /// <summary>
-    ///     The front vector.
-    /// </summary>
-    public Vector3 Front;
+    internal static void Free(Unmanaged unmanaged)
+    {
+        Vector3Marshaller.Free(unmanaged.position);
+        Vector3Marshaller.Free(unmanaged.front);
+        Vector3Marshaller.Free(unmanaged.up);
+    }
 
-    /// <summary>
-    ///     The up vector.
-    /// </summary>
-    public Vector3 Up;
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    internal ref struct Unmanaged
+    {
+        internal Vector3Marshaller.Unmanaged position;
+        internal Vector3Marshaller.Unmanaged front;
+        internal Vector3Marshaller.Unmanaged up;
+    }
 }
 
 /// <summary>
 ///     Data of a camera that is rarely updated.
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
-#pragma warning disable S3898 // No equality comparison used.
-public struct AdvancedCameraData
-#pragma warning restore S3898 // No equality comparison used.
+/// <param name="Fov">The field of view.</param>
+/// <param name="Near">The distance to the near plane.</param>
+/// <param name="Far">The distance to the far plane.</param>
+[NativeMarshalling(typeof(AdvancedCameraDataMarshaller))]
+public record struct AdvancedCameraData(float Fov, float Near, float Far);
+
+[CustomMarshaller(typeof(AdvancedCameraData), MarshalMode.ManagedToUnmanagedIn, typeof(AdvancedCameraDataMarshaller))]
+internal static class AdvancedCameraDataMarshaller
 {
-    /// <summary>
-    ///     The field of view.
-    /// </summary>
-    public float Fov;
+    internal static Unmanaged ConvertToUnmanaged(AdvancedCameraData managed)
+    {
+        return new Unmanaged
+        {
+            fov = managed.Fov,
+            near = managed.Near,
+            far = managed.Far
+        };
+    }
 
-    /// <summary>
-    ///     The distance to the near plane.
-    /// </summary>
-    public float Near;
+    internal static void Free(Unmanaged unmanaged)
+    {
+        // Nothing to do here.
+    }
 
-    /// <summary>
-    ///     The distance to the far plane.
-    /// </summary>
-    public float Far;
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    internal ref struct Unmanaged
+    {
+        internal float fov;
+        internal float near;
+        internal float far;
+    }
 }

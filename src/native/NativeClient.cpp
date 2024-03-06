@@ -546,7 +546,7 @@ void NativeClient::OnWindowMoved(int, int)
     // Nothing to do, here for symmetry with other message handlers.
 }
 
-void NativeClient::InitRaytracingPipeline(SpacePipeline const& pipeline)
+void NativeClient::InitRaytracingPipeline(SpacePipelineDescription const& pipeline)
 {
     if (m_space->PerformInitialSetupStepTwo(pipeline)) m_spaceInitialized = true;
     else m_space                                                          = nullptr;

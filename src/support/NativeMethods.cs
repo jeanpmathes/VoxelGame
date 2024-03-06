@@ -5,131 +5,123 @@
 // <author>jeanpmathes</author>
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
+using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
+using VoxelGame.Support.Interop;
+using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Support;
 
-internal static class NativeMethods
+internal static partial class NativeMethods
 {
     private const string DllFilePath = @".\Native.dll";
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeShowErrorBox")]
+    internal static partial void ShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeConfigure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeConfigure")]
+    internal static partial IntPtr Configure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeFinalize(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFinalize")]
+    internal static partial void Finalize(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeRequestClose(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeRequestClose")]
+    internal static partial void RequestClose(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern int NativeRun(IntPtr native, int nCmdShow);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeRun")]
+    internal static partial int Run(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativePassAllocatorStatistics(IntPtr native, Definition.Native.NativeWStringFunc onWString);
+    [LibraryImport(DllFilePath, EntryPoint = "NativePassAllocatorStatistics")]
+    internal static partial void PassAllocatorStatistics(Client client, Definition.Native.NativeWStringFunc onWString);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativePassDRED(IntPtr native, Definition.Native.NativeWStringFunc onWString);
+    [LibraryImport(DllFilePath, EntryPoint = "NativePassDRED")]
+    internal static partial void PassDRED(Client client, Definition.Native.NativeWStringFunc onWString);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeTakeScreenshot(IntPtr native, Definition.Native.ScreenshotFunc callback);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeTakeScreenshot")]
+    internal static partial void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeToggleFullscreen(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeToggleFullscreen")]
+    internal static partial void ToggleFullscreen(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeGetMousePosition(IntPtr native, out long x, out long y);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeGetMousePosition")]
+    internal static partial void GetMousePosition(Client client, out long x, out long y);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeSetMousePosition(IntPtr native, long x, long y);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetMousePosition")]
+    internal static partial void SetMousePosition(Client client, long x, long y);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeSetCursorType(IntPtr native, MouseCursor cursor);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetCursorType")]
+    internal static partial void SetCursorType(Client client, MouseCursor cursor);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeSetCursorLock(IntPtr native, bool locked);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetCursorLock")]
+    internal static partial void SetCursorLock(Client client, [MarshalAs(UnmanagedType.Bool)] bool locked);
 
-    /// <summary>
-    ///     Because C# cannot transform an array to a pointer of it is a struct member, all arrays are passed as arguments.
-    /// </summary>
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeInitializeRaytracing(IntPtr native,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        ShaderFileDescription[] shaderFiles,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
-        string[] symbols,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        MaterialDescription[] materials,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
-        IntPtr[] textures,
-        SpacePipelineDescription description);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeInitializeRaytracing")]
+    internal static partial IntPtr InitializeRaytracing(Client client, SpacePipelineDescription description);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeGetCamera(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeGetCamera")]
+    internal static partial IntPtr GetCamera(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeGetLight(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeGetLight")]
+    internal static partial IntPtr GetLight(Client client);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeSetLightDirection(IntPtr light, Vector3 direction);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetLightDirection")]
+    internal static partial void SetLightDirection(Light light, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 direction);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeUpdateBasicCameraData(IntPtr camera, BasicCameraData data);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeUpdateBasicCameraData")]
+    internal static partial void UpdateBasicCameraData(Camera camera, BasicCameraData data);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeUpdateAdvancedCameraData(IntPtr camera, AdvancedCameraData data);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeUpdateAdvancedCameraData")]
+    internal static partial void UpdateAdvancedCameraData(Camera camera, AdvancedCameraData data);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeUpdateSpatialData(IntPtr spatial, SpatialData data);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeUpdateSpatialData")]
+    internal static partial void UpdateSpatialData(Spatial spatial, SpatialData data);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeCreateMesh(IntPtr native, uint materialIndex);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateMesh")]
+    internal static partial IntPtr CreateMesh(Client client, uint materialIndex);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern unsafe void NativeSetMeshVertices(IntPtr mesh, SpatialVertex* vertices, int vertexLength);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetMeshVertices")]
+    internal static unsafe partial void SetMeshVertices(Mesh mesh, SpatialVertex* vertices, int vertexLength);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern unsafe void NativeSetMeshVertices(IntPtr mesh, SpatialBounds* vertices, int vertexLength);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetMeshBounds")]
+    internal static unsafe partial void SetMeshBounds(Mesh mesh, SpatialBounds* vertices, int boundLength);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeCreateEffect(IntPtr native, IntPtr pipeline);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateEffect")]
+    internal static partial IntPtr CreateEffect(Client client, RasterPipeline pipeline);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern unsafe void NativeSetEffectVertices(IntPtr effect, EffectVertex* vertices, int vertexLength);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetEffectVertices")]
+    internal static unsafe partial void SetEffectVertices(Effect effect, EffectVertex* vertices, int vertexLength);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeReturnDrawable(IntPtr native);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeReturnDrawable")]
+    internal static partial void ReturnDrawable(Drawable drawable);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeSetDrawableEnabledState(IntPtr native, bool enabled);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetDrawableEnabledState")]
+    internal static partial void SetDrawableEnabledState(Drawable drawable, [MarshalAs(UnmanagedType.Bool)] bool enabled);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeCreateRasterPipeline(IntPtr native, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateRasterPipeline")]
+    internal static partial IntPtr CreateRasterPipeline(Client client, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern IntPtr NativeGetRasterPipelineShaderBuffer(IntPtr rasterPipeline);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeGetRasterPipelineShaderBuffer")]
+    internal static partial IntPtr GetRasterPipelineShaderBuffer(RasterPipeline rasterPipeline);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeDesignatePostProcessingPipeline(IntPtr native, IntPtr pipeline);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeDesignatePostProcessingPipeline")]
+    internal static partial void DesignatePostProcessingPipeline(Client client, RasterPipeline pipeline);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern unsafe void NativeSetShaderBufferData(IntPtr shaderBuffer, void* data);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetShaderBufferData")]
+    internal static unsafe partial void SetShaderBufferData(ShaderBuffer shaderBuffer, void* data);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern uint NativeAddDraw2DPipeline(IntPtr native, IntPtr pipeline, int priority, Draw2D.Callback callback);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeAddDraw2DPipeline")]
+    internal static partial uint AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Draw2D.Callback callback);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeRemoveDraw2DPipeline(IntPtr native, uint id);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeRemoveDraw2DPipeline")]
+    internal static partial void RemoveDraw2DPipeline(Client client, uint id);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern unsafe IntPtr NativeLoadTexture(IntPtr client, int** data, TextureDescription description);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeLoadTexture")]
+    internal static unsafe partial IntPtr LoadTexture(Client client, int** data, TextureDescription description);
 
-    [DllImport(DllFilePath, CharSet = CharSet.Unicode)]
-    internal static extern void NativeFreeTexture(IntPtr texture);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeTexture")]
+    internal static partial void FreeTexture(Texture texture);
 }
