@@ -36,7 +36,7 @@ internal class StartUI : ControlBase
     private readonly Context context;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
-        ICollection<ISettingsProvider> settingsProviders) : base(parent.Root)
+        IEnumerable<SettingsProvider> settingsProviders) : base(parent.Root)
     {
         context = parent.Context;
 

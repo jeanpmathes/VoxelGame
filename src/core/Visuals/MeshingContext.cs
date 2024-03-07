@@ -232,10 +232,12 @@ public class MeshingContext
 
         GenerateMesh(fluidMeshFaceHolders, fluidMeshing);
 
-        return new SectionMeshData(
-            (basicOpaqueMeshing, basicTransparentMeshing),
-            foliageMeshing,
-            fluidMeshing);
+        return new SectionMeshData
+        {
+            BasicMeshing = (basicOpaqueMeshing, basicTransparentMeshing),
+            FoliageMeshing = foliageMeshing,
+            FluidMeshing = fluidMeshing
+        };
     }
 
     /// <summary>

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -15,6 +16,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A texture.
 /// </summary>
+[NativeMarshalling(typeof(TextureMarshaller))]
 public class Texture : NativeObject
 {
     private readonly Vector2i size;
@@ -71,6 +73,22 @@ public class Texture : NativeObject
     public void Free()
     {
         Deregister();
-        Native.FreeTexture(this);
+        NativeMethods.FreeTexture(this);
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Texture), MarshalMode.ManagedToUnmanagedIn, typeof(TextureMarshaller))]
+internal static class TextureMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Texture managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

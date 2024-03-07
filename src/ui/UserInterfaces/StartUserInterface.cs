@@ -19,7 +19,7 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public class StartUserInterface : UserInterface
 {
-    private readonly ICollection<ISettingsProvider> settingsProviders;
+    private readonly ICollection<SettingsProvider> settingsProviders;
     private readonly IWorldProvider worldProvider;
 
     private StartUI? control;
@@ -34,7 +34,7 @@ public class StartUserInterface : UserInterface
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
     public StartUserInterface(Input input, IScaleProvider scale, IWorldProvider worldProvider,
-        ICollection<ISettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
+        ICollection<SettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
         input,
         scale,
         resources,

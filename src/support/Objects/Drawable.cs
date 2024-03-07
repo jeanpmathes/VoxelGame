@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Core;
 
@@ -12,6 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     The common abstract base class of objects drawn in 3D space.
 /// </summary>
+[NativeMarshalling(typeof(DrawableMarshaller))]
 public class Drawable : Spatial, IDisposable
 {
     private bool enabled;
@@ -35,7 +37,7 @@ public class Drawable : Spatial, IDisposable
 
             Throw.IfDisposed(disposed);
 
-            Native.SetDrawableEnabledState(this, value);
+            NativeMethods.SetDrawableEnabledState(this, value);
             enabled = value;
         }
     }
@@ -54,7 +56,7 @@ public class Drawable : Spatial, IDisposable
         if (disposing)
         {
             Deregister();
-            Native.ReturnDrawable(this);
+            NativeMethods.ReturnDrawable(this);
         }
         else
         {
@@ -81,3 +83,19 @@ public class Drawable : Spatial, IDisposable
 
     #endregion IDisposable Support
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Drawable), MarshalMode.ManagedToUnmanagedIn, typeof(DrawableMarshaller))]
+internal static class DrawableMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Drawable managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

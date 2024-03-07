@@ -51,7 +51,7 @@ internal class IntegerSetting : Setting
         {
             var value = (int) Math.Round(integer.Value);
             set(value);
-            Provider.Validate();
+            Validator.Validate();
         };
     }
 }

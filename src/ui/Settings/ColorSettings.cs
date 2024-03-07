@@ -52,7 +52,7 @@ internal class ColorSettings : Setting
         select.Released += (_, _) =>
         {
             set(ConvertColor(colorPicker.SelectedColor));
-            Provider.Validate();
+            Validator.Validate();
 
             select.Disable();
         };

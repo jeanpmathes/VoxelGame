@@ -40,27 +40,27 @@ internal static class Modals
     /// <summary>
     /// Open a model that asks whether to delete something.
     /// </summary>
-    internal static void OpenDeletionModal(ControlBase parent, DeletionBox.Parameters parameters, DeletionBox.Actions actions)
+    internal static void OpenDeletionModal(ControlBase parent, DeletionBox.Parameters parameters, DeletionBox.Actions actions, Context context)
     {
         DeletionBox deletionBox = new(parent, parameters, actions);
 
-        Context.MakeModal(deletionBox);
+        context.MakeModal(deletionBox);
     }
 
     /// <summary>
     ///     Open a model that asks for a (new) name.
     /// </summary>
-    internal static void OpenNameModal(ControlBase parent, NameBox.Parameters parameters, NameBox.Actions actions)
+    internal static void OpenNameModal(ControlBase parent, NameBox.Parameters parameters, NameBox.Actions actions, Context context)
     {
         NameBox nameBox = new(parent, parameters, actions);
 
-        Context.MakeModal(nameBox);
+        context.MakeModal(nameBox);
     }
 
     /// <summary>
     ///     Opens a modal that blocks access to the ui, until it is closed by code.
     /// </summary>
-    internal static CloseHandel OpenBlockingModal(ControlBase parent, string message)
+    internal static CloseHandel OpenBlockingModal(ControlBase parent, string message, Context context)
     {
         Window modal = new(parent)
         {
@@ -73,7 +73,7 @@ internal static class Modals
             IsDraggingEnabled = false
         };
 
-        Context.MakeModal(modal);
+        context.MakeModal(modal);
 
         Label label = new(modal)
         {

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -16,6 +17,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     Represents the space camera.
 /// </summary>
+[NativeMarshalling(typeof(CameraMarshaller))]
 public class Camera : NativeObject, IView
 {
     private double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
@@ -170,7 +172,7 @@ public class Camera : NativeObject, IView
     {
         if (advancedDataDirty)
         {
-            Native.UpdateAdvancedCameraData(this,
+            NativeMethods.UpdateAdvancedCameraData(this,
                 new AdvancedCameraData
                 {
                     Fov = (float) FovY,
@@ -181,7 +183,7 @@ public class Camera : NativeObject, IView
             advancedDataDirty = false;
         }
 
-        Native.UpdateBasicCameraData(this,
+        NativeMethods.UpdateBasicCameraData(this,
             new BasicCameraData
             {
                 Position = preparedPosition,
@@ -204,3 +206,19 @@ public class Camera : NativeObject, IView
         Up = Vector3d.Normalize(Vector3d.Cross(Right, Front));
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Camera), MarshalMode.ManagedToUnmanagedIn, typeof(CameraMarshaller))]
+internal static class CameraMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Camera managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

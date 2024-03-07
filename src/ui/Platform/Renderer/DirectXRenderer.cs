@@ -161,10 +161,9 @@ public sealed class DirectXRenderer : RendererBase
 
         textStorage.StringFormat.SetTabStops(
             firstTabOffset: 0f,
-            new[]
-            {
+            [
                 tabSize.Width
-            });
+            ]);
 
         SizeF size = textSupport.MeasureString(text, sysFont, textStorage.StringFormat);
 

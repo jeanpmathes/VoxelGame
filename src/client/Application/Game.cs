@@ -27,7 +27,7 @@ public sealed class Game : IDisposable
     {
         World = world;
         Player = player;
-        Console = null!;
+        Console = null;
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class Game : IDisposable
     /// <summary>
     ///     Get the console used for the game.
     /// </summary>
-    public ConsoleWrapper Console { get; private set; }
+    public ConsoleWrapper? Console { get; private set; }
 
     /// <summary>
     ///     Get the update counter used for the game.
@@ -73,7 +73,7 @@ public sealed class Game : IDisposable
 
         UpdateCounter.Increment();
 
-        Console.Flush();
+        Console?.Flush();
 
         World.Update(deltaTime);
     }

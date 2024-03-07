@@ -27,15 +27,15 @@ namespace VoxelGame.UI.Controls;
 internal class SettingsMenu : StandardMenu
 {
     private readonly List<ControlBase> categories = new();
-    private readonly List<ISettingsProvider> settingsProviders;
+    private readonly List<SettingsProvider> settingsProviders;
     private int currentCategoryIndex = -1;
 
-    internal SettingsMenu(ControlBase parent, IEnumerable<ISettingsProvider> settingsProviders,
+    internal SettingsMenu(ControlBase parent, IEnumerable<SettingsProvider> settingsProviders,
         Context context) : base(
         parent,
         context)
     {
-        this.settingsProviders = new List<ISettingsProvider>(settingsProviders);
+        this.settingsProviders = new List<SettingsProvider>(settingsProviders);
         CreateContent();
     }
 
@@ -75,7 +75,7 @@ internal class SettingsMenu : StandardMenu
             Margin = Margin.Ten
         };
 
-        foreach (ISettingsProvider settingsProvider in settingsProviders)
+        foreach (SettingsProvider settingsProvider in settingsProviders)
         {
             GroupBox category = new(layout)
             {

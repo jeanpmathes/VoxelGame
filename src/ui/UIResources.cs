@@ -25,9 +25,9 @@ namespace VoxelGame.UI;
 /// </summary>
 public sealed class UIResources : IDisposable
 {
-    private static readonly List<string> iconNames = new();
-    private static readonly List<string> imageNames = new();
-    private readonly List<Attribution> attributions = new();
+    private static readonly List<string> iconNames = [];
+    private static readonly List<string> imageNames = [];
+    private readonly List<Attribution> attributions = [];
 
     internal string ResetIcon { get; } = GetIcon("reset");
     internal string LoadIcon { get; } = GetIcon("load");
@@ -115,7 +115,7 @@ public sealed class UIResources : IDisposable
         FileInfo skin2 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin2.png");
         FileInfo shader = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
 
-        List<FileInfo> skinFiles = new() {skin1, skin2};
+        List<FileInfo> skinFiles = [skin1, skin2];
         Dictionary<FileInfo, Exception> skinLoadingErrors = new();
 
         string? shaderLoadingError = null;

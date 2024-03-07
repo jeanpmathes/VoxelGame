@@ -24,7 +24,7 @@ public class Help : Command
     private readonly Dictionary<string, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
 
-    private readonly List<List<Entry>> commandPages = new();
+    private readonly List<List<Entry>> commandPages = [];
 
     /// <summary>
     ///     Create a help command for all commands discovered by a <see cref="CommandInvoker" />.
@@ -55,14 +55,14 @@ public class Help : Command
         List<(string command, string description)> commands = commandInvoker.CommandNames
             .Select(command => (command, $"{command} # {commandInvoker.GetCommandHelpText(command)}")).ToList();
 
-        commandPages.Add(new List<Entry>());
+        commandPages.Add([]);
 
         foreach ((string command, string description) in commands)
         {
-            if (commandPages[^1].Count >= PageSize) commandPages.Add(new List<Entry>());
+            if (commandPages[^1].Count >= PageSize) commandPages.Add([]);
 
             commandPages[^1].Add(new Entry(description,
-                new[] {new FollowUp("Show details", () => { Invoke(command); })}));
+                [new FollowUp("Show details", () => { Invoke(command); })]));
         }
     }
 
@@ -72,10 +72,7 @@ public class Help : Command
 
         foreach (string command in commandInvoker.CommandNames)
         {
-            List<Entry> description = new()
-            {
-                new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())
-            };
+            List<Entry> description = [new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
 
             description.AddRange(commandInvoker
                 .GetCommandSignatures(command)

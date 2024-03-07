@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Support.Data;
@@ -19,6 +20,7 @@ public class SpatialMeshingFactory : IMeshingFactory
     public static SpatialMeshingFactory Shared { get; } = new();
 
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Interface implementation.")]
     public IMeshing Create(int hint)
     {
         return new SpatialMeshing(hint);

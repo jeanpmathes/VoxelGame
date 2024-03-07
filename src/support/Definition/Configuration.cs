@@ -5,8 +5,13 @@
 //  <author>jeanpmathes</author>
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using JetBrains.Annotations;
+using VoxelGame.Support.Interop;
 
 namespace VoxelGame.Support.Definition;
+
+#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     Contains static methods that map to the respective functions on the native side.
@@ -117,10 +122,8 @@ internal static partial class Native
     /// <summary>
     ///     Contains the configuration of the native side.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    #pragma warning disable S3898 // No equality comparison used.
+    [NativeMarshalling(typeof(NativeConfigurationMarshaller))]
     internal struct NativeConfiguration
-    #pragma warning restore S3898 // No equality comparison used.
     {
         /// <summary>
         ///     Called for each rendering step.
@@ -200,7 +203,7 @@ internal static partial class Native
         /// <summary>
         ///     The initial window title.
         /// </summary>
-        [MarshalAs(UnmanagedType.LPWStr)] internal string title;
+        internal string title;
 
         /// <summary>
         ///     A handle to the icon to use for the window.
@@ -216,5 +219,64 @@ internal static partial class Native
         ///     Additional options for the native side.
         /// </summary>
         internal ConfigurationOptions options;
+    }
+
+    [CustomMarshaller(typeof(NativeConfiguration), MarshalMode.ManagedToUnmanagedIn, typeof(NativeConfigurationMarshaller))]
+    internal static class NativeConfigurationMarshaller
+    {
+        internal static Unmanaged ConvertToUnmanaged(NativeConfiguration managed)
+        {
+            return new Unmanaged
+            {
+                onRender = Marshal.GetFunctionPointerForDelegate(managed.onRender),
+                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onUpdate),
+                onInit = Marshal.GetFunctionPointerForDelegate(managed.onInit),
+                onDestroy = Marshal.GetFunctionPointerForDelegate(managed.onDestroy),
+                canClose = Marshal.GetFunctionPointerForDelegate(managed.canClose),
+                onKeyDown = Marshal.GetFunctionPointerForDelegate(managed.onKeyDown),
+                onKeyUp = Marshal.GetFunctionPointerForDelegate(managed.onKeyUp),
+                onChar = Marshal.GetFunctionPointerForDelegate(managed.onChar),
+                onMouseMove = Marshal.GetFunctionPointerForDelegate(managed.onMouseMove),
+                onMouseWheel = Marshal.GetFunctionPointerForDelegate(managed.onMouseWheel),
+                onResize = Marshal.GetFunctionPointerForDelegate(managed.onResize),
+                onActiveStateChange = Marshal.GetFunctionPointerForDelegate(managed.onActiveStateChange),
+                onDebug = Marshal.GetFunctionPointerForDelegate(managed.onDebug),
+                width = managed.width,
+                height = managed.height,
+                title = UnicodeStringMarshaller.ConvertToUnmanaged(managed.title),
+                icon = managed.icon,
+                renderScale = managed.renderScale,
+                options = managed.options
+            };
+        }
+
+        internal static void Free(Unmanaged unmanaged)
+        {
+            UnicodeStringMarshaller.Free(unmanaged.title);
+        }
+
+        [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        internal struct Unmanaged
+        {
+            internal IntPtr onRender;
+            internal IntPtr onUpdate;
+            internal IntPtr onInit;
+            internal IntPtr onDestroy;
+            internal IntPtr canClose;
+            internal IntPtr onKeyDown;
+            internal IntPtr onKeyUp;
+            internal IntPtr onChar;
+            internal IntPtr onMouseMove;
+            internal IntPtr onMouseWheel;
+            internal IntPtr onResize;
+            internal IntPtr onActiveStateChange;
+            internal IntPtr onDebug;
+            internal uint width;
+            internal uint height;
+            internal IntPtr title;
+            internal IntPtr icon;
+            internal float renderScale;
+            internal ConfigurationOptions options;
+        }
     }
 }

@@ -73,7 +73,8 @@ public class WorldActions : ControlBase
 
                     return op;
                 },
-                worldProvider.IsWorldNameValid));
+                worldProvider.IsWorldNameValid),
+            context);
 
         Button load = context.CreateIconButton(buttons, context.Resources.LoadIcon, Language.Load);
         load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
@@ -93,7 +94,8 @@ public class WorldActions : ControlBase
                     {
                         close(op.Status);
                     });
-                }));
+                }),
+            context);
     }
 
     private void OpenWorldInfoWindow(ControlBase cause)

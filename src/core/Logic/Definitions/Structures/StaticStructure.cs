@@ -231,7 +231,7 @@ public partial class StaticStructure : Structure
     /// <returns>True if the structure was stored successfully, false otherwise.</returns>
     public bool Store(DirectoryInfo directory, string name)
     {
-        List<Placement> placements = new();
+        List<Placement> placements = [];
 
         for (var x = 0; x < Extents.X; x++)
         for (var y = 0; y < Extents.Y; y++)
@@ -243,7 +243,7 @@ public partial class StaticStructure : Structure
 
             placements.Add(new Placement
             {
-                Position = new Vector {Values = new[] {x, y, z}},
+                Position = new Vector {Values = [x, y, z]},
                 Block = content.Value.Block.Block.NamedID,
                 Data = (int) content.Value.Block.Data,
                 Fluid = content.Value.Fluid.Fluid.NamedID,
@@ -254,7 +254,7 @@ public partial class StaticStructure : Structure
 
         Definition definition = new()
         {
-            Extents = new Vector {Values = new[] {Extents.X, Extents.Y, Extents.Z}},
+            Extents = new Vector {Values = [Extents.X, Extents.Y, Extents.Z]},
             Placements = placements.ToArray()
         };
 

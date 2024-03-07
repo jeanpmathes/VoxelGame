@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Application.Settings;
 ///     Game settings concerning the game graphics and visuals.
 /// </summary>
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public class GraphicsSettings : ISettingsProvider
+public sealed class GraphicsSettings : ISettingsProvider
 {
     private readonly List<Setting> settings = new();
 
@@ -97,14 +97,12 @@ public class GraphicsSettings : ISettingsProvider
         FoliageQuality = FoliageQuality
     };
 
-#pragma warning disable CA1033
     /// <inheritdoc />
-    string ISettingsProvider.Category => Language.Graphics;
+    static string ISettingsProvider.Category => Language.Graphics;
 
     /// <inheritdoc />
-    string ISettingsProvider.Description => Language.GraphicsSettingsDescription;
+    static string ISettingsProvider.Description => Language.GraphicsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
-#pragma warning restore CA1033
 }

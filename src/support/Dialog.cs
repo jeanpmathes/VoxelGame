@@ -17,6 +17,6 @@ public static class Dialog
     /// <param name="message">The message to display.</param>
     public static void ShowError(string message)
     {
-        Native.ShowErrorBox(message, "Error");
+        NativeMethods.ShowErrorBox(message, "Error");
     }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Support.Core;
 
@@ -12,6 +13,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A native object that can be part of a space.
 /// </summary>
+[NativeMarshalling(typeof(SpatialMarshaller))]
 public class Spatial : NativeObject
 {
     private bool dirty = true;
@@ -62,8 +64,24 @@ public class Spatial : NativeObject
 
     internal override void Synchronize()
     {
-        if (dirty || Space.HasAdjustmentChanged) Native.UpdateSpatialData(this, Space.GetAdjustedData(this));
+        if (dirty || Space.HasAdjustmentChanged) NativeMethods.UpdateSpatialData(this, Space.GetAdjustedData(this));
 
         dirty = false;
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Spatial), MarshalMode.ManagedToUnmanagedIn, typeof(SpatialMarshaller))]
+internal static class SpatialMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Spatial managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

@@ -14,7 +14,7 @@ public interface IMeasure
     /// <summary>
     ///     The unit of the measures.
     /// </summary>
-    Unit Unit { get; }
+    static abstract Unit Unit { get; }
 
     /// <summary>
     ///     The value of the measures.
@@ -22,23 +22,15 @@ public interface IMeasure
     double Value { get; }
 
     /// <summary>
-    ///     Get the string representation of the measures.
+    /// Get the string representation of the measure.
     /// </summary>
-    public string Text
+    /// <param name="measure">The measure to convert to string.</param>
+    /// <typeparam name="T">The type of the measure.</typeparam>
+    /// <returns>The string representation of the measure.</returns>
+    public static string ToString<T>(T measure) where T : IMeasure
     {
-        get
-        {
-            Prefix prefix = Prefix.FindBest(Value);
+        Prefix prefix = Prefix.FindBest(measure.Value);
 
-            return $"{Value / prefix.Factor:F2} {prefix.Symbol}{Unit.Symbol}";
-        }
-    }
-
-    /// <summary>
-    ///     Get the string representation of a measure.
-    /// </summary>
-    public static string ToString(IMeasure measure)
-    {
-        return measure.Text;
+        return $"{measure.Value / prefix.Factor:F2} {prefix.Symbol}{T.Unit.Symbol}";
     }
 }

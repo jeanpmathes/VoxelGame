@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Core;
@@ -13,6 +14,7 @@ namespace VoxelGame.Support.Objects;
 /// <summary>
 ///     A directional light. The position is ignored.
 /// </summary>
+[NativeMarshalling(typeof(LightMarshaller))]
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
@@ -47,6 +49,22 @@ public class Light : Spatial
 
         dirty = false;
 
-        Native.SetLightDirection(this, direction.ToVector3());
+        NativeMethods.SetLightDirection(this, direction.ToVector3());
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(Light), MarshalMode.ManagedToUnmanagedIn, typeof(LightMarshaller))]
+internal static class LightMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(Light managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

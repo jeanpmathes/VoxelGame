@@ -11,15 +11,15 @@ namespace VoxelGame.Core.Utilities.Units;
 /// <summary>
 ///     A measure for computer memory.
 /// </summary>
-public struct Memory : IMeasure, IEquatable<Memory>
+public readonly struct Memory : IMeasure, IEquatable<Memory>
 {
     /// <summary>
     ///     Get the memory, in bytes.
     /// </summary>
-    public double Bytes { get; set; }
+    public double Bytes { get; init; }
 
     /// <inheritdoc />
-    public Unit Unit => Unit.Byte;
+    public static Unit Unit => Unit.Byte;
 
     /// <inheritdoc />
     double IMeasure.Value => Bytes;

@@ -18,14 +18,14 @@ namespace VoxelGame.Core.Visuals;
 public static class BlockMeshes
 {
     private static readonly int[][] defaultBlockUVs =
-        {new[] {0, 0}, new[] {0, 1}, new[] {1, 1}, new[] {1, 0}};
+        [[0, 0], [0, 1], [1, 1], [1, 0]];
 
     private static readonly int[][] rotatedBlockUVs =
-        {new[] {0, 1}, new[] {1, 1}, new[] {1, 0}, new[] {0, 0}};
+        [[0, 1], [1, 1], [1, 0], [0, 0]];
 
     private static BlockMesh.Quad[] CreateDoubleSidedQuads(BlockMesh.Quad[] quads)
     {
-        List<BlockMesh.Quad> newQuads = new();
+        List<BlockMesh.Quad> newQuads = [];
 
         foreach (BlockMesh.Quad quad in quads)
         {
@@ -51,7 +51,7 @@ public static class BlockMeshes
     public static BlockMesh CreateCrossMesh(int textureIndex)
     {
         BlockMesh.Quad[] quads =
-        {
+        [
             new()
             {
                 A = new Vector3(x: 0.145f, y: 0f, z: 0.855f),
@@ -66,7 +66,7 @@ public static class BlockMeshes
                 C = new Vector3(x: 0.855f, y: 1f, z: 0.855f),
                 D = new Vector3(x: 0.855f, y: 0f, z: 0.855f)
             }
-        };
+        ];
 
         quads = CreateDoubleSidedQuads(quads);
 
@@ -99,7 +99,7 @@ public static class BlockMeshes
         Vector3 v4 = (d[0], d[1], d[2]) + vOffset;
 
         BlockMesh.Quad[] quads =
-        {
+        [
             new()
             {
                 A = v1,
@@ -107,7 +107,7 @@ public static class BlockMeshes
                 C = v3,
                 D = v4
             }
-        };
+        ];
 
         quads = CreateDoubleSidedQuads(quads);
 
@@ -180,8 +180,8 @@ public static class BlockMeshes
 
     private static BlockMesh.Quad[] CreateCropPlantQuads(bool addMiddlePiece)
     {
-        List<BlockMesh.Quad> list = new()
-        {
+        List<BlockMesh.Quad> list =
+        [
             new BlockMesh.Quad
             {
                 A = new Vector3(x: 0.25f, y: 0f, z: 0.0f),
@@ -189,6 +189,7 @@ public static class BlockMeshes
                 C = new Vector3(x: 0.25f, y: 1f, z: 1.0f),
                 D = new Vector3(x: 0.25f, y: 0f, z: 1.0f)
             },
+
             new BlockMesh.Quad
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.25f),
@@ -196,6 +197,7 @@ public static class BlockMeshes
                 C = new Vector3(x: 1.0f, y: 1f, z: 0.25f),
                 D = new Vector3(x: 1.0f, y: 0f, z: 0.25f)
             },
+
             new BlockMesh.Quad
             {
                 A = new Vector3(x: 0.75f, y: 0f, z: 0.0f),
@@ -203,6 +205,7 @@ public static class BlockMeshes
                 C = new Vector3(x: 0.75f, y: 1f, z: 1.0f),
                 D = new Vector3(x: 0.75f, y: 0f, z: 1.0f)
             },
+
             new BlockMesh.Quad
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.75f),
@@ -210,7 +213,7 @@ public static class BlockMeshes
                 C = new Vector3(x: 1.0f, y: 1f, z: 0.75f),
                 D = new Vector3(x: 1.0f, y: 0f, z: 0.75f)
             }
-        };
+        ];
 
         if (!addMiddlePiece) return list.ToArray();
 

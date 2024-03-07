@@ -13,4 +13,4 @@ namespace VoxelGame.Core.Logic.Interfaces;
 ///     connections at the top or bottom side.
 ///     The connection surface might be transparent.
 /// </summary>
-public interface IThinConnectable : IConnectable {}
+public interface IThinConnectable : IConnectable;

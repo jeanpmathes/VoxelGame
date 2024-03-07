@@ -175,15 +175,15 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// </returns>
     public int[] GetTexIndexArray()
     {
-        return new[]
-        {
+        return
+        [
             Front,
             Back,
             Left,
             Right,
             Bottom,
             Top
-        };
+        ];
     }
 
     /// <summary>

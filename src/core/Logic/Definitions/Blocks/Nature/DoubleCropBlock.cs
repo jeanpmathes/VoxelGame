@@ -26,8 +26,8 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly string texture;
 
-    private readonly List<BlockMesh> meshes = new();
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BlockMesh> meshes = [];
+    private readonly List<BoundingVolume> volumes = [];
 
     private (
         int dead, int first, int second, int third,
@@ -78,7 +78,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         if (baseIndex == 0) stages = (0, 0, 0, 0, (0, 0), (0, 0), (0, 0), (0, 0));
 
         int[] stageTextureIndicesLow =
-        {
+        [
             baseIndex + stages.dead,
             baseIndex + stages.first,
             baseIndex + stages.second,
@@ -87,10 +87,10 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.fifth.low,
             baseIndex + stages.sixth.low,
             baseIndex + stages.final.low
-        };
+        ];
 
         int[] stageTextureIndicesTop =
-        {
+        [
             0,
             0,
             0,
@@ -99,7 +99,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.fifth.top,
             baseIndex + stages.sixth.top,
             baseIndex + stages.final.top
-        };
+        ];
 
         for (uint data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, stageTextureIndicesLow, stageTextureIndicesTop, visuals));
     }

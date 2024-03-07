@@ -54,6 +54,11 @@ public abstract class UserInterface : IDisposable
     public ControlBase Root => resources.GUI.Root;
 
     /// <summary>
+    ///     Whether it is safe to close this user interface (e.g. when the application is closing).
+    /// </summary>
+    public bool IsSafeToClose => !Context.IsInModal;
+
+    /// <summary>
     ///     Load the user interface.
     /// </summary>
     public void Load()

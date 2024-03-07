@@ -358,15 +358,8 @@ public class Image
         /// <param name="next">The next level, has to be filled with the data.</param>
         protected abstract void CreateNextLevel(Image previous, Image next);
 
-        private sealed class AveragingAlgorithm : MipmapAlgorithm
+        private sealed class AveragingAlgorithm(bool transparency) : MipmapAlgorithm
         {
-            private readonly bool transparency;
-
-            public AveragingAlgorithm(bool transparency)
-            {
-                this.transparency = transparency;
-            }
-
             private ((int, int, int, int) factors, int alpha) DetermineFactorsAndAlpha(
                 Color c1, Color c2, Color c3, Color c4)
             {

@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic;
@@ -59,6 +60,11 @@ public sealed class GameResources : IDisposable
     ///     The UI resources.
     /// </summary>
     public UIResources UI { get; } = new();
+
+    /// <summary>
+    ///     A collection of all commands and their invokers.
+    /// </summary>
+    public CommandInvoker Commands { get; private set; } = null!;
 
     /// <summary>
     ///     Load the resources.
@@ -126,6 +132,8 @@ public sealed class GameResources : IDisposable
 
         BlockTextures.DisableLoading();
         FluidTextures.DisableLoading();
+
+        Commands = GameConsole.BuildInvoker();
     }
 
     #region IDisposable Support

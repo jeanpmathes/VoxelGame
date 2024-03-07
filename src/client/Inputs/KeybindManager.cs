@@ -70,10 +70,10 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
     internal IEnumerable<Keybind> Binds => keybinds.Keys;
 
     /// <inheritdoc />
-    string ISettingsProvider.Category => Language.Keybinds;
+    static string ISettingsProvider.Category => Language.Keybinds;
 
     /// <inheritdoc />
-    string ISettingsProvider.Description => Language.KeybindsSettingsDescription;
+    static string ISettingsProvider.Description => Language.KeybindsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;

@@ -21,6 +21,8 @@ internal sealed class Context
     internal static readonly Size DefaultIconSize = new(size: 40);
     internal static readonly Size SmallIconSize = new(size: 25);
 
+    private int modalDepth;
+
     internal Context(Input input, UIResources resources)
     {
         Fonts = resources.Fonts;
@@ -28,10 +30,26 @@ internal sealed class Context
         Resources = resources;
     }
 
+    /// <summary>
+    ///     All fonts available to be used.
+    ///     Each font is associated with a role.
+    /// </summary>
     internal FontHolder Fonts { get; }
+
+    /// <summary>
+    ///     The input manager.
+    /// </summary>
     internal Input Input { get; }
 
+    /// <summary>
+    ///     Loaded resources like icons and the names to access them.
+    /// </summary>
     internal UIResources Resources { get; }
+
+    /// <summary>
+    ///     Whether the user interface currently shows any modal windows.
+    /// </summary>
+    internal bool IsInModal => modalDepth > 0;
 
     /// <summary>
     ///     Create a button that uses an icon instead of text.
@@ -79,8 +97,15 @@ internal sealed class Context
     /// <summary>
     ///     Make a window modal.
     /// </summary>
-    internal static void MakeModal(Window window)
+    internal void MakeModal(Window window)
     {
         window.MakeModal(dim: true, new Color(a: 170, r: 40, g: 40, b: 40));
+
+        modalDepth++;
+
+        window.Closed += (_, _) =>
+        {
+            modalDepth--;
+        };
     }
 }

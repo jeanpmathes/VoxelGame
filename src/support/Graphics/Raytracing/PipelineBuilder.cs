@@ -62,7 +62,7 @@ public class PipelineBuilder
     /// <param name="names">The ungrouped symbols in the file.</param>
     public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, string[]? names = null)
     {
-        List<string> exports = new(names ?? Array.Empty<string>());
+        List<string> exports = [..names ?? Array.Empty<string>()];
 
         void AddIfNotEmpty(string? name)
         {
@@ -167,32 +167,27 @@ public class PipelineBuilder
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
     public bool Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
-        (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, IntPtr[] texturePointers) = BuildDescriptions();
+        (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
         Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
 
         var success = true;
 
-        buffer = client.InitializeRaytracing<T>(new SpacePipeline
+        buffer = client.InitializeRaytracing<T>(new SpacePipelineDescription
         {
-            ShaderFiles = files,
-            Symbols = symbols,
-            Materials = materialDescriptions,
-            TexturePointers = texturePointers,
-            Description = new SpacePipelineDescription
+            shaderFiles = files,
+            symbols = symbols,
+            materials = materialDescriptions,
+            textures = textures,
+            textureCountFirstSlot = (uint) (firstTextureSlot?.Count ?? 0),
+            textureCountSecondSlot = (uint) (secondTextureSlot?.Count ?? 0),
+            customDataBufferSize = customDataBufferSize,
+            onShaderLoadingError = (_, message) =>
             {
-                shaderCount = (uint) files.Length,
-                materialCount = (uint) materialDescriptions.Length,
-                textureCountFirstSlot = (uint) (firstTextureSlot?.Count ?? 0),
-                textureCountSecondSlot = (uint) (secondTextureSlot?.Count ?? 0),
-                customDataBufferSize = customDataBufferSize,
-                onShaderLoadingError = (_, message) =>
-                {
-                    ReportFailure(loadingContext, message);
-                    success = false;
+                ReportFailure(loadingContext, message);
+                success = false;
 
-                    Debugger.Break();
-                }
+                Debugger.Break();
             }
         });
 
@@ -203,10 +198,10 @@ public class PipelineBuilder
         return true;
     }
 
-    private (ShaderFileDescription[], string[], MaterialDescription[], IntPtr[]) BuildDescriptions()
+    private (ShaderFileDescription[], string[], MaterialDescription[], Texture[]) BuildDescriptions()
     {
-        List<string> symbols = new();
-        List<ShaderFileDescription> shaderFileDescriptions = new();
+        List<string> symbols = [];
+        List<ShaderFileDescription> shaderFileDescriptions = [];
 
         foreach (ShaderFile shaderFile in shaderFiles)
         {
@@ -235,20 +230,20 @@ public class PipelineBuilder
             shadowIntersectionSymbol = material.Shadow.IntersectionSymbol
         }).ToArray();
 
-        IEnumerable<IntPtr> firstSlot = firstTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();
-        IEnumerable<IntPtr> secondSlot = secondTextureSlot?.GetTexturePointers() ?? Enumerable.Empty<IntPtr>();
+        IEnumerable<Texture> firstSlot = firstTextureSlot ?? Enumerable.Empty<Texture>();
+        IEnumerable<Texture> secondSlot = secondTextureSlot ?? Enumerable.Empty<Texture>();
 
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
     private static void ReportFailure(LoadingContext loadingContext, string message)
     {
-        loadingContext.ReportFailure(Events.RenderPipelineError, nameof(SpacePipeline), "RT_Pipeline", message);
+        loadingContext.ReportFailure(Events.RenderPipelineError, nameof(SpacePipelineDescription), "RT_Pipeline", message);
     }
 
     private void ReportSuccess(LoadingContext loadingContext)
     {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(SpacePipeline), shader.File);
+        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(SpacePipelineDescription), shader.File);
     }
 
     private sealed record ShaderFile(FileInfo File, string[] Exports);

@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Application.Settings;
 ///     General game settings that are not part of any other settings category.
 ///     Changed settings in this class will be saved.
 /// </summary>
-public class GeneralSettings : ISettingsProvider, IScaleProvider
+public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
 {
     private readonly List<Setting> settings = new();
 
@@ -148,8 +148,6 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
     /// </summary>
     public Bindable<float> MouseSensitivity { get; }
 
-#pragma warning disable CA1033
-
     /// <inheritdoc />
     float IScaleProvider.Scale => ScaleOfUI;
 
@@ -160,12 +158,11 @@ public class GeneralSettings : ISettingsProvider, IScaleProvider
     }
 
     /// <inheritdoc />
-    string ISettingsProvider.Category => Language.General;
+    static string ISettingsProvider.Category => Language.General;
 
     /// <inheritdoc />
-    string ISettingsProvider.Description => Language.GeneralSettingsDescription;
+    static string ISettingsProvider.Description => Language.GeneralSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
-#pragma warning restore CA1033
 }

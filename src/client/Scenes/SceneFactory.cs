@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Client.Application;
-using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
 
@@ -17,7 +16,6 @@ namespace VoxelGame.Client.Scenes;
 public class SceneFactory
 {
     private readonly Application.Client client;
-    private readonly CommandInvoker commandInvoker;
 
     /// <summary>
     ///     Create a new scene factory.
@@ -25,8 +23,6 @@ public class SceneFactory
     internal SceneFactory(Application.Client client)
     {
         this.client = client;
-
-        commandInvoker = GameConsole.BuildInvoker();
     }
 
     /// <summary>
@@ -37,7 +33,7 @@ public class SceneFactory
     /// <returns>The created game scene.</returns>
     public IScene CreateGameScene(World world, out Game game)
     {
-        GameScene scene = new(client, world, new GameConsole(commandInvoker));
+        GameScene scene = new(client, world);
         game = scene.Game;
 
         return scene;

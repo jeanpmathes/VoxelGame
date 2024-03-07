@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
@@ -26,9 +27,21 @@ public static class ShaderBuffers
 }
 
 /// <summary>
+///     Base class for shader buffers.
+/// </summary>
+[NativeMarshalling(typeof(ShaderBufferMarshaller))]
+public class ShaderBuffer : NativeObject
+{
+    /// <summary>
+    ///     Creates a new <see cref="ShaderBuffer" />.
+    /// </summary>
+    protected ShaderBuffer(IntPtr nativePointer, Client client) : base(nativePointer, client) {}
+}
+
+/// <summary>
 ///     Represents a shader constant buffer.
 /// </summary>
-public class ShaderBuffer<T> : NativeObject where T : unmanaged, IEquatable<T>
+public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>
 {
     /// <summary>
     ///     Delegate for modifying the data of the buffer.
@@ -82,6 +95,28 @@ public class ShaderBuffer<T> : NativeObject where T : unmanaged, IEquatable<T>
 
     private void Write()
     {
-        Native.SetShaderBufferData(this, data);
+        unsafe
+        {
+            fixed (T* ptr = &data)
+            {
+                NativeMethods.SetShaderBufferData(this, ptr);
+            }
+        }
     }
 }
+
+#pragma warning disable S3242
+[CustomMarshaller(typeof(ShaderBuffer), MarshalMode.ManagedToUnmanagedIn, typeof(ShaderBufferMarshaller))]
+internal static class ShaderBufferMarshaller
+{
+    internal static IntPtr ConvertToUnmanaged(ShaderBuffer managed)
+    {
+        return managed.Self;
+    }
+
+    internal static void Free(IntPtr unmanaged)
+    {
+        // Nothing to do here.
+    }
+}
+#pragma warning restore S3242

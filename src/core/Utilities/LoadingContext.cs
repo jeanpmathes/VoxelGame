@@ -197,12 +197,12 @@ public class LoadingContext
         throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, string Name, Group Group, IDisposable Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, EventId ID, string Name, Group Group, IDisposable? Scope) : IDisposable
     {
         public void Dispose()
         {
             Context.FinishStep(this);
-            Scope.Dispose();
+            Scope?.Dispose();
         }
     }
 }

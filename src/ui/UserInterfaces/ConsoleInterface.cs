@@ -76,7 +76,7 @@ public class ConsoleInterface
         };
 
         consoleWindow.Closed += (_, _) => CleanupAfterClose();
-        Context.MakeModal(consoleWindow);
+        context.MakeModal(consoleWindow);
 
         content = new Empty(consoleWindow);
 

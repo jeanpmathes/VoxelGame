@@ -13,4 +13,4 @@ namespace VoxelGame.Core.Logic.Interfaces;
 ///     connections at the top or bottom side.
 ///     The connection surface has to be opaque.
 /// </summary>
-public interface IWideConnectable : IConnectable {}
+public interface IWideConnectable : IConnectable;

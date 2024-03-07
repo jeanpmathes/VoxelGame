@@ -58,9 +58,9 @@ internal class KeyOrButtonSetting : Setting
             Dock = Dock.Fill
         };
 
-        rebind.Released += (_, _) => // Using pressed instead of clicked causes that the mouse is used as new bind.
+        rebind.Released += (_, _) =>
         {
-            CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton);
+            CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton, context);
 
             context.Input.ListenForAnyKeyOrButton(
                 keyOrButton =>
@@ -70,7 +70,7 @@ internal class KeyOrButtonSetting : Setting
                     set(keyOrButton);
                     rebind.Text = keyOrButton.ToString();
 
-                    Provider.Validate();
+                    Validator.Validate();
                 });
         };
 
@@ -87,7 +87,7 @@ internal class KeyOrButtonSetting : Setting
             reset();
             rebind.Text = get().ToString();
 
-            Provider.Validate();
+            Validator.Validate();
         };
     }
 

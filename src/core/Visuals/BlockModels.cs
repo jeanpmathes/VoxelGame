@@ -54,16 +54,16 @@ public static class BlockModels
 
         return new BlockModel
         {
-            TextureNames = new[] {"missing_texture"},
-            Quads = new[]
-            {
+            TextureNames = ["missing_texture"],
+            Quads =
+            [
                 BuildQuad(BlockSide.Front),
                 BuildQuad(BlockSide.Back),
                 BuildQuad(BlockSide.Left),
                 BuildQuad(BlockSide.Right),
                 BuildQuad(BlockSide.Bottom),
                 BuildQuad(BlockSide.Top)
-            }
+            ]
         };
     }
 
