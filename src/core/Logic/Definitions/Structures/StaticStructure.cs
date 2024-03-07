@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
