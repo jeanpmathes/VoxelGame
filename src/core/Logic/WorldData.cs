@@ -194,9 +194,9 @@ public class WorldData
 
             return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
         }
-        catch (IOException)
+        catch (IOException e)
         {
-            logger.LogDebug(Events.WorldIO, "Failed to read blob '{Name}'", name);
+            logger.LogDebug(Events.WorldIO, e, "Failed to read blob '{Name}'", name);
 
             return null;
         }
@@ -239,9 +239,9 @@ public class WorldData
         {
             return GetScriptPath(name).ReadAllText();
         }
-        catch (IOException)
+        catch (IOException e)
         {
-            logger.LogDebug(Events.WorldIO, "Failed to read script '{Name}'", name);
+            logger.LogDebug(Events.WorldIO, e, "Failed to read script '{Name}'", name);
 
             return null;
         }

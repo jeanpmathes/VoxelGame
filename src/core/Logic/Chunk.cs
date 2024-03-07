@@ -364,7 +364,7 @@ public partial class Chunk : IDisposable
         {
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
-            logger.LogDebug("Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, e.Message);
+            logger.LogDebug(Events.ChunkOperation, e, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, e.Message);
 
             return LoadingResult.IOError;
         }
@@ -373,7 +373,7 @@ public partial class Chunk : IDisposable
 
         if (chunk.Position == position) return LoadingResult.Success(chunk);
 
-        logger.LogWarning("File for the chunk at {Position} was invalid: position did not match", position);
+        logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
 
         return LoadingResult.FormatError;
     }
