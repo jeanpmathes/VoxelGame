@@ -62,25 +62,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
-        <PackageReference Include="OpenTK.Mathematics" Version="4.8.2"/>
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0"/>
-        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-        <PackageReference Include="System.Drawing.Common" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+        <PackageReference Include="OpenTK.Mathematics" Version="4.7.7" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+        <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
-        <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
-        <ProjectReference Include="..\support\VoxelGame.Support.csproj"/>
-        <ProjectReference Include="..\ui\VoxelGame.UI.csproj"/>
+        <ProjectReference Include="..\core\VoxelGame.Core.csproj" />
+        <ProjectReference Include="..\manual\VoxelGame.Manual.csproj" />
+        <ProjectReference Include="..\support\VoxelGame.Support.csproj" />
+        <ProjectReference Include="..\ui\VoxelGame.UI.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -574,8 +574,8 @@
         <None Update="Resources\Utilities\modelexporter.py">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </None>
-        <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png"/>
-        <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png"/>
+        <None Remove="Resources\Textures\Blocks\liquid_barrier_closed.png" />
+        <None Remove="Resources\Textures\Blocks\liquid_barrier_open.png" />
         <None Update="Resources\Textures\Blocks\core.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -636,7 +636,7 @@
         <None Update="Resources\Shaders\FoliageAnimation.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Remove="Resources\Shaders\noise.glsl"/>
+        <None Remove="Resources\Shaders\noise.glsl" />
         <None Update="Resources\Shaders\BasicOpaque.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -703,6 +703,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Utilities\"/>
+        <Folder Include="Utilities\" />
     </ItemGroup>
 </Project>
