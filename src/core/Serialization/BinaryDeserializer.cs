@@ -43,97 +43,97 @@ public sealed class BinaryDeserializer : Serializer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref int value, string name = "")
+    public override void SerializeSmall(ref int value)
     {
         value = reader.Read7BitEncodedInt();
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref long value, string name = "")
+    public override void SerializeSmall(ref long value)
     {
         value = reader.Read7BitEncodedInt64();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref int value, string name = "")
+    public override void Serialize(ref int value)
     {
         value = reader.ReadInt32();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref uint value, string name = "")
+    public override void Serialize(ref uint value)
     {
         value = reader.ReadUInt32();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref long value, string name = "")
+    public override void Serialize(ref long value)
     {
         value = reader.ReadInt64();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ulong value, string name = "")
+    public override void Serialize(ref ulong value)
     {
         value = reader.ReadUInt64();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref short value, string name = "")
+    public override void Serialize(ref short value)
     {
         value = reader.ReadInt16();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ushort value, string name = "")
+    public override void Serialize(ref ushort value)
     {
         value = reader.ReadUInt16();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref byte value, string name = "")
+    public override void Serialize(ref byte value)
     {
         value = reader.ReadByte();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref sbyte value, string name = "")
+    public override void Serialize(ref sbyte value)
     {
         value = reader.ReadSByte();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref float value, string name = "")
+    public override void Serialize(ref float value)
     {
         value = reader.ReadSingle();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref double value, string name = "")
+    public override void Serialize(ref double value)
     {
         value = reader.ReadDouble();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref bool value, string name = "")
+    public override void Serialize(ref bool value)
     {
         value = reader.ReadBoolean();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref char value, string name = "")
+    public override void Serialize(ref char value)
     {
         value = reader.ReadChar();
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref string value, string name = "")
+    public override void Serialize(ref string value)
     {
         value = reader.ReadString();
     }
 
     /// <inheritdoc />
-    protected override void Serialize(Span<byte> value, string name = "")
+    protected override void Serialize(Span<byte> value)
     {
         int read = reader.Read(value);
 

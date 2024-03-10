@@ -87,12 +87,12 @@ public class ScheduledTickManagerTests
 
         using MemoryStream data = new();
         using BinarySerializer serializer = new(data, "");
-        serializer.SerializeEntity(ref manager);
+        serializer.SerializeEntity(manager);
 
         data.Position = 0;
         using BinaryDeserializer deserializer = new(data, "");
         ScheduledTickManager<TestTick> newManager = new(maxTicksPerUpdate: 32, counter);
-        deserializer.SerializeEntity(ref newManager);
+        deserializer.SerializeEntity(newManager);
 
         counter.Increment();
         newManager.Process();

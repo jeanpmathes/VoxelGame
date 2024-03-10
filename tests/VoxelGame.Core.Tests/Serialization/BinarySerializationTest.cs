@@ -26,7 +26,7 @@ public class BinarySerializationTest
 
         using MemoryStream stream = new();
         using BinarySerializer serializer = new(stream, "test");
-        serializer.SerializeEntity(ref data);
+        serializer.SerializeEntity(data);
 
         data.o = "another string";
         data.p = p;
@@ -35,7 +35,7 @@ public class BinarySerializationTest
 
         stream.Position = 0;
         using BinaryDeserializer deserializer = new(stream, "test");
-        deserializer.SerializeEntity(ref data);
+        deserializer.SerializeEntity(data);
 
         Assert.Equal("some string", data.o);
         Assert.Same(p, data.p);

@@ -206,7 +206,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 
         public void Serialize(Serializer serializer)
         {
-            serializer.Serialize(ref targetUpdate);
+            serializer.SerializeSmall(ref targetUpdate);
             serializer.SerializeValues(tickables);
         }
     }

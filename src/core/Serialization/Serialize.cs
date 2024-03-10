@@ -97,7 +97,7 @@ public static class Serialize
             using Stream stream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
             using BinarySerializer serializer = new(stream, signature, file);
 
-            serializer.SerializeEntity(ref entity);
+            serializer.SerializeEntity(entity);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
@@ -122,7 +122,7 @@ public static class Serialize
             using Stream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             using BinaryDeserializer deserializer = new(stream, signature, file);
 
-            deserializer.SerializeEntity(ref entity);
+            deserializer.SerializeEntity(entity);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {

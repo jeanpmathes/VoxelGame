@@ -214,8 +214,8 @@ public partial class Chunk : IDisposable, IEntity
         serializer.SerializeValue(ref location);
         serializer.SerializeEntities(sections);
         serializer.Serialize(ref decoration);
-        serializer.SerializeEntity(ref blockTickManager);
-        serializer.SerializeEntity(ref fluidTickManager);
+        serializer.SerializeEntity(blockTickManager);
+        serializer.SerializeEntity(fluidTickManager);
     }
 
     /// <summary>
@@ -227,6 +227,9 @@ public partial class Chunk : IDisposable, IEntity
     {
         World = world;
         location = position;
+
+        blockTickManager.SetWorld(world);
+        fluidTickManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, context);
 
@@ -248,7 +251,11 @@ public partial class Chunk : IDisposable, IEntity
         Debug.Assert(!extendedResource.IsAcquired);
 
         blockTickManager.Clear();
+        blockTickManager.SetWorld(newWorld: null);
+
         fluidTickManager.Clear();
+        fluidTickManager.SetWorld(newWorld: null);
+
         localUpdateCounter.Reset();
 
         World = null!;
@@ -463,12 +470,6 @@ public partial class Chunk : IDisposable, IEntity
         logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
 
         chunkFile.Directory?.Create();
-
-        FileInfo dump = new(chunkFile.FullName + ".txt");
-        using TextDump writer = new(dump.Open(FileMode.Create), FileSignature);
-
-        Chunk chunk = this;
-        writer.SerializeEntity(ref chunk);
 
         Exception? exception = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
 

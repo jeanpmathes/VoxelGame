@@ -44,97 +44,97 @@ public sealed class BinarySerializer : Serializer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref int value, string name = "")
+    public override void SerializeSmall(ref int value)
     {
         writer.Write7BitEncodedInt(value);
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref long value, string name = "")
+    public override void SerializeSmall(ref long value)
     {
         writer.Write7BitEncodedInt64(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref int value, string name = "")
+    public override void Serialize(ref int value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref uint value, string name = "")
+    public override void Serialize(ref uint value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref long value, string name = "")
+    public override void Serialize(ref long value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ulong value, string name = "")
+    public override void Serialize(ref ulong value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref short value, string name = "")
+    public override void Serialize(ref short value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ushort value, string name = "")
+    public override void Serialize(ref ushort value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref byte value, string name = "")
+    public override void Serialize(ref byte value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref sbyte value, string name = "")
+    public override void Serialize(ref sbyte value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref float value, string name = "")
+    public override void Serialize(ref float value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref double value, string name = "")
+    public override void Serialize(ref double value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref bool value, string name = "")
+    public override void Serialize(ref bool value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref char value, string name = "")
+    public override void Serialize(ref char value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref string value, string name = "")
+    public override void Serialize(ref string value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    protected override void Serialize(Span<byte> value, string name = "")
+    protected override void Serialize(Span<byte> value)
     {
         writer.Write(value);
     }
