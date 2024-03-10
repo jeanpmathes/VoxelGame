@@ -13,7 +13,6 @@
         <PackageLicenseExpression>MIT License</PackageLicenseExpression>
         <LangVersion>12</LangVersion>
         <Authors>jeanpmathes</Authors>
-        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
 
     <PropertyGroup>
