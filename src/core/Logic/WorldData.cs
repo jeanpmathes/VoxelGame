@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -182,45 +183,35 @@ public class WorldData
     }
 
     /// <summary>
-    ///     Get a reader for an existing blob.
+    /// Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
-    /// <returns>The reader for the blob, or null if the blob does not exist.</returns>
-    public BinaryReader? GetBlobReader(string name)
+    /// <typeparam name="T">The type of the entity.</typeparam>
+    /// <returns>The entity, or null if an error occurred.</returns>
+    public T? ReadBlob<T>(string name) where T : class, IEntity, new()
     {
-        try
-        {
-            Stream stream = BlobDirectory.OpenFile(name, FileMode.Open, FileAccess.Read);
+        Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
 
-            return new BinaryReader(stream, Encoding.UTF8, leaveOpen: false);
-        }
-        catch (IOException e)
-        {
-            logger.LogDebug(Events.WorldIO, e, "Failed to read blob '{Name}'", name);
+        if (exception == null)
+            return entity;
 
-            return null;
-        }
+        logger.LogDebug(Events.WorldIO, exception, "Failed to read blob '{Name}'", name);
+
+        return null;
     }
 
     /// <summary>
-    ///     Get a stream to a new blob.
+    /// Write an entity to a data blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
-    /// <returns>The stream to the blob, or null if an error occurred.</returns>
-    public BinaryWriter? GetBlobWriter(string name)
+    /// <param name="entity">The entity to write.</param>
+    /// <typeparam name="T">The type of the entity.</typeparam>
+    public void WriteBlob<T>(string name, T entity) where T : class, IEntity, new()
     {
-        try
-        {
-            Stream stream = BlobDirectory.OpenFile(name, FileMode.Create, FileAccess.Write);
+        Exception? exception = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
 
-            return new BinaryWriter(stream, Encoding.UTF8, leaveOpen: false);
-        }
-        catch (IOException e)
-        {
-            logger.LogError(Events.WorldIO, e, "Failed to create blob '{Name}'", name);
-
-            return null;
-        }
+        if (exception != null)
+            logger.LogError(Events.WorldIO, exception, "Failed to write blob '{Name}'", name);
     }
 
     private FileInfo GetScriptPath(string name)
