@@ -54,7 +54,7 @@ public sealed class ChunkSet : IDisposable
 
         if (!chunks.TryGetValue(position, out Chunk? chunk))
         {
-            chunk = context.Create(position, context);
+            chunk = context.GetObject(position);
             chunks.Add(position, chunk);
         }
 
@@ -81,7 +81,7 @@ public sealed class ChunkSet : IDisposable
 
         Throw.IfNotOnMainThread(this);
 
-        return chunks.TryGetValue(position, out Chunk? chunk) ? chunk : null;
+        return chunks.GetValueOrDefault(position);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public sealed class ChunkSet : IDisposable
         Debug.Assert(!chunk.IsRequested);
 
         chunks.Remove(chunk.Position);
-        chunk.Dispose();
+        context.ReturnObject(chunk);
     }
 
     /// <summary>
@@ -168,11 +168,11 @@ public sealed class ChunkSet : IDisposable
     {
         if (disposed) return;
 
+        Debug.Assert(chunks.Count == 0);
+
         if (disposing)
-            foreach ((ChunkPosition _, Chunk chunk) in chunks)
-                #pragma warning disable S3966 // False positive, chunk is not disposed before.
+            foreach (Chunk chunk in chunks.Values)
                 chunk.Dispose();
-                #pragma warning restore S3966
 
         disposed = true;
     }

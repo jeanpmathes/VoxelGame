@@ -33,7 +33,7 @@ public class BinarySerializationTest
         data.q = Data.TestState.A;
         data.r.Clear();
 
-        stream.Seek(offset: 0, SeekOrigin.Begin);
+        stream.Position = 0;
         using BinaryDeserializer deserializer = new(stream, "test");
         deserializer.SerializeEntity(ref data);
 

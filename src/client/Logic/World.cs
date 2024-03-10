@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
@@ -84,6 +85,12 @@ public class World : Core.Logic.World
         space.Light.Direction = sunLightDirection;
     }
 
+    /// <inheritdoc />
+    protected override ChunkPool CreateChunkPool()
+    {
+        return new ChunkPool(ChunkContext, context => new Chunk(context));
+    }
+
     /// <summary>
     ///     Add a client player to the world.
     /// </summary>
@@ -118,12 +125,6 @@ public class World : Core.Logic.World
                 chunk?.Cast().CullSections(frustum);
             }
         }
-    }
-
-    /// <inheritdoc />
-    protected override Core.Logic.Chunk CreateChunk(ChunkPosition position, ChunkContext context)
-    {
-        return new Chunk(this, position, context);
     }
 
     /// <inheritdoc />

@@ -5,13 +5,14 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
 ///     An object that can receive ticks.
 /// </summary>
-public interface ITickable
+public interface ITickable : IValue
 {
     /// <summary>
     ///     Send a tick to the object.

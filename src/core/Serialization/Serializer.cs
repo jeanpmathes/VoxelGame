@@ -108,7 +108,7 @@ public abstract class Serializer
         where T : unmanaged
     {
         int length = value.Length;
-        Serialize(ref length, name);
+        SerializeSmall(ref length, name);
 
         if (value.Length != length) value = new T[length];
 
@@ -168,6 +168,26 @@ public abstract class Serializer
     }
 
     /// <summary>
+    ///     Serialize a nullable value.
+    /// </summary>
+    public void SerializeNullableValue<T>(ref T? value, [CallerArgumentExpression(nameof(value))] string name = "")
+        where T : IValue, new()
+    {
+        bool hasValue = !Equals(value, default(T));
+        Serialize(ref hasValue, name);
+
+        if (hasValue)
+        {
+            value ??= new T();
+            SerializeValue(ref value);
+        }
+        else
+        {
+            value = default;
+        }
+    }
+
+    /// <summary>
     ///     Serialize a list of values. This is equivalent to serializing each value individually.
     ///     The passed list will be modified, e.g. resized and some entries might be cleared.
     /// </summary>
@@ -175,7 +195,7 @@ public abstract class Serializer
         where T : IValue, new()
     {
         int count = values.Count;
-        Serialize(ref count, name);
+        SerializeSmall(ref count, name);
 
         for (var index = 0; index < count; index++)
         {
@@ -202,43 +222,46 @@ public abstract class Serializer
         else throw new NotImplementedException("Entity headers are not implemented for the current version of the serialization system.");
 #pragma warning restore S3717
 
+        if (version > T.Version)
+            Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.Version}.");
+
         entity.Serialize(this, new IEntity.Header(version));
     }
 
     /// <summary>
     ///     Serialize a list of entities. This is equivalent to serializing each entity individually.
+    ///     The list size must exactly match the number of entities to be serialized.
     /// </summary>
     public void SerializeEntities<T>(IList<T> entities, [CallerArgumentExpression(nameof(entities))] string name = "")
-        where T : IEntity, new()
+        where T : IEntity
     {
         int count = entities.Count;
-        Serialize(ref count, name);
+        SerializeSmall(ref count, name);
+
+        if (entities.Count != count)
+            Fail($"Expected {count} entities, but got {entities.Count}.");
 
         for (var index = 0; index < count; index++)
         {
-            if (index >= entities.Count) entities.Add(new T());
-
             T entity = entities[index];
             SerializeEntity(ref entity);
             entities[index] = entity;
         }
-
-        for (int index = entities.Count - 1; index >= count; index--) entities.RemoveAt(index);
     }
 
     /// <summary>
     ///     Ensure that a signature is present.
     /// </summary>
-    public void Signature(string content)
+    public void Signature(string content, [CallerArgumentExpression(nameof(content))] string name = "")
     {
         for (var index = 0; index < content.Length; index++)
         {
             char expected = content[index];
             char actual = expected;
 
-            Serialize(ref actual);
+            Serialize(ref actual, name);
 
-            if (actual != expected) Fail($"Expected signature {content}, but got {actual} at position {index}");
+            if (actual != expected) Fail($"Expected signature {content}, but got {actual} at position {index}.");
         }
     }
 

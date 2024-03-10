@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -455,14 +454,6 @@ public abstract class ChunkState
     }
 
     /// <summary>
-    ///     Check if two states are of the same type.
-    /// </summary>
-    private static bool IsSameState(ChunkState a, ChunkState b)
-    {
-        return a.GetType() == b.GetType();
-    }
-
-    /// <summary>
     ///     Describes how to take the transition to a state.
     /// </summary>
     protected record struct TransitionDescription
@@ -474,7 +465,7 @@ public abstract class ChunkState
         public Action? Cleanup { get; init; }
 
         /// <summary>
-        ///     Whether to prioritize looping transitions (to this state) before this transitions, even if this transition is
+        ///     Whether to prioritize looping transitions (to this state) before this transition, even if this transition is
         ///     required.
         /// </summary>
         public bool PrioritizeLoop { get; init; }
@@ -511,7 +502,7 @@ public abstract class ChunkState
     /// </summary>
     private sealed class RequestQueue
     {
-        private readonly List<(ChunkState state, RequestDescription description)> requests = new();
+        private readonly List<(ChunkState state, RequestDescription description)> requests = [];
 
         /// <summary>
         ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct
@@ -532,7 +523,7 @@ public abstract class ChunkState
 
             if (!description.AllowDuplicateStateByType)
             {
-                bool isDuplicate = requests.Any(request => IsSameState(request.state, state));
+                bool isDuplicate = requests.Exists(request => IsSameState(request.state, state));
 
                 if (isDuplicate) return;
             }
@@ -572,6 +563,14 @@ public abstract class ChunkState
             requests.RemoveAt(target);
 
             return request.state;
+        }
+
+        /// <summary>
+        ///     Check if two states are of the same type.
+        /// </summary>
+        private static bool IsSameState(ChunkState a, ChunkState b)
+        {
+            return a.GetType() == b.GetType();
         }
     }
 }

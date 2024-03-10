@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application.Worlds;
@@ -53,7 +53,7 @@ public class WorldDirectoryMetadata
     /// <param name="file">The file to save to.</param>
     public void Save(FileInfo file)
     {
-        Exception? exception = FileSystem.SaveJSON(this, file);
+        Exception? exception = Serialize.SaveJSON(this, file);
 
         if (exception == null)
             logger.LogDebug(Events.FileIO, "World directory metadata saved to {File}", file);
@@ -70,7 +70,7 @@ public class WorldDirectoryMetadata
     /// <returns>The metadata.</returns>
     public static WorldDirectoryMetadata Load(FileInfo file, out Exception? exception)
     {
-        exception = FileSystem.LoadJSON(file, out WorldDirectoryMetadata metadata);
+        exception = Serialize.LoadJSON(file, out WorldDirectoryMetadata metadata);
 
         if (!file.Exists)
         {

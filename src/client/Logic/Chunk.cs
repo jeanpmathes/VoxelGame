@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -21,28 +20,45 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     A chunk of the world, specifically for the client.
 /// </summary>
-[Serializable]
 public partial class Chunk : Core.Logic.Chunk
 {
     private const int MaxMeshDataStep = 16;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [NonSerialized] private bool hasMeshData;
-    [NonSerialized] private int meshDataIndex;
-    [NonSerialized] private BlockSides meshedSides;
+    private bool hasMeshData;
+    private int meshDataIndex;
+    private BlockSides meshedSides;
 
     /// <summary>
     ///     Create a new client chunk.
     /// </summary>
-    /// <param name="world">The world that contains the chunk.</param>
-    /// <param name="position">The position of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
-    public Chunk(Core.Logic.World world, ChunkPosition position, ChunkContext context) : base(world, position, context, CreateSection) {}
+    public Chunk(ChunkContext context) : base(context, CreateSection) {}
 
     /// <summary>
     ///     Get the client world this chunk is in.
     /// </summary>
     public new World World => base.World.Cast();
+
+    /// <inheritdoc />
+    public override void Initialize(Core.Logic.World world, ChunkPosition position)
+    {
+        base.Initialize(world, position);
+
+        hasMeshData = false;
+        meshDataIndex = 0;
+        meshedSides = BlockSides.None;
+    }
+
+    /// <inheritdoc />
+    public override void Reset()
+    {
+        base.Reset();
+
+        hasMeshData = false;
+        meshDataIndex = 0;
+        meshedSides = BlockSides.None;
+    }
 
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
     private Section GetSection(int index)
@@ -67,9 +83,9 @@ public partial class Chunk : Core.Logic.Chunk
         });
     }
 
-    private static Core.Logic.Section CreateSection(SectionPosition position)
+    private static Core.Logic.Section CreateSection()
     {
-        return new Section(position);
+        return new Section();
     }
 
     /// <summary>

@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
@@ -370,7 +371,7 @@ public sealed class BlockModel
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
-        Exception? exception = FileSystem.SaveJSON(this, directory.GetFile(GetFileName(name)));
+        Exception? exception = Serialize.SaveJSON(this, directory.GetFile(GetFileName(name)));
 
         if (exception != null) logger.LogWarning(Events.FileIO, exception, "Failed to save block model");
     }
@@ -426,7 +427,7 @@ public sealed class BlockModel
             return BlockModels.CreateFallback();
         }
 
-        Exception? exception = FileSystem.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
+        Exception? exception = Serialize.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
 
         if (exception == null) loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
         else loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, exception);

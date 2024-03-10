@@ -9,7 +9,7 @@ using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -64,7 +64,7 @@ public class WorldInformation
     /// <param name="path">The save path.</param>
     public void Save(FileInfo path)
     {
-        Exception? exception = FileSystem.SaveJSON(this, path);
+        Exception? exception = Serialize.SaveJSON(this, path);
 
         if (exception != null) logger.LogError(Events.WorldSavingError, exception, "The meta file could not be saved: {Path}", path);
         else
@@ -82,7 +82,7 @@ public class WorldInformation
     /// <returns>The loaded world information.</returns>
     public static WorldInformation Load(FileInfo path)
     {
-        Exception? exception = FileSystem.LoadJSON(path, out WorldInformation information);
+        Exception? exception = Serialize.LoadJSON(path, out WorldInformation information);
 
         if (exception != null) logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {Path}", path);
         else

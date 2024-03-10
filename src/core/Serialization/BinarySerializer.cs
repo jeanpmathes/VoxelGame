@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -26,10 +27,11 @@ public sealed class BinarySerializer : Serializer, IDisposable
     /// <param name="file">The file that is being written to, if any.</param>
     public BinarySerializer(Stream stream, string signature, FileInfo? file = null)
     {
-        writer = new BinaryWriter(stream);
+        writer = new BinaryWriter(stream, Encoding.UTF8);
         destination = file;
 
         Unit = new UnitHeader(signature);
+        Unit.Serialize(this);
     }
 
     /// <inheritdoc />

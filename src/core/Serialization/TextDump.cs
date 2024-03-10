@@ -1,4 +1,4 @@
-﻿// <copyright file="BinaryDeserializer.cs" company="VoxelGame">
+﻿// <copyright file="TextDump.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,28 +6,24 @@
 
 using System;
 using System.IO;
-using System.Text;
 
 namespace VoxelGame.Core.Serialization;
 
 /// <summary>
+///     Dumps a unit into a stream as text.
 /// </summary>
-public sealed class BinaryDeserializer : Serializer, IDisposable
+public sealed class TextDump : Serializer, IDisposable
 {
-    private readonly BinaryReader reader;
-    private readonly FileInfo? source;
+    private readonly TextWriter writer;
 
     /// <summary>
-    ///     Create a new binary deserializer.
-    ///     Will read a new unit.
+    ///     Creates a new text dump.
     /// </summary>
-    /// <param name="stream">The stream to read from. Will close the stream when disposed.</param>
-    /// <param name="signature">The signature of the specific format.</param>
-    /// <param name="file">The file that is being read from, if any.</param>
-    public BinaryDeserializer(Stream stream, string signature, FileInfo? file = null)
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="signature">The signature of the unit to dump.</param>
+    public TextDump(Stream stream, string signature)
     {
-        reader = new BinaryReader(stream, Encoding.UTF8);
-        source = file;
+        writer = new StreamWriter(stream);
 
         Unit = new UnitHeader(signature);
         Unit.Serialize(this);
@@ -39,112 +35,108 @@ public sealed class BinaryDeserializer : Serializer, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        reader.Dispose();
+        writer.Dispose();
     }
 
     /// <inheritdoc />
     public override void SerializeSmall(ref int value, string name = "")
     {
-        value = reader.Read7BitEncodedInt();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void SerializeSmall(ref long value, string name = "")
     {
-        value = reader.Read7BitEncodedInt64();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref int value, string name = "")
     {
-        value = reader.ReadInt32();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref uint value, string name = "")
     {
-        value = reader.ReadUInt32();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref long value, string name = "")
     {
-        value = reader.ReadInt64();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref ulong value, string name = "")
     {
-        value = reader.ReadUInt64();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref short value, string name = "")
     {
-        value = reader.ReadInt16();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref ushort value, string name = "")
     {
-        value = reader.ReadUInt16();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref byte value, string name = "")
     {
-        value = reader.ReadByte();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref sbyte value, string name = "")
     {
-        value = reader.ReadSByte();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref float value, string name = "")
     {
-        value = reader.ReadSingle();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref double value, string name = "")
     {
-        value = reader.ReadDouble();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref bool value, string name = "")
     {
-        value = reader.ReadBoolean();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref char value, string name = "")
     {
-        value = reader.ReadChar();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     public override void Serialize(ref string value, string name = "")
     {
-        value = reader.ReadString();
+        writer.WriteLine($"{value} # {name}");
     }
 
     /// <inheritdoc />
     protected override void Serialize(Span<byte> value, string name = "")
     {
-        int read = reader.Read(value);
-
-        if (read != value.Length) Fail("Failed to read the expected amount of bytes.");
+        writer.WriteLine($"{BitConverter.ToString(value.ToArray())} # {name}");
     }
 
     /// <inheritdoc />
     public override void Fail(string message)
     {
-        if (source != null) throw new FileFormatException(source.FullName, message);
-
-        throw new IOException(message);
+        throw new InvalidOperationException(message);
     }
 }

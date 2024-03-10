@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Logic;
 
@@ -57,26 +58,14 @@ public partial class Block
         Destroy
     }
 
-    [Serializable]
-    internal struct BlockTick : ITickable, IEquatable<BlockTick>
+    internal struct BlockTick(Vector3i position, IBlockBase target, TickOperation operation) : ITickable, IEquatable<BlockTick>
     {
-        private readonly int x;
-        private readonly int y;
-        private readonly int z;
+        private int x = position.X;
+        private int y = position.Y;
+        private int z = position.Z;
 
-        private readonly uint target;
-        private readonly TickOperation operation;
-
-        public BlockTick(Vector3i position, Block target, TickOperation operation)
-        {
-            x = position.X;
-            y = position.Y;
-            z = position.Z;
-
-            this.target = target.ID;
-
-            this.operation = operation;
-        }
+        private uint target = target.ID;
+        private TickOperation operation = operation;
 
         public void Tick(World world)
         {
@@ -101,6 +90,15 @@ public partial class Block
             }
         }
 
+        public void Serialize(Serializer serializer)
+        {
+            serializer.Serialize(ref x);
+            serializer.Serialize(ref y);
+            serializer.Serialize(ref z);
+            serializer.Serialize(ref target);
+            serializer.Serialize(ref operation);
+        }
+
         public bool Equals(BlockTick other)
         {
             return (x, y, z, target, operation) == (other.x, other.y, other.z, other.target, other.operation);
@@ -111,10 +109,12 @@ public partial class Block
             return obj is BlockTick other && Equals(other);
         }
 
+#pragma warning disable S2328
         public override int GetHashCode()
         {
             return HashCode.Combine(x, y, z, target, (int) operation);
         }
+#pragma warning restore S2328
 
         public static bool operator ==(BlockTick left, BlockTick right)
         {

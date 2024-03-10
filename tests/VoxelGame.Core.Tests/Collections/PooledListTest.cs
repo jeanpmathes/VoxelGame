@@ -57,20 +57,20 @@ public class PooledListTest
 
         list.AddRange(collection: new[] {1, 2, 3});
 
-        Assert.True(list.Contains(item: 1));
-        Assert.True(list.Contains(item: 2));
-        Assert.True(list.Contains(item: 3));
-        Assert.False(list.Contains(item: 4));
+        Assert.Contains(expected: 1, list);
+        Assert.Contains(expected: 2, list);
+        Assert.Contains(expected: 3, list);
+        Assert.DoesNotContain(expected: 4, list);
 
         int index = list.IndexOf(item: 2);
         list.RemoveAt(index);
 
-        Assert.False(list.Contains(item: 2));
+        Assert.Contains(expected: 2, list);
         Assert.Equal(expected: 3, list[index: 1]);
 
         list.Remove(item: 3);
 
-        Assert.False(list.Contains(item: 3));
+        Assert.DoesNotContain(expected: 3, list);
         Assert.Single(list);
     }
 }

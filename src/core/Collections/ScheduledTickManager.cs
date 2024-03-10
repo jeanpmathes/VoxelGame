@@ -4,11 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 
@@ -18,40 +18,67 @@ namespace VoxelGame.Core.Collections;
 ///     Manages scheduled ticks.
 /// </summary>
 /// <typeparam name="T">The type of tickables to manage.</typeparam>
-[Serializable]
-public class ScheduledTickManager<T> where T : ITickable
+public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
 
-    private readonly int maxTicks;
-    private TicksHolder? nextTicks;
+    private readonly UpdateCounter updateCounter;
+    private readonly int maxTicksPerUpdate;
 
-    [NonSerialized] private UpdateCounter updateCounter;
-    [NonSerialized] private World world;
+    private World? world;
+
+    private TicksHolder? nextTicks;
 
     /// <summary>
     ///     Create a new scheduled tick manager.
     /// </summary>
-    /// <param name="maxTicks">The maximum amount of ticks per frame.</param>
-    /// <param name="world">The world in which ticks are issued.</param>
-    /// <param name="updateCounter">The current game update counter.</param>
-    public ScheduledTickManager(int maxTicks, World world, UpdateCounter updateCounter)
+    /// <param name="maxTicksPerUpdate">The maximum amount of ticks per update.</param>
+    /// <param name="updateCounter">The current update counter.</param>
+    public ScheduledTickManager(int maxTicksPerUpdate, UpdateCounter updateCounter)
     {
-        this.maxTicks = maxTicks;
-
-        this.world = world;
+        this.maxTicksPerUpdate = maxTicksPerUpdate;
         this.updateCounter = updateCounter;
     }
 
-    /// <summary>
-    ///     Setup the manager after deserialization.
-    /// </summary>
-    /// <param name="containingWorld">The world in which ticks are issued.</param>
-    /// <param name="counter">The current game update counter.</param>
-    public void Setup(World containingWorld, UpdateCounter counter)
+    /// <inheritdoc />
+    public static int Version => 1;
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer, IEntity.Header header)
     {
-        world = containingWorld;
-        updateCounter = counter;
+        TicksHolder? first = nextTicks;
+        TicksHolder? previous = null;
+        TicksHolder? current = first;
+
+        TicksHolder? next = current?.next;
+        serializer.SerializeNullableValue(ref current);
+
+        while (current != null)
+        {
+            if (previous != null)
+                previous.next = current;
+
+            first ??= current;
+
+            previous = current;
+            current = next;
+
+            next = current?.next;
+            serializer.SerializeNullableValue(ref current);
+        }
+
+        nextTicks = first;
+    }
+
+    /// <summary>
+    /// Set the world in which the ticks will be scheduled.
+    /// Use null to unset the world.
+    /// Only if the world is set, the ticks can be processed.
+    /// </summary>
+    /// <param name="newWorld">The world.</param>
+    public void SetWorld(World? newWorld)
+    {
+        world = newWorld;
     }
 
     /// <summary>
@@ -73,7 +100,7 @@ public class ScheduledTickManager<T> where T : ITickable
             ulong targetUpdate = updateCounter.Current + tickOffset;
             ticks = FindOrCreateTargetTick(targetUpdate);
 
-            if (ticks.tickables.Count < maxTicks) break;
+            if (ticks.tickables.Count < maxTicksPerUpdate) break;
 
             logger.LogWarning(
                 "Tick for {Update} has been scheduled for following update as limit is reached",
@@ -81,7 +108,7 @@ public class ScheduledTickManager<T> where T : ITickable
 
             tickOffset += 1;
 
-        } while (ticks.tickables.Count >= maxTicks);
+        } while (ticks.tickables.Count >= maxTicksPerUpdate);
 
         ticks.tickables.Add(tick);
     }
@@ -131,6 +158,7 @@ public class ScheduledTickManager<T> where T : ITickable
     /// <summary>
     ///     Tick all tickables that are scheduled for the current update.
     ///     Earlier scheduled ticks are not valid.
+    ///     Requires the world to be set.
     /// </summary>
     public void Process()
     {
@@ -138,7 +166,7 @@ public class ScheduledTickManager<T> where T : ITickable
         {
             Debug.Assert(nextTicks.targetUpdate == updateCounter.Current);
 
-            foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world);
+            foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world!);
 
             nextTicks = nextTicks.next;
         }
@@ -159,16 +187,27 @@ public class ScheduledTickManager<T> where T : ITickable
         }
     }
 
-    [Serializable]
-    private sealed class TicksHolder
+    /// <summary>
+    ///     Clear all scheduled ticks.
+    /// </summary>
+    public void Clear()
     {
-        public TicksHolder? next;
-        public ulong targetUpdate;
-        public List<T> tickables = new();
+        nextTicks = null;
+    }
 
-        public TicksHolder(ulong targetUpdate)
+    private sealed class TicksHolder(ulong targetUpdate) : IValue
+    {
+        public readonly List<T> tickables = [];
+        public TicksHolder? next;
+
+        public ulong targetUpdate = targetUpdate;
+
+        public TicksHolder() : this(ulong.MaxValue) {}
+
+        public void Serialize(Serializer serializer)
         {
-            this.targetUpdate = targetUpdate;
+            serializer.Serialize(ref targetUpdate);
+            serializer.SerializeValues(tickables);
         }
     }
 }

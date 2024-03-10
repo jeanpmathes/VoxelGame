@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Logic;
 
@@ -47,23 +48,13 @@ public partial class Fluid
         ScheduledUpdate(world, position, instance);
     }
 
-    [Serializable]
-    internal struct FluidTick : ITickable, IEquatable<FluidTick>
+    internal struct FluidTick(Vector3i position, Fluid target) : ITickable, IEquatable<FluidTick>
     {
-        private readonly int x;
-        private readonly int y;
-        private readonly int z;
+        private int x = position.X;
+        private int y = position.Y;
+        private int z = position.Z;
 
-        private readonly uint target;
-
-        public FluidTick(Vector3i position, Fluid target)
-        {
-            x = position.X;
-            y = position.Y;
-            z = position.Z;
-
-            this.target = target.ID;
-        }
+        private uint target = target.ID;
 
         public void Tick(World world)
         {
@@ -73,6 +64,14 @@ public partial class Fluid
 
             if (fluid.Fluid.ID == target)
                 fluid.Fluid.ScheduledUpdate(world, (x, y, z), fluid);
+        }
+
+        public void Serialize(Serializer serializer)
+        {
+            serializer.Serialize(ref x);
+            serializer.Serialize(ref y);
+            serializer.Serialize(ref z);
+            serializer.Serialize(ref target);
         }
 
         public bool Equals(FluidTick other)
@@ -85,10 +84,12 @@ public partial class Fluid
             return obj is FluidTick other && Equals(other);
         }
 
+#pragma warning disable S2328
         public override int GetHashCode()
         {
             return HashCode.Combine(x, y, z, target);
         }
+#pragma warning restore S2328
 
         public static bool operator ==(FluidTick left, FluidTick right)
         {

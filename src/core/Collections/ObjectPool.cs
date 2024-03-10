@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Concurrent;
 
 namespace VoxelGame.Core.Collections;
@@ -12,16 +13,24 @@ namespace VoxelGame.Core.Collections;
 ///     A pool of objects.
 /// </summary>
 /// <typeparam name="T">The type of objects to pool.</typeparam>
-public class ObjectPool<T> where T : class, new()
+public class ObjectPool<T> where T : class
 {
-    private readonly ConcurrentBag<T> objects = new();
+    private readonly Func<T> factory;
+    private readonly ConcurrentBag<T> objects = [];
 
-#pragma warning disable CA1000 // Do not declare static members on generic types
     /// <summary>
-    ///     Get a global shared instance of an object pool for a given type.
+    /// Create a new object pool.
     /// </summary>
-    public static ObjectPool<T> Shared { get; } = new();
-#pragma warning restore CA1000 // Do not declare static members on generic types
+    /// <param name="factory">A factory function to create new objects.</param>
+    public ObjectPool(Func<T> factory)
+    {
+        this.factory = factory;
+    }
+
+    /// <summary>
+    ///     Get the number of objects in the pool.
+    /// </summary>
+    public int Count => objects.Count;
 
     /// <summary>
     ///     Get an object from the pool.
@@ -29,7 +38,7 @@ public class ObjectPool<T> where T : class, new()
     /// <returns>An object, may not be cleaned.</returns>
     public T Get()
     {
-        return objects.TryTake(out T? instance) ? instance : new T();
+        return objects.TryTake(out T? instance) ? instance : factory();
     }
 
     /// <summary>
@@ -40,4 +49,37 @@ public class ObjectPool<T> where T : class, new()
     {
         objects.Add(obj);
     }
+
+    /// <summary>
+    ///     Clear the pool and return all objects.
+    /// </summary>
+    /// <returns>An array of all objects in the pool.</returns>
+    public T[] Clear()
+    {
+        var arr = new T[objects.Count];
+
+        objects.CopyTo(arr, index: 0);
+        objects.Clear();
+
+        return arr;
+    }
+}
+
+/// <summary>
+///     A simple object pool that uses the default constructor.
+/// </summary>
+/// <typeparam name="T">The type of objects to pool.</typeparam>
+public class SimpleObjectPool<T> : ObjectPool<T> where T : class, new()
+{
+    /// <summary>
+    ///     Create a new simple object pool.
+    /// </summary>
+    public SimpleObjectPool() : base(() => new T()) {}
+
+#pragma warning disable CA1000 // Do not declare static members on generic types
+    /// <summary>
+    ///     Get a shared instance of this object pool.
+    /// </summary>
+    public static SimpleObjectPool<T> Shared { get; } = new();
+#pragma warning restore CA1000 // Do not declare static members on generic types
 }

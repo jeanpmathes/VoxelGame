@@ -7,15 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -25,29 +23,30 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     A chunk, a cubic group of sections.
 /// </summary>
-[Serializable]
-public partial class Chunk : IDisposable
+public partial class Chunk : IDisposable, IEntity
 {
     /// <summary>
-    ///     Error that occurred during loading.
+    ///     Result status of loading a chunk.
     /// </summary>
-    public enum LoadingError
+    public enum LoadingResult
     {
         /// <summary>
-        ///     Either no error occurred or the error is unknown.
+        ///     No error occurred.
         /// </summary>
-        Unknown,
+        Success,
 
         /// <summary>
         ///     An IO-related error occurred.
         /// </summary>
-        IO,
+        IOError,
 
         /// <summary>
         ///     A format-related error occurred.
         /// </summary>
-        Format
+        FormatError
     }
+
+    private const string FileSignature = "VG_CHUNK";
 
     /// <summary>
     ///     The number of sections in a chunk along every axis.
@@ -93,18 +92,25 @@ public partial class Chunk : IDisposable
     /// </summary>
     private readonly Section[] sections = new Section[SectionCount];
 
-    private DecorationLevels decoration = DecorationLevels.None;
-
     /// <summary>
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
-    [NonSerialized] private Resource coreResource = new(nameof(Chunk) + "Core");
+    private readonly Resource coreResource = new(nameof(Chunk) + "Core");
 
     /// <summary>
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
     /// </summary>
-    [NonSerialized] private Resource extendedResource = new(nameof(Chunk) + "Extended");
+    private readonly Resource extendedResource = new(nameof(Chunk) + "Extended");
+
+    /// <summary>
+    ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
+    /// </summary>
+    private readonly UpdateCounter localUpdateCounter = new();
+
+    private readonly ChunkContext context;
+
+    private DecorationLevels decoration = DecorationLevels.None;
 
     private ScheduledTickManager<Block.BlockTick> blockTickManager;
     private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
@@ -112,55 +118,62 @@ public partial class Chunk : IDisposable
     /// <summary>
     ///     Whether the chunk is currently requested to be active.
     /// </summary>
-    [NonSerialized] private bool isRequested;
-
-    /// <summary>
-    ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
-    /// </summary>
-    [NonSerialized] private UpdateCounter localUpdateCounter = new();
+    private bool isRequested;
 
     /// <summary>
     ///     The current chunk state.
     /// </summary>
-    [NonSerialized] private ChunkState state;
+    private ChunkState state = null!;
+
+    private ChunkPosition location;
 
     /// <summary>
-    ///     Create a new chunk.
+    ///     Create a new chunk. The chunk is not initialized.
     /// </summary>
-    /// <param name="world">The world.</param>
-    /// <param name="position">The chunk position.</param>
     /// <param name="context">The chunk context.</param>
     /// <param name="createSection">The section factory.</param>
-    protected Chunk(World world, ChunkPosition position, ChunkContext context, SectionFactory createSection)
+    protected Chunk(ChunkContext context, SectionFactory createSection)
     {
-        World = world;
-        Position = position;
+        this.context = context;
 
-        for (var index = 0; index < SectionCount; index++) sections[index] = createSection(SectionPosition.From(Position, IndexToLocalSection(index)));
+        for (var index = 0; index < SectionCount; index++)
+            sections[index] = createSection();
 
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
             Block.MaxBlockTicksPerFrameAndChunk,
-            World,
             localUpdateCounter);
 
         fluidTickManager = new ScheduledTickManager<Fluid.FluidTick>(
             Fluid.MaxFluidTicksPerFrameAndChunk,
-            World,
             localUpdateCounter);
-
-        ChunkState.Initialize(out state, this, context);
     }
 
     /// <summary>
     ///     Whether the chunk is currently active.
     ///     An active can write to all resources and allows sharing its access for the duration of one update.
     /// </summary>
-    public bool IsActive => state.IsActive;
+    public bool IsActive
+    {
+        get
+        {
+            Debug.Assert(state != null);
+
+            return state.IsActive;
+        }
+    }
 
     /// <summary>
     ///     Whether this chunk is intending to get ready according to the current state.
     /// </summary>
-    public bool IsIntendingToGetReady => state.IsIntendingToGetReady;
+    public bool IsIntendingToGetReady
+    {
+        get
+        {
+            Debug.Assert(state != null);
+
+            return state.IsIntendingToGetReady;
+        }
+    }
 
     /// <summary>
     ///     Get whether the chunk is requested.
@@ -170,7 +183,7 @@ public partial class Chunk : IDisposable
     /// <summary>
     ///     Get the position of this chunk.
     /// </summary>
-    public ChunkPosition Position { get; }
+    public ChunkPosition Position => location;
 
     /// <summary>
     ///     The extents of a chunk.
@@ -180,7 +193,7 @@ public partial class Chunk : IDisposable
     /// <summary>
     ///     The world this chunk is in.
     /// </summary>
-    [field: NonSerialized] public World World { get; private set; }
+    public World World { get; private set; } = null!;
 
     /// <summary>
     ///     Get whether this chunk is fully decorated.
@@ -191,6 +204,61 @@ public partial class Chunk : IDisposable
     ///     The current chunk state.
     /// </summary>
     protected ChunkState State => state;
+
+    /// <inheritdoc />
+    public static int Version => 1;
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer, IEntity.Header header)
+    {
+        serializer.SerializeValue(ref location);
+        serializer.SerializeEntities(sections);
+        serializer.Serialize(ref decoration);
+        serializer.SerializeEntity(ref blockTickManager);
+        serializer.SerializeEntity(ref fluidTickManager);
+    }
+
+    /// <summary>
+    ///     Initialize the chunk.
+    /// </summary>
+    /// <param name="world">The world in which the chunk is placed.</param>
+    /// <param name="position">The position of the chunk.</param>
+    public virtual void Initialize(World world, ChunkPosition position)
+    {
+        World = world;
+        location = position;
+
+        ChunkState.Initialize(out state, this, context);
+
+        for (var index = 0; index < SectionCount; index++)
+            sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
+
+        decoration = DecorationLevels.None;
+        isRequested = false;
+    }
+
+    /// <summary>
+    ///     Reset all state of the chunk.
+    ///     This allows the chunk to be reused.
+    /// </summary>
+    public virtual void Reset()
+    {
+        Debug.Assert(!IsActive);
+        Debug.Assert(!coreResource.IsAcquired);
+        Debug.Assert(!extendedResource.IsAcquired);
+
+        blockTickManager.Clear();
+        fluidTickManager.Clear();
+        localUpdateCounter.Reset();
+
+        World = null!;
+        state = null!;
+
+        location = default;
+
+        foreach (Section section in sections)
+            section.Reset();
+    }
 
     /// <summary>
     ///     Acquire the core resource, possibly stealing it.
@@ -210,13 +278,12 @@ public partial class Chunk : IDisposable
 
         extended.Dispose();
 
-        if (access == Access.Read)
-        {
-            // We downgrade our access to read, as stealing always gives us write access.
-            core.Dispose();
-            core = coreResource.TryAcquire(access);
-            Debug.Assert(core != null);
-        }
+        if (access != Access.Read) return core;
+
+        // We downgrade our access to read, as stealing always gives us write access.
+        core.Dispose();
+        core = coreResource.TryAcquire(access);
+        Debug.Assert(core != null);
 
         return core;
     }
@@ -260,13 +327,12 @@ public partial class Chunk : IDisposable
 
         core.Dispose();
 
-        if (access == Access.Read)
-        {
-            // We downgrade our access to read, as stealing always gives us write access.
-            extended.Dispose();
-            extended = extendedResource.TryAcquire(access);
-            Debug.Assert(extended != null);
-        }
+        if (access != Access.Read) return extended;
+
+        // We downgrade our access to read, as stealing always gives us write access.
+        extended.Dispose();
+        extended = extendedResource.TryAcquire(access);
+        Debug.Assert(extended != null);
 
         return extended;
     }
@@ -313,80 +379,53 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    ///     Setup the chunk and used sections after loading.
-    /// </summary>
-    public void Setup(Chunk loaded)
-    {
-        Throw.IfDisposed(disposed);
-
-        VMath.Move(out blockTickManager, ref loaded.blockTickManager);
-        VMath.Move(out fluidTickManager, ref loaded.fluidTickManager);
-
-        decoration = loaded.decoration;
-
-        blockTickManager.Setup(World, localUpdateCounter);
-        fluidTickManager.Setup(World, localUpdateCounter);
-
-        for (var s = 0; s < SectionCount; s++) sections[s].Setup(loaded.sections[s]);
-
-        // Loaded chunk is not disposed because this chunk takes ownership of the resources.
-    }
-
-    /// <summary>
     ///     Loads a chunk from a file specified by the path.
-    ///     If the loaded chunk does not fit the x, y and z parameters, it is considered invalid.
+    ///     If the loaded chunk does not fit the requested x, y and z parameters, it is considered invalid.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
-    /// <param name="position">The position of the chunk.</param>
-    /// <returns>The loading result.</returns>
-    [SuppressMessage(
-        "ReSharper.DPA",
-        "DPA0002: Excessive memory allocations in SOH",
-        Justification = "Chunks are allocated here.")]
-    public static LoadingResult Load(FileInfo path, ChunkPosition position)
+    /// <param name="chunk">The chunk to load into.</param>
+    /// <returns>The result type of the loading operation.</returns>
+    private static LoadingResult Load(FileInfo path, Chunk chunk)
     {
+        // Serialization might change the position of the chunk, so we need to store it before loading.
+        ChunkPosition position = chunk.Position;
+
         logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
 
-        Chunk chunk;
+        Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
-        try
-        {
-            using Stream stream = path.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-
-#pragma warning disable // Will be replaced with custom serialization
-            IFormatter formatter = new BinaryFormatter();
-
-            // Allocation issue flagged here, remove suppression when serialization and deserialization is reworked.
-            chunk = (Chunk) formatter.Deserialize(stream);
- #pragma warning restore
-        }
-        catch (IOException e)
+        if (exception != null)
         {
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
-            logger.LogDebug(Events.ChunkOperation, e, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, e.Message);
+            logger.LogDebug(Events.ChunkOperation, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, exception.Message);
 
             return LoadingResult.IOError;
         }
 
         logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
 
-        if (chunk.Position == position) return LoadingResult.Success(chunk);
+        if (chunk.Position != position)
+        {
+            logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
 
-        logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
+            return LoadingResult.FormatError;
+        }
 
-        return LoadingResult.FormatError;
+        logger.LogDebug(Events.ChunkOperation, "File for the chunk at {Position} was valid", position);
+
+        return LoadingResult.Success;
     }
 
     /// <summary>
     ///     Runs a task that loads a chunk from a file specified by the path.
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
-    /// <param name="position">The position of the chunk.</param>
-    /// <returns>A task containing the loading result.</returns>
-    public static Task<LoadingResult> LoadAsync(FileInfo path, ChunkPosition position)
+    /// <param name="chunk">The chunk to load into.</param>
+    /// <returns>A task that loads the chunk.</returns>
+    public static Task<LoadingResult> LoadAsync(FileInfo path, Chunk chunk)
     {
-        return Task.Run(() => Load(path, position));
+        return Task.Run(() => Load(path, chunk));
     }
 
     /// <summary>
@@ -411,7 +450,7 @@ public partial class Chunk : IDisposable
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
-    public void Save(DirectoryInfo path)
+    private void Save(DirectoryInfo path)
     {
         Throw.IfDisposed(disposed);
 
@@ -425,11 +464,16 @@ public partial class Chunk : IDisposable
 
         chunkFile.Directory?.Create();
 
-        using Stream stream = chunkFile.Open(FileMode.Create, FileAccess.Write, FileShare.None);
-#pragma warning disable // Will be replaced with custom serialization
-        IFormatter formatter = new BinaryFormatter();
-        formatter.Serialize(stream, this);
-#pragma warning restore
+        FileInfo dump = new(chunkFile.FullName + ".txt");
+        using TextDump writer = new(dump.Open(FileMode.Create), FileSignature);
+
+        Chunk chunk = this;
+        writer.SerializeEntity(ref chunk);
+
+        Exception? exception = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
+
+        if (exception != null)
+            throw exception;
 
         logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
     }
@@ -832,7 +876,7 @@ public partial class Chunk : IDisposable
         // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
         // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
-        ChunkPosition first = chunks.Center!.Position.Offset(x: -1, y: -1, z: -1);
+        ChunkPosition first = chunks.Center!.Position.Offset(xOffset: -1, yOffset: -1, zOffset: -1);
 
         Section GetSection(SectionPosition sectionPosition)
         {
@@ -941,37 +985,9 @@ public partial class Chunk : IDisposable
     }
 
     /// <summary>
-    /// The result of a chunk loading operation.
-    /// </summary>
-    /// <param name="Chunk">The loaded chunk, or null if the loading failed.</param>
-    /// <param name="Error">If the loading failed, the error that occurred.</param>
-    public record LoadingResult(Chunk? Chunk, LoadingError Error)
-    {
-        /// <summary>
-        ///     Create a new loading result with an IO error.
-        /// </summary>
-        public static LoadingResult IOError => new(Chunk: null, LoadingError.IO);
-
-        /// <summary>
-        ///     Create a new loading result with a format error.
-        /// </summary>
-        public static LoadingResult FormatError => new(Chunk: null, LoadingError.Format);
-
-        /// <summary>
-        ///     Create a new loading result with a chunk and no error.
-        /// </summary>
-        /// <param name="chunk">The loaded chunk.</param>
-        /// <returns>The loading result.</returns>
-        public static LoadingResult Success(Chunk chunk)
-        {
-            return new LoadingResult(chunk, LoadingError.Unknown);
-        }
-    }
-
-    /// <summary>
     ///     Creates a section.
     /// </summary>
-    protected delegate Section SectionFactory(SectionPosition position);
+    protected delegate Section SectionFactory();
 
     [Flags]
     private enum DecorationLevels
@@ -995,7 +1011,7 @@ public partial class Chunk : IDisposable
 
     #region IDisposable Support
 
-    [NonSerialized] private bool disposed;
+    private bool disposed;
 
     /// <summary>
     ///     Dispose of this chunk.
