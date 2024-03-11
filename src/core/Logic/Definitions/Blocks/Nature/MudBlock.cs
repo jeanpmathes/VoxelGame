@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -36,8 +36,8 @@ public class MudBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorCollision(PhysicsActor actor, Vector3i position, uint data)
     {
-        entity.Velocity = VMath.Clamp(entity.Velocity, min: -1f, maxVelocity);
+        actor.Velocity = VMath.Clamp(actor.Velocity, min: -1f, maxVelocity);
     }
 }

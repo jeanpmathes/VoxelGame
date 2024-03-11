@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -77,15 +77,15 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        return DirtBehaviour.CanPlaceCovered(world, position, entity);
+        return DirtBehaviour.CanPlaceCovered(world, position, actor);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        DirtBehaviour.DoPlaceCovered(this, world, position, entity);
+        DirtBehaviour.DoPlaceCovered(this, world, position, actor);
     }
 
     /// <inheritdoc />

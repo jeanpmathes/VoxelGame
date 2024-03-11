@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -39,8 +39,8 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         return side == BlockSide.Top;
     }
 
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
-        Fluid.Elevate(entity.World, position, pumpDistance);
+        Fluid.Elevate(actor.World, position, pumpDistance);
     }
 }

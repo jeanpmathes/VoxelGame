@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -25,11 +25,11 @@ public class ModifiableHeightBlock : VaryingHeightBlock
             layout) {}
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
         uint height = data & 0b00_1111;
         height++;
 
-        if (height <= IHeightVariable.MaximumHeight) entity.World.SetBlock(this.AsInstance(height), position);
+        if (height <= IHeightVariable.MaximumHeight) actor.World.SetBlock(this.AsInstance(height), position);
     }
 }

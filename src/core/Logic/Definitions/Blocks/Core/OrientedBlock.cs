@@ -6,7 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -28,10 +28,10 @@ public class OrientedBlock : BasicBlock
             layout) {}
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(
-            this.AsInstance((uint) (entity?.LookingDirection.ToOrientation() ?? Orientation.North)),
+            this.AsInstance((uint) (actor?.LookingDirection.ToOrientation() ?? Orientation.North)),
             position);
     }
 

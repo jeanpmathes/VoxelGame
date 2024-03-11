@@ -9,12 +9,12 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Entities;
+namespace VoxelGame.Core.Actors;
 
 /// <summary>
-///     A player, that can interact with the world.
+///     A player that can interact with the world.
 /// </summary>
-public abstract class Player : PhysicsEntity
+public abstract class Player : PhysicsActor
 {
     /// <summary>
     ///     Create a new player.

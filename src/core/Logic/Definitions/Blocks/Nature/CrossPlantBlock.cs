@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -67,13 +67,13 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return PlantBehaviour.CanPlace(world, position);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         PlantBehaviour.DoPlace(this, world, position);
     }

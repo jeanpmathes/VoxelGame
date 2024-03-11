@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
@@ -18,18 +18,18 @@ public static class DirtBehaviour
     /// <summary>
     ///     Return true if a covered block can be placed at the given position.
     /// </summary>
-    public static bool CanPlaceCovered(World world, Vector3i position, PhysicsEntity? entity)
+    public static bool CanPlaceCovered(World world, Vector3i position, PhysicsActor? actor)
     {
-        return world.HasOpaqueTop(position) == false || Logic.Blocks.Instance.Dirt.CanPlace(world, position, entity);
+        return world.HasOpaqueTop(position) == false || Logic.Blocks.Instance.Dirt.CanPlace(world, position, actor);
     }
 
     /// <summary>
     ///     Place a covered block at the given position. This is only allowed if the checks pass.
     /// </summary>
-    public static void DoPlaceCovered(Block self, World world, Vector3i position, PhysicsEntity? entity)
+    public static void DoPlaceCovered(Block self, World world, Vector3i position, PhysicsActor? actor)
     {
         if (world.HasOpaqueTop(position) == false) world.SetBlock(self.AsInstance(), position);
-        else Logic.Blocks.Instance.Dirt.Place(world, position, entity);
+        else Logic.Blocks.Instance.Dirt.Place(world, position, actor);
     }
 
     /// <summary>

@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Client.Actors;
 using VoxelGame.Client.Console;
-using VoxelGame.Client.Entities;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;

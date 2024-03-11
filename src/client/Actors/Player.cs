@@ -7,10 +7,10 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application.Resources;
-using VoxelGame.Client.Entities.Players;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -19,13 +19,13 @@ using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Entities;
+namespace VoxelGame.Client.Actors;
 
 /// <summary>
 ///     The client player, controlled by the user. There can only be one client player.
 /// </summary>
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "False positive.")]
-public sealed class Player : Core.Entities.Player, IPlayerDataProvider
+public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 {
     private const float FlyingSpeedFactor = 5f;
     private const float FlyingSprintSpeedFactor = 25f;
@@ -122,7 +122,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <inheritdoc />
     public override Vector3d Movement => movement;
 
-    /// <inheritdoc cref="PhysicsEntity" />
+    /// <inheritdoc cref="PhysicsActor" />
     public override Vector3i? TargetPosition => targetPosition;
 
     Vector3i IPlayerDataProvider.HeadPosition => headPosition;
@@ -344,7 +344,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         }
         else if (currentTarget.Block.IsInteractable)
         {
-            currentTarget.Block.EntityInteract(this, targetedPosition);
+            currentTarget.Block.ActorInteract(this, targetedPosition);
 
             input.RegisterInteraction();
         }

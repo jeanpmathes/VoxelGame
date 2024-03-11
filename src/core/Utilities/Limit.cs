@@ -30,7 +30,7 @@ public class Limit
     /// <summary>
     ///     Get the id of the limit.
     /// </summary>
-    /// <param name="requester">The entity requesting the id, must be the same as the source.</param>
+    /// <param name="requester">The object requesting the id, must be the same as the source.</param>
     /// <returns>The id of the limit.</returns>
     public int GetID(object requester)
     {

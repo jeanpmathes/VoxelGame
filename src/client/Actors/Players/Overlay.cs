@@ -14,7 +14,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Client.Entities.Players;
+namespace VoxelGame.Client.Actors.Players;
 
 /// <summary>
 ///     A block or fluid overlay that is rendered on top of the player view.

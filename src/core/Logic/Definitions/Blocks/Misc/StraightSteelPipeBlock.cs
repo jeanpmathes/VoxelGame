@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -92,9 +92,9 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((uint) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
     }
 
     private static bool IsSideOpen(World world, Vector3i position, BlockSide side)

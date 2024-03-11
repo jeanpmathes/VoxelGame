@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -89,7 +89,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(this.AsInstance(Encode(BlockColor.Default, IHeightVariable.MaximumHeight)), position);
     }
@@ -108,11 +108,11 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
         Decode(data, out BlockColor color, out int height);
         var next = (BlockColor) ((int) color + 1);
-        entity.World.SetBlock(this.AsInstance(Encode(next, height)), position);
+        actor.World.SetBlock(this.AsInstance(Encode(next, height)), position);
     }
 
     private static uint Encode(BlockColor color, int height)

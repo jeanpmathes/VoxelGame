@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -105,10 +105,10 @@ public class FireBlock : Block, IFillable, IComplex
         Debug.Assert(count > 0);
 
         BoundingVolume? parent = null;
-        
+
         var children = new BoundingVolume[count - 1];
         var next = 0;
-        
+
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             if (side == BlockSide.Bottom) continue;
@@ -141,7 +141,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         if (world.HasFullAndSolidGround(position)) return true;
 
@@ -149,7 +149,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(this.AsInstance(world.HasFullAndSolidGround(position) ? 0 : GetData(world, position)), position);
         ScheduleTick(world, position, GetDelay(position));

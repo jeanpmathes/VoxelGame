@@ -11,7 +11,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.Support.Input.Composite;
 
-namespace VoxelGame.Client.Entities.Players;
+namespace VoxelGame.Client.Actors.Players;
 
 /// <summary>
 ///     Contains all player input.

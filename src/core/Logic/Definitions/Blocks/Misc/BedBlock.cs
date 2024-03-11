@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -152,11 +152,11 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         if (!world.HasFullAndSolidGround(position, solidify: true)) return false;
 
-        Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         return world.GetBlock(otherPosition)?.Block.IsReplaceable == true &&
@@ -164,9 +164,9 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         world.SetBlock(this.AsInstance((uint) orientation << 1), position);
@@ -176,7 +176,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
     {
         bool isHead = (data & 0b1) == 1;
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
@@ -187,16 +187,16 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
         bool isHead = (data & 0b1) == 1;
 
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
         Orientation placementOrientation = isHead ? orientation.Opposite() : orientation;
 
-        entity.World.SetBlock(this.AsInstance((data + 0b00_1000) & 0b11_1111), position);
+        actor.World.SetBlock(this.AsInstance((data + 0b00_1000) & 0b11_1111), position);
 
-        entity.World.SetBlock(
+        actor.World.SetBlock(
             this.AsInstance(((data + 0b00_1000) & 0b11_1111) ^ 0b00_0001),
             placementOrientation.Offset(position));
     }

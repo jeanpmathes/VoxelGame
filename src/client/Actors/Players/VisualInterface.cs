@@ -18,7 +18,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Entities.Players;
+namespace VoxelGame.Client.Actors.Players;
 
 /// <summary>
 ///     Offers visualization like HUD, UI and in-world selection for the player.
@@ -31,7 +31,7 @@ public sealed class VisualInterface : IDisposable
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly OverlayVFX overlayVFX;
 
-    private readonly List<VFX> vfxes = new();
+    private readonly List<VFX> vfxes = [];
 
     private readonly Button debugViewButton;
 

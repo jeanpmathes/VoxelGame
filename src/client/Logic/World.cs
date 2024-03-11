@@ -12,8 +12,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -45,7 +45,7 @@ public class World : Core.Logic.World
 
     private readonly Space space;
 
-    private Entities.Player? player;
+    private Actors.Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -95,7 +95,7 @@ public class World : Core.Logic.World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Entities.Player newPlayer)
+    public void AddPlayer(Actors.Player newPlayer)
     {
         player = newPlayer;
 
