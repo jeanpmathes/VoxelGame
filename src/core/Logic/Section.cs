@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
@@ -15,8 +16,7 @@ namespace VoxelGame.Core.Logic;
 ///     A section, a part of a chunk. Sections are the smallest unit for meshing and rendering.
 ///     Sections are cubes.
 /// </summary>
-[Serializable]
-public abstract class Section : IDisposable
+public class Section : IDisposable, IEntity
 {
     /// <summary>
     ///     The size of a section, which is the number of blocks in a single axis.
@@ -81,16 +81,41 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    protected Section(SectionPosition position)
+    protected Section()
     {
         blocks = new uint[Size * Size * Size];
-        this.position = position;
     }
 
     /// <summary>
     ///     The extents of a section.
     /// </summary>
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
+
+    /// <inheritdoc />
+    public static int Version => 1;
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer, IEntity.Header header)
+    {
+        serializer.Serialize(ref blocks);
+    }
+
+    /// <summary>
+    ///     Initializes the section.
+    /// </summary>
+    /// <param name="newPosition">The position of the section.</param>
+    public virtual void Initialize(SectionPosition newPosition)
+    {
+        position = newPosition;
+    }
+
+    /// <summary>
+    ///     Reset the section, preparing it for reuse.
+    /// </summary>
+    public virtual void Reset()
+    {
+        // Nothing to do, block can stay as re-use will overwrite the content.
+    }
 
     /// <summary>
     ///     Gets the content at a section position.
@@ -173,11 +198,6 @@ public abstract class Section : IDisposable
 
         return inBounds;
     }
-
-    /// <summary>
-    ///     Setup the section after serialization.
-    /// </summary>
-    public abstract void Setup(Section loaded);
 
     /// <summary>
     ///     Send random updates to blocks in this section.
@@ -322,7 +342,7 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     The position of this section.
     /// </summary>
-    [NonSerialized] protected SectionPosition position;
+    protected SectionPosition position;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
@@ -330,7 +350,7 @@ public abstract class Section : IDisposable
     /// <summary>
     ///     Whether the section is disposed.
     /// </summary>
-    [NonSerialized] private bool disposed;
+    private bool disposed;
 
     /// <summary>
     ///     Dispose of the section.

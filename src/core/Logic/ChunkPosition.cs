@@ -6,39 +6,43 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     The position of a chunk in the world.
 /// </summary>
-[Serializable]
-public readonly struct ChunkPosition : IEquatable<ChunkPosition>
+public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
 {
+    private int x;
+    private int y;
+    private int z;
+
     /// <summary>
     ///     Create a chunk position with the given coordinates.
     /// </summary>
     public ChunkPosition(int x, int y, int z)
     {
-        X = x;
-        Y = y;
-        Z = z;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     /// <summary>
     ///     The x coordinate.
     /// </summary>
-    public int X { get; init; }
+    public int X => x;
 
     /// <summary>
     ///     The y coordinate.
     /// </summary>
-    public int Y { get; init; }
+    public int Y => y;
 
     /// <summary>
     ///     The z coordinate.
     /// </summary>
-    public int Z { get; init; }
+    public int Z => z;
 
     /// <summary>
     ///     The equality comparison.
@@ -79,9 +83,9 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     /// <summary>
     ///     Offset a chunk position by the given amount.
     /// </summary>
-    public ChunkPosition Offset(int x, int y, int z)
+    public ChunkPosition Offset(int xOffset, int yOffset, int zOffset)
     {
-        return new ChunkPosition(X + x, Y + y, Z + z);
+        return new ChunkPosition(X + xOffset, Y + yOffset, Z + zOffset);
     }
 
     /// <summary>
@@ -120,11 +124,11 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     /// </summary>
     public static ChunkPosition From(Vector3i worldPosition)
     {
-        (int x, int y, int z) = worldPosition;
+        (int worldX, int worldY, int worldZ) = worldPosition;
 
-        int chunkX = x >> Chunk.BlockSizeExp;
-        int chunkY = y >> Chunk.BlockSizeExp;
-        int chunkZ = z >> Chunk.BlockSizeExp;
+        int chunkX = worldX >> Chunk.BlockSizeExp;
+        int chunkY = worldY >> Chunk.BlockSizeExp;
+        int chunkZ = worldZ >> Chunk.BlockSizeExp;
 
         return new ChunkPosition(chunkX, chunkY, chunkZ);
     }
@@ -133,5 +137,13 @@ public readonly struct ChunkPosition : IEquatable<ChunkPosition>
     public override string ToString()
     {
         return $"({X}|{Y}|{Z})";
+    }
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer)
+    {
+        serializer.Serialize(ref x);
+        serializer.Serialize(ref y);
+        serializer.Serialize(ref z);
     }
 }

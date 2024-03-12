@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Client.Entities;
+using VoxelGame.Client.Actors;
 
 namespace VoxelGame.Client.Console;
 

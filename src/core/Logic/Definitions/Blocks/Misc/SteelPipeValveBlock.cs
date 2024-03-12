@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -103,15 +103,15 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((uint) (entity?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((uint) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
-        entity.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
+        actor.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
     }
 
     private static bool IsSideOpen(World world, Vector3i position, BlockSide side)

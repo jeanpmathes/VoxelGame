@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -49,8 +49,8 @@ public class TintedBlock : BasicBlock, IWideConnectable
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
-        entity.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
+        actor.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }
 }

@@ -32,34 +32,29 @@ public class ChunkContext
     /// </summary>
     public delegate void ChunkDeactivator(Chunk chunk);
 
-    /// <summary>
-    ///     Creates a chunk for the given position.
-    /// </summary>
-    public delegate Chunk ChunkFactory(ChunkPosition position, ChunkContext context);
-
     private readonly ChunkActivatorStrong activateStrongly;
     private readonly ChunkActivatorWeak activateWeakly;
-
-    private readonly List<(int max, int current)> budgets = new();
-
-    private readonly ChunkFactory create;
     private readonly ChunkDeactivator deactivate;
+
+    private readonly List<(int max, int current)> budgets = [];
+
+    private readonly World world;
 
     /// <summary>
     ///     Create a new chunk context.
     /// </summary>
-    /// <param name="directory">The directory in which the chunks are stored.</param>
-    /// <param name="factory">A factory for creating chunks.</param>
+    /// <param name="world">The world in which the chunks exist.</param>
     /// <param name="strongActivator">Activates a chunk after a transition to the ready state.</param>
     /// <param name="weakActivator">Activates a chunk after a transition to the active state.</param>
     /// <param name="deactivator">Deactivates a chunk.</param>
     /// <param name="generator">The world generator used.</param>
-    public ChunkContext(DirectoryInfo directory, ChunkFactory factory, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator, IWorldGenerator generator)
+    public ChunkContext(World world, IWorldGenerator generator, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator)
     {
-        Directory = directory;
+        this.world = world;
+
+        Directory = world.Data.ChunkDirectory;
         Generator = generator;
 
-        create = factory;
         activateStrongly = strongActivator;
         activateWeakly = weakActivator;
         deactivate = deactivator;
@@ -76,11 +71,21 @@ public class ChunkContext
     public IWorldGenerator Generator { get; }
 
     /// <summary>
-    ///     Create a new chunk.
+    ///     Get a newly initialized chunk.
+    ///     The chunks must be returned using <see cref="ReturnObject" />.
     /// </summary>
-    public Chunk Create(ChunkPosition position, ChunkContext context)
+    public Chunk GetObject(ChunkPosition position)
     {
-        return create(position, context);
+        return world.ChunkPool.Get(world, position);
+    }
+
+    /// <summary>
+    ///     Return a chunk that was retrieved using <see cref="GetObject" />.
+    /// </summary>
+    /// <param name="chunk">The chunk to return.</param>
+    public void ReturnObject(Chunk chunk)
+    {
+        world.ChunkPool.Return(chunk);
     }
 
     /// <summary>

@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -210,7 +210,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         bool connectX = CheckOrientation(world, position, Orientation.East) ||
                         CheckOrientation(world, position, Orientation.West);
@@ -222,9 +222,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
 
         bool connectX = CheckOrientation(world, position, Orientation.East) ||
                         CheckOrientation(world, position, Orientation.West);
@@ -247,7 +247,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
         bool isClosed = (data & 0b00_0100) == 0;
@@ -256,7 +256,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         if (isClosed &&
             Vector2d.Dot(
                 orientation.ToVector3().Xz,
-                entity.Position.Xz - new Vector2(position.X + 0.5f, position.Z + 0.5f)) < 0)
+                actor.Position.Xz - new Vector2(position.X + 0.5f, position.Z + 0.5f)) < 0)
             orientation = orientation.Opposite();
 
         Vector3d center = isClosed
@@ -271,9 +271,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
         BoundingVolume volume = new(center, extents);
 
-        if (entity.Collider.Intersects(volume.GetColliderAt(position))) return;
+        if (actor.Collider.Intersects(volume.GetColliderAt(position))) return;
 
-        entity.World.SetBlock(
+        actor.World.SetBlock(
             this.AsInstance((uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Opposite())),
             position);
     }

@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 
 namespace VoxelGame.Core.Logic;
 
@@ -36,7 +36,7 @@ public interface IBlockBase
     public bool RenderFaceAtNonOpaques { get; }
 
     /// <summary>
-    ///     Gets whether the collision method should be called in case of a collision with an entity.
+    ///     Gets whether the collision method should be called in case of a collision with an actor.
     /// </summary>
     public bool ReceiveCollisions { get; }
 
@@ -83,18 +83,18 @@ public interface IBlockBase
     /// </summary>
     /// <param name="world"></param>
     /// <param name="position"></param>
-    /// <param name="entity">The entity that tries to place the block. May be null.</param>
+    /// <param name="actor"></param>
     /// <returns>Returns true if placing the block was successful.</returns>
-    public bool Place(World world, Vector3i position, PhysicsEntity? entity = null);
+    public bool Place(World world, Vector3i position, PhysicsActor? actor = null);
 
     /// <summary>
     ///     Destroys a block in the world if it is the same type as this block.
     /// </summary>
     /// <param name="world"></param>
     /// <param name="position"></param>
-    /// <param name="entity">The entity which caused the destruction, or null if no entity caused it.</param>
+    /// <param name="actor">The actor which caused the destruction, or null if no actor caused it.</param>
     /// <returns>Returns true if the block has been destroyed.</returns>
-    public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null);
+    public bool Destroy(World world, Vector3i position, PhysicsActor? actor = null);
 
     /// <summary>
     ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -133,7 +134,7 @@ public partial class StaticStructure : Structure
     {
         FileInfo file = directory.GetFile(GetFileName(name));
 
-        Exception? exception = FileSystem.LoadJSON(file, out Definition definition);
+        Exception? exception = Serialize.LoadJSON(file, out Definition definition);
 
         if (exception != null)
         {
@@ -258,7 +259,7 @@ public partial class StaticStructure : Structure
             Placements = placements.ToArray()
         };
 
-        Exception? exception = FileSystem.SaveJSON(definition, directory.GetFile(GetFileName(name)));
+        Exception? exception = Serialize.SaveJSON(definition, directory.GetFile(GetFileName(name)));
 
         if (exception == null) return false;
 

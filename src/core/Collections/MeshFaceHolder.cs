@@ -485,7 +485,7 @@ public class MeshFaceHolder
         public static MeshFace Get(int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
             int position, bool isSingleSided, bool isRotated)
         {
-            MeshFace instance = ObjectPool<MeshFace>.Shared.Get();
+            MeshFace instance = SimpleObjectPool<MeshFace>.Shared.Get();
 
             instance.previous = null;
 
@@ -506,7 +506,7 @@ public class MeshFaceHolder
 
         public void Return()
         {
-            ObjectPool<MeshFace>.Shared.Return(this);
+            SimpleObjectPool<MeshFace>.Shared.Return(this);
         }
 
         #endregion POOLING

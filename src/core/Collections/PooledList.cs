@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
-public sealed class PooledList<T> : IEnumerable<T>, IDisposable
+public sealed class PooledList<T> : IList<T>, IDisposable
 {
     private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
@@ -103,10 +103,28 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         }
     }
 
+    /// <inheritdoc />
+    public bool Remove(T item)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        int index = IndexOf(item);
+
+        if (index < 0) return false;
+
+        RemoveAt(index);
+
+        return true;
+    }
+
     /// <summary>
     ///     Gets the number of elements contained in the <see cref="PooledList{T}" />.
     /// </summary>
     public int Count { get; private set; }
+
+    /// <inheritdoc />
+    public bool IsReadOnly => false;
 
     /// <summary>
     ///     Gets or sets the element at the specified index.
@@ -159,20 +177,6 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         return GetEnumerator();
     }
 
-    private T[] MoveIntoNew(int newSize)
-    {
-        Throw.IfDisposed(disposed);
-        Throw.IfNull(items, NoUseAfterReturnMessage);
-
-        T[] newItems = arrayPool.Rent(newSize);
-
-        if (Count > 0) Array.Copy(items, sourceIndex: 0, newItems, destinationIndex: 0, Count);
-
-        arrayPool.Return(items);
-
-        return newItems;
-    }
-
     /// <summary>
     ///     Adds an object to the end of the <see cref="PooledList{T}" />.
     /// </summary>
@@ -188,6 +192,97 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         if (Count == items.Length) EnsureCapacity(Count + 1);
 
         items[Count++] = item;
+    }
+
+    /// <inheritdoc />
+    public int IndexOf(T item)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        return Array.IndexOf(items, item, startIndex: 0, Count);
+    }
+
+    /// <inheritdoc />
+    public void Insert(int index, T item)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        if ((uint) index > (uint) Count)
+            throw new ArgumentOutOfRangeException(
+                nameof(index),
+                $@"The index has to be smaller or equal then the size '{Count}'.");
+
+        if (Count == items.Length)
+            Add(item);
+        else this[index] = item;
+    }
+
+    /// <summary>
+    ///     Removes the element at the specified index of the <see cref="PooledList{T}" />.
+    /// </summary>
+    public void RemoveAt(int index)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        if ((uint) index >= (uint) Count)
+            throw new ArgumentOutOfRangeException(
+                $"The index '{index}' is not allowed to be larger then the size of the list.");
+
+        Count--;
+
+        if (index < Count) Array.Copy(items, index + 1, items, index, Count - index);
+
+        items[Count] = default!;
+    }
+
+    /// <summary>
+    ///     Clears the list.
+    /// </summary>
+    public void Clear()
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        Count = 0;
+    }
+
+    /// <inheritdoc />
+    public bool Contains(T item)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        for (var index = 0; index < Count; index++)
+            if (Equals(items[index], item))
+                return true;
+
+        return false;
+    }
+
+    /// <inheritdoc />
+    public void CopyTo(T[] array, int arrayIndex)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        Array.Copy(items, sourceIndex: 0, array, arrayIndex, Count);
+    }
+
+    private T[] MoveIntoNew(int newSize)
+    {
+        Throw.IfDisposed(disposed);
+        Throw.IfNull(items, NoUseAfterReturnMessage);
+
+        T[] newItems = arrayPool.Rent(newSize);
+
+        if (Count > 0) Array.Copy(items, sourceIndex: 0, newItems, destinationIndex: 0, Count);
+
+        arrayPool.Return(items);
+
+        return newItems;
     }
 
     /// <summary>
@@ -266,25 +361,6 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
     }
 
     /// <summary>
-    ///     Removes the element at the specified index of the <see cref="PooledList{T}" />.
-    /// </summary>
-    public void RemoveAt(int index)
-    {
-        Throw.IfDisposed(disposed);
-        Throw.IfNull(items, NoUseAfterReturnMessage);
-
-        if ((uint) index >= (uint) Count)
-            throw new ArgumentOutOfRangeException(
-                $"The index '{index}' is not allowed to be larger then the size of the list.");
-
-        Count--;
-
-        if (index < Count) Array.Copy(items, index + 1, items, index, Count - index);
-
-        items[Count] = default!;
-    }
-
-    /// <summary>
     ///     Ensures that the <see cref="PooledList{T}" /> can hold at least <paramref name="min" /> elements without resizing.
     ///     This operation can cause the <see cref="PooledList{T}" /> to be resized.
     /// </summary>
@@ -303,17 +379,6 @@ public sealed class PooledList<T> : IEnumerable<T>, IDisposable
         if (newCapacity < min) newCapacity = min;
 
         Capacity = newCapacity;
-    }
-
-    /// <summary>
-    ///     Clears the list.
-    /// </summary>
-    public void Clear()
-    {
-        Throw.IfDisposed(disposed);
-        Throw.IfNull(items, NoUseAfterReturnMessage);
-
-        Count = 0;
     }
 
     /// <summary>

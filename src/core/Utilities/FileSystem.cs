@@ -10,7 +10,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Units;
@@ -223,72 +222,6 @@ public static class FileSystem
         } while (directory == null);
 
         return new DirectoryInfo(directory);
-    }
-
-    /// <summary>
-    ///     Save an object to a JSON file.
-    /// </summary>
-    /// <param name="obj">The object to save.</param>
-    /// <param name="file">The file to save to.</param>
-    /// <typeparam name="T">The type of the object.</typeparam>
-    /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? SaveJSON<T>(T obj, FileInfo file)
-    {
-        JsonSerializerOptions options = new()
-        {
-            IgnoreReadOnlyProperties = true,
-            WriteIndented = true
-        };
-
-        try
-        {
-            string json = JsonSerializer.Serialize(obj, options);
-            file.WriteAllText(json);
-
-            return null;
-        }
-        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
-        {
-            return e;
-        }
-    }
-
-    /// <summary>
-    ///     Load an object from a JSON file.
-    /// </summary>
-    /// <param name="file">The file to load from.</param>
-    /// <param name="obj">Will be set to the loaded object or a fallback object if loading failed.</param>
-    /// <param name="fallback">Function to create a fallback object if loading failed.</param>
-    /// <typeparam name="T">The type of the object.</typeparam>
-    /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? LoadJSON<T>(FileInfo file, out T obj, Func<T> fallback)
-    {
-        try
-        {
-            string json = file.ReadAllText();
-
-            obj = JsonSerializer.Deserialize<T>(json) ?? fallback();
-
-            return null;
-        }
-        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
-        {
-            obj = fallback();
-
-            return e;
-        }
-    }
-
-    /// <summary>
-    ///     Load an object from a JSON file.
-    /// </summary>
-    /// <param name="file">The file to load from.</param>
-    /// <param name="obj">Will be set to the loaded object or a new object if loading failed.</param>
-    /// <typeparam name="T">The type of the object.</typeparam>
-    /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? LoadJSON<T>(FileInfo file, out T obj) where T : new()
-    {
-        return LoadJSON(file, out obj, () => new T());
     }
 
     /// <summary>

@@ -9,7 +9,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Client.Entities.Players;
+namespace VoxelGame.Client.Actors.Players;
 
 /// <summary>
 ///     The selector used to decide which block or fluid to player is placing.

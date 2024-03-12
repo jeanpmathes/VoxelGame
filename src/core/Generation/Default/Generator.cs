@@ -32,21 +32,21 @@ public class Generator : IWorldGenerator
 
     private readonly FastNoiseLite decorationNoise;
 
+    private readonly Palette palette = new();
+
     /// <summary>
     ///     Used for map generation and sampling.
     /// </summary>
+#pragma warning disable S1450 // Used for documentation purposes.
     private readonly NoiseFactory mapNoiseFactory;
-
-    private readonly Palette palette = new();
-
-    private readonly World world;
+#pragma warning restore S1450
 
     /// <summary>
     ///     Used for details in biomes, structures and decoration.
     /// </summary>
-    #pragma warning disable S1450 // Used for documentation purposes.
+#pragma warning disable S1450 // Used for documentation purposes.
     private readonly NoiseFactory worldNoiseFactory;
-    #pragma warning restore S1450
+#pragma warning restore S1450
 
     /// <summary>
     ///     Creates a new default world generator.
@@ -54,8 +54,6 @@ public class Generator : IWorldGenerator
     /// <param name="world">The world to generate.</param>
     public Generator(World world)
     {
-        this.world = world;
-
         mapNoiseFactory = new NoiseFactory(world.Seed.upper);
         worldNoiseFactory = new NoiseFactory(world.Seed.lower);
 
@@ -66,8 +64,8 @@ public class Generator : IWorldGenerator
 
         Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
-        Initialize();
-        Store();
+        Map.Initialize(world.Data, MapBlobName, mapNoiseFactory);
+        Map.Store(world.Data, MapBlobName);
 
         decorationNoise = worldNoiseFactory.GetNextNoise();
         decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
@@ -281,18 +279,6 @@ public class Generator : IWorldGenerator
             sample.SpecialBiome.IceWidth);
 
         return (int) Math.Round(VMath.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
-    }
-
-    private void Initialize()
-    {
-        using BinaryReader? read = world.Data.GetBlobReader(MapBlobName);
-        Map.Initialize(read, mapNoiseFactory);
-    }
-
-    private void Store()
-    {
-        using BinaryWriter? write = world.Data.GetBlobWriter(MapBlobName);
-        if (write != null) Map.Store(write);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)

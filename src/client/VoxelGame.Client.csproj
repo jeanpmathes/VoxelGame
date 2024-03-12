@@ -13,7 +13,6 @@
         <PackageLicenseExpression>MIT License</PackageLicenseExpression>
         <LangVersion>12</LangVersion>
         <Authors>jeanpmathes</Authors>
-        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -700,9 +699,5 @@
         <None Include="Resources\Shaders\TextureAnimation.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Utilities\"/>
     </ItemGroup>
 </Project>

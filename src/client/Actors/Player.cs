@@ -7,25 +7,23 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application.Resources;
-using VoxelGame.Client.Entities.Players;
+using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Entities;
+namespace VoxelGame.Client.Actors;
 
 /// <summary>
 ///     The client player, controlled by the user. There can only be one client player.
 /// </summary>
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "False positive.")]
-public sealed class Player : Core.Entities.Player, IPlayerDataProvider
+public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 {
     private const float FlyingSpeedFactor = 5f;
     private const float FlyingSprintSpeedFactor = 25f;
@@ -66,20 +64,18 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <param name="mass">The mass of the player.</param>
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
-    /// <param name="ui">The ui used to display player information.</param>
-    /// <param name="resources">The resources used to render the player.</param>
+    /// <param name="visualInterface">The visual interface to use for this player.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
     public Player(World world, float mass, Camera camera, BoundingVolume boundingVolume,
-        GameUserInterface ui, GameResources resources, GameScene scene) : base(world, mass, boundingVolume)
+        VisualInterface visualInterface, GameScene scene) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;
 
         this.scene = scene;
+        this.visualInterface = visualInterface;
 
-        visualInterface = new VisualInterface(this, ui, resources);
         input = new Input(this);
-
         selector = new PlacementSelection(input, () => targetBlock?.Block);
     }
 
@@ -122,7 +118,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
     /// <inheritdoc />
     public override Vector3d Movement => movement;
 
-    /// <inheritdoc cref="PhysicsEntity" />
+    /// <inheritdoc cref="PhysicsActor" />
     public override Vector3i? TargetPosition => targetPosition;
 
     Vector3i IPlayerDataProvider.HeadPosition => headPosition;
@@ -242,7 +238,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
         IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
 
-        visualInterface.BuildOverlay(positions);
+        visualInterface.BuildOverlay(this, positions);
     }
 
     private void UpdateTargets()
@@ -305,7 +301,8 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private void HandleLookInput()
     {
-        // Apply the camera pitch and yaw (the pitch is clamped in the camera class)
+        // Apply the camera pitch and yaw. (the pitch is clamped in the camera class).
+
         (double yaw, double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
         camera.Yaw += yaw;
         camera.Pitch += pitch;
@@ -323,15 +320,13 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private void PlaceInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        BlockInstance currentTarget = targetedBlock;
-
         if (!input.ShouldInteract) return;
 
         Vector3i placePosition = targetedPosition;
 
-        if (input.IsInteractionBlocked || !currentTarget.Block.IsInteractable)
+        if (input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
         {
-            if (!currentTarget.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
+            if (!targetedBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
 
             // Prevent block placement if the block would intersect the player.
             if (selector is {IsBlockMode: true, ActiveBlock.IsSolid: true} && Collider.Intersects(
@@ -342,9 +337,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
             input.RegisterInteraction();
         }
-        else if (currentTarget.Block.IsInteractable)
+        else if (targetedBlock.Block.IsInteractable)
         {
-            currentTarget.Block.EntityInteract(this, targetedPosition);
+            targetedBlock.Block.ActorInteract(this, targetedPosition);
 
             input.RegisterInteraction();
         }
@@ -352,11 +347,9 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
 
     private void DestroyInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        BlockInstance currentTarget = targetedBlock;
-
         if (input.ShouldDestroy)
         {
-            if (selector.IsBlockMode) currentTarget.Block.Destroy(World, targetedPosition, this);
+            if (selector.IsBlockMode) targetedBlock.Block.Destroy(World, targetedPosition, this);
             else TakeFluid(targetedPosition);
 
             input.RegisterInteraction();
@@ -366,7 +359,7 @@ public sealed class Player : Core.Entities.Player, IPlayerDataProvider
         {
             var level = FluidLevel.One;
 
-            if (!currentTarget.Block.IsReplaceable)
+            if (!targetedBlock.Block.IsReplaceable)
                 position = targetSide.Offset(position);
 
             World.GetFluid(position)?.Fluid.Take(World, position, ref level);

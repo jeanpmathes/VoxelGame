@@ -6,8 +6,8 @@
 
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
@@ -95,9 +95,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="world">The world in which to place the block.</param>
     /// <param name="position">The position at which to place the block.</param>
-    /// <param name="entity">The entity that is placing the block.</param>
+    /// <param name="actor"></param>
     /// <returns>True if placement was successful.</returns>
-    public bool Place(World world, Vector3i position, PhysicsEntity? entity = null)
+    public bool Place(World world, Vector3i position, PhysicsActor? actor = null)
     {
         Content? content = world.GetContent(position);
 
@@ -105,11 +105,11 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         (BlockInstance block, FluidInstance _) = content.Value;
 
-        bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, entity);
+        bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, actor);
 
         if (!canPlace) return canPlace;
 
-        DoPlace(world, position, entity);
+        DoPlace(world, position, actor);
 
         return canPlace;
     }
@@ -120,16 +120,16 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="world">The world in which to destroy the block.</param>
     /// <param name="position">The position at which to destroy to block.</param>
-    /// <param name="entity">The entity destroying the block.</param>
+    /// <param name="actor">The actor destroying the block.</param>1
     /// <returns>True if destruction was successful.</returns>
-    public bool Destroy(World world, Vector3i position, PhysicsEntity? entity = null)
+    public bool Destroy(World world, Vector3i position, PhysicsActor? actor = null)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
-        if (block.Block != this || !CanDestroy(world, position, block.Data, entity)) return false;
+        if (block.Block != this || !CanDestroy(world, position, block.Data, actor)) return false;
 
-        DoDestroy(world, position, block.Data, entity);
+        DoDestroy(world, position, block.Data, actor);
 
         return true;
     }
@@ -189,9 +189,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="world">The world in which the placement occurs.</param>
     /// <param name="position">The position at which the placement is requested.</param>
-    /// <param name="entity">The entity that performs placement.</param>
+    /// <param name="actor">The actor that performs placement.</param>
     /// <returns>True if placement is possible.</returns>
-    public virtual bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public virtual bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return true;
     }
@@ -202,8 +202,8 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="world">The world in which the placement occurs.</param>
     /// <param name="position">The position at which the placement is requested.</param>
-    /// <param name="entity">The entity that performs placement.</param>
-    protected virtual void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    /// <param name="actor">The actor that performs placement.</param>
+    protected virtual void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(this.AsInstance(), position);
     }
@@ -214,9 +214,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="world">The world in which the placement occurs.</param>
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="data">The block data.</param>
-    /// <param name="entity">The entity that performs placement.</param>
+    /// <param name="actor">The actor that performs placement.</param>
     /// <returns></returns>
-    protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
     {
         return true;
     }
@@ -228,49 +228,49 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="world">The world in which the placement occurs.</param>
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="data">The block data.</param>
-    /// <param name="entity">The entity that performs placement.</param>
-    protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    /// <param name="actor">The actor that performs placement.</param>
+    protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
     {
         world.SetDefaultBlock(position);
     }
 
     /// <summary>
-    ///     This method is called when an entity collides with this block.
+    ///     This method is called when an actor collides with this block.
     /// </summary>
-    /// <param name="entity">The entity that caused the collision.</param>
+    /// <param name="actor">The actor that caused the collision.</param>
     /// <param name="position">The block position.</param>
-    public void EntityCollision(PhysicsEntity entity, Vector3i position)
+    public void ActorCollision(PhysicsActor actor, Vector3i position)
     {
-        BlockInstance? potentialBlock = entity.World.GetBlock(position);
-        if (potentialBlock?.Block == this) EntityCollision(entity, position, potentialBlock.Value.Data);
+        BlockInstance? potentialBlock = actor.World.GetBlock(position);
+        if (potentialBlock?.Block == this) ActorCollision(actor, position, potentialBlock.Value.Data);
     }
 
     /// <summary>
-    ///     Override to provide custom entity collision logic.
+    ///     Override to provide custom actor collision logic.
     /// </summary>
-    /// <param name="entity">The entity that collided with this block.</param>
+    /// <param name="actor">The actor that collided with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void EntityCollision(PhysicsEntity entity, Vector3i position, uint data) {}
+    protected virtual void ActorCollision(PhysicsActor actor, Vector3i position, uint data) {}
 
     /// <summary>
-    ///     Called when a block and an entity collide.
+    ///     Called when a block and an actor collide.
     /// </summary>
-    /// <param name="entity">The entity that collided with the block.</param>
+    /// <param name="actor">The actor that collided with the block.</param>
     /// <param name="position">The block position.</param>
-    public void EntityInteract(PhysicsEntity entity, Vector3i position)
+    public void ActorInteract(PhysicsActor actor, Vector3i position)
     {
-        BlockInstance? potentialBlock = entity.World.GetBlock(position);
-        if (potentialBlock?.Block == this) EntityInteract(entity, position, potentialBlock.Value.Data);
+        BlockInstance? potentialBlock = actor.World.GetBlock(position);
+        if (potentialBlock?.Block == this) ActorInteract(actor, position, potentialBlock.Value.Data);
     }
 
     /// <summary>
-    ///     Override to provide custom entity interaction logic.
+    ///     Override to provide custom actor interaction logic.
     /// </summary>
-    /// <param name="entity">The entity that interacted with this block.</param>
+    /// <param name="actor">The actor that interacted with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void EntityInteract(PhysicsEntity entity, Vector3i position, uint data) {}
+    protected virtual void ActorInteract(PhysicsActor actor, Vector3i position, uint data) {}
 
     /// <summary>
     ///     Called when the content at a position changes. This is called on the new block at that position.

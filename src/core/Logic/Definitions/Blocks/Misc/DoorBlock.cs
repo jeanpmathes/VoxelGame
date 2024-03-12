@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -139,17 +139,17 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                world.HasFullAndSolidGround(position, solidify: true);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = entity?.LookingDirection.ToOrientation() ?? Orientation.North;
-        BlockSide side = entity?.TargetSide ?? BlockSide.Top;
+        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        BlockSide side = actor?.TargetSide ?? BlockSide.Top;
 
         bool isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
 
@@ -183,7 +183,7 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
     {
         bool isBase = (data & 0b00_0100) == 0;
 
@@ -192,15 +192,15 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
         bool isBase = (data & 0b00_0100) == 0;
         Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
-        if (entity.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
+        if (actor.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
 
-        entity.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
-        entity.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
+        actor.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
+        actor.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
 
         // Open a neighboring door, if available.
         bool isLeftSided = (data & 0b00_1000) == 0;
@@ -213,10 +213,10 @@ public class DoorBlock : Block, IFillable, IComplex
 
         void OpenNeighbor(Vector3i neighborPosition)
         {
-            (Block block, uint u) = entity.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
+            (Block block, uint u) = actor.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
 
             if (block == this && (data & 0b01_1011) == ((u ^ 0b00_1000) & 0b01_1011))
-                block.EntityInteract(entity, neighborPosition);
+                block.ActorInteract(actor, neighborPosition);
         }
     }
 

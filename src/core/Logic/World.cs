@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Utilities;
@@ -49,6 +50,8 @@ public abstract class World : IDisposable, IGrid
     private State currentState = State.Activating;
 
     private (Task saving, Action callback)? deactivation;
+
+    private ChunkPool? chunkPool;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -93,7 +96,7 @@ public abstract class World : IDisposable, IGrid
 
         generator = GetGenerator(this);
 
-        ChunkContext = new ChunkContext(Data.ChunkDirectory, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk, generator);
+        ChunkContext = new ChunkContext(this, generator, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
 
         MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
         MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
@@ -208,6 +211,12 @@ public abstract class World : IDisposable, IGrid
     ///     The max saving task limit.
     /// </summary>
     public Limit MaxSavingTasks { get; }
+
+    /// <summary>
+    ///     Get the chunk pool for this world.
+    /// </summary>
+    /// <returns>The chunk pool.</returns>
+    public ChunkPool ChunkPool => chunkPool ??= CreateChunkPool();
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -534,9 +543,10 @@ public abstract class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Creates a chunk for a chunk position.
+    /// Create the chunk pool for this world.
     /// </summary>
-    protected abstract Chunk CreateChunk(ChunkPosition position, ChunkContext context);
+    /// <returns>The chunk pool.</returns>
+    protected abstract ChunkPool CreateChunkPool();
 
     /// <summary>
     ///     Get whether a chunk position is in the maximum allowed world limits.

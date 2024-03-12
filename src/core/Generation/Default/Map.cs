@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -28,9 +29,7 @@ public partial class Map : IMap
     ///     Additional cell data that is stored as flags.
     /// </summary>
     [Flags]
-    #pragma warning disable S4022
-    public enum CellConditions : byte
-    #pragma warning restore S4022
+    public enum CellConditions
     {
         /// <summary>
         ///     No conditions.
@@ -56,9 +55,7 @@ public partial class Map : IMap
     /// <summary>
     ///     The stone type of a cell.
     /// </summary>
-    #pragma warning disable S4022
-    public enum StoneType : byte
-    #pragma warning restore S4022
+    public enum StoneType
     {
         /// <summary>
         ///     Sandstone.
@@ -267,16 +264,18 @@ public partial class Map : IMap
     }
 
     /// <summary>
-    ///     Initialize the map. If available, it can be loaded from a stream.
+    ///     Initialize the map. If available, it will be loaded from a blob.
     ///     If loading is not possible, it will be generated.
     /// </summary>
-    /// <param name="reader">The reader to load the map from.</param>
+    /// <param name="world">The world data from which blobs can be retrieved.</param>
+    /// <param name="blob">The name of the blob to load, or null to generate a new map.</param>
     /// <param name="factory">The factory to use for noise generator creation.</param>
-    public void Initialize(BinaryReader? reader, NoiseFactory factory)
+    public void Initialize(WorldData world, string? blob, NoiseFactory factory)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
-        if (reader != null) Load(reader);
+        if (blob != null)
+            Load(world, blob);
 
         SetupGeneratingNoise(factory);
 
@@ -324,60 +323,35 @@ public partial class Map : IMap
         EmitBiomeView(data, biomes, path);
     }
 
-    private void Load(BinaryReader reader)
+    private void Load(WorldData world, string blob)
     {
-        Debug.Assert(data == null);
-        Data loaded = new();
+        var loaded = world.ReadBlob<Data>(blob);
 
-        Cell LoadCell()
+        if (loaded == null)
         {
-            Cell cell;
+            // The data field is set when generating the map.
+            // Setting it here would prevent the map from being generated.
 
-            cell.continent = reader.ReadInt16();
-            cell.height = reader.ReadSingle();
-            cell.temperature = reader.ReadSingle();
-            cell.humidity = reader.ReadSingle();
-            cell.conditions = (CellConditions) reader.ReadByte();
-            cell.stoneType = (StoneType) reader.ReadByte();
-
-            return cell;
+            logger.LogInformation(Events.WorldGeneration, "Could not load map, either it does not yet exist or is corrupted");
         }
-
-        try
+        else
         {
-            for (var i = 0; i < CellCount; i++) loaded.cells[i] = LoadCell();
+            data = loaded;
+
+            logger.LogDebug(Events.WorldGeneration, "Loaded map");
         }
-        catch (EndOfStreamException)
-        {
-            logger.LogError(Events.WorldGeneration, "Failed to load map, reached end of stream");
-
-            return;
-        }
-
-        data = loaded;
-
-        logger.LogDebug(Events.WorldGeneration, "Loaded map");
     }
 
     /// <summary>
-    ///     Store the map to a stream.
+    ///     Store the map to a blob.
     /// </summary>
-    /// <param name="writer">The writer to write the map.</param>
-    public void Store(BinaryWriter writer)
+    /// <param name="world">The world data to store the blob in.</param>
+    /// <param name="blob">The name of the blob to store the map in.</param>
+    public void Store(WorldData world, string blob)
     {
         Debug.Assert(data != null);
 
-        void StoreCell(in Cell cell)
-        {
-            writer.Write(cell.continent);
-            writer.Write(cell.height);
-            writer.Write(cell.temperature);
-            writer.Write(cell.humidity);
-            writer.Write((byte) cell.conditions);
-            writer.Write((byte) cell.stoneType);
-        }
-
-        for (var i = 0; i < CellCount; i++) StoreCell(data.cells[i]);
+        world.WriteBlob(blob, data);
     }
 
     /// <summary>
@@ -695,7 +669,7 @@ public partial class Map : IMap
         /// </summary>
         /// <param name="y">The height.</param>
         /// <returns>The temperature, in degrees Celsius.</returns>
-        public readonly double GetTemperatureInCelsius(double y)
+        public double GetTemperatureInCelsius(double y)
         {
             double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
@@ -703,7 +677,7 @@ public partial class Map : IMap
         }
     }
 
-    private record struct Cell
+    private record struct Cell : IValue
     {
         /// <summary>
         ///     Flags for different cell conditions.
@@ -736,11 +710,31 @@ public partial class Map : IMap
         public float temperature;
 
         public bool IsLand => height > 0.0f;
+
+        /// <inheritdoc />
+        public void Serialize(Serializer serializer)
+        {
+            serializer.Serialize(ref conditions);
+            serializer.Serialize(ref continent);
+            serializer.Serialize(ref height);
+            serializer.Serialize(ref humidity);
+            serializer.Serialize(ref stoneType);
+            serializer.Serialize(ref temperature);
+        }
     }
 
-    private sealed class Data
+    private sealed class Data : IEntity
     {
         public readonly Cell[] cells = new Cell[CellCount];
+
+        /// <inheritdoc />
+        public static int Version => 1;
+
+        /// <inheritdoc />
+        public void Serialize(Serializer serializer, IEntity.Header header)
+        {
+            serializer.SerializeValues(cells);
+        }
 
         public ref Cell GetCell(int x, int y)
         {

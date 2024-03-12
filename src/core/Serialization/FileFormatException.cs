@@ -4,14 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
+using System.IO;
 
-namespace VoxelGame.Core.Utilities;
+namespace VoxelGame.Core.Serialization;
 
 /// <summary>
 ///     Thrown when a file is not in the expected format.
 /// </summary>
-public class FileFormatException : Exception
+public sealed class FileFormatException : IOException
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="FileFormatException" /> class.
@@ -26,7 +26,6 @@ public class FileFormatException : Exception
 
         if (info != null) message += $": {info}";
         else message += '.';
-
 
         return message;
     }

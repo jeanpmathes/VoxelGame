@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 
@@ -31,13 +31,13 @@ public class AirBlock : Block, IFillable
             BoundingVolume.Block) {}
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return false;
     }
 
     /// <inheritdoc />
-    protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsEntity? entity)
+    protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
     {
         return false;
     }

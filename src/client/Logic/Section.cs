@@ -6,7 +6,6 @@
 
 // ReSharper disable CommentTypo
 
-using System;
 using System.Diagnostics;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
@@ -19,30 +18,37 @@ namespace VoxelGame.Client.Logic;
 ///     A section of the world, specifically for the client.
 ///     Sections do not know their exact position in the world.
 /// </summary>
-[Serializable]
 public class Section : Core.Logic.Section
 {
-    [NonSerialized] private bool hasMesh;
-    [NonSerialized] private BlockSides missing;
-    [NonSerialized] private SectionVFX? renderer;
+    private bool hasMesh;
+    private BlockSides missing;
+    private SectionVFX? renderer;
 
-    /// <summary>
-    ///     Create a new client section. The section is empty, requiring generation.
-    /// </summary>
-    public Section(SectionPosition position) : base(position)
+    /// <inheritdoc />
+    public override void Initialize(SectionPosition newPosition)
     {
+        base.Initialize(newPosition);
+
         renderer = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
         renderer.SetUp();
     }
 
     /// <inheritdoc />
-    public override void Setup(Core.Logic.Section loaded)
+    public override void Reset()
     {
-        Throw.IfDisposed(disposed);
+        base.Reset();
 
-        VMath.Move(out blocks, ref loaded.Cast().blocks);
+        hasMesh = false;
+        missing = BlockSides.All;
 
-        // Loaded section is not disposed because this section takes ownership of the resources.
+        Debug.Assert(renderer != null);
+
+#pragma warning disable S2952 // Object is diposed in Dispose() too, but is overridden here and thus must be disposed here.
+        renderer.TearDown();
+        renderer.Dispose();
+#pragma warning restore S2952
+
+        renderer = null;
     }
 
     /// <summary>

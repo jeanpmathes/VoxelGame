@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Entities;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -41,8 +41,8 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     /// <param name="namedID">The named ID of the fluid. This is a unique and unlocalized identifier.</param>
     /// <param name="density">The density of the fluid. This determines whether this is a gas or a fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid. This determines the flow speed.</param>
-    /// <param name="checkContact">Whether entity contact must be checked.</param>
-    /// <param name="receiveContact">Whether entity contact should be passed to the fluid.</param>
+    /// <param name="checkContact">Whether actor contact must be checked.</param>
+    /// <param name="receiveContact">Whether actor contact should be passed to the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
     protected Fluid(string name, string namedID, double density, int viscosity,
         bool checkContact, bool receiveContact, RenderType renderType)
@@ -112,12 +112,12 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     public int Viscosity { get; }
 
     /// <summary>
-    ///     Gets whether entity contacts have to be checked.
+    ///     Gets whether actor contacts have to be checked.
     /// </summary>
     public bool CheckContact { get; }
 
     /// <summary>
-    ///     Gets whether this fluid receives entity contacts.
+    ///     Gets whether this fluid receives actor contacts.
     /// </summary>
     public bool ReceiveContact { get; }
 
@@ -283,22 +283,22 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
     }
 
     /// <summary>
-    ///     Notify this fluid that an entity has come in contact with it.
+    ///     Notify this fluid that an actor has come in contact with it.
     /// </summary>
-    /// <param name="entity">The entity that contacts the fluid.</param>
+    /// <param name="actor">The actor that contacts the fluid.</param>
     /// <param name="position">The position of the fluid.</param>
-    public void EntityContact(PhysicsEntity entity, Vector3i position)
+    public void EntityContact(PhysicsActor actor, Vector3i position)
     {
-        FluidInstance? potentialFluid = entity.World.GetFluid(position);
+        FluidInstance? potentialFluid = actor.World.GetFluid(position);
 
         if (potentialFluid is {} fluid && fluid.Fluid == this)
-            EntityContact(entity, position, fluid.Level, fluid.IsStatic);
+            EntityContact(actor, position, fluid.Level, fluid.IsStatic);
     }
 
     /// <summary>
     ///     Override to provide custom contact handling.
     /// </summary>
-    protected virtual void EntityContact(PhysicsEntity entity, Vector3i position, FluidLevel level,
+    protected virtual void EntityContact(PhysicsActor actor, Vector3i position, FluidLevel level,
         bool isStatic) {}
 
     /// <summary>

@@ -176,7 +176,7 @@ public sealed class RenderPipeline : IDisposable
 
         if (currentVertexCount == 0) return;
 
-        DrawCall call = ObjectPool<DrawCall>.Shared.Get();
+        DrawCall call = SimpleObjectPool<DrawCall>.Shared.Get();
         call.FirstVertex = totalVertexCount;
         call.VertexCount = currentVertexCount;
         call.Texture = texture;
@@ -216,7 +216,7 @@ public sealed class RenderPipeline : IDisposable
 
             drawer.DrawBuffer((drawCall.FirstVertex, drawCall.VertexCount), (uint) index, texturedDraw);
 
-            ObjectPool<DrawCall>.Shared.Return(drawCall);
+            SimpleObjectPool<DrawCall>.Shared.Return(drawCall);
         }
 
         Reset();

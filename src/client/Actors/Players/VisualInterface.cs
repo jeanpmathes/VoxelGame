@@ -18,7 +18,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Support.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
-namespace VoxelGame.Client.Entities.Players;
+namespace VoxelGame.Client.Actors.Players;
 
 /// <summary>
 ///     Offers visualization like HUD, UI and in-world selection for the player.
@@ -31,21 +31,18 @@ public sealed class VisualInterface : IDisposable
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly OverlayVFX overlayVFX;
 
-    private readonly List<VFX> vfxes = new();
+    private readonly List<VFX> vfxes = [];
 
     private readonly Button debugViewButton;
-
-    private readonly Player player;
 
     private readonly GameUserInterface ui;
 
     /// <summary>
     ///     Create a new instance of the <see cref="VisualInterface" /> class.
     /// </summary>
-    /// <param name="player">The player that is visualized.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
     /// <param name="resources">The resources to use.</param>
-    public VisualInterface(Player player, GameUserInterface ui, GameResources resources)
+    public VisualInterface(GameUserInterface ui, GameResources resources)
     {
         selectionVFX = RegisterVFX(resources.Pipelines.SelectionBoxVFX);
         overlayVFX = RegisterVFX(resources.Pipelines.OverlayVFX);
@@ -60,7 +57,6 @@ public sealed class VisualInterface : IDisposable
         debugViewButton = keybind.GetPushButton(keybind.DebugView);
 
         this.ui = ui;
-        this.player = player;
     }
 
     /// <summary>
@@ -118,8 +114,9 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Build the overlay, considering the given positions.
     /// </summary>
+    /// <param name="player">The player for which to build the overlay.</param>
     /// <param name="positions">The positions to consider.</param>
-    public void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
+    public void BuildOverlay(Player player, IEnumerable<(Content content, Vector3i position)> positions)
     {
         Throw.IfDisposed(disposed);
 

@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -117,9 +117,9 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsEntity? entity)
+    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        BlockSide side = entity?.TargetSide ?? BlockSide.Front;
+        BlockSide side = actor?.TargetSide ?? BlockSide.Front;
 
         if (!side.IsLateral()) side = BlockSide.Back;
         var orientation = side.ToOrientation();
@@ -128,37 +128,37 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsEntity? entity)
+    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        BlockSide side = entity?.TargetSide ?? BlockSide.Front;
+        BlockSide side = actor?.TargetSide ?? BlockSide.Front;
         if (!side.IsLateral()) side = BlockSide.Back;
         world.SetBlock(this.AsInstance((uint) side.ToOrientation()), position);
     }
 
     /// <inheritdoc />
-    protected override void EntityCollision(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorCollision(PhysicsActor actor, Vector3i position, uint data)
     {
-        Vector3d forwardMovement = Vector3d.Dot(entity.Movement, entity.Forward) * entity.Forward;
+        Vector3d forwardMovement = Vector3d.Dot(actor.Movement, actor.Forward) * actor.Forward;
         Vector3d newVelocity;
 
         if (forwardMovement.LengthSquared > 0.1f &&
             (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
         {
-            float yVelocity = Vector3d.CalculateAngle(entity.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
+            float yVelocity = Vector3d.CalculateAngle(actor.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
                 ? climbingVelocity
                 : -climbingVelocity;
 
-            newVelocity = new Vector3d(entity.Velocity.X, yVelocity, entity.Velocity.Z);
+            newVelocity = new Vector3d(actor.Velocity.X, yVelocity, actor.Velocity.Z);
         }
         else
         {
             newVelocity = new Vector3d(
-                entity.Velocity.X,
-                MathHelper.Clamp(entity.Velocity.Y, -slidingVelocity, double.MaxValue),
-                entity.Velocity.Z);
+                actor.Velocity.X,
+                MathHelper.Clamp(actor.Velocity.Y, -slidingVelocity, double.MaxValue),
+                actor.Velocity.Z);
         }
 
-        entity.Velocity = newVelocity;
+        actor.Velocity = newVelocity;
     }
 
     /// <inheritdoc />

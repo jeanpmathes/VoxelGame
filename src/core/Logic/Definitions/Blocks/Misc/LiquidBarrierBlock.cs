@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Entities;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -51,9 +51,9 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    protected override void EntityInteract(PhysicsEntity entity, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
     {
-        entity.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
+        actor.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
     }
 
     /// <inheritdoc />

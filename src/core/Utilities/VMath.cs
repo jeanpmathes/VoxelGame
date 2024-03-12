@@ -33,17 +33,6 @@ public static class VMath
     }
 
     /// <summary>
-    ///     Move a value from one variable to another.
-    /// </summary>
-    /// <param name="a">The first variable, will be replaced by the second variable.</param>
-    /// <param name="b">The second variable, will be set to null.</param>
-    /// <typeparam name="T">The type of the values.</typeparam>
-    public static void Move<T>(out T a, ref T b) where T : class
-    {
-        (a, b) = (b, null!);
-    }
-
-    /// <summary>
     ///     A simple one-dimensional range.
     /// </summary>
     /// <param name="x">The exclusive upper bound.</param>
@@ -418,7 +407,7 @@ public static class VMath
         switch (indexOfMax)
         {
             // Note: SonarSource claims that only case 1 is reachable, but the test proves that all cases are reachable.
-            
+
             case 0:
                 return ref e00;
             case 1:

@@ -1,4 +1,4 @@
-﻿// <copyright file="PhysicsEntity.cs" company="VoxelGame">
+﻿// <copyright file="PhysicsActor.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -13,22 +13,22 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Entities;
+namespace VoxelGame.Core.Actors;
 
 /// <summary>
-///     An entity which is affected by gravity and forces.
+///     An actor which is affected by gravity and forces.
 /// </summary>
-public abstract class PhysicsEntity : IDisposable
+public abstract class PhysicsActor : IDisposable
 {
     /// <summary>
-    ///     The gravitational constant which accelerates all physics entities.
+    ///     The gravitational constant which accelerates all physics actors.
     /// </summary>
     private const double Gravity = -9.81;
 
     private const double AirDrag = 0.18;
     private const double FluidDrag = 15.0;
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsEntity>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
 
     private readonly BoundingVolume boundingVolume;
 
@@ -41,12 +41,12 @@ public abstract class PhysicsEntity : IDisposable
     private Vector3d force;
 
     /// <summary>
-    ///     Create a new physics entity.
+    ///     Create a new physics actor.
     /// </summary>
-    /// <param name="world">The world in which the physics entity is located.</param>
-    /// <param name="mass">The mass of the entity.</param>
-    /// <param name="boundingVolume">The bounding box of the entity.</param>
-    protected PhysicsEntity(World world, double mass, BoundingVolume boundingVolume)
+    /// <param name="world">The world in which the physics actor is located.</param>
+    /// <param name="mass">The mass of the actor.</param>
+    /// <param name="boundingVolume">The bounding box of the actor.</param>
+    protected PhysicsActor(World world, double mass, BoundingVolume boundingVolume)
     {
         World = world;
 
@@ -57,17 +57,17 @@ public abstract class PhysicsEntity : IDisposable
     }
 
     /// <summary>
-    ///     Gets the mass of this physics entity.
+    ///     Gets the mass of this physics actor.
     /// </summary>
     private double Mass { get; }
 
     /// <summary>
-    ///     Gets or sets the velocity of the physics entity.
+    ///     Gets or sets the velocity of the physics actor.
     /// </summary>
     public Vector3d Velocity { get; set; }
 
     /// <summary>
-    ///     Get the position of the physics entity.
+    ///     Get the position of the physics actor.
     /// </summary>
     public Vector3d Position
     {
@@ -76,63 +76,63 @@ public abstract class PhysicsEntity : IDisposable
     }
 
     /// <summary>
-    ///     Get the rotation of the physics entity.
+    ///     Get the rotation of the physics actor.
     /// </summary>
     protected Quaterniond Rotation { get; set; }
 
     /// <summary>
-    ///     Get whether the physics entity touches the ground.
+    ///     Get whether the physics actor touches the ground.
     /// </summary>
     protected bool IsGrounded { get; private set; }
 
     /// <summary>
-    ///     Get whether the physics entity is in a fluid.
+    ///     Get whether the physics actor is in a fluid.
     /// </summary>
     protected bool IsSwimming { get; private set; }
 
     /// <summary>
-    ///     Get the forward vector of the physics entity.
+    ///     Get the forward vector of the physics actor.
     /// </summary>
     public Vector3d Forward => Rotation * Vector3d.UnitX;
 
     /// <summary>
-    ///     Get the right vector of the physics entity.
+    ///     Get the right vector of the physics actor.
     /// </summary>
     public Vector3d Right => Rotation * Vector3d.UnitZ;
 
     /// <summary>
-    ///     Get the world in which the physics entity is located.
+    ///     Get the world in which the physics actor is located.
     /// </summary>
     public World World { get; }
 
     /// <summary>
-    ///     Get the target movement of the physics entity.
+    ///     Get the target movement of the physics actor.
     /// </summary>
     public abstract Vector3d Movement { get; }
 
     /// <summary>
-    ///     Get the looking direction of the physics entity, which is also the front vector of the view camera.
+    ///     Get the looking direction of the physics actor, which is also the front vector of the view camera.
     /// </summary>
     public abstract Vector3d LookingDirection { get; }
 
     /// <summary>
-    ///     Get the block side targeted by the physics entity.
+    ///     Get the block side targeted by the physics actor.
     /// </summary>
     public abstract BlockSide TargetSide { get; }
 
     /// <summary>
-    ///     Get the block position targeted by the physics entity.
-    ///     If the entity is not targeting a block, this will be null.
+    ///     Get the block position targeted by the physics actor.
+    ///     If the actor is not targeting a block, this will be null.
     /// </summary>
     public abstract Vector3i? TargetPosition { get; }
 
     /// <summary>
-    ///     Get the collider of this physics entity.
+    ///     Get the collider of this physics actor.
     /// </summary>
     public BoxCollider Collider => boundingVolume.GetColliderAt(Position);
 
     /// <summary>
-    ///     Whether the physics entity should perform physics calculations.
+    ///     Whether the physics actor should perform physics calculations.
     ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
     /// </summary>
     public bool DoPhysics
@@ -149,13 +149,13 @@ public abstract class PhysicsEntity : IDisposable
 
             logger.LogInformation(
                 Events.PhysicsSystem,
-                "Set entity physics to {State}",
+                "Set actor physics to {State}",
                 doPhysics ? "enabled" : "disabled");
         }
     }
 
     /// <summary>
-    ///     Applies force to this entity.
+    ///     Applies force to this actor.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
     protected void AddForce(Vector3d additionalForce)
@@ -166,7 +166,7 @@ public abstract class PhysicsEntity : IDisposable
     }
 
     /// <summary>
-    ///     Tries to move the entity in a certain direction using forces, but never using more force than specified.
+    ///     Tries to move the actor in a certain direction using forces, but never using more force than specified.
     /// </summary>
     /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
     /// <param name="maxForce">The maximum allowed force to use.</param>
@@ -182,7 +182,7 @@ public abstract class PhysicsEntity : IDisposable
     }
 
     /// <summary>
-    ///     Tick this physics entity. An entity is ticked every update.
+    ///     Tick this physics actor. An actor is ticked every update.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     public void Tick(double deltaTime)
@@ -225,7 +225,7 @@ public abstract class PhysicsEntity : IDisposable
 
         foreach ((Vector3i position, Block block) in blockIntersections)
             if (block.ReceiveCollisions)
-                block.EntityCollision(this, position);
+                block.ActorCollision(this, position);
 
         double drag = AirDrag;
 
@@ -291,7 +291,7 @@ public abstract class PhysicsEntity : IDisposable
     }
 
     /// <summary>
-    ///     Receives the entity update every tick.
+    ///     Receives the actor update every tick.
     /// </summary>
     /// <param name="deltaTime"></param>
     protected abstract void Update(double deltaTime);
@@ -301,7 +301,7 @@ public abstract class PhysicsEntity : IDisposable
     private bool disposed;
 
     /// <summary>
-    ///     Disposes this entity.
+    ///     Disposes this actor.
     /// </summary>
     public void Dispose()
     {
@@ -312,13 +312,13 @@ public abstract class PhysicsEntity : IDisposable
     /// <summary>
     ///     Finalizer.
     /// </summary>
-    ~PhysicsEntity()
+    ~PhysicsActor()
     {
         Dispose(disposing: false);
     }
 
     /// <summary>
-    ///     Disposes this entity.
+    ///     Disposes this actor.
     /// </summary>
     /// <param name="disposing">True if called by code.</param>
     protected virtual void Dispose(bool disposing)
