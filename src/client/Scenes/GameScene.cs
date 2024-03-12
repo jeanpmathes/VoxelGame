@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
+using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
@@ -182,8 +183,7 @@ public sealed class GameScene : IScene
             mass: 70f,
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            ui,
-            client.Resources,
+            new VisualInterface(ui, client.Resources),
             this);
 
         world.AddPlayer(player);

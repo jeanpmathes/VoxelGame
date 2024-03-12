@@ -32,21 +32,21 @@ public class Generator : IWorldGenerator
 
     private readonly FastNoiseLite decorationNoise;
 
+    private readonly Palette palette = new();
+
     /// <summary>
     ///     Used for map generation and sampling.
     /// </summary>
+#pragma warning disable S1450 // Used for documentation purposes.
     private readonly NoiseFactory mapNoiseFactory;
-
-    private readonly Palette palette = new();
-
-    private readonly World world;
+#pragma warning restore S1450
 
     /// <summary>
     ///     Used for details in biomes, structures and decoration.
     /// </summary>
-    #pragma warning disable S1450 // Used for documentation purposes.
+#pragma warning disable S1450 // Used for documentation purposes.
     private readonly NoiseFactory worldNoiseFactory;
-    #pragma warning restore S1450
+#pragma warning restore S1450
 
     /// <summary>
     ///     Creates a new default world generator.
@@ -54,8 +54,6 @@ public class Generator : IWorldGenerator
     /// <param name="world">The world to generate.</param>
     public Generator(World world)
     {
-        this.world = world;
-
         mapNoiseFactory = new NoiseFactory(world.Seed.upper);
         worldNoiseFactory = new NoiseFactory(world.Seed.lower);
 
