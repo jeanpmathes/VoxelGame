@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Text.Json;
 using VoxelGame.Core.Utilities;
 
@@ -94,8 +95,9 @@ public static class Serialize
     {
         try
         {
-            using Stream stream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
-            using BinarySerializer serializer = new(stream, signature, file);
+            using Stream fileStream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
+            using DeflateStream compressionStream = new(fileStream, CompressionMode.Compress);
+            using BinarySerializer serializer = new(compressionStream, signature, file);
 
             serializer.SerializeEntity(entity);
         }
@@ -119,8 +121,9 @@ public static class Serialize
     {
         try
         {
-            using Stream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            using BinaryDeserializer deserializer = new(stream, signature, file);
+            using Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
+            using DeflateStream decompressionStream = new(fileStream, CompressionMode.Decompress);
+            using BinaryDeserializer deserializer = new(decompressionStream, signature, file);
 
             deserializer.SerializeEntity(entity);
         }
