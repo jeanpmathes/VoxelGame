@@ -192,10 +192,9 @@ public class WorldData
     {
         Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
 
-        if (exception == null)
-            return entity;
-
-        logger.LogDebug(Events.WorldIO, exception, "Failed to read blob '{Name}'", name);
+        if (exception is FileFormatException) logger.LogError(Events.WorldIO, exception, "Failed to read blob '{Name}', format is incorrect", name);
+        else if (exception != null) logger.LogDebug(Events.WorldIO, exception, "Failed to read blob '{Name}'", name);
+        else return entity;
 
         return null;
     }

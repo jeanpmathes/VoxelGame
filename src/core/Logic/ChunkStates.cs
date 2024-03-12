@@ -110,12 +110,12 @@ public partial class Chunk
                     break;
                 }
 
-                case LoadingResult.FormatError:
+                case LoadingResult.FormatError or LoadingResult.ValidationError:
                 {
                     logger.LogError(
                         Events.ChunkLoadingError,
                         "The chunk for {Position} could not be loaded, " +
-                        "which can be caused by a corrupted chunk file. " +
+                        "which can be caused by a corrupted or manipulated chunk file. " +
                         "Position will be scheduled for generation",
                         Chunk.Position);
 

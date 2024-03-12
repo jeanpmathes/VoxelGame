@@ -43,7 +43,12 @@ public partial class Chunk : IDisposable, IEntity
         /// <summary>
         ///     A format-related error occurred.
         /// </summary>
-        FormatError
+        FormatError,
+
+        /// <summary>
+        ///     A validation error occurred, meaning the data is logically invalid.
+        /// </summary>
+        ValidationError
     }
 
     private const string FileSignature = "VG_CHUNK";
@@ -401,10 +406,18 @@ public partial class Chunk : IDisposable, IEntity
 
         Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
+        if (exception is FileFormatException)
+        {
+            logger.LogError(Events.ChunkOperation, "File for the chunk at {Position} was invalid: format error", position);
+
+            return LoadingResult.FormatError;
+        }
+
         if (exception != null)
         {
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
+
             logger.LogDebug(Events.ChunkOperation, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, exception.Message);
 
             return LoadingResult.IOError;
@@ -416,7 +429,7 @@ public partial class Chunk : IDisposable, IEntity
         {
             logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
 
-            return LoadingResult.FormatError;
+            return LoadingResult.ValidationError;
         }
 
         logger.LogDebug(Events.ChunkOperation, "File for the chunk at {Position} was valid", position);
