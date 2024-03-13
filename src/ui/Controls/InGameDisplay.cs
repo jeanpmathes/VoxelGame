@@ -4,13 +4,15 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
+
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core.Logic;
+using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
+using VoxelGame.UI.UserInterfaces;
+using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Controls;
 
@@ -21,21 +23,19 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class InGameDisplay : ControlBase
 {
-    private readonly ControlBase debugViewContainer;
+    private readonly Context context;
 
-    private readonly Label headPosition;
+    private readonly ControlBase debugView;
+
     private readonly Label performance;
     private readonly Label playerSelection;
-    private readonly Label targetBlock;
-    private readonly Label targetFluid;
-    private readonly Label targetPosition;
-    private readonly Label temperature;
-    private readonly Label worldData;
 
     private bool debugMode;
 
-    internal InGameDisplay(ControlBase parent) : base(parent)
+    internal InGameDisplay(ControlBase parent, Context context) : base(parent)
     {
+        this.context = context;
+
         Dock = Dock.Fill;
 
         DockLayout top = new(this)
@@ -66,21 +66,26 @@ internal class InGameDisplay : ControlBase
             AutoSizeToContents = false
         };
 
-        debugViewContainer = new VerticalLayout(right)
+        VerticalLayout debugViewContainer = new(right)
         {
             Dock = Dock.Right,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
-        headPosition = new Label(debugViewContainer) {Alignment = Alignment.Right};
-        targetPosition = new Label(debugViewContainer) {Alignment = Alignment.Right};
-        targetBlock = new Label(debugViewContainer) {Alignment = Alignment.Right};
-        targetFluid = new Label(debugViewContainer) {Alignment = Alignment.Right};
-        worldData = new Label(debugViewContainer) {Alignment = Alignment.Right};
-        temperature = new Label(debugViewContainer) {Alignment = Alignment.Right};
+        Empty pad = new(debugViewContainer)
+        {
+            Padding = Padding.Five
+        };
 
-        debugViewContainer.Hide();
+        Control.Used(pad);
+
+        debugView = new Border(debugViewContainer)
+        {
+            BorderType = BorderType.ListBox
+        };
+
+        debugView.Hide();
     }
 
     internal void SetUpdateRate(double fps, double ups)
@@ -97,24 +102,19 @@ internal class InGameDisplay : ControlBase
     {
         if (!debugMode) return;
 
-        headPosition.Text = $"Head: {playerDataProvider.HeadPosition}";
-        targetPosition.Text = $"Target: {playerDataProvider.TargetPosition}";
+        debugView.DeleteAllChildren();
 
-        (Block block, uint data) = playerDataProvider.TargetBlock;
+        PropertyBasedListControl property = new(debugView, playerDataProvider.DebugData, context)
+        {
+            Margin = Margin.Five
+        };
 
-        targetBlock.Text =
-            $"B: {block.NamedID}[{block.ID}], {Convert.ToString(data, toBase: 2).PadLeft(totalWidth: 6, paddingChar: '0')}";
-
-        (Fluid fluid, FluidLevel level, bool isStatic) = playerDataProvider.TargetFluid;
-        targetFluid.Text = $"F: {fluid.NamedID}[{fluid.ID}], {level}, {isStatic}";
-
-        worldData.Text = playerDataProvider.WorldDebugData;
-        temperature.Text = $"T: {playerDataProvider.Temperature:F1}°C";
+        Control.Used(property);
     }
 
     internal void ToggleDebugDataView()
     {
         debugMode = !debugMode;
-        debugViewContainer.IsHidden = !debugMode;
+        debugView.IsHidden = !debugMode;
     }
 }

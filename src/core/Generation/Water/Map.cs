@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Generation.Water;
@@ -15,9 +17,9 @@ namespace VoxelGame.Core.Generation.Water;
 public class Map : IMap
 {
     /// <inheritdoc />
-    public string GetPositionDebugData(Vector3d position)
+    public Property GetPositionDebugData(Vector3d position)
     {
-        return "";
+        return new Message(nameof(Water), "");
     }
 
     /// <inheritdoc />
@@ -27,8 +29,8 @@ public class Map : IMap
     }
 
     /// <inheritdoc />
-    public double GetTemperature(Vector3d position)
+    public Temperature GetTemperature(Vector3d position)
     {
-        return 20.0;
+        return new Temperature {DegreesCelsius = 20};
     }
 }

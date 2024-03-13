@@ -9,7 +9,7 @@ using System;
 namespace VoxelGame.Core.Utilities.Units;
 
 /// <summary>
-///     A measure for length
+///     A measure for length.
 /// </summary>
 public readonly struct Length : IMeasure, IEquatable<Length>
 {

@@ -4,8 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.UI.Providers;
 
@@ -25,32 +24,7 @@ public interface IPlayerDataProvider
     public string Selection { get; }
 
     /// <summary>
-    ///     The targeted position.
+    /// Data for debugging purposes.
     /// </summary>
-    public Vector3i? TargetPosition { get; }
-
-    /// <summary>
-    ///     The position of the player head.
-    /// </summary>
-    public Vector3i HeadPosition { get; }
-
-    /// <summary>
-    ///     The targeted block.
-    /// </summary>
-    public BlockInstance TargetBlock { get; }
-
-    /// <summary>
-    ///     The targeted fluid.
-    /// </summary>
-    public FluidInstance TargetFluid { get; }
-
-    /// <summary>
-    ///     Data related to the position of the player in the world.
-    /// </summary>
-    public string WorldDebugData { get; }
-
-    /// <summary>
-    ///     The current temperature around the player.
-    /// </summary>
-    public double Temperature { get; }
+    public Property DebugData { get; }
 }

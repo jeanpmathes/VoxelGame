@@ -26,17 +26,9 @@ public class PropertyBasedTreeControl : TreeControl
         builder.Visit(property);
     }
 
-    private sealed class TreeControlBuilder : Visitor
+    private sealed class TreeControlBuilder(TreeControl tree, Context context) : Visitor
     {
-        private readonly Context context;
-
-        private TreeNode current;
-
-        public TreeControlBuilder(TreeControl tree, Context context)
-        {
-            current = tree.RootNode;
-            this.context = context;
-        }
+        private TreeNode current = tree.RootNode;
 
         public override void Visit(Group group)
         {
