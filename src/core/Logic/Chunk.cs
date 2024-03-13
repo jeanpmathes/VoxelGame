@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -75,22 +76,22 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
-    public static readonly int SizeExp = (int) Math.Log(Size, newBase: 2);
+    public static readonly int SizeExp = BitOperations.Log2(Size);
 
     /// <summary>
     ///     Result of <c>lb(Size) * 2</c> as int.
     /// </summary>
-    public static readonly int SizeExp2 = (int) Math.Log(Size, newBase: 2) * 2;
+    public static readonly int SizeExp2 = SizeExp * 2;
 
     /// <summary>
     ///     Result of <c>lb(BlockSize)</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp = (int) Math.Log(BlockSize, newBase: 2);
+    public static readonly int BlockSizeExp = BitOperations.Log2(BlockSize);
 
     /// <summary>
     ///     Result of <c>lb(BlockSize) * 2</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
+    public static readonly int BlockSizeExp2 = BlockSizeExp * 2;
 
     /// <summary>
     ///     The sections in this chunk.

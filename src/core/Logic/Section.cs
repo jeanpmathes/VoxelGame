@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Serialization;
@@ -71,12 +72,12 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     Integer result of <c>lb(SectionSize)</c>.
     /// </summary>
-    public static readonly int SizeExp = (int) Math.Log(Size, newBase: 2);
+    public static readonly int SizeExp = BitOperations.Log2(Size);
 
     /// <summary>
     ///     Integer result of <c>lb(SectionSize) * 2</c>.
     /// </summary>
-    public static readonly int SizeExp2 = (int) Math.Log(Size, newBase: 2) * 2;
+    public static readonly int SizeExp2 = SizeExp * 2;
 
     /// <summary>
     ///     Creates a new section.
