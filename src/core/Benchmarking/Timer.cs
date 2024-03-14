@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Benchmarking;
 /// <summary>
 ///     Measures the time it takes to execute a block of code.
 /// </summary>
-public sealed class Timer(string name, Benchmark benchmark, IDisposable? disposable) : IDisposable
+public sealed class Timer(string name, TimingStyle style, Benchmark benchmark, IDisposable? disposable) : IDisposable
 {
     private readonly Stopwatch stopwatch = new();
 
@@ -23,27 +23,28 @@ public sealed class Timer(string name, Benchmark benchmark, IDisposable? disposa
         stopwatch.Stop();
         disposable?.Dispose();
 
-        benchmark.AddDurationMeasurement(name, stopwatch.Elapsed.TotalMilliseconds);
+        benchmark.AddDurationMeasurement(name, stopwatch.Elapsed.TotalMilliseconds, style);
     }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="Timer" /> class.
     /// </summary>
     /// <param name="name">The name of the measurement. Must be unique for this call in the source code.</param>
+    /// <param name="style">How the timing is measured and evaluated.</param>
     /// <param name="benchmark">
     ///     The benchmark the measurement is associated with.
     ///     If no benchmark is provided, the global benchmark is used.
     /// </param>
     /// <param name="other">Another disposable object to dispose when the timer is disposed.</param>
     /// <returns>An active timer, or null if both the passed benchmark and the global benchmark are null.</returns>
-    public static Timer? Start(string name, Benchmark? benchmark = null, IDisposable? other = null)
+    public static Timer? Start(string name, TimingStyle style = TimingStyle.Reoccurring, Benchmark? benchmark = null, IDisposable? other = null)
     {
         benchmark ??= Benchmark.Instance;
 
         if (benchmark == null)
             return null;
 
-        Timer timer = new(name, benchmark, other);
+        Timer timer = new(name, style, benchmark, other);
 
         timer.stopwatch.Start();
 
@@ -61,9 +62,10 @@ public static class TimerExtensions
     /// </summary>
     /// <param name="logger">The logger to use.</param>
     /// <param name="name">The name of the scope.</param>
+    /// <param name="style">How the timing is measured and evaluated.</param>
     /// <returns>An object to dispose to end the scope and the measurement.</returns>
-    public static IDisposable? BeginTimedScoped(this ILogger logger, string name)
+    public static IDisposable? BeginTimedScoped(this ILogger logger, string name, TimingStyle style = TimingStyle.Reoccurring)
     {
-        return Timer.Start(name, Benchmark.Instance, logger.BeginScope(name));
+        return Timer.Start(name, style, Benchmark.Instance, logger.BeginScope(name));
     }
 }

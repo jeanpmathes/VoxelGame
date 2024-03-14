@@ -30,4 +30,9 @@ public record Unit(string Symbol)
     ///     A unit of temperature, see <see cref="Temperature" />.
     /// </summary>
     public static Unit Celsius { get; } = new("°C");
+
+    /// <summary>
+    ///     A unit of time, see <see cref="Duration" />.
+    /// </summary>
+    public static Unit Second { get; } = new("s");
 }

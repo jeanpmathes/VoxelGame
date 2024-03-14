@@ -85,7 +85,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnInit()
     {
-        using (logger.BeginScope("Load"))
+        using (logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
             screenBehaviour = new ScreenBehaviour(this);
 
@@ -105,7 +105,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnRender(double delta)
     {
-        using (logger.BeginTimedScoped("Render"))
+        using (logger.BeginTimedScoped("Client Render"))
         {
             sceneManager.Render((float) delta);
             screenBehaviour.Draw(delta);
@@ -114,7 +114,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnUpdate(double delta)
     {
-        using (logger.BeginTimedScoped("Update"))
+        using (logger.BeginTimedScoped("Client Update"))
         {
             operations.Update();
 
