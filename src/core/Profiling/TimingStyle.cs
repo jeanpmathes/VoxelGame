@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-namespace VoxelGame.Core.Benchmarking;
+namespace VoxelGame.Core.Profiling;
 
 /// <summary>
 ///     How a time measurement is performed and evaluated.

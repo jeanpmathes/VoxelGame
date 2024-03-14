@@ -10,7 +10,7 @@ using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Core.Benchmarking;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -85,11 +85,11 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnInit()
     {
-        using (logger.BeginTimedScoped("Client Load", TimingStyle.Once))
+        using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
             screenBehaviour = new ScreenBehaviour(this);
 
-            LoadingContext loadingContext = new();
+            LoadingContext loadingContext = new(timer);
 
             Resources.Load(Graphics.VisualConfiguration, loadingContext);
 
@@ -97,10 +97,10 @@ internal class Client : Support.Core.Client, IPerformanceProvider
             sceneManager.Load(startScene);
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
-
-            // Optional generation of manual.
-            ManualBuilder.EmitManual();
         }
+
+        // Optional generation of manual.
+        ManualBuilder.EmitManual();
     }
 
     protected override void OnRender(double delta)

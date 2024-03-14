@@ -65,14 +65,14 @@ public static class Arguments
 
         command.AddOption(useGraphicsProcessingUnitBasedValidationOption);
 
-        var enableBenchmarkingOption = new Option<bool>(
-            "--benchmark",
-            description: "Whether to enable integrated performance benchmarking. Is enabled by default in DEBUG builds.",
+        var enableProfilingOption = new Option<bool>(
+            "--profile",
+            description: "Whether to enable integrated profiling. Is enabled by default in DEBUG builds.",
             getDefaultValue: () => Program.IsDebug
         );
 
-        enableBenchmarkingOption.AddAlias("-b");
-        command.AddOption(enableBenchmarkingOption);
+        enableProfilingOption.AddAlias("-p");
+        command.AddOption(enableProfilingOption);
 
         ILogger GetLogger(InvocationContext context)
         {
@@ -88,7 +88,7 @@ public static class Arguments
                 {
                     GameParameters gameParameters = new(
                         context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
-                        context.ParseResult.GetValueForOption(enableBenchmarkingOption),
+                        context.ParseResult.GetValueForOption(enableProfilingOption),
                         context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
                         context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
 
@@ -127,7 +127,7 @@ public delegate int RunGame(GameParameters parameters, ILogger logger);
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly, bool Benchmark, bool SupportPIX, bool UseGBV)
+public record GameParameters(int LoadWorldDirectly, bool Profile, bool SupportPIX, bool UseGBV)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.

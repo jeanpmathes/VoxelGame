@@ -4,8 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Benchmarking;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Profiling;
 
 namespace VoxelGame.Client.Actors.Players;
 
@@ -25,9 +25,9 @@ public class DebugProperties : Group
         new Message("Target Fluid", $"{player.TargetFluid.Fluid.NamedID}[{player.TargetFluid.Fluid.ID}], {player.TargetFluid.Level}, {player.TargetFluid.IsStatic}"),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),
         player.World.Map.GetPositionDebugData(player.Position),
-        Benchmark.Instance?.GenerateReport() ?? new Group(nameof(Benchmark),
+        Profile.Instance?.GenerateReport() ?? new Group(nameof(Profile),
         [
-            new Message("Disabled", "Use application arguments to enable benchmarking.")
+            new Message("Disabled", "Use application arguments to enable integrated profiling.")
         ])
     ]) {}
 }
