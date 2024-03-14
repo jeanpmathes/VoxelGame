@@ -14,6 +14,7 @@ using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core;
+using VoxelGame.Core.Benchmarking;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -95,6 +96,9 @@ internal static class Program
                 () =>
                 {
                     GraphicsSettings graphicsSettings = new(Settings.Default);
+
+                    if (args.Benchmark)
+                        Benchmark.CreateGlobalInstance();
 
                     WindowSettings windowSettings = new WindowSettings
                     {

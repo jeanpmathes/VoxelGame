@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -17,8 +18,10 @@ public class CircularTimeBuffer
 {
     private readonly double[] buffer;
     private readonly int capacity;
-    private int filledSlots;
 
+    private double total;
+
+    private int filledSlots;
     private int writeIndex;
 
     /// <summary>
@@ -37,7 +40,17 @@ public class CircularTimeBuffer
     /// <summary>
     ///     Get the average of all values in the buffer.
     /// </summary>
-    public double Average => buffer.Take(filledSlots).Sum() / filledSlots;
+    public double Average => total / filledSlots;
+
+    /// <summary>
+    ///     Get the maximum value in the buffer.
+    /// </summary>
+    public double Max { get; private set; } = double.MinValue;
+
+    /// <summary>
+    ///     Get the minimum value in the buffer.
+    /// </summary>
+    public double Min { get; private set; } = double.MaxValue;
 
     /// <summary>
     ///     Write a new value to the buffer.
@@ -45,10 +58,27 @@ public class CircularTimeBuffer
     /// <param name="time">The value to write.</param>
     public void Write(double time)
     {
+        var old = 0.0;
+
+        if (filledSlots == capacity)
+            old = buffer[writeIndex];
+
+        total -= old;
+        total += time;
+
         buffer[writeIndex] = time;
         writeIndex++;
         writeIndex %= capacity;
 
         filledSlots = Math.Min(filledSlots + 1, capacity);
+
+        Max = Math.Max(Max, time);
+        Min = Math.Min(Min, time);
+
+        if (VMath.NearlyEqual(old, Max))
+            Max = buffer.Take(filledSlots).Max();
+
+        if (VMath.NearlyEqual(old, Min))
+            Min = buffer.Take(filledSlots).Min();
     }
 }

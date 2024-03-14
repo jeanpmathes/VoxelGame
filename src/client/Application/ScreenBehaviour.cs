@@ -14,7 +14,7 @@ namespace VoxelGame.Client.Application;
 /// </summary>
 internal sealed class ScreenBehaviour
 {
-    private const int DeltaBufferCapacity = 30;
+    private const int DeltaBufferCapacity = 50;
     private readonly Client client;
 
     private readonly ToggleButton fullscreenToggle;

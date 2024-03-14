@@ -10,6 +10,7 @@ using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Benchmarking;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -76,11 +77,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal GameResources Resources { get; }
 
-    /// <summary>
-    ///     Get the current game, if there is one.
-    /// </summary>
-    internal Game? CurrentGame { get; private set; }
-
     private double FPS => screenBehaviour.FPS;
     private double UPS => screenBehaviour.UPS;
 
@@ -89,7 +85,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnInit()
     {
-        using (logger.BeginScope("Client OnLoad"))
+        using (logger.BeginScope("Load"))
         {
             screenBehaviour = new ScreenBehaviour(this);
 
@@ -109,7 +105,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnRender(double delta)
     {
-        using (logger.BeginScope("RenderFrame"))
+        using (logger.BeginTimedScoped("Render"))
         {
             sceneManager.Render((float) delta);
             screenBehaviour.Draw(delta);
@@ -118,7 +114,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnUpdate(double delta)
     {
-        using (logger.BeginScope("UpdateFrame"))
+        using (logger.BeginTimedScoped("Update"))
         {
             operations.Update();
 
@@ -144,10 +140,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// <param name="world">The world to start the game in.</param>
     internal void StartGame(World world)
     {
-        IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
+        IScene gameScene = sceneFactory.CreateGameScene(world);
         sceneManager.Load(gameScene);
-
-        CurrentGame = game;
     }
 
     /// <summary>
@@ -161,7 +155,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         if (!exitToOS) scene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
 
         sceneManager.Load(scene);
-        CurrentGame = null;
 
         if (!exitToOS) return;
 

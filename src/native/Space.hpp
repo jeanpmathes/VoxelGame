@@ -213,7 +213,7 @@ private:
 
     bool CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
-        NativeClient const&                           nativeClient,
+        NativeClient&                                 nativeClient,
         SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
     std::unique_ptr<Material> SetupMaterial(

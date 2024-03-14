@@ -124,7 +124,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
             {
                 PropertyType = typeof(OptionalKey),
                 IsReadOnly = false,
-                DefaultValue = OptionalKey.DefaultValue,
+                DefaultValue = "",
                 Provider = Properties.Settings.Default.Providers["LocalFileSettingsProvider"],
                 SerializeAs = SettingsSerializeAs.Xml
             };
@@ -194,7 +194,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     private static string PropertyName(Keybind bind)
     {
-        return $"Input_{bind}";
+        return $"input_{bind}";
     }
 
     private VirtualKeys GetCurrentBind(Keybind bind)

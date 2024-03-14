@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Client.Application;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
 
@@ -29,14 +28,10 @@ public class SceneFactory
     ///     Create a new game scene.
     /// </summary>
     /// <param name="world">The world in which the game takes place.</param>
-    /// <param name="game">This will be set to the newly created game.</param>
     /// <returns>The created game scene.</returns>
-    public IScene CreateGameScene(World world, out Game game)
+    public IScene CreateGameScene(World world)
     {
-        GameScene scene = new(client, world);
-        game = scene.Game;
-
-        return scene;
+        return new GameScene(client, world);
     }
 
     /// <summary>

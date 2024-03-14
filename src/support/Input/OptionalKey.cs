@@ -23,11 +23,6 @@ public class OptionalKey
     ///     The key, if <see cref="Default" /> is false, or an invalid value if <see cref="Default" /> is true.
     /// </summary>
     public VirtualKeys Key { get; set; } = VirtualKeys.Undefined;
-
-    /// <summary>
-    ///     Create a new <see cref="OptionalKey" /> with default value.
-    /// </summary>
-    public static OptionalKey DefaultValue => new() {Default = true};
 }
 
 /// <summary>
@@ -43,6 +38,6 @@ public static class OptionalKeyExtensions
     /// <returns>The optional key.</returns>
     public static OptionalKey GetSettings(this VirtualKeys key, bool isDefault)
     {
-        return isDefault ? OptionalKey.DefaultValue : new OptionalKey {Default = false, Key = key};
+        return isDefault ? new OptionalKey() : new OptionalKey {Default = false, Key = key};
     }
 }
