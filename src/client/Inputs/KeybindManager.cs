@@ -239,6 +239,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, VirtualKeys.F1);
     internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, VirtualKeys.F2);
+    internal Keybind UnlockMouse { get; } = Keybind.RegisterPushButton("unlock_mouse", Language.KeyUnlockMouse, VirtualKeys.F3);
     internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, VirtualKeys.Escape);
 
     internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, VirtualKeys.W);

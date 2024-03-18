@@ -214,9 +214,9 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
             DoBlockFluidSelection();
             DoWorldInteraction();
-
-            visualInterface.UpdateInput();
         }
+
+        if (scene is {IsWindowFocused: true}) visualInterface.UpdateInput();
 
         HeadPosition = camera.Position.Floor();
         SetBlockAndFluidOverlays();

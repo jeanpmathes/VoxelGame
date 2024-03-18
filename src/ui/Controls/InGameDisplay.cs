@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -23,19 +24,16 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class InGameDisplay : ControlBase
 {
-    private readonly Context context;
-
-    private readonly ControlBase debugView;
-
     private readonly Label performance;
     private readonly Label playerSelection;
+
+    private readonly ControlBase debugViewRoot;
+    private readonly PropertyBasedTreeControl debugViewContent;
 
     private bool debugMode;
 
     internal InGameDisplay(ControlBase parent, Context context) : base(parent)
     {
-        this.context = context;
-
         Dock = Dock.Fill;
 
         DockLayout top = new(this)
@@ -80,12 +78,18 @@ internal class InGameDisplay : ControlBase
 
         Control.Used(pad);
 
-        debugView = new Border(debugViewContainer)
+        debugViewRoot = new Border(debugViewContainer)
         {
-            BorderType = BorderType.ListBox
+            MinimumSize = new Size(width: 400, height: 500),
+            BorderType = BorderType.TreeControl
         };
 
-        debugView.Hide();
+        debugViewRoot.Hide();
+
+        debugViewContent = new PropertyBasedTreeControl(debugViewRoot, new Message("", ""), context)
+        {
+            Margin = Margin.Five
+        };
     }
 
     internal void SetUpdateRate(double fps, double ups)
@@ -102,19 +106,12 @@ internal class InGameDisplay : ControlBase
     {
         if (!debugMode) return;
 
-        debugView.DeleteAllChildren();
-
-        PropertyBasedListControl property = new(debugView, playerDataProvider.DebugData, context)
-        {
-            Margin = Margin.Five
-        };
-
-        Control.Used(property);
+        debugViewContent.Update(playerDataProvider.DebugData);
     }
 
     internal void ToggleDebugDataView()
     {
         debugMode = !debugMode;
-        debugView.IsHidden = !debugMode;
+        debugViewRoot.IsHidden = !debugMode;
     }
 }

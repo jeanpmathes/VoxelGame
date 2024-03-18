@@ -696,4 +696,7 @@
     <data name="Favorite" xml:space="preserve">
         <value>Favorite</value>
     </data>
+    <data name="KeyUnlockMouse" xml:space="preserve">
+        <value>Unlock Mouse</value>
+    </data>
 </root>
