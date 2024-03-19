@@ -97,8 +97,7 @@ internal static class Program
                 {
                     GraphicsSettings graphicsSettings = new(Settings.Default);
 
-                    if (args.Profile)
-                        Profile.CreateGlobalInstance();
+                    Profile.CreateGlobalInstance(args.Profile);
 
                     WindowSettings windowSettings = new WindowSettings
                     {
@@ -111,9 +110,16 @@ internal static class Program
 
                     logger.LogDebug("Opening window");
 
-                    using Application.Client client = new(windowSettings, graphicsSettings, args);
+                    int result;
 
-                    return client.Run();
+                    using (Application.Client client = new(windowSettings, graphicsSettings, args))
+                    {
+                        result = client.Run();
+                    }
+
+                    Profile.CreateExitReport();
+
+                    return result;
                 }));
     }
 

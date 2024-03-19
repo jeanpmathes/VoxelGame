@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -365,20 +366,28 @@ public abstract class ChunkState
     ///     Update the state of a chunk. This can change the state.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
-    public static void Update(ref ChunkState state)
+    /// <param name="tracker">A tracker to profile state transitions.</param>
+    public static void Update(ref ChunkState state, StateTracker tracker)
     {
-        const int maxRepeatCount = 3;
+        const int maxTransitions = 3;
 
-        ChunkState previousState;
         var count = 0;
 
-        do
+        while (count < maxTransitions)
         {
-            previousState = state;
+            ChunkState previousState = state;
+
             state = state.Update();
+
             state.previous ??= previousState;
             state.requests = previousState.requests;
-        } while (!ReferenceEquals(previousState, state) && ++count < maxRepeatCount);
+
+            if (ReferenceEquals(previousState, state)) break;
+
+            tracker.Transition(previousState, state);
+
+            count++;
+        }
     }
 
     /// <summary>
@@ -415,8 +424,10 @@ public abstract class ChunkState
     ///     resources.
     ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
+    /// <param name="state">The current state. Will be set to <see cref="Chunk.Used" /> if access is stolen.</param>
+    /// <param name="tracker">A tracker to profile state transitions.</param>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
-    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
+    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state, StateTracker tracker)
     {
         Throw.IfNotOnMainThread(state.Chunk);
 
@@ -443,6 +454,8 @@ public abstract class ChunkState
 
         state.previous = previousState;
         state.requests = previousState.requests;
+
+        tracker.Transition(previousState, state);
 
         return (core, extended);
     }

@@ -345,6 +345,8 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     protected void UpdateChunks()
     {
+        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+
         chunks.Update();
     }
 

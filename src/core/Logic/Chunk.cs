@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -93,6 +94,8 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static readonly int BlockSizeExp2 = BlockSizeExp * 2;
 
+    private readonly StateTracker tracker = new(nameof(Chunk));
+
     /// <summary>
     ///     The sections in this chunk.
     /// </summary>
@@ -116,10 +119,10 @@ public partial class Chunk : IDisposable, IEntity
 
     private readonly ChunkContext context;
 
-    private DecorationLevels decoration = DecorationLevels.None;
+    private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
+    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
-    private ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
+    private DecorationLevels decoration = DecorationLevels.None;
 
     /// <summary>
     ///     Whether the chunk is currently requested to be active.
@@ -238,6 +241,7 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, context);
+        tracker.Transition(from: null, state);
 
         for (var index = 0; index < SectionCount; index++)
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
@@ -262,6 +266,8 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.Clear();
         fluidTickManager.SetWorld(newWorld: null);
 
+        tracker.Transition(state, to: null);
+
         localUpdateCounter.Reset();
 
         World = null!;
@@ -285,7 +291,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
 
         if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
 
@@ -334,7 +340,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
 
         if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
 
@@ -594,7 +600,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void Update()
     {
-        ChunkState.Update(ref state);
+        ChunkState.Update(ref state, tracker);
     }
 
     /// <summary>

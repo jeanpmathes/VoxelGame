@@ -9,6 +9,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application;
@@ -65,10 +66,10 @@ public static class Arguments
 
         command.AddOption(useGraphicsProcessingUnitBasedValidationOption);
 
-        var enableProfilingOption = new Option<bool>(
+        var enableProfilingOption = new Option<ProfilerConfiguration>(
             "--profile",
-            description: "Whether to enable integrated profiling. Is enabled by default in DEBUG builds.",
-            getDefaultValue: () => Program.IsDebug
+            description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
+            getDefaultValue: () => Program.IsDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
         );
 
         enableProfilingOption.AddAlias("-p");
@@ -127,7 +128,7 @@ public delegate int RunGame(GameParameters parameters, ILogger logger);
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly, bool Profile, bool SupportPIX, bool UseGBV)
+public record GameParameters(int LoadWorldDirectly, ProfilerConfiguration Profile, bool SupportPIX, bool UseGBV)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.

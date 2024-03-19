@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
@@ -49,38 +48,6 @@ internal class D3D12Debug
         return debug.debugCallbackDelegate;
     }
 
-    private static void OpenInEditor(string title, string text)
-    {
-        DirectoryInfo directory = FileSystem.CreateTemporaryDirectory();
-        FileInfo file = directory.GetFile($"{title}.txt");
-
-        try
-        {
-            file.WriteAllText(text);
-        }
-        catch (IOException)
-        {
-            logger.LogError("Failed to fill {File} with: {Text}", file.FullName, text);
-
-            return;
-        }
-
-        ProcessStartInfo startInfo = new()
-        {
-            FileName = file.FullName,
-            UseShellExecute = true
-        };
-
-        try
-        {
-            Process.Start(startInfo);
-        }
-        catch (Exception e) when (e is Win32Exception or InvalidOperationException)
-        {
-            logger.LogError(e, "Failed to start process for file {File}", file.FullName);
-        }
-    }
-
     private static void DebugCallback(
         Definition.Native.D3D12_MESSAGE_CATEGORY category,
         Definition.Native.D3D12_MESSAGE_SEVERITY severity,
@@ -108,8 +75,8 @@ internal class D3D12Debug
         {
             Client client = instance!.Value.client;
 
-            OpenInEditor("DRED", client.GetDRED());
-            OpenInEditor("Allocator", client.GetAllocatorStatistics());
+            OS.Show("DRED", client.GetDRED());
+            OS.Show("Allocator", client.GetAllocatorStatistics());
 
             Debugger.Break();
 

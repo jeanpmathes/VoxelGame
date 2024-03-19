@@ -27,6 +27,31 @@ public class OS
     public static OS Instance { get; } = new();
 
     /// <summary>
+    ///     Show a text in a text editor.
+    ///     This will save the text to a temporary file and open it in the default text editor.
+    /// </summary>
+    /// <param name="title">A title for the text. Will be used as part of the file name.</param>
+    /// <param name="text">The text to show.</param>
+    public static void Show(string title, string text)
+    {
+        DirectoryInfo directory = FileSystem.CreateTemporaryDirectory();
+        FileInfo file = directory.GetFile($"{title}.txt");
+
+        try
+        {
+            file.WriteAllText(text);
+        }
+        catch (IOException)
+        {
+            logger.LogError("Failed to fill {File} with: {Text}", file.FullName, text);
+
+            return;
+        }
+
+        Start(file);
+    }
+
+    /// <summary>
     ///     Start a process or launch a file.
     /// </summary>
     /// <param name="path">The path to launch.</param>
