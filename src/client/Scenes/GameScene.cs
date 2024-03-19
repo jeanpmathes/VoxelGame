@@ -15,6 +15,7 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -114,55 +115,67 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(float deltaTime)
+    public void Render(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using (logger.BeginScope("GameScene Render"))
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Render", timer);
+
+        using (logger.BeginTimedSubScoped("GameScene Render Game", subTimer))
         {
             Game.Render();
+        }
+
+        using (logger.BeginTimedSubScoped("GameScene Render UI", subTimer))
+        {
             RenderUI();
         }
     }
 
     /// <inheritdoc />
-    public void Update(double deltaTime)
+    public void Update(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using (logger.BeginScope("GameScene Update"))
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Update", timer);
+
+        using (logger.BeginTimedSubScoped("GameScene Update UI", subTimer))
         {
             ui.Update();
-
-            Game.Update(deltaTime);
-
-            if (!Client.IsFocused)
-                return;
-
-            if (!IsOverlayOpen)
-            {
-                if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
-
-                if (uiToggle.Changed) ui.ToggleHidden();
-            }
-
-            if (unlockMouse.Pushed)
-            {
-                if (isMouseUnlockedByUserRequest)
-                {
-                    OnOverlayClose();
-                }
-                else if (!IsOverlayOpen)
-                {
-                    OnOverlayOpen();
-                    isMouseUnlockedByUserRequest = true;
-                }
-            }
-
-            if (escapeButton.Pushed) ui.HandleEscape();
-
-            if (consoleToggle.Changed) ui.ToggleConsole();
         }
+
+        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene Update Game", subTimer))
+        {
+            Game.Update(deltaTime, gameTimer);
+        }
+
+        if (!Client.IsFocused)
+            return;
+
+        if (!IsOverlayOpen)
+        {
+            if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
+
+            if (uiToggle.Changed) ui.ToggleHidden();
+        }
+
+        if (unlockMouse.Pushed)
+        {
+            if (isMouseUnlockedByUserRequest)
+            {
+                OnOverlayClose();
+            }
+            else if (!IsOverlayOpen)
+            {
+                OnOverlayOpen();
+                isMouseUnlockedByUserRequest = true;
+            }
+        }
+
+        if (escapeButton.Pushed) ui.HandleEscape();
+
+        if (consoleToggle.Changed) ui.ToggleConsole();
+
     }
 
     /// <inheritdoc />

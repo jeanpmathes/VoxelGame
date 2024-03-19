@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Profiling;
 
@@ -23,6 +24,11 @@ public sealed class Timer(string name, TimingStyle style, Profile? profile, IDis
     public TimingStyle Style => style;
 
     private string Name => name;
+
+    /// <summary>
+    ///     Gets the elapsed time.
+    /// </summary>
+    public Duration Elapsed => new() {Milliseconds = stopwatch.Elapsed.TotalMilliseconds};
 
     /// <inheritdoc />
     public void Dispose()
@@ -103,8 +109,8 @@ public static class TimerExtensions
     /// <param name="name">The name of the sub-scope.</param>
     /// <param name="containing">The parent timer containing this sub-scope.</param>
     /// <returns>The timer, or null if no profiling is running.</returns>
-    public static Timer? BeginTimedSubScoped(this ILogger logger, string name, Timer containing)
+    public static Timer? BeginTimedSubScoped(this ILogger logger, string name, Timer? containing)
     {
-        return Timer.Start(name, containing.Style, Profile.Instance, other: logger.BeginScope(name));
+        return containing?.StartSub(name, logger.BeginScope(name));
     }
 }

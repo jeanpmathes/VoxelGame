@@ -105,22 +105,23 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnRender(double delta)
     {
-        using (logger.BeginTimedScoped("Client Render"))
-        {
-            sceneManager.Render((float) delta);
-            screenBehaviour.Draw(delta);
-        }
+        using Timer? timer = logger.BeginTimedScoped("Client Render");
+
+        sceneManager.Render(delta, timer);
+        screenBehaviour.Render(delta);
     }
 
     protected override void OnUpdate(double delta)
     {
-        using (logger.BeginTimedScoped("Client Update"))
+        using Timer? timer = logger.BeginTimedScoped("Client Update");
+
+        using (logger.BeginTimedSubScoped("Client Operations", timer))
         {
             operations.Update();
-
-            sceneManager.Update(delta);
-            screenBehaviour.Update(delta);
         }
+
+        sceneManager.Update(delta, timer);
+        screenBehaviour.Update(delta);
     }
 
     protected override void OnDestroy()

@@ -87,7 +87,7 @@ public class LoadingContext
         Group current = new(name);
         previous.group.Add(current);
 
-        Timer? subTimer = timer?.StartSub(name);
+        Timer? subTimer = logger.BeginTimedSubScoped(name, timer);
 
         path.Push(new Entry {group = current, path = $"{previous.path} > {name}", timer = subTimer});
 

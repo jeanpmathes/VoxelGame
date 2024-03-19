@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
@@ -84,7 +85,15 @@ public sealed class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Update(double deltaTime)
+    public void Render(double deltaTime, Timer? timer)
+    {
+        Throw.IfDisposed(disposed);
+
+        ui.Render();
+    }
+
+    /// <inheritdoc />
+    public void Update(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -103,14 +112,6 @@ public sealed class StartScene : IScene
         Throw.IfDisposed(disposed);
 
         ui.Resize(size);
-    }
-
-    /// <inheritdoc />
-    public void Render(float deltaTime)
-    {
-        Throw.IfDisposed(disposed);
-
-        ui.Render();
     }
 
     /// <inheritdoc />

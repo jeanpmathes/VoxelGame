@@ -78,6 +78,9 @@ public class Profile
     private sealed class TimingMeasurement(string name, TimingStyle style, bool isRoot)
     {
         private readonly List<TimingMeasurement> children = [];
+
+        private readonly object timingLock = new();
+        private readonly object childrenLock = new();
         private CircularTimeBuffer? reoccurring;
         private double once;
 
@@ -85,36 +88,48 @@ public class Profile
 
         public void AddTiming(double duration)
         {
-            if (style == TimingStyle.Reoccurring && reoccurring == null)
-                reoccurring = new CircularTimeBuffer(capacity: 200);
+            lock (timingLock)
+            {
+                if (style == TimingStyle.Reoccurring && reoccurring == null)
+                    reoccurring = new CircularTimeBuffer(capacity: 200);
 
-            if (reoccurring != null)
-                reoccurring.Write(duration);
-            else once = duration;
+                if (reoccurring != null)
+                    reoccurring.Write(duration);
+                else once = duration;
+            }
         }
 
         public void AddChild(TimingMeasurement child)
         {
-            children.Add(child);
+            lock (childrenLock)
+            {
+                children.Add(child);
+            }
         }
 
         public Property GenerateReport()
         {
             List<Property> content = [];
 
-            if (reoccurring != null)
+            lock (timingLock)
             {
-                content.Add(new Measure("Average", new Duration {Milliseconds = reoccurring.Average}));
-                content.Add(new Measure("Minimum", new Duration {Milliseconds = reoccurring.Min}));
-                content.Add(new Measure("Maximum", new Duration {Milliseconds = reoccurring.Max}));
-            }
-            else
-            {
-                content.Add(new Measure("Time", new Duration {Milliseconds = once}));
+                if (reoccurring != null)
+                {
+                    content.Add(new Measure("Average", new Duration {Milliseconds = reoccurring.Average}));
+                    content.Add(new Measure("Minimum", new Duration {Milliseconds = reoccurring.Min}));
+                    content.Add(new Measure("Maximum", new Duration {Milliseconds = reoccurring.Max}));
+                }
+                else
+                {
+                    content.Add(new Measure("Time", new Duration {Milliseconds = once}));
+                }
             }
 
-            foreach (TimingMeasurement child in children)
-                content.Add(child.GenerateReport());
+            lock (childrenLock)
+            {
+                foreach (TimingMeasurement child in children)
+                    content.Add(child.GenerateReport());
+            }
 
             return new Group(name, content);
         }

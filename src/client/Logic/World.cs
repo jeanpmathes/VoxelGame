@@ -16,7 +16,9 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -35,13 +37,10 @@ public class World : Core.Logic.World
 
     private static readonly int minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
 
-    private readonly Stopwatch readyStopwatch = Stopwatch.StartNew();
-
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
     /// </summary>
-    private readonly HashSet<(Chunk chunk, (int x, int y, int z))> sectionsToMesh =
-        new();
+    private readonly HashSet<(Chunk chunk, (int x, int y, int z))> sectionsToMesh = [];
 
     private readonly Space space;
 
@@ -127,10 +126,19 @@ public class World : Core.Logic.World
         }
     }
 
-    /// <inheritdoc />
-    public override void Update(double deltaTime)
+    /// <summary>
+    ///     Process an update step for this world.
+    /// </summary>
+    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public void Update(double deltaTime, Timer? updateTimer)
     {
-        UpdateChunks();
+        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
+
+        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        {
+            UpdateChunks();
+        }
 
         switch (CurrentState)
         {
@@ -157,19 +165,27 @@ public class World : Core.Logic.World
 
         void HandleActive()
         {
-            DoTicksOnEverything(deltaTime);
-            MeshAndClearSectionList();
+            using (logger.BeginTimedSubScoped("World Update Ticks", subTimer))
+            {
+                DoTicksOnEverything(deltaTime);
+            }
+
+            using (logger.BeginTimedSubScoped("World Update Meshing", subTimer))
+            {
+                MeshAndClearSectionList();
+            }
         }
 
         void HandleActivating()
         {
             if (ActiveChunkCount < minLoadedChunksAtStart) return;
 
-            readyStopwatch.Stop();
-            double readyTime = readyStopwatch.Elapsed.TotalSeconds;
+            updateTimer?.Dispose();
 
-            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}s", readyTime);
+            Duration readyTime = updateTimer?.Elapsed ?? default;
+            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}", readyTime);
 
+            updateTimer = null;
             CurrentState = State.Active;
 
             OnActivation();
