@@ -4,3 +4,5 @@
 Trying to create a voxel game in C#...
 
 The game logic is written in C#, the rendering uses C++ and DirectX 12 for raytracing.
+
+[Attribution](https://github.com/jeanpmathes/VoxelGame/tree/master/src/ui/Resources/Attribution)
