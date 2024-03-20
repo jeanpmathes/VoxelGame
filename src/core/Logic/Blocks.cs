@@ -672,7 +672,8 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("marble_paving")));
 
-            if (allBlocks.Count > BlockLimit) Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
+            if (allBlocks.Count > BlockLimit)
+                Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
             foreach (Block block in allBlocks.Take(BlockLimit))
             {
