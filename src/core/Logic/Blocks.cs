@@ -21,7 +21,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
-#pragma warning disable S1192 // Definition class
+#pragma warning disable S1192 // Definition class.
 
 /// <summary>
 ///     Contains all block definitions of the core game.
@@ -35,14 +35,14 @@ public class Blocks
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
-    private readonly List<Block> blockList = new();
+    private readonly List<Block> blockList = [];
     private readonly Dictionary<string, Block> namedBlockDictionary = new();
 
     private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
         {
-            List<Block> allBlocks = new();
+            List<Block> allBlocks = [];
 
             Block Register(Block block)
             {
@@ -50,8 +50,6 @@ public class Blocks
 
                 return block;
             }
-
-            #region NATURAL BLOCKS
 
             Air = Register(new AirBlock(Language.Air, nameof(Air)));
 
@@ -192,10 +190,6 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("ash")));
 
-            #endregion NATURAL BLOCKS
-
-            #region PLANT BLOCKS
-
             Cactus = Register(new GrowingBlock(
                 Language.Cactus,
                 nameof(Cactus),
@@ -301,10 +295,6 @@ public class Blocks
                 "melon_plant",
                 Melon));
 
-            #endregion PLANT BLOCKS
-
-            #region BUILDING BLOCKS
-
             Glass = Register(new GlassBlock(
                 Language.Glass,
                 nameof(Glass),
@@ -319,12 +309,6 @@ public class Blocks
                 Language.Steel,
                 nameof(Steel),
                 TextureLayout.Uniform("steel")));
-
-            StoneWorked = Register(new BasicBlock(
-                Language.WorkedStone,
-                nameof(StoneWorked),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("stone_worked")));
 
             Ladder = Register(new FlatBlock(
                 Language.Ladder,
@@ -360,11 +344,6 @@ public class Blocks
                 nameof(Bricks),
                 TextureLayout.Uniform("bricks")));
 
-            PavingStone = Register(new ConstructionBlock(
-                Language.PavingStone,
-                nameof(PavingStone),
-                TextureLayout.Uniform("paving_stone")));
-
             RedPlastic = Register(new ConstructionBlock(
                 Language.RedPlastic,
                 nameof(RedPlastic),
@@ -374,16 +353,6 @@ public class Blocks
                 Language.Concrete,
                 nameof(Concrete),
                 TextureLayout.Uniform("concrete")));
-
-            #endregion BUILDING BLOCKS
-
-            #region DECORATION BLOCKS
-
-            StoneFace = Register(new OrientedBlock(
-                Language.StoneFace,
-                nameof(StoneFace),
-                BlockFlags.Basic,
-                TextureLayout.UniqueFront("stone_worked_face", "stone_worked")));
 
             Vase = Register(new CustomModelBlock(
                 Language.Vase,
@@ -400,7 +369,7 @@ public class Blocks
                 TextureLayout.Uniform("wool")));
 
             WoolDecorated = Register(new OrganicTintedBlock(
-                Language.DecoratedWool,
+                Language.WoolDecorated,
                 nameof(WoolDecorated),
                 TextureLayout.Uniform("wool_decorated")));
 
@@ -412,7 +381,7 @@ public class Blocks
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             CarpetDecorated = Register(new TintedCustomModelBlock(
-                Language.DecoratedCarpet,
+                Language.CarpetDecorated,
                 nameof(CarpetDecorated),
                 BlockFlags.Basic,
                 "carpet_decorated",
@@ -433,10 +402,6 @@ public class Blocks
                 "bars_post",
                 "bars_side",
                 "bars_extension"));
-
-            #endregion DECORATION BLOCKS
-
-            #region ACCESS BLOCKS
 
             FenceWood = Register(new FenceBlock(
                 Language.WoodenFence,
@@ -478,10 +443,6 @@ public class Blocks
                 nameof(GateWood),
                 "gate_wood_closed",
                 "gate_wood_open"));
-
-            #endregion ACCESS BLOCKS
-
-            #region FLUID FLOW BLOCKS
 
             FluidBarrier = Register(new FluidBarrierBlock(
                 Language.Barrier,
@@ -550,10 +511,6 @@ public class Blocks
                 TextureLayout.Uniform("dirt_wet"),
                 supportsFullGrowth: false));
 
-            #endregion FLUID FLOW BLOCKS
-
-            #region NEW BLOCKS
-
             Granite = Register(new BasicBlock(
                 Language.Granite,
                 nameof(Granite),
@@ -619,7 +576,101 @@ public class Blocks
                 nameof(Salt),
                 TextureLayout.Uniform("salt")));
 
-            #endregion NEW BLOCKS
+            WorkedGranite = Register(new BasicBlock(
+                Language.WorkedGranite,
+                nameof(WorkedGranite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_worked")));
+
+            WorkedSandstone = Register(new BasicBlock(
+                Language.SandstoneWorked,
+                nameof(WorkedSandstone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_worked")));
+
+            WorkedLimestone = Register(new BasicBlock(
+                Language.LimestoneWorked,
+                nameof(WorkedLimestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_worked")));
+
+            WorkedMarble = Register(new BasicBlock(
+                Language.MarbleWorked,
+                nameof(WorkedMarble),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_worked")));
+
+            DecoratedGranite = Register(new OrientedBlock(
+                Language.GraniteDecorated,
+                nameof(DecoratedGranite),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("granite_worked_decorated", "granite_worked")));
+
+            DecoratedSandstone = Register(new OrientedBlock(
+                Language.SandstoneDecorated,
+                nameof(DecoratedSandstone),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("sandstone_worked_decorated", "sandstone_worked")));
+
+            DecoratedLimestone = Register(new OrientedBlock(
+                Language.LimestoneDecorated,
+                nameof(DecoratedLimestone),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("limestone_worked_decorated", "limestone_worked")));
+
+            DecoratedMarble = Register(new OrientedBlock(
+                Language.MarbleDecorated,
+                nameof(DecoratedMarble),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("marble_worked_decorated", "marble_worked")));
+
+            GraniteCobblestone = Register(new BasicBlock(
+                Language.GraniteCobbles,
+                nameof(GraniteCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_cobbles")));
+
+            SandstoneCobblestone = Register(new BasicBlock(
+                Language.SandstoneCobbles,
+                nameof(SandstoneCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_cobbles")));
+
+            LimestoneCobblestone = Register(new BasicBlock(
+                Language.LimestoneCobbles,
+                nameof(LimestoneCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_cobbles")));
+
+            MarbleCobblestone = Register(new BasicBlock(
+                Language.MarbleCobbles,
+                nameof(MarbleCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_cobbles")));
+
+            GranitePaving = Register(new BasicBlock(
+                Language.GranitePaving,
+                nameof(GranitePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_paving")));
+
+            SandstonePaving = Register(new BasicBlock(
+                Language.SandstonePaving,
+                nameof(SandstonePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_paving")));
+
+            LimestonePaving = Register(new BasicBlock(
+                Language.LimestonePaving,
+                nameof(LimestonePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_paving")));
+
+            MarblePaving = Register(new BasicBlock(
+                Language.MarblePaving,
+                nameof(MarblePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_paving")));
 
             if (allBlocks.Count > BlockLimit) Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -694,24 +745,14 @@ public class Blocks
     }
 
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    internal class SpecialBlocks
+    internal class SpecialBlocks(Blocks blocks)
     {
-        public SpecialBlocks(Blocks blocks)
-        {
-            Concrete = (ConcreteBlock) blocks.Concrete;
-            Snow = (SnowBlock) blocks.Snow;
-            Ice = (ModifiableHeightBlock) blocks.Ice;
-            Log = (RotatedBlock) blocks.Log;
-            Vines = (FlatBlock) blocks.Vines;
-            Salt = (SaltBlock) blocks.Salt;
-        }
-
-        public ConcreteBlock Concrete { get; }
-        public SnowBlock Snow { get; }
-        public ModifiableHeightBlock Ice { get; }
-        public RotatedBlock Log { get; }
-        public FlatBlock Vines { get; }
-        public SaltBlock Salt { get; }
+        public ConcreteBlock Concrete { get; } = (ConcreteBlock) blocks.Concrete;
+        public SnowBlock Snow { get; } = (SnowBlock) blocks.Snow;
+        public ModifiableHeightBlock Ice { get; } = (ModifiableHeightBlock) blocks.Ice;
+        public RotatedBlock Log { get; } = (RotatedBlock) blocks.Log;
+        public FlatBlock Vines { get; } = (FlatBlock) blocks.Vines;
+        public SaltBlock Salt { get; } = (SaltBlock) blocks.Salt;
     }
 
     #region NATURAL BLOCKS
@@ -918,11 +959,6 @@ public class Blocks
     public Block Steel { get; }
 
     /// <summary>
-    ///     Worked stone is a processed stone block.
-    /// </summary>
-    public Block StoneWorked { get; }
-
-    /// <summary>
     ///     A ladder allows climbing up and down.
     /// </summary>
     public Block Ladder { get; }
@@ -953,11 +989,6 @@ public class Blocks
     public Block Bricks { get; }
 
     /// <summary>
-    ///     Paving stone is a simple construction material, ideal for paths.
-    /// </summary>
-    public Block PavingStone { get; }
-
-    /// <summary>
     ///     Red plastic is a construction material.
     /// </summary>
     public Block RedPlastic { get; }
@@ -971,11 +1002,6 @@ public class Blocks
     #endregion BUILDING BLOCKS
 
     #region DECORATION BLOCKS
-
-    /// <summary>
-    ///     This block is like a processed stone block, but with a decorative face added.
-    /// </summary>
-    public Block StoneFace { get; }
 
     /// <summary>
     ///     The vase is a decorative block that must be placed on solid ground.
@@ -1179,6 +1205,102 @@ public class Blocks
     ///     Salt is contained in sea water, it becomes usable after the water evaporates.
     /// </summary>
     public Block Salt { get; }
+
+    /// <summary>
+    ///     Worked granite is a processed granite block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedGranite { get; }
+
+    /// <summary>
+    ///     Worked sandstone is a processed sandstone block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedSandstone { get; }
+
+    /// <summary>
+    ///     Worked limestone is a processed limestone block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedLimestone { get; }
+
+    /// <summary>
+    ///     Worked marble is a processed marble block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedMarble { get; }
+
+    /// <summary>
+    ///     Worked granite with decorations carved into one side.
+    ///     The carvings show a pattern of geometric shapes.
+    /// </summary>
+    public Block DecoratedGranite { get; }
+
+    /// <summary>
+    ///     Worked sandstone with decorations carved into one side.
+    ///     The carvings depict the desert sun.
+    /// </summary>
+    public Block DecoratedSandstone { get; }
+
+    /// <summary>
+    ///     Worked limestone with decorations carved into one side.
+    ///     The carvings show the ocean and life within it.
+    /// </summary>
+    public Block DecoratedLimestone { get; }
+
+    /// <summary>
+    ///     Worked marble with decorations carved into one side.
+    ///     The carvings depict an ancient temple.
+    /// </summary>
+    public Block DecoratedMarble { get; }
+
+    /// <summary>
+    ///     Marble cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block GraniteCobblestone { get; }
+
+    /// <summary>
+    ///     Sandstone cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block SandstoneCobblestone { get; }
+
+    /// <summary>
+    ///     Limestone cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block LimestoneCobblestone { get; }
+
+    /// <summary>
+    ///     Marble cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block MarbleCobblestone { get; }
+
+    /// <summary>
+    ///     Paving made out of processed granite.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block GranitePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed sandstone.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block SandstonePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed limestone.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block LimestonePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed marble.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block MarblePaving { get; }
 
     #endregion NEW BLOCKS
 }

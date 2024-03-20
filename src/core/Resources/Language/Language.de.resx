@@ -174,10 +174,10 @@
     <data name="CrudeOil" xml:space="preserve">
     <value>Rohöl</value>
   </data>
-    <data name="DecoratedCarpet" xml:space="preserve">
+    <data name="CarpetDecorated" xml:space="preserve">
     <value>Geschmückter Teppich</value>
   </data>
-    <data name="DecoratedWool" xml:space="preserve">
+    <data name="WoolDecorated" xml:space="preserve">
     <value>Geschmückte Wolle</value>
   </data>
     <data name="Dirt" xml:space="preserve">
@@ -270,9 +270,6 @@
     <data name="Path" xml:space="preserve">
     <value>Pfad</value>
   </data>
-    <data name="PavingStone" xml:space="preserve">
-    <value>Pflasterstein</value>
-  </data>
     <data name="Petrol" xml:space="preserve">
     <value>Benzin</value>
   </data>
@@ -330,9 +327,6 @@
     <data name="SteelPipeStraight" xml:space="preserve">
     <value>Gerades Stahlrohr</value>
   </data>
-    <data name="StoneFace" xml:space="preserve">
-    <value>Steinernes Gesicht</value>
-  </data>
     <data name="TallFlower" xml:space="preserve">
     <value>Hohe Blume</value>
   </data>
@@ -380,9 +374,6 @@
   </data>
     <data name="Wool" xml:space="preserve">
     <value>Wolle</value>
-  </data>
-    <data name="WorkedStone" xml:space="preserve">
-    <value>Bearbeiteter Stein</value>
   </data>
     <data name="Worlds" xml:space="preserve">
     <value>Welten</value>
@@ -698,5 +689,53 @@
     </data>
     <data name="KeyUnlockMouse" xml:space="preserve">
         <value>Maus Freigeben</value>
+    </data>
+    <data name="MarbleWorked" xml:space="preserve">
+        <value>Bearbeiteter Marmor</value>
+    </data>
+    <data name="LimestoneWorked" xml:space="preserve">
+        <value>Bearbeiteter Kalkstein</value>
+    </data>
+    <data name="WorkedGranite" xml:space="preserve">
+        <value>Bearbeiteter Granit</value>
+    </data>
+    <data name="SandstoneWorked" xml:space="preserve">
+        <value>Bearbeiteter Sandstein</value>
+    </data>
+    <data name="GraniteDecorated" xml:space="preserve">
+        <value>Verschönerter Granit</value>
+    </data>
+    <data name="LimestoneDecorated" xml:space="preserve">
+        <value>Verschönerter Kalkstein</value>
+    </data>
+    <data name="SandstoneDecorated" xml:space="preserve">
+        <value>Verschönerter Sandstein</value>
+    </data>
+    <data name="MarbleDecorated" xml:space="preserve">
+        <value>Verschönerter Marmor</value>
+    </data>
+    <data name="GraniteCobbles" xml:space="preserve">
+        <value>Granit-Wackenpflaster</value>
+    </data>
+    <data name="GranitePaving" xml:space="preserve">
+        <value>Granit-Pflaster</value>
+    </data>
+    <data name="LimestonePaving" xml:space="preserve">
+        <value>Kalkstein-Pflaster</value>
+    </data>
+    <data name="LimestoneCobbles" xml:space="preserve">
+        <value>Kalkstein-Wackenpflaster</value>
+    </data>
+    <data name="MarbleCobbles" xml:space="preserve">
+        <value>Marmor-Wackenpflaster</value>
+    </data>
+    <data name="MarblePaving" xml:space="preserve">
+        <value>Marmor-Pflaster</value>
+    </data>
+    <data name="SandstoneCobbles" xml:space="preserve">
+        <value>Sandstein-Wackenpflaster</value>
+    </data>
+    <data name="SandstonePaving" xml:space="preserve">
+        <value>Sandstein-Pflaster</value>
     </data>
 </root>
