@@ -93,6 +93,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <param name="neighbor">The neighboring block instance.</param>
     /// <param name="side">The side of the current block that is being checked.</param>
     /// <returns>True if the face is hidden, false otherwise.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsHiddenFace(IBlockBase current, BlockInstance neighbor, BlockSide side)
     {
         bool blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
