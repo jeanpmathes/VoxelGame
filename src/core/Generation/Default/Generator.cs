@@ -76,8 +76,10 @@ public class Generator : IWorldGenerator
         {
             Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
-            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory);
-            Map.Store(world.Data, MapBlobName);
+            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory, out bool dirty);
+
+            if (dirty)
+                Map.Store(world.Data, MapBlobName);
         }
 
         decorationNoise = worldNoiseFactory.GetNextNoise();

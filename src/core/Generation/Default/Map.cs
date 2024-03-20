@@ -282,16 +282,26 @@ public partial class Map : IMap
     /// <param name="world">The world data from which blobs can be retrieved.</param>
     /// <param name="blob">The name of the blob to load, or null to generate a new map.</param>
     /// <param name="factory">The factory to use for noise generator creation.</param>
-    public void Initialize(WorldData world, string? blob, NoiseFactory factory)
+    /// <param name="dirty">
+    ///     Whether the map is dirty and needs to be saved.
+    ///     Will be true if the map is generated, false if it is just loaded.
+    /// </param>
+    public void Initialize(WorldData world, string? blob, NoiseFactory factory, out bool dirty)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
+
+        dirty = false;
 
         if (blob != null)
             Load(world, blob);
 
         SetupGeneratingNoise(factory);
 
-        if (data == null) Generate();
+        if (data == null)
+        {
+            Generate();
+            dirty = true;
+        }
 
         SetupSamplingNoise(factory);
     }
@@ -751,7 +761,7 @@ public partial class Map : IMap
 
     private sealed class Data : IEntity
     {
-        public readonly Cell[] cells = new Cell[CellCount];
+        private readonly Cell[] cells = new Cell[CellCount];
 
         /// <inheritdoc />
         public static int Version => 1;

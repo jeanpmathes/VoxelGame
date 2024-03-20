@@ -111,6 +111,8 @@ public static class TimerExtensions
     /// <returns>The timer, or null if no profiling is running.</returns>
     public static Timer? BeginTimedSubScoped(this ILogger logger, string name, Timer? containing)
     {
-        return containing?.StartSub(name, logger.BeginScope(name));
+        IDisposable? scope = logger.BeginScope(name);
+
+        return containing?.StartSub(name, scope) ?? Timer.Start(name, other: scope);
     }
 }

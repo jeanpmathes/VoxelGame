@@ -97,7 +97,8 @@ public static class Serialize
         {
             using Stream fileStream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
             using DeflateStream compressionStream = new(fileStream, CompressionMode.Compress);
-            using BinarySerializer serializer = new(compressionStream, signature, file);
+            using BufferedStream bufferedStream = new(compressionStream);
+            using BinarySerializer serializer = new(bufferedStream, signature, file);
 
             serializer.SerializeEntity(entity);
         }
@@ -123,7 +124,8 @@ public static class Serialize
         {
             using Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             using DeflateStream decompressionStream = new(fileStream, CompressionMode.Decompress);
-            using BinaryDeserializer deserializer = new(decompressionStream, signature, file);
+            using BufferedStream bufferedStream = new(decompressionStream);
+            using BinaryDeserializer deserializer = new(bufferedStream, signature, file);
 
             deserializer.SerializeEntity(entity);
         }
