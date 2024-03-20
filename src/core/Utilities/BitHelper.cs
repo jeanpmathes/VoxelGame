@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System.Linq;
+using System.Numerics;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -20,15 +21,7 @@ public static class BitHelper
     /// <returns>The number of set bits.</returns>
     public static int CountSetBits(uint n)
     {
-        var count = 0;
-
-        while (n != 0)
-        {
-            count++;
-            n &= n - 1;
-        }
-
-        return count;
+        return BitOperations.PopCount(n);
     }
 
     /// <summary>

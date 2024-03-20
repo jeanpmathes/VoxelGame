@@ -135,16 +135,25 @@ public sealed class BinaryDeserializer : Serializer, IDisposable
     /// <inheritdoc />
     protected override void Serialize(Span<byte> value)
     {
-        int read = reader.Read(value);
+        var read = 0;
 
-        if (read != value.Length) Fail("Failed to read the expected amount of bytes.");
+        while (read < value.Length)
+        {
+            int additional = reader.Read(value[read..]);
+
+            if (additional == 0)
+                break;
+
+            read += additional;
+        }
+
+        if (read != value.Length)
+            Fail("Failed to read the expected amount of bytes.");
     }
 
     /// <inheritdoc />
     public override void Fail(string message)
     {
-        if (source != null) throw new FileFormatException(source.FullName, message);
-
-        throw new IOException(message);
+        throw new FileFormatException(source?.FullName ?? "<unknown>", message);
     }
 }

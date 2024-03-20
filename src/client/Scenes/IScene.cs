@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Profiling;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -23,7 +24,8 @@ public interface IScene : IDisposable
     ///     Perform an update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    void Update(double deltaTime);
+    /// <param name="timer">A timer for profiling.</param>
+    void Update(double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Handle a game resize.
@@ -35,7 +37,8 @@ public interface IScene : IDisposable
     ///     Perform a render cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last render.</param>
-    void Render(float deltaTime);
+    /// <param name="timer">A timer for profiling.</param>
+    void Render(double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Unload this scene. After unloading, a scene must not be used anymore.

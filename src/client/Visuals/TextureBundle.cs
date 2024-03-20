@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
@@ -204,9 +205,9 @@ public sealed class TextureBundle : ITextureIndexProvider
     {
         Dictionary<string, int> indices = new();
         var count = 0;
-        var mips = (int) Math.Log(resolution, newBase: 2);
+        int mips = BitOperations.Log2((uint) resolution) + 1;
 
-        List<Image> images = new();
+        List<Image> images = [];
 
         void AddTexture(Image texture)
         {

@@ -8,6 +8,7 @@ using System;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
@@ -67,7 +68,8 @@ public sealed class Game : IDisposable
     ///     Perform one update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public void Update(double deltaTime)
+    /// <param name="timer">A timer to use for profiling.</param>
+    public void Update(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -75,7 +77,7 @@ public sealed class Game : IDisposable
 
         Console?.Flush();
 
-        World.Update(deltaTime);
+        World.Update(deltaTime, timer);
     }
 
     /// <summary>

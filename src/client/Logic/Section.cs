@@ -7,10 +7,13 @@
 // ReSharper disable CommentTypo
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic;
 
@@ -20,6 +23,8 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class Section : Core.Logic.Section
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
+
     private bool hasMesh;
     private BlockSides missing;
     private SectionVFX? renderer;
@@ -120,32 +125,43 @@ public class Section : Core.Logic.Section
     {
         Throw.IfDisposed(disposed);
 
+        using Timer? timer = logger.BeginTimedScoped("Section Meshing");
+
         MeshingContext context = new(position, chunkContext);
 
-        for (var x = 0; x < Size; x++)
-        for (var y = 0; y < Size; y++)
-        for (var z = 0; z < Size; z++)
+        using (logger.BeginTimedSubScoped("Section Meshing Loop", timer))
         {
-            uint val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
+            for (var x = 0; x < Size; x++)
+            for (var y = 0; y < Size; y++)
+            for (var z = 0; z < Size; z++)
+            {
+                uint val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
 
-            Decode(
-                val,
-                out Block currentBlock,
-                out uint data,
-                out Fluid currentFluid,
-                out FluidLevel level,
-                out bool isStatic);
+                Decode(
+                    val,
+                    out Block currentBlock,
+                    out uint data,
+                    out Fluid currentFluid,
+                    out FluidLevel level,
+                    out bool isStatic);
 
-            IBlockMeshable meshable = currentBlock;
-            meshable.CreateMesh((x, y, z), new BlockMeshInfo(BlockSide.All, data, currentFluid), context);
+                IBlockMeshable meshable = currentBlock;
+                meshable.CreateMesh((x, y, z), new BlockMeshInfo(BlockSide.All, data, currentFluid), context);
 
-            currentFluid.CreateMesh(
-                (x, y, z),
-                FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, BlockSide.All, isStatic),
-                context);
+                currentFluid.CreateMesh(
+                    (x, y, z),
+                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, BlockSide.All, isStatic),
+                    context);
+            }
         }
 
-        SectionMeshData meshData = context.GenerateMeshData();
+        SectionMeshData meshData;
+
+        using (logger.BeginTimedSubScoped("Section Meshing Generate", timer))
+        {
+            meshData = context.GenerateMeshData();
+        }
+
         hasMesh = meshData.IsFilled;
 
         context.ReturnToPool();

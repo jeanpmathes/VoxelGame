@@ -17,11 +17,11 @@ using VoxelGame.UI.Providers;
 using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
-#pragma warning disable CA1001
+
 /// <summary>
 ///     Allows accessing the ui game console.
 /// </summary>
-[SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "CA1001", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 #pragma warning disable S2931 // Controls are disposed by their parent.
 public class ConsoleInterface
@@ -281,4 +281,3 @@ public class ConsoleInterface
         }
     }
 }
-     #pragma warning restore CA1001

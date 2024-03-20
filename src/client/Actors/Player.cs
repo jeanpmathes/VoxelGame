@@ -4,12 +4,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -48,8 +48,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     private readonly VisualInterface visualInterface;
 
     private Vector3d movement;
-
-    private Vector3i headPosition;
 
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
@@ -118,18 +116,26 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <inheritdoc />
     public override Vector3d Movement => movement;
 
+    /// <summary>
+    ///     The targeted block, or a default block if no block is targeted.
+    /// </summary>
+    public BlockInstance TargetBlock => targetBlock ?? BlockInstance.Default;
+
+    /// <summary>
+    ///     The targeted fluid, or a default fluid if no fluid is targeted.
+    /// </summary>
+    public FluidInstance TargetFluid => targetFluid ?? FluidInstance.Default;
+
+    /// <summary>
+    ///     The position of the player's head.
+    /// </summary>
+    public Vector3i HeadPosition { get; private set; }
+
     /// <inheritdoc cref="PhysicsActor" />
     public override Vector3i? TargetPosition => targetPosition;
 
-    Vector3i IPlayerDataProvider.HeadPosition => headPosition;
-
-    BlockInstance IPlayerDataProvider.TargetBlock => targetBlock ?? BlockInstance.Default;
-
-    FluidInstance IPlayerDataProvider.TargetFluid => targetFluid ?? FluidInstance.Default;
-
-    string IPlayerDataProvider.WorldDebugData => World.Map.GetPositionDebugData(Position);
-
-    double IPlayerDataProvider.Temperature => World.Map.GetTemperature(Position);
+    /// <inheritdoc />
+    public Property DebugData => new DebugProperties(this);
 
     string IPlayerDataProvider.Selection => selector.SelectionName;
 
@@ -208,11 +214,11 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
             DoBlockFluidSelection();
             DoWorldInteraction();
-
-            visualInterface.UpdateInput();
         }
 
-        headPosition = camera.Position.Floor();
+        if (scene is {IsWindowFocused: true}) visualInterface.UpdateInput();
+
+        HeadPosition = camera.Position.Floor();
         SetBlockAndFluidOverlays();
 
         // Because interaction can change the target block or the bounding box,
@@ -236,9 +242,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         Vector3i center = camera.Position.Floor();
         Frustum frustum = camera.GetPartialFrustum(near: 0.0, camera.NearClipping);
 
-        IEnumerable<(Content content, Vector3i position)> positions = Raycast.CastFrustum(World, center, range: 1, frustum);
-
-        visualInterface.BuildOverlay(this, positions);
+        visualInterface.BuildOverlay(this, Raycast.CastFrustum(World, center, range: 1, frustum));
     }
 
     private void UpdateTargets()

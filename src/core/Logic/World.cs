@@ -17,6 +17,7 @@ using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -46,12 +47,17 @@ public abstract class World : IDisposable, IGrid
     private readonly ChunkSet chunks;
 
     private readonly IWorldGenerator generator;
+    private ChunkPool? chunkPool;
 
     private State currentState = State.Activating;
 
     private (Task saving, Action callback)? deactivation;
 
-    private ChunkPool? chunkPool;
+    /// <summary>
+    ///     A timer to profile different states and world operations.
+    ///     Will be started on world creation, inheritors are free to stop, override or restart it.
+    /// </summary>
+    protected Timer? timer;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -89,12 +95,14 @@ public abstract class World : IDisposable, IGrid
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, bool isNew)
     {
+        timer = logger.BeginTimedScoped("World Setup", TimingStyle.Once);
+
         Data = data;
 
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        generator = GetGenerator(this);
+        generator = GetAndInitializeGenerator(this, timer);
 
         ChunkContext = new ChunkContext(this, generator, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
 
@@ -302,9 +310,9 @@ public abstract class World : IDisposable, IGrid
         chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator GetGenerator(World world)
+    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(world);
+        return new Generator(world, timer);
     }
 
     /// <summary>
@@ -333,16 +341,12 @@ public abstract class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Called every update cycle.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update cycle.</param>
-    public abstract void Update(double deltaTime);
-
-    /// <summary>
     ///     Update chunks.
     /// </summary>
     protected void UpdateChunks()
     {
+        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+
         chunks.Update();
     }
 
@@ -718,7 +722,11 @@ public abstract class World : IDisposable, IGrid
     {
         if (disposed) return;
 
-        if (disposing) chunks.Dispose();
+        if (disposing)
+        {
+            chunks.Dispose();
+            timer?.Dispose();
+        }
 
         disposed = true;
     }

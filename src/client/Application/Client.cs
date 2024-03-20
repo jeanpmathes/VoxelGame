@@ -10,6 +10,7 @@ using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -76,11 +77,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal GameResources Resources { get; }
 
-    /// <summary>
-    ///     Get the current game, if there is one.
-    /// </summary>
-    internal Game? CurrentGame { get; private set; }
-
     private double FPS => screenBehaviour.FPS;
     private double UPS => screenBehaviour.UPS;
 
@@ -89,11 +85,11 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     protected override void OnInit()
     {
-        using (logger.BeginScope("Client OnLoad"))
+        using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
             screenBehaviour = new ScreenBehaviour(this);
 
-            LoadingContext loadingContext = new();
+            LoadingContext loadingContext = new(timer);
 
             Resources.Load(Graphics.VisualConfiguration, loadingContext);
 
@@ -101,30 +97,31 @@ internal class Client : Support.Core.Client, IPerformanceProvider
             sceneManager.Load(startScene);
 
             logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
-
-            // Optional generation of manual.
-            ManualBuilder.EmitManual();
         }
+
+        // Optional generation of manual.
+        ManualBuilder.EmitManual();
     }
 
     protected override void OnRender(double delta)
     {
-        using (logger.BeginScope("RenderFrame"))
-        {
-            sceneManager.Render((float) delta);
-            screenBehaviour.Draw(delta);
-        }
+        using Timer? timer = logger.BeginTimedScoped("Client Render");
+
+        sceneManager.Render(delta, timer);
+        screenBehaviour.Render(delta);
     }
 
     protected override void OnUpdate(double delta)
     {
-        using (logger.BeginScope("UpdateFrame"))
+        using Timer? timer = logger.BeginTimedScoped("Client Update");
+
+        using (logger.BeginTimedSubScoped("Client Operations", timer))
         {
             operations.Update();
-
-            sceneManager.Update(delta);
-            screenBehaviour.Update(delta);
         }
+
+        sceneManager.Update(delta, timer);
+        screenBehaviour.Update(delta);
     }
 
     protected override void OnDestroy()
@@ -144,10 +141,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// <param name="world">The world to start the game in.</param>
     internal void StartGame(World world)
     {
-        IScene gameScene = sceneFactory.CreateGameScene(world, out Game game);
+        IScene gameScene = sceneFactory.CreateGameScene(world);
         sceneManager.Load(gameScene);
-
-        CurrentGame = game;
     }
 
     /// <summary>
@@ -161,7 +156,6 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         if (!exitToOS) scene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
 
         sceneManager.Load(scene);
-        CurrentGame = null;
 
         if (!exitToOS) return;
 

@@ -6,6 +6,7 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -47,17 +48,17 @@ public class Cover
     {
         if (isFilled) return Content.Default;
 
-        double temperature = sample.GetTemperatureInCelsius(position.Y);
+        Temperature temperature = sample.GetRealTemperature(position.Y);
 
-        if (temperature < 0) return new Content(Blocks.Instance.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
+        if (temperature.IsFreezing)
+            return new Content(Blocks.Instance.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
 
-        if (hasPlants)
-        {
-            float value = noise.GetNoise(position.X, position.Y, position.Z);
-            value = value > 0 ? value : value + 1;
+        if (!hasPlants) return Content.Default;
 
-            if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);
-        }
+        float value = noise.GetNoise(position.X, position.Y, position.Z);
+        value = value > 0 ? value : value + 1;
+
+        if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);
 
         return Content.Default;
     }

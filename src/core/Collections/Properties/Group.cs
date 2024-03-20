@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Collections.Properties;
 /// </summary>
 public class Group : Property, IEnumerable<Property>
 {
-    private readonly List<Property> children = new();
+    private readonly List<Property> children = [];
 
     /// <summary>
     ///     Creates a new group with the given name and children.

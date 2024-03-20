@@ -124,7 +124,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
             {
                 PropertyType = typeof(OptionalKey),
                 IsReadOnly = false,
-                DefaultValue = OptionalKey.DefaultValue,
+                DefaultValue = "",
                 Provider = Properties.Settings.Default.Providers["LocalFileSettingsProvider"],
                 SerializeAs = SettingsSerializeAs.Xml
             };
@@ -194,7 +194,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     private static string PropertyName(Keybind bind)
     {
-        return $"Input_{bind}";
+        return $"input_{bind}";
     }
 
     private VirtualKeys GetCurrentBind(Keybind bind)
@@ -239,6 +239,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     internal Keybind Console { get; } = Keybind.RegisterToggle("console", Language.KeyConsole, VirtualKeys.F1);
     internal Keybind DebugView { get; } = Keybind.RegisterPushButton("debug_view", Language.KeyDebugView, VirtualKeys.F2);
+    internal Keybind UnlockMouse { get; } = Keybind.RegisterPushButton("unlock_mouse", Language.KeyUnlockMouse, VirtualKeys.F3);
     internal Keybind Escape { get; } = Keybind.RegisterPushButton("escape", Language.KeyEscape, VirtualKeys.Escape);
 
     internal Keybind Forwards { get; } = Keybind.RegisterButton("forwards", Language.KeyForwards, VirtualKeys.W);

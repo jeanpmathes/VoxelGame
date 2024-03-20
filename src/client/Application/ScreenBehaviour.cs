@@ -14,7 +14,7 @@ namespace VoxelGame.Client.Application;
 /// </summary>
 internal sealed class ScreenBehaviour
 {
-    private const int DeltaBufferCapacity = 30;
+    private const int DeltaBufferCapacity = 50;
     private readonly Client client;
 
     private readonly ToggleButton fullscreenToggle;
@@ -40,10 +40,10 @@ internal sealed class ScreenBehaviour
     internal double UPS => 1.0 / updateDeltaBuffer.Average;
 
     /// <summary>
-    ///     Call when drawing the screen.
+    ///     Call when rendering.
     /// </summary>
-    /// <param name="time">The time since the last draw operation.</param>
-    internal void Draw(double time)
+    /// <param name="time">The time since the last render operation.</param>
+    internal void Render(double time)
     {
         renderDeltaBuffer.Write(time);
     }

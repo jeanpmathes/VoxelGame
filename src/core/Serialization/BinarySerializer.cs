@@ -142,8 +142,6 @@ public sealed class BinarySerializer : Serializer, IDisposable
     /// <inheritdoc />
     public override void Fail(string message)
     {
-        if (destination != null) throw new FileFormatException(destination.FullName, message);
-
-        throw new IOException(message);
+        throw new FileFormatException(destination?.FullName ?? "<unknown>", message);
     }
 }

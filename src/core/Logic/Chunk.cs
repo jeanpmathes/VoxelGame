@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -43,7 +45,12 @@ public partial class Chunk : IDisposable, IEntity
         /// <summary>
         ///     A format-related error occurred.
         /// </summary>
-        FormatError
+        FormatError,
+
+        /// <summary>
+        ///     A validation error occurred, meaning the data is logically invalid.
+        /// </summary>
+        ValidationError
     }
 
     private const string FileSignature = "VG_CHUNK";
@@ -70,22 +77,24 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
-    public static readonly int SizeExp = (int) Math.Log(Size, newBase: 2);
+    public static readonly int SizeExp = BitOperations.Log2(Size);
 
     /// <summary>
     ///     Result of <c>lb(Size) * 2</c> as int.
     /// </summary>
-    public static readonly int SizeExp2 = (int) Math.Log(Size, newBase: 2) * 2;
+    public static readonly int SizeExp2 = SizeExp * 2;
 
     /// <summary>
     ///     Result of <c>lb(BlockSize)</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp = (int) Math.Log(BlockSize, newBase: 2);
+    public static readonly int BlockSizeExp = BitOperations.Log2(BlockSize);
 
     /// <summary>
     ///     Result of <c>lb(BlockSize) * 2</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp2 = (int) Math.Log(BlockSize, newBase: 2) * 2;
+    public static readonly int BlockSizeExp2 = BlockSizeExp * 2;
+
+    private readonly StateTracker tracker = new(nameof(Chunk));
 
     /// <summary>
     ///     The sections in this chunk.
@@ -110,10 +119,10 @@ public partial class Chunk : IDisposable, IEntity
 
     private readonly ChunkContext context;
 
-    private DecorationLevels decoration = DecorationLevels.None;
+    private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
+    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
-    private ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
+    private DecorationLevels decoration = DecorationLevels.None;
 
     /// <summary>
     ///     Whether the chunk is currently requested to be active.
@@ -232,6 +241,7 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, context);
+        tracker.Transition(from: null, state);
 
         for (var index = 0; index < SectionCount; index++)
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
@@ -256,6 +266,8 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.Clear();
         fluidTickManager.SetWorld(newWorld: null);
 
+        tracker.Transition(state, to: null);
+
         localUpdateCounter.Reset();
 
         World = null!;
@@ -279,7 +291,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
 
         if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
 
@@ -328,7 +340,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
 
         if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
 
@@ -401,10 +413,18 @@ public partial class Chunk : IDisposable, IEntity
 
         Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
+        if (exception is FileFormatException)
+        {
+            logger.LogError(Events.ChunkOperation, "File for the chunk at {Position} was invalid: format error", position);
+
+            return LoadingResult.FormatError;
+        }
+
         if (exception != null)
         {
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
+
             logger.LogDebug(Events.ChunkOperation, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, exception.Message);
 
             return LoadingResult.IOError;
@@ -416,7 +436,7 @@ public partial class Chunk : IDisposable, IEntity
         {
             logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
 
-            return LoadingResult.FormatError;
+            return LoadingResult.ValidationError;
         }
 
         logger.LogDebug(Events.ChunkOperation, "File for the chunk at {Position} was valid", position);
@@ -580,7 +600,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void Update()
     {
-        ChunkState.Update(ref state);
+        ChunkState.Update(ref state, tracker);
     }
 
     /// <summary>

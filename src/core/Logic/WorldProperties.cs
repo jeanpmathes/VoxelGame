@@ -23,18 +23,16 @@ public class WorldProperties : Group
     /// <param name="information">Information about the world.</param>
     /// <param name="path">A path to the world.</param>
     public WorldProperties(WorldInformation information, FileSystemInfo path) : base(Language.Properties,
-        new Property[]
-        {
-            new Message(Language.Name, information.Name),
-            new FileSystemPath(Language.Path, path),
-            path.GetSize() is {} size
-                ? new Measure(Language.FileSize, size)
-                : new Error(Language.FileSize, Language.Error, isCritical: false),
-            new Group(Language.Seed,
-                new[]
-                {
-                    new Integer("L", information.LowerSeed),
-                    new Integer("U", information.UpperSeed)
-                })
-        }) {}
+    [
+        new Message(Language.Name, information.Name),
+        new FileSystemPath(Language.Path, path),
+        path.GetSize() is {} size
+            ? new Measure(Language.FileSize, size)
+            : new Error(Language.FileSize, Language.Error, isCritical: false),
+        new Group(Language.Seed,
+        [
+            new Integer("L", information.LowerSeed),
+            new Integer("U", information.UpperSeed)
+        ])
+    ]) {}
 }

@@ -17,40 +17,99 @@ namespace VoxelGame.UI.Controls.Common;
 /// </summary>
 public class PropertyBasedTreeControl : TreeControl
 {
+    private readonly Context context;
+
     /// <summary>
     ///     Create a <see cref="PropertyBasedTreeControl" /> from a <see cref="Property" />.
     /// </summary>
     internal PropertyBasedTreeControl(ControlBase parent, Property property, Context context) : base(parent)
     {
+        this.context = context;
+
         TreeControlBuilder builder = new(this, context);
         builder.Visit(property);
     }
 
-    private sealed class TreeControlBuilder : Visitor
+    /// <summary>
+    ///     Update the <see cref="PropertyBasedTreeControl" /> from a <see cref="Property" />.
+    /// </summary>
+    /// <param name="property">The <see cref="Property" /> to update the <see cref="PropertyBasedTreeControl" /> with.</param>
+    public void Update(Property property)
     {
-        private readonly Context context;
+        TreeControlBuilder builder = new(this, context);
+        builder.Visit(property);
+    }
 
-        private TreeNode current;
+    private sealed class TreeControlBuilder(TreeControl tree, Context context) : Visitor
+    {
+        private TreeNode current = tree.RootNode;
+        private int index;
 
-        public TreeControlBuilder(TreeControl tree, Context context)
+        private TreeNode? FindNode(string name)
         {
-            current = tree.RootNode;
-            this.context = context;
+            while (current.NodeCount > index)
+            {
+                ControlBase target = current.Children[index];
+
+                if (target is TreeNode node && node.Name == name)
+                    return node;
+
+                current.RemoveChild(target, dispose: true);
+            }
+
+            return null;
+        }
+
+        private TreeNode FindOrCreateNode(string name, string text, out bool created)
+        {
+            TreeNode? node = FindNode(name);
+
+            index++;
+
+            if (node != null)
+            {
+                if (node.Text != text)
+                    node.Text = text;
+
+                created = false;
+            }
+            else
+            {
+                node = current.AddNode(text, name);
+
+                created = true;
+            }
+
+            return node;
         }
 
         public override void Visit(Group group)
         {
             TreeNode previous = current;
-            current = current.AddNode(group.Name);
+            current = FindOrCreateNode(group.Name, group.Name, out bool created);
+
+            int previousIndex = index;
+            index = 0;
+
+            TreeNode groupNode = current;
 
             base.Visit(group);
 
+            while (current.NodeCount > index)
+            {
+                ControlBase target = current.Children[index];
+                current.RemoveChild(target, dispose: true);
+            }
+
+            if (created) groupNode.ExpandAll();
+
             current = previous;
+            index = previousIndex;
         }
 
         public override void Visit(Error error)
         {
-            TreeNode node = current.AddNode($"{error.Name}: {error.Message}");
+            TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}", out _);
 
             string icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
             Color color = error.IsCritical ? Colors.Error : Colors.Warning;
@@ -60,22 +119,22 @@ public class PropertyBasedTreeControl : TreeControl
 
         public override void Visit(Message message)
         {
-            current.AddNode($"{message.Name}: {message.Text}");
+            FindOrCreateNode(message.Name, $"{message.Name}: {message.Text}", out _);
         }
 
         public override void Visit(Integer integer)
         {
-            current.AddNode($"{integer.Name}: {integer.Value}");
+            FindOrCreateNode(integer.Name, $"{integer.Name}: {integer.Value}", out _);
         }
 
         public override void Visit(FileSystemPath path)
         {
-            current.AddNode($"{path.Name}: {path.Path.FullName}");
+            FindOrCreateNode(path.Name, $"{path.Name}: {path.Path.FullName}", out _);
         }
 
         public override void Visit(Measure measure)
         {
-            current.AddNode($"{measure.Name}: {measure.Value}");
+            FindOrCreateNode(measure.Name, $"{measure.Name}: {measure.Value}", out _);
         }
     }
 }

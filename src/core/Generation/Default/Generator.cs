@@ -15,6 +15,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -52,20 +53,34 @@ public class Generator : IWorldGenerator
     ///     Creates a new default world generator.
     /// </summary>
     /// <param name="world">The world to generate.</param>
-    public Generator(World world)
+    /// <param name="timer">A timer to measure initialization behavior.</param>
+    public Generator(World world, Timer? timer)
     {
         mapNoiseFactory = new NoiseFactory(world.Seed.upper);
         worldNoiseFactory = new NoiseFactory(world.Seed.lower);
 
-        Biomes biomes = Biomes.Load();
-        biomes.Setup(worldNoiseFactory, palette);
+        Biomes biomes;
 
-        Structures.Instance.Setup(worldNoiseFactory);
+        using (logger.BeginTimedSubScoped("Biomes Setup", timer))
+        {
+            biomes = Biomes.Load();
+            biomes.Setup(worldNoiseFactory, palette);
+        }
 
-        Map = new Map(BiomeDistribution.CreateDefault(biomes));
+        using (logger.BeginTimedSubScoped("Structures Setup", timer))
+        {
+            Structures.Instance.Setup(worldNoiseFactory);
+        }
 
-        Map.Initialize(world.Data, MapBlobName, mapNoiseFactory);
-        Map.Store(world.Data, MapBlobName);
+        using (logger.BeginTimedSubScoped("Map Setup", timer))
+        {
+            Map = new Map(BiomeDistribution.CreateDefault(biomes));
+
+            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory, out bool dirty);
+
+            if (dirty)
+                Map.Store(world.Data, MapBlobName);
+        }
 
         decorationNoise = worldNoiseFactory.GetNextNoise();
         decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);

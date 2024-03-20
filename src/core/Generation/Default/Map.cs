@@ -11,9 +11,11 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -191,12 +193,16 @@ public partial class Map : IMap
     }
 
     /// <inheritdoc />
-    public string GetPositionDebugData(Vector3d position)
+    public Property GetPositionDebugData(Vector3d position)
     {
         Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition.Xz);
 
-        return $"M: [{nameof(Default)}] {sample.Height:F2} {sample.ActualBiome}";
+        return new Group(nameof(Default),
+        [
+            new Message("Biome", sample.ActualBiome.ToString()),
+            new Measure("Height", sample.GetRealHeight())
+        ]);
     }
 
     /// <inheritdoc />
@@ -205,7 +211,7 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        float temperature = NormalizeTemperature(sample.GetTemperatureInCelsius(position.Y));
+        float temperature = NormalizeTemperature(sample.GetRealTemperature(position.Y));
 
         Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Humidity));
         Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
@@ -214,31 +220,37 @@ public partial class Map : IMap
     }
 
     /// <inheritdoc />
-    public double GetTemperature(Vector3d position)
+    public Temperature GetTemperature(Vector3d position)
     {
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        return sample.GetTemperatureInCelsius(position.Y);
+        return sample.GetRealTemperature(position.Y);
     }
 
-    private static double ConvertTemperatureToCelsius(float temperature)
+    private static Temperature ConvertTemperatureToCelsius(float temperature)
     {
-        return MathHelper.Lerp(MinTemperature, MaxTemperature, temperature);
+        return new Temperature
+        {
+            DegreesCelsius = MathHelper.Lerp(MinTemperature, MaxTemperature, temperature)
+        };
     }
 
-    private static float NormalizeTemperature(double temperature)
+    private static float NormalizeTemperature(Temperature temperature)
     {
-        return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature);
+        return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature.DegreesCelsius);
     }
 
-    private static double GetTemperatureAtHeight(double groundTemperature, float humidity, double heightAboveGround)
+    private static Temperature GetTemperatureAtHeight(Temperature groundTemperature, float humidity, double heightAboveGround)
     {
         if (heightAboveGround < 0) return groundTemperature;
 
         double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, humidity);
 
-        return groundTemperature - decreaseFactor * heightAboveGround / 1000.0;
+        return new Temperature
+        {
+            DegreesCelsius = groundTemperature.DegreesCelsius - decreaseFactor * heightAboveGround / 1000.0
+        };
     }
 
     private void SetupSamplingNoise(NoiseFactory factory)
@@ -270,16 +282,26 @@ public partial class Map : IMap
     /// <param name="world">The world data from which blobs can be retrieved.</param>
     /// <param name="blob">The name of the blob to load, or null to generate a new map.</param>
     /// <param name="factory">The factory to use for noise generator creation.</param>
-    public void Initialize(WorldData world, string? blob, NoiseFactory factory)
+    /// <param name="dirty">
+    ///     Whether the map is dirty and needs to be saved.
+    ///     Will be true if the map is generated, false if it is just loaded.
+    /// </param>
+    public void Initialize(WorldData world, string? blob, NoiseFactory factory, out bool dirty)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
+
+        dirty = false;
 
         if (blob != null)
             Load(world, blob);
 
         SetupGeneratingNoise(factory);
 
-        if (data == null) Generate();
+        if (data == null)
+        {
+            Generate();
+            dirty = true;
+        }
 
         SetupSamplingNoise(factory);
     }
@@ -615,12 +637,12 @@ public partial class Map : IMap
         public float Height { get; init; }
 
         /// <summary>
-        ///     The temperature of the sample. Use <see cref="GetTemperatureInCelsius" /> to retrieve the temperature.
+        ///     The temperature of the sample, in range [0, 1]. Use <see cref="GetTemperatureAtHeight" /> to retrieve the temperature.
         /// </summary>
-        public float Temperature { private get; init; }
+        public float Temperature { get; init; }
 
         /// <summary>
-        ///     The humidity of the sample.
+        ///     The humidity of the sample, in range [0, 1].
         /// </summary>
         public float Humidity { get; init; }
 
@@ -667,13 +689,27 @@ public partial class Map : IMap
         /// <summary>
         ///     Get the temperature at a given height.
         /// </summary>
-        /// <param name="y">The height.</param>
-        /// <returns>The temperature, in degrees Celsius.</returns>
-        public double GetTemperatureInCelsius(double y)
+        /// <param name="y">The height, in meters.</param>
+        /// <returns>The temperature.</returns>
+        public Temperature GetRealTemperature(double y)
         {
+            // The ground height follows the actual height of the sample, but mountains and oceans are ignored.
+            // This is necessary to have more realistic lower temperature on mountains.
+
             double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
             return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Humidity, y - groundHeight);
+        }
+
+        /// <summary>
+        ///     Get the height of the sample.
+        /// </summary>
+        /// <returns>The height.</returns>
+#pragma warning disable S4049 // Consistency.
+        public Length GetRealHeight()
+#pragma warning restore S4049
+        {
+            return new Length {Meters = Height * MaxHeight};
         }
     }
 
@@ -725,7 +761,7 @@ public partial class Map : IMap
 
     private sealed class Data : IEntity
     {
-        public readonly Cell[] cells = new Cell[CellCount];
+        private readonly Cell[] cells = new Cell[CellCount];
 
         /// <inheritdoc />
         public static int Version => 1;

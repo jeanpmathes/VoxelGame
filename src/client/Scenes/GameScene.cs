@@ -15,6 +15,7 @@ using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
@@ -32,13 +33,14 @@ public sealed class GameScene : IScene
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
     private readonly ToggleButton consoleToggle;
-
     private readonly PushButton escapeButton;
-
+    private readonly PushButton unlockMouse;
     private readonly PushButton screenshotButton;
 
     private readonly GameUserInterface ui;
     private readonly ToggleButton uiToggle;
+
+    private bool isMouseUnlockedByUserRequest;
 
     internal GameScene(Application.Client client, World world)
     {
@@ -55,13 +57,14 @@ public sealed class GameScene : IScene
                 console.OnWorldReady();
         };
 
-        SetupUI(client, world, console);
+        SetupUI(world, console);
 
         uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
         screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
         consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
         escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
+        unlockMouse = client.Keybinds.GetPushButton(client.Keybinds.UnlockMouse);
     }
 
     /// <summary>
@@ -112,42 +115,67 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(float deltaTime)
+    public void Render(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using (logger.BeginScope("GameScene Render"))
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Render", timer);
+
+        using (logger.BeginTimedSubScoped("GameScene Render Game", subTimer))
         {
             Game.Render();
+        }
+
+        using (logger.BeginTimedSubScoped("GameScene Render UI", subTimer))
+        {
             RenderUI();
         }
     }
 
     /// <inheritdoc />
-    public void Update(double deltaTime)
+    public void Update(double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using (logger.BeginScope("GameScene Update"))
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Update", timer);
+
+        using (logger.BeginTimedSubScoped("GameScene Update UI", subTimer))
         {
             ui.Update();
-
-            Game.Update(deltaTime);
-
-            if (!Client.IsFocused)
-                return;
-
-            if (!IsOverlayOpen)
-            {
-                if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
-
-                if (uiToggle.Changed) ui.ToggleHidden();
-            }
-
-            if (escapeButton.Pushed) ui.HandleEscape();
-
-            if (consoleToggle.Changed) ui.ToggleConsole();
         }
+
+        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene Update Game", subTimer))
+        {
+            Game.Update(deltaTime, gameTimer);
+        }
+
+        if (!Client.IsFocused)
+            return;
+
+        if (!IsOverlayOpen)
+        {
+            if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
+
+            if (uiToggle.Changed) ui.ToggleHidden();
+        }
+
+        if (unlockMouse.Pushed)
+        {
+            if (isMouseUnlockedByUserRequest)
+            {
+                OnOverlayClose();
+            }
+            else if (!IsOverlayOpen)
+            {
+                OnOverlayOpen();
+                isMouseUnlockedByUserRequest = true;
+            }
+        }
+
+        if (escapeButton.Pushed) ui.HandleEscape();
+
+        if (consoleToggle.Changed) ui.ToggleConsole();
+
     }
 
     /// <inheritdoc />
@@ -191,42 +219,44 @@ public sealed class GameScene : IScene
         return new Game(world, player);
     }
 
-    private void SetupUI(Application.Client client, Core.Logic.World world, IConsoleProvider console)
+    private void SetupUI(Core.Logic.World world, IConsoleProvider console)
     {
         OnOverlayClose();
 
         List<SettingsProvider> settingsProviders =
         [
-            SettingsProvider.Wrap(client.Settings),
-            SettingsProvider.Wrap(client.Keybinds)
+            SettingsProvider.Wrap(Client.Settings),
+            SettingsProvider.Wrap(Client.Keybinds)
         ];
 
         ui.SetSettingsProviders(settingsProviders);
         ui.SetConsoleProvider(console);
-        ui.SetPerformanceProvider(client);
+        ui.SetPerformanceProvider(Client);
 
         ui.WorldExit += (_, args) =>
         {
             if (world.IsActive)
-                world.BeginDeactivating(() => client.ExitGame(args.ExitToOS));
+                world.BeginDeactivating(() => Client.ExitGame(args.ExitToOS));
         };
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
+    }
 
-        return;
+    private void OnOverlayClose()
+    {
+        IsOverlayOpen = false;
+        Client.Input.Mouse.SetCursorLock(locked: true);
 
-        void OnOverlayOpen()
-        {
-            IsOverlayOpen = true;
-            client.Input.Mouse.SetCursorLock(locked: false);
-        }
+        isMouseUnlockedByUserRequest = false;
+    }
 
-        void OnOverlayClose()
-        {
-            IsOverlayOpen = false;
-            client.Input.Mouse.SetCursorLock(locked: true);
-        }
+    private void OnOverlayOpen()
+    {
+        IsOverlayOpen = true;
+        Client.Input.Mouse.SetCursorLock(locked: false);
+
+        // The mouse was unlocked, but the user did not explicitly request it.
     }
 
     private void OnFocusChanged(object? sender, FocusChangeEventArgs e)

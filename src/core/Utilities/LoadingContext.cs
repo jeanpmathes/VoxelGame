@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Utilities;
@@ -28,8 +29,10 @@ public class LoadingContext
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
 
+    private readonly Timer? timer;
+
     private readonly Group steps;
-    private readonly Stack<(Group group, string path)> path;
+    private readonly Stack<Entry> path;
 
     private bool isMissingAny;
     private bool isMissingCritical;
@@ -37,12 +40,14 @@ public class LoadingContext
     /// <summary>
     ///     Creates a new loading context.
     /// </summary>
-    public LoadingContext()
+    public LoadingContext(Timer? timer)
     {
-        steps = new Group("Base");
-        path = new Stack<(Group group, string path)>();
+        this.timer = timer;
 
-        path.Push((steps, steps.Name));
+        steps = new Group("Base");
+        path = new Stack<Entry>();
+
+        path.Push(new Entry {group = steps, path = "Base", timer = timer});
     }
 
     /// <summary>
@@ -77,14 +82,16 @@ public class LoadingContext
     {
         logger.LogDebug(id, "Starting loading step '{StepName}'", name);
 
-        (Group group, string path) previous = path.Peek();
+        Entry previous = path.Peek();
 
         Group current = new(name);
         previous.group.Add(current);
 
-        path.Push((current, $"{previous.path} > {name}"));
+        Timer? subTimer = logger.BeginTimedSubScoped(name, timer);
 
-        Step step = new(this, id, name, current, logger.BeginScope(name));
+        path.Push(new Entry {group = current, path = $"{previous.path} > {name}", timer = subTimer});
+
+        Step step = new(this, id, name, current, subTimer);
 
         return step;
     }
@@ -195,6 +202,13 @@ public class LoadingContext
     private static void Abort()
     {
         throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
+    }
+
+    private sealed class Entry
+    {
+        public required Group group;
+        public required string path;
+        public required Timer? timer;
     }
 
     private sealed record Step(LoadingContext Context, EventId ID, string Name, Group Group, IDisposable? Scope) : IDisposable

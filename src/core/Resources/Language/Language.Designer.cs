@@ -870,6 +870,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unlock Mouse.
+        /// </summary>
+        public static string KeyUnlockMouse {
+            get {
+                return ResourceManager.GetString("KeyUnlockMouse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wireframe.
         /// </summary>
         public static string KeyWireframe {

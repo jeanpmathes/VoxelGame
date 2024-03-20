@@ -323,7 +323,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
 }
 
 std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
-    NativeClient const&                           nativeClient,
+    NativeClient&                                 nativeClient,
     SpacePipelineDescription const&               pipelineDescription,
     nv_helpers_dx12::RayTracingPipelineGenerator& pipeline)
 {

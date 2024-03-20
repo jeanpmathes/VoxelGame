@@ -134,6 +134,8 @@ public class Mouse
     /// <param name="locked">Whether the cursor should be locked.</param>
     public void SetCursorLock(bool locked)
     {
+        bool wasCursorLocked = isCursorLocked;
+
         isCursorLocked = locked;
 
         if (locked) storedPosition = Position;
@@ -142,7 +144,7 @@ public class Mouse
 
         if (locked) return;
 
-        if (storedPosition != null) Position = storedPosition.Value;
+        if (storedPosition != null && wasCursorLocked) Position = storedPosition.Value;
 
         isCursorLockRequiredOnFocus = false;
     }

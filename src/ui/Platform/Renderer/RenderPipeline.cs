@@ -9,13 +9,17 @@ using System.Diagnostics;
 using System.IO;
 using Gwen.Net;
 using Gwen.Net.Renderer;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
+using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Platform.Renderer;
 
@@ -24,6 +28,8 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class RenderPipeline : IDisposable
 {
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
+
     private readonly PooledList<DrawCall> drawCalls = new();
     private readonly RasterPipeline pipeline;
     private readonly Action preDraw;
@@ -202,6 +208,8 @@ public sealed class RenderPipeline : IDisposable
     private void Draw(Draw2D drawer)
     {
         Debug.Assert((drawCalls.Count > 0).Implies(vertexBuffer.Count > 0));
+
+        using Timer? timer = logger.BeginTimedScoped("UI Draw");
 
         preDraw();
         Textures.UploadIfDirty(drawer);

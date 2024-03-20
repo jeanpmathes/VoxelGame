@@ -9,6 +9,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application;
@@ -27,8 +28,8 @@ public static class Arguments
 
         var logDebugOption = new Option<bool>(
             "--log-debug",
-            description: "Whether to log debug messages. Ignored in DEBUG builds.",
-            getDefaultValue: () => false
+            description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
+            getDefaultValue: () => Program.IsDebug
         );
 
         logDebugOption.AddAlias("-dbg");
@@ -55,24 +56,30 @@ public static class Arguments
             getDefaultValue: () => false
         );
 
+        command.AddOption(supportGraphicalDebuggerOption);
+
         var useGraphicsProcessingUnitBasedValidationOption = new Option<bool>(
             "--gbv",
             description: "Whether to use GPU-based validation. Has no effect if PIX support is enabled.",
             getDefaultValue: () => false
         );
 
-        command.AddOption(supportGraphicalDebuggerOption);
+        command.AddOption(useGraphicsProcessingUnitBasedValidationOption);
+
+        var enableProfilingOption = new Option<ProfilerConfiguration>(
+            "--profile",
+            description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
+            getDefaultValue: () => Program.IsDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
+        );
+
+        enableProfilingOption.AddAlias("-p");
+        command.AddOption(enableProfilingOption);
 
         ILogger GetLogger(InvocationContext context)
         {
             Debug.Assert(logDebugOption != null);
 
-            LoggingParameters parameters = new(context.ParseResult.GetValueForOption(logDebugOption));
-
-            if (Program.IsDebug)
-                parameters = new LoggingParameters(LogDebug: true);
-
-            return setupLogging(parameters);
+            return setupLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
         }
 
         command.SetHandler(context =>
@@ -82,6 +89,7 @@ public static class Arguments
                 {
                     GameParameters gameParameters = new(
                         context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
+                        context.ParseResult.GetValueForOption(enableProfilingOption),
                         context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
                         context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
 
@@ -120,7 +128,7 @@ public delegate int RunGame(GameParameters parameters, ILogger logger);
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly, bool SupportPIX, bool UseGBV)
+public record GameParameters(int LoadWorldDirectly, ProfilerConfiguration Profile, bool SupportPIX, bool UseGBV)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.

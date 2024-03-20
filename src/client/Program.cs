@@ -14,6 +14,7 @@ using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -96,6 +97,8 @@ internal static class Program
                 {
                     GraphicsSettings graphicsSettings = new(Settings.Default);
 
+                    Profile.CreateGlobalInstance(args.Profile);
+
                     WindowSettings windowSettings = new WindowSettings
                     {
                         Title = Language.VoxelGame + " " + Version,
@@ -107,9 +110,16 @@ internal static class Program
 
                     logger.LogDebug("Opening window");
 
-                    using Application.Client client = new(windowSettings, graphicsSettings, args);
+                    int result;
 
-                    return client.Run();
+                    using (Application.Client client = new(windowSettings, graphicsSettings, args))
+                    {
+                        result = client.Run();
+                    }
+
+                    Profile.CreateExitReport();
+
+                    return result;
                 }));
     }
 

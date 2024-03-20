@@ -332,14 +332,14 @@ public class MeshFaceHolder
     {
         Vector3 position = RestorePosition(layer, row, face.position) + SideDependentOffset;
 
-        // Both height and lenght are given in additional distance to the normal height and lenght of a quad, so we add 1.
-        Vector3 lenght = LengthAxis.ToVector3() * (face.length + 1);
+        // Both height and length are given in additional distance to the normal height and length of a quad, so we add 1.
+        Vector3 length = LengthAxis.ToVector3() * (face.length + 1);
         Vector3 height = HeightAxis.ToVector3() * (face.height + 1);
 
         Vector3 v00 = position;
         Vector3 v01 = position + height;
-        Vector3 v10 = position + lenght;
-        Vector3 v11 = position + lenght + height;
+        Vector3 v10 = position + length;
+        Vector3 v11 = position + length + height;
 
         return side switch
         {

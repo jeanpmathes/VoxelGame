@@ -8,6 +8,7 @@ using System;
 using System.Runtime;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Profiling;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -63,9 +64,20 @@ public class SceneManager
     ///     Render the current scene.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public void Render(float deltaTime)
+    /// <param name="timer">A timer for profiling.</param>
+    public void Render(double deltaTime, Timer? timer)
     {
-        current?.Render(deltaTime);
+        current?.Render(deltaTime, timer);
+    }
+
+    /// <summary>
+    ///     Update the current scene.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="timer">A timer for profiling.</param>
+    public void Update(double deltaTime, Timer? timer)
+    {
+        current?.Update(deltaTime, timer);
     }
 
     /// <summary>
@@ -75,15 +87,6 @@ public class SceneManager
     public void OnResize(Vector2i size)
     {
         current?.OnResize(size);
-    }
-
-    /// <summary>
-    ///     Update the current scene.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void Update(double deltaTime)
-    {
-        current?.Update(deltaTime);
     }
 
     /// <summary>
