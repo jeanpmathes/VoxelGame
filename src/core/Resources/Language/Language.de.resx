@@ -294,12 +294,6 @@
     <data name="RedPlastic" xml:space="preserve">
     <value>Roter Plastik</value>
   </data>
-    <data name="Rubble" xml:space="preserve">
-    <value>Bruchstein</value>
-  </data>
-    <data name="RubbleWall" xml:space="preserve">
-    <value>Bruchsteinmauer</value>
-  </data>
     <data name="Sand" xml:space="preserve">
     <value>Sand</value>
   </data>
@@ -737,5 +731,29 @@
     </data>
     <data name="SandstonePaving" xml:space="preserve">
         <value>Sandstein-Pflaster</value>
+    </data>
+    <data name="GraniteRubble" xml:space="preserve">
+        <value>Granit-Geröll</value>
+    </data>
+    <data name="GraniteWall" xml:space="preserve">
+        <value>Granitmauer</value>
+    </data>
+    <data name="SandstoneRubble" xml:space="preserve">
+        <value>Sandsteingeröll</value>
+    </data>
+    <data name="SandstoneWall" xml:space="preserve">
+        <value>Sandsteinmauer</value>
+    </data>
+    <data name="LimestoneRubble" xml:space="preserve">
+        <value>Kalkstein-Geröll</value>
+    </data>
+    <data name="LimestoneWall" xml:space="preserve">
+        <value>Kalksteinmauer</value>
+    </data>
+    <data name="MarbleRubble" xml:space="preserve">
+        <value>Marmor-Geröll</value>
+    </data>
+    <data name="MarbleWall" xml:space="preserve">
+        <value>Marmormauer</value>
     </data>
 </root>

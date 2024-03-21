@@ -564,6 +564,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Granite Rubble.
+        /// </summary>
+        public static string GraniteRubble {
+            get {
+                return ResourceManager.GetString("GraniteRubble", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Granite Wall.
+        /// </summary>
+        public static string GraniteWall {
+            get {
+                return ResourceManager.GetString("GraniteWall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Graphics.
         /// </summary>
         public static string Graphics {
@@ -987,6 +1005,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Limestone Rubble.
+        /// </summary>
+        public static string LimestoneRubble {
+            get {
+                return ResourceManager.GetString("LimestoneRubble", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limestone Wall.
+        /// </summary>
+        public static string LimestoneWall {
+            get {
+                return ResourceManager.GetString("LimestoneWall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Worked Limestone.
         /// </summary>
         public static string LimestoneWorked {
@@ -1055,6 +1091,24 @@ namespace VoxelGame.Core.Resources.Language {
         public static string MarblePaving {
             get {
                 return ResourceManager.GetString("MarblePaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marble Rubble.
+        /// </summary>
+        public static string MarbleRubble {
+            get {
+                return ResourceManager.GetString("MarbleRubble", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marble Wall.
+        /// </summary>
+        public static string MarbleWall {
+            get {
+                return ResourceManager.GetString("MarbleWall", resourceCulture);
             }
         }
         
@@ -1401,24 +1455,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Rubble.
-        /// </summary>
-        public static string Rubble {
-            get {
-                return ResourceManager.GetString("Rubble", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Rubble Wall.
-        /// </summary>
-        public static string RubbleWall {
-            get {
-                return ResourceManager.GetString("RubbleWall", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Salt.
         /// </summary>
         public static string Salt {
@@ -1469,6 +1505,24 @@ namespace VoxelGame.Core.Resources.Language {
         public static string SandstonePaving {
             get {
                 return ResourceManager.GetString("SandstonePaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sandstone Rubble.
+        /// </summary>
+        public static string SandstoneRubble {
+            get {
+                return ResourceManager.GetString("SandstoneRubble", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sandstone Wall.
+        /// </summary>
+        public static string SandstoneWall {
+            get {
+                return ResourceManager.GetString("SandstoneWall", resourceCulture);
             }
         }
         

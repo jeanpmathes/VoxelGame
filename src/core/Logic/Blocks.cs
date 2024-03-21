@@ -106,11 +106,6 @@ public class Blocks
                 topTexOffset: 1,
                 BoundingVolume.CrossBlock));
 
-            Rubble = Register(new ConstructionBlock(
-                Language.Rubble,
-                nameof(Rubble),
-                TextureLayout.Uniform("rubble")));
-
             Mud = Register(new MudBlock(
                 Language.Mud,
                 nameof(Mud),
@@ -410,14 +405,6 @@ public class Blocks
                 "fence_post",
                 "fence_extension"));
 
-            WallRubble = Register(new WallBlock(
-                Language.RubbleWall,
-                nameof(WallRubble),
-                "rubble",
-                "wall_post",
-                "wall_extension",
-                "wall_extension_straight"));
-
             WallBricks = Register(new WallBlock(
                 Language.BrickWall,
                 nameof(WallBricks),
@@ -672,6 +659,58 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("marble_paving")));
 
+            GraniteRubble = Register(new PermeableConstructionBlock(
+                Language.GraniteRubble,
+                nameof(GraniteRubble),
+                TextureLayout.Uniform("granite_rubble")));
+
+            SandstoneRubble = Register(new PermeableConstructionBlock(
+                Language.SandstoneRubble,
+                nameof(SandstoneRubble),
+                TextureLayout.Uniform("sandstone_rubble")));
+
+            LimestoneRubble = Register(new PermeableConstructionBlock(
+                Language.LimestoneRubble,
+                nameof(LimestoneRubble),
+                TextureLayout.Uniform("limestone_rubble")));
+
+            MarbleRubble = Register(new PermeableConstructionBlock(
+                Language.MarbleRubble,
+                nameof(MarbleRubble),
+                TextureLayout.Uniform("marble_rubble")));
+
+            GraniteWall = Register(new WallBlock(
+                Language.GraniteWall,
+                nameof(GraniteWall),
+                "granite_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            SandstoneWall = Register(new WallBlock(
+                Language.SandstoneWall,
+                nameof(SandstoneWall),
+                "sandstone_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            LimestoneWall = Register(new WallBlock(
+                Language.LimestoneWall,
+                nameof(LimestoneWall),
+                "limestone_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            MarbleWall = Register(new WallBlock(
+                Language.MarbleWall,
+                nameof(MarbleWall),
+                "marble_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
             if (allBlocks.Count > BlockLimit)
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -804,11 +843,6 @@ public class Blocks
     ///     A very tall flower.
     /// </summary>
     public Block TallFlower { get; }
-
-    /// <summary>
-    ///     When stone is destroyed, rubble is what remains.
-    /// </summary>
-    public Block Rubble { get; }
 
     /// <summary>
     ///     Mud is created when water and dirt mix.
@@ -1057,13 +1091,7 @@ public class Blocks
     public Block FenceWood { get; }
 
     /// <summary>
-    ///     The rubble wall is a stone barrier that can be used as a way of marking areas.
-    ///     They do not prevent jumping over it, and can connect to other blocks.
-    /// </summary>
-    public Block WallRubble { get; }
-
-    /// <summary>
-    ///     The brick wall is similar to all other walls, and made out of bricks.
+    ///     The brick wall is similar to all other walls, and made out of clay bricks.
     ///     They do not prevent jumping over them, and can connect to other blocks.
     /// </summary>
     public Block WallBricks { get; }
@@ -1302,6 +1330,54 @@ public class Blocks
     ///     The processing ensures a smoother surface.
     /// </summary>
     public Block MarblePaving { get; }
+
+    /// <summary>
+    ///     When breaking granite, it turns into granite rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block GraniteRubble { get; }
+
+    /// <summary>
+    ///     When breaking sandstone, it turns into sandstone rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block SandstoneRubble { get; }
+
+    /// <summary>
+    ///     When breaking limestone, it turns into limestone rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block LimestoneRubble { get; }
+
+    /// <summary>
+    ///     When breaking marble, it turns into marble rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block MarbleRubble { get; }
+
+    /// <summary>
+    ///     A wall made out of granite rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block GraniteWall { get; }
+
+    /// <summary>
+    ///     A wall made out of sandstone rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block SandstoneWall { get; }
+
+    /// <summary>
+    ///     A wall made out of limestone rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block LimestoneWall { get; }
+
+    /// <summary>
+    ///     A wall made out of marble rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block MarbleWall { get; }
 
     #endregion NEW BLOCKS
 }
