@@ -23,9 +23,9 @@ public abstract class ChunkState
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
 
     private Guard? coreGuard;
+    private Guard? extendedGuard;
 
     private int currentWaitingTime;
-    private Guard? extendedGuard;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.

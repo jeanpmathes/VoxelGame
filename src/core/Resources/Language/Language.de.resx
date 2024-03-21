@@ -690,7 +690,7 @@
     <data name="LimestoneWorked" xml:space="preserve">
         <value>Bearbeiteter Kalkstein</value>
     </data>
-    <data name="WorkedGranite" xml:space="preserve">
+    <data name="GraniteWorked" xml:space="preserve">
         <value>Bearbeiteter Granit</value>
     </data>
     <data name="SandstoneWorked" xml:space="preserve">
@@ -733,7 +733,7 @@
         <value>Sandstein-Pflaster</value>
     </data>
     <data name="GraniteRubble" xml:space="preserve">
-        <value>Granit-Geröll</value>
+        <value>Granitgeröll</value>
     </data>
     <data name="GraniteWall" xml:space="preserve">
         <value>Granitmauer</value>
@@ -745,13 +745,13 @@
         <value>Sandsteinmauer</value>
     </data>
     <data name="LimestoneRubble" xml:space="preserve">
-        <value>Kalkstein-Geröll</value>
+        <value>Kalksteingeröll</value>
     </data>
     <data name="LimestoneWall" xml:space="preserve">
         <value>Kalksteinmauer</value>
     </data>
     <data name="MarbleRubble" xml:space="preserve">
-        <value>Marmor-Geröll</value>
+        <value>Marmorgeröll</value>
     </data>
     <data name="MarbleWall" xml:space="preserve">
         <value>Marmormauer</value>
@@ -779,5 +779,53 @@
     </data>
     <data name="MarbleBrickWall" xml:space="preserve">
         <value>Marmorziegelmauer</value>
+    </data>
+    <data name="ObsidianWorked" xml:space="preserve">
+        <value>Bearbeiteter Obsidian</value>
+    </data>
+    <data name="PumiceWorked" xml:space="preserve">
+        <value>Bearbeiteter Bimsstein</value>
+    </data>
+    <data name="PumiceDecorated" xml:space="preserve">
+        <value>Verschönerter Bimsstein</value>
+    </data>
+    <data name="ObsidianDecorated" xml:space="preserve">
+        <value>Verschönerter Obsidian</value>
+    </data>
+    <data name="ObsidianCobbles" xml:space="preserve">
+        <value>Obsidian-Wackenpflaster</value>
+    </data>
+    <data name="PumiceCobbles" xml:space="preserve">
+        <value>Bimsstein-Wackenpflaster</value>
+    </data>
+    <data name="PumicePaving" xml:space="preserve">
+        <value>Bimstein-Pflaster</value>
+    </data>
+    <data name="ObsidianPaving" xml:space="preserve">
+        <value>Obsidian-Pflaster</value>
+    </data>
+    <data name="PumiceRubble" xml:space="preserve">
+        <value>Bimssteingeröll</value>
+    </data>
+    <data name="ObsidianRubble" xml:space="preserve">
+        <value>Obsidiangeröll</value>
+    </data>
+    <data name="PumiceWall" xml:space="preserve">
+        <value>Bimssteinmauer</value>
+    </data>
+    <data name="ObsidianWall" xml:space="preserve">
+        <value>Obsidianmauer</value>
+    </data>
+    <data name="ObsidianBrickWall" xml:space="preserve">
+        <value>Obsidianziegelmauer</value>
+    </data>
+    <data name="PumiceBrickWall" xml:space="preserve">
+        <value>Bimssteinziegelmauer</value>
+    </data>
+    <data name="ObsidianBricks" xml:space="preserve">
+        <value>Obsidian-Steinziegel</value>
+    </data>
+    <data name="PumiceBricks" xml:space="preserve">
+        <value>Bimsstein-Steinziegel</value>
     </data>
 </root>

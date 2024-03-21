@@ -184,6 +184,7 @@ public partial class Chunk
     {
         private readonly Neighborhood<Chunk?> chunks;
         private readonly Neighborhood<(Chunk, Guard)?> neighbors;
+
         private (Task task, Guard guard)? activity;
 
         /// <summary>

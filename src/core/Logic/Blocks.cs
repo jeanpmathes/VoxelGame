@@ -564,7 +564,7 @@ public class Blocks
                 TextureLayout.Uniform("salt")));
 
             WorkedGranite = Register(new BasicBlock(
-                Language.WorkedGranite,
+                Language.GraniteWorked,
                 nameof(WorkedGranite),
                 BlockFlags.Basic,
                 TextureLayout.Uniform("granite_worked")));
@@ -586,6 +586,18 @@ public class Blocks
                 nameof(WorkedMarble),
                 BlockFlags.Basic,
                 TextureLayout.Uniform("marble_worked")));
+
+            WorkedPumice = Register(new BasicBlock(
+                Language.PumiceWorked,
+                nameof(WorkedPumice),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_worked")));
+
+            WorkedObsidian = Register(new BasicBlock(
+                Language.ObsidianWorked,
+                nameof(WorkedObsidian),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_worked")));
 
             DecoratedGranite = Register(new OrientedBlock(
                 Language.GraniteDecorated,
@@ -611,6 +623,18 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.UniqueFront("marble_worked_decorated", "marble_worked")));
 
+            DecoratedPumice = Register(new OrientedBlock(
+                Language.PumiceDecorated,
+                nameof(DecoratedPumice),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("pumice_worked_decorated", "pumice_worked")));
+
+            DecoratedObsidian = Register(new OrientedBlock(
+                Language.ObsidianDecorated,
+                nameof(DecoratedObsidian),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("obsidian_worked_decorated", "obsidian_worked")));
+
             GraniteCobblestone = Register(new BasicBlock(
                 Language.GraniteCobbles,
                 nameof(GraniteCobblestone),
@@ -634,6 +658,18 @@ public class Blocks
                 nameof(MarbleCobblestone),
                 BlockFlags.Basic,
                 TextureLayout.Uniform("marble_cobbles")));
+
+            PumiceCobblestone = Register(new BasicBlock(
+                Language.PumiceCobbles,
+                nameof(PumiceCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_cobbles")));
+
+            ObsidianCobblestone = Register(new BasicBlock(
+                Language.ObsidianCobbles,
+                nameof(ObsidianCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_cobbles")));
 
             GranitePaving = Register(new BasicBlock(
                 Language.GranitePaving,
@@ -659,6 +695,18 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("marble_paving")));
 
+            PumicePaving = Register(new BasicBlock(
+                Language.PumicePaving,
+                nameof(PumicePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_paving")));
+
+            ObsidianPaving = Register(new BasicBlock(
+                Language.ObsidianPaving,
+                nameof(ObsidianPaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_paving")));
+
             GraniteRubble = Register(new PermeableConstructionBlock(
                 Language.GraniteRubble,
                 nameof(GraniteRubble),
@@ -678,6 +726,16 @@ public class Blocks
                 Language.MarbleRubble,
                 nameof(MarbleRubble),
                 TextureLayout.Uniform("marble_rubble")));
+
+            PumiceRubble = Register(new PermeableConstructionBlock(
+                Language.PumiceRubble,
+                nameof(PumiceRubble),
+                TextureLayout.Uniform("pumice_rubble")));
+
+            ObsidianRubble = Register(new PermeableConstructionBlock(
+                Language.ObsidianRubble,
+                nameof(ObsidianRubble),
+                TextureLayout.Uniform("obsidian_rubble")));
 
             GraniteWall = Register(new WallBlock(
                 Language.GraniteWall,
@@ -711,6 +769,22 @@ public class Blocks
                 "wall_extension",
                 "wall_extension_straight"));
 
+            PumiceWall = Register(new WallBlock(
+                Language.PumiceWall,
+                nameof(PumiceWall),
+                "pumice_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            ObsidianWall = Register(new WallBlock(
+                Language.ObsidianWall,
+                nameof(ObsidianWall),
+                "obsidian_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
             GraniteBricks = Register(new ConstructionBlock(
                 Language.GraniteBricks,
                 nameof(GraniteBricks),
@@ -730,6 +804,16 @@ public class Blocks
                 Language.MarbleBricks,
                 nameof(MarbleBricks),
                 TextureLayout.Uniform("marble_bricks")));
+
+            PumiceBricks = Register(new ConstructionBlock(
+                Language.PumiceBricks,
+                nameof(PumiceBricks),
+                TextureLayout.Uniform("pumice_bricks")));
+
+            ObsidianBricks = Register(new ConstructionBlock(
+                Language.ObsidianBricks,
+                nameof(ObsidianBricks),
+                TextureLayout.Uniform("obsidian_bricks")));
 
             GraniteBrickWall = Register(new WallBlock(
                 Language.GraniteBrickWall,
@@ -759,6 +843,22 @@ public class Blocks
                 Language.MarbleBrickWall,
                 nameof(MarbleBrickWall),
                 "marble_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            PumiceBrickWall = Register(new WallBlock(
+                Language.PumiceBrickWall,
+                nameof(PumiceBrickWall),
+                "pumice_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            ObsidianBrickWall = Register(new WallBlock(
+                Language.ObsidianBrickWall,
+                nameof(ObsidianBrickWall),
+                "obsidian_bricks",
                 "wall_post",
                 "wall_extension",
                 "wall_extension_straight"));
@@ -1313,6 +1413,18 @@ public class Blocks
     public Block WorkedMarble { get; }
 
     /// <summary>
+    ///     Worked pumice is a processed pumice block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedPumice { get; }
+
+    /// <summary>
+    ///     Worked obsidian is a processed obsidian block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedObsidian { get; }
+
+    /// <summary>
     ///     Worked granite with decorations carved into one side.
     ///     The carvings show a pattern of geometric shapes.
     /// </summary>
@@ -1335,6 +1447,18 @@ public class Blocks
     ///     The carvings depict an ancient temple.
     /// </summary>
     public Block DecoratedMarble { get; }
+
+    /// <summary>
+    ///     Worked pumice with decorations carved into one side.
+    ///     The carvings depict heat rising from the earth.
+    /// </summary>
+    public Block DecoratedPumice { get; }
+
+    /// <summary>
+    ///     Worked obsidian with decorations carved into one side.
+    ///     The carvings depict an ancient artifact.
+    /// </summary>
+    public Block DecoratedObsidian { get; }
 
     /// <summary>
     ///     Marble cobbles, connected by mortar, to form basic road paving.
@@ -1361,6 +1485,18 @@ public class Blocks
     public Block MarbleCobblestone { get; }
 
     /// <summary>
+    ///     Pumice cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block PumiceCobblestone { get; }
+
+    /// <summary>
+    ///     Obsidian cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block ObsidianCobblestone { get; }
+
+    /// <summary>
     ///     Paving made out of processed granite.
     ///     The processing ensures a smoother surface.
     /// </summary>
@@ -1383,6 +1519,18 @@ public class Blocks
     ///     The processing ensures a smoother surface.
     /// </summary>
     public Block MarblePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed pumice.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block PumicePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed obsidian.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block ObsidianPaving { get; }
 
     /// <summary>
     ///     When breaking granite, it turns into granite rubble.
@@ -1409,6 +1557,18 @@ public class Blocks
     public Block MarbleRubble { get; }
 
     /// <summary>
+    ///     When breaking pumice, it turns into pumice rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block PumiceRubble { get; }
+
+    /// <summary>
+    ///     When breaking obsidian, it turns into obsidian rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block ObsidianRubble { get; }
+
+    /// <summary>
     ///     A wall made out of granite rubble.
     ///     Walls are used to create barriers and can connect to other blocks.
     /// </summary>
@@ -1433,6 +1593,18 @@ public class Blocks
     public Block MarbleWall { get; }
 
     /// <summary>
+    ///     A wall made out of pumice rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block PumiceWall { get; }
+
+    /// <summary>
+    ///     A wall made out of obsidian rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block ObsidianWall { get; }
+
+    /// <summary>
     ///     Granite, cut into bricks and connected with mortar.
     /// </summary>
     public Block GraniteBricks { get; }
@@ -1453,6 +1625,16 @@ public class Blocks
     public Block MarbleBricks { get; }
 
     /// <summary>
+    ///     Pumice, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block PumiceBricks { get; }
+
+    /// <summary>
+    ///     Obsidian, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block ObsidianBricks { get; }
+
+    /// <summary>
     ///     A wall constructed using granite bricks.
     /// </summary>
     public Block GraniteBrickWall { get; }
@@ -1471,6 +1653,16 @@ public class Blocks
     ///     A wall constructed using marble bricks.
     /// </summary>
     public Block MarbleBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using pumice bricks.
+    /// </summary>
+    public Block PumiceBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using obsidian bricks.
+    /// </summary>
+    public Block ObsidianBrickWall { get; }
 
     #endregion NEW BLOCKS
 }

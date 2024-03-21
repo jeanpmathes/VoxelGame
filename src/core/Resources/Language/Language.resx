@@ -690,7 +690,7 @@
     <data name="LimestoneWorked" xml:space="preserve">
         <value>Worked Limestone</value>
     </data>
-    <data name="WorkedGranite" xml:space="preserve">
+    <data name="GraniteWorked" xml:space="preserve">
         <value>Worked Granite</value>
     </data>
     <data name="SandstoneWorked" xml:space="preserve">
@@ -779,5 +779,53 @@
     </data>
     <data name="MarbleBrickWall" xml:space="preserve">
         <value>Marble Brick Wall</value>
+    </data>
+    <data name="ObsidianWorked" xml:space="preserve">
+        <value>Worked Obsidian</value>
+    </data>
+    <data name="PumiceWorked" xml:space="preserve">
+        <value>Worked Pumice</value>
+    </data>
+    <data name="PumiceDecorated" xml:space="preserve">
+        <value>Decorated Pumice</value>
+    </data>
+    <data name="ObsidianDecorated" xml:space="preserve">
+        <value>Decorated Obsidian</value>
+    </data>
+    <data name="ObsidianCobbles" xml:space="preserve">
+        <value>Obsidian Cobbles</value>
+    </data>
+    <data name="PumiceCobbles" xml:space="preserve">
+        <value>Pumice Cobbles</value>
+    </data>
+    <data name="PumicePaving" xml:space="preserve">
+        <value>Pumice Paving</value>
+    </data>
+    <data name="ObsidianPaving" xml:space="preserve">
+        <value>Obsidian Paving</value>
+    </data>
+    <data name="PumiceRubble" xml:space="preserve">
+        <value>Pumice Rubble</value>
+    </data>
+    <data name="ObsidianRubble" xml:space="preserve">
+        <value>Obsidian Rubble</value>
+    </data>
+    <data name="PumiceWall" xml:space="preserve">
+        <value>Pumice Wall</value>
+    </data>
+    <data name="ObsidianWall" xml:space="preserve">
+        <value>Obsidian Wall</value>
+    </data>
+    <data name="ObsidianBrickWall" xml:space="preserve">
+        <value>Obsidian Brick Wall</value>
+    </data>
+    <data name="PumiceBrickWall" xml:space="preserve">
+        <value>Pumice Brick Wall</value>
+    </data>
+    <data name="ObsidianBricks" xml:space="preserve">
+        <value>Obsidian Bricks</value>
+    </data>
+    <data name="PumiceBricks" xml:space="preserve">
+        <value>Pumice Bricks</value>
     </data>
 </root>
