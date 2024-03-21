@@ -863,6 +863,36 @@ public class Blocks
                 "wall_extension",
                 "wall_extension_straight"));
 
+            GraniteColumn = Register(new ConstructionBlock(
+                Language.GraniteColumn,
+                nameof(GraniteColumn),
+                TextureLayout.Column("granite_column", "granite_worked")));
+
+            SandstoneColumn = Register(new ConstructionBlock(
+                Language.SandstoneColumn,
+                nameof(SandstoneColumn),
+                TextureLayout.Column("sandstone_column", "sandstone_worked")));
+
+            LimestoneColumn = Register(new ConstructionBlock(
+                Language.LimestoneColumn,
+                nameof(LimestoneColumn),
+                TextureLayout.Column("limestone_column", "limestone_worked")));
+
+            MarbleColumn = Register(new ConstructionBlock(
+                Language.MarbleColumn,
+                nameof(MarbleColumn),
+                TextureLayout.Column("marble_column", "marble_worked")));
+
+            PumiceColumn = Register(new ConstructionBlock(
+                Language.PumiceColumn,
+                nameof(PumiceColumn),
+                TextureLayout.Column("pumice_column", "pumice_worked")));
+
+            ObsidianColumn = Register(new ConstructionBlock(
+                Language.ObsidianColumn,
+                nameof(ObsidianColumn),
+                TextureLayout.Column("obsidian_column", "obsidian_worked")));
+
             if (allBlocks.Count > BlockLimit)
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -1663,6 +1693,42 @@ public class Blocks
     ///     A wall constructed using obsidian bricks.
     /// </summary>
     public Block ObsidianBrickWall { get; }
+
+    /// <summary>
+    ///     A column, made out of granite.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block GraniteColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of sandstone.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block SandstoneColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of limestone.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block LimestoneColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of marble.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block MarbleColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of pumice.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block PumiceColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of obsidian.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block ObsidianColumn { get; }
 
     #endregion NEW BLOCKS
 }

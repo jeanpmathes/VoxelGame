@@ -828,4 +828,22 @@
     <data name="PumiceBricks" xml:space="preserve">
         <value>Pumice Bricks</value>
     </data>
+    <data name="LimestoneColumn" xml:space="preserve">
+        <value>Limestone Column</value>
+    </data>
+    <data name="MarbleColumn" xml:space="preserve">
+        <value>Marble Column</value>
+    </data>
+    <data name="ObsidianColumn" xml:space="preserve">
+        <value>Obsidian Column</value>
+    </data>
+    <data name="SandstoneColumn" xml:space="preserve">
+        <value>Sandstone Column</value>
+    </data>
+    <data name="GraniteColumn" xml:space="preserve">
+        <value>Granite Column</value>
+    </data>
+    <data name="PumiceColumn" xml:space="preserve">
+        <value>Pumice Column</value>
+    </data>
 </root>
