@@ -334,9 +334,9 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("checkerboard_tiles_white")));
 
-            Bricks = Register(new ConstructionBlock(
-                Language.Bricks,
-                nameof(Bricks),
+            ClayBricks = Register(new ConstructionBlock(
+                Language.ClayBricks,
+                nameof(ClayBricks),
                 TextureLayout.Uniform("bricks")));
 
             RedPlastic = Register(new ConstructionBlock(
@@ -405,9 +405,9 @@ public class Blocks
                 "fence_post",
                 "fence_extension"));
 
-            WallBricks = Register(new WallBlock(
-                Language.BrickWall,
-                nameof(WallBricks),
+            ClayBrickWall = Register(new WallBlock(
+                Language.ClayBrickWall,
+                nameof(ClayBrickWall),
                 "bricks",
                 "wall_post",
                 "wall_extension",
@@ -707,6 +707,58 @@ public class Blocks
                 Language.MarbleWall,
                 nameof(MarbleWall),
                 "marble_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            GraniteBricks = Register(new ConstructionBlock(
+                Language.GraniteBricks,
+                nameof(GraniteBricks),
+                TextureLayout.Uniform("granite_bricks")));
+
+            SandstoneBricks = Register(new ConstructionBlock(
+                Language.SandstoneBricks,
+                nameof(SandstoneBricks),
+                TextureLayout.Uniform("sandstone_bricks")));
+
+            LimestoneBricks = Register(new ConstructionBlock(
+                Language.LimestoneBricks,
+                nameof(LimestoneBricks),
+                TextureLayout.Uniform("limestone_bricks")));
+
+            MarbleBricks = Register(new ConstructionBlock(
+                Language.MarbleBricks,
+                nameof(MarbleBricks),
+                TextureLayout.Uniform("marble_bricks")));
+
+            GraniteBrickWall = Register(new WallBlock(
+                Language.GraniteBrickWall,
+                nameof(GraniteBrickWall),
+                "granite_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            SandstoneBrickWall = Register(new WallBlock(
+                Language.SandstoneBrickWall,
+                nameof(SandstoneBrickWall),
+                "sandstone_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            LimestoneBrickWall = Register(new WallBlock(
+                Language.LimestoneBrickWall,
+                nameof(LimestoneBrickWall),
+                "limestone_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            MarbleBrickWall = Register(new WallBlock(
+                Language.MarbleBrickWall,
+                nameof(MarbleBrickWall),
+                "marble_bricks",
                 "wall_post",
                 "wall_extension",
                 "wall_extension_straight"));
@@ -1019,9 +1071,10 @@ public class Blocks
     public Block TilesCheckerboardWhite { get; }
 
     /// <summary>
-    ///     Bricks are a simple construction material.
+    ///     Clay bricks, placed as a block and connected with mortar.
+    ///     This block is a construction material.
     /// </summary>
-    public Block Bricks { get; }
+    public Block ClayBricks { get; }
 
     /// <summary>
     ///     Red plastic is a construction material.
@@ -1091,10 +1144,10 @@ public class Blocks
     public Block FenceWood { get; }
 
     /// <summary>
-    ///     The brick wall is similar to all other walls, and made out of clay bricks.
-    ///     They do not prevent jumping over them, and can connect to other blocks.
+    ///     A wall constructed using clay bricks.
+    ///     The wall does not prevent jumping over it, and can connect to other blocks.
     /// </summary>
-    public Block WallBricks { get; }
+    public Block ClayBrickWall { get; }
 
     /// <summary>
     ///     The steel door allows closing of a room. It can be opened and closed.
@@ -1378,6 +1431,46 @@ public class Blocks
     ///     Walls are used to create barriers and can connect to other blocks.
     /// </summary>
     public Block MarbleWall { get; }
+
+    /// <summary>
+    ///     Granite, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block GraniteBricks { get; }
+
+    /// <summary>
+    ///     Sandstone, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block SandstoneBricks { get; }
+
+    /// <summary>
+    ///     Limestone, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block LimestoneBricks { get; }
+
+    /// <summary>
+    ///     Marble, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block MarbleBricks { get; }
+
+    /// <summary>
+    ///     A wall constructed using granite bricks.
+    /// </summary>
+    public Block GraniteBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using sandstone bricks.
+    /// </summary>
+    public Block SandstoneBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using limestone bricks.
+    /// </summary>
+    public Block LimestoneBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using marble bricks.
+    /// </summary>
+    public Block MarbleBrickWall { get; }
 
     #endregion NEW BLOCKS
 }

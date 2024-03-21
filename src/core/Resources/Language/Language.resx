@@ -147,12 +147,12 @@
     <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>
-    <data name="Bricks" xml:space="preserve">
-    <value>Bricks</value>
-  </data>
-    <data name="BrickWall" xml:space="preserve">
-    <value>Brick Wall</value>
-  </data>
+    <data name="ClayBricks" xml:space="preserve">
+        <value>Clay Bricks</value>
+    </data>
+    <data name="ClayBrickWall" xml:space="preserve">
+        <value>Clay Brick Wall</value>
+    </data>
     <data name="Cactus" xml:space="preserve">
     <value>Cactus</value>
   </data>
@@ -755,5 +755,29 @@
     </data>
     <data name="MarbleWall" xml:space="preserve">
         <value>Marble Wall</value>
+    </data>
+    <data name="GraniteBricks" xml:space="preserve">
+        <value>Granite Bricks</value>
+    </data>
+    <data name="SandstoneBricks" xml:space="preserve">
+        <value>Sandstone Bricks</value>
+    </data>
+    <data name="MarbleBricks" xml:space="preserve">
+        <value>Marble Bricks</value>
+    </data>
+    <data name="LimestoneBricks" xml:space="preserve">
+        <value>Limestone Bricks</value>
+    </data>
+    <data name="GraniteBrickWall" xml:space="preserve">
+        <value>Granite Brick Wall</value>
+    </data>
+    <data name="LimestoneBrickWall" xml:space="preserve">
+        <value>Limestone Brick Wall</value>
+    </data>
+    <data name="SandstoneBrickWall" xml:space="preserve">
+        <value>Sandstone Brick Wall</value>
+    </data>
+    <data name="MarbleBrickWall" xml:space="preserve">
+        <value>Marble Brick Wall</value>
     </data>
 </root>
