@@ -161,12 +161,6 @@ public class Blocks
                 nameof(Gravel),
                 TextureLayout.Uniform("gravel")));
 
-            OreCoal = Register(new BasicBlock(
-                Language.CoalOre,
-                nameof(OreCoal),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_coal")));
-
             OreIron = Register(new BasicBlock(
                 Language.IronOre,
                 nameof(OreIron),
@@ -893,6 +887,24 @@ public class Blocks
                 nameof(ObsidianColumn),
                 TextureLayout.Column("obsidian_column", "obsidian_worked")));
 
+            Lignite = Register(new BasicBlock(
+                Language.CoalLignite,
+                nameof(Lignite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_lignite")));
+
+            BituminousCoal = Register(new BasicBlock(
+                Language.CoalBituminous,
+                nameof(BituminousCoal),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_bituminous")));
+
+            Anthracite = Register(new BasicBlock(
+                Language.CoalAnthracite,
+                nameof(Anthracite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_anthracite")));
+
             if (allBlocks.Count > BlockLimit)
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -1070,11 +1082,6 @@ public class Blocks
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
     /// </summary>
     public Block Gravel { get; }
-
-    /// <summary>
-    ///     Coal ore is stone that contains coal.
-    /// </summary>
-    public Block OreCoal { get; }
 
     /// <summary>
     ///     Iron ore is stone that contains iron.
@@ -1729,6 +1736,24 @@ public class Blocks
     ///     Columns serve both as decoration and as a structural element.
     /// </summary>
     public Block ObsidianColumn { get; }
+
+    /// <summary>
+    ///     Lignite is a type of coal.
+    ///     It is the lowest rank of coal but can be found near the surface.
+    /// </summary>
+    public Block Lignite { get; }
+
+    /// <summary>
+    ///     Bituminous coal is a type of coal.
+    ///     It is of medium rank and is the most abundant type of coal.
+    /// </summary>
+    public Block BituminousCoal { get; }
+
+    /// <summary>
+    ///     Anthracite is a type of coal.
+    ///     It is the highest rank of coal and is the hardest and most carbon-rich.
+    /// </summary>
+    public Block Anthracite { get; }
 
     #endregion NEW BLOCKS
 }

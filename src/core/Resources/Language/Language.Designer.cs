@@ -240,11 +240,29 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Coal Ore.
+        ///   Looks up a localized string similar to Anthracite.
         /// </summary>
-        public static string CoalOre {
+        public static string CoalAnthracite {
             get {
-                return ResourceManager.GetString("CoalOre", resourceCulture);
+                return ResourceManager.GetString("CoalAnthracite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bituminous Coal.
+        /// </summary>
+        public static string CoalBituminous {
+            get {
+                return ResourceManager.GetString("CoalBituminous", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lignite.
+        /// </summary>
+        public static string CoalLignite {
+            get {
+                return ResourceManager.GetString("CoalLignite", resourceCulture);
             }
         }
         

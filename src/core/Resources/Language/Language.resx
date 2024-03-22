@@ -165,9 +165,6 @@
     <data name="CheckerboardTilesWhite" xml:space="preserve">
     <value>White Checkerboard Tiles</value>
   </data>
-    <data name="CoalOre" xml:space="preserve">
-    <value>Coal Ore</value>
-  </data>
     <data name="Concrete" xml:space="preserve">
     <value>Concrete</value>
   </data>
@@ -845,5 +842,14 @@
     </data>
     <data name="PumiceColumn" xml:space="preserve">
         <value>Pumice Column</value>
+    </data>
+    <data name="CoalLignite" xml:space="preserve">
+        <value>Lignite</value>
+    </data>
+    <data name="CoalBituminous" xml:space="preserve">
+        <value>Bituminous Coal</value>
+    </data>
+    <data name="CoalAnthracite" xml:space="preserve">
+        <value>Anthracite</value>
     </data>
 </root>
