@@ -45,6 +45,8 @@ public class PropertyBasedTreeControl : TreeControl
         private TreeNode current = tree.RootNode;
         private int index;
 
+        private bool top = true;
+
         private TreeNode? FindNode(string name)
         {
             while (current.NodeCount > index)
@@ -60,7 +62,7 @@ public class PropertyBasedTreeControl : TreeControl
             return null;
         }
 
-        private TreeNode FindOrCreateNode(string name, string text, out bool created)
+        private TreeNode FindOrCreateNode(string name, string text)
         {
             TreeNode? node = FindNode(name);
 
@@ -70,14 +72,10 @@ public class PropertyBasedTreeControl : TreeControl
             {
                 if (node.Text != text)
                     node.Text = text;
-
-                created = false;
             }
             else
             {
                 node = current.AddNode(text, name);
-
-                created = true;
             }
 
             return node;
@@ -86,12 +84,16 @@ public class PropertyBasedTreeControl : TreeControl
         public override void Visit(Group group)
         {
             TreeNode previous = current;
-            current = FindOrCreateNode(group.Name, group.Name, out bool created);
+            current = FindOrCreateNode(group.Name, group.Name);
+
+            if (top)
+            {
+                current.Open();
+                top = false;
+            }
 
             int previousIndex = index;
             index = 0;
-
-            TreeNode groupNode = current;
 
             base.Visit(group);
 
@@ -101,15 +103,13 @@ public class PropertyBasedTreeControl : TreeControl
                 current.RemoveChild(target, dispose: true);
             }
 
-            if (created) groupNode.ExpandAll();
-
             current = previous;
             index = previousIndex;
         }
 
         public override void Visit(Error error)
         {
-            TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}", out _);
+            TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
 
             string icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
             Color color = error.IsCritical ? Colors.Error : Colors.Warning;
@@ -119,22 +119,22 @@ public class PropertyBasedTreeControl : TreeControl
 
         public override void Visit(Message message)
         {
-            FindOrCreateNode(message.Name, $"{message.Name}: {message.Text}", out _);
+            FindOrCreateNode(message.Name, $"{message.Name}: {message.Text}");
         }
 
         public override void Visit(Integer integer)
         {
-            FindOrCreateNode(integer.Name, $"{integer.Name}: {integer.Value}", out _);
+            FindOrCreateNode(integer.Name, $"{integer.Name}: {integer.Value}");
         }
 
         public override void Visit(FileSystemPath path)
         {
-            FindOrCreateNode(path.Name, $"{path.Name}: {path.Path.FullName}", out _);
+            FindOrCreateNode(path.Name, $"{path.Name}: {path.Path.FullName}");
         }
 
         public override void Visit(Measure measure)
         {
-            FindOrCreateNode(measure.Name, $"{measure.Name}: {measure.Value}", out _);
+            FindOrCreateNode(measure.Name, $"{measure.Name}: {measure.Value}");
         }
     }
 }

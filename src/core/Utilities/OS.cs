@@ -41,9 +41,9 @@ public class OS
         {
             file.WriteAllText(text);
         }
-        catch (IOException)
+        catch (IOException e)
         {
-            logger.LogError("Failed to fill {File} with: {Text}", file.FullName, text);
+            logger.LogError(e, "Failed to fill {File} with: {Text}", file.FullName, text);
 
             return;
         }

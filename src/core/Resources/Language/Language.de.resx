@@ -147,10 +147,10 @@
     <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>
-    <data name="Bricks" xml:space="preserve">
+    <data name="ClayBricks" xml:space="preserve">
     <value>Ziegelsteine</value>
   </data>
-    <data name="BrickWall" xml:space="preserve">
+    <data name="ClayBrickWall" xml:space="preserve">
     <value>Ziegelmauer</value>
   </data>
     <data name="Cactus" xml:space="preserve">
@@ -165,19 +165,16 @@
     <data name="CheckerboardTilesWhite" xml:space="preserve">
     <value>Weiße Schachbrettfliesen</value>
   </data>
-    <data name="CoalOre" xml:space="preserve">
-    <value>Kohleerz</value>
-  </data>
     <data name="Concrete" xml:space="preserve">
     <value>Beton</value>
   </data>
     <data name="CrudeOil" xml:space="preserve">
     <value>Rohöl</value>
   </data>
-    <data name="DecoratedCarpet" xml:space="preserve">
+    <data name="CarpetDecorated" xml:space="preserve">
     <value>Geschmückter Teppich</value>
   </data>
-    <data name="DecoratedWool" xml:space="preserve">
+    <data name="WoolDecorated" xml:space="preserve">
     <value>Geschmückte Wolle</value>
   </data>
     <data name="Dirt" xml:space="preserve">
@@ -204,9 +201,6 @@
     <data name="GlassPane" xml:space="preserve">
     <value>Glasscheibe</value>
   </data>
-    <data name="GoldOre" xml:space="preserve">
-    <value>Golderz</value>
-  </data>
     <data name="Grass" xml:space="preserve">
     <value>Gras</value>
   </data>
@@ -218,9 +212,6 @@
   </data>
     <data name="InputNotValid" xml:space="preserve">
     <value>Eingabe nicht gültig!</value>
-  </data>
-    <data name="IronOre" xml:space="preserve">
-    <value>Eisenerz</value>
   </data>
     <data name="Ladder" xml:space="preserve">
     <value>Leiter</value>
@@ -270,9 +261,6 @@
     <data name="Path" xml:space="preserve">
     <value>Pfad</value>
   </data>
-    <data name="PavingStone" xml:space="preserve">
-    <value>Pflasterstein</value>
-  </data>
     <data name="Petrol" xml:space="preserve">
     <value>Benzin</value>
   </data>
@@ -296,12 +284,6 @@
   </data>
     <data name="RedPlastic" xml:space="preserve">
     <value>Roter Plastik</value>
-  </data>
-    <data name="Rubble" xml:space="preserve">
-    <value>Bruchstein</value>
-  </data>
-    <data name="RubbleWall" xml:space="preserve">
-    <value>Bruchsteinmauer</value>
   </data>
     <data name="Sand" xml:space="preserve">
     <value>Sand</value>
@@ -329,9 +311,6 @@
   </data>
     <data name="SteelPipeStraight" xml:space="preserve">
     <value>Gerades Stahlrohr</value>
-  </data>
-    <data name="StoneFace" xml:space="preserve">
-    <value>Steinernes Gesicht</value>
   </data>
     <data name="TallFlower" xml:space="preserve">
     <value>Hohe Blume</value>
@@ -380,9 +359,6 @@
   </data>
     <data name="Wool" xml:space="preserve">
     <value>Wolle</value>
-  </data>
-    <data name="WorkedStone" xml:space="preserve">
-    <value>Bearbeiteter Stein</value>
   </data>
     <data name="Worlds" xml:space="preserve">
     <value>Welten</value>
@@ -698,5 +674,269 @@
     </data>
     <data name="KeyUnlockMouse" xml:space="preserve">
         <value>Maus Freigeben</value>
+    </data>
+    <data name="MarbleWorked" xml:space="preserve">
+        <value>Bearbeiteter Marmor</value>
+    </data>
+    <data name="LimestoneWorked" xml:space="preserve">
+        <value>Bearbeiteter Kalkstein</value>
+    </data>
+    <data name="GraniteWorked" xml:space="preserve">
+        <value>Bearbeiteter Granit</value>
+    </data>
+    <data name="SandstoneWorked" xml:space="preserve">
+        <value>Bearbeiteter Sandstein</value>
+    </data>
+    <data name="GraniteDecorated" xml:space="preserve">
+        <value>Verschönerter Granit</value>
+    </data>
+    <data name="LimestoneDecorated" xml:space="preserve">
+        <value>Verschönerter Kalkstein</value>
+    </data>
+    <data name="SandstoneDecorated" xml:space="preserve">
+        <value>Verschönerter Sandstein</value>
+    </data>
+    <data name="MarbleDecorated" xml:space="preserve">
+        <value>Verschönerter Marmor</value>
+    </data>
+    <data name="GraniteCobbles" xml:space="preserve">
+        <value>Granit-Wackenpflaster</value>
+    </data>
+    <data name="GranitePaving" xml:space="preserve">
+        <value>Granit-Pflaster</value>
+    </data>
+    <data name="LimestonePaving" xml:space="preserve">
+        <value>Kalkstein-Pflaster</value>
+    </data>
+    <data name="LimestoneCobbles" xml:space="preserve">
+        <value>Kalkstein-Wackenpflaster</value>
+    </data>
+    <data name="MarbleCobbles" xml:space="preserve">
+        <value>Marmor-Wackenpflaster</value>
+    </data>
+    <data name="MarblePaving" xml:space="preserve">
+        <value>Marmor-Pflaster</value>
+    </data>
+    <data name="SandstoneCobbles" xml:space="preserve">
+        <value>Sandstein-Wackenpflaster</value>
+    </data>
+    <data name="SandstonePaving" xml:space="preserve">
+        <value>Sandstein-Pflaster</value>
+    </data>
+    <data name="GraniteRubble" xml:space="preserve">
+        <value>Granitgeröll</value>
+    </data>
+    <data name="GraniteWall" xml:space="preserve">
+        <value>Granitmauer</value>
+    </data>
+    <data name="SandstoneRubble" xml:space="preserve">
+        <value>Sandsteingeröll</value>
+    </data>
+    <data name="SandstoneWall" xml:space="preserve">
+        <value>Sandsteinmauer</value>
+    </data>
+    <data name="LimestoneRubble" xml:space="preserve">
+        <value>Kalksteingeröll</value>
+    </data>
+    <data name="LimestoneWall" xml:space="preserve">
+        <value>Kalksteinmauer</value>
+    </data>
+    <data name="MarbleRubble" xml:space="preserve">
+        <value>Marmorgeröll</value>
+    </data>
+    <data name="MarbleWall" xml:space="preserve">
+        <value>Marmormauer</value>
+    </data>
+    <data name="SandstoneBricks" xml:space="preserve">
+        <value>Sandstein-Steinziegel</value>
+    </data>
+    <data name="MarbleBricks" xml:space="preserve">
+        <value>Marmor-Steinziegel</value>
+    </data>
+    <data name="LimestoneBricks" xml:space="preserve">
+        <value>Kalkstein-Steinziegel</value>
+    </data>
+    <data name="GraniteBricks" xml:space="preserve">
+        <value>Granit-Steinziegel</value>
+    </data>
+    <data name="GraniteBrickWall" xml:space="preserve">
+        <value>Granitziegelmauer</value>
+    </data>
+    <data name="LimestoneBrickWall" xml:space="preserve">
+        <value>Kalksteinziegelmauer</value>
+    </data>
+    <data name="SandstoneBrickWall" xml:space="preserve">
+        <value>Sandsteinziegelmauer</value>
+    </data>
+    <data name="MarbleBrickWall" xml:space="preserve">
+        <value>Marmorziegelmauer</value>
+    </data>
+    <data name="ObsidianWorked" xml:space="preserve">
+        <value>Bearbeiteter Obsidian</value>
+    </data>
+    <data name="PumiceWorked" xml:space="preserve">
+        <value>Bearbeiteter Bimsstein</value>
+    </data>
+    <data name="PumiceDecorated" xml:space="preserve">
+        <value>Verschönerter Bimsstein</value>
+    </data>
+    <data name="ObsidianDecorated" xml:space="preserve">
+        <value>Verschönerter Obsidian</value>
+    </data>
+    <data name="ObsidianCobbles" xml:space="preserve">
+        <value>Obsidian-Wackenpflaster</value>
+    </data>
+    <data name="PumiceCobbles" xml:space="preserve">
+        <value>Bimsstein-Wackenpflaster</value>
+    </data>
+    <data name="PumicePaving" xml:space="preserve">
+        <value>Bimstein-Pflaster</value>
+    </data>
+    <data name="ObsidianPaving" xml:space="preserve">
+        <value>Obsidian-Pflaster</value>
+    </data>
+    <data name="PumiceRubble" xml:space="preserve">
+        <value>Bimssteingeröll</value>
+    </data>
+    <data name="ObsidianRubble" xml:space="preserve">
+        <value>Obsidiangeröll</value>
+    </data>
+    <data name="PumiceWall" xml:space="preserve">
+        <value>Bimssteinmauer</value>
+    </data>
+    <data name="ObsidianWall" xml:space="preserve">
+        <value>Obsidianmauer</value>
+    </data>
+    <data name="ObsidianBrickWall" xml:space="preserve">
+        <value>Obsidianziegelmauer</value>
+    </data>
+    <data name="PumiceBrickWall" xml:space="preserve">
+        <value>Bimssteinziegelmauer</value>
+    </data>
+    <data name="ObsidianBricks" xml:space="preserve">
+        <value>Obsidian-Steinziegel</value>
+    </data>
+    <data name="PumiceBricks" xml:space="preserve">
+        <value>Bimsstein-Steinziegel</value>
+    </data>
+    <data name="LimestoneColumn" xml:space="preserve">
+        <value>Kalksteinsäule</value>
+    </data>
+    <data name="MarbleColumn" xml:space="preserve">
+        <value>Marmorsäule</value>
+    </data>
+    <data name="ObsidianColumn" xml:space="preserve">
+        <value>Obsidiansäule</value>
+    </data>
+    <data name="SandstoneColumn" xml:space="preserve">
+        <value>Sandsteinsäule</value>
+    </data>
+    <data name="GraniteColumn" xml:space="preserve">
+        <value>Granitsäule</value>
+    </data>
+    <data name="PumiceColumn" xml:space="preserve">
+        <value>Bimssteinsäule</value>
+    </data>
+    <data name="CoalLignite" xml:space="preserve">
+        <value>Braunkohle</value>
+    </data>
+    <data name="CoalBituminous" xml:space="preserve">
+        <value>Bitumenkohle</value>
+    </data>
+    <data name="CoalAnthracite" xml:space="preserve">
+        <value>Anthrazit</value>
+    </data>
+    <data name="OreMagnetite" xml:space="preserve">
+        <value>Magnetit</value>
+    </data>
+    <data name="OreHematite" xml:space="preserve">
+        <value>Hämatit</value>
+    </data>
+    <data name="OreNativeGold" xml:space="preserve">
+        <value>Gediegenes Gold</value>
+    </data>
+    <data name="OreNativeSilver" xml:space="preserve">
+        <value>Gediegenes Silber</value>
+    </data>
+    <data name="OreNativePlatinum" xml:space="preserve">
+        <value>Gediegenes Platin</value>
+    </data>
+    <data name="OreNativeCopper" xml:space="preserve">
+        <value>Gediegenes Kupfer</value>
+    </data>
+    <data name="OreChalcopyrite" xml:space="preserve">
+        <value>Kupferkies</value>
+    </data>
+    <data name="OreMalachite" xml:space="preserve">
+        <value>Malachit</value>
+    </data>
+    <data name="OreElectrum" xml:space="preserve">
+        <value>Elektrum</value>
+    </data>
+    <data name="OreBauxite" xml:space="preserve">
+        <value>Bauxit</value>
+    </data>
+    <data name="OreGalena" xml:space="preserve">
+        <value>Bleiglanz</value>
+    </data>
+    <data name="OreCassiterite" xml:space="preserve">
+        <value>Kassiterit</value>
+    </data>
+    <data name="OreCinnabar" xml:space="preserve">
+        <value>Zinnober</value>
+    </data>
+    <data name="OreSphalerite" xml:space="preserve">
+        <value>Zinkblende</value>
+    </data>
+    <data name="OreChromite" xml:space="preserve">
+        <value>Chromit</value>
+    </data>
+    <data name="OrePyrolusite" xml:space="preserve">
+        <value>Pyrolusit</value>
+    </data>
+    <data name="OreRutile" xml:space="preserve">
+        <value>Rutil</value>
+    </data>
+    <data name="OrePentlandite" xml:space="preserve">
+        <value>Pentlandit</value>
+    </data>
+    <data name="OreZircon" xml:space="preserve">
+        <value>Zirkon</value>
+    </data>
+    <data name="OreDolomite" xml:space="preserve">
+        <value>Dolomit</value>
+    </data>
+    <data name="OreCelestine" xml:space="preserve">
+        <value>Coelestin</value>
+    </data>
+    <data name="OreUraninite" xml:space="preserve">
+        <value>Uraninit</value>
+    </data>
+    <data name="OreBismuthinite" xml:space="preserve">
+        <value>Wismuthinit</value>
+    </data>
+    <data name="OreBeryl" xml:space="preserve">
+        <value>Beryll</value>
+    </data>
+    <data name="OreMolybdenite" xml:space="preserve">
+        <value>Molybdänit</value>
+    </data>
+    <data name="OreCobaltite" xml:space="preserve">
+        <value>Kobaltit</value>
+    </data>
+    <data name="OreSpodumene" xml:space="preserve">
+        <value>Spodumen</value>
+    </data>
+    <data name="OreVanadinite" xml:space="preserve">
+        <value>Vanadinit</value>
+    </data>
+    <data name="OreScheelite" xml:space="preserve">
+        <value>Scheelit</value>
+    </data>
+    <data name="OreGreenockite" xml:space="preserve">
+        <value>Greenockit</value>
+    </data>
+    <data name="Rust" xml:space="preserve">
+        <value>Rost</value>
     </data>
 </root>

@@ -21,7 +21,7 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
 
-#pragma warning disable S1192 // Definition class
+#pragma warning disable S1192 // Definition class.
 
 /// <summary>
 ///     Contains all block definitions of the core game.
@@ -35,14 +35,14 @@ public class Blocks
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
-    private readonly List<Block> blockList = new();
+    private readonly List<Block> blockList = [];
     private readonly Dictionary<string, Block> namedBlockDictionary = new();
 
     private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
         {
-            List<Block> allBlocks = new();
+            List<Block> allBlocks = [];
 
             Block Register(Block block)
             {
@@ -50,8 +50,6 @@ public class Blocks
 
                 return block;
             }
-
-            #region NATURAL BLOCKS
 
             Air = Register(new AirBlock(Language.Air, nameof(Air)));
 
@@ -108,11 +106,6 @@ public class Blocks
                 topTexOffset: 1,
                 BoundingVolume.CrossBlock));
 
-            Rubble = Register(new ConstructionBlock(
-                Language.Rubble,
-                nameof(Rubble),
-                TextureLayout.Uniform("rubble")));
-
             Mud = Register(new MudBlock(
                 Language.Mud,
                 nameof(Mud),
@@ -168,33 +161,11 @@ public class Blocks
                 nameof(Gravel),
                 TextureLayout.Uniform("gravel")));
 
-            OreCoal = Register(new BasicBlock(
-                Language.CoalOre,
-                nameof(OreCoal),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_coal")));
-
-            OreIron = Register(new BasicBlock(
-                Language.IronOre,
-                nameof(OreIron),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_iron")));
-
-            OreGold = Register(new BasicBlock(
-                Language.GoldOre,
-                nameof(OreGold),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_gold")));
-
             Ash = Register(new BasicBlock(
                 Language.Ash,
                 nameof(Ash),
                 BlockFlags.Basic,
                 TextureLayout.Uniform("ash")));
-
-            #endregion NATURAL BLOCKS
-
-            #region PLANT BLOCKS
 
             Cactus = Register(new GrowingBlock(
                 Language.Cactus,
@@ -301,10 +272,6 @@ public class Blocks
                 "melon_plant",
                 Melon));
 
-            #endregion PLANT BLOCKS
-
-            #region BUILDING BLOCKS
-
             Glass = Register(new GlassBlock(
                 Language.Glass,
                 nameof(Glass),
@@ -319,12 +286,6 @@ public class Blocks
                 Language.Steel,
                 nameof(Steel),
                 TextureLayout.Uniform("steel")));
-
-            StoneWorked = Register(new BasicBlock(
-                Language.WorkedStone,
-                nameof(StoneWorked),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("stone_worked")));
 
             Ladder = Register(new FlatBlock(
                 Language.Ladder,
@@ -355,15 +316,10 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("checkerboard_tiles_white")));
 
-            Bricks = Register(new ConstructionBlock(
-                Language.Bricks,
-                nameof(Bricks),
+            ClayBricks = Register(new ConstructionBlock(
+                Language.ClayBricks,
+                nameof(ClayBricks),
                 TextureLayout.Uniform("bricks")));
-
-            PavingStone = Register(new ConstructionBlock(
-                Language.PavingStone,
-                nameof(PavingStone),
-                TextureLayout.Uniform("paving_stone")));
 
             RedPlastic = Register(new ConstructionBlock(
                 Language.RedPlastic,
@@ -374,16 +330,6 @@ public class Blocks
                 Language.Concrete,
                 nameof(Concrete),
                 TextureLayout.Uniform("concrete")));
-
-            #endregion BUILDING BLOCKS
-
-            #region DECORATION BLOCKS
-
-            StoneFace = Register(new OrientedBlock(
-                Language.StoneFace,
-                nameof(StoneFace),
-                BlockFlags.Basic,
-                TextureLayout.UniqueFront("stone_worked_face", "stone_worked")));
 
             Vase = Register(new CustomModelBlock(
                 Language.Vase,
@@ -400,7 +346,7 @@ public class Blocks
                 TextureLayout.Uniform("wool")));
 
             WoolDecorated = Register(new OrganicTintedBlock(
-                Language.DecoratedWool,
+                Language.WoolDecorated,
                 nameof(WoolDecorated),
                 TextureLayout.Uniform("wool_decorated")));
 
@@ -412,7 +358,7 @@ public class Blocks
                 new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f))));
 
             CarpetDecorated = Register(new TintedCustomModelBlock(
-                Language.DecoratedCarpet,
+                Language.CarpetDecorated,
                 nameof(CarpetDecorated),
                 BlockFlags.Basic,
                 "carpet_decorated",
@@ -434,10 +380,6 @@ public class Blocks
                 "bars_side",
                 "bars_extension"));
 
-            #endregion DECORATION BLOCKS
-
-            #region ACCESS BLOCKS
-
             FenceWood = Register(new FenceBlock(
                 Language.WoodenFence,
                 nameof(FenceWood),
@@ -445,17 +387,9 @@ public class Blocks
                 "fence_post",
                 "fence_extension"));
 
-            WallRubble = Register(new WallBlock(
-                Language.RubbleWall,
-                nameof(WallRubble),
-                "rubble",
-                "wall_post",
-                "wall_extension",
-                "wall_extension_straight"));
-
-            WallBricks = Register(new WallBlock(
-                Language.BrickWall,
-                nameof(WallBricks),
+            ClayBrickWall = Register(new WallBlock(
+                Language.ClayBrickWall,
+                nameof(ClayBrickWall),
                 "bricks",
                 "wall_post",
                 "wall_extension",
@@ -478,10 +412,6 @@ public class Blocks
                 nameof(GateWood),
                 "gate_wood_closed",
                 "gate_wood_open"));
-
-            #endregion ACCESS BLOCKS
-
-            #region FLUID FLOW BLOCKS
 
             FluidBarrier = Register(new FluidBarrierBlock(
                 Language.Barrier,
@@ -550,10 +480,6 @@ public class Blocks
                 TextureLayout.Uniform("dirt_wet"),
                 supportsFullGrowth: false));
 
-            #endregion FLUID FLOW BLOCKS
-
-            #region NEW BLOCKS
-
             Granite = Register(new BasicBlock(
                 Language.Granite,
                 nameof(Granite),
@@ -619,9 +545,542 @@ public class Blocks
                 nameof(Salt),
                 TextureLayout.Uniform("salt")));
 
-            #endregion NEW BLOCKS
+            WorkedGranite = Register(new BasicBlock(
+                Language.GraniteWorked,
+                nameof(WorkedGranite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_worked")));
 
-            if (allBlocks.Count > BlockLimit) Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
+            WorkedSandstone = Register(new BasicBlock(
+                Language.SandstoneWorked,
+                nameof(WorkedSandstone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_worked")));
+
+            WorkedLimestone = Register(new BasicBlock(
+                Language.LimestoneWorked,
+                nameof(WorkedLimestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_worked")));
+
+            WorkedMarble = Register(new BasicBlock(
+                Language.MarbleWorked,
+                nameof(WorkedMarble),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_worked")));
+
+            WorkedPumice = Register(new BasicBlock(
+                Language.PumiceWorked,
+                nameof(WorkedPumice),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_worked")));
+
+            WorkedObsidian = Register(new BasicBlock(
+                Language.ObsidianWorked,
+                nameof(WorkedObsidian),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_worked")));
+
+            DecoratedGranite = Register(new OrientedBlock(
+                Language.GraniteDecorated,
+                nameof(DecoratedGranite),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("granite_worked_decorated", "granite_worked")));
+
+            DecoratedSandstone = Register(new OrientedBlock(
+                Language.SandstoneDecorated,
+                nameof(DecoratedSandstone),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("sandstone_worked_decorated", "sandstone_worked")));
+
+            DecoratedLimestone = Register(new OrientedBlock(
+                Language.LimestoneDecorated,
+                nameof(DecoratedLimestone),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("limestone_worked_decorated", "limestone_worked")));
+
+            DecoratedMarble = Register(new OrientedBlock(
+                Language.MarbleDecorated,
+                nameof(DecoratedMarble),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("marble_worked_decorated", "marble_worked")));
+
+            DecoratedPumice = Register(new OrientedBlock(
+                Language.PumiceDecorated,
+                nameof(DecoratedPumice),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("pumice_worked_decorated", "pumice_worked")));
+
+            DecoratedObsidian = Register(new OrientedBlock(
+                Language.ObsidianDecorated,
+                nameof(DecoratedObsidian),
+                BlockFlags.Basic,
+                TextureLayout.UniqueFront("obsidian_worked_decorated", "obsidian_worked")));
+
+            GraniteCobblestone = Register(new BasicBlock(
+                Language.GraniteCobbles,
+                nameof(GraniteCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_cobbles")));
+
+            SandstoneCobblestone = Register(new BasicBlock(
+                Language.SandstoneCobbles,
+                nameof(SandstoneCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_cobbles")));
+
+            LimestoneCobblestone = Register(new BasicBlock(
+                Language.LimestoneCobbles,
+                nameof(LimestoneCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_cobbles")));
+
+            MarbleCobblestone = Register(new BasicBlock(
+                Language.MarbleCobbles,
+                nameof(MarbleCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_cobbles")));
+
+            PumiceCobblestone = Register(new BasicBlock(
+                Language.PumiceCobbles,
+                nameof(PumiceCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_cobbles")));
+
+            ObsidianCobblestone = Register(new BasicBlock(
+                Language.ObsidianCobbles,
+                nameof(ObsidianCobblestone),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_cobbles")));
+
+            GranitePaving = Register(new BasicBlock(
+                Language.GranitePaving,
+                nameof(GranitePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("granite_paving")));
+
+            SandstonePaving = Register(new BasicBlock(
+                Language.SandstonePaving,
+                nameof(SandstonePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("sandstone_paving")));
+
+            LimestonePaving = Register(new BasicBlock(
+                Language.LimestonePaving,
+                nameof(LimestonePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("limestone_paving")));
+
+            MarblePaving = Register(new BasicBlock(
+                Language.MarblePaving,
+                nameof(MarblePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("marble_paving")));
+
+            PumicePaving = Register(new BasicBlock(
+                Language.PumicePaving,
+                nameof(PumicePaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("pumice_paving")));
+
+            ObsidianPaving = Register(new BasicBlock(
+                Language.ObsidianPaving,
+                nameof(ObsidianPaving),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("obsidian_paving")));
+
+            GraniteRubble = Register(new PermeableConstructionBlock(
+                Language.GraniteRubble,
+                nameof(GraniteRubble),
+                TextureLayout.Uniform("granite_rubble")));
+
+            SandstoneRubble = Register(new PermeableConstructionBlock(
+                Language.SandstoneRubble,
+                nameof(SandstoneRubble),
+                TextureLayout.Uniform("sandstone_rubble")));
+
+            LimestoneRubble = Register(new PermeableConstructionBlock(
+                Language.LimestoneRubble,
+                nameof(LimestoneRubble),
+                TextureLayout.Uniform("limestone_rubble")));
+
+            MarbleRubble = Register(new PermeableConstructionBlock(
+                Language.MarbleRubble,
+                nameof(MarbleRubble),
+                TextureLayout.Uniform("marble_rubble")));
+
+            PumiceRubble = Register(new PermeableConstructionBlock(
+                Language.PumiceRubble,
+                nameof(PumiceRubble),
+                TextureLayout.Uniform("pumice_rubble")));
+
+            ObsidianRubble = Register(new PermeableConstructionBlock(
+                Language.ObsidianRubble,
+                nameof(ObsidianRubble),
+                TextureLayout.Uniform("obsidian_rubble")));
+
+            GraniteWall = Register(new WallBlock(
+                Language.GraniteWall,
+                nameof(GraniteWall),
+                "granite_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            SandstoneWall = Register(new WallBlock(
+                Language.SandstoneWall,
+                nameof(SandstoneWall),
+                "sandstone_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            LimestoneWall = Register(new WallBlock(
+                Language.LimestoneWall,
+                nameof(LimestoneWall),
+                "limestone_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            MarbleWall = Register(new WallBlock(
+                Language.MarbleWall,
+                nameof(MarbleWall),
+                "marble_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            PumiceWall = Register(new WallBlock(
+                Language.PumiceWall,
+                nameof(PumiceWall),
+                "pumice_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            ObsidianWall = Register(new WallBlock(
+                Language.ObsidianWall,
+                nameof(ObsidianWall),
+                "obsidian_rubble",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            GraniteBricks = Register(new ConstructionBlock(
+                Language.GraniteBricks,
+                nameof(GraniteBricks),
+                TextureLayout.Uniform("granite_bricks")));
+
+            SandstoneBricks = Register(new ConstructionBlock(
+                Language.SandstoneBricks,
+                nameof(SandstoneBricks),
+                TextureLayout.Uniform("sandstone_bricks")));
+
+            LimestoneBricks = Register(new ConstructionBlock(
+                Language.LimestoneBricks,
+                nameof(LimestoneBricks),
+                TextureLayout.Uniform("limestone_bricks")));
+
+            MarbleBricks = Register(new ConstructionBlock(
+                Language.MarbleBricks,
+                nameof(MarbleBricks),
+                TextureLayout.Uniform("marble_bricks")));
+
+            PumiceBricks = Register(new ConstructionBlock(
+                Language.PumiceBricks,
+                nameof(PumiceBricks),
+                TextureLayout.Uniform("pumice_bricks")));
+
+            ObsidianBricks = Register(new ConstructionBlock(
+                Language.ObsidianBricks,
+                nameof(ObsidianBricks),
+                TextureLayout.Uniform("obsidian_bricks")));
+
+            GraniteBrickWall = Register(new WallBlock(
+                Language.GraniteBrickWall,
+                nameof(GraniteBrickWall),
+                "granite_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            SandstoneBrickWall = Register(new WallBlock(
+                Language.SandstoneBrickWall,
+                nameof(SandstoneBrickWall),
+                "sandstone_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            LimestoneBrickWall = Register(new WallBlock(
+                Language.LimestoneBrickWall,
+                nameof(LimestoneBrickWall),
+                "limestone_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            MarbleBrickWall = Register(new WallBlock(
+                Language.MarbleBrickWall,
+                nameof(MarbleBrickWall),
+                "marble_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            PumiceBrickWall = Register(new WallBlock(
+                Language.PumiceBrickWall,
+                nameof(PumiceBrickWall),
+                "pumice_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            ObsidianBrickWall = Register(new WallBlock(
+                Language.ObsidianBrickWall,
+                nameof(ObsidianBrickWall),
+                "obsidian_bricks",
+                "wall_post",
+                "wall_extension",
+                "wall_extension_straight"));
+
+            GraniteColumn = Register(new ConstructionBlock(
+                Language.GraniteColumn,
+                nameof(GraniteColumn),
+                TextureLayout.Column("granite_column", "granite_worked")));
+
+            SandstoneColumn = Register(new ConstructionBlock(
+                Language.SandstoneColumn,
+                nameof(SandstoneColumn),
+                TextureLayout.Column("sandstone_column", "sandstone_worked")));
+
+            LimestoneColumn = Register(new ConstructionBlock(
+                Language.LimestoneColumn,
+                nameof(LimestoneColumn),
+                TextureLayout.Column("limestone_column", "limestone_worked")));
+
+            MarbleColumn = Register(new ConstructionBlock(
+                Language.MarbleColumn,
+                nameof(MarbleColumn),
+                TextureLayout.Column("marble_column", "marble_worked")));
+
+            PumiceColumn = Register(new ConstructionBlock(
+                Language.PumiceColumn,
+                nameof(PumiceColumn),
+                TextureLayout.Column("pumice_column", "pumice_worked")));
+
+            ObsidianColumn = Register(new ConstructionBlock(
+                Language.ObsidianColumn,
+                nameof(ObsidianColumn),
+                TextureLayout.Column("obsidian_column", "obsidian_worked")));
+
+            Lignite = Register(new BasicBlock(
+                Language.CoalLignite,
+                nameof(Lignite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_lignite")));
+
+            BituminousCoal = Register(new BasicBlock(
+                Language.CoalBituminous,
+                nameof(BituminousCoal),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_bituminous")));
+
+            Anthracite = Register(new BasicBlock(
+                Language.CoalAnthracite,
+                nameof(Anthracite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("coal_anthracite")));
+
+            Magnetite = Register(new BasicBlock(
+                Language.OreMagnetite,
+                nameof(Magnetite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_iron_magnetite")));
+
+            Hematite = Register(new BasicBlock(
+                Language.OreHematite,
+                nameof(Hematite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_iron_hematite")));
+
+            NativeGold = Register(new BasicBlock(
+                Language.OreNativeGold,
+                nameof(NativeGold),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_gold_native")));
+
+            NativeSilver = Register(new BasicBlock(
+                Language.OreNativeSilver,
+                nameof(NativeSilver),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_silver_native")));
+
+            NativePlatinum = Register(new BasicBlock(
+                Language.OreNativePlatinum,
+                nameof(NativePlatinum),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_platinum_native")));
+
+            NativeCopper = Register(new BasicBlock(
+                Language.OreNativeCopper,
+                nameof(NativeCopper),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_native")));
+
+            Chalcopyrite = Register(new BasicBlock(
+                Language.OreChalcopyrite,
+                nameof(Chalcopyrite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_chalcopyrite")));
+
+            Malachite = Register(new BasicBlock(
+                Language.OreMalachite,
+                nameof(Malachite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_malachite")));
+
+            Electrum = Register(new BasicBlock(
+                Language.OreElectrum,
+                nameof(Electrum),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_electrum_native")));
+
+            Bauxite = Register(new BasicBlock(
+                Language.OreBauxite,
+                nameof(Bauxite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_aluminium_bauxite")));
+
+            Galena = Register(new BasicBlock(
+                Language.OreGalena,
+                nameof(Galena),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_lead_galena")));
+
+            Cassiterite = Register(new BasicBlock(
+                Language.OreCassiterite,
+                nameof(Cassiterite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_tin_cassiterite")));
+
+            Cinnabar = Register(new BasicBlock(
+                Language.OreCinnabar,
+                nameof(Cinnabar),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_mercury_cinnabar")));
+
+            Sphalerite = Register(new BasicBlock(
+                Language.OreSphalerite,
+                nameof(Sphalerite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_zinc_sphalerite")));
+
+            Chromite = Register(new BasicBlock(
+                Language.OreChromite,
+                nameof(Chromite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_chromium_chromite")));
+
+            Pyrolusite = Register(new BasicBlock(
+                Language.OrePyrolusite,
+                nameof(Pyrolusite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_manganese_pyrolusite")));
+
+            Rutile = Register(new BasicBlock(
+                Language.OreRutile,
+                nameof(Rutile),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_titanium_rutile")));
+
+            Pentlandite = Register(new BasicBlock(
+                Language.OrePentlandite,
+                nameof(Pentlandite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_nickel_pentlandite")));
+
+            Zircon = Register(new BasicBlock(
+                Language.OreZircon,
+                nameof(Zircon),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_zirconium_zircon")));
+
+            Dolomite = Register(new BasicBlock(
+                Language.OreDolomite,
+                nameof(Dolomite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_magnesium_dolomite")));
+
+            Celestine = Register(new BasicBlock(
+                Language.OreCelestine,
+                nameof(Celestine),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_strontium_celestine")));
+
+            Uraninite = Register(new BasicBlock(
+                Language.OreUraninite,
+                nameof(Uraninite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_uranium_uraninite")));
+
+            Bismuthinite = Register(new BasicBlock(
+                Language.OreBismuthinite,
+                nameof(Bismuthinite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_bismuth_bismuthinite")));
+
+            Beryl = Register(new BasicBlock(
+                Language.OreBeryl,
+                nameof(Beryl),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_beryllium_beryl")));
+
+            Molybdenite = Register(new BasicBlock(
+                Language.OreMolybdenite,
+                nameof(Molybdenite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_molybdenum_molybdenite")));
+
+            Cobaltite = Register(new BasicBlock(
+                Language.OreCobaltite,
+                nameof(Cobaltite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_cobalt_cobaltite")));
+
+            Spodumene = Register(new BasicBlock(
+                Language.OreSpodumene,
+                nameof(Spodumene),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_lithium_spodumene")));
+
+            Vanadinite = Register(new BasicBlock(
+                Language.OreVanadinite,
+                nameof(Vanadinite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_vanadium_vanadinite")));
+
+            Scheelite = Register(new BasicBlock(
+                Language.OreScheelite,
+                nameof(Scheelite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_tungsten_scheelite")));
+
+            Greenockite = Register(new BasicBlock(
+                Language.OreGreenockite,
+                nameof(Greenockite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_cadmium_greenockite")));
+
+            Rust = Register(new BasicBlock(
+                Language.Rust,
+                nameof(Rust),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("rust")));
+
+            if (allBlocks.Count > BlockLimit)
+                Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
             foreach (Block block in allBlocks.Take(BlockLimit))
             {
@@ -694,24 +1153,14 @@ public class Blocks
     }
 
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    internal class SpecialBlocks
+    internal class SpecialBlocks(Blocks blocks)
     {
-        public SpecialBlocks(Blocks blocks)
-        {
-            Concrete = (ConcreteBlock) blocks.Concrete;
-            Snow = (SnowBlock) blocks.Snow;
-            Ice = (ModifiableHeightBlock) blocks.Ice;
-            Log = (RotatedBlock) blocks.Log;
-            Vines = (FlatBlock) blocks.Vines;
-            Salt = (SaltBlock) blocks.Salt;
-        }
-
-        public ConcreteBlock Concrete { get; }
-        public SnowBlock Snow { get; }
-        public ModifiableHeightBlock Ice { get; }
-        public RotatedBlock Log { get; }
-        public FlatBlock Vines { get; }
-        public SaltBlock Salt { get; }
+        public ConcreteBlock Concrete { get; } = (ConcreteBlock) blocks.Concrete;
+        public SnowBlock Snow { get; } = (SnowBlock) blocks.Snow;
+        public ModifiableHeightBlock Ice { get; } = (ModifiableHeightBlock) blocks.Ice;
+        public RotatedBlock Log { get; } = (RotatedBlock) blocks.Log;
+        public FlatBlock Vines { get; } = (FlatBlock) blocks.Vines;
+        public SaltBlock Salt { get; } = (SaltBlock) blocks.Salt;
     }
 
     #region NATURAL BLOCKS
@@ -764,11 +1213,6 @@ public class Blocks
     public Block TallFlower { get; }
 
     /// <summary>
-    ///     When stone is destroyed, rubble is what remains.
-    /// </summary>
-    public Block Rubble { get; }
-
-    /// <summary>
     ///     Mud is created when water and dirt mix.
     /// </summary>
     public Block Mud { get; }
@@ -812,21 +1256,6 @@ public class Blocks
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
     /// </summary>
     public Block Gravel { get; }
-
-    /// <summary>
-    ///     Coal ore is stone that contains coal.
-    /// </summary>
-    public Block OreCoal { get; }
-
-    /// <summary>
-    ///     Iron ore is stone that contains iron.
-    /// </summary>
-    public Block OreIron { get; }
-
-    /// <summary>
-    ///     Gold ore is stone that contains gold.
-    /// </summary>
-    public Block OreGold { get; }
 
     /// <summary>
     ///     Ahs is the remainder of burning processes.
@@ -918,11 +1347,6 @@ public class Blocks
     public Block Steel { get; }
 
     /// <summary>
-    ///     Worked stone is a processed stone block.
-    /// </summary>
-    public Block StoneWorked { get; }
-
-    /// <summary>
     ///     A ladder allows climbing up and down.
     /// </summary>
     public Block Ladder { get; }
@@ -948,14 +1372,10 @@ public class Blocks
     public Block TilesCheckerboardWhite { get; }
 
     /// <summary>
-    ///     Bricks are a simple construction material.
+    ///     Clay bricks, placed as a block and connected with mortar.
+    ///     This block is a construction material.
     /// </summary>
-    public Block Bricks { get; }
-
-    /// <summary>
-    ///     Paving stone is a simple construction material, ideal for paths.
-    /// </summary>
-    public Block PavingStone { get; }
+    public Block ClayBricks { get; }
 
     /// <summary>
     ///     Red plastic is a construction material.
@@ -971,11 +1391,6 @@ public class Blocks
     #endregion BUILDING BLOCKS
 
     #region DECORATION BLOCKS
-
-    /// <summary>
-    ///     This block is like a processed stone block, but with a decorative face added.
-    /// </summary>
-    public Block StoneFace { get; }
 
     /// <summary>
     ///     The vase is a decorative block that must be placed on solid ground.
@@ -1030,16 +1445,10 @@ public class Blocks
     public Block FenceWood { get; }
 
     /// <summary>
-    ///     The rubble wall is a stone barrier that can be used as a way of marking areas.
-    ///     They do not prevent jumping over it, and can connect to other blocks.
+    ///     A wall constructed using clay bricks.
+    ///     The wall does not prevent jumping over it, and can connect to other blocks.
     /// </summary>
-    public Block WallRubble { get; }
-
-    /// <summary>
-    ///     The brick wall is similar to all other walls, and made out of bricks.
-    ///     They do not prevent jumping over them, and can connect to other blocks.
-    /// </summary>
-    public Block WallBricks { get; }
+    public Block ClayBrickWall { get; }
 
     /// <summary>
     ///     The steel door allows closing of a room. It can be opened and closed.
@@ -1179,6 +1588,495 @@ public class Blocks
     ///     Salt is contained in sea water, it becomes usable after the water evaporates.
     /// </summary>
     public Block Salt { get; }
+
+    /// <summary>
+    ///     Worked granite is a processed granite block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedGranite { get; }
+
+    /// <summary>
+    ///     Worked sandstone is a processed sandstone block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedSandstone { get; }
+
+    /// <summary>
+    ///     Worked limestone is a processed limestone block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedLimestone { get; }
+
+    /// <summary>
+    ///     Worked marble is a processed marble block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedMarble { get; }
+
+    /// <summary>
+    ///     Worked pumice is a processed pumice block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedPumice { get; }
+
+    /// <summary>
+    ///     Worked obsidian is a processed obsidian block.
+    ///     The block can be used for construction.
+    /// </summary>
+    public Block WorkedObsidian { get; }
+
+    /// <summary>
+    ///     Worked granite with decorations carved into one side.
+    ///     The carvings show a pattern of geometric shapes.
+    /// </summary>
+    public Block DecoratedGranite { get; }
+
+    /// <summary>
+    ///     Worked sandstone with decorations carved into one side.
+    ///     The carvings depict the desert sun.
+    /// </summary>
+    public Block DecoratedSandstone { get; }
+
+    /// <summary>
+    ///     Worked limestone with decorations carved into one side.
+    ///     The carvings show the ocean and life within it.
+    /// </summary>
+    public Block DecoratedLimestone { get; }
+
+    /// <summary>
+    ///     Worked marble with decorations carved into one side.
+    ///     The carvings depict an ancient temple.
+    /// </summary>
+    public Block DecoratedMarble { get; }
+
+    /// <summary>
+    ///     Worked pumice with decorations carved into one side.
+    ///     The carvings depict heat rising from the earth.
+    /// </summary>
+    public Block DecoratedPumice { get; }
+
+    /// <summary>
+    ///     Worked obsidian with decorations carved into one side.
+    ///     The carvings depict an ancient artifact.
+    /// </summary>
+    public Block DecoratedObsidian { get; }
+
+    /// <summary>
+    ///     Marble cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block GraniteCobblestone { get; }
+
+    /// <summary>
+    ///     Sandstone cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block SandstoneCobblestone { get; }
+
+    /// <summary>
+    ///     Limestone cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block LimestoneCobblestone { get; }
+
+    /// <summary>
+    ///     Marble cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block MarbleCobblestone { get; }
+
+    /// <summary>
+    ///     Pumice cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block PumiceCobblestone { get; }
+
+    /// <summary>
+    ///     Obsidian cobbles, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
+    /// </summary>
+    public Block ObsidianCobblestone { get; }
+
+    /// <summary>
+    ///     Paving made out of processed granite.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block GranitePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed sandstone.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block SandstonePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed limestone.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block LimestonePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed marble.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block MarblePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed pumice.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block PumicePaving { get; }
+
+    /// <summary>
+    ///     Paving made out of processed obsidian.
+    ///     The processing ensures a smoother surface.
+    /// </summary>
+    public Block ObsidianPaving { get; }
+
+    /// <summary>
+    ///     When breaking granite, it turns into granite rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block GraniteRubble { get; }
+
+    /// <summary>
+    ///     When breaking sandstone, it turns into sandstone rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block SandstoneRubble { get; }
+
+    /// <summary>
+    ///     When breaking limestone, it turns into limestone rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block LimestoneRubble { get; }
+
+    /// <summary>
+    ///     When breaking marble, it turns into marble rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block MarbleRubble { get; }
+
+    /// <summary>
+    ///     When breaking pumice, it turns into pumice rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block PumiceRubble { get; }
+
+    /// <summary>
+    ///     When breaking obsidian, it turns into obsidian rubble.
+    ///     The block is loose and as such allows water to flow through it.
+    /// </summary>
+    public Block ObsidianRubble { get; }
+
+    /// <summary>
+    ///     A wall made out of granite rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block GraniteWall { get; }
+
+    /// <summary>
+    ///     A wall made out of sandstone rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block SandstoneWall { get; }
+
+    /// <summary>
+    ///     A wall made out of limestone rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block LimestoneWall { get; }
+
+    /// <summary>
+    ///     A wall made out of marble rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block MarbleWall { get; }
+
+    /// <summary>
+    ///     A wall made out of pumice rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block PumiceWall { get; }
+
+    /// <summary>
+    ///     A wall made out of obsidian rubble.
+    ///     Walls are used to create barriers and can connect to other blocks.
+    /// </summary>
+    public Block ObsidianWall { get; }
+
+    /// <summary>
+    ///     Granite, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block GraniteBricks { get; }
+
+    /// <summary>
+    ///     Sandstone, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block SandstoneBricks { get; }
+
+    /// <summary>
+    ///     Limestone, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block LimestoneBricks { get; }
+
+    /// <summary>
+    ///     Marble, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block MarbleBricks { get; }
+
+    /// <summary>
+    ///     Pumice, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block PumiceBricks { get; }
+
+    /// <summary>
+    ///     Obsidian, cut into bricks and connected with mortar.
+    /// </summary>
+    public Block ObsidianBricks { get; }
+
+    /// <summary>
+    ///     A wall constructed using granite bricks.
+    /// </summary>
+    public Block GraniteBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using sandstone bricks.
+    /// </summary>
+    public Block SandstoneBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using limestone bricks.
+    /// </summary>
+    public Block LimestoneBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using marble bricks.
+    /// </summary>
+    public Block MarbleBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using pumice bricks.
+    /// </summary>
+    public Block PumiceBrickWall { get; }
+
+    /// <summary>
+    ///     A wall constructed using obsidian bricks.
+    /// </summary>
+    public Block ObsidianBrickWall { get; }
+
+    /// <summary>
+    ///     A column, made out of granite.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block GraniteColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of sandstone.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block SandstoneColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of limestone.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block LimestoneColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of marble.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block MarbleColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of pumice.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block PumiceColumn { get; }
+
+    /// <summary>
+    ///     A column, made out of obsidian.
+    ///     Columns serve both as decoration and as a structural element.
+    /// </summary>
+    public Block ObsidianColumn { get; }
+
+    /// <summary>
+    ///     Lignite is a type of coal.
+    ///     It is the lowest rank of coal but can be found near the surface.
+    /// </summary>
+    public Block Lignite { get; }
+
+    /// <summary>
+    ///     Bituminous coal is a type of coal.
+    ///     It is of medium rank and is the most abundant type of coal.
+    /// </summary>
+    public Block BituminousCoal { get; }
+
+    /// <summary>
+    ///     Anthracite is a type of coal.
+    ///     It is the highest rank of coal and is the hardest and most carbon-rich.
+    /// </summary>
+    public Block Anthracite { get; }
+
+    /// <summary>
+    ///     Magnetite is a type of iron ore.
+    /// </summary>
+    public Block Magnetite { get; }
+
+    /// <summary>
+    ///     Hematite is a type of iron ore.
+    /// </summary>
+    public Block Hematite { get; }
+
+    /// <summary>
+    ///     Native gold is gold ore, containing mostly gold with some impurities.
+    /// </summary>
+    public Block NativeGold { get; }
+
+    /// <summary>
+    ///     Native silver is silver ore, containing mostly silver with some impurities.
+    /// </summary>
+    public Block NativeSilver { get; }
+
+    /// <summary>
+    ///     Native platinum is platinum ore, containing mostly platinum with some impurities.
+    /// </summary>
+    public Block NativePlatinum { get; }
+
+    /// <summary>
+    ///     Native copper is copper ore, containing mostly copper with some impurities.
+    /// </summary>
+    public Block NativeCopper { get; }
+
+    /// <summary>
+    ///     Chalcopyrite is a copper ore.
+    ///     It is the most abundant copper ore but is not as rich in copper as other ores.
+    /// </summary>
+    public Block Chalcopyrite { get; }
+
+    /// <summary>
+    ///     Malachite is a copper ore.
+    ///     It is rich in copper, but is not as abundant as other ores.
+    /// </summary>
+    public Block Malachite { get; }
+
+    /// <summary>
+    ///     Electrum is a naturally occurring alloy of gold and silver.
+    /// </summary>
+    public Block Electrum { get; }
+
+    /// <summary>
+    ///     Bauxite is an aluminum ore.
+    /// </summary>
+    public Block Bauxite { get; }
+
+    /// <summary>
+    ///     Galena is a lead ore that is rich in lead and silver.
+    /// </summary>
+    public Block Galena { get; }
+
+    /// <summary>
+    ///     Cassiterite is a tin ore.
+    /// </summary>
+    public Block Cassiterite { get; }
+
+    /// <summary>
+    ///     Cinnabar is a mercury ore.
+    /// </summary>
+    public Block Cinnabar { get; }
+
+    /// <summary>
+    ///     Sphalerite is a zinc ore.
+    /// </summary>
+    public Block Sphalerite { get; }
+
+    /// <summary>
+    ///     Chromite is a chromium ore.
+    /// </summary>
+    public Block Chromite { get; }
+
+    /// <summary>
+    ///     Pyrolusite is a manganese ore.
+    /// </summary>
+    public Block Pyrolusite { get; }
+
+    /// <summary>
+    ///     Rutile is a titanium ore.
+    /// </summary>
+    public Block Rutile { get; }
+
+    /// <summary>
+    ///     Pentlandite is a nickel ore which is also rich in iron.
+    /// </summary>
+    public Block Pentlandite { get; }
+
+    /// <summary>
+    ///     Zircon is a zirconium ore.
+    /// </summary>
+    public Block Zircon { get; }
+
+    /// <summary>
+    ///     Dolomite is a carbonate rock, rich in magnesium.
+    /// </summary>
+    public Block Dolomite { get; }
+
+    /// <summary>
+    ///     Celestine is a strontium ore.
+    /// </summary>
+    public Block Celestine { get; }
+
+    /// <summary>
+    ///     Uraninite is a uranium ore.
+    /// </summary>
+    public Block Uraninite { get; }
+
+    /// <summary>
+    ///     Bismuthinite is a bismuth ore.
+    /// </summary>
+    public Block Bismuthinite { get; }
+
+    /// <summary>
+    ///     Beryl is a beryllium ore.
+    ///     This generic beryl is of low grade in comparison to beryls like emerald and aquamarine.
+    /// </summary>
+    public Block Beryl { get; }
+
+    /// <summary>
+    ///     Molybdenite is a molybdenum ore.
+    /// </summary>
+    public Block Molybdenite { get; }
+
+    /// <summary>
+    ///     Cobaltite is a cobalt ore.
+    /// </summary>
+    public Block Cobaltite { get; }
+
+    /// <summary>
+    ///     Spodumene is a lithium ore.
+    /// </summary>
+    public Block Spodumene { get; }
+
+    /// <summary>
+    ///     Vanadinite is a vanadium ore.
+    /// </summary>
+    public Block Vanadinite { get; }
+
+    /// <summary>
+    ///     Scheelite is a tungsten ore.
+    /// </summary>
+    public Block Scheelite { get; }
+
+    /// <summary>
+    ///     Greenockite is a cadmium ore.
+    /// </summary>
+    public Block Greenockite { get; }
+
+    /// <summary>
+    ///     When iron is exposed to oxygen and moisture, it rusts.
+    ///     This blocks is a large accumulation of rust.
+    /// </summary>
+    public Block Rust { get; }
 
     #endregion NEW BLOCKS
 }

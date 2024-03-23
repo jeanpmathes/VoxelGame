@@ -297,7 +297,7 @@ public partial class Chunk : IDisposable, IEntity
 
         extended.Dispose();
 
-        if (access != Access.Read) return core;
+        if (access == Access.Write) return core;
 
         // We downgrade our access to read, as stealing always gives us write access.
         core.Dispose();
@@ -346,7 +346,7 @@ public partial class Chunk : IDisposable, IEntity
 
         core.Dispose();
 
-        if (access != Access.Read) return extended;
+        if (access == Access.Write) return extended;
 
         // We downgrade our access to read, as stealing always gives us write access.
         extended.Dispose();

@@ -12,7 +12,7 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
-///     A solid and full block that allows water flow through it. The become darker in fluids.
+///     A solid and full block that allows water flow through it. The block becomes darker in fluids.
 ///     Data bit usage: <c>------</c>
 /// </summary>
 public class PermeableBlock : BasicBlock, IFillable

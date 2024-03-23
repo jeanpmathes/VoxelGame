@@ -67,7 +67,7 @@ public sealed class TextureBundle : ITextureIndexProvider
 
         if (TextureIndices.TryGetValue(name, out int value)) return value;
 
-        loadingContext.ReportWarning(Events.MissingResource, "TextureIndex", name, "Texture not found");
+        loadingContext.ReportWarning(Events.MissingResource, "Texture", name, "Texture not found");
 
         return 0;
     }
