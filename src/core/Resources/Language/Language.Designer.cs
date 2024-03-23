@@ -1977,6 +1977,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Rust.
+        /// </summary>
+        public static string Rust {
+            get {
+                return ResourceManager.GetString("Rust", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Salt.
         /// </summary>
         public static string Salt {

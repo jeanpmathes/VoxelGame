@@ -936,4 +936,7 @@
     <data name="OreGreenockite" xml:space="preserve">
         <value>Greenockite</value>
     </data>
+    <data name="Rust" xml:space="preserve">
+        <value>Rust</value>
+    </data>
 </root>

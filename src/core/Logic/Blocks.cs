@@ -1073,6 +1073,12 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("ore_cadmium_greenockite")));
 
+            Rust = Register(new BasicBlock(
+                Language.Rust,
+                nameof(Rust),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("rust")));
+
             if (allBlocks.Count > BlockLimit)
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -2065,6 +2071,12 @@ public class Blocks
     ///     Greenockite is a cadmium ore.
     /// </summary>
     public Block Greenockite { get; }
+
+    /// <summary>
+    ///     When iron is exposed to oxygen and moisture, it rusts.
+    ///     This blocks is a large accumulation of rust.
+    /// </summary>
+    public Block Rust { get; }
 
     #endregion NEW BLOCKS
 }
