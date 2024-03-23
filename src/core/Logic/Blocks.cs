@@ -22,6 +22,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Logic;
 
 #pragma warning disable S1192 // Definition class.
+#pragma warning disable S104 // Definition class.
 
 /// <summary>
 ///     Contains all block definitions of the core game.
