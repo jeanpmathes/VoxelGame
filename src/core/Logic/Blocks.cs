@@ -161,18 +161,6 @@ public class Blocks
                 nameof(Gravel),
                 TextureLayout.Uniform("gravel")));
 
-            OreIron = Register(new BasicBlock(
-                Language.IronOre,
-                nameof(OreIron),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_iron")));
-
-            OreGold = Register(new BasicBlock(
-                Language.GoldOre,
-                nameof(OreGold),
-                BlockFlags.Basic,
-                TextureLayout.Uniform("ore_gold")));
-
             Ash = Register(new BasicBlock(
                 Language.Ash,
                 nameof(Ash),
@@ -905,6 +893,186 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("coal_anthracite")));
 
+            Magnetite = Register(new BasicBlock(
+                Language.OreMagnetite,
+                nameof(Magnetite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_iron_magnetite")));
+
+            Hematite = Register(new BasicBlock(
+                Language.OreHematite,
+                nameof(Hematite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_iron_hematite")));
+
+            NativeGold = Register(new BasicBlock(
+                Language.OreNativeGold,
+                nameof(NativeGold),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_gold_native")));
+
+            NativeSilver = Register(new BasicBlock(
+                Language.OreNativeSilver,
+                nameof(NativeSilver),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_silver_native")));
+
+            NativePlatinum = Register(new BasicBlock(
+                Language.OreNativePlatinum,
+                nameof(NativePlatinum),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_platinum_native")));
+
+            NativeCopper = Register(new BasicBlock(
+                Language.OreNativeCopper,
+                nameof(NativeCopper),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_native")));
+
+            Chalcopyrite = Register(new BasicBlock(
+                Language.OreChalcopyrite,
+                nameof(Chalcopyrite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_chalcopyrite")));
+
+            Malachite = Register(new BasicBlock(
+                Language.OreMalachite,
+                nameof(Malachite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_copper_malachite")));
+
+            Electrum = Register(new BasicBlock(
+                Language.OreElectrum,
+                nameof(Electrum),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_electrum_native")));
+
+            Bauxite = Register(new BasicBlock(
+                Language.OreBauxite,
+                nameof(Bauxite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_aluminium_bauxite")));
+
+            Galena = Register(new BasicBlock(
+                Language.OreGalena,
+                nameof(Galena),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_lead_galena")));
+
+            Cassiterite = Register(new BasicBlock(
+                Language.OreCassiterite,
+                nameof(Cassiterite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_tin_cassiterite")));
+
+            Cinnabar = Register(new BasicBlock(
+                Language.OreCinnabar,
+                nameof(Cinnabar),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_mercury_cinnabar")));
+
+            Sphalerite = Register(new BasicBlock(
+                Language.OreSphalerite,
+                nameof(Sphalerite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_zinc_sphalerite")));
+
+            Chromite = Register(new BasicBlock(
+                Language.OreChromite,
+                nameof(Chromite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_chromium_chromite")));
+
+            Pyrolusite = Register(new BasicBlock(
+                Language.OrePyrolusite,
+                nameof(Pyrolusite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_manganese_pyrolusite")));
+
+            Rutile = Register(new BasicBlock(
+                Language.OreRutile,
+                nameof(Rutile),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_titanium_rutile")));
+
+            Pentlandite = Register(new BasicBlock(
+                Language.OrePentlandite,
+                nameof(Pentlandite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_nickel_pentlandite")));
+
+            Zircon = Register(new BasicBlock(
+                Language.OreZircon,
+                nameof(Zircon),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_zirconium_zircon")));
+
+            Dolomite = Register(new BasicBlock(
+                Language.OreDolomite,
+                nameof(Dolomite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_magnesium_dolomite")));
+
+            Celestine = Register(new BasicBlock(
+                Language.OreCelestine,
+                nameof(Celestine),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_strontium_celestine")));
+
+            Uraninite = Register(new BasicBlock(
+                Language.OreUraninite,
+                nameof(Uraninite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_uranium_uraninite")));
+
+            Bismuthinite = Register(new BasicBlock(
+                Language.OreBismuthinite,
+                nameof(Bismuthinite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_bismuth_bismuthinite")));
+
+            Beryl = Register(new BasicBlock(
+                Language.OreBeryl,
+                nameof(Beryl),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_beryllium_beryl")));
+
+            Molybdenite = Register(new BasicBlock(
+                Language.OreMolybdenite,
+                nameof(Molybdenite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_molybdenum_molybdenite")));
+
+            Cobaltite = Register(new BasicBlock(
+                Language.OreCobaltite,
+                nameof(Cobaltite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_cobalt_cobaltite")));
+
+            Spodumene = Register(new BasicBlock(
+                Language.OreSpodumene,
+                nameof(Spodumene),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_lithium_spodumene")));
+
+            Vanadinite = Register(new BasicBlock(
+                Language.OreVanadinite,
+                nameof(Vanadinite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_vanadium_vanadinite")));
+
+            Scheelite = Register(new BasicBlock(
+                Language.OreScheelite,
+                nameof(Scheelite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_tungsten_scheelite")));
+
+            Greenockite = Register(new BasicBlock(
+                Language.OreGreenockite,
+                nameof(Greenockite),
+                BlockFlags.Basic,
+                TextureLayout.Uniform("ore_cadmium_greenockite")));
+
             if (allBlocks.Count > BlockLimit)
                 Debug.Fail($"Not more than {BlockLimit} blocks are allowed.");
 
@@ -1082,16 +1250,6 @@ public class Blocks
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
     /// </summary>
     public Block Gravel { get; }
-
-    /// <summary>
-    ///     Iron ore is stone that contains iron.
-    /// </summary>
-    public Block OreIron { get; }
-
-    /// <summary>
-    ///     Gold ore is stone that contains gold.
-    /// </summary>
-    public Block OreGold { get; }
 
     /// <summary>
     ///     Ahs is the remainder of burning processes.
@@ -1754,6 +1912,159 @@ public class Blocks
     ///     It is the highest rank of coal and is the hardest and most carbon-rich.
     /// </summary>
     public Block Anthracite { get; }
+
+    /// <summary>
+    ///     Magnetite is a type of iron ore.
+    /// </summary>
+    public Block Magnetite { get; }
+
+    /// <summary>
+    ///     Hematite is a type of iron ore.
+    /// </summary>
+    public Block Hematite { get; }
+
+    /// <summary>
+    ///     Native gold is gold ore, containing mostly gold with some impurities.
+    /// </summary>
+    public Block NativeGold { get; }
+
+    /// <summary>
+    ///     Native silver is silver ore, containing mostly silver with some impurities.
+    /// </summary>
+    public Block NativeSilver { get; }
+
+    /// <summary>
+    ///     Native platinum is platinum ore, containing mostly platinum with some impurities.
+    /// </summary>
+    public Block NativePlatinum { get; }
+
+    /// <summary>
+    ///     Native copper is copper ore, containing mostly copper with some impurities.
+    /// </summary>
+    public Block NativeCopper { get; }
+
+    /// <summary>
+    ///     Chalcopyrite is a copper ore.
+    ///     It is the most abundant copper ore but is not as rich in copper as other ores.
+    /// </summary>
+    public Block Chalcopyrite { get; }
+
+    /// <summary>
+    ///     Malachite is a copper ore.
+    ///     It is rich in copper, but is not as abundant as other ores.
+    /// </summary>
+    public Block Malachite { get; }
+
+    /// <summary>
+    ///     Electrum is a naturally occurring alloy of gold and silver.
+    /// </summary>
+    public Block Electrum { get; }
+
+    /// <summary>
+    ///     Bauxite is an aluminum ore.
+    /// </summary>
+    public Block Bauxite { get; }
+
+    /// <summary>
+    ///     Galena is a lead ore that is rich in lead and silver.
+    /// </summary>
+    public Block Galena { get; }
+
+    /// <summary>
+    ///     Cassiterite is a tin ore.
+    /// </summary>
+    public Block Cassiterite { get; }
+
+    /// <summary>
+    ///     Cinnabar is a mercury ore.
+    /// </summary>
+    public Block Cinnabar { get; }
+
+    /// <summary>
+    ///     Sphalerite is a zinc ore.
+    /// </summary>
+    public Block Sphalerite { get; }
+
+    /// <summary>
+    ///     Chromite is a chromium ore.
+    /// </summary>
+    public Block Chromite { get; }
+
+    /// <summary>
+    ///     Pyrolusite is a manganese ore.
+    /// </summary>
+    public Block Pyrolusite { get; }
+
+    /// <summary>
+    ///     Rutile is a titanium ore.
+    /// </summary>
+    public Block Rutile { get; }
+
+    /// <summary>
+    ///     Pentlandite is a nickel ore which is also rich in iron.
+    /// </summary>
+    public Block Pentlandite { get; }
+
+    /// <summary>
+    ///     Zircon is a zirconium ore.
+    /// </summary>
+    public Block Zircon { get; }
+
+    /// <summary>
+    ///     Dolomite is a carbonate rock, rich in magnesium.
+    /// </summary>
+    public Block Dolomite { get; }
+
+    /// <summary>
+    ///     Celestine is a strontium ore.
+    /// </summary>
+    public Block Celestine { get; }
+
+    /// <summary>
+    ///     Uraninite is a uranium ore.
+    /// </summary>
+    public Block Uraninite { get; }
+
+    /// <summary>
+    ///     Bismuthinite is a bismuth ore.
+    /// </summary>
+    public Block Bismuthinite { get; }
+
+    /// <summary>
+    ///     Beryl is a beryllium ore.
+    ///     This generic beryl is of low grade in comparison to beryls like emerald and aquamarine.
+    /// </summary>
+    public Block Beryl { get; }
+
+    /// <summary>
+    ///     Molybdenite is a molybdenum ore.
+    /// </summary>
+    public Block Molybdenite { get; }
+
+    /// <summary>
+    ///     Cobaltite is a cobalt ore.
+    /// </summary>
+    public Block Cobaltite { get; }
+
+    /// <summary>
+    ///     Spodumene is a lithium ore.
+    /// </summary>
+    public Block Spodumene { get; }
+
+    /// <summary>
+    ///     Vanadinite is a vanadium ore.
+    /// </summary>
+    public Block Vanadinite { get; }
+
+    /// <summary>
+    ///     Scheelite is a tungsten ore.
+    /// </summary>
+    public Block Scheelite { get; }
+
+    /// <summary>
+    ///     Greenockite is a cadmium ore.
+    /// </summary>
+    public Block Greenockite { get; }
 
     #endregion NEW BLOCKS
 }

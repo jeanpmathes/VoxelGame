@@ -537,15 +537,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Gold Ore.
-        /// </summary>
-        public static string GoldOre {
-            get {
-                return ResourceManager.GetString("GoldOre", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Granite.
         /// </summary>
         public static string Granite {
@@ -749,15 +740,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string InputNotValid {
             get {
                 return ResourceManager.GetString("InputNotValid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Iron Ore.
-        /// </summary>
-        public static string IronOre {
-            get {
-                return ResourceManager.GetString("IronOre", resourceCulture);
             }
         }
         
@@ -1478,6 +1460,276 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Options {
             get {
                 return ResourceManager.GetString("Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bauxite.
+        /// </summary>
+        public static string OreBauxite {
+            get {
+                return ResourceManager.GetString("OreBauxite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Beryl.
+        /// </summary>
+        public static string OreBeryl {
+            get {
+                return ResourceManager.GetString("OreBeryl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bismuthinite.
+        /// </summary>
+        public static string OreBismuthinite {
+            get {
+                return ResourceManager.GetString("OreBismuthinite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cassiterite.
+        /// </summary>
+        public static string OreCassiterite {
+            get {
+                return ResourceManager.GetString("OreCassiterite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Celestine.
+        /// </summary>
+        public static string OreCelestine {
+            get {
+                return ResourceManager.GetString("OreCelestine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chalcopyrite.
+        /// </summary>
+        public static string OreChalcopyrite {
+            get {
+                return ResourceManager.GetString("OreChalcopyrite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chromite.
+        /// </summary>
+        public static string OreChromite {
+            get {
+                return ResourceManager.GetString("OreChromite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cinnabar.
+        /// </summary>
+        public static string OreCinnabar {
+            get {
+                return ResourceManager.GetString("OreCinnabar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cobaltite.
+        /// </summary>
+        public static string OreCobaltite {
+            get {
+                return ResourceManager.GetString("OreCobaltite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dolomite.
+        /// </summary>
+        public static string OreDolomite {
+            get {
+                return ResourceManager.GetString("OreDolomite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Electrum.
+        /// </summary>
+        public static string OreElectrum {
+            get {
+                return ResourceManager.GetString("OreElectrum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Galena.
+        /// </summary>
+        public static string OreGalena {
+            get {
+                return ResourceManager.GetString("OreGalena", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Greenockite.
+        /// </summary>
+        public static string OreGreenockite {
+            get {
+                return ResourceManager.GetString("OreGreenockite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hematite.
+        /// </summary>
+        public static string OreHematite {
+            get {
+                return ResourceManager.GetString("OreHematite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Magnetite.
+        /// </summary>
+        public static string OreMagnetite {
+            get {
+                return ResourceManager.GetString("OreMagnetite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Malachite.
+        /// </summary>
+        public static string OreMalachite {
+            get {
+                return ResourceManager.GetString("OreMalachite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Molybdenite.
+        /// </summary>
+        public static string OreMolybdenite {
+            get {
+                return ResourceManager.GetString("OreMolybdenite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Copper.
+        /// </summary>
+        public static string OreNativeCopper {
+            get {
+                return ResourceManager.GetString("OreNativeCopper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Gold.
+        /// </summary>
+        public static string OreNativeGold {
+            get {
+                return ResourceManager.GetString("OreNativeGold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Platinum.
+        /// </summary>
+        public static string OreNativePlatinum {
+            get {
+                return ResourceManager.GetString("OreNativePlatinum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Silver.
+        /// </summary>
+        public static string OreNativeSilver {
+            get {
+                return ResourceManager.GetString("OreNativeSilver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pentlandite.
+        /// </summary>
+        public static string OrePentlandite {
+            get {
+                return ResourceManager.GetString("OrePentlandite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pyrolusite.
+        /// </summary>
+        public static string OrePyrolusite {
+            get {
+                return ResourceManager.GetString("OrePyrolusite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rutile.
+        /// </summary>
+        public static string OreRutile {
+            get {
+                return ResourceManager.GetString("OreRutile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scheelite.
+        /// </summary>
+        public static string OreScheelite {
+            get {
+                return ResourceManager.GetString("OreScheelite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sphalerite.
+        /// </summary>
+        public static string OreSphalerite {
+            get {
+                return ResourceManager.GetString("OreSphalerite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spodumene.
+        /// </summary>
+        public static string OreSpodumene {
+            get {
+                return ResourceManager.GetString("OreSpodumene", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uraninite.
+        /// </summary>
+        public static string OreUraninite {
+            get {
+                return ResourceManager.GetString("OreUraninite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vanadinite.
+        /// </summary>
+        public static string OreVanadinite {
+            get {
+                return ResourceManager.GetString("OreVanadinite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zircon.
+        /// </summary>
+        public static string OreZircon {
+            get {
+                return ResourceManager.GetString("OreZircon", resourceCulture);
             }
         }
         

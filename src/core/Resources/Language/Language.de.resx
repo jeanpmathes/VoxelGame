@@ -201,9 +201,6 @@
     <data name="GlassPane" xml:space="preserve">
     <value>Glasscheibe</value>
   </data>
-    <data name="GoldOre" xml:space="preserve">
-    <value>Golderz</value>
-  </data>
     <data name="Grass" xml:space="preserve">
     <value>Gras</value>
   </data>
@@ -215,9 +212,6 @@
   </data>
     <data name="InputNotValid" xml:space="preserve">
     <value>Eingabe nicht gültig!</value>
-  </data>
-    <data name="IronOre" xml:space="preserve">
-    <value>Eisenerz</value>
   </data>
     <data name="Ladder" xml:space="preserve">
     <value>Leiter</value>
@@ -851,5 +845,95 @@
     </data>
     <data name="CoalAnthracite" xml:space="preserve">
         <value>Anthrazit</value>
+    </data>
+    <data name="OreMagnetite" xml:space="preserve">
+        <value>Magnetit</value>
+    </data>
+    <data name="OreHematite" xml:space="preserve">
+        <value>Hämatit</value>
+    </data>
+    <data name="OreNativeGold" xml:space="preserve">
+        <value>Gediegenes Gold</value>
+    </data>
+    <data name="OreNativeSilver" xml:space="preserve">
+        <value>Gediegenes Silber</value>
+    </data>
+    <data name="OreNativePlatinum" xml:space="preserve">
+        <value>Gediegenes Platin</value>
+    </data>
+    <data name="OreNativeCopper" xml:space="preserve">
+        <value>Gediegenes Kupfer</value>
+    </data>
+    <data name="OreChalcopyrite" xml:space="preserve">
+        <value>Kupferkies</value>
+    </data>
+    <data name="OreMalachite" xml:space="preserve">
+        <value>Malachit</value>
+    </data>
+    <data name="OreElectrum" xml:space="preserve">
+        <value>Elektrum</value>
+    </data>
+    <data name="OreBauxite" xml:space="preserve">
+        <value>Bauxit</value>
+    </data>
+    <data name="OreGalena" xml:space="preserve">
+        <value>Bleiglanz</value>
+    </data>
+    <data name="OreCassiterite" xml:space="preserve">
+        <value>Kassiterit</value>
+    </data>
+    <data name="OreCinnabar" xml:space="preserve">
+        <value>Zinnober</value>
+    </data>
+    <data name="OreSphalerite" xml:space="preserve">
+        <value>Zinkblende</value>
+    </data>
+    <data name="OreChromite" xml:space="preserve">
+        <value>Chromit</value>
+    </data>
+    <data name="OrePyrolusite" xml:space="preserve">
+        <value>Pyrolusit</value>
+    </data>
+    <data name="OreRutile" xml:space="preserve">
+        <value>Rutil</value>
+    </data>
+    <data name="OrePentlandite" xml:space="preserve">
+        <value>Pentlandit</value>
+    </data>
+    <data name="OreZircon" xml:space="preserve">
+        <value>Zirkon</value>
+    </data>
+    <data name="OreDolomite" xml:space="preserve">
+        <value>Dolomit</value>
+    </data>
+    <data name="OreCelestine" xml:space="preserve">
+        <value>Coelestin</value>
+    </data>
+    <data name="OreUraninite" xml:space="preserve">
+        <value>Uraninit</value>
+    </data>
+    <data name="OreBismuthinite" xml:space="preserve">
+        <value>Wismuthinit</value>
+    </data>
+    <data name="OreBeryl" xml:space="preserve">
+        <value>Beryll</value>
+    </data>
+    <data name="OreMolybdenite" xml:space="preserve">
+        <value>Molybdänit</value>
+    </data>
+    <data name="OreCobaltite" xml:space="preserve">
+        <value>Kobaltit</value>
+    </data>
+    <data name="OreSpodumene" xml:space="preserve">
+        <value>Spodumen</value>
+    </data>
+    <data name="OreVanadinite" xml:space="preserve">
+        <value>Vanadinit</value>
+    </data>
+    <data name="OreScheelite" xml:space="preserve">
+        <value>Scheelit</value>
+    </data>
+    <data name="OreGreenockite" xml:space="preserve">
+        <value>Greenockit</value>
     </data>
 </root>
