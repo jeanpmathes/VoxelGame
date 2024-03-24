@@ -17,7 +17,7 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& command
     Require(m_drawables.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient->GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*m_nativeClient, spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
     CreateTLAS();

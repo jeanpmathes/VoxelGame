@@ -177,14 +177,13 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    UINT64                     m_frameCounter    = 0;
     GpuCrashTracker::MarkerMap m_markerMap       = {};
     ShaderDatabase             m_shaderDatabase  = {};
     GpuCrashTracker            m_gpuCrashTracker = {m_markerMap, m_shaderDatabase};
 
 public:
-    static void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> commandList);
-    void        SetupShaderForAftermath(ComPtr<IDxcResult> result);
+    void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
+    void SetupShaderForAftermath(ComPtr<IDxcResult> const& result);
 
 private:
 #endif

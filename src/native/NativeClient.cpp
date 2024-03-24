@@ -90,19 +90,22 @@ void NativeClient::LoadDevice()
     ComPtr<IDXGIAdapter1> const hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    m_gpuCrashTracker.Initialize();
+    if (!SupportPIX()) m_gpuCrashTracker.Initialize();
 #endif
 
     TryDo(deviceFactory->CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_device)));
     NAME_D3D12_OBJECT(m_device);
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers |
+    if (!SupportPIX())
+    {
+        constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers |
         GFSDK_Aftermath_FeatureFlags_EnableResourceTracking | GFSDK_Aftermath_FeatureFlags_CallStackCapturing |
         GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
 
-    AFTERMATH_CHECK_ERROR(
+        AFTERMATH_CHECK_ERROR(
         GFSDK_Aftermath_DX12_Initialize( GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
+    }
 #endif
 
 #if defined(NATIVE_DEBUG)
@@ -231,8 +234,8 @@ void NativeClient::LoadRasterPipeline()
     m_postVertexBufferView.StrideInBytes  = sizeof(PostVertex);
     m_postVertexBufferView.SizeInBytes    = vertexBufferSize;
 
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_uploadGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_device, &m_2dGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*this, &m_uploadGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*this, &m_2dGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
 }
 
 void NativeClient::CreateFinalDepthBuffers()
@@ -459,6 +462,9 @@ void NativeClient::OnRender(double const)
 #if defined(USE_NSIGHT_AFTERMATH)
     if (FAILED(present))
     {
+        if (SupportPIX())
+            throw std::runtime_error("Present failed");
+        
         constexpr auto tdrTerminationTimeout = std::chrono::seconds(3);
         auto const     tStart                = std::chrono::steady_clock::now();
         auto           tElapsed              = std::chrono::milliseconds::zero();
@@ -478,14 +484,13 @@ void NativeClient::OnRender(double const)
 
         if (status != GFSDK_Aftermath_CrashDump_Status_Finished)
         {
-            std::stringstream err_msg;
-            err_msg << "Unexpected crash dump status: " << status;
-            MessageBoxA(nullptr, err_msg.str().c_str(), "Aftermath Error", MB_OK);
+            std::stringstream errMsg;
+            errMsg << "Unexpected crash dump status: " << status;
+            MessageBoxA(nullptr, errMsg.str().c_str(), "Aftermath Error", MB_OK);
         }
 
-        exit(-1);
+        throw std::runtime_error("Present failed");
     }
-    m_frameCounter++;
 #else
     TryDo(present);
 #endif
@@ -677,14 +682,20 @@ std::wstring NativeClient::GetDRED() const
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
 #if defined(USE_NSIGHT_AFTERMATH)
-void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const commandList)
+void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
 {
+    if (SupportPIX())
+        return;
+    
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
 }
 
-void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> result)
+void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
+    if (SupportPIX())
+        return;
+    
     ComPtr<IDxcBlob> objectBlob;
     TryDo(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&objectBlob), nullptr));
     std::vector<uint8_t> binary(objectBlob->GetBufferSize());

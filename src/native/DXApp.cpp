@@ -135,7 +135,7 @@ void DXApp::Update(StepTimer const& timer)
 void DXApp::Render(StepTimer const& timer)
 {
     if (m_updateTimer.GetFrameCount() == 0) return;
-
+    
     double const delta = timer.GetElapsedSeconds();
     m_totalRenderTime += delta;
 
@@ -286,13 +286,10 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
             TryDo(adapter->GetDesc1(&desc));
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
-
-            // Instead of passing the useless device, nullptr and __uuidof(ID3D12Device) should be passed.
-            // The current version of PIX (2312.08) does not support this.
-
+            
             ComPtr<ID3D12Device> uselessDevice;
             if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&uselessDevice))))
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
                 break ;
         }
 
@@ -309,7 +306,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
 
             ComPtr<ID3D12Device> uselessDevice;
             if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&uselessDevice))))
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
                 break ;
         }
 
