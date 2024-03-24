@@ -21,12 +21,12 @@ AddressableBuffer InBufferAllocator::Allocate(UINT64 const size)
 
 void InBufferAllocator::CreateBarriers(
     ComPtr<ID3D12GraphicsCommandList> const& commandList,
-    std::vector<ID3D12Resource*> const&      resources) const
+    std::vector<ID3D12Resource*> const&      resources)
 {
     size_t const uavCount = resources.size() + m_blocks.size();
 
-    std::vector<D3D12_RESOURCE_BARRIER> barriers;
-    barriers.reserve(uavCount);
+    m_barriers.clear();
+    m_barriers.reserve(uavCount);
 
     for (ID3D12Resource* resource : resources)
     {
@@ -34,22 +34,22 @@ void InBufferAllocator::CreateBarriers(
         barrierDesc.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
         barrierDesc.UAV.pResource          = resource;
         barrierDesc.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barriers.push_back(barrierDesc);
+        m_barriers.push_back(barrierDesc);
     }
 
-    for (auto& block : m_blocks)
+    for (auto const& block : m_blocks)
     {
         D3D12_RESOURCE_BARRIER barrierDesc = {};
         barrierDesc.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
         barrierDesc.UAV.pResource          = block->GetResource();
         barrierDesc.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barriers.push_back(barrierDesc);
+        m_barriers.push_back(barrierDesc);
     }
 
     auto const barrierCount = static_cast<UINT>(uavCount);
     if (barrierCount == 0) return;
 
-    commandList->ResourceBarrier(barrierCount, barriers.data());
+    commandList->ResourceBarrier(barrierCount, m_barriers.data());
 }
 
 AddressableBuffer InBufferAllocator::AllocateInternal(UINT64 const size)
@@ -128,10 +128,10 @@ ID3D12Resource* InBufferAllocator::Block::GetResource() const { return m_memory.
 InBufferAllocator::Block::~Block() { if (m_block) m_block->Release(); }
 
 InBufferAllocator::Block::Block(
-    D3D12MA::VirtualBlock*       block,
-    Allocation<ID3D12Resource>&& memory,
-    InBufferAllocator*           allocator,
-    size_t const                 index)
+    D3D12MA::VirtualBlock*     block,
+    Allocation<ID3D12Resource> memory,
+    InBufferAllocator*         allocator,
+    size_t const               index)
     : m_block(block)
   , m_memory(std::move(memory))
   , m_allocator(allocator)
@@ -139,8 +139,8 @@ InBufferAllocator::Block::Block(
 {
 }
 
-AddressableBuffer::AddressableBuffer(Allocation<ID3D12Resource>&& resource)
-    : m_resource(std::move(resource))
+AddressableBuffer::AddressableBuffer(Allocation<ID3D12Resource> resource)
+    : m_resource(resource)
   , m_address(m_resource.value().GetGPUVirtualAddress())
 {
 }

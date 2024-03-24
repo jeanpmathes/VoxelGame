@@ -36,7 +36,7 @@ public:
      */
     void CreateBarriers(
         ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<ID3D12Resource*> const&      resources) const;
+        std::vector<ID3D12Resource*> const&      resources);
 
 private:
     AddressableBuffer                        AllocateInternal(UINT64 size);
@@ -67,10 +67,10 @@ private:
         ~Block();
 
         Block(
-            D3D12MA::VirtualBlock*       block,
-            Allocation<ID3D12Resource>&& memory,
-            InBufferAllocator*           allocator,
-            size_t                       index);
+            D3D12MA::VirtualBlock*     block,
+            Allocation<ID3D12Resource> memory,
+            InBufferAllocator*         allocator,
+            size_t                     index);
 
     private:
         D3D12MA::VirtualBlock*     m_block  = nullptr;
@@ -83,13 +83,15 @@ private:
 
     std::vector<std::unique_ptr<Block>> m_blocks         = {};
     size_t                              m_firstFreeBlock = 0;
+
+    std::vector<D3D12_RESOURCE_BARRIER> m_barriers = {};
 };
 
 struct AddressableBuffer
 {
     AddressableBuffer() = default;
 
-    explicit AddressableBuffer(Allocation<ID3D12Resource>&& resource);
+    explicit AddressableBuffer(Allocation<ID3D12Resource> resource);
     explicit AddressableBuffer(
         D3D12_GPU_VIRTUAL_ADDRESS  address,
         D3D12MA::VirtualAllocation allocation,

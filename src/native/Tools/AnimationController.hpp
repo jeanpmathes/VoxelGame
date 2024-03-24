@@ -82,6 +82,8 @@ private:
     void UpdateThreadGroupData();
     void UploadThreadGroupData(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
 
+    void CreateBarriers();
+    
     ShaderResources::ShaderLocation m_threadGroupDataLocation;
     ShaderResources::ShaderLocation m_inputGeometryListLocation;
     ShaderResources::ShaderLocation m_outputGeometryListLocation;
@@ -105,4 +107,7 @@ private:
 
     NativeClient* m_client = {};
     ComPtr<ID3D12PipelineState> m_pipelineState = {};
+
+    std::vector<CD3DX12_RESOURCE_BARRIER> m_entryBarriers = {};
+    std::vector<CD3DX12_RESOURCE_BARRIER> m_exitBarriers  = {};
 };

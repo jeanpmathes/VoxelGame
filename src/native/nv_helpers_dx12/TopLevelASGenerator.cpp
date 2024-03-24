@@ -53,6 +53,15 @@ buffer needs to be kept until the command list execution is finished.
 
 namespace nv_helpers_dx12
 {
+    void TopLevelASGenerator::Clear()
+    {
+        m_instances.clear();
+
+        m_resultSizeInBytes               = 0;
+        m_scratchSizeInBytes              = 0;
+        m_instanceDescriptionsSizeInBytes = 0;
+    }
+
     void TopLevelASGenerator::AddInstance(
         D3D12_GPU_VIRTUAL_ADDRESS const       bottomLevelAS,
         DirectX::XMFLOAT4X4 const&            transform,

@@ -436,14 +436,14 @@ void NativeClient::OnPreRender()
 void NativeClient::OnRender(double const)
 {
     if (!m_windowVisible) return;
-
+    
     {
         PIXScopedEvent(m_commandQueue.Get(), PIX_COLOR_DEFAULT, L"Render");
 
         m_uploadGroup.Close();
 
         PopulateCommandLists();
-
+        
         std::vector<ID3D12CommandList*> commandLists;
         commandLists.reserve(3);
 

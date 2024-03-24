@@ -78,38 +78,23 @@ public:
         return m_elements[index];
     }
 
-    // ReSharper disable once CppInconsistentNaming
-    class iterator
+    /**
+     * \brief Run a function on each element in the list.
+     * \tparam F The type of the function to run.
+     * \param f The function to run.
+     */
+    template <typename F>
+    void ForEach(F f)
     {
-    public:
-        explicit iterator(typename std::vector<E>::iterator iterator, typename std::vector<E>::iterator end)
-            : m_iterator(iterator)
-          , m_end(end) { if (m_iterator != m_end && *m_iterator == nullptr) Advance(); }
+        size_t done = 0;
 
-        iterator operator++()
-        {
-            Advance();
-            return *this;
-        }
-
-        bool operator!=(iterator const& other) const { return m_iterator != other.m_iterator; }
-
-        E& operator*() const { return *m_iterator; }
-
-    private:
-        void Advance()
-        {
-            do { ++m_iterator; }
-            while (m_iterator != m_end && *m_iterator == nullptr);
-        }
-
-        typename std::vector<E>::iterator m_iterator;
-        typename std::vector<E>::iterator m_end;
-    };
-
-    iterator begin() { return iterator(m_elements.begin(), m_elements.end()); }
-
-    iterator end() { return iterator(m_elements.end(), m_elements.end()); }
+        for (size_t index = 0; index < m_elements.size() && done < m_size; index++)
+            if (m_elements[index] != nullptr)
+            {
+                f(m_elements[index]);
+                done++;
+            }
+    }
 
 private:
     std::vector<E>                                                         m_elements = {};

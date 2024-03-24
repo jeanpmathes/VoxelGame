@@ -189,13 +189,27 @@ public class Section : IDisposable, IEntity
     /// </summary>
     /// <param name="localPosition">The local position.</param>
     /// <returns>Whether the position is in bounds.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsInBounds((int x, int y, int z) localPosition)
+    {
+        return IsInBounds(localPosition.x, localPosition.y, localPosition.z);
+    }
+
+    /// <summary>
+    ///     Check whether a position is in bounds.
+    /// </summary>
+    /// <param name="x">The x component of the local position.</param>
+    /// <param name="y">The y component of the local position.</param>
+    /// <param name="z">The z component of the local position.</param>
+    /// <returns>Whether the position is in bounds.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsInBounds(int x, int y, int z)
     {
         var inBounds = true;
 
-        inBounds &= localPosition.x is >= 0 and < Size;
-        inBounds &= localPosition.y is >= 0 and < Size;
-        inBounds &= localPosition.z is >= 0 and < Size;
+        inBounds &= x is >= 0 and < Size;
+        inBounds &= y is >= 0 and < Size;
+        inBounds &= z is >= 0 and < Size;
 
         return inBounds;
     }

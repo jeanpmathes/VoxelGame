@@ -664,14 +664,14 @@ ShaderResources::Description::SizeGetter CreateSizeGetter(Bag<Entry, Index>* lis
 }
 
 template <typename Entry, typename Index>
-ShaderResources::Description::ListBuilder CreateListBuilder(
-    Bag<Entry, Index>*                list,
+ShaderResources::Description::ListBuilder CreateBagBuilder(
+    Bag<Entry, Index>*                bag,
     std::function<UINT(Entry const&)> indexProvider)
 {
-    Require(list != nullptr);
+    Require(bag != nullptr);
 
-    return [list, indexProvider](ShaderResources::Description::DescriptorBuilder const& builder)
+    return [bag, indexProvider](ShaderResources::Description::DescriptorBuilder const& builder)
     {
-        for (auto const& entry : *list) builder(indexProvider(entry));
+        bag->ForEach([bag, indexProvider, &builder](Entry const& entry) { builder(indexProvider(entry)); });
     };
 }

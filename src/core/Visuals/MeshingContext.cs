@@ -202,7 +202,7 @@ public class MeshingContext
     {
         BlockInstance? block;
 
-        if (Section.IsInBounds(position.ToTuple()))
+        if (Section.IsInBounds(position.X, position.Y, position.Z))
         {
             block = current.GetBlock(position);
         }
