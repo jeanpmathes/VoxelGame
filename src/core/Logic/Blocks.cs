@@ -690,32 +690,32 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("obsidian_paving")));
 
-            GraniteRubble = Register(new PermeableConstructionBlock(
+            GraniteRubble = Register(new PermeableBlock(
                 Language.GraniteRubble,
                 nameof(GraniteRubble),
                 TextureLayout.Uniform("granite_rubble")));
 
-            SandstoneRubble = Register(new PermeableConstructionBlock(
+            SandstoneRubble = Register(new PermeableBlock(
                 Language.SandstoneRubble,
                 nameof(SandstoneRubble),
                 TextureLayout.Uniform("sandstone_rubble")));
 
-            LimestoneRubble = Register(new PermeableConstructionBlock(
+            LimestoneRubble = Register(new PermeableBlock(
                 Language.LimestoneRubble,
                 nameof(LimestoneRubble),
                 TextureLayout.Uniform("limestone_rubble")));
 
-            MarbleRubble = Register(new PermeableConstructionBlock(
+            MarbleRubble = Register(new PermeableBlock(
                 Language.MarbleRubble,
                 nameof(MarbleRubble),
                 TextureLayout.Uniform("marble_rubble")));
 
-            PumiceRubble = Register(new PermeableConstructionBlock(
+            PumiceRubble = Register(new PermeableBlock(
                 Language.PumiceRubble,
                 nameof(PumiceRubble),
                 TextureLayout.Uniform("pumice_rubble")));
 
-            ObsidianRubble = Register(new PermeableConstructionBlock(
+            ObsidianRubble = Register(new PermeableBlock(
                 Language.ObsidianRubble,
                 nameof(ObsidianRubble),
                 TextureLayout.Uniform("obsidian_rubble")));
