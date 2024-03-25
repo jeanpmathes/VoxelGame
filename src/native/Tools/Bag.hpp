@@ -87,7 +87,7 @@ public:
     void ForEach(F f)
     {
         size_t done = 0;
-
+   
         for (size_t index = 0; index < m_elements.size() && done < m_size; index++)
             if (m_elements[index] != nullptr)
             {

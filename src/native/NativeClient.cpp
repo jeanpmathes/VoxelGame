@@ -6,6 +6,8 @@
 
 #include "stdafx.h"
 
+
+
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 

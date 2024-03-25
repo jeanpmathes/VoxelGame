@@ -134,7 +134,7 @@ void AnimationController::CreateBLAS(
     std::vector<ID3D12Resource*>*             uavs)
 {
     m_meshes.ForEach(
-        [this, &commandList, &uavs](Mesh* const& mesh)
+        [&](Mesh* const& mesh)
     {
         constexpr bool isForAnimation = true;
         mesh->CreateBLAS(commandList, uavs, isForAnimation);

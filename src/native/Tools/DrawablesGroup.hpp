@@ -166,6 +166,8 @@ public:
             });
     }
 
+    size_t GetModifiedCount() const { return m_modified.Count(); }
+
     /**
      * \brief Get all changed drawables. A drawable is changed if it is active and either newly activated or modified.
      * \return A range of all changed drawables.

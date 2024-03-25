@@ -638,7 +638,8 @@ void Space::RunAnimations() { for (auto& animation : m_animations) animation.Run
 void Space::BuildAccelerationStructures()
 {
     m_uavs.clear();
-
+    m_uavs.reserve(m_animations.size() + m_meshes.GetModifiedCount());
+    
     for (auto& animation : m_animations) animation.CreateBLAS(GetCommandList(), &m_uavs);
 
     for (Mesh* mesh : m_meshes.GetModified()) mesh->CreateBLAS(GetCommandList(), &m_uavs);

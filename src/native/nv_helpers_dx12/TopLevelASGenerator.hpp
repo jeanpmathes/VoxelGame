@@ -117,6 +117,7 @@ namespace nv_helpers_dx12
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        
         std::vector<Instance> m_instances{};
 
         UINT64 m_scratchSizeInBytes              = 0;
