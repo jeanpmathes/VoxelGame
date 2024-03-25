@@ -233,8 +233,9 @@ void DXApp::SetMousePosition(POINT position)
 {
     if (!m_isActive) return;
 
-    m_lastMousePosition = position;
-
+    m_xMousePosition = position.x;
+    m_yMousePosition = position.y;
+    
     TryDo(ClientToScreen(Win32Application::GetHwnd(), &position));
     TryDo(SetCursorPos(position.x, position.y));
 }
