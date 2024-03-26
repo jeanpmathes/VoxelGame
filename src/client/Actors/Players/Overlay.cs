@@ -36,7 +36,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     /// <returns>All overlays that can be displayed.</returns>
     public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Frustum frustum, ref double lowerBound, ref double upperBound)
     {
-        List<Overlay> overlays = new();
+        List<Overlay> overlays = [];
 
         var anyIsBlock = false;
 

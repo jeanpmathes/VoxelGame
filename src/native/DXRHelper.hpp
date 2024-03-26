@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <dxcapi.h>
+#include <iostream>
 
 #include "DXHelper.hpp"
 #include "native.hpp"
@@ -83,7 +84,7 @@ ComPtr<IDxcBlob> CompileShader(
 #else
     args.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
 #endif
-
+    
     ComPtr<IDxcCompilerArgs> compilerArgs;
     TryDo(
         utils->BuildArguments(
@@ -95,7 +96,7 @@ ComPtr<IDxcBlob> CompileShader(
             defines.data(),
             static_cast<UINT32>(defines.size()),
             &compilerArgs));
-
+    
     ComPtr<IDxcResult> result;
     TryDo(
         compiler->Compile(
@@ -104,9 +105,10 @@ ComPtr<IDxcBlob> CompileShader(
             compilerArgs->GetCount(),
             dxcIncludeHandler.Get(),
             IID_PPV_ARGS(&result)));
-
+    
     HRESULT resultCode;
     TryDo(result->GetStatus(&resultCode));
+    
     if (FAILED(resultCode))
     {
         ComPtr<IDxcBlobUtf8> error;

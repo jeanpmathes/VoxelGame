@@ -18,17 +18,17 @@ namespace vg
     namespace decode
     {
         /**
-     * \brief Get the texture index.
-     * \param data The data to decode.
-     * \return The texture index.
-     */
+         * \brief Get the texture index.
+         * \param data The data to decode.
+         * \return The texture index.
+         */
         uint GetTextureIndex(uint4 const data) { return data[0] & BITMASK(13); }
 
         /**
-     * \brief Get the color of the tint.
-     * \param data The data to decode.
-     * \return The color of the tint.
-     */
+         * \brief Get the color of the tint.
+         * \param data The data to decode.
+         * \return The color of the tint.
+         */
         float4 GetTintColor(uint4 const data)
         {
             uint r = (data[1] >> 29) & BITMASK(3);
@@ -39,31 +39,38 @@ namespace vg
         }
 
         /**
-     * \brief Get the animation flag.
-     * \param data The data to decode.
-     * \return Whether the quad is animated.
-     */
+         * \brief Get the animation flag.
+         * \param data The data to decode.
+         * \return Whether the quad is animated.
+         */
         bool GetAnimationFlag(uint4 const data) { return (data[1] >> 0) & BITMASK(1); }
 
         /**
-     * \brief Get the texture rotation flag.
-     * \param data The data to decode.
-     * \return Whether the quad texture is rotated.
-     */
+         * \brief Get the texture rotation flag.
+         * \param data The data to decode.
+         * \return Whether the quad texture is rotated.
+         */
         bool GetTextureRotationFlag(uint4 const data) { return (data[1] >> 1) & BITMASK(1); }
 
         /**
-     * \brief Get the unshaded flag.
-     * \param data The data to decode.
-     * \return Whether the quad is unshaded.
-     */
+         * \brief Get the unshaded flag.
+         * \param data The data to decode.
+         * \return Whether the quad is unshaded.
+         */
         bool GetUnshadedFlag(uint4 const data) { return (data[1] >> 2) & BITMASK(1); }
 
         /**
-     * \brief Decode a float4 from a base 17 number.
-     * \param value The value to decode.
-     * \return The decoded float4.
-     */
+         * \brief Get the normal inverted flag.
+         * \param data The data to decode.
+         * \return Whether the quad's normal is inverted.
+         */
+        bool GetNormalInvertedFlag(uint4 const data) { return (data[1] >> 3) & BITMASK(1); }
+        
+        /**
+         * \brief Decode a float4 from a base 17 number.
+         * \param value The value to decode.
+         * \return The decoded float4.
+         */
         float4 DecodeFromBase17(uint const value)
         {
             uint x = value % 17;
@@ -75,10 +82,10 @@ namespace vg
         }
 
         /**
-     * \brief Get the UVs.
-     * \param data The data to decode.
-     * \return The UVs.
-     */
+         * \brief Get the UVs.
+         * \param data The data to decode.
+         * \return The UVs.
+         */
         float4x2 GetUVs(uint4 const data)
         {
             float4 u = DecodeFromBase17((data[2] >> 15) & BITMASK(17));
@@ -94,10 +101,10 @@ namespace vg
         }
 
         /**
-     * \brief Get the texture repetition.
-     * \param data The data to decode.
-     * \return The texture repetition.
-     */
+         * \brief Get the texture repetition.
+         * \param data The data to decode.
+         * \return The texture repetition.
+         */
         float2 GetTextureRepetition(uint4 const data)
         {
             uint const x = (data[2] >> 4) & BITMASK(4);
@@ -113,11 +120,11 @@ namespace vg
         };
 
         /**
-     * \brief Get the foliage flags.
-     * \param data The data to decode.
-     * \param flag The flag to get.
-     * \return True if the flag is set.
-     */
+         * \brief Get the foliage flags.
+         * \param data The data to decode.
+         * \param flag The flag to get.
+         * \return True if the flag is set.
+         */
         bool GetFoliageFlag(uint4 const data, Foliage const flag) { return (data[2] >> flag) & BITMASK(1); }
     }
 }

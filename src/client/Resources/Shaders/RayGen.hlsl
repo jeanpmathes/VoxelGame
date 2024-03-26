@@ -80,7 +80,8 @@ float GetReflectance(
     if (totalInternalReflection) return 1.0f;
 
     float const cos = n1 <= n2 ? cosThetaI : cosThetaT;
-    return r0 + (1.0f - r0) * POW5(1.0f - cos);
+
+    return clamp(r0 + (1.0f - r0) * POW5(1.0f - cos), 0.0f, 1.0f);
 }
 
 [shader("raygeneration")]void RayGen()
@@ -117,13 +118,6 @@ float GetReflectance(
         native::rt::HitInfo hit = GetEmptyHitInfo();
         path += Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
 
-        bool const  incoming = dot(direction, hit.normal) < 0;
-        float const n1       = incoming ? 1.00f : 1.33f;
-        float const n2       = incoming ? 1.33f : 1.00f;
-
-        float3 const refracted = normalize(refract(direction, hit.normal, n1 / n2));
-        float3 const reflected = normalize(reflect(direction, hit.normal));
-
         hit.color = lerp(hit.color, reflectionHit.color, reflectance);
         hit.alpha = lerp(hit.alpha, reflectionHit.alpha, reflectance);
 
@@ -133,9 +127,22 @@ float GetReflectance(
         color.rgb = rgb;
         color.a   = a;
 
+        bool const incoming = dot(direction, hit.normal) < 0;
+        bool const outgoing = !incoming;
+        
+        float const n1       = incoming ? 1.00f : 1.33f;
+        float const n2       = incoming ? 1.33f : 1.00f;
+
+        float3 const sn = hit.normal;
+
+        if (outgoing) hit.normal *= -1.0f;
+        
+        float3 const refracted = normalize(refract(direction, hit.normal, n1 / n2));
+        float3 const reflected = normalize(reflect(direction, hit.normal));
+
         // If an reflectance ray is needed for the current hit, it is traced this iteration.
         // The main ray of the next iteration is the refraction ray.
-        reflectance = hit.alpha < 1.0f ? GetReflectance(hit.normal, direction, refracted, n1, n2) : 0.0f;
+        reflectance = hit.alpha < 1.0f ? GetReflectance(sn, direction, refracted, n1, n2) : 0.0f;
 
         origin += direction * hit.distance;
         normal    = hit.normal;
@@ -154,13 +161,27 @@ float GetReflectance(
 
         if (reflectance > 0.0f)
         {
-            reflectionHit = GetEmptyHitInfo();
-            Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit, path);
+            // This shader normally has a main ray which can pass trough transparent objects.
+            // At each hit, a reflection ray can be traced.
 
-            // Because the reflection ray is not continued, it is not added to the path.
+            if (reflectance < 1.0f)
+            {
+                // This is the base case. The reflection is not continued and thus not added to the path.
+
+                reflectionHit = GetEmptyHitInfo();
+                Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit, path);
+            }
+            else
+            {
+                // This is the total reflection case. The main ray becomes the reflection ray.
+
+                reflectance = 0.0f;
+                normal      = sn;
+                direction   = reflected;
+            }
         }
     }
-
+    
     native::rt::colorOutput[launchIndex] = float4(color.rgb, 1.0f);
     native::rt::depthOutput[launchIndex] = depth;
 }

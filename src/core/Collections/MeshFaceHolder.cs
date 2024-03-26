@@ -197,7 +197,10 @@ public class MeshFaceHolder
     /// </param>
     /// <param name="direction">The direction of the face. True for upwards (default), false for downwards.</param>
     /// <param name="data">The binary encoded data of the face.</param>
-    /// <param name="isSingleSided">True if this face is single sided, false if double sided.</param>
+    /// <param name="isSingleSided">
+    ///     True if this face is single sided, false if double sided.
+    ///     If true, the second face will have a flipped normal.
+    /// </param>
     /// <param name="isFull">True if this face is full, filling a complete block side.</param>
     public void AddFace(Vector3i pos, int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
         bool isSingleSided, bool isFull)
@@ -405,7 +408,9 @@ public class MeshFaceHolder
         if (face.isSingleSided) return;
 
         positions = (positions.d, positions.c, positions.b, positions.a);
+
         Meshing.MirrorUVs(ref face.data);
+        Meshing.SetFlag(ref face.data, Meshing.QuadFlag.IsNormalInverted, value: true);
 
         meshing.PushQuad(positions, face.data);
     }

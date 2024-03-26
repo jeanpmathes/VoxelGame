@@ -53,7 +53,12 @@ public static class Meshing
         /// <summary>
         ///     Whether the quad does not receive shading.
         /// </summary>
-        IsUnshaded = 2
+        IsUnshaded = 2,
+
+        /// <summary>
+        ///     Whether the normal of the quad should be inverted.
+        /// </summary>
+        IsNormalInverted = 3
     }
 
     private const int UVShift = 15;
@@ -210,6 +215,9 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetFlag(ref (uint a, uint b, uint c, uint d) data, QuadFlag flag, bool value)
     {
-        data.b |= value.ToUInt() << (int) flag;
+        var shift = (int) flag;
+
+        if (value) data.b |= 1u << shift;
+        else data.b &= ~(1u << shift);
     }
 }
