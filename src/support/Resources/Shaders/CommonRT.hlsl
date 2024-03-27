@@ -37,7 +37,7 @@ namespace native
         }
 
         static float const RAY_DISTANCE = 100000.0f;
-        static float const RAY_EPSILON  = 0.0005f;
+        static float const RAY_EPSILON  = 0.0001f;
 
         static int const MASK_VISIBLE = 1 << 0;
         static int const MASK_SHADOW  = 1 << 1;

@@ -12,9 +12,7 @@
     vg::spatial::Info const info = vg::spatial::GetCurrentInfo(attributes);
     float4 const baseColor = vg::section::GetFluidBaseColor(GET_PATH, info) * vg::decode::GetTintColor(info.data);
 
-    SET_HIT_INFO(payload, info, vg::spatial::CalculateShading(info, baseColor.rgb));
-
-    payload.alpha = baseColor.a;
+    SET_FINAL_HIT_INFO(payload, info, vg::spatial::CalculateShading(info, baseColor.rgb), baseColor.a);
 }
 
 [shader("closesthit")]void FluidShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)

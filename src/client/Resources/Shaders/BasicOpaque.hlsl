@@ -14,9 +14,7 @@
 
     if (baseColor.a >= 0.3f) baseColor *= vg::decode::GetTintColor(info.data);
 
-    baseColor.a = 1.0f;
-
-    SET_HIT_INFO(payload, info, CalculateShading(info, baseColor.rgb));
+    SET_FINAL_HIT_INFO(payload, info, CalculateShading(info, baseColor.rgb), 1.0f);
 }
 
 [shader("closesthit")]void BasicOpaqueShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)

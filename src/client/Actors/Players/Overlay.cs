@@ -27,6 +27,11 @@ namespace VoxelGame.Client.Actors.Players;
 public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, Vector3i Position)
 {
     /// <summary>
+    ///     Whether the overlay is a fluid.
+    /// </summary>
+    public bool IsFluid => !IsBlock;
+
+    /// <summary>
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>

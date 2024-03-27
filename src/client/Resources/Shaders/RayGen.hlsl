@@ -8,6 +8,8 @@
 #include "PayloadRT.hlsl"
 #include "RayGenRT.hlsl"
 
+#include "Custom.hlsl"
+
 /**
  * \brief Create an empty hit info / ray payload struct.
  * \return The empty hit info struct.
@@ -108,7 +110,7 @@ float GetReflectance(
     int    iteration = 0;
     float4 color     = 0;
     float  depth     = 0;
-    float  path      = 0;
+    float  path      = length(direction);
 
     float               reflectance   = 0.0f;
     native::rt::HitInfo reflectionHit = GetEmptyHitInfo();
@@ -116,7 +118,9 @@ float GetReflectance(
     while (color.a < 1.0f && iteration < 10 && any(direction))
     {
         native::rt::HitInfo hit = GetEmptyHitInfo();
-        path += Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
+        path                    = Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
+
+        float const alpha = hit.alpha;
 
         hit.color = lerp(hit.color, reflectionHit.color, reflectance);
         hit.alpha = lerp(hit.alpha, reflectionHit.alpha, reflectance);
@@ -127,13 +131,13 @@ float GetReflectance(
         color.rgb = rgb;
         color.a   = a;
 
+        if (color.a >= 1.0f) break;
+
         bool const incoming = dot(direction, hit.normal) < 0;
         bool const outgoing = !incoming;
-        
-        float const n1       = incoming ? 1.00f : 1.33f;
-        float const n2       = incoming ? 1.33f : 1.00f;
 
-        float3 const sn = hit.normal;
+        float const n1 = incoming ? 1.00f : 1.33f;
+        float const n2 = incoming ? 1.33f : 1.00f;
 
         if (outgoing) hit.normal *= -1.0f;
         
@@ -141,10 +145,14 @@ float GetReflectance(
         float3 const reflected = normalize(reflect(direction, hit.normal));
 
         // If an reflectance ray is needed for the current hit, it is traced this iteration.
-        // The main ray of the next iteration is the refraction ray.
-        reflectance = hit.alpha < 1.0f ? GetReflectance(sn, direction, refracted, n1, n2) : 0.0f;
+        // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
 
+        reflectance = alpha < 1.0f
+                          ? GetReflectance(incoming ? hit.normal : hit.normal * -1.0f, direction, refracted, n1, n2)
+                          : 0.0f;
+        
         origin += direction * hit.distance;
+        
         normal    = hit.normal;
         direction = refracted;
 
@@ -176,7 +184,7 @@ float GetReflectance(
                 // This is the total reflection case. The main ray becomes the reflection ray.
 
                 reflectance = 0.0f;
-                normal      = sn;
+                normal      = normal * -1.0f;
                 direction   = reflected;
             }
         }

@@ -20,7 +20,7 @@
         {
             if (baseColor.a >= 0.3f) baseColor *= vg::decode::GetTintColor(info.data);
 
-            SET_HIT_INFO(payload, info, baseColor.rgb);
+            SET_INTERMEDIATE_HIT_INFO(payload, info, baseColor.rgb);
         }
     }
     else IgnoreHit();
@@ -32,7 +32,7 @@
     vg::spatial::Info const info      = vg::spatial::GetCurrentInfo(attributes);
     float3 const            baseColor = payload.color;
 
-    SET_HIT_INFO(payload, info, CalculateShading(info, baseColor));
+    SET_FINAL_HIT_INFO(payload, info, CalculateShading(info, baseColor), 1.0f);
 }
 
 [shader("anyhit")]void FoliageShadowAnyHit(inout native::rt::ShadowHitInfo, native::rt::Attributes const attributes)
