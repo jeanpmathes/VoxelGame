@@ -152,7 +152,7 @@ public abstract partial class Fluid : IIdentifiable<uint>, IIdentifiable<string>
             float halfHeight = ((int) level + 1) * 0.0625f;
 
             return new BoundingVolume(
-                new Vector3d(x: 0f, halfHeight, z: 0f),
+                new Vector3d(x: 0.5f, halfHeight, z: 0.5f),
                 new Vector3d(x: 0.5f, halfHeight, z: 0.5f));
         }
 

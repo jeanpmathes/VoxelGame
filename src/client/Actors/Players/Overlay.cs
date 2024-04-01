@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Actors.Players;
 
@@ -35,12 +36,19 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
-    /// <param name="frustum">The frustum to use for the measurement.</param>
+    /// <param name="view">The view to measure the overlays in.</param>
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Frustum frustum, ref double lowerBound, ref double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref double lowerBound, ref double upperBound)
     {
+        IView.Parameters definition = view.Definition;
+
+        // The following multiplier is a somewhat dirty hack to improve alignment of the overlay with the actual surface.
+        // A potential reason for the misalignment could be the float-based calculations on the native side.
+
+        Frustum frustum = (definition with {Clipping = (definition.Clipping.near * 1.022, definition.Clipping.far)}).Frustum;
+
         List<Overlay> overlays = [];
 
         var anyIsBlock = false;

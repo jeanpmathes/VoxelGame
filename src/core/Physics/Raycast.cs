@@ -183,13 +183,10 @@ public static class Raycast
             Vector3i position = min + offset;
             Content? content = world.GetContent(position);
 
-            if (content is not var (block, _)) continue;
+            if (content is not var (block, fluid)) continue;
 
-            BoxCollider collider = block.Block.GetCollider(world, position);
-
-            if (!collider.Intersects(frustum)) continue;
-
-            positions.Add((content.Value, position));
+            if (block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
+            else if (fluid.Fluid != Fluids.Instance.None && Fluid.GetCollider(position, fluid.Level).Intersects(frustum)) positions.Add((content.Value, position));
         }
 
         return positions;

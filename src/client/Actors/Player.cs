@@ -240,7 +240,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     private void SetBlockAndFluidOverlays()
     {
         Vector3i center = camera.Position.Floor();
-        Frustum frustum = camera.GetPartialFrustum(near: 0.0, camera.NearClipping);
+        Frustum frustum = camera.GetPartialFrustum(near: 0.0, camera.Definition.Clipping.near);
 
         visualInterface.BuildOverlay(this, Raycast.CastFrustum(World, center, range: 1, frustum));
     }

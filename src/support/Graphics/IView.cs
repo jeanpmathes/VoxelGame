@@ -10,32 +10,28 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Support.Graphics;
 
 /// <summary>
-///     Defines a view into the world, providing data that describes that view and properties like the view matrix.
+///     Defines a view into the world, providing data that describes that view and properties like the view frustum.
 /// </summary>
 public interface IView
 {
     /// <summary>
-    ///     Get the far clipping distance.
-    /// </summary>
-    public double FarClipping { get; }
-
-    /// <summary>
-    ///     Get the near clipping distance.
-    /// </summary>
-    public double NearClipping { get; }
-
-    /// <summary>
     ///     Get the view frustum, from near to far plane.
     /// </summary>
-    public Frustum Frustum { get; }
+    public Frustum Frustum => Definition.Frustum;
 
     /// <summary>
-    ///     Get the view matrix.
+    /// Get the parameters that define the view.
     /// </summary>
-    public Matrix4d ViewMatrix { get; }
+    public Parameters Definition { get; }
 
     /// <summary>
-    ///     Get the view's projection matrix.
+    /// Get the parameters that define the view.
     /// </summary>
-    public Matrix4d ProjectionMatrix { get; }
+    public record Parameters(double FieldOfView, double AspectRatio, (double near, double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
+    {
+        /// <summary>
+        ///     Create a frustum from the view parameters.
+        /// </summary>
+        public Frustum Frustum => new(FieldOfView, AspectRatio, Clipping, Position, Orientation.front, Orientation.up, Orientation.right);
+    }
 }

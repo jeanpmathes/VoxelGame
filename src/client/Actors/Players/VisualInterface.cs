@@ -124,13 +124,16 @@ public sealed class VisualInterface : IDisposable
         var lowerBound = 1.0;
         var upperBound = 0.0;
 
-        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View.Frustum, ref lowerBound, ref upperBound).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View, ref lowerBound, ref upperBound).ToList();
 
         Overlay? selected = null;
 
         if (overlays.Any())
         {
-            selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
+            selected = overlays
+                .OrderByDescending(o => o.Size)
+                .ThenBy(o => (o.Position - player.Position).Length)
+                .First();
 
             if (selected.IsBlock) overlayVFX.SetBlockTexture(selected.GetWithAppliedTint(player.World));
             else overlayVFX.SetFluidTexture(selected.GetWithAppliedTint(player.World));

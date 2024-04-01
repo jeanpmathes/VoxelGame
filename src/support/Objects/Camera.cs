@@ -108,27 +108,12 @@ public class Camera : NativeObject, IView
     /// </summary>
     private double FovY => MathHelper.RadiansToDegrees(fovY);
 
-    /// <inheritdoc />
-    public double FarClipping => 1000.0;
+    private static double FarClipping => 1000.0;
+
+    private static double NearClipping => 0.05;
 
     /// <inheritdoc />
-    public double NearClipping => 0.05;
-
-    /// <inheritdoc />
-    public Frustum Frustum => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, Front, Up, Right);
-
-    /// <inheritdoc />
-    public Matrix4d ViewMatrix => Matrix4d.LookAt(Position, Position + Front, Up);
-
-    /// <inheritdoc />
-    public Matrix4d ProjectionMatrix => Matrix4d.CreatePerspectiveFieldOfView(
-        fovY,
-        Client.AspectRatio,
-        NearClipping,
-        FarClipping).With(matrix =>
-    {
-        matrix[rowIndex: 3, columnIndex: 2] *= 0.5f;
-    });
+    public IView.Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Front, Up, Right));
 
     private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
     {
@@ -155,7 +140,7 @@ public class Camera : NativeObject, IView
 
     internal override void PrepareSynchronization()
     {
-        const float maxDistance = 150.0f;
+        const float maxDistance = 64.0f;
 
         Vector3d adaptedPosition = new(
             Position.X % maxDistance,
