@@ -190,9 +190,9 @@ namespace vg
             if (shaded)
             {
                 RayDesc ray;
-                ray.Origin    = info.GetPosition();
+                ray.Origin    = info.GetPosition() + normal * native::rt::RAY_EPSILON;
                 ray.Direction = dirToLight;
-                ray.TMin      = native::rt::RAY_EPSILON;
+                ray.TMin      = 0.0f;
                 ray.TMax      = native::rt::RAY_DISTANCE;
 
                 native::rt::ShadowHitInfo shadowPayload;

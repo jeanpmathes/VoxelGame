@@ -27,6 +27,18 @@ native::rt::HitInfo GetEmptyHitInfo()
 }
 
 /**
+ * \brief Apply fog to a hit.
+ * \param hit The hit info.
+ * \param path The path length of the ray, excluding the current hit.
+ */
+void ApplyFog(inout native::rt::HitInfo hit, float const path)
+{
+    float const c   = path + hit.distance;
+    float const fog = 1.0f - exp(-0.00001f * POW2(c));
+    hit.color.rgb   = lerp(hit.color.rgb, vg::SKY_COLOR, clamp(fog, 0.0f, 1.0f));
+} 
+
+/**
  * \brief Trace a ray.
  * \param origin The origin of the ray.
  * \param direction The direction of the ray.
@@ -34,10 +46,9 @@ native::rt::HitInfo GetEmptyHitInfo()
  * \param payload The payload to write to.
  * \param path The total path length of a ray chain, must be the total length over all previous rays.
  *             This is used to calculate the ray footprint and is carried to the hit shaders trough the alpha component.
- * \return The total path length of the ray chain, including the current ray. 
+ * \return The distance to the hit.   
  */
-float Trace(
-    float3 const origin, float3 const direction, float const min, inout native::rt::HitInfo payload, inout float path)
+float Trace(float3 const origin, float3 const direction, float const min, inout native::rt::HitInfo payload, float path)
 {
     RayDesc ray;
     ray.Origin    = origin;
@@ -55,7 +66,9 @@ float Trace(
         ray,
         payload);
 
-    return path + payload.distance;
+    ApplyFog(payload, path);
+
+    return payload.distance;
 }
 
 /**
@@ -115,47 +128,54 @@ float GetReflectance(
     float               reflectance   = 0.0f;
     native::rt::HitInfo reflectionHit = GetEmptyHitInfo();
 
+    float const epsilon = native::rt::RAY_EPSILON;
+
     while (color.a < 1.0f && iteration < 10 && any(direction))
     {
-        native::rt::HitInfo hit = GetEmptyHitInfo();
-        path                    = Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
+        native::rt::HitInfo mainHit = GetEmptyHitInfo();
+        path += Trace(origin - normal * epsilon, direction, min, mainHit, path);
 
-        float const alpha = hit.alpha;
+        float const alpha = mainHit.alpha;
 
-        hit.color = lerp(hit.color, reflectionHit.color, reflectance);
-        hit.alpha = lerp(hit.alpha, reflectionHit.alpha, reflectance);
+        mainHit.color = lerp(mainHit.color, reflectionHit.color, reflectance);
+        mainHit.alpha = lerp(mainHit.alpha, reflectionHit.alpha, reflectance);
 
-        float const  a   = color.a + (1.0f - color.a) * hit.alpha;
-        float3 const rgb = (color.rgb * color.a + hit.color * (1.0f - color.a) * hit.alpha) / a;
+        float const  a   = color.a + (1.0f - color.a) * mainHit.alpha;
+        float3 const rgb = (color.rgb * color.a + mainHit.color * (1.0f - color.a) * mainHit.alpha) / a;
 
         color.rgb = rgb;
         color.a   = a;
 
         if (color.a >= 1.0f) break;
 
-        bool const incoming = dot(direction, hit.normal) < 0;
+        bool const incoming = dot(direction, mainHit.normal) < 0;
         bool const outgoing = !incoming;
 
         float const n1 = incoming ? 1.00f : 1.33f;
         float const n2 = incoming ? 1.33f : 1.00f;
 
-        if (outgoing) hit.normal *= -1.0f;
-        
-        float3 const refracted = normalize(refract(direction, hit.normal, n1 / n2));
-        float3 const reflected = normalize(reflect(direction, hit.normal));
+        if (outgoing) mainHit.normal *= -1.0f;
+
+        float3 const refracted = normalize(refract(direction, mainHit.normal, n1 / n2));
+        float3 const reflected = normalize(reflect(direction, mainHit.normal));
 
         // If an reflectance ray is needed for the current hit, it is traced this iteration.
         // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
 
         reflectance = alpha < 1.0f
-                          ? GetReflectance(incoming ? hit.normal : hit.normal * -1.0f, direction, refracted, n1, n2)
+                          ? GetReflectance(
+                              incoming ? mainHit.normal : mainHit.normal * -1.0f,
+                              direction,
+                              refracted,
+                              n1,
+                              n2)
                           : 0.0f;
-        
-        origin += direction * hit.distance;
-        
-        normal    = hit.normal;
-        direction = refracted;
 
+        origin += direction * mainHit.distance;
+
+        normal    = mainHit.normal;
+        direction = refracted;
+        
         if (iteration == 0)
         {
             float4 const hitInViewSpace = mul(float4(origin, 1), native::rt::camera.view);
@@ -166,7 +186,7 @@ float GetReflectance(
 
         min = 0;
         iteration++;
-
+        
         if (reflectance > 0.0f)
         {
             // This shader normally has a main ray which can pass trough transparent objects.
@@ -177,7 +197,7 @@ float GetReflectance(
                 // This is the base case. The reflection is not continued and thus not added to the path.
 
                 reflectionHit = GetEmptyHitInfo();
-                Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit, path);
+                Trace(origin + normal * epsilon, reflected, min, reflectionHit, path);
             }
             else
             {
