@@ -181,22 +181,11 @@ namespace vg
             return native::rt::textureSlotTwo[index.w].Load(index.xyz);
         }
 
-#define GET_PATH payload.alpha
-#define GET_SHADOW_PATH -1.0f
-
-#define SET_INTERMEDIATE_HIT_INFO(payload, info, shading_color) \
-    { \
-        payload.distance = RayTCurrent(); \
-        payload.normal = info.normal; \
-        payload.color = shading_color; \
-    } (void)0
+        /**
+         * \brief Path length to use for shadow rays.
+         */
+        static float const SHADOW_PATH = -1.0f;
     }
 }
-
-#define SET_FINAL_HIT_INFO(payload, info, shading_color, shading_alpha) \
-    { \
-        SET_INTERMEDIATE_HIT_INFO(payload, info, shading_color); \
-        payload.alpha = shading_alpha; \
-    } (void)0
 
 #endif

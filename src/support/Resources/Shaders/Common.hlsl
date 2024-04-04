@@ -4,8 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-#ifndef NATIVE_SHADER_COMMON_H
-#define NATIVE_SHADER_COMMON_H
+#ifndef NATIVE_SHADER_COMMON_HLSL
+#define NATIVE_SHADER_COMMON_HLSL
 
 #define POW2(x) ((x) * (x))
 #define POW3(x) (POW2(x) * (x))
@@ -35,29 +35,29 @@ namespace native
      * \param color The color.
      * \return The luminance.
      */
-    float GetLuminance(in float3 const color) { return dot(color, float3(0.299, 0.587, 0.114)); }
+    float GetLuminance(in float3 const color) { return dot(color, float3(0.299f, 0.587f, 0.114f)); }
 
     /**
      * \brief Translates the UV coordinates between the OpenGL and DirectX coordinate system.
      * \param uv The UV coordinates in the OpenGL/DirectX coordinate system.
      * \return The UV coordinates in the DirectX/OpenGL coordinate system.
      */
-    float2 TranslateUV(in float2 const uv) { return float2(uv.x, 1.0 - uv.y); }
-
+    float2 TranslateUV(in float2 const uv) { return float2(uv.x, 1.0f - uv.y); }
+    
     /**
      * \brief The color red.
      */
-    static float3 const RED = float3(1.0, 0.0, 0.0);
+    static float3 const RED = float3(1.0f, 0.0f, 0.0f);
 
     /**
      * \brief The color green.
      */
-    static float3 const GREEN = float3(0.0, 1.0, 0.0);
+    static float3 const GREEN = float3(0.0f, 1.0f, 0.0f);
 
     /**
      * \brief The color blue.
      */
-    static float3 const BLUE = float3(0.0, 0.0, 1.0);
+    static float3 const BLUE = float3(0.0f, 0.0f, 1.0f);
 }
 
 #endif

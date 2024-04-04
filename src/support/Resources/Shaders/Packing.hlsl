@@ -1,0 +1,73 @@
+﻿//  <copyright file="Packing.hlsl" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+#ifndef NATIVE_SHADER_PACKING_HLSL
+#define NATIVE_SHADER_PACKING_HLSL
+
+/**
+ * \brief Utility functions for making data fit into a smaller space.
+ */
+namespace native
+{
+    namespace packing
+    {
+        float2 GetNonZeroSign(in float2 const value)
+        {
+            return float2(value.x >= 0.0f ? 1.0f : -1.0f, value.y >= 0.0f ? 1.0f : -1.0f);
+        }
+
+        /**
+         * Encode the normal vector.
+         * This uses the 'oct' method, see:
+         * Cigolle, Z. H., Donow, S., Evangelakos, D., Mara, M., McGuire, M., & Meyer, Q. (2014). A survey of efficient representations for independent unit vectors. Journal of Computer Graphics Techniques, 3(2).
+         */
+        float2 PackNormal(in float3 const normal)
+        {
+            float2 const projection = normal.xy * (1.0f / (abs(normal.x) + abs(normal.y) + abs(normal.z)));
+            return normal.z <= 0.0f ? (1.0f - abs(projection.yx)) * GetNonZeroSign(projection) : projection;
+        }
+
+        /**
+         * Decode the normal vector.
+         * This uses the 'oct' method, see:
+         * Cigolle, Z. H., Donow, S., Evangelakos, D., Mara, M., McGuire, M., & Meyer, Q. (2014). A survey of efficient representations for independent unit vectors. Journal of Computer Graphics Techniques, 3(2).
+         */
+        float3 UnpackNormal(in float2 const encoded)
+        {
+            float3 normal = float3(encoded.xy, 1.0f - abs(encoded.x) - abs(encoded.y));
+            if (normal.z < 0.0f) normal.xy = (1.0f - abs(normal.yx)) * GetNonZeroSign(normal.xy);
+            return normalize(normal);
+        }
+
+        /**
+         * Pack a RGBA color into two integers, each containing two channels.
+         * Every channel is stored in 16 bits.
+         */
+        uint2 PackColor(in float4 const color)
+        {
+            float4 const clamped = saturate(color);
+
+            uint rg = uint(clamped.r * 65535.0f) | int(clamped.g * 65535.0f) << 16;
+            uint ba = uint(clamped.b * 65535.0f) | int(clamped.a * 65535.0f) << 16;
+
+            return uint2(rg, ba);
+        }
+
+        /**
+         * Unpack a RGBA color from two integers, each containing two channels.
+         */
+        float4 UnpackColor(in uint2 const packed)
+        {
+            return float4(
+                float(packed.x & 0xFFFF) / 65535.0f,
+                float(packed.x >> 16) / 65535.0f,
+                float(packed.y & 0xFFFF) / 65535.0f,
+                float(packed.y >> 16) / 65535.0f);
+        }
+    }
+}
+
+#endif
