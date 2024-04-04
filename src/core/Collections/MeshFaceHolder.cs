@@ -23,21 +23,21 @@ public class MeshFaceHolder
     ///     The direction value that indicates a normal direction, meaning a downwards flow.
     ///     The bottom of the face touches the ground, the top is as high as the size.
     /// </summary>
-    public const bool DefaultDirection = true;
+    public const Boolean DefaultDirection = true;
 
     private readonly BlockSide side;
 
     private readonly MeshFace?[][] lastFaces;
     private readonly Vector3 inset;
 
-    private int count;
+    private Int32 count;
 
     /// <summary>
     ///     Create a new <see cref="MeshFaceHolder" /> for a given block side.
     /// </summary>
     /// <param name="side">The side the faces held belong too.</param>
     /// <param name="insetScale">How much to move the faces inwards.</param>
-    public MeshFaceHolder(BlockSide side, float insetScale)
+    public MeshFaceHolder(BlockSide side, Single insetScale)
     {
         this.side = side;
 
@@ -124,7 +124,7 @@ public class MeshFaceHolder
     /// <param name="layer">The extracted layer index.</param>
     /// <param name="row">The extracted row index.</param>
     /// <param name="position">The extracted position in the row.</param>
-    private void ExtractIndices(Vector3i pos, out int layer, out int row, out int position)
+    private void ExtractIndices(Vector3i pos, out Int32 layer, out Int32 row, out Int32 position)
     {
         switch (side)
         {
@@ -160,7 +160,7 @@ public class MeshFaceHolder
     /// <summary>
     ///     Restore the position from the given indices.
     /// </summary>
-    private Vector3i RestorePosition(int layer, int row, int position)
+    private Vector3i RestorePosition(Int32 layer, Int32 row, Int32 position)
     {
         return side switch
         {
@@ -181,7 +181,7 @@ public class MeshFaceHolder
     /// <param name="data">The binary encoded data of the quad.</param>
     /// <param name="isRotated">True if the face is rotated.</param>
     /// <param name="isSingleSided">True if the face is single sided, false if double sided.</param>
-    public void AddFace(Vector3i pos, (uint a, uint b, uint c, uint d) data, bool isRotated, bool isSingleSided)
+    public void AddFace(Vector3i pos, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, Boolean isSingleSided)
     {
         AddFace(pos, (IHeightVariable.MaximumHeight, IHeightVariable.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
     }
@@ -202,16 +202,16 @@ public class MeshFaceHolder
     ///     If true, the second face will have a flipped normal.
     /// </param>
     /// <param name="isFull">True if this face is full, filling a complete block side.</param>
-    public void AddFace(Vector3i pos, int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
-        bool isSingleSided, bool isFull)
+    public void AddFace(Vector3i pos, Int32 size, Int32 skip, Boolean direction, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
+        Boolean isSingleSided, Boolean isFull)
     {
         AddFace(pos, (size, skip), data, isSingleSided, isFull, isRotated: false, direction);
     }
 
-    private void AddFace(Vector3i pos, (int size, int skip) dimensions, (uint a, uint b, uint c, uint d) data,
-        bool isSingleSided, bool isFull, bool isRotated, bool direction)
+    private void AddFace(Vector3i pos, (Int32 size, Int32 skip) dimensions, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
+        Boolean isSingleSided, Boolean isFull, Boolean isRotated, Boolean direction)
     {
-        ExtractIndices(pos, out int layer, out int row, out int position);
+        ExtractIndices(pos, out Int32 layer, out Int32 row, out Int32 position);
 
         // Build current face.
         MeshFace currentFace = MeshFace.Get(
@@ -224,7 +224,7 @@ public class MeshFaceHolder
             isRotated);
 
         // Front and Back faces cannot be extended (along the y axis) when the face is not all full level.
-        bool levelPermitsExtending = side is not (BlockSide.Front or BlockSide.Back) || isFull;
+        Boolean levelPermitsExtending = side is not (BlockSide.Front or BlockSide.Back) || isFull;
 
         // Check if an already existing face can be extended.
         if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
@@ -267,7 +267,7 @@ public class MeshFaceHolder
             combinationRowFace = combinationRowFace.previous;
         }
 
-        void RemoveFace(MeshFace toRemove, MeshFace? last, int l, int r)
+        void RemoveFace(MeshFace toRemove, MeshFace? last, Int32 l, Int32 r)
         {
             if (last == null) lastFaces[l][r] = toRemove.previous;
             else last.previous = toRemove.previous;
@@ -323,7 +323,7 @@ public class MeshFaceHolder
         }
     }
 
-    private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, MeshFace face)
+    private (Vector3, Vector3, Vector3, Vector3) GetPositions(Int32 layer, Int32 row, MeshFace face)
     {
         return GetPositions(layer, row, (face.position, face.length, face.height));
     }
@@ -331,7 +331,7 @@ public class MeshFaceHolder
     /// <summary>
     ///     Get the positions of the full face.
     /// </summary>
-    private (Vector3, Vector3, Vector3, Vector3) GetPositions(int layer, int row, (int position, uint length, uint height) face)
+    private (Vector3, Vector3, Vector3, Vector3) GetPositions(Int32 layer, Int32 row, (Int32 position, UInt32 length, UInt32 height) face)
     {
         Vector3 position = RestorePosition(layer, row, face.position) + SideDependentOffset;
 
@@ -367,8 +367,8 @@ public class MeshFaceHolder
         Vector3 bottomOffset;
         Vector3 topOffset;
 
-        float gap = IHeightVariable.GetGap(face.size);
-        float skip = IHeightVariable.GetSize(face.skip);
+        Single gap = IHeightVariable.GetGap(face.size);
+        Single skip = IHeightVariable.GetSize(face.skip);
 
         if (face.direction)
         {
@@ -389,7 +389,7 @@ public class MeshFaceHolder
 
     private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        float gap = IHeightVariable.GetGap(face.size);
+        Single gap = IHeightVariable.GetGap(face.size);
         Vector3 offset = inset;
 
         if (face.direction && side == BlockSide.Top) offset += (0, -gap, 0);
@@ -429,38 +429,38 @@ public class MeshFaceHolder
 
     private sealed class MeshFace
     {
-        public (uint a, uint b, uint c, uint d) data;
+        public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data;
 
         /// <summary>
         ///     The direction of the face, either up (true) or down (false).
         ///     A face that goes up starts at the bottom of the block and goes up according to the size.
         ///     A face that goes down starts at the top of the block and goes down according to the size.
         /// </summary>
-        public bool direction;
+        public Boolean direction;
 
         /// <summary>
         ///     The size of the face, in the units used by <see cref="IHeightVariable" />.
         ///     Is referred to as the height of the face outside of this class.
         /// </summary>
-        public int size;
+        public Int32 size;
 
         /// <summary>
         ///     The portion of the face that is skipped, in size units.
         ///     This can be the height of a neighboring block.
         /// </summary>
-        public int skip;
+        public Int32 skip;
 
-        public uint height;
-        public uint length;
-        public int position;
+        public UInt32 height;
+        public UInt32 length;
+        public Int32 position;
 
-        public bool isSingleSided;
-        public bool isRotated;
+        public Boolean isSingleSided;
+        public Boolean isRotated;
 
         public MeshFace? previous;
 
         #pragma warning disable S1067
-        public bool IsExtendable(MeshFace extension)
+        public Boolean IsExtendable(MeshFace extension)
         {
             return position + length + 1 == extension.position &&
                    height == extension.height &&
@@ -472,7 +472,7 @@ public class MeshFaceHolder
                    isRotated == extension.isRotated;
         }
 
-        public bool IsCombinable(MeshFace addition)
+        public Boolean IsCombinable(MeshFace addition)
         {
             return position == addition.position &&
                    length == addition.length &&
@@ -487,8 +487,8 @@ public class MeshFaceHolder
 
         #region POOLING
 
-        public static MeshFace Get(int size, int skip, bool direction, (uint a, uint b, uint c, uint d) data,
-            int position, bool isSingleSided, bool isRotated)
+        public static MeshFace Get(Int32 size, Int32 skip, Boolean direction, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
+            Int32 position, Boolean isSingleSided, Boolean isRotated)
         {
             MeshFace instance = SimpleObjectPool<MeshFace>.Shared.Get();
 

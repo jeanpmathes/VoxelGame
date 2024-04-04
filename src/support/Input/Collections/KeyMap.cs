@@ -13,14 +13,14 @@ namespace VoxelGame.Support.Input.Collections;
 /// </summary>
 public class KeyMap
 {
-    private readonly Dictionary<VirtualKeys, int> usageCount = new();
+    private readonly Dictionary<VirtualKeys, Int32> usageCount = new();
 
     /// <summary>
     ///     Add a binding to the map.
     /// </summary>
     /// <param name="keyOrButton">The key or button targeted by the binding.</param>
     /// <returns>True if the binding does not cause conflicts.</returns>
-    public bool AddBinding(VirtualKeys keyOrButton)
+    public Boolean AddBinding(VirtualKeys keyOrButton)
     {
         var unused = true;
 
@@ -48,9 +48,9 @@ public class KeyMap
     /// </summary>
     /// <param name="keyOrButton">The key or button.</param>
     /// <returns>The usage of the key or button.</returns>
-    public int GetUsageCount(VirtualKeys keyOrButton)
+    public Int32 GetUsageCount(VirtualKeys keyOrButton)
     {
-        if (!usageCount.TryGetValue(keyOrButton, out int count)) count = 0;
+        if (!usageCount.TryGetValue(keyOrButton, out Int32 count)) count = 0;
 
         return count;
     }

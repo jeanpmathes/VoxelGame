@@ -25,7 +25,7 @@ public abstract class Setting
     /// <summary>
     ///     Get the name of the setting.
     /// </summary>
-    protected abstract string Name { get; }
+    protected abstract String Name { get; }
 
     /// <summary>
     ///     The provider which provided this setting.
@@ -62,9 +62,9 @@ public abstract class Setting
     /// <param name="validate">Function that validates the current setting value.</param>
     /// <param name="reset">Function that resets the current setting value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateKeyOrButtonSetting(ISettingsValidator validator, string name,
+    public static Setting CreateKeyOrButtonSetting(ISettingsValidator validator, String name,
         Func<VirtualKeys> get, Action<VirtualKeys> set,
-        Func<bool> validate, Action reset)
+        Func<Boolean> validate, Action reset)
     {
         return new KeyOrButtonSetting(name, get, set, validate, reset)
         {
@@ -81,9 +81,9 @@ public abstract class Setting
     /// <param name="min">The minimum allowed value.</param>
     /// <param name="max">The maximum allowed value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateIntegerSetting(ISettingsValidator validator, string name,
-        (Func<int> get, Action<int> set) accessors,
-        int min = int.MinValue, int max = int.MaxValue)
+    public static Setting CreateIntegerSetting(ISettingsValidator validator, String name,
+        (Func<Int32> get, Action<Int32> set) accessors,
+        Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
     {
         return new IntegerSetting(name, min, max, accessors.get, accessors.set)
         {
@@ -98,7 +98,7 @@ public abstract class Setting
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateColorSetting(ISettingsValidator validator, string name,
+    public static Setting CreateColorSetting(ISettingsValidator validator, String name,
         (Func<Color> get, Action<Color> set) accessors)
     {
         return new ColorSettings(name, accessors.get, accessors.set)
@@ -118,10 +118,10 @@ public abstract class Setting
     /// <param name="percentage">Whether the value is a percentage and should be displayed as such.</param>
     /// <param name="step">The step size of the slider.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateFloatRangeSetting(ISettingsValidator validator, string name,
-        (Func<float> get, Action<float> set) accessors,
-        float min = float.MinValue, float max = float.MaxValue,
-        bool percentage = false, float? step = null)
+    public static Setting CreateFloatRangeSetting(ISettingsValidator validator, String name,
+        (Func<Single> get, Action<Single> set) accessors,
+        Single min = Single.MinValue, Single max = Single.MaxValue,
+        Boolean percentage = false, Single? step = null)
     {
         return new FloatRangeSetting(name, min, max, percentage, step, accessors.get, accessors.set)
         {
@@ -136,7 +136,7 @@ public abstract class Setting
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateQualitySetting(ISettingsValidator validator, string name,
+    public static Setting CreateQualitySetting(ISettingsValidator validator, String name,
         (Func<Quality> get, Action<Quality> set) accessors)
     {
         return new QualitySetting(name, accessors.get, accessors.set)
@@ -152,8 +152,8 @@ public abstract class Setting
     /// <param name="name">The name of the setting.</param>
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateBooleanSetting(ISettingsValidator validator, string name,
-        (Func<bool> get, Action<bool> set) accessors)
+    public static Setting CreateBooleanSetting(ISettingsValidator validator, String name,
+        (Func<Boolean> get, Action<Boolean> set) accessors)
     {
         return new BooleanSetting(name, accessors.get, accessors.set)
         {
@@ -172,7 +172,7 @@ public abstract class Setting
     ///     setting.
     /// </param>
     /// <returns>The created setting.</returns>
-    public static Setting CreateSizeSetting(ISettingsValidator validator, string name,
+    public static Setting CreateSizeSetting(ISettingsValidator validator, String name,
         (Func<Vector2i> get, Action<Vector2i> set) accessors, Func<Vector2i>? current = null)
     {
         return new SizeSetting(name, accessors.get, accessors.set, current)

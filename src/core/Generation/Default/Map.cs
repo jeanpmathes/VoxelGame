@@ -83,19 +83,19 @@ public partial class Map : IMap
     /// <summary>
     ///     Height of the highest mountains and deepest oceans.
     /// </summary>
-    public const int MaxHeight = 10_000;
+    public const Int32 MaxHeight = 10_000;
 
     /// <summary>
     ///     The size of a map cell.
     /// </summary>
-    private const int CellSize = 100_000;
+    private const Int32 CellSize = 100_000;
 
-    private const int MinimumWidth = (int) (World.BlockLimit * 2) / CellSize;
-    private const int Width = MinimumWidth + 2;
-    private const int CellCount = Width * Width;
+    private const Int32 MinimumWidth = (Int32) (World.BlockLimit * 2) / CellSize;
+    private const Int32 Width = MinimumWidth + 2;
+    private const Int32 CellCount = Width * Width;
 
-    private const double MinTemperature = -5.0;
-    private const double MaxTemperature = 30.0;
+    private const Double MinTemperature = -5.0;
+    private const Double MaxTemperature = 30.0;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
     private static readonly Color blockTintWarm = Color.LightGreen;
@@ -211,7 +211,7 @@ public partial class Map : IMap
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
-        float temperature = NormalizeTemperature(sample.GetRealTemperature(position.Y));
+        Single temperature = NormalizeTemperature(sample.GetRealTemperature(position.Y));
 
         Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Humidity));
         Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
@@ -228,7 +228,7 @@ public partial class Map : IMap
         return sample.GetRealTemperature(position.Y);
     }
 
-    private static Temperature ConvertTemperatureToCelsius(float temperature)
+    private static Temperature ConvertTemperatureToCelsius(Single temperature)
     {
         return new Temperature
         {
@@ -236,16 +236,16 @@ public partial class Map : IMap
         };
     }
 
-    private static float NormalizeTemperature(Temperature temperature)
+    private static Single NormalizeTemperature(Temperature temperature)
     {
-        return (float) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature.DegreesCelsius);
+        return (Single) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature.DegreesCelsius);
     }
 
-    private static Temperature GetTemperatureAtHeight(Temperature groundTemperature, float humidity, double heightAboveGround)
+    private static Temperature GetTemperatureAtHeight(Temperature groundTemperature, Single humidity, Double heightAboveGround)
     {
         if (heightAboveGround < 0) return groundTemperature;
 
-        double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, humidity);
+        Double decreaseFactor = MathHelper.Lerp(start: 10.0, end: 5.0, humidity);
 
         return new Temperature
         {
@@ -286,7 +286,7 @@ public partial class Map : IMap
     ///     Whether the map is dirty and needs to be saved.
     ///     Will be true if the map is generated, false if it is just loaded.
     /// </param>
-    public void Initialize(WorldData world, string? blob, NoiseFactory factory, out bool dirty)
+    public void Initialize(WorldData world, String? blob, NoiseFactory factory, out Boolean dirty)
     {
         logger.LogDebug(Events.WorldGeneration, "Initializing map");
 
@@ -345,7 +345,7 @@ public partial class Map : IMap
         EmitBiomeView(data, biomes, path);
     }
 
-    private void Load(WorldData world, string blob)
+    private void Load(WorldData world, String blob)
     {
         var loaded = world.ReadBlob<Data>(blob);
 
@@ -369,7 +369,7 @@ public partial class Map : IMap
     /// </summary>
     /// <param name="world">The world data to store the blob in.</param>
     /// <param name="blob">The name of the blob to store the map in.</param>
-    public void Store(WorldData world, string blob)
+    public void Store(WorldData world, String blob)
     {
         Debug.Assert(data != null);
 
@@ -385,58 +385,58 @@ public partial class Map : IMap
     {
         Debug.Assert(data != null);
 
-        static int GetNearestNeighbor(int number)
+        static Int32 GetNearestNeighbor(Int32 number)
         {
-            const int halfCellSize = CellSize / 2;
+            const Int32 halfCellSize = CellSize / 2;
 
-            int subject = DivideByCellSize(number);
-            int a = DivideByCellSize(number - halfCellSize);
-            int b = DivideByCellSize(number + halfCellSize);
+            Int32 subject = DivideByCellSize(number);
+            Int32 a = DivideByCellSize(number - halfCellSize);
+            Int32 b = DivideByCellSize(number + halfCellSize);
 
             return a == subject ? b : a;
         }
 
-        int xP = DivideByCellSize(position.X);
-        int yP = DivideByCellSize(position.Y);
+        Int32 xP = DivideByCellSize(position.X);
+        Int32 yP = DivideByCellSize(position.Y);
 
-        int xN = GetNearestNeighbor(position.X);
-        int yN = GetNearestNeighbor(position.Y);
+        Int32 xN = GetNearestNeighbor(position.X);
+        Int32 yN = GetNearestNeighbor(position.Y);
 
-        (int x1, int x2) = VMath.MinMax(xP, xN);
-        (int y1, int y2) = VMath.MinMax(yP, yN);
+        (Int32 x1, Int32 x2) = VMath.MinMax(xP, xN);
+        (Int32 y1, Int32 y2) = VMath.MinMax(yP, yN);
 
-        const int halfCellSize = CellSize / 2;
+        const Int32 halfCellSize = CellSize / 2;
 
         Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(halfCellSize, halfCellSize);
         Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(halfCellSize, halfCellSize);
 
-        double tX = VMath.InverseLerp(p1.X, p2.X, position.X);
-        double tY = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
+        Double tX = VMath.InverseLerp(p1.X, p2.X, position.X);
+        Double tY = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
 
         tX = ApplyBiomeChangeFunction(tX);
         tY = ApplyBiomeChangeFunction(tY);
 
-        const double transitionFactor = 0.015;
+        const Double transitionFactor = 0.015;
 
-        double blendX = tX + samplingNoise.x.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
-        double blendY = tY + samplingNoise.y.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
+        Double blendX = tX + samplingNoise.x.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
+        Double blendY = tY + samplingNoise.y.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
 
-        const int extents = Width / 2;
+        const Int32 extents = Width / 2;
 
         ref readonly Cell c00 = ref data.GetCell(x1 + extents, y1 + extents);
         ref readonly Cell c10 = ref data.GetCell(x2 + extents, y1 + extents);
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
-        var temperature = (float) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var humidity = (float) VMath.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
-        var height = (float) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
+        var temperature = (Single) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
+        var humidity = (Single) VMath.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
+        var height = (Single) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
-        float mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
-        float coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, (blendX, blendY), out bool isCliff);
+        Single mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
+        Single coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, (blendX, blendY), out Boolean isCliff);
 
         Biome specialBiome;
-        float specialStrength;
+        Single specialStrength;
 
         if (mountainStrength > coastlineStrength)
         {
@@ -472,54 +472,54 @@ public partial class Map : IMap
         };
     }
 
-    private static float GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, float height, Vector2d blend)
+    private static Single GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, Single height, Vector2d blend)
     {
-        (double w1, double w2, double w3, double w4) = GetMountainSlopeWeights(blend.X, blend.Y);
+        (Double w1, Double w2, Double w3, Double w4) = GetMountainSlopeWeights(blend.X, blend.Y);
 
-        double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blend.X) * w1;
-        double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blend.X) * w2;
+        Double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blend.X) * w1;
+        Double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blend.X) * w2;
 
-        double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blend.Y) * w3;
-        double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blend.Y) * w4;
+        Double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blend.Y) * w3;
+        Double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blend.Y) * w4;
 
-        var slopeMountainStrength = (float) (e1 + e2 + e3 + e4);
-        float mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
+        var slopeMountainStrength = (Single) (e1 + e2 + e3 + e4);
+        Single mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
 
-        mountainStrength = (float) mountainStrengthFunction.Evaluate(mountainStrength);
+        mountainStrength = (Single) mountainStrengthFunction.Evaluate(mountainStrength);
 
         return mountainStrength;
     }
 
-    private static float GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref float height, Vector2d blend, out bool isCliff)
+    private static Single GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref Single height, Vector2d blend, out Boolean isCliff)
     {
-        var depthStrength = (float) depthStrengthFunction.Evaluate(height);
+        var depthStrength = (Single) depthStrengthFunction.Evaluate(height);
 
-        static Vector2d FindClosestZero(double f00, double f10, double f01, double f11, double x, double y)
+        static Vector2d FindClosestZero(Double f00, Double f10, Double f01, Double f11, Double x, Double y)
         {
             Vector2d grad = VMath.GradBiLerp(f00, f10, f01, f11, x, y);
-            double dv = Vector2d.Dot(grad, Vector2d.Normalize(grad));
+            Double dv = Vector2d.Dot(grad, Vector2d.Normalize(grad));
 
-            double k = VMath.BiLerp(f00, f10, f01, f11, x, y) / dv;
+            Double k = VMath.BiLerp(f00, f10, f01, f11, x, y) / dv;
 
             return new Vector2d(x, y) - k * Vector2d.Normalize(grad);
         }
 
-        double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
+        Double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
 
-        if (double.IsNaN(distanceToZero))
+        if (Double.IsNaN(distanceToZero))
             // All four heights are the same, so there is no gradient.
             distanceToZero = VMath.NearlyZero(c00.height) ? 0 : 1;
 
-        var distanceStrength = (float) distanceStrengthFunction.Evaluate(distanceToZero);
+        var distanceStrength = (Single) distanceStrengthFunction.Evaluate(distanceToZero);
 
-        double GetOceanStrength(in Cell c)
+        Double GetOceanStrength(in Cell c)
         {
             return c.IsLand ? 0.0 : 1.0;
         }
 
-        var oceanStrength = (float) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
+        var oceanStrength = (Single) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
 
-        float coastlineStrength;
+        Single coastlineStrength;
 
         if (height < 0.0f)
         {
@@ -530,7 +530,7 @@ public partial class Map : IMap
             // It is possible that the ocean strength is greater 0.5 above the water height.
             // To prevent ocean biome above the water, the coastline strength must be greater 0.5 in that case.
 
-            oceanStrength = (float) oceanStrengthFunction.Evaluate(oceanStrength);
+            oceanStrength = (Single) oceanStrengthFunction.Evaluate(oceanStrength);
 
             coastlineStrength = depthStrength + oceanStrength;
         }
@@ -538,28 +538,28 @@ public partial class Map : IMap
         coastlineStrength = Math.Clamp(coastlineStrength, min: 0.0f, max: 1.0f);
         coastlineStrength = Math.Max(coastlineStrength, distanceStrength);
 
-        float GetFlattenedHeight(float height)
+        Single GetFlattenedHeight(Single height)
         {
-            float sign = Math.Sign(height);
+            Single sign = Math.Sign(height);
 
-            var flattenedHeight = (float) flattenedHeightFunction.Evaluate(Math.Abs(height));
+            var flattenedHeight = (Single) flattenedHeightFunction.Evaluate(Math.Abs(height));
 
             return sign * flattenedHeight;
         }
 
-        float GetCliffFactor()
+        Single GetCliffFactor()
         {
-            return (float) cliffFactorFunction.Evaluate(1.0 - distanceStrength);
+            return (Single) cliffFactorFunction.Evaluate(1.0 - distanceStrength);
         }
 
-        float GetSurfaceHeight(in Cell c)
+        Single GetSurfaceHeight(in Cell c)
         {
             return c.IsLand ? c.height : 0.0f;
         }
 
-        var cliffStrength = (float) VMath.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
+        var cliffStrength = (Single) VMath.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
 
-        const float maxBeachHeight = 0.001f;
+        const Single maxBeachHeight = 0.001f;
 
         height = MathHelper.Lerp(GetFlattenedHeight(height), GetCliffFactor() * height, cliffStrength);
         isCliff = height > maxBeachHeight;
@@ -567,29 +567,29 @@ public partial class Map : IMap
         return coastlineStrength;
     }
 
-    private static float GetSurfaceHeightDifference(in Cell a, in Cell b)
+    private static Single GetSurfaceHeightDifference(in Cell a, in Cell b)
     {
         if (a.IsLand && b.IsLand) return Math.Abs(a.height - b.height);
 
         return 0;
     }
 
-    private static (double, double, double, double) GetMountainSlopeWeights(double x, double y)
+    private static (Double, Double, Double, Double) GetMountainSlopeWeights(Double x, Double y)
     {
-        double w1 = 1 - x;
-        double w2 = 1 - y;
-        double w3 = x;
-        double w4 = y;
+        Double w1 = 1 - x;
+        Double w2 = 1 - y;
+        Double w3 = x;
+        Double w4 = y;
 
-        double sum = w1 + w2 + w3 + w4;
+        Double sum = w1 + w2 + w3 + w4;
 
         return (w1 / sum, w2 / sum, w3 / sum, w4 / sum);
     }
 
-    private static int DivideByCellSize(int number)
+    private static Int32 DivideByCellSize(Int32 number)
     {
-        int result = number / CellSize;
-        int adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
+        Int32 result = number / CellSize;
+        Int32 adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
 
         return adjusted;
     }
@@ -601,13 +601,13 @@ public partial class Map : IMap
     {
         Debug.Assert(data != null);
 
-        const double transitionFactor = 0.05;
-        const double scalingFactor = 5.0;
+        const Double transitionFactor = 0.05;
+        const Double scalingFactor = 5.0;
 
         Vector3d scaledPosition = position.ToVector3d() * scalingFactor;
 
-        double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
+        Double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        Double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
         return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
@@ -615,7 +615,7 @@ public partial class Map : IMap
     /// <summary>
     ///     Get the border strength from a blend factor.
     /// </summary>
-    private static double GetBorderStrength(double t)
+    private static Double GetBorderStrength(Double t)
     {
         return (t > 0.5 ? 1 - t : t) * 2;
     }
@@ -634,17 +634,17 @@ public partial class Map : IMap
         /// <summary>
         ///     The height of the sample.
         /// </summary>
-        public float Height { get; init; }
+        public Single Height { get; init; }
 
         /// <summary>
         ///     The temperature of the sample, in range [0, 1]. Use <see cref="GetTemperatureAtHeight" /> to retrieve the temperature.
         /// </summary>
-        public float Temperature { get; init; }
+        public Single Temperature { get; init; }
 
         /// <summary>
         ///     The humidity of the sample, in range [0, 1].
         /// </summary>
-        public float Humidity { get; init; }
+        public Single Humidity { get; init; }
 
         /// <summary>
         ///     Get the actual biome at the sample position.
@@ -684,19 +684,19 @@ public partial class Map : IMap
         /// <summary>
         ///     Data regarding the stone composition.
         /// </summary>
-        public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, double tX, double tY) StoneData { get; init; }
+        public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Double tX, Double tY) StoneData { get; init; }
 
         /// <summary>
         ///     Get the temperature at a given height.
         /// </summary>
         /// <param name="y">The height, in meters.</param>
         /// <returns>The temperature.</returns>
-        public Temperature GetRealTemperature(double y)
+        public Temperature GetRealTemperature(Double y)
         {
             // The ground height follows the actual height of the sample, but mountains and oceans are ignored.
             // This is necessary to have more realistic lower temperature on mountains.
 
-            double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
+            Double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
             return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Humidity, y - groundHeight);
         }
@@ -723,17 +723,17 @@ public partial class Map : IMap
         /// <summary>
         ///     The continent id of the cell. The ids are not contiguous, but are unique.
         /// </summary>
-        public short continent;
+        public Int16 continent;
 
         /// <summary>
         ///     The height of the cell, in the range [-1, 1].
         /// </summary>
-        public float height;
+        public Single height;
 
         /// <summary>
         ///     The humidity of the cell, in the range [0, 1].
         /// </summary>
-        public float humidity;
+        public Single humidity;
 
         /// <summary>
         ///     The height of the cell.
@@ -743,9 +743,9 @@ public partial class Map : IMap
         /// <summary>
         ///     The temperature of the cell, in the range [0, 1].
         /// </summary>
-        public float temperature;
+        public Single temperature;
 
-        public bool IsLand => height > 0.0f;
+        public Boolean IsLand => height > 0.0f;
 
         /// <inheritdoc />
         public void Serialize(Serializer serializer)
@@ -764,7 +764,7 @@ public partial class Map : IMap
         private readonly Cell[] cells = new Cell[CellCount];
 
         /// <inheritdoc />
-        public static int Version => 1;
+        public static Int32 Version => 1;
 
         /// <inheritdoc />
         public void Serialize(Serializer serializer, IEntity.Header header)
@@ -772,7 +772,7 @@ public partial class Map : IMap
             serializer.SerializeValues(cells);
         }
 
-        public ref Cell GetCell(int x, int y)
+        public ref Cell GetCell(Int32 x, Int32 y)
         {
             return ref Get(cells, x, y);
         }
@@ -782,7 +782,7 @@ public partial class Map : IMap
             return ref Get(cells, position);
         }
 
-        public static ref T Get<T>(in T[] array, int x, int y)
+        public static ref T Get<T>(in T[] array, Int32 x, Int32 y)
         {
             return ref array[x + y * Width];
         }
@@ -792,10 +792,10 @@ public partial class Map : IMap
             return ref Get(array, position.X, position.Y);
         }
 
-        public static Vector2i GetPosition(int index)
+        public static Vector2i GetPosition(Int32 index)
         {
-            int x = index % Width;
-            int y = index / Width;
+            Int32 x = index % Width;
+            Int32 y = index / Width;
 
             return new Vector2i(x, y);
         }
@@ -825,7 +825,7 @@ public partial class Map : IMap
         }
     };
 
-    private static double ApplyBiomeChangeFunction(double t)
+    private static Double ApplyBiomeChangeFunction(Double t)
     {
         return biomeChangeFunction.Evaluate(t);
     }

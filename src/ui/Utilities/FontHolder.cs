@@ -17,8 +17,8 @@ namespace VoxelGame.UI.Utilities;
 /// </summary>
 public sealed class FontHolder : IDisposable
 {
-    private const string DefaultFontName = "Times New Roman";
-    private const string ConsoleFontName = "Consolas";
+    private const String DefaultFontName = "Times New Roman";
+    private const String ConsoleFontName = "Consolas";
 
     private readonly List<Font> headers = new();
 
@@ -58,14 +58,14 @@ public sealed class FontHolder : IDisposable
     /// <summary>
     ///     Get the header, using the one-based level.
     /// </summary>
-    internal Font GetHeader(int level)
+    internal Font GetHeader(Int32 level)
     {
         return headers[Math.Clamp(level - 1, min: 0, headers.Count - 1)];
     }
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()
@@ -74,7 +74,7 @@ public sealed class FontHolder : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

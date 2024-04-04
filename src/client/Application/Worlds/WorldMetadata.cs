@@ -31,7 +31,7 @@ public class WorldFileMetadata
     /// <summary>
     ///     Whether the world is marked as a favorite.
     /// </summary>
-    public bool IsFavorite { get; set; }
+    public Boolean IsFavorite { get; set; }
 }
 
 /// <summary>
@@ -45,7 +45,7 @@ public class WorldDirectoryMetadata
     /// <summary>
     ///     A dictionary from world directory name to the metadata of the world.
     /// </summary>
-    public Dictionary<string, WorldFileMetadata> Entries { get; set; } = new();
+    public Dictionary<String, WorldFileMetadata> Entries { get; set; } = new();
 
     /// <summary>
     ///     Save the metadata to a file.

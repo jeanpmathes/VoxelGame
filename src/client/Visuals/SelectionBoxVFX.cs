@@ -47,7 +47,7 @@ public sealed class SelectionBoxVFX : VFX
     /// <summary>
     ///     Set whether the VFX is enabled.
     /// </summary>
-    public override bool IsEnabled
+    public override Boolean IsEnabled
     {
         get => effect?.IsEnabled ?? false;
         set
@@ -146,8 +146,8 @@ public sealed class SelectionBoxVFX : VFX
 
     private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
     {
-        (float minX, float minY, float minZ) = boundingVolume.Min.ToVector3();
-        (float maxX, float maxY, float maxZ) = boundingVolume.Max.ToVector3();
+        (Single minX, Single minY, Single minZ) = boundingVolume.Min.ToVector3();
+        (Single maxX, Single maxY, Single maxZ) = boundingVolume.Max.ToVector3();
 
         // The four bottom lines:
         AddLine(vertices, (minX, minY, minZ), (maxX, minY, minZ));
@@ -204,19 +204,19 @@ public sealed class SelectionBoxVFX : VFX
         /// <summary>
         ///     Check equality.
         /// </summary>
-        public bool Equals(Data other)
+        public Boolean Equals(Data other)
         {
             return (DarkColor, BrightColor) == (other.DarkColor, other.BrightColor);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is Data other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(DarkColor, BrightColor);
         }
@@ -224,7 +224,7 @@ public sealed class SelectionBoxVFX : VFX
         /// <summary>
         ///     The equality operator.
         /// </summary>
-        public static bool operator ==(Data left, Data right)
+        public static Boolean operator ==(Data left, Data right)
         {
             return left.Equals(right);
         }
@@ -232,7 +232,7 @@ public sealed class SelectionBoxVFX : VFX
         /// <summary>
         ///     The inequality operator.
         /// </summary>
-        public static bool operator !=(Data left, Data right)
+        public static Boolean operator !=(Data left, Data right)
         {
             return !left.Equals(right);
         }
@@ -240,10 +240,10 @@ public sealed class SelectionBoxVFX : VFX
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

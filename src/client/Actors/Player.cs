@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors.Players;
@@ -25,14 +26,14 @@ namespace VoxelGame.Client.Actors;
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "False positive.")]
 public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 {
-    private const float FlyingSpeedFactor = 5f;
-    private const float FlyingSprintSpeedFactor = 25f;
+    private const Single FlyingSpeedFactor = 5f;
+    private const Single FlyingSprintSpeedFactor = 25f;
 
-    private const float DiveSpeed = 8f;
-    private const float JumpForce = 25000f;
-    private const float Speed = 4f;
-    private const float SprintSpeed = 6f;
-    private const float SwimSpeed = 4f;
+    private const Single DiveSpeed = 8f;
+    private const Single JumpForce = 25000f;
+    private const Single Speed = 4f;
+    private const Single SprintSpeed = 6f;
+    private const Single SwimSpeed = 4f;
 
     private readonly Camera camera;
     private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
@@ -64,7 +65,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="visualInterface">The visual interface to use for this player.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
-    public Player(World world, float mass, Camera camera, BoundingVolume boundingVolume,
+    public Player(World world, Single mass, Camera camera, BoundingVolume boundingVolume,
         VisualInterface visualInterface, GameScene scene) : base(world, mass, boundingVolume)
     {
         this.camera = camera;
@@ -80,7 +81,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <summary>
     ///     Get or set the flying state of the player.
     /// </summary>
-    public double FlyingSpeed { get; set; } = 1f;
+    public Double FlyingSpeed { get; set; } = 1f;
 
     /// <inheritdoc />
     public override Vector3d LookingDirection => camera.Front;
@@ -137,14 +138,14 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <inheritdoc />
     public Property DebugData => new DebugProperties(this);
 
-    string IPlayerDataProvider.Selection => selector.SelectionName;
+    String IPlayerDataProvider.Selection => selector.SelectionName;
 
-    string IPlayerDataProvider.Mode => selector.ModeName;
+    String IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
     ///     Set whether the overlay rendering is allowed.
     /// </summary>
-    public void SetOverlayAllowed(bool allowed)
+    public void SetOverlayAllowed(Boolean allowed)
     {
         Throw.IfDisposed(disposed);
 
@@ -188,7 +189,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
     private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)
     {
-        bool visualized = !block.IsReplaceable;
+        Boolean visualized = !block.IsReplaceable;
 
         if (Program.IsDebug)
             visualized |= block != Blocks.Instance.Air;
@@ -197,7 +198,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate(double deltaTime)
+    protected override void OnUpdate(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -233,7 +234,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
     private void DoBlockFluidSelection()
     {
-        bool isUpdated = selector.DoBlockFluidSelection();
+        Boolean isUpdated = selector.DoBlockFluidSelection();
         if (isUpdated) visualInterface.UpdateData();
     }
 
@@ -272,7 +273,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         else visualInterface.SetSelectionBox(collider: null);
     }
 
-    private void HandleMovementInput(double deltaTime)
+    private void HandleMovementInput(Double deltaTime)
     {
         if (DoPhysics)
         {
@@ -307,7 +308,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     {
         // Apply the camera pitch and yaw. (the pitch is clamped in the camera class).
 
-        (double yaw, double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
+        (Double yaw, Double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
         camera.Yaw += yaw;
         camera.Pitch += pitch;
 
@@ -372,10 +373,10 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed)
             return;

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Tests.Collections;
 [Collection("Logger")]
 public class ScheduledTickManagerTests
 {
-    private static int lastId;
+    private static Int32 lastId;
 
     [Fact]
     public void TestBasicFunctionality()
@@ -107,7 +108,7 @@ public class ScheduledTickManagerTests
         Assert.Equal(expected: 1, lastId);
     }
 
-    private class TestTick(int id) : ITickable
+    private class TestTick(Int32 id) : ITickable
     {
         public TestTick() : this(id: -1) {}
 

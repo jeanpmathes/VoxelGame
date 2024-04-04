@@ -18,10 +18,10 @@ namespace VoxelGame.Support;
 
 internal static partial class NativeMethods
 {
-    private const string DllFilePath = @".\Native.dll";
+    private const String DllFilePath = @".\Native.dll";
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeShowErrorBox")]
-    internal static partial void ShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] string text, [MarshalAs(UnmanagedType.LPWStr)] string caption);
+    internal static partial void ShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] String text, [MarshalAs(UnmanagedType.LPWStr)] String caption);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeConfigure")]
     internal static partial IntPtr Configure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
@@ -33,7 +33,7 @@ internal static partial class NativeMethods
     internal static partial void RequestClose(Client client);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeRun")]
-    internal static partial int Run(Client client);
+    internal static partial Int32 Run(Client client);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativePassAllocatorStatistics")]
     internal static partial void PassAllocatorStatistics(Client client, Definition.Native.NativeWStringFunc onWString);
@@ -48,16 +48,16 @@ internal static partial class NativeMethods
     internal static partial void ToggleFullscreen(Client client);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetMousePosition")]
-    internal static partial void GetMousePosition(Client client, out long x, out long y);
+    internal static partial void GetMousePosition(Client client, out Int64 x, out Int64 y);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetMousePosition")]
-    internal static partial void SetMousePosition(Client client, long x, long y);
+    internal static partial void SetMousePosition(Client client, Int64 x, Int64 y);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetCursorType")]
     internal static partial void SetCursorType(Client client, MouseCursor cursor);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetCursorLock")]
-    internal static partial void SetCursorLock(Client client, [MarshalAs(UnmanagedType.Bool)] bool locked);
+    internal static partial void SetCursorLock(Client client, [MarshalAs(UnmanagedType.Bool)] Boolean locked);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeInitializeRaytracing")]
     internal static partial IntPtr InitializeRaytracing(Client client, SpacePipelineDescription description);
@@ -81,25 +81,25 @@ internal static partial class NativeMethods
     internal static partial void UpdateSpatialData(Spatial spatial, SpatialData data);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateMesh")]
-    internal static partial IntPtr CreateMesh(Client client, uint materialIndex);
+    internal static partial IntPtr CreateMesh(Client client, UInt32 materialIndex);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetMeshVertices")]
-    internal static unsafe partial void SetMeshVertices(Mesh mesh, SpatialVertex* vertices, int vertexLength);
+    internal static unsafe partial void SetMeshVertices(Mesh mesh, SpatialVertex* vertices, Int32 vertexLength);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetMeshBounds")]
-    internal static unsafe partial void SetMeshBounds(Mesh mesh, SpatialBounds* vertices, int boundLength);
+    internal static unsafe partial void SetMeshBounds(Mesh mesh, SpatialBounds* vertices, Int32 boundLength);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateEffect")]
     internal static partial IntPtr CreateEffect(Client client, RasterPipeline pipeline);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetEffectVertices")]
-    internal static unsafe partial void SetEffectVertices(Effect effect, EffectVertex* vertices, int vertexLength);
+    internal static unsafe partial void SetEffectVertices(Effect effect, EffectVertex* vertices, Int32 vertexLength);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeReturnDrawable")]
     internal static partial void ReturnDrawable(Drawable drawable);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetDrawableEnabledState")]
-    internal static partial void SetDrawableEnabledState(Drawable drawable, [MarshalAs(UnmanagedType.Bool)] bool enabled);
+    internal static partial void SetDrawableEnabledState(Drawable drawable, [MarshalAs(UnmanagedType.Bool)] Boolean enabled);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateRasterPipeline")]
     internal static partial IntPtr CreateRasterPipeline(Client client, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
@@ -114,13 +114,13 @@ internal static partial class NativeMethods
     internal static unsafe partial void SetShaderBufferData(ShaderBuffer shaderBuffer, void* data);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeAddDraw2DPipeline")]
-    internal static partial uint AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Draw2D.Callback callback);
+    internal static partial UInt32 AddDraw2DPipeline(Client client, RasterPipeline pipeline, Int32 priority, Draw2D.Callback callback);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeRemoveDraw2DPipeline")]
-    internal static partial void RemoveDraw2DPipeline(Client client, uint id);
+    internal static partial void RemoveDraw2DPipeline(Client client, UInt32 id);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeLoadTexture")]
-    internal static unsafe partial IntPtr LoadTexture(Client client, int** data, TextureDescription description);
+    internal static unsafe partial IntPtr LoadTexture(Client client, Int32** data, TextureDescription description);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeFreeTexture")]
     internal static partial void FreeTexture(Texture texture);

@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Collections.Properties;
 
 /// <summary>
@@ -14,7 +16,7 @@ public sealed class Error : Property
     /// <summary>
     ///     Creates a new error with the given name and message.
     /// </summary>
-    public Error(string name, string message, bool isCritical) : base(name)
+    public Error(String name, String message, Boolean isCritical) : base(name)
     {
         Message = message;
         IsCritical = isCritical;
@@ -23,12 +25,12 @@ public sealed class Error : Property
     /// <summary>
     ///     Gets the message of the error.
     /// </summary>
-    public string Message { get; }
+    public String Message { get; }
 
     /// <summary>
     ///     Whether the error is critical or just a warning.
     /// </summary>
-    public bool IsCritical { get; }
+    public Boolean IsCritical { get; }
 
     internal override void Accept(Visitor visitor)
     {

@@ -18,7 +18,7 @@ namespace VoxelGame.Support.Objects;
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
-    private bool dirty = true;
+    private Boolean dirty = true;
 
     /// <summary>
     ///     Create a new light.

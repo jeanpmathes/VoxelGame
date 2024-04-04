@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Gwen.Net;
 using Gwen.Net.Control;
 
@@ -18,7 +19,7 @@ public sealed class IconButton : Button
     /// <inheritdoc />
     public IconButton(ControlBase parent) : base(parent)
     {
-        Text = string.Empty;
+        Text = String.Empty;
 
         Toggled += (_, _) =>
         {
@@ -38,12 +39,12 @@ public sealed class IconButton : Button
     /// <summary>
     ///     When this is set and the button is a toggle button, this icon will be used when the button is toggled on.
     /// </summary>
-    public string? ToggledOnIconName { get; set; }
+    public String? ToggledOnIconName { get; set; }
 
     /// <summary>
     ///     When this is set and the button is a toggle button, this icon will be used when the button is toggled off.
     /// </summary>
-    public string? ToggledOffIconName { get; set; }
+    public String? ToggledOffIconName { get; set; }
 
     /// <inheritdoc />
     public override void UpdateColors()

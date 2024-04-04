@@ -16,7 +16,7 @@ namespace VoxelGame.Manual;
 /// </summary>
 public class Includable
 {
-    private readonly string name;
+    private readonly String name;
     private readonly FileInfo outputPath;
 
     private readonly List<Section> sections = new();
@@ -26,7 +26,7 @@ public class Includable
     /// </summary>
     /// <param name="name">The name of this document.</param>
     /// <param name="outputPath">The output path to produce a file at.</param>
-    public Includable(string name, DirectoryInfo outputPath)
+    public Includable(String name, DirectoryInfo outputPath)
     {
         this.name = name;
         this.outputPath = outputPath.GetFile($"{name}.tex");
@@ -46,7 +46,7 @@ public class Includable
     /// </summary>
     /// <param name="title">The title of the section to add.</param>
     /// <returns>The created section.</returns>
-    public Section CreateSection(string title)
+    public Section CreateSection(String title)
     {
         var section = Section.Create(title);
         AddSection(section);

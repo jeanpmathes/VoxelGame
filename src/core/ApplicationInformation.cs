@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Threading;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core;
 /// </summary>
 public class ApplicationInformation
 {
-    private ApplicationInformation(string version)
+    private ApplicationInformation(String version)
     {
         Version = version;
         MainThread = Thread.CurrentThread;
@@ -27,17 +28,17 @@ public class ApplicationInformation
     /// </summary>
     public static ApplicationInformation Instance { get; private set; } = null!;
 
-    private static bool IsInitialized { get; set; }
+    private static Boolean IsInitialized { get; set; }
 
     /// <summary>
     ///     Get the game version.
     /// </summary>
-    public string Version { get; }
+    public String Version { get; }
 
     /// <summary>
     ///     Whether the application is running on a debug build.
     /// </summary>
-    internal bool IsDebug { get; private set; }
+    internal Boolean IsDebug { get; private set; }
 
     /// <summary>
     ///     Get the main thread of the application.
@@ -47,7 +48,7 @@ public class ApplicationInformation
     /// <summary>
     ///     Check if the current thread is the main thread.
     /// </summary>
-    public bool IsOnMainThread => Thread.CurrentThread == MainThread;
+    public Boolean IsOnMainThread => Thread.CurrentThread == MainThread;
 
     [Conditional("DEBUG")]
     private void SetDebugMode()
@@ -59,7 +60,7 @@ public class ApplicationInformation
     ///     Initializes a new instance of the <see cref="ApplicationInformation" /> class.
     /// </summary>
     /// <param name="version">The current application version.</param>
-    public static void Initialize(string version)
+    public static void Initialize(String version)
     {
         Debug.Assert(!IsInitialized);
 

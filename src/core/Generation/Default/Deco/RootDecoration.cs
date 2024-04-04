@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -20,16 +21,16 @@ public class RootDecoration : Decoration
     /// <summary>
     ///     Creates a new instance of the <see cref="RootDecoration" /> class.
     /// </summary>
-    public RootDecoration(string name, float rarity, Decorator decorator) : base(name, rarity, decorator)
+    public RootDecoration(String name, Single rarity, Decorator decorator) : base(name, rarity, decorator)
     {
-        const int diameter = 3;
+        const Int32 diameter = 3;
 
         shape = new Sphere {Radius = diameter / 2.0f};
         Size = diameter;
     }
 
     /// <inheritdoc />
-    public override int Size { get; }
+    public override Int32 Size { get; }
 
     /// <inheritdoc />
     protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)

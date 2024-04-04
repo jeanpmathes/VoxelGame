@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class BasicBlock : Block, ISimple
 {
     private readonly TextureLayout layout;
-    private protected int[] sideTextureIndices = null!;
+    private protected Int32[] sideTextureIndices = null!;
 
     /// <summary>
     ///     Create a new <see cref="BasicBlock" />.
@@ -28,7 +29,7 @@ public class BasicBlock : Block, ISimple
     /// <param name="namedID">The named ID.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="layout">The texture layout.</param>
-    internal BasicBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
+    internal BasicBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -55,6 +56,6 @@ public class BasicBlock : Block, ISimple
     /// </summary>
     protected virtual ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return ISimple.CreateData(sideTextureIndices[(int) info.Side], isTextureRotated: false);
+        return ISimple.CreateData(sideTextureIndices[(Int32) info.Side], isTextureRotated: false);
     }
 }

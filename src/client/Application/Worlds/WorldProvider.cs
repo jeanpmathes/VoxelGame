@@ -32,7 +32,7 @@ public class WorldProvider : IWorldProvider
 
     private readonly FileInfo metadataFile;
 
-    private readonly List<IWorldProvider.IWorldInfo> worlds = new();
+    private readonly List<IWorldProvider.IWorldInfo> worlds = [];
     private WorldDirectoryMetadata metadata = new();
 
     /// <summary>
@@ -105,9 +105,9 @@ public class WorldProvider : IWorldProvider
                 throw;
             }
 
-            List<string> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
+            List<String> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
 
-            foreach (string key in obsoleteKeys)
+            foreach (String key in obsoleteKeys)
                 metadata.Entries.Remove(key);
 
             return found;
@@ -137,11 +137,11 @@ public class WorldProvider : IWorldProvider
 
     /// <inheritdoc />
     [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginCreatingWorld(string name)
+    public void BeginCreatingWorld(String name)
     {
         if (WorldActivation == null) throw new InvalidOperationException();
 
-        (int upper, int lower) seed = (DateTime.UtcNow.GetHashCode(), RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue));
+        (Int32 upper, Int32 lower) seed = (DateTime.UtcNow.GetHashCode(), RandomNumberGenerator.GetInt32(Int32.MinValue, Int32.MaxValue));
 
         DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, name);
 
@@ -163,7 +163,7 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public Operation DuplicateWorld(IWorldProvider.IWorldInfo info, string duplicateName)
+    public Operation DuplicateWorld(IWorldProvider.IWorldInfo info, String duplicateName)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
@@ -188,7 +188,7 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public void RenameWorld(IWorldProvider.IWorldInfo info, string newName)
+    public void RenameWorld(IWorldProvider.IWorldInfo info, String newName)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
@@ -196,7 +196,7 @@ public class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    public void SetFavorite(IWorldProvider.IWorldInfo info, bool isFavorite)
+    public void SetFavorite(IWorldProvider.IWorldInfo info, Boolean isFavorite)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
@@ -206,9 +206,9 @@ public class WorldProvider : IWorldProvider
 
     /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    public bool IsWorldNameValid(string name)
+    public Boolean IsWorldNameValid(String name)
     {
-        string valid = WorldData.MakeWorldNameValid(name);
+        String valid = WorldData.MakeWorldNameValid(name);
 
         return valid == name;
     }
@@ -222,7 +222,7 @@ public class WorldProvider : IWorldProvider
         return fileMetadata?.LastLoad;
     }
 
-    private bool IsFavorite(WorldData data)
+    private Boolean IsFavorite(WorldData data)
     {
         if (Status != Status.Ok) throw new InvalidOperationException();
 
@@ -263,7 +263,7 @@ public class WorldProvider : IWorldProvider
         WorldActivation(this, world);
     }
 
-    private static string GetMetadataKey(WorldData data)
+    private static String GetMetadataKey(WorldData data)
     {
         return data.WorldDirectory.Name;
     }
@@ -283,11 +283,11 @@ public class WorldProvider : IWorldProvider
 
     private sealed record WorldInfo(WorldData Data, WorldProvider Provider) : IWorldProvider.IWorldInfo
     {
-        public string Name => Data.Information.Name;
-        public string Version => Data.Information.Version;
+        public String Name => Data.Information.Name;
+        public String Version => Data.Information.Version;
         public DirectoryInfo Directory => Data.WorldDirectory;
         public DateTime DateTimeOfCreation => Data.Information.Creation;
         public DateTime? DateTimeOfLastLoad => Provider.GetDateTimeOfLastLoad(Data);
-        public bool IsFavorite => Provider.IsFavorite(Data);
+        public Boolean IsFavorite => Provider.IsFavorite(Data);
     }
 }

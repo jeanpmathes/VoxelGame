@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -23,9 +24,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 {
     private readonly List<BlockMesh> meshes = new(capacity: 8);
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal GateBlock(string name, string namedID, string closedModel, string openModel) :
+    internal GateBlock(String name, String namedID, String closedModel, String openModel) :
         base(
             name,
             namedID,
@@ -41,10 +42,10 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
             open.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-        for (uint data = 0b00_0000; data <= 0b00_0111; data++)
+        for (UInt32 data = 0b00_0000; data <= 0b00_0111; data++)
         {
             var orientation = (Orientation) (data & 0b00_0011);
-            bool isClosed = (data & 0b00_0100) == 0;
+            Boolean isClosed = (data & 0b00_0100) == 0;
 
             BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).Mesh;
             meshes.Add(mesh);
@@ -55,11 +56,11 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        return meshes[(int) info.Data & 0b00_0111].GetMeshData();
+        return meshes[(Int32) info.Data & 0b00_0111].GetMeshData();
     }
 
     /// <inheritdoc />
-    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -77,9 +78,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         };
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
-        bool isClosed = (data & 0b00_0100) == 0;
+        Boolean isClosed = (data & 0b00_0100) == 0;
 
         return (Orientation) (data & 0b00_0011) switch
         {
@@ -90,7 +91,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
             _ => NorthSouth(offset: 0.375f)
         };
 
-        BoundingVolume NorthSouth(float offset)
+        BoundingVolume NorthSouth(Single offset)
         {
             if (isClosed)
                 return new BoundingVolume(
@@ -146,7 +147,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
                     new Vector3d(x: 0.0625f, y: 0.09375f, z: 0.1875f)));
         }
 
-        BoundingVolume WestEast(float offset)
+        BoundingVolume WestEast(Single offset)
         {
             if (isClosed)
                 return new BoundingVolume(
@@ -204,19 +205,19 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_0111];
+        return volumes[(Int32) data & 0b00_0111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        bool connectX = CheckOrientation(world, position, Orientation.East) ||
-                        CheckOrientation(world, position, Orientation.West);
+        Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
+                           CheckOrientation(world, position, Orientation.West);
 
-        bool connectZ = CheckOrientation(world, position, Orientation.South) ||
-                        CheckOrientation(world, position, Orientation.North);
+        Boolean connectZ = CheckOrientation(world, position, Orientation.South) ||
+                           CheckOrientation(world, position, Orientation.North);
 
         return connectX || connectZ;
     }
@@ -226,19 +227,19 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     {
         Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
 
-        bool connectX = CheckOrientation(world, position, Orientation.East) ||
-                        CheckOrientation(world, position, Orientation.West);
+        Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
+                           CheckOrientation(world, position, Orientation.West);
 
-        bool connectZ = CheckOrientation(world, position, Orientation.South) ||
-                        CheckOrientation(world, position, Orientation.North);
+        Boolean connectZ = CheckOrientation(world, position, Orientation.South) ||
+                           CheckOrientation(world, position, Orientation.North);
 
         if (orientation.IsZ() && !connectX) orientation = orientation.Rotate();
         else if (orientation.IsX() && !connectZ) orientation = orientation.Rotate();
 
-        world.SetBlock(this.AsInstance((uint) orientation), position);
+        world.SetBlock(this.AsInstance((UInt32) orientation), position);
     }
 
-    private static bool CheckOrientation(World world, Vector3i position, Orientation orientation)
+    private static Boolean CheckOrientation(World world, Vector3i position, Orientation orientation)
     {
         Vector3i otherPosition = orientation.Offset(position);
 
@@ -247,10 +248,10 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
-        bool isClosed = (data & 0b00_0100) == 0;
+        Boolean isClosed = (data & 0b00_0100) == 0;
 
         // Check if orientation has to be inverted.
         if (isClosed &&
@@ -263,7 +264,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
             ? new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f) + -orientation.ToVector3() * 0.09375f
             : new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f);
 
-        float closedOffset = isClosed ? 0.09375f : 0f;
+        Single closedOffset = isClosed ? 0.09375f : 0f;
 
         Vector3d extents = orientation is Orientation.North or Orientation.South
             ? new Vector3d(x: 0.5f, y: 0.375f, 0.125f + closedOffset)
@@ -274,18 +275,18 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         if (actor.Collider.Intersects(volume.GetColliderAt(position))) return;
 
         actor.World.SetBlock(
-            this.AsInstance((uint) ((isClosed ? 0b00_0100 : 0b00_0000) | (int) orientation.Opposite())),
+            this.AsInstance((UInt32) ((isClosed ? 0b00_0100 : 0b00_0000) | (Int32) orientation.Opposite())),
             position);
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         var blockOrientation = (Orientation) (data & 0b00_0011);
 
         if (blockOrientation.Axis() != side.Axis().Rotate()) return;
 
-        bool valid =
+        Boolean valid =
             CheckOrientation(world, position, side.ToOrientation()) ||
             CheckOrientation(world, position, side.ToOrientation().Opposite());
 

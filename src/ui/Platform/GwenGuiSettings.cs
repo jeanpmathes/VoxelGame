@@ -14,7 +14,7 @@ namespace VoxelGame.UI.Platform;
 /// <summary>
 ///     Describes a texture to preload.
 /// </summary>
-public record TexturePreload(FileInfo File, string Name);
+public record TexturePreload(FileInfo File, String Name);
 
 /// <summary>
 ///     The settings for the gwen gui.
@@ -41,7 +41,7 @@ public class GwenGuiSettings
     /// <summary>
     ///     The callback for when a skin is loaded.
     /// </summary>
-    public Action<int, SkinBase> SkinLoadedCallback { get; set; } = (_, _) => {};
+    public Action<Int32, SkinBase> SkinLoadedCallback { get; set; } = (_, _) => {};
 
     /// <summary>
     ///     List of textures to preload.
@@ -61,7 +61,7 @@ public class GwenGuiSettings
     /// <summary>
     ///     The error callback for the shader loading.
     /// </summary>
-    public Action<string> ShaderLoadingErrorCallback { get; set; } = e => throw new InvalidOperationException(e);
+    public Action<String> ShaderLoadingErrorCallback { get; set; } = e => throw new InvalidOperationException(e);
 
     /// <summary>
     ///     Apply a modifier to the settings.

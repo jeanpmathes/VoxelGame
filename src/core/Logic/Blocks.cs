@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -32,12 +33,12 @@ public class Blocks
     /// <summary>
     ///     The maximum amount of different blocks that can be registered.
     /// </summary>
-    private const int BlockLimit = 1 << Section.DataShift;
+    private const Int32 BlockLimit = 1 << Section.DataShift;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
     private readonly List<Block> blockList = [];
-    private readonly Dictionary<string, Block> namedBlockDictionary = new();
+    private readonly Dictionary<String, Block> namedBlockDictionary = new();
 
     private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
@@ -1088,7 +1089,7 @@ public class Blocks
                 blockList.Add(block);
                 namedBlockDictionary.Add(block.NamedID, block);
 
-                var id = (uint) (blockList.Count - 1);
+                var id = (UInt32) (blockList.Count - 1);
 
                 block.Setup(id, indexProvider, visuals);
 
@@ -1107,7 +1108,7 @@ public class Blocks
     /// <summary>
     ///     Gets the count of registered blocks.
     /// </summary>
-    public int Count => blockList.Count;
+    public Int32 Count => blockList.Count;
 
     /// <summary>
     ///     Get special blocks as their actual block type.
@@ -1120,9 +1121,9 @@ public class Blocks
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block TranslateID(uint id)
+    public Block TranslateID(UInt32 id)
     {
-        if (blockList.Count > id) return blockList[(int) id];
+        if (blockList.Count > id) return blockList[(Int32) id];
 
         logger.LogWarning(
             Events.UnknownBlock,
@@ -1138,7 +1139,7 @@ public class Blocks
     /// </summary>
     /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The block, or null if no block with the ID exists.</returns>
-    public Block? TranslateNamedID(string namedID)
+    public Block? TranslateNamedID(String namedID)
     {
         namedBlockDictionary.TryGetValue(namedID, out Block? block);
 

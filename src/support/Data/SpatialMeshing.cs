@@ -22,7 +22,7 @@ public sealed class SpatialMeshing : IMeshing
     ///     Creates a new meshing instance.
     /// </summary>
     /// <param name="sizeHint">A hint for the expected size of the mesh.</param>
-    public SpatialMeshing(int sizeHint)
+    public SpatialMeshing(Int32 sizeHint)
     {
         mesh = new PooledList<SpatialVertex>(sizeHint);
     }
@@ -35,7 +35,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void PushQuadWithOffset(
         in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
-        in (uint a, uint b, uint c, uint d) data,
+        in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
         Vector3 offset)
     {
         Throw.IfDisposed(disposed);
@@ -66,7 +66,7 @@ public sealed class SpatialMeshing : IMeshing
     }
 
     /// <inheritdoc />
-    public void PushQuad(in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, in (uint a, uint b, uint c, uint d) data)
+    public void PushQuad(in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
         Throw.IfDisposed(disposed);
 
@@ -96,11 +96,11 @@ public sealed class SpatialMeshing : IMeshing
     }
 
     /// <inheritdoc />
-    public void Grow(IMeshing.Primitive primitive, int count)
+    public void Grow(IMeshing.Primitive primitive, Int32 count)
     {
         Throw.IfDisposed(disposed);
 
-        int size = primitive == IMeshing.Primitive.Quad
+        Int32 size = primitive == IMeshing.Primitive.Quad
             ? 4
             : throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null);
 
@@ -108,14 +108,14 @@ public sealed class SpatialMeshing : IMeshing
     }
 
     /// <inheritdoc />
-    public int Count => mesh.Count;
+    public Int32 Count => mesh.Count;
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     #pragma warning disable S2953 // False positive, this class does implement IDisposable.
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     #pragma warning restore S2953
     {
         if (disposed) return;

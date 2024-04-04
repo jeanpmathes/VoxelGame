@@ -36,19 +36,19 @@ public readonly struct Line : IEquatable<Line>
     }
 
     /// <inheritdoc />
-    public bool Equals(Line other)
+    public Boolean Equals(Line other)
     {
         return Direction.Equals(other.Direction) && Any.Equals(other.Any);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Line other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Direction, Any);
     }
@@ -56,7 +56,7 @@ public readonly struct Line : IEquatable<Line>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(Line left, Line right)
+    public static Boolean operator ==(Line left, Line right)
     {
         return left.Equals(right);
     }
@@ -64,7 +64,7 @@ public readonly struct Line : IEquatable<Line>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(Line left, Line right)
+    public static Boolean operator !=(Line left, Line right)
     {
         return !left.Equals(right);
     }

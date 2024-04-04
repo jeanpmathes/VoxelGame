@@ -1,4 +1,5 @@
-﻿using VoxelGame.Core.Logic;
+﻿using System;
+using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -8,7 +9,7 @@ namespace VoxelGame.Core.Visuals;
 /// <param name="TextureIdentifier">The texture identifier, in the texture space of the content type.</param>
 /// <param name="Tint">The tint color.</param>
 /// <param name="IsAnimated">Whether the texture is animated.</param>
-public record struct OverlayTexture(int TextureIdentifier, TintColor Tint, bool IsAnimated);
+public record struct OverlayTexture(Int32 TextureIdentifier, TintColor Tint, Boolean IsAnimated);
 
 /// <summary>
 ///     Provides an overlay texture index.

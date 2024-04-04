@@ -20,13 +20,13 @@ public readonly unsafe struct Draw2D
     /// <summary>
     ///     Use this as a priority to add a pipeline that will be rendered before all other pipelines, thus in the background.
     /// </summary>
-    public const int Background = int.MinValue;
+    public const Int32 Background = Int32.MinValue;
 
     /// <summary>
     ///     Use this as a priority to add a pipeline that will be rendered after all other pipelines, thus in the foreground
     ///     and on top of everything.
     /// </summary>
-    public const int Foreground = int.MaxValue;
+    public const Int32 Foreground = Int32.MaxValue;
 
     /// <summary>
     ///     A single vertex.
@@ -52,11 +52,11 @@ public readonly unsafe struct Draw2D
         public Color4 Color;
     }
 
-    internal delegate void InitializeTexturesDelegate(IntPtr textures, uint textureCount, IntPtr ctx);
+    internal delegate void InitializeTexturesDelegate(IntPtr textures, UInt32 textureCount, IntPtr ctx);
 
-    internal delegate void UploadBufferDelegate(IntPtr vertices, uint vertexCount, IntPtr ctx);
+    internal delegate void UploadBufferDelegate(IntPtr vertices, UInt32 vertexCount, IntPtr ctx);
 
-    internal delegate void DrawBufferDelegate(uint firstVertex, uint vertexCount, uint textureIndex, [MarshalAs(UnmanagedType.Bool)] bool useTexture, IntPtr ctx);
+    internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, [MarshalAs(UnmanagedType.Bool)] Boolean useTexture, IntPtr ctx);
 
     #pragma warning disable S3898 // No equality comparison used.
     internal struct Internal
@@ -85,7 +85,7 @@ public readonly unsafe struct Draw2D
     /// <param name="textures">The textures to initialize.</param>
     public void InitializeTextures(Span<Texture> textures)
     {
-        var textureCount = (uint) textures.Length;
+        var textureCount = (UInt32) textures.Length;
 
         var pointers = new IntPtr[textureCount];
         for (var i = 0; i < textureCount; i++) pointers[i] = textures[i].Self;
@@ -103,7 +103,7 @@ public readonly unsafe struct Draw2D
     /// <param name="vertices">The vertices to upload.</param>
     public void UploadBuffer(Span<Vertex> vertices)
     {
-        var vertexCount = (uint) vertices.Length;
+        var vertexCount = (UInt32) vertices.Length;
 
         fixed (Vertex* verticesPointer = vertices)
         {
@@ -117,7 +117,7 @@ public readonly unsafe struct Draw2D
     /// </summary>
     /// <param name="range">The range of vertices that were uploaded.</param>
     /// <param name="color">The color of the quad.</param>
-    public void UploadQuadBuffer(out (uint, uint) range, Color4? color = null)
+    public void UploadQuadBuffer(out (UInt32, UInt32) range, Color4? color = null)
     {
         Color4 c = color ?? Color4.Black;
 
@@ -157,7 +157,7 @@ public readonly unsafe struct Draw2D
 
         UploadBuffer(vertices);
 
-        range = (0, (uint) vertices.Length);
+        range = (0, (UInt32) vertices.Length);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public readonly unsafe struct Draw2D
     ///     using manual indexing in the shader, supply <c>0</c> here.
     /// </param>
     /// <param name="useTexture">Whether to use a texture.</param>
-    public void DrawBuffer((uint first, uint lenght) range, uint textureIndex, bool useTexture)
+    public void DrawBuffer((UInt32 first, UInt32 lenght) range, UInt32 textureIndex, Boolean useTexture)
     {
         @internal.drawBuffer(range.first, range.lenght, textureIndex, useTexture, @internal.ctx);
     }

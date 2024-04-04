@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Utilities;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "This are public methods for general use.")]
 public static class VMath
 {
-    private const float Epsilon = 128 * float.Epsilon;
+    private const Single Epsilon = 128 * Single.Epsilon;
 
 
     /// <summary>
@@ -37,7 +37,7 @@ public static class VMath
     /// </summary>
     /// <param name="x">The exclusive upper bound.</param>
     /// <returns>The range from 0 to x.</returns>
-    public static IEnumerable<int> Range(int x)
+    public static IEnumerable<Int32> Range(Int32 x)
     {
         for (var i = 0; i < x; i++) yield return i;
     }
@@ -48,7 +48,7 @@ public static class VMath
     /// <param name="x">The exclusive upper bound of the first dimension.</param>
     /// <param name="y">The exclusive upper bound of the second dimension.</param>
     /// <returns>The range from (0, 0) to (x, y).</returns>
-    public static IEnumerable<(int, int)> Range2(int x, int y)
+    public static IEnumerable<(Int32, Int32)> Range2(Int32 x, Int32 y)
     {
         for (var i = 0; i < x; i++)
         for (var j = 0; j < y; j++)
@@ -62,7 +62,7 @@ public static class VMath
     /// <param name="y">The exclusive upper bound of the second dimension.</param>
     /// <param name="z">The exclusive upper bound of the third dimension.</param>
     /// <returns>The range from (0, 0, 0) to (x, y, z).</returns>
-    public static IEnumerable<(int, int, int)> Range3(int x, int y, int z)
+    public static IEnumerable<(Int32, Int32, Int32)> Range3(Int32 x, Int32 y, Int32 z)
     {
         for (var i = 0; i < x; i++)
         for (var j = 0; j < y; j++)
@@ -77,9 +77,9 @@ public static class VMath
     /// <param name="min">The minimum length.</param>
     /// <param name="max">The maximum length.</param>
     /// <returns>The clamped vector.</returns>
-    public static Vector3d Clamp(Vector3d vector, double min, double max)
+    public static Vector3d Clamp(Vector3d vector, Double min, Double max)
     {
-        double length = vector.Length;
+        Double length = vector.Length;
 
         if (length < min) return vector.Normalized() * min;
         if (length > max) return vector.Normalized() * max;
@@ -127,7 +127,7 @@ public static class VMath
     /// <param name="digits">The number of fractional digits in the return value.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded vector.</returns>
-    public static Vector3d Rounded(this Vector3d vector, int digits = 0,
+    public static Vector3d Rounded(this Vector3d vector, Int32 digits = 0,
         MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3d(
@@ -156,9 +156,9 @@ public static class VMath
     /// <param name="value">The value to round.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded value.</returns>
-    public static int RoundedToInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static Int32 RoundedToInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
-        return (int) Math.Round(value, digits: 0, midpointRounding);
+        return (Int32) Math.Round(value, digits: 0, midpointRounding);
     }
 
     /// <summary>
@@ -167,9 +167,9 @@ public static class VMath
     /// <param name="value">The value to round.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded value.</returns>
-    public static uint RoundedToUInt(double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static UInt32 RoundedToUInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
-        return (uint) Math.Round(value, digits: 0, midpointRounding);
+        return (UInt32) Math.Round(value, digits: 0, midpointRounding);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public static class VMath
     /// <returns>The component-wise floored vector.</returns>
     public static Vector3i Floor(this Vector3d vector)
     {
-        return new Vector3i((int) Math.Floor(vector.X), (int) Math.Floor(vector.Y), (int) Math.Floor(vector.Z));
+        return new Vector3i((Int32) Math.Floor(vector.X), (Int32) Math.Floor(vector.Y), (Int32) Math.Floor(vector.Z));
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ public static class VMath
     /// <summary>
     ///     Get the position below a given position, with a given offset.
     /// </summary>
-    public static Vector3i Below(this Vector3i vector, int offset)
+    public static Vector3i Below(this Vector3i vector, Int32 offset)
     {
         return vector - Vector3i.UnitY * offset;
     }
@@ -264,7 +264,7 @@ public static class VMath
     /// <param name="min">The lower end of the range. (inclusive)</param>
     /// <param name="max">The upper end of the range. (exclusive)</param>
     /// <returns>A value in the given range.</returns>
-    public static long ClampRotating(long value, long min, long max)
+    public static Int64 ClampRotating(Int64 value, Int64 min, Int64 max)
     {
         Debug.Assert(min < max);
 
@@ -282,7 +282,7 @@ public static class VMath
     /// <param name="b">The second value.</param>
     /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
     /// <returns>True if the two values are nearly equal.</returns>
-    public static bool NearlyEqual(double a, double b, double epsilon = Epsilon)
+    public static Boolean NearlyEqual(Double a, Double b, Double epsilon = Epsilon)
     {
         return Math.Abs(a - b) < epsilon;
     }
@@ -294,7 +294,7 @@ public static class VMath
     /// <param name="b">The second vector.</param>
     /// <param name="epsilon">The epsilon value, defining what difference is seen as equal.</param>
     /// <returns>True if the two vectors are nearly equal.</returns>
-    public static bool NearlyEqual(Vector3d a, Vector3d b, double epsilon = Epsilon)
+    public static Boolean NearlyEqual(Vector3d a, Vector3d b, Double epsilon = Epsilon)
     {
         return NearlyEqual(a.X, b.X, epsilon) && NearlyEqual(a.Y, b.Y, epsilon) && NearlyEqual(a.Z, b.Z, epsilon);
     }
@@ -305,7 +305,7 @@ public static class VMath
     /// <param name="a">The value to check for near equality with zero.</param>
     /// <param name="epsilon">The epsilon distance.</param>
     /// <returns>True if the given value is nearly zero.</returns>
-    public static bool NearlyZero(double a, double epsilon = Epsilon)
+    public static Boolean NearlyZero(Double a, Double epsilon = Epsilon)
     {
         return NearlyEqual(a, b: 0, epsilon);
     }
@@ -315,7 +315,7 @@ public static class VMath
     /// </summary>
     /// <param name="angle">The angle, in radians.</param>
     /// <returns>The vector.</returns>
-    public static Vector2d CreateVectorFromAngle(double angle)
+    public static Vector2d CreateVectorFromAngle(Double angle)
     {
         return new Vector2d(Math.Cos(angle), Math.Sin(angle));
     }
@@ -334,7 +334,7 @@ public static class VMath
     /// <summary>
     ///     Given two points and a value, calculate the lerp factor to produce the value.
     /// </summary>
-    public static double InverseLerp(double a, double b, double value)
+    public static Double InverseLerp(Double a, Double b, Double value)
     {
         return (value - a) / (b - a);
     }
@@ -342,7 +342,7 @@ public static class VMath
     /// <summary>
     ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
     /// </summary>
-    public static double BiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    public static Double BiLerp(Double f00, Double f10, Double f01, Double f11, Double tx, Double ty)
     {
         return MathHelper.Lerp(MathHelper.Lerp(f00, f10, tx), MathHelper.Lerp(f01, f11, tx), ty);
     }
@@ -350,12 +350,12 @@ public static class VMath
     /// <summary>
     ///     Get the gradient of the bilinear interpolation function. The factors must be in the range [0, 1].
     /// </summary>
-    public static Vector2d GradBiLerp(double f00, double f10, double f01, double f11, double tx, double ty)
+    public static Vector2d GradBiLerp(Double f00, Double f10, Double f01, Double f11, Double tx, Double ty)
     {
         // bilerp: f(tx, ty) = (1 - tx) * (1 - ty) * f00 + tx * (1 - ty) * f10 + (1 - tx) * ty * f01 + tx * ty * f11
 
-        double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
-        double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
+        Double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
+        Double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
 
         return new Vector2d(fx, fy);
     }
@@ -363,7 +363,7 @@ public static class VMath
     /// <summary>
     ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
     /// </summary>
-    public static double MixingBilinearInterpolation(double f00, double f10, double f01, double f11, double fZ, Vector3d t)
+    public static Double MixingBilinearInterpolation(Double f00, Double f10, Double f01, Double f11, Double fZ, Vector3d t)
     {
         return MathHelper.Lerp(BiLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
     }
@@ -373,14 +373,14 @@ public static class VMath
     /// </summary>
     public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, Vector2d weights)
     {
-        double w00 = (1 - weights.X) * (1 - weights.Y);
-        double w10 = weights.X * (1 - weights.Y);
-        double w01 = (1 - weights.X) * weights.Y;
-        double w11 = weights.X * weights.Y;
+        Double w00 = (1 - weights.X) * (1 - weights.Y);
+        Double w10 = weights.X * (1 - weights.Y);
+        Double w01 = (1 - weights.X) * weights.Y;
+        Double w11 = weights.X * weights.Y;
 
-        double GetWeight(in T e, in T e00, in T e10, in T e01, in T e11)
+        Double GetWeight(in T e, in T e00, in T e10, in T e01, in T e11)
         {
-            double weight = 0;
+            Double weight = 0;
 
             if (EqualityComparer<T>.Default.Equals(e, e00)) weight += w00;
             if (EqualityComparer<T>.Default.Equals(e, e10)) weight += w10;
@@ -390,7 +390,7 @@ public static class VMath
             return weight;
         }
 
-        Span<double> totalWeights = stackalloc double[]
+        Span<Double> totalWeights = stackalloc Double[]
         {
             GetWeight(e00, e00, e10, e01, e11),
             GetWeight(e10, e00, e10, e01, e11),
@@ -425,7 +425,7 @@ public static class VMath
     /// <summary>
     ///     Select from two values using one weight.
     /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, double w)
+    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, Double w)
     {
         if (w < 0.5) return ref e0;
 
@@ -444,7 +444,7 @@ public static class VMath
     /// <summary>
     ///     Calculates the angle between two vectors.
     /// </summary>
-    public static double CalculateAngle(Vector2d a, Vector2d b)
+    public static Double CalculateAngle(Vector2d a, Vector2d b)
     {
         return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
     }
@@ -474,7 +474,7 @@ public static class VMath
     /// <summary>
     ///     Get the minimum of four values.
     /// </summary>
-    public static double Min(float a, float b, float c, float d)
+    public static Double Min(Single a, Single b, Single c, Single d)
     {
         return Math.Min(Math.Min(a, b), Math.Min(c, d));
     }
@@ -482,7 +482,7 @@ public static class VMath
     /// <summary>
     ///     Get the maximum of four values.
     /// </summary>
-    public static double Max(float a, float b, float c, float d)
+    public static Double Max(Single a, Single b, Single c, Single d)
     {
         return Math.Max(Math.Max(a, b), Math.Max(c, d));
     }
@@ -490,7 +490,7 @@ public static class VMath
     /// <summary>
     ///     Get the maximum component of a vector.
     /// </summary>
-    public static int MaxComponent(this Vector3i v)
+    public static Int32 MaxComponent(this Vector3i v)
     {
         return Math.Max(Math.Max(v.X, v.Y), v.Z);
     }
@@ -498,7 +498,7 @@ public static class VMath
     /// <summary>
     ///     Get the maximum component of a vector.
     /// </summary>
-    public static int MaxComponent(this Vector2i v)
+    public static Int32 MaxComponent(this Vector2i v)
     {
         return Math.Max(v.X, v.Y);
     }
@@ -506,7 +506,7 @@ public static class VMath
     /// <summary>
     ///     Get the maximum component of a vector.
     /// </summary>
-    public static float MaxComponent(this Vector3 v)
+    public static Single MaxComponent(this Vector3 v)
     {
         return Math.Max(Math.Max(v.X, v.Y), v.Z);
     }
@@ -514,7 +514,7 @@ public static class VMath
     /// <summary>
     ///     Get the maximum component of a vector.
     /// </summary>
-    public static float MaxComponent(this Vector4 v)
+    public static Single MaxComponent(this Vector4 v)
     {
         return Math.Max(Math.Max(Math.Max(v.X, v.Y), v.Z), v.W);
     }
@@ -522,7 +522,7 @@ public static class VMath
     /// <summary>
     ///     Get the minimum component of a vector.
     /// </summary>
-    public static float MinComponent(this Vector4 v)
+    public static Single MinComponent(this Vector4 v)
     {
         return Math.Min(Math.Min(Math.Min(v.X, v.Y), v.Z), v.W);
     }
@@ -530,7 +530,7 @@ public static class VMath
     /// <summary>
     ///     Get the minimum component of a vector.
     /// </summary>
-    public static float MinComponent(this Vector3 v)
+    public static Single MinComponent(this Vector3 v)
     {
         return Math.Min(Math.Min(v.X, v.Y), v.Z);
     }
@@ -538,7 +538,7 @@ public static class VMath
     /// <summary>
     ///     Get the minimum component of a vector.
     /// </summary>
-    public static float MinComponent(this Vector2 v)
+    public static Single MinComponent(this Vector2 v)
     {
         return Math.Min(v.X, v.Y);
     }
@@ -549,7 +549,7 @@ public static class VMath
     /// <param name="box">The box.</param>
     /// <param name="index">The index of the corner, in the range [0, 7].</param>
     /// <returns>The corner.</returns>
-    public static Vector3d GetCorner(this Box3d box, int index)
+    public static Vector3d GetCorner(this Box3d box, Int32 index)
     {
         Debug.Assert(index is >= 0 and < 8);
 
@@ -563,7 +563,7 @@ public static class VMath
     /// <summary>
     ///     Simply gets the square of a number.
     /// </summary>
-    public static int Square(int x)
+    public static Int32 Square(Int32 x)
     {
         return x * x;
     }
@@ -571,7 +571,7 @@ public static class VMath
     /// <summary>
     ///     Simply gets the cube of a number.
     /// </summary>
-    public static int Cube(int x)
+    public static Int32 Cube(Int32 x)
     {
         return x * x * x;
     }

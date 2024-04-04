@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,13 +17,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetDevmode : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-devmode";
+    public override String Name => "set-devmode";
 
     /// <inheritdoc />
-    public override string HelpText => "Enable or disable the devmode.";
+    public override String HelpText => "Enable or disable the devmode.";
 
     /// <exclude />
-    public void Invoke(bool enabled)
+    public void Invoke(Boolean enabled)
     {
         SetPhysics.Do(Context, !enabled);
         SetOverlays.Do(Context, !enabled);

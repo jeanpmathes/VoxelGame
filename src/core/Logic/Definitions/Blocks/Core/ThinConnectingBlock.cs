@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
@@ -25,16 +26,16 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable, IComplex
 {
     private readonly List<BlockMesh> meshes = new(capacity: 16);
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
     /// <inheritdoc />
     internal ThinConnectingBlock(
-        string name,
-        string namedID,
-        bool isOpaque,
-        string postModel,
-        string sideModel,
-        string extensionModel) :
+        String name,
+        String namedID,
+        Boolean isOpaque,
+        String postModel,
+        String sideModel,
+        String extensionModel) :
         base(
             name,
             namedID,
@@ -55,7 +56,7 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
             BlockModel.Load(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-        for (uint data = 0b00_0000; data <= 0b00_1111; data++)
+        for (UInt32 data = 0b00_0000; data <= 0b00_1111; data++)
         {
             BlockMesh mesh = BlockModel.GetCombinedMesh(
                 post,
@@ -72,12 +73,12 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        BlockMesh mesh = meshes[(int) info.Data & 0b00_1111];
+        BlockMesh mesh = meshes[(Int32) info.Data & 0b00_1111];
 
         return mesh.GetMeshData();
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
@@ -112,8 +113,8 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 }

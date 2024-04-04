@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Utilities;
 /// </summary>
 /// <param name="MissingResources">The missing resources.</param>
 /// <param name="IsCritical">Whether the failure is critical.</param>
-public record ResourceLoadingFailure(Property MissingResources, bool IsCritical);
+public record ResourceLoadingFailure(Property MissingResources, Boolean IsCritical);
 
 /// <summary>
 ///     A context in which loading operations can be performed.
@@ -34,8 +34,8 @@ public class LoadingContext
     private readonly Group steps;
     private readonly Stack<Entry> path;
 
-    private bool isMissingAny;
-    private bool isMissingCritical;
+    private Boolean isMissingAny;
+    private Boolean isMissingCritical;
 
     /// <summary>
     ///     Creates a new loading context.
@@ -55,7 +55,7 @@ public class LoadingContext
     /// </summary>
     public ResourceLoadingFailure? State => isMissingAny ? new ResourceLoadingFailure(steps, isMissingCritical) : null;
 
-    private string CurrentPath => path.Peek().path;
+    private String CurrentPath => path.Peek().path;
 
     private Group CurrentGroup => path.Peek().group;
 
@@ -78,7 +78,7 @@ public class LoadingContext
     /// </summary>
     /// <param name="id">The event id of general step-related events.</param>
     /// <param name="name">The name of the step.</param>
-    public IDisposable BeginStep(EventId id, string name)
+    public IDisposable BeginStep(EventId id, String name)
     {
         logger.LogDebug(id, "Starting loading step '{StepName}'", name);
 
@@ -96,7 +96,7 @@ public class LoadingContext
         return step;
     }
 
-    private void ReportMissing(string type, string resource, bool isCritical)
+    private void ReportMissing(String type, String resource, Boolean isCritical)
     {
         Error error = new(
             $"RES:{resource}",
@@ -114,7 +114,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a successful loading operation.
     /// </summary>
-    public void ReportSuccess(EventId id, string type, FileSystemInfo resource)
+    public void ReportSuccess(EventId id, String type, FileSystemInfo resource)
     {
         ReportSuccess(id, type, resource.GetResourceRelativePath());
     }
@@ -122,7 +122,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a successful loading operation.
     /// </summary>
-    public void ReportSuccess(EventId id, string type, string resource)
+    public void ReportSuccess(EventId id, String type, String resource)
     {
         logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", CurrentPath, type, resource);
     }
@@ -130,7 +130,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, FileSystemInfo resource, Exception exception, bool abort = false)
+    public void ReportFailure(EventId id, String type, FileSystemInfo resource, Exception exception, Boolean abort = false)
     {
         ReportFailure(id, type, resource.GetResourceRelativePath(), exception, abort);
     }
@@ -138,7 +138,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, string resource, Exception exception, bool abort = false)
+    public void ReportFailure(EventId id, String type, String resource, Exception exception, Boolean abort = false)
     {
         logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
         ReportMissing(type, resource, isCritical: true);
@@ -149,7 +149,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, FileSystemInfo resource, string message, bool abort = false)
+    public void ReportFailure(EventId id, String type, FileSystemInfo resource, String message, Boolean abort = false)
     {
         ReportFailure(id, type, resource.GetResourceRelativePath(), message, abort);
     }
@@ -157,7 +157,7 @@ public class LoadingContext
     /// <summary>
     ///     Report a failed loading operation, which will make it impossible to start the game.
     /// </summary>
-    public void ReportFailure(EventId id, string type, string resource, string message, bool abort = false)
+    public void ReportFailure(EventId id, String type, String resource, String message, Boolean abort = false)
     {
         logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
         ReportMissing(type, resource, isCritical: true);
@@ -168,7 +168,7 @@ public class LoadingContext
     /// <summary>
     ///     Warn about a failed loading operation. The game is still able to start.
     /// </summary>
-    public void ReportWarning(EventId id, string type, FileSystemInfo resource, Exception exception)
+    public void ReportWarning(EventId id, String type, FileSystemInfo resource, Exception exception)
     {
         ReportWarning(id, type, resource.GetResourceRelativePath(), exception);
     }
@@ -176,7 +176,7 @@ public class LoadingContext
     /// <summary>
     ///     Warn about a failed loading operation. The game is still able to start.
     /// </summary>
-    public void ReportWarning(EventId id, string type, string resource, Exception exception)
+    public void ReportWarning(EventId id, String type, String resource, Exception exception)
     {
         logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
         ReportMissing(type, resource, isCritical: false);
@@ -185,7 +185,7 @@ public class LoadingContext
     /// <summary>
     ///     Warn about a failed loading operation. The game is still able to start.
     /// </summary>
-    public void ReportWarning(EventId id, string type, FileSystemInfo resource, string message)
+    public void ReportWarning(EventId id, String type, FileSystemInfo resource, String message)
     {
         ReportWarning(id, type, resource.GetResourceRelativePath(), message);
     }
@@ -193,7 +193,7 @@ public class LoadingContext
     /// <summary>
     ///     Warn about a failed loading operation. The game is still able to start.
     /// </summary>
-    public void ReportWarning(EventId id, string type, string resource, string message)
+    public void ReportWarning(EventId id, String type, String resource, String message)
     {
         logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
         ReportMissing(type, resource, isCritical: false);
@@ -207,11 +207,11 @@ public class LoadingContext
     private sealed class Entry
     {
         public required Group group;
-        public required string path;
+        public required String path;
         public required Timer? timer;
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, string Name, Group Group, IDisposable? Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, EventId ID, String Name, Group Group, IDisposable? Scope) : IDisposable
     {
         public void Dispose()
         {

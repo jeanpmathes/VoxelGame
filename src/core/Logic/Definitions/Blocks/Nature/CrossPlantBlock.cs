@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // l: lowered
 public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly string texture;
+    private readonly String texture;
 
     private readonly List<BlockMesh> meshes = new();
 
@@ -33,7 +34,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <param name="texture">The name of the texture of this block.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="boundingVolume">The bounding box of this block.</param>
-    internal CrossPlantBlock(string name, string namedID, string texture, BlockFlags flags,
+    internal CrossPlantBlock(String name, String namedID, String texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -46,7 +47,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_0001])
+        return new IFoliage.MeshData(meshes[(Int32) info.Data & 0b00_0001])
         {
             Tint = TintColor.Neutral
         };
@@ -61,13 +62,13 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int textureIndex = indexProvider.GetTextureIndex(texture);
+        Int32 textureIndex = indexProvider.GetTextureIndex(texture);
 
         for (var data = 0; data <= 0b00_0001; data++) meshes.Add(BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, (data & 0b1) != 0));
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return PlantBehaviour.CanPlace(world, position);
     }
@@ -79,7 +80,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         PlantBehaviour.NeighborUpdate(world, this, position, side);
     }

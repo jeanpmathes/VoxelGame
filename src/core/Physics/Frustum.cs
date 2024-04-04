@@ -29,7 +29,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <param name="direction">The view direction.</param>
     /// <param name="up">The up direction.</param>
     /// <param name="right">The right direction.</param>
-    public Frustum(double fovY, double ratio, (double near, double far) clip,
+    public Frustum(Double fovY, Double ratio, (Double near, Double far) clip,
         Vector3d position, Vector3d direction, Vector3d up, Vector3d right)
     {
         Debug.Assert(fovY is > 0.0 and < Math.PI);
@@ -64,22 +64,22 @@ public readonly struct Frustum : IEquatable<Frustum>
         Top = new Plane(nt, position);
     }
 
-    private Vector3d GetPositionOnNearPlane(double x, double y)
+    private Vector3d GetPositionOnNearPlane(Double x, Double y)
     {
         return Near.Point + x * right * wNear / 2.0 + y * up * hNear / 2.0;
     }
 
-    private Vector3d GetPositionOnFarPlane(double x, double y)
+    private Vector3d GetPositionOnFarPlane(Double x, Double y)
     {
         return Far.Point + x * right * wFar / 2.0 + y * up * hFar / 2.0;
     }
 
     private readonly Vector3d right;
     private readonly Vector3d up;
-    private readonly double wNear;
-    private readonly double hNear;
-    private readonly double wFar;
-    private readonly double hFar;
+    private readonly Double wNear;
+    private readonly Double hNear;
+    private readonly Double wFar;
+    private readonly Double hFar;
 
     /// <summary>
     ///     Get the position of the frustum origin.
@@ -125,10 +125,10 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <param name="fovY">The vertical fov.</param>
     /// <param name="ratio">The screen ratio.</param>
     /// <returns>The calculated dimensions.</returns>
-    public static (double width, double height) GetDimensionsAt(double distance, double fovY, double ratio)
+    public static (Double width, Double height) GetDimensionsAt(Double distance, Double fovY, Double ratio)
     {
-        double height = 2.0 * Math.Tan(fovY * 0.5) * distance;
-        double width = height * ratio;
+        Double height = 2.0 * Math.Tan(fovY * 0.5) * distance;
+        Double width = height * ratio;
 
         return (width, height);
     }
@@ -177,7 +177,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// </summary>
     public Plane Top { get; }
 
-    private Plane GetPlane(int index)
+    private Plane GetPlane(Int32 index)
     {
         return index switch
         {
@@ -235,15 +235,15 @@ public readonly struct Frustum : IEquatable<Frustum>
         AddEdge(normals[15..], edge5);
     }
 
-    private static (double min, double max) ProjectBox(Box3d box, Vector3d axis)
+    private static (Double min, Double max) ProjectBox(Box3d box, Vector3d axis)
     {
-        double radius = Math.Abs(Vector3d.Dot(box.HalfSize, axis.Absolute()));
-        double distance = Vector3d.Dot(box.Center, axis);
+        Double radius = Math.Abs(Vector3d.Dot(box.HalfSize, axis.Absolute()));
+        Double distance = Vector3d.Dot(box.Center, axis);
 
         return (distance - radius, distance + radius);
     }
 
-    private (double min, double max) ProjectFrustum(Vector3d axis)
+    private (Double min, Double max) ProjectFrustum(Vector3d axis)
     {
         Span<Vector3d> corners = stackalloc Vector3d[8];
 
@@ -257,12 +257,12 @@ public readonly struct Frustum : IEquatable<Frustum>
         corners[index: 6] = GetPositionOnFarPlane(x: 1.0, y: -1.0);
         corners[index: 7] = GetPositionOnFarPlane(x: 1.0, y: 1.0);
 
-        var min = double.MaxValue;
-        var max = double.MinValue;
+        var min = Double.MaxValue;
+        var max = Double.MinValue;
 
         foreach (Vector3d corner in corners)
         {
-            double dot = Vector3d.Dot(axis, corner);
+            Double dot = Vector3d.Dot(axis, corner);
             min = Math.Min(min, dot);
             max = Math.Max(max, dot);
         }
@@ -276,11 +276,11 @@ public readonly struct Frustum : IEquatable<Frustum>
     ///     No false-positive results are allowed.
     /// </summary>
     /// <returns>true if the <see cref="Box3" /> is inside; false if not.</returns>
-    public bool IsBoxInFrustum(Box3d volume)
+    public Boolean IsBoxInFrustum(Box3d volume)
     {
-        const int boxNormalCount = 3;
-        const int frustumNormalCount = 5;
-        const int crossEdgeCount = 3 * 6;
+        const Int32 boxNormalCount = 3;
+        const Int32 frustumNormalCount = 5;
+        const Int32 crossEdgeCount = 3 * 6;
 
         Span<Vector3d> normals = stackalloc Vector3d[boxNormalCount + frustumNormalCount + crossEdgeCount];
 
@@ -290,8 +290,8 @@ public readonly struct Frustum : IEquatable<Frustum>
 
         foreach (Vector3d normal in normals)
         {
-            (double min, double max) boxProjection = ProjectBox(volume, normal);
-            (double min, double max) frustumProjection = ProjectFrustum(normal);
+            (Double min, Double max) boxProjection = ProjectBox(volume, normal);
+            (Double min, Double max) frustumProjection = ProjectFrustum(normal);
 
             if (boxProjection.max < frustumProjection.min || boxProjection.min > frustumProjection.max) return false;
         }
@@ -307,15 +307,15 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <param name="box">The box to check.</param>
     /// <param name="tolerance">The tolerance (in world units) to use, which is an extension around the frustum.</param>
     /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
-    public bool IsBoxVisible(Box3d box, double tolerance = 0.0)
+    public Boolean IsBoxVisible(Box3d box, Double tolerance = 0.0)
     {
         for (var i = 0; i < 6; i++)
         {
             Plane plane = GetPlane(i);
 
-            double px = plane.Normal.X < 0 ? box.Min.X : box.Max.X;
-            double py = plane.Normal.Y < 0 ? box.Min.Y : box.Max.Y;
-            double pz = plane.Normal.Z < 0 ? box.Min.Z : box.Max.Z;
+            Double px = plane.Normal.X < 0 ? box.Min.X : box.Max.X;
+            Double py = plane.Normal.Y < 0 ? box.Min.Y : box.Max.Y;
+            Double pz = plane.Normal.Z < 0 ? box.Min.Z : box.Max.Z;
 
             if (plane.GetDistanceTo(new Vector3d(px, py, pz)) < -tolerance)
                 return false;
@@ -333,7 +333,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     }
 
     /// <inheritdoc />
-    public bool Equals(Frustum other)
+    public Boolean Equals(Frustum other)
     {
         for (var i = 0; i < 6; i++)
             if (!GetPlane(i).Equals(other.GetPlane(i)))
@@ -343,13 +343,13 @@ public readonly struct Frustum : IEquatable<Frustum>
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Frustum other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Near, Far, Left, Right, Bottom, Top);
     }
@@ -357,7 +357,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <summary>
     ///     Checks whether two <see cref="Frustum" /> are equal.
     /// </summary>
-    public static bool operator ==(Frustum left, Frustum right)
+    public static Boolean operator ==(Frustum left, Frustum right)
     {
         return left.Equals(right);
     }
@@ -365,7 +365,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <summary>
     ///     Checks whether two <see cref="Frustum" /> are not equal.
     /// </summary>
-    public static bool operator !=(Frustum left, Frustum right)
+    public static Boolean operator !=(Frustum left, Frustum right)
     {
         return !left.Equals(right);
     }

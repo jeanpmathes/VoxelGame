@@ -23,7 +23,7 @@ public abstract class Parser
     /// </summary>
     /// <param name="input">The input string to check.</param>
     /// <returns>True if this parser can parse the provided input.</returns>
-    public abstract bool CanParse(string input);
+    public abstract Boolean CanParse(String input);
 
     /// <summary>
     ///     Parse the given string to the type this parser is for.
@@ -31,7 +31,7 @@ public abstract class Parser
     /// <param name="input">The input to parse. Must be checked with <see cref="CanParse" /></param>
     /// before.
     /// <returns>A value of the type this parsers targets.</returns>
-    public abstract object Parse(string input);
+    public abstract Object Parse(String input);
 
     /// <summary>
     ///     Create a parser for a specific type.
@@ -40,30 +40,21 @@ public abstract class Parser
     /// <param name="parse">A function parsing a string.</param>
     /// <typeparam name="T">The type the new parsers should parse.</typeparam>
     /// <returns>A parser for the specific type.</returns>
-    public static Parser BuildParser<T>(Func<string, bool> check, Func<string, T> parse)
+    public static Parser BuildParser<T>(Func<String, Boolean> check, Func<String, T> parse)
     {
         return new SimpleParser<T>(check, parse);
     }
 
-    private sealed class SimpleParser<T> : Parser
+    private sealed class SimpleParser<T>(Func<String, Boolean> check, Func<String, T> parse) : Parser
     {
-        private readonly Func<string, bool> check;
-        private readonly Func<string, T> parse;
-
-        public SimpleParser(Func<string, bool> check, Func<string, T> parse)
-        {
-            this.check = check;
-            this.parse = parse;
-        }
-
         public override Type ParsedType => typeof(T);
 
-        public override bool CanParse(string input)
+        public override Boolean CanParse(String input)
         {
             return check(input);
         }
 
-        public override object Parse(string input)
+        public override Object Parse(String input)
         {
             return parse(input)!;
         }

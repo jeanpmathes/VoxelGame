@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
 
@@ -20,7 +21,7 @@ public class OperationUpdateDispatch
     ///     Create a new operation update dispatch instance.
     /// </summary>
     /// <param name="singleton">Whether to make this the singleton instance.</param>
-    public OperationUpdateDispatch(bool singleton = false)
+    public OperationUpdateDispatch(Boolean singleton = false)
     {
         if (!singleton) return;
 

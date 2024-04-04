@@ -32,5 +32,5 @@ public abstract class InputAction
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected abstract void Update(object? sender, EventArgs e);
+    protected abstract void Update(Object? sender, EventArgs e);
 }

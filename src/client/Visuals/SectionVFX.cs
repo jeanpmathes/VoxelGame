@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -45,7 +46,7 @@ public sealed class SectionVFX : VFX
     private readonly Space space;
     private readonly Vector3d position;
 
-    private bool enabled;
+    private Boolean enabled;
 
     private (Mesh? opaque, Mesh? transparent) basic;
     private Mesh? foliage;
@@ -61,7 +62,7 @@ public sealed class SectionVFX : VFX
     }
 
     /// <inheritdoc />
-    public override bool IsEnabled
+    public override Boolean IsEnabled
     {
         get => enabled;
         set
@@ -188,10 +189,10 @@ public sealed class SectionVFX : VFX
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

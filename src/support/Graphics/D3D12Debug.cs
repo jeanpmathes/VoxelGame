@@ -17,7 +17,7 @@ namespace VoxelGame.Support.Graphics;
 /// </summary>
 internal class D3D12Debug
 {
-    private const string DebugCategory = "DirectX Debug";
+    private const String DebugCategory = "DirectX Debug";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<D3D12Debug>();
 
     private static (D3D12Debug debug, Client client)? instance;
@@ -52,11 +52,11 @@ internal class D3D12Debug
         Definition.Native.D3D12_MESSAGE_CATEGORY category,
         Definition.Native.D3D12_MESSAGE_SEVERITY severity,
         Definition.Native.D3D12_MESSAGE_ID id,
-        string? message, IntPtr context)
+        String? message, IntPtr context)
     {
         LogLevel level = GetLevel(severity);
-        string categoryName = ResolveCategory(category);
-        (string idResolved, int eventId) = ResolveEvent(id);
+        String categoryName = ResolveCategory(category);
+        (String idResolved, Int32 eventId) = ResolveEvent(id);
 
         logger.Log(
             level,
@@ -66,7 +66,7 @@ internal class D3D12Debug
             idResolved,
             message);
 
-        Debugger.Log((int) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
+        Debugger.Log((Int32) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
 
         if (id
             is Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT
@@ -99,7 +99,7 @@ internal class D3D12Debug
         };
     }
 
-    private static string ResolveCategory(Definition.Native.D3D12_MESSAGE_CATEGORY category)
+    private static String ResolveCategory(Definition.Native.D3D12_MESSAGE_CATEGORY category)
     {
         return category switch
         {
@@ -118,7 +118,7 @@ internal class D3D12Debug
         };
     }
 
-    private static (string, int) ResolveEvent(Definition.Native.D3D12_MESSAGE_ID id)
+    private static (String, Int32) ResolveEvent(Definition.Native.D3D12_MESSAGE_ID id)
     {
         return (id.ToString(), Events.DirectXDebug);
     }

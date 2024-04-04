@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Serialization;
 
 /// <summary>
@@ -12,14 +14,14 @@ namespace VoxelGame.Core.Serialization;
 /// </summary>
 public class UnitHeader : IValue
 {
-    private readonly string signature;
+    private readonly String signature;
     private MetaVersion version = MetaVersion.Current;
 
     /// <summary>
     ///     Create a new meta header.
     /// </summary>
     /// <param name="signature">The signature of the specific format.</param>
-    public UnitHeader(string signature)
+    public UnitHeader(String signature)
     {
         this.signature = signature;
     }

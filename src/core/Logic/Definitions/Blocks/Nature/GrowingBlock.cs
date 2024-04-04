@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,10 +20,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // a: age
 public class GrowingBlock : BasicBlock, ICombustible
 {
-    private readonly int maxHeight;
+    private readonly Int32 maxHeight;
     private readonly Block requiredGround;
 
-    internal GrowingBlock(string name, string namedID, TextureLayout layout, Block ground, int maxHeight) :
+    internal GrowingBlock(String name, String namedID, TextureLayout layout, Block ground, Int32 maxHeight) :
         base(
             name,
             namedID,
@@ -34,7 +35,7 @@ public class GrowingBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         Block down = world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air;
 
@@ -42,7 +43,7 @@ public class GrowingBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom)
         {
@@ -53,13 +54,13 @@ public class GrowingBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
-        var age = (int) (data & 0b00_0111);
+        var age = (Int32) (data & 0b00_0111);
 
         if (age < 7)
         {
-            world.SetBlock(this.AsInstance((uint) (age + 1)), position);
+            world.SetBlock(this.AsInstance((UInt32) (age + 1)), position);
         }
         else
         {

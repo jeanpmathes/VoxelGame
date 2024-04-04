@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 
@@ -17,66 +18,66 @@ public interface IBlockBase
     /// <summary>
     ///     Gets the block id which can be any value from 0 to 4095.
     /// </summary>
-    public uint ID { get; }
+    public UInt32 ID { get; }
 
     /// <summary>
     ///     Gets the localized name of the block.
     /// </summary>
-    public string Name { get; }
+    public String Name { get; }
 
     /// <summary>
     ///     An unlocalized string that identifies this block.
     /// </summary>
-    public string NamedID { get; }
+    public String NamedID { get; }
 
     /// <summary>
     ///     This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to
     ///     another non-opaque block.
     /// </summary>
-    public bool RenderFaceAtNonOpaques { get; }
+    public Boolean RenderFaceAtNonOpaques { get; }
 
     /// <summary>
     ///     Gets whether the collision method should be called in case of a collision with an actor.
     /// </summary>
-    public bool ReceiveCollisions { get; }
+    public Boolean ReceiveCollisions { get; }
 
     /// <summary>
     ///     Gets whether this block should be checked in collision calculations even if it is not solid.
     /// </summary>
-    public bool IsTrigger { get; }
+    public Boolean IsTrigger { get; }
 
     /// <summary>
     ///     Gets whether this block can be replaced when placing a block.
     /// </summary>
-    public bool IsReplaceable { get; }
+    public Boolean IsReplaceable { get; }
 
     /// <summary>
     ///     Gets whether this block responds to interactions.
     /// </summary>
-    public bool IsInteractable { get; }
+    public Boolean IsInteractable { get; }
 
     /// <summary>
     ///     Gets whether this block is unshaded.
     /// </summary>
-    public bool IsUnshaded { get; }
+    public Boolean IsUnshaded { get; }
 
     /// <summary>
     ///     Gets whether this block always completely fills a 1x1x1 volume or not. Prefer the <see cref="IsSideFull" /> method
     ///     as it handles blocks that are sometimes full.
     /// </summary>
-    public bool IsFull { get; }
+    public Boolean IsFull { get; }
 
     /// <summary>
     ///     Gets whether it is possible to see through this block.
     ///     Note that this only indicates whether the actual filled portion of the block is opaque.
     ///     If the block is not full, it is possible to see around the block.
     /// </summary>
-    public bool IsOpaque { get; }
+    public Boolean IsOpaque { get; }
 
     /// <summary>
     ///     Gets whether this block hinders movement.
     /// </summary>
-    public bool IsSolid { get; }
+    public Boolean IsSolid { get; }
 
     /// <summary>
     ///     Tries to place a block in the world.
@@ -85,7 +86,7 @@ public interface IBlockBase
     /// <param name="position"></param>
     /// <param name="actor"></param>
     /// <returns>Returns true if placing the block was successful.</returns>
-    public bool Place(World world, Vector3i position, PhysicsActor? actor = null);
+    public Boolean Place(World world, Vector3i position, PhysicsActor? actor = null);
 
     /// <summary>
     ///     Destroys a block in the world if it is the same type as this block.
@@ -94,7 +95,7 @@ public interface IBlockBase
     /// <param name="position"></param>
     /// <param name="actor">The actor which caused the destruction, or null if no actor caused it.</param>
     /// <returns>Returns true if the block has been destroyed.</returns>
-    public bool Destroy(World world, Vector3i position, PhysicsActor? actor = null);
+    public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null);
 
     /// <summary>
     ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.
@@ -102,7 +103,7 @@ public interface IBlockBase
     /// <param name="side">The side to check. This can also be <see cref="BlockSide.All" /> to check for the entire block.</param>
     /// <param name="data">The block data.</param>
     /// <returns>True if the side is completely full.</returns>
-    public bool IsSideFull(BlockSide side, uint data)
+    public Boolean IsSideFull(BlockSide side, UInt32 data)
     {
         return IsFull;
     }
@@ -110,7 +111,7 @@ public interface IBlockBase
     /// <summary>
     ///     Check whether this block is always solid and full.
     /// </summary>
-    bool IsSolidAndFull()
+    Boolean IsSolidAndFull()
     {
         return IsSolid && IsFull;
     }
@@ -118,7 +119,7 @@ public interface IBlockBase
     /// <summary>
     ///     Check whether this block is solid and full with the given data.
     /// </summary>
-    public bool IsSolidAndFull(uint data)
+    public Boolean IsSolidAndFull(UInt32 data)
     {
         return IsSolid && IsSideFull(BlockSide.All, data);
     }
@@ -126,7 +127,7 @@ public interface IBlockBase
     /// <summary>
     ///     Check whether this block is always opaque and full.
     /// </summary>
-    bool IsOpaqueAndFull()
+    Boolean IsOpaqueAndFull()
     {
         return IsOpaque && IsFull;
     }
@@ -134,7 +135,7 @@ public interface IBlockBase
     /// <summary>
     ///     Check whether this block is opaque and full with the given data.
     /// </summary>
-    public bool IsOpaqueAndFull(uint data)
+    public Boolean IsOpaqueAndFull(UInt32 data)
     {
         return IsOpaque && IsSideFull(BlockSide.All, data);
     }

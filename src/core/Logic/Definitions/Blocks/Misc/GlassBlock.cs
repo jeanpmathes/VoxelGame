@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -15,7 +16,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GlassBlock : BasicBlock, IThinConnectable
 {
-    internal GlassBlock(string name, string namedID, TextureLayout layout) :
+    internal GlassBlock(String name, String namedID, TextureLayout layout) :
         base(
             name,
             namedID,

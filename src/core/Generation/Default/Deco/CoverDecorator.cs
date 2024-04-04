@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -33,14 +34,14 @@ public class CoverDecorator : SurfaceDecorator
     /// <param name="block">The block to check for.</param>
     /// <param name="offset">An offset to apply to the checked position.</param>
     /// <param name="width">The width of the surface column. See <see cref="SurfaceDecorator" />.</param>
-    public CoverDecorator(Block block, Vector3i offset, int width) : base(width)
+    public CoverDecorator(Block block, Vector3i offset, Int32 width) : base(width)
     {
         this.offset = offset;
         this.block = block;
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
+    public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         position += offset;
 

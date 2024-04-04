@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using VoxelGame.UI.Settings;
@@ -18,12 +19,12 @@ public interface ISettingsProvider : ISettingsValidator
     /// <summary>
     ///     The name of the settings category.
     /// </summary>
-    public static abstract string Category { get; }
+    public static abstract String Category { get; }
 
     /// <summary>
     ///     A description for the settings category.
     /// </summary>
-    public static abstract string Description { get; }
+    public static abstract String Description { get; }
 
     /// <summary>
     ///     Get all settings for this category.
@@ -69,12 +70,12 @@ public class SettingsProvider
     /// <summary>
     ///     See <see cref="ISettingsProvider.Category" />.
     /// </summary>
-    public required string Category { get; init; }
+    public required String Category { get; init; }
 
     /// <summary>
     ///     See <see cref="ISettingsProvider.Description" />.
     /// </summary>
-    public required string Description { get; init; }
+    public required String Description { get; init; }
 
     /// <summary>
     ///     See <see cref="ISettingsProvider.Settings" />.

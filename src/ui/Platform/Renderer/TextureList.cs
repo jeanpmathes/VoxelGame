@@ -23,22 +23,22 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class TextureList : IDisposable
 {
-    private const int NeverDiscard = -1;
-    private readonly Dictionary<string, int> availableTextures = new();
+    private const Int32 NeverDiscard = -1;
+    private readonly Dictionary<String, Int32> availableTextures = new();
 
     private readonly Client client;
 
     private readonly Bag<Texture> textures;
     private readonly PooledList<Image> images = new();
-    private readonly PooledList<int> usage = new();
+    private readonly PooledList<Int32> usage = new();
 
     /// <summary>
     ///     Contains the indices of textures that were added since the last upload.
     ///     This is used to prevent textures from being discarded during the same frame they are uploaded.
     /// </summary>
-    private SortedSet<int> newTextures = new();
+    private SortedSet<Int32> newTextures = new();
 
-    private SortedSet<int> previousNewTextures = new();
+    private SortedSet<Int32> previousNewTextures = new();
 
     /// <summary>
     ///     Creates a new texture list.
@@ -59,7 +59,7 @@ public sealed class TextureList : IDisposable
     /// <summary>
     ///     Whether the texture list has been modified since the last upload.
     /// </summary>
-    private bool IsDirty { get; set; }
+    private Boolean IsDirty { get; set; }
 
     /// <summary>
     ///     Uploads the texture list to the GPU if it has been modified.
@@ -72,10 +72,10 @@ public sealed class TextureList : IDisposable
 
         if (!IsDirty) return;
 
-        foreach (int index in previousNewTextures) DiscardIfUnused(new Handle(index));
+        foreach (Int32 index in previousNewTextures) DiscardIfUnused(new Handle(index));
 
         previousNewTextures = newTextures;
-        newTextures = new SortedSet<int>();
+        newTextures = new SortedSet<Int32>();
 
         drawer.InitializeTextures(textures.AsSpan());
 
@@ -89,7 +89,7 @@ public sealed class TextureList : IDisposable
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
     /// <param name="callback">The callback that receives the texture handle if the load was successful.</param>
     /// <returns>An exception if the load failed, null otherwise.</returns>
-    public Exception? LoadTexture(FileInfo path, bool allowDiscard, Action<Handle> callback)
+    public Exception? LoadTexture(FileInfo path, Boolean allowDiscard, Action<Handle> callback)
     {
         Throw.IfDisposed(disposed);
 
@@ -127,7 +127,7 @@ public sealed class TextureList : IDisposable
     /// </summary>
     /// <param name="image">The image to load from.</param>
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
-    public Handle LoadTexture(Image image, bool allowDiscard)
+    public Handle LoadTexture(Image image, Boolean allowDiscard)
     {
         Throw.IfDisposed(disposed);
 
@@ -167,9 +167,9 @@ public sealed class TextureList : IDisposable
         IsDirty = true;
     }
 
-    private Handle AddEntry(Texture texture, Image image, bool allowDiscard)
+    private Handle AddEntry(Texture texture, Image image, Boolean allowDiscard)
     {
-        int usageCount = allowDiscard ? 0 : NeverDiscard;
+        Int32 usageCount = allowDiscard ? 0 : NeverDiscard;
         Handle handle = new(textures.Add(texture));
 
         SafelySetImage(handle, image);
@@ -195,7 +195,7 @@ public sealed class TextureList : IDisposable
         }
     }
 
-    private void SafelySetUsage(Handle handle, int usageCount)
+    private void SafelySetUsage(Handle handle, Int32 usageCount)
     {
         if (usage.Count > handle.Index)
         {
@@ -218,11 +218,11 @@ public sealed class TextureList : IDisposable
     /// </summary>
     /// <param name="name">The name of the texture.</param>
     /// <returns>The texture entry, if found.</returns>
-    public Handle GetTexture(string name)
+    public Handle GetTexture(String name)
     {
         Throw.IfDisposed(disposed);
 
-        if (!availableTextures.TryGetValue(name, out int index)) return Handle.Invalid;
+        if (!availableTextures.TryGetValue(name, out Int32 index)) return Handle.Invalid;
 
         Handle handle = new(index);
 
@@ -246,11 +246,11 @@ public sealed class TextureList : IDisposable
     /// <summary>
     ///     Get the pixel at the given coordinates.
     /// </summary>
-    public Color GetPixel(Handle handle, uint x, uint y)
+    public Color GetPixel(Handle handle, UInt32 x, UInt32 y)
     {
         Throw.IfDisposed(disposed);
 
-        System.Drawing.Color color = images[handle.Index].GetPixel((int) x, (int) y);
+        System.Drawing.Color color = images[handle.Index].GetPixel((Int32) x, (Int32) y);
 
         return new Color(color.A, color.R, color.G, color.B);
     }
@@ -259,9 +259,9 @@ public sealed class TextureList : IDisposable
     ///     A handle to a texture list entry.
     /// </summary>
     /// <param name="Index">The index of the texture in the texture list.</param>
-    public readonly record struct Handle(int Index)
+    public readonly record struct Handle(Int32 Index)
     {
-        private const int InvalidIndex = -1;
+        private const Int32 InvalidIndex = -1;
 
         /// <summary>
         ///     Get the handle that represents no texture.
@@ -271,14 +271,14 @@ public sealed class TextureList : IDisposable
         /// <summary>
         ///     Get whether the handle is valid.
         /// </summary>
-        public bool IsValid => Index != InvalidIndex;
+        public Boolean IsValid => Index != InvalidIndex;
     }
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

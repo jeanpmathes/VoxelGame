@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -35,7 +36,7 @@ public static class ManualBuilder
     [Conditional("MANUAL")]
     private static void GenerateManual()
     {
-        const string path = "./../../../../../../Setup/Resources/Manual";
+        const String path = "./../../../../../../Setup/Resources/Manual";
         DirectoryInfo directory = FileSystem.GetFullPath(path);
 
         Logging.Logger.LogInformation(Events.ApplicationInformation, "Generating game manual");
@@ -55,7 +56,7 @@ public static class ManualBuilder
 
         blocks.CreateSections(
             Blocks.Instance.GetValues<Block>(documentation),
-            ((Block block, string description) s) => Section.Create(s.block.Name)
+            ((Block block, String description) s) => Section.Create(s.block.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
                 .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
@@ -70,7 +71,7 @@ public static class ManualBuilder
 
         fluids.CreateSections(
             Fluids.Instance.GetValues<Fluid>(documentation),
-            ((Fluid fluid, string description) s) => Section.Create(s.fluid.Name)
+            ((Fluid fluid, String description) s) => Section.Create(s.fluid.Name)
                 .Text(s.description).NewLine()
                 .BeginList()
                 .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)

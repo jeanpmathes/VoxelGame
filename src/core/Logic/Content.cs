@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 /// <param name="Block">The block.</param>
 /// <param name="Data">The data of the block.</param>
-public readonly record struct BlockInstance(Block Block, uint Data)
+public readonly record struct BlockInstance(Block Block, UInt32 Data)
 {
     /// <summary>
     ///     Get the default block instance.
@@ -19,13 +21,13 @@ public readonly record struct BlockInstance(Block Block, uint Data)
     public static BlockInstance Default => new(Blocks.Instance.Air, Data: 0);
 
     /// <inheritdoc cref="IBlockBase.IsSolidAndFull(uint)" />
-    public bool IsSolidAndFull => Block.Base.IsSolidAndFull(Data);
+    public Boolean IsSolidAndFull => Block.Base.IsSolidAndFull(Data);
 
     /// <inheritdoc cref="IBlockBase.IsOpaqueAndFull(uint)" />
-    public bool IsOpaqueAndFull => Block.Base.IsOpaqueAndFull(Data);
+    public Boolean IsOpaqueAndFull => Block.Base.IsOpaqueAndFull(Data);
 
     /// <inheritdoc cref="IBlockBase.IsSideFull" />
-    public bool IsSideFull(BlockSide side)
+    public Boolean IsSideFull(BlockSide side)
     {
         return Block.Base.IsSideFull(side, Data);
     }
@@ -37,7 +39,7 @@ public readonly record struct BlockInstance(Block Block, uint Data)
 /// <param name="Fluid">The fluid.</param>
 /// <param name="Level">The level of the fluid.</param>
 /// <param name="IsStatic">Whether the fluid is static.</param>
-public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool IsStatic)
+public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boolean IsStatic)
 {
     /// <summary>
     ///     Get the default fluid instance.
@@ -47,12 +49,12 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, bool 
     /// <summary>
     ///     Get whether the fluid is either fresh water or sea water.
     /// </summary>
-    public bool IsAnyWater => Fluid == Fluids.Instance.FreshWater || Fluid == Fluids.Instance.SeaWater;
+    public Boolean IsAnyWater => Fluid == Fluids.Instance.FreshWater || Fluid == Fluids.Instance.SeaWater;
 
     /// <summary>
     ///     Whether the fluid is empty.
     /// </summary>
-    public bool IsEmpty => Fluid == Fluids.Instance.None;
+    public Boolean IsEmpty => Fluid == Fluids.Instance.None;
 }
 
 /// <summary>
@@ -77,13 +79,13 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     /// <summary>
     ///     Whether the content is empty.
     /// </summary>
-    public bool IsEmpty => this == Default;
+    public Boolean IsEmpty => this == Default;
 
     /// <summary>
     ///     Whether the block is replaceable and the fluid is empty,
     ///     allowing to set the block to a new value without any problems.
     /// </summary>
-    public bool IsSettable => Block.Block.IsReplaceable && Fluid.IsEmpty;
+    public Boolean IsSettable => Block.Block.IsReplaceable && Fluid.IsEmpty;
 }
 
 /// <summary>
@@ -95,7 +97,7 @@ public static class ContentExtensions
     /// <summary>
     ///     Get a block as instance.
     /// </summary>
-    public static BlockInstance AsInstance(this Block? block, uint data = 0)
+    public static BlockInstance AsInstance(this Block? block, UInt32 data = 0)
     {
         return block is null ? BlockInstance.Default : new BlockInstance(block, data);
     }
@@ -104,7 +106,7 @@ public static class ContentExtensions
     ///     Get a fluid as instance.
     /// </summary>
     public static FluidInstance AsInstance(this Fluid? fluid, FluidLevel level = FluidLevel.Eight,
-        bool isStatic = true)
+        Boolean isStatic = true)
     {
         return fluid is null ? FluidInstance.Default : new FluidInstance(fluid, level, isStatic);
     }

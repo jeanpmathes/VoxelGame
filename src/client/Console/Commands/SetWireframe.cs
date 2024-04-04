@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using VoxelGame.Client.Visuals;
 
@@ -17,13 +18,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetWireframe : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-wireframe";
+    public override String Name => "set-wireframe";
 
     /// <inheritdoc />
-    public override string HelpText => "Allows to enable or disable wireframe rendering.";
+    public override String HelpText => "Allows to enable or disable wireframe rendering.";
 
     /// <exclude />
-    public void Invoke(bool enable)
+    public void Invoke(Boolean enable)
     {
         Graphics.Instance.SetWireframe(enable);
     }

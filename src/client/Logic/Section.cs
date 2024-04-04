@@ -6,6 +6,7 @@
 
 // ReSharper disable CommentTypo
 
+using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
@@ -25,7 +26,7 @@ public class Section : Core.Logic.Section
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
 
-    private bool hasMesh;
+    private Boolean hasMesh;
     private BlockSides missing;
     private SectionVFX? renderer;
 
@@ -102,7 +103,7 @@ public class Section : Core.Logic.Section
     private static BlockSides GetRequiredSides(SectionPosition position)
     {
         var required = BlockSides.None;
-        (int x, int y, int z) = position.Local;
+        (Int32 x, Int32 y, Int32 z) = position.Local;
 
         if (x == 0) required |= BlockSides.Left;
         if (x == Core.Logic.Chunk.Size - 1) required |= BlockSides.Right;
@@ -135,15 +136,15 @@ public class Section : Core.Logic.Section
             for (var y = 0; y < Size; y++)
             for (var z = 0; z < Size; z++)
             {
-                uint val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
+                UInt32 val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
 
                 Decode(
                     val,
                     out Block currentBlock,
-                    out uint data,
+                    out UInt32 data,
                     out Fluid currentFluid,
                     out FluidLevel level,
-                    out bool isStatic);
+                    out Boolean isStatic);
 
                 IBlockMeshable meshable = currentBlock;
                 meshable.CreateMesh((x, y, z), new BlockMeshInfo(BlockSide.All, data, currentFluid), context);
@@ -188,7 +189,7 @@ public class Section : Core.Logic.Section
     /// <summary>
     ///     Set whether the renderer is enabled.
     /// </summary>
-    public void SetRendererEnabledState(bool enabled)
+    public void SetRendererEnabledState(Boolean enabled)
     {
         Throw.IfDisposed(disposed);
 
@@ -209,10 +210,10 @@ public class Section : Core.Logic.Section
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

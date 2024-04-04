@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -26,7 +27,7 @@ public class StructureDecoration : Decoration
     /// <param name="rarity">The rarity of the decoration.</param>
     /// <param name="structure">The structure to place.</param>
     /// <param name="decorator">The decorator to use.</param>
-    public StructureDecoration(string name, float rarity, Structure structure, Decorator decorator) : base(name, rarity, decorator)
+    public StructureDecoration(String name, Single rarity, Structure structure, Decorator decorator) : base(name, rarity, decorator)
     {
         this.structure = structure;
 
@@ -36,13 +37,13 @@ public class StructureDecoration : Decoration
     }
 
     /// <inheritdoc />
-    public sealed override int Size => structure.Extents.MaxComponent();
+    public sealed override Int32 Size => structure.Extents.MaxComponent();
 
     /// <inheritdoc />
     protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
     {
-        int xOffset = structure.Extents.X / 2;
-        int zOffset = structure.Extents.Z / 2;
+        Int32 xOffset = structure.Extents.X / 2;
+        Int32 zOffset = structure.Extents.Z / 2;
 
         structure.SetStructureSeed(placementContext.Random.GetHashCode());
         Debug.Assert(structure.IsPlaceable);

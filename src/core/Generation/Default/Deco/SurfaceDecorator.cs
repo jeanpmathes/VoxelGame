@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -17,14 +18,14 @@ namespace VoxelGame.Core.Generation.Default.Deco;
 /// </summary>
 public class SurfaceDecorator : Decorator
 {
-    private readonly int width;
-    private int height = 1;
+    private readonly Int32 width;
+    private Int32 height = 1;
 
     /// <summary>
     ///     Creates a new surface decorator.
     /// </summary>
     /// <param name="width">The width of the column to check. Must be odd and in the range [1, <see cref="Section.Size" />].</param>
-    public SurfaceDecorator(int width = 1)
+    public SurfaceDecorator(Int32 width = 1)
     {
         Debug.Assert(width is > 0 and <= Section.Size);
         Debug.Assert(width % 2 != 0);
@@ -39,11 +40,11 @@ public class SurfaceDecorator : Decorator
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
+    public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         for (var y = 0; y < height; y++)
-        for (int x = -width / 2; x <= width / 2; x++)
-        for (int z = -width / 2; z <= width / 2; z++)
+        for (Int32 x = -width / 2; x <= width / 2; x++)
+        for (Int32 z = -width / 2; z <= width / 2; z++)
         {
             Content current = grid.GetContent(position + (x, y, z)) ?? Content.Default;
 

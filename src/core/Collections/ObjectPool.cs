@@ -30,7 +30,7 @@ public class ObjectPool<T> where T : class
     /// <summary>
     ///     Get the number of objects in the pool.
     /// </summary>
-    public int Count => objects.Count;
+    public Int32 Count => objects.Count;
 
     /// <summary>
     ///     Get an object from the pool.

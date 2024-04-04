@@ -16,12 +16,12 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <summary>
     ///     Get the duration, in seconds.
     /// </summary>
-    public double Seconds { get; init; }
+    public Double Seconds { get; init; }
 
     /// <summary>
     ///     Get the duration, in milliseconds.
     /// </summary>
-    public double Milliseconds
+    public Double Milliseconds
     {
         get => Seconds * 1000;
         init => Seconds = value / 1000;
@@ -30,22 +30,22 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <inheritdoc />
     public static Unit Unit => Unit.Second;
 
-    double IMeasure.Value => Seconds;
+    Double IMeasure.Value => Seconds;
 
     /// <inheritdoc />
-    public bool Equals(Duration other)
+    public Boolean Equals(Duration other)
     {
         return Seconds.Equals(other.Seconds);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Duration other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return Seconds.GetHashCode();
     }
@@ -53,7 +53,7 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(Duration left, Duration right)
+    public static Boolean operator ==(Duration left, Duration right)
     {
         return left.Equals(right);
     }
@@ -61,13 +61,13 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(Duration left, Duration right)
+    public static Boolean operator !=(Duration left, Duration right)
     {
         return !left.Equals(right);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return IMeasure.ToString(this);
     }

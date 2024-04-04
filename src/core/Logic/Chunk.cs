@@ -53,46 +53,46 @@ public partial class Chunk : IDisposable, IEntity
         ValidationError
     }
 
-    private const string FileSignature = "VG_CHUNK";
+    private const String FileSignature = "VG_CHUNK";
 
     /// <summary>
     ///     The number of sections in a chunk along every axis.
     /// </summary>
-    public const int Size = 4;
+    public const Int32 Size = 4;
 
     /// <summary>
     ///     The number of blocks in a chunk along every axis.
     /// </summary>
-    public const int BlockSize = Size * Section.Size;
+    public const Int32 BlockSize = Size * Section.Size;
 
     /// <summary>
     ///     The number of sections per chunk.
     /// </summary>
-    public const int SectionCount = Size * Size * Size;
+    public const Int32 SectionCount = Size * Size * Size;
 
-    private const int RandomTickBatchSize = SectionCount / 2;
+    private const Int32 RandomTickBatchSize = SectionCount / 2;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
-    public static readonly int SizeExp = BitOperations.Log2(Size);
+    public static readonly Int32 SizeExp = BitOperations.Log2(Size);
 
     /// <summary>
     ///     Result of <c>lb(Size) * 2</c> as int.
     /// </summary>
-    public static readonly int SizeExp2 = SizeExp * 2;
+    public static readonly Int32 SizeExp2 = SizeExp * 2;
 
     /// <summary>
     ///     Result of <c>lb(BlockSize)</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp = BitOperations.Log2(BlockSize);
+    public static readonly Int32 BlockSizeExp = BitOperations.Log2(BlockSize);
 
     /// <summary>
     ///     Result of <c>lb(BlockSize) * 2</c> as int.
     /// </summary>
-    public static readonly int BlockSizeExp2 = BlockSizeExp * 2;
+    public static readonly Int32 BlockSizeExp2 = BlockSizeExp * 2;
 
     private readonly StateTracker tracker = new(nameof(Chunk));
 
@@ -127,7 +127,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether the chunk is currently requested to be active.
     /// </summary>
-    private bool isRequested;
+    private Boolean isRequested;
 
     /// <summary>
     ///     The current chunk state.
@@ -161,7 +161,7 @@ public partial class Chunk : IDisposable, IEntity
     ///     Whether the chunk is currently active.
     ///     An active can write to all resources and allows sharing its access for the duration of one update.
     /// </summary>
-    public bool IsActive
+    public Boolean IsActive
     {
         get
         {
@@ -174,7 +174,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether this chunk is intending to get ready according to the current state.
     /// </summary>
-    public bool IsIntendingToGetReady
+    public Boolean IsIntendingToGetReady
     {
         get
         {
@@ -187,7 +187,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get whether the chunk is requested.
     /// </summary>
-    public bool IsRequested => isRequested;
+    public Boolean IsRequested => isRequested;
 
     /// <summary>
     ///     Get the position of this chunk.
@@ -207,7 +207,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get whether this chunk is fully decorated.
     /// </summary>
-    public bool IsFullyDecorated => decoration == DecorationLevels.All;
+    public Boolean IsFullyDecorated => decoration == DecorationLevels.All;
 
     /// <summary>
     ///     The current chunk state.
@@ -215,7 +215,7 @@ public partial class Chunk : IDisposable, IEntity
     protected ChunkState State => state;
 
     /// <inheritdoc />
-    public static int Version => 1;
+    public static Int32 Version => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)
@@ -310,7 +310,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether it is possible to acquire the core resource.
     /// </summary>
-    public bool CanAcquireCore(Access access)
+    public Boolean CanAcquireCore(Access access)
     {
         Throw.IfDisposed(disposed);
 
@@ -320,7 +320,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Check if core is held with a specific access by a given guard.
     /// </summary>
-    public bool IsCoreHeldBy(Guard guard, Access access)
+    public Boolean IsCoreHeldBy(Guard guard, Access access)
     {
         Throw.IfDisposed(disposed);
 
@@ -359,7 +359,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether it is possible to acquire the extended resource.
     /// </summary>
-    public bool CanAcquireExtended(Access access)
+    public Boolean CanAcquireExtended(Access access)
     {
         Throw.IfDisposed(disposed);
 
@@ -369,7 +369,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Check if extended is held with a specific access by a given guard.
     /// </summary>
-    public bool IsExtendedHeldBy(Guard guard, Access access)
+    public Boolean IsExtendedHeldBy(Guard guard, Access access)
     {
         Throw.IfDisposed(disposed);
 
@@ -460,7 +460,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
     /// <returns>The file name of the chunk.</returns>
-    public static string GetChunkFileName(ChunkPosition position)
+    public static String GetChunkFileName(ChunkPosition position)
     {
         return $"x{position.X}y{position.Y}z{position.Z}.chunk";
     }
@@ -538,12 +538,12 @@ public partial class Chunk : IDisposable, IEntity
 
     private void GenerateContent(IWorldGenerator generator)
     {
-        (int begin, int end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
+        (Int32 begin, Int32 end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
 
         for (var x = 0; x < BlockSize; x++)
         for (var z = 0; z < BlockSize; z++)
         {
-            int y = range.begin;
+            Int32 y = range.begin;
 
             foreach (Content content in generator.GenerateColumn(
                          x + Position.X * BlockSize,
@@ -554,7 +554,7 @@ public partial class Chunk : IDisposable, IEntity
 
                 Content modifiedContent = content.Block.Block.GenerateUpdate(content);
 
-                uint encodedContent = Section.Encode(modifiedContent.Block.Block, modifiedContent.Block.Data, modifiedContent.Fluid.Fluid, modifiedContent.Fluid.Level, modifiedContent.Fluid.IsStatic);
+                UInt32 encodedContent = Section.Encode(modifiedContent.Block.Block, modifiedContent.Block.Data, modifiedContent.Fluid.Fluid, modifiedContent.Fluid.Level, modifiedContent.Fluid.IsStatic);
                 GetSection(position).SetContent(position, encodedContent);
 
                 y++;
@@ -585,12 +585,12 @@ public partial class Chunk : IDisposable, IEntity
         return Task.Run(() => Generate(generator));
     }
 
-    internal void ScheduleBlockTick(Block.BlockTick tick, uint tickOffset)
+    internal void ScheduleBlockTick(Block.BlockTick tick, UInt32 tickOffset)
     {
         blockTickManager.Add(tick, tickOffset);
     }
 
-    internal void ScheduleFluidTick(Fluid.FluidTick tick, uint tickOffset)
+    internal void ScheduleFluidTick(Fluid.FluidTick tick, UInt32 tickOffset)
     {
         fluidTickManager.Add(tick, tickOffset);
     }
@@ -617,11 +617,11 @@ public partial class Chunk : IDisposable, IEntity
 
         localUpdateCounter.Increment();
 
-        int anchor = NumberGenerator.Random.Next(minValue: 0, SectionCount);
+        Int32 anchor = NumberGenerator.Random.Next(minValue: 0, SectionCount);
 
         for (var i = 0; i < RandomTickBatchSize; i++)
         {
-            int index = (anchor + i) % SectionCount;
+            Int32 index = (anchor + i) % SectionCount;
             sections[index].SendRandomUpdates(World);
         }
     }
@@ -635,7 +635,7 @@ public partial class Chunk : IDisposable, IEntity
     {
         Throw.IfDisposed(disposed);
 
-        (int x, int y, int z) = position.Local;
+        (Int32 x, Int32 y, Int32 z) = position.Local;
 
         return sections[LocalSectionToIndex(x, y, z)];
     }
@@ -653,7 +653,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get a section using local coordinates.
     /// </summary>
-    protected Section GetLocalSection(int x, int y, int z)
+    protected Section GetLocalSection(Int32 x, Int32 y, Int32 z)
     {
         return sections[LocalSectionToIndex(x, y, z)];
     }
@@ -661,7 +661,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Convert a three-dimensional section position (in this chunk) to a one-dimensional section index.
     /// </summary>
-    protected static int LocalSectionToIndex(int x, int y, int z)
+    protected static Int32 LocalSectionToIndex(Int32 x, Int32 y, Int32 z)
     {
         return (x << SizeExp2) + (y << SizeExp) + z;
     }
@@ -669,25 +669,25 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Convert a one-dimensional section index to a three-dimensional section position (in this chunk).
     /// </summary>
-    protected static (int x, int y, int z) IndexToLocalSection(int index)
+    protected static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
-        int z = index & (Size - 1);
+        Int32 z = index & (Size - 1);
         index = (index - z) >> SizeExp;
-        int y = index & (Size - 1);
+        Int32 y = index & (Size - 1);
         index = (index - y) >> SizeExp;
-        int x = index;
+        Int32 x = index;
 
         return (x, y, z);
     }
 
     /// <inheritdoc />
-    public sealed override string ToString()
+    public sealed override String ToString()
     {
         return $"Chunk {Position}";
     }
 
     /// <inheritdoc />
-    public sealed override bool Equals(object? obj)
+    public sealed override Boolean Equals(Object? obj)
     {
         if (obj is Chunk other) return Position == other.Position;
 
@@ -695,7 +695,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <inheritdoc />
-    public sealed override int GetHashCode()
+    public sealed override Int32 GetHashCode()
     {
         return HashCode.Combine(Position);
     }
@@ -710,13 +710,13 @@ public partial class Chunk : IDisposable, IEntity
 
         if (!CanAcquireCore(Access.Write)) return null;
 
-        bool allAvailableChunksAreFullyDecorated = IsFullyDecorated;
+        Boolean allAvailableChunksAreFullyDecorated = IsFullyDecorated;
         Neighborhood<Chunk?> available = FindAvailableNeighbors(ref allAvailableChunksAreFullyDecorated);
 
         if (allAvailableChunksAreFullyDecorated) return null;
 
         var isAnyDecorationPossible = false;
-        Neighborhood<bool> needed = FindNeededNeighbors(available, ref isAnyDecorationPossible);
+        Neighborhood<Boolean> needed = FindNeededNeighbors(available, ref isAnyDecorationPossible);
 
         if (!isAnyDecorationPossible) return null;
 
@@ -726,7 +726,7 @@ public partial class Chunk : IDisposable, IEntity
 
         var neighbors = new Neighborhood<(Chunk, Guard)?>();
 
-        foreach ((int x, int y, int z) in Neighborhood.Indices)
+        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
         {
             if ((x, y, z) == Neighborhood.Center || !needed[x, y, z]) continue;
 
@@ -742,11 +742,11 @@ public partial class Chunk : IDisposable, IEntity
         return new Decorating(access, neighbors);
     }
 
-    private static Neighborhood<bool> FindNeededNeighbors(Neighborhood<Chunk?> available, ref bool isAnyDecorationPossible)
+    private static Neighborhood<Boolean> FindNeededNeighbors(Neighborhood<Chunk?> available, ref Boolean isAnyDecorationPossible)
     {
         Debug.Assert(available.Center != null);
 
-        Neighborhood<bool> needed = new();
+        Neighborhood<Boolean> needed = new();
 
         foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
         {
@@ -768,7 +768,7 @@ public partial class Chunk : IDisposable, IEntity
         return needed;
     }
 
-    private static bool IsCornerDecorated(Vector3i corner, Array3D<Chunk?> chunks)
+    private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk?> chunks)
     {
         var decorated = true;
 
@@ -780,18 +780,18 @@ public partial class Chunk : IDisposable, IEntity
         return decorated;
     }
 
-    private Neighborhood<Chunk?> FindAvailableNeighbors(ref bool isFullyDecorated)
+    private Neighborhood<Chunk?> FindAvailableNeighbors(ref Boolean isFullyDecorated)
     {
         var available = new Neighborhood<Chunk?>();
 
-        foreach ((int x, int y, int z) in Neighborhood.Indices)
+        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             if ((x, y, z) == Neighborhood.Center)
             {
                 available[x, y, z] = this;
             }
             else
             {
-                bool neighborExists = World.TryGetChunk(Position.Offset((x, y, z) - Neighborhood.Center), out Chunk? neighbor);
+                Boolean neighborExists = World.TryGetChunk(Position.Offset((x, y, z) - Neighborhood.Center), out Chunk? neighbor);
 
                 if (neighborExists)
                 {
@@ -849,19 +849,19 @@ public partial class Chunk : IDisposable, IEntity
 
         var neighbors = new Array3D<Section>(length: 3);
 
-        void SetNeighbors(int x, int y, int z)
+        void SetNeighbors(Int32 x, Int32 y, Int32 z)
         {
             Debug.Assert(neighbors != null);
-            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
+            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
         }
 
-        void DecorateSection(int x, int y, int z)
+        void DecorateSection(Int32 x, Int32 y, Int32 z)
         {
             SetNeighbors(x, y, z);
             generator.DecorateSection(SectionPosition.From(Position, (x, y, z)), neighbors);
         }
 
-        foreach ((int x, int y, int z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
+        foreach ((Int32 x, Int32 y, Int32 z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
     }
 
     private static DecorationLevels GetFlagForCorner(Vector3i corner)
@@ -882,7 +882,7 @@ public partial class Chunk : IDisposable, IEntity
 
     private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, Vector3i corner)
     {
-        Neighborhood<bool> decorated = new();
+        Neighborhood<Boolean> decorated = new();
 
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
         {
@@ -906,7 +906,7 @@ public partial class Chunk : IDisposable, IEntity
             return chunks.GetAt(offset)!.GetSection(sectionPosition);
         }
 
-        bool IsDecorated(SectionPosition sectionPosition)
+        Boolean IsDecorated(SectionPosition sectionPosition)
         {
             Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
 
@@ -917,7 +917,7 @@ public partial class Chunk : IDisposable, IEntity
         {
             Neighborhood<Section> neighbors = new();
 
-            foreach ((int dx, int dy, int dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
+            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
 
             return neighbors;
         }
@@ -930,7 +930,7 @@ public partial class Chunk : IDisposable, IEntity
 
         SectionPosition lowCorner = SectionPosition.From(chunks.GetAt(corner)!.Position, (Size - 2, Size - 2, Size - 2));
 
-        foreach ((int dx, int dy, int dz) in VMath.Range3(x: 4, y: 4, z: 4))
+        foreach ((Int32 dx, Int32 dy, Int32 dz) in VMath.Range3(x: 4, y: 4, z: 4))
         {
             if (IsCorner(dx, dy, dz)) continue;
             if (IsDecorated(lowCorner.Offset(dx, dy, dz))) continue;
@@ -947,7 +947,7 @@ public partial class Chunk : IDisposable, IEntity
             yield return (corner + offset, GetFlagForCorner(Neighborhood.Center - offset));
     }
 
-    private static bool IsCorner(int dx, int dy, int dz)
+    private static Boolean IsCorner(Int32 dx, Int32 dy, Int32 dz)
     {
         return (dx, dy, dz) switch
         {
@@ -1000,7 +1000,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get a section by index.
     /// </summary>
-    protected Section GetSectionByIndex(int index)
+    protected Section GetSectionByIndex(Int32 index)
     {
         return sections[index];
     }
@@ -1032,12 +1032,12 @@ public partial class Chunk : IDisposable, IEntity
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose of this chunk.
     /// </summary>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

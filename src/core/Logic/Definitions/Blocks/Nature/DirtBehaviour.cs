@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
@@ -18,7 +19,7 @@ public static class DirtBehaviour
     /// <summary>
     ///     Return true if a covered block can be placed at the given position.
     /// </summary>
-    public static bool CanPlaceCovered(World world, Vector3i position, PhysicsActor? actor)
+    public static Boolean CanPlaceCovered(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.HasOpaqueTop(position) == false || Logic.Blocks.Instance.Dirt.CanPlace(world, position, actor);
     }

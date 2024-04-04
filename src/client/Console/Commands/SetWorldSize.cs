@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,13 +17,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetWorldSize : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-worldsize";
+    public override String Name => "set-worldsize";
 
     /// <inheritdoc />
-    public override string HelpText => "Sets the size of the current world.";
+    public override String HelpText => "Sets the size of the current world.";
 
     /// <exclude />
-    public void Invoke(uint size)
+    public void Invoke(UInt32 size)
     {
         Context.Player.World.SizeInBlocks = size;
     }

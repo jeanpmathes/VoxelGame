@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 
 namespace VoxelGame.Core.Visuals;
@@ -42,7 +43,7 @@ public static class Qualities
     /// <summary>
     ///     The number of quality levels.
     /// </summary>
-    public const int Count = 4;
+    public const Int32 Count = 4;
 
     /// <summary>
     ///     Get all quality levels.
@@ -59,7 +60,7 @@ public static class Qualities
     /// <summary>
     ///     The name of the quality as string.
     /// </summary>
-    public static string Name(this Quality quality)
+    public static String Name(this Quality quality)
     {
         return quality.ToString();
     }

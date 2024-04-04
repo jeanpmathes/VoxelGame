@@ -14,23 +14,23 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 /// <typeparam name="TE">The identifiable element type for the pairs.</typeparam>
 /// <typeparam name="TV">The result type of the mapping.</typeparam>
-public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
+public class CombinationMap<TE, TV> where TE : IIdentifiable<UInt32>
 {
-    private readonly bool[][] flags;
+    private readonly Boolean[][] flags;
     private readonly TV[][] table;
 
     /// <summary>
     ///     Create a new combination map.
     /// </summary>
     /// <param name="range">The maximum range of element values.</param>
-    public CombinationMap(int range)
+    public CombinationMap(Int32 range)
     {
-        flags = new bool[range][];
+        flags = new Boolean[range][];
         table = new TV[range][];
 
         for (var i = 0; i < range; i++)
         {
-            flags[i] = new bool[i];
+            flags[i] = new Boolean[i];
             table[i] = new TV[i];
         }
     }
@@ -41,8 +41,8 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
         {
             Debug.Assert(a.ID != b.ID);
 
-            var i = (int) Math.Max(a.ID, b.ID);
-            var j = (int) Math.Min(a.ID, b.ID);
+            var i = (Int32) Math.Max(a.ID, b.ID);
+            var j = (Int32) Math.Min(a.ID, b.ID);
 
             return table[i][j];
         }
@@ -51,8 +51,8 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<uint>
         {
             Debug.Assert(a.ID != b.ID);
 
-            var i = (int) Math.Max(a.ID, b.ID);
-            var j = (int) Math.Min(a.ID, b.ID);
+            var i = (Int32) Math.Max(a.ID, b.ID);
+            var j = (Int32) Math.Min(a.ID, b.ID);
 
             Debug.Assert(!flags[i][j], "This combination is already set.");
 

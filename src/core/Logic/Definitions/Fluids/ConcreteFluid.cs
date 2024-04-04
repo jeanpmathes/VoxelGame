@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 
@@ -23,7 +24,7 @@ public class ConcreteFluid : BasicFluid
     /// <param name="viscosity">The viscosity of the fluid.</param>
     /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
     /// <param name="staticLayout">The texture layout when this fluid is static.</param>
-    public ConcreteFluid(string name, string namedID, float density, int viscosity, TextureLayout movingLayout,
+    public ConcreteFluid(String name, String namedID, Single density, Int32 viscosity, TextureLayout movingLayout,
         TextureLayout staticLayout) :
         base(
             name,
@@ -35,7 +36,7 @@ public class ConcreteFluid : BasicFluid
             staticLayout) {}
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
+    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         if (!isStatic) return;
 

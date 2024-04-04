@@ -32,7 +32,7 @@ internal static class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    private static string Version { get; set; } = null!;
+    private static String Version { get; set; } = null!;
 
     /// <summary>
     ///     Get the app data directory.
@@ -57,10 +57,10 @@ internal static class Program
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
     /// </summary>
-    internal static bool IsDebug { get; private set; }
+    internal static Boolean IsDebug { get; private set; }
 
     [STAThread]
-    private static int Main(string[] commandLineArguments)
+    private static Int32 Main(String[] commandLineArguments)
     {
         SetDebugMode();
 
@@ -110,7 +110,7 @@ internal static class Program
 
                     logger.LogDebug("Opening window");
 
-                    int result;
+                    Int32 result;
 
                     using (Application.Client client = new(windowSettings, graphicsSettings, args))
                     {
@@ -131,7 +131,7 @@ internal static class Program
     }
 
     #pragma warning disable S2221 // Goal is to catch any exception that might be unhandled.
-    private static int Run(ILogger logger, Func<int> runnable)
+    private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
         if (IsDebug) return runnable();
 

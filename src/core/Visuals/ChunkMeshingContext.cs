@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Linq;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic;
@@ -64,7 +65,7 @@ public class ChunkMeshingContext
 
             if (guard == null) continue;
 
-            foundNeighbors[(int) side] = (neighbor, guard);
+            foundNeighbors[(Int32) side] = (neighbor, guard);
             availableSides |= side.ToFlag();
         }
 
@@ -90,7 +91,7 @@ public class ChunkMeshingContext
 
             if (neighbor is not {IsFullyDecorated: true}) continue;
 
-            foundNeighbors[(int) side] = (neighbor, null);
+            foundNeighbors[(Int32) side] = (neighbor, null);
             availableSides |= side.ToFlag();
         }
 
@@ -133,7 +134,7 @@ public class ChunkMeshingContext
             ? mid
             : BlockSide.All.Sides()
                 .Where(side => position == side.Offset(mid.Position))
-                .Select(side => neighbors[(int) side]?.chunk)
+                .Select(side => neighbors[(Int32) side]?.chunk)
                 .FirstOrDefault();
     }
 

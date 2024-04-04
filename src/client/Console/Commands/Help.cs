@@ -19,9 +19,9 @@ namespace VoxelGame.Client.Console.Commands;
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class Help : Command
 {
-    private const int PageSize = 5;
+    private const Int32 PageSize = 5;
 
-    private readonly Dictionary<string, List<Entry>> commandDescriptions = new();
+    private readonly Dictionary<String, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
 
     private readonly List<List<Entry>> commandPages = [];
@@ -37,10 +37,10 @@ public class Help : Command
     }
 
     /// <inheritdoc />
-    public override string Name => "help";
+    public override String Name => "help";
 
     /// <inheritdoc />
-    public override string HelpText => "Provides help with using the commands.";
+    public override String HelpText => "Provides help with using the commands.";
 
     private void BuildInfos()
     {
@@ -52,12 +52,12 @@ public class Help : Command
     {
         commandPages.Clear();
 
-        List<(string command, string description)> commands = commandInvoker.CommandNames
+        List<(String command, String description)> commands = commandInvoker.CommandNames
             .Select(command => (command, $"{command} # {commandInvoker.GetCommandHelpText(command)}")).ToList();
 
         commandPages.Add([]);
 
-        foreach ((string command, string description) in commands)
+        foreach ((String command, String description) in commands)
         {
             if (commandPages[^1].Count >= PageSize) commandPages.Add([]);
 
@@ -70,7 +70,7 @@ public class Help : Command
     {
         commandDescriptions.Clear();
 
-        foreach (string command in commandInvoker.CommandNames)
+        foreach (String command in commandInvoker.CommandNames)
         {
             List<Entry> description = [new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
 
@@ -91,7 +91,7 @@ public class Help : Command
     }
 
     /// <exclude />
-    public void Invoke(int page)
+    public void Invoke(Int32 page)
     {
         if (page > commandPages.Count || page <= 0)
         {
@@ -108,12 +108,12 @@ public class Help : Command
     }
 
     /// <exclude />
-    public void Invoke(string command)
+    public void Invoke(String command)
     {
         if (commandDescriptions.TryGetValue(command, out List<Entry>? description))
             description.ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
         else Context.Console.WriteError($"Command '{command}' not found.");
     }
 
-    private sealed record Entry(string Text, FollowUp[] FollowUp);
+    private sealed record Entry(String Text, FollowUp[] FollowUp);
 }

@@ -36,7 +36,7 @@ public sealed class TextSupport : IDisposable
     /// <summary>
     ///     Converts a value from a given unit to pixels.
     /// </summary>
-    private float ConvertToPixels(float value, GraphicsUnit unit)
+    private Single ConvertToPixels(Single value, GraphicsUnit unit)
     {
         Throw.IfDisposed(disposed);
 
@@ -68,11 +68,11 @@ public sealed class TextSupport : IDisposable
     /// <summary>
     ///     Load a font.
     /// </summary>
-    public bool LoadFont(Font font)
+    public Boolean LoadFont(Font font)
     {
         Throw.IfDisposed(disposed);
 
-        font.RealSize = (float) Math.Ceiling(font.Size * renderer.Scale);
+        font.RealSize = (Single) Math.Ceiling(font.Size * renderer.Scale);
 
         if (font.RendererData is System.Drawing.Font sysFont) sysFont.Dispose();
 
@@ -120,16 +120,16 @@ public sealed class TextSupport : IDisposable
         }
 
         // From: http://csharphelper.com/blog/2014/08/get-font-metrics-in-c
-        float emHeight = sysFont.FontFamily.GetEmHeight(sysFont.Style);
-        float emHeightPixels = ConvertToPixels(sysFont.Size, sysFont.Unit);
-        float designToPixels = emHeightPixels / emHeight;
+        Single emHeight = sysFont.FontFamily.GetEmHeight(sysFont.Style);
+        Single emHeightPixels = ConvertToPixels(sysFont.Size, sysFont.Unit);
+        Single designToPixels = emHeightPixels / emHeight;
 
-        float ascentPixels = designToPixels * sysFont.FontFamily.GetCellAscent(sysFont.Style);
-        float descentPixels = designToPixels * sysFont.FontFamily.GetCellDescent(sysFont.Style);
-        float cellHeightPixels = ascentPixels + descentPixels;
-        float internalLeadingPixels = cellHeightPixels - emHeightPixels;
-        float lineSpacingPixels = designToPixels * sysFont.FontFamily.GetLineSpacing(sysFont.Style);
-        float externalLeadingPixels = lineSpacingPixels - cellHeightPixels;
+        Single ascentPixels = designToPixels * sysFont.FontFamily.GetCellAscent(sysFont.Style);
+        Single descentPixels = designToPixels * sysFont.FontFamily.GetCellDescent(sysFont.Style);
+        Single cellHeightPixels = ascentPixels + descentPixels;
+        Single internalLeadingPixels = cellHeightPixels - emHeightPixels;
+        Single lineSpacingPixels = designToPixels * sysFont.FontFamily.GetLineSpacing(sysFont.Style);
+        Single externalLeadingPixels = lineSpacingPixels - cellHeightPixels;
 
         FontMetrics fm = new(
             emHeightPixels,
@@ -159,7 +159,7 @@ public sealed class TextSupport : IDisposable
     /// <summary>
     ///     Measure the size of a string.
     /// </summary>
-    public SizeF MeasureString(string text, System.Drawing.Font font, StringFormat format)
+    public SizeF MeasureString(String text, System.Drawing.Font font, StringFormat format)
     {
         Throw.IfDisposed(disposed);
 
@@ -168,9 +168,9 @@ public sealed class TextSupport : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

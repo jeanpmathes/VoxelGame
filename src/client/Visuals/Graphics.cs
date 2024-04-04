@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -63,7 +64,7 @@ public class Graphics
     ///     Sets the wireframe mode.
     /// </summary>
     /// <param name="enable">Whether to enable wireframe rendering.</param>
-    public void SetWireframe(bool enable)
+    public void SetWireframe(Boolean enable)
     {
         if (pipelines == null) return;
 

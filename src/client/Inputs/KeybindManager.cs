@@ -32,7 +32,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     private readonly KeyMap usageMap = new();
 
-    private readonly List<Setting> settings = new();
+    private readonly List<Setting> settings = [];
 
     private readonly IDisposable binding;
 
@@ -70,10 +70,10 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
     internal IEnumerable<Keybind> Binds => keybinds.Keys;
 
     /// <inheritdoc />
-    static string ISettingsProvider.Category => Language.Keybinds;
+    static String ISettingsProvider.Category => Language.Keybinds;
 
     /// <inheritdoc />
-    static string ISettingsProvider.Description => Language.KeybindsSettingsDescription;
+    static String ISettingsProvider.Description => Language.KeybindsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;
@@ -118,7 +118,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
     {
         foreach (KeyValuePair<Keybind, Button> pair in keybinds)
         {
-            string key = PropertyName(pair.Key);
+            String key = PropertyName(pair.Key);
 
             SettingsProperty property = new(key)
             {
@@ -138,7 +138,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
         foreach ((Keybind keybind, Button button) in keybinds)
         {
-            string key = PropertyName(keybind);
+            String key = PropertyName(keybind);
             var state = (OptionalKey) Properties.Settings.Default[key];
 
             if (!state.Default) button.SetBinding(state.Key);
@@ -175,7 +175,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         return pushButtons[bind];
     }
 
-    private void Rebind(Keybind bind, VirtualKeys key, bool isDefault)
+    private void Rebind(Keybind bind, VirtualKeys key, Boolean isDefault)
     {
         Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
 
@@ -192,7 +192,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         UpdateAddedBind(key);
     }
 
-    private static string PropertyName(Keybind bind)
+    private static String PropertyName(Keybind bind)
     {
         return $"input_{bind}";
     }
@@ -206,7 +206,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     private void UpdateAddedBind(VirtualKeys key)
     {
-        bool unused = usageMap.AddBinding(key);
+        Boolean unused = usageMap.AddBinding(key);
 
         if (!unused)
             logger.LogWarning(Events.SetKeyBind, "Key '{Key}' is used by multiple bindings", key);
@@ -283,9 +283,9 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

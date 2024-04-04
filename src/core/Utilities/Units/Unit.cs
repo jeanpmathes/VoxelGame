@@ -4,12 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Utilities.Units;
 
 /// <summary>
 ///     A unit of measure.
 /// </summary>
-public record Unit(string Symbol)
+public record Unit(String Symbol)
 {
     /// <summary>
     ///     No unit.

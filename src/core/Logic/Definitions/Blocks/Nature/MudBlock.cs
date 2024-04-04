@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -17,9 +18,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class MudBlock : BasicBlock, IFillable
 {
-    private readonly float maxVelocity;
+    private readonly Single maxVelocity;
 
-    internal MudBlock(string name, string namedID, TextureLayout layout, float maxVelocity) :
+    internal MudBlock(String name, String namedID, TextureLayout layout, Single maxVelocity) :
         base(
             name,
             namedID,
@@ -30,13 +31,13 @@ public class MudBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 200;
     }
 
     /// <inheritdoc />
-    protected override void ActorCollision(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         actor.Velocity = VMath.Clamp(actor.Velocity, min: -1f, maxVelocity);
     }

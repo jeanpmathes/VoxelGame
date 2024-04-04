@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
@@ -21,7 +22,7 @@ internal sealed class Context
     internal static readonly Size DefaultIconSize = new(size: 40);
     internal static readonly Size SmallIconSize = new(size: 25);
 
-    private int modalDepth;
+    private Int32 modalDepth;
 
     internal Context(Input input, UIResources resources)
     {
@@ -49,18 +50,18 @@ internal sealed class Context
     /// <summary>
     ///     Whether the user interface currently shows any modal windows.
     /// </summary>
-    internal bool IsInModal => modalDepth > 0;
+    internal Boolean IsInModal => modalDepth > 0;
 
     /// <summary>
     ///     Create a button that uses an icon instead of text.
     /// </summary>
     internal IconButton CreateIconButton(
         ControlBase parent,
-        string icon,
-        string toolTip,
+        String icon,
+        String toolTip,
         Color? color = null,
-        bool isSmall = false,
-        bool useAlternativeSkin = true)
+        Boolean isSmall = false,
+        Boolean useAlternativeSkin = true)
     {
         IconButton button = new(parent)
         {
@@ -83,7 +84,7 @@ internal sealed class Context
     /// <param name="isSmall">Whether the icon should be small.</param>
     /// <returns>The created icon.</returns>
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    internal ImagePanel CreateIcon(ControlBase parent, string icon, bool isSmall = false)
+    internal ImagePanel CreateIcon(ControlBase parent, String icon, Boolean isSmall = false)
     {
         ImagePanel image = new(parent)
         {

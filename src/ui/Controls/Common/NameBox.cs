@@ -78,8 +78,8 @@ public class NameBox : Window
 
         name.TextChanged += (_, _) =>
         {
-            bool valid = actions.Validator(name.Text);
-            bool different = name.Text != parameters.Initial;
+            Boolean valid = actions.Validator(name.Text);
+            Boolean different = name.Text != parameters.Initial;
 
             name.TextColor = valid ? Colors.Primary : Colors.Error;
 
@@ -133,12 +133,12 @@ public class NameBox : Window
     /// </summary>
     /// <param name="Title">The title of the box.</param>
     /// <param name="Initial">The initial string for the name, can be empty.</param>
-    public record Parameters(string Title, string Initial);
+    public record Parameters(String Title, String Initial);
 
     /// <summary>
     ///     The actions for the name box.
     /// </summary>
     /// <param name="Apply">Invoked when the name should be applied. This can only be the case if the name is valid and new.</param>
     /// <param name="Validator">A function that checks whether a name is valid.</param>
-    public record Actions(Func<string, Operation> Apply, Func<string, bool> Validator);
+    public record Actions(Func<String, Operation> Apply, Func<String, Boolean> Validator);
 }

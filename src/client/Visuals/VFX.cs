@@ -20,9 +20,9 @@ public abstract class VFX : IDisposable
     /// <summary>
     ///     Whether the VFX is enabled.
     /// </summary>
-    public abstract bool IsEnabled { get; set; }
+    public abstract Boolean IsEnabled { get; set; }
 
-    private bool IsSetUp { get; set; }
+    private Boolean IsSetUp { get; set; }
 
     /// <summary>
     ///     Setup the VFX for active use.
@@ -83,12 +83,12 @@ public abstract class VFX : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Override to determine the disposing behavior.
     /// </summary>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

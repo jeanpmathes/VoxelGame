@@ -18,7 +18,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <summary>
     ///     Create a section position with the given coordinates.
     /// </summary>
-    public SectionPosition(int x, int y, int z)
+    public SectionPosition(Int32 x, Int32 y, Int32 z)
     {
         X = x;
         Y = y;
@@ -28,34 +28,34 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <summary>
     ///     The x coordinate.
     /// </summary>
-    public int X { get; init; }
+    public Int32 X { get; init; }
 
     /// <summary>
     ///     The y coordinate.
     /// </summary>
-    public int Y { get; init; }
+    public Int32 Y { get; init; }
 
     /// <summary>
     ///     The z coordinate.
     /// </summary>
-    public int Z { get; init; }
+    public Int32 Z { get; init; }
 
     /// <summary>
     ///     The equality comparison.
     /// </summary>
-    public bool Equals(SectionPosition other)
+    public Boolean Equals(SectionPosition other)
     {
         return X == other.X && Y == other.Y && Z == other.Z;
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is SectionPosition other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(X, Y, Z);
     }
@@ -63,7 +63,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <summary>
     ///     The equality operator.
     /// </summary>
-    public static bool operator ==(SectionPosition left, SectionPosition right)
+    public static Boolean operator ==(SectionPosition left, SectionPosition right)
     {
         return left.Equals(right);
     }
@@ -71,7 +71,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <summary>
     ///     The inequality operator.
     /// </summary>
-    public static bool operator !=(SectionPosition left, SectionPosition right)
+    public static Boolean operator !=(SectionPosition left, SectionPosition right)
     {
         return !left.Equals(right);
     }
@@ -80,13 +80,13 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     ///     Get this section position as a local position in a chunk.
     /// </summary>
     /// <returns>The local position in a chunk.</returns>
-    public (int x, int y, int z) Local
+    public (Int32 x, Int32 y, Int32 z) Local
     {
         get
         {
-            int localX = X & (Logic.Chunk.Size - 1);
-            int localY = Y & (Logic.Chunk.Size - 1);
-            int localZ = Z & (Logic.Chunk.Size - 1);
+            Int32 localX = X & (Logic.Chunk.Size - 1);
+            Int32 localY = Y & (Logic.Chunk.Size - 1);
+            Int32 localZ = Z & (Logic.Chunk.Size - 1);
 
             return (localX, localY, localZ);
         }
@@ -100,9 +100,9 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     {
         get
         {
-            int chunkX = X >> Logic.Chunk.SizeExp;
-            int chunkY = Y >> Logic.Chunk.SizeExp;
-            int chunkZ = Z >> Logic.Chunk.SizeExp;
+            Int32 chunkX = X >> Logic.Chunk.SizeExp;
+            Int32 chunkY = Y >> Logic.Chunk.SizeExp;
+            Int32 chunkZ = Z >> Logic.Chunk.SizeExp;
 
             return new ChunkPosition(chunkX, chunkY, chunkZ);
         }
@@ -115,7 +115,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <param name="y">The y offset.</param>
     /// <param name="z">The z offset.</param>
     /// <returns>The offset section position.</returns>
-    public SectionPosition Offset(int x, int y, int z)
+    public SectionPosition Offset(Int32 x, Int32 y, Int32 z)
     {
         return new SectionPosition(X + x, Y + y, Z + z);
     }
@@ -125,7 +125,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// </summary>
     /// <param name="position">The world position.</param>
     /// <returns>True if the section contains the position.</returns>
-    public bool Contains(Vector3i position)
+    public Boolean Contains(Vector3i position)
     {
         return Equals(From(position));
     }
@@ -155,9 +155,9 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// </summary>
     public static SectionPosition From(Vector3i position)
     {
-        int x = position.X >> Section.SizeExp;
-        int y = position.Y >> Section.SizeExp;
-        int z = position.Z >> Section.SizeExp;
+        Int32 x = position.X >> Section.SizeExp;
+        Int32 y = position.Y >> Section.SizeExp;
+        Int32 z = position.Z >> Section.SizeExp;
 
         return new SectionPosition(x, y, z);
     }
@@ -165,7 +165,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <summary>
     ///     Create a section position for a section in a given chunk, with the given local offsets.
     /// </summary>
-    public static SectionPosition From(ChunkPosition position, (int x, int y, int z) localSection)
+    public static SectionPosition From(ChunkPosition position, (Int32 x, Int32 y, Int32 z) localSection)
     {
         SectionPosition first = position.FirstSection;
 

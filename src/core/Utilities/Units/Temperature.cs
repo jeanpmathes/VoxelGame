@@ -16,12 +16,12 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     /// <summary>
     ///     Get the temperature in degrees Celsius.
     /// </summary>
-    public double DegreesCelsius { get; init; }
+    public Double DegreesCelsius { get; init; }
 
     /// <summary>
     ///     Whether the temperature is below the freezing point of water.
     /// </summary>
-    public bool IsFreezing => DegreesCelsius <= 0;
+    public Boolean IsFreezing => DegreesCelsius <= 0;
 
     /// <inheritdoc />
     public static Unit Unit => Unit.Celsius;
@@ -30,22 +30,22 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     public Prefix Prefix => Prefix.None;
 
     /// <inheritdoc />
-    double IMeasure.Value => DegreesCelsius;
+    Double IMeasure.Value => DegreesCelsius;
 
     /// <inheritdoc />
-    public bool Equals(Temperature other)
+    public Boolean Equals(Temperature other)
     {
         return DegreesCelsius.Equals(other.DegreesCelsius);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Temperature other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return DegreesCelsius.GetHashCode();
     }
@@ -53,7 +53,7 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(Temperature left, Temperature right)
+    public static Boolean operator ==(Temperature left, Temperature right)
     {
         return left.Equals(right);
     }
@@ -61,13 +61,13 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(Temperature left, Temperature right)
+    public static Boolean operator !=(Temperature left, Temperature right)
     {
         return !left.Equals(right);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return IMeasure.ToString(this);
     }

@@ -29,14 +29,14 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class FireBlock : Block, IFillable, IComplex
 {
-    private const uint TickOffset = 150;
-    private const uint TickVariation = 25;
+    private const UInt32 TickOffset = 150;
+    private const UInt32 TickVariation = 25;
 
     private readonly List<BlockMesh> meshes = new(capacity: 32);
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal FireBlock(string name, string namedID, string completeModel, string sideModel, string topModel) :
+    internal FireBlock(String name, String namedID, String completeModel, String sideModel, String topModel) :
         base(
             name,
             namedID,
@@ -50,12 +50,12 @@ public class FireBlock : Block, IFillable, IComplex
 
         PrepareMeshes(complete, side, top);
 
-        for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        BlockMesh mesh = meshes[(int) info.Data & 0b01_1111];
+        BlockMesh mesh = meshes[(Int32) info.Data & 0b01_1111];
 
         return mesh.GetMeshData(isAnimated: true);
     }
@@ -65,7 +65,7 @@ public class FireBlock : Block, IFillable, IComplex
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
             side.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
-        for (uint data = 0b00_0000; data <= 0b01_1111; data++)
+        for (UInt32 data = 0b00_0000; data <= 0b01_1111; data++)
             if (data == 0)
             {
                 meshes.Add(complete.Mesh);
@@ -97,11 +97,11 @@ public class FireBlock : Block, IFillable, IComplex
         }
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         if (data == 0) return BoundingVolume.Block;
 
-        int count = BitHelper.CountSetBits(data);
+        Int32 count = BitHelper.CountSetBits(data);
         Debug.Assert(count > 0);
 
         BoundingVolume? parent = null;
@@ -135,13 +135,13 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b01_1111];
+        return volumes[(Int32) data & 0b01_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         if (world.HasFullAndSolidGround(position)) return true;
 
@@ -155,9 +155,9 @@ public class FireBlock : Block, IFillable, IComplex
         ScheduleTick(world, position, GetDelay(position));
     }
 
-    private static uint GetData(World world, Vector3i position)
+    private static UInt32 GetData(World world, Vector3i position)
     {
-        uint data = 0;
+        UInt32 data = 0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -176,7 +176,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom)
         {
@@ -194,16 +194,16 @@ public class FireBlock : Block, IFillable, IComplex
             SetData(data);
         }
 
-        void SetData(uint dataToSet)
+        void SetData(UInt32 dataToSet)
         {
             if (dataToSet != 0) world.SetBlock(this.AsInstance(dataToSet), position);
             else Destroy(world, position);
         }
     }
 
-    private static uint CreateSideData(World world, Vector3i position)
+    private static UInt32 CreateSideData(World world, Vector3i position)
     {
-        uint data = 0;
+        UInt32 data = 0;
 
         foreach (BlockSide sideToCheck in BlockSide.All.Sides())
         {
@@ -216,7 +216,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void ScheduledUpdate(World world, Vector3i position, uint data)
+    protected override void ScheduledUpdate(World world, Vector3i position, UInt32 data)
     {
         var canBurn = false;
 
@@ -235,7 +235,7 @@ public class FireBlock : Block, IFillable, IComplex
 
         ScheduleTick(world, position, GetDelay(position));
 
-        bool BurnAt(Vector3i burnPosition)
+        Boolean BurnAt(Vector3i burnPosition)
         {
             if (world.GetBlock(burnPosition)?.Block is ICombustible block)
             {
@@ -254,13 +254,13 @@ public class FireBlock : Block, IFillable, IComplex
         }
     }
 
-    private static uint GetDelay(Vector3i position)
+    private static UInt32 GetDelay(Vector3i position)
     {
         return TickOffset +
                (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);
     }
 
-    private static uint GetFlag(BlockSide side)
+    private static UInt32 GetFlag(BlockSide side)
     {
         return side switch
         {
@@ -273,7 +273,7 @@ public class FireBlock : Block, IFillable, IComplex
         };
     }
 
-    private static bool IsFlagSet(uint data, BlockSide side)
+    private static Boolean IsFlagSet(UInt32 data, BlockSide side)
     {
         return (data & GetFlag(side)) != 0;
     }

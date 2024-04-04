@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// </summary>
 public partial class StaticStructure : Structure
 {
-    private const int MaxSize = 1024;
+    private const Int32 MaxSize = 1024;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
     private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
@@ -36,7 +36,7 @@ public partial class StaticStructure : Structure
         Extents = extents;
     }
 
-    private StaticStructure(Definition definition, string name)
+    private StaticStructure(Definition definition, String name)
     {
         Extents = new Vector3i(MaxSize);
 
@@ -55,7 +55,7 @@ public partial class StaticStructure : Structure
     public override Vector3i Extents { get; }
 
     /// <inheritdoc />
-    public override bool IsPlaceable => true;
+    public override Boolean IsPlaceable => true;
 
     /// <summary>
     ///     Read a structure from a grid.
@@ -85,7 +85,7 @@ public partial class StaticStructure : Structure
         return new StaticStructure(data, extents);
     }
 
-    private static bool IsExtentsAcceptable(Vector3i extents)
+    private static Boolean IsExtentsAcceptable(Vector3i extents)
     {
         if (extents.X > MaxSize || extents.Y > MaxSize || extents.Z > MaxSize) return false;
         if (extents.X < 1 || extents.Y < 1 || extents.Z < 1) return false;
@@ -119,7 +119,7 @@ public partial class StaticStructure : Structure
     /// </summary>
     /// <param name="name">The name of the structure.</param>
     /// <returns>The loaded structure, or a fallback structure if the loading failed.</returns>
-    public static StaticStructure Load(string name)
+    public static StaticStructure Load(String name)
     {
         return Load(structureDirectory, name);
     }
@@ -130,7 +130,7 @@ public partial class StaticStructure : Structure
     /// <param name="directory">The directory to load from.</param>
     /// <param name="name">The name of the structure.</param>
     /// <returns>The loaded structure, or null if the loading failed.</returns>
-    public static StaticStructure Load(DirectoryInfo directory, string name)
+    public static StaticStructure Load(DirectoryInfo directory, String name)
     {
         FileInfo file = directory.GetFile(GetFileName(name));
 
@@ -156,7 +156,7 @@ public partial class StaticStructure : Structure
         return new StaticStructure(definition, name);
     }
 
-    private static string GetFileName(string name)
+    private static String GetFileName(String name)
     {
         return $"{name}.json";
     }
@@ -169,7 +169,7 @@ public partial class StaticStructure : Structure
         return new StaticStructure(fallback, Vector3i.One);
     }
 
-    private void ApplyPlacement(Placement placement, string name)
+    private void ApplyPlacement(Placement placement, String name)
     {
         Vector3i position = GetVector(placement.Position, name);
 
@@ -189,7 +189,7 @@ public partial class StaticStructure : Structure
             block = Logic.Blocks.Instance.Air;
         }
 
-        content.Block = new BlockInstance(block, (((uint) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
+        content.Block = new BlockInstance(block, (((UInt32) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
 
         Fluid? fluid = Logic.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
@@ -199,12 +199,12 @@ public partial class StaticStructure : Structure
             fluid = Logic.Fluids.Instance.None;
         }
 
-        content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((uint) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
+        content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((UInt32) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
 
         contents[position.X, position.Y, position.Z] = content;
     }
 
-    private static Vector3i GetVector(Vector vector, string name)
+    private static Vector3i GetVector(Vector vector, String name)
     {
         if (vector.Values.Length != 3)
             throw new FileFormatException(name, "Vector must have 3 values.");
@@ -213,7 +213,7 @@ public partial class StaticStructure : Structure
     }
 
     /// <inheritdoc />
-    protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
     {
         Debug.Assert(IsInExtents(offset));
 
@@ -230,7 +230,7 @@ public partial class StaticStructure : Structure
     /// <param name="directory">The directory to store the file in.</param>
     /// <param name="name">The name of the structure.</param>
     /// <returns>True if the structure was stored successfully, false otherwise.</returns>
-    public bool Store(DirectoryInfo directory, string name)
+    public Boolean Store(DirectoryInfo directory, String name)
     {
         List<Placement> placements = [];
 
@@ -246,9 +246,9 @@ public partial class StaticStructure : Structure
             {
                 Position = new Vector {Values = [x, y, z]},
                 Block = content.Value.Block.Block.NamedID,
-                Data = (int) content.Value.Block.Data,
+                Data = (Int32) content.Value.Block.Data,
                 Fluid = content.Value.Fluid.Fluid.NamedID,
-                Level = (int) content.Value.Fluid.Level,
+                Level = (Int32) content.Value.Fluid.Level,
                 IsStatic = content.Value.Fluid.IsStatic
             });
         }

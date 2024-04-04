@@ -31,13 +31,13 @@ public abstract class DynamicStructure : Structure
     }
 
     /// <inheritdoc />
-    public override bool IsPlaceable => random != null;
+    public override Boolean IsPlaceable => random != null;
 
     /// <summary>
     ///     Set the structure seed.
     /// </summary>
     /// <param name="seed">The seed to use.</param>
-    public override void SetStructureSeed(int seed)
+    public override void SetStructureSeed(Int32 seed)
     {
         random = new Random(seed);
     }

@@ -32,7 +32,7 @@ public interface IMeshing : IDisposable
     ///     As the used elements are implementation specific, different implementations can return different values.
     ///     If the mesh is empty, this should always return 0.
     /// </summary>
-    public int Count { get; }
+    public Int32 Count { get; }
 
     /// <summary>
     ///     Push a quad to the mesh, while applying modifications to the positions and data.
@@ -42,7 +42,7 @@ public interface IMeshing : IDisposable
     /// <param name="offset">The offset to apply to the positions.</param>
     void PushQuadWithOffset(
         in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
-        in (uint a, uint b, uint c, uint d) data,
+        in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
         Vector3 offset);
 
     /// <summary>
@@ -52,7 +52,7 @@ public interface IMeshing : IDisposable
     /// <param name="data">The data of the quad.</param>
     void PushQuad(
         in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions,
-        in (uint a, uint b, uint c, uint d) data);
+        in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data);
 
     /// <summary>
     ///     Grow the internal structures to support the given number of additional primitives.
@@ -60,5 +60,5 @@ public interface IMeshing : IDisposable
     /// </summary>
     /// <param name="primitive">The primitive to grow for.</param>
     /// <param name="count">The number of primitives to grow for.</param>
-    void Grow(Primitive primitive, int count);
+    void Grow(Primitive primitive, Int32 count);
 }

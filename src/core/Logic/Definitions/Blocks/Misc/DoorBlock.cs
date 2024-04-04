@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -25,19 +26,19 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class DoorBlock : Block, IFillable, IComplex
 {
-    private readonly List<BlockMesh> baseClosedMeshes = new();
-    private readonly List<BlockMesh> baseOpenMeshes = new();
+    private readonly List<BlockMesh> baseClosedMeshes = [];
+    private readonly List<BlockMesh> baseOpenMeshes = [];
 
     private readonly BoundingVolume doorVolume = new(
         new Vector3d(x: 0.5f, y: 1f, z: 0.5f),
         new Vector3d(x: 0.5f, y: 1f, z: 0.5f));
 
-    private readonly List<BlockMesh> topClosedMeshes = new();
-    private readonly List<BlockMesh> topOpenMeshes = new();
+    private readonly List<BlockMesh> topClosedMeshes = [];
+    private readonly List<BlockMesh> topOpenMeshes = [];
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal DoorBlock(string name, string namedID, string closedModel, string openModel) :
+    internal DoorBlock(String name, String namedID, String closedModel, String openModel) :
         base(
             name,
             namedID,
@@ -77,19 +78,19 @@ public class DoorBlock : Block, IFillable, IComplex
             meshList.Add(west.Mesh);
         }
 
-        for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
         var orientation = (Orientation) (info.Data & 0b00_0011);
-        bool isBase = (info.Data & 0b00_0100) == 0;
-        bool isLeftSided = (info.Data & 0b00_1000) == 0;
-        bool isClosed = (info.Data & 0b01_0000) == 0;
+        Boolean isBase = (info.Data & 0b00_0100) == 0;
+        Boolean isLeftSided = (info.Data & 0b00_1000) == 0;
+        Boolean isClosed = (info.Data & 0b01_0000) == 0;
 
         if (isClosed)
         {
-            var index = (int) orientation;
+            var index = (Int32) orientation;
 
             BlockMesh mesh = isBase ? baseClosedMeshes[index] : topClosedMeshes[index];
 
@@ -98,7 +99,7 @@ public class DoorBlock : Block, IFillable, IComplex
         else
         {
             Orientation openOrientation = isLeftSided ? orientation.Opposite() : orientation;
-            var index = (int) openOrientation;
+            var index = (Int32) openOrientation;
 
             BlockMesh mesh = isBase ? baseOpenMeshes[index] : topOpenMeshes[index];
 
@@ -106,7 +107,7 @@ public class DoorBlock : Block, IFillable, IComplex
         }
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
 
@@ -133,13 +134,13 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b01_1111];
+        return volumes[(Int32) data & 0b01_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                world.HasFullAndSolidGround(position, solidify: true);
@@ -151,18 +152,18 @@ public class DoorBlock : Block, IFillable, IComplex
         Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
         BlockSide side = actor?.TargetSide ?? BlockSide.Top;
 
-        bool isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
+        Boolean isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
 
-        world.SetBlock(this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | (int) orientation)), position);
+        world.SetBlock(this.AsInstance((UInt32) ((isLeftSided ? 0b0000 : 0b1000) | (Int32) orientation)), position);
 
         world.SetBlock(
-            this.AsInstance((uint) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (int) orientation)),
+            this.AsInstance((UInt32) ((isLeftSided ? 0b0000 : 0b1000) | 0b0100 | (Int32) orientation)),
             position.Above());
     }
 
-    private bool ChooseIfLeftSided(World world, Vector3i position, BlockSide side, Orientation orientation)
+    private Boolean ChooseIfLeftSided(World world, Vector3i position, BlockSide side, Orientation orientation)
     {
-        bool isLeftSided;
+        Boolean isLeftSided;
 
         if (side == BlockSide.Top)
         {
@@ -171,8 +172,8 @@ public class DoorBlock : Block, IFillable, IComplex
             Orientation toNeighbor = orientation.Rotate().Opposite();
             Vector3i neighborPosition = toNeighbor.Offset(position);
 
-            (Block block, uint data) = world.GetBlock(neighborPosition) ?? BlockInstance.Default;
-            isLeftSided = block != this || (data & 0b00_1011) != (int) orientation;
+            (Block block, UInt32 data) = world.GetBlock(neighborPosition) ?? BlockInstance.Default;
+            isLeftSided = block != this || (data & 0b00_1011) != (Int32) orientation;
         }
         else
         {
@@ -183,18 +184,18 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
-        bool isBase = (data & 0b00_0100) == 0;
+        Boolean isBase = (data & 0b00_0100) == 0;
 
         world.SetDefaultBlock(position);
         world.SetDefaultBlock(position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY));
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        bool isBase = (data & 0b00_0100) == 0;
+        Boolean isBase = (data & 0b00_0100) == 0;
         Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
         if (actor.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
@@ -203,7 +204,7 @@ public class DoorBlock : Block, IFillable, IComplex
         actor.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);
 
         // Open a neighboring door, if available.
-        bool isLeftSided = (data & 0b00_1000) == 0;
+        Boolean isLeftSided = (data & 0b00_1000) == 0;
         var orientation = (Orientation) (data & 0b00_0011);
         orientation = isLeftSided ? orientation.Opposite() : orientation;
 
@@ -213,7 +214,7 @@ public class DoorBlock : Block, IFillable, IComplex
 
         void OpenNeighbor(Vector3i neighborPosition)
         {
-            (Block block, uint u) = actor.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
+            (Block block, UInt32 u) = actor.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
 
             if (block == this && (data & 0b01_1011) == ((u ^ 0b00_1000) & 0b01_1011))
                 block.ActorInteract(actor, neighborPosition);
@@ -221,7 +222,7 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasFullAndSolidGround(position))
             Destroy(world, position);

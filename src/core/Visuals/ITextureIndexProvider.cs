@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
@@ -16,5 +18,5 @@ public interface ITextureIndexProvider
     /// </summary>
     /// <param name="name">The name of the texture.</param>
     /// <returns>The texture index.</returns>
-    int GetTextureIndex(string name);
+    Int32 GetTextureIndex(String name);
 }

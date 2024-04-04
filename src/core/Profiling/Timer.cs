@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Profiling;
 /// <summary>
 ///     Measures the time it takes to execute a block of code.
 /// </summary>
-public sealed class Timer(string name, TimingStyle style, Profile? profile, IDisposable? disposable) : IDisposable
+public sealed class Timer(String name, TimingStyle style, Profile? profile, IDisposable? disposable) : IDisposable
 {
     private readonly Stopwatch stopwatch = new();
 
@@ -23,7 +23,7 @@ public sealed class Timer(string name, TimingStyle style, Profile? profile, IDis
     /// </summary>
     public TimingStyle Style => style;
 
-    private string Name => name;
+    private String Name => name;
 
     /// <summary>
     ///     Gets the elapsed time.
@@ -57,7 +57,7 @@ public sealed class Timer(string name, TimingStyle style, Profile? profile, IDis
     ///     An active timer, or null if both the passed profiler and the global benchmark are null.
     ///     If an disposable object is passed, an (inactive) timer will be returned, even if no profiler is available.
     /// </returns>
-    public static Timer? Start(string name, TimingStyle style = TimingStyle.Reoccurring, Profile? profiler = null, Timer? containing = null, IDisposable? other = null)
+    public static Timer? Start(String name, TimingStyle style = TimingStyle.Reoccurring, Profile? profiler = null, Timer? containing = null, IDisposable? other = null)
     {
         profiler ??= Profile.Instance;
 
@@ -79,7 +79,7 @@ public sealed class Timer(string name, TimingStyle style, Profile? profile, IDis
     /// <param name="sub">The name of the sub-timer.</param>
     /// <param name="other">Another disposable object to dispose when the timer is disposed.</param>
     /// <returns>An active timer, or null if no profiling is running.</returns>
-    public Timer? StartSub(string sub, IDisposable? other = null)
+    public Timer? StartSub(String sub, IDisposable? other = null)
     {
         return Start(sub, style, profile, this, other);
     }
@@ -97,7 +97,7 @@ public static class TimerExtensions
     /// <param name="name">The name of the scope.</param>
     /// <param name="style">How the timing is measured and evaluated.</param>
     /// <returns>The timer, or null if no profiling is running.</returns>
-    public static Timer? BeginTimedScoped(this ILogger logger, string name, TimingStyle style = TimingStyle.Reoccurring)
+    public static Timer? BeginTimedScoped(this ILogger logger, String name, TimingStyle style = TimingStyle.Reoccurring)
     {
         return Timer.Start(name, style, Profile.Instance, other: logger.BeginScope(name));
     }
@@ -109,7 +109,7 @@ public static class TimerExtensions
     /// <param name="name">The name of the sub-scope.</param>
     /// <param name="containing">The parent timer containing this sub-scope.</param>
     /// <returns>The timer, or null if no profiling is running.</returns>
-    public static Timer? BeginTimedSubScoped(this ILogger logger, string name, Timer? containing)
+    public static Timer? BeginTimedSubScoped(this ILogger logger, String name, Timer? containing)
     {
         IDisposable? scope = logger.BeginScope(name);
 

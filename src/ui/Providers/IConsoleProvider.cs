@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.UI.Providers;
 
 /// <summary>
@@ -15,7 +17,7 @@ public interface IConsoleProvider
     ///     Process a console input.
     /// </summary>
     /// <param name="input">The user input to process.</param>
-    void ProcessInput(string input);
+    void ProcessInput(String input);
 
     /// <summary>
     ///     Call this method on world-ready to run init commands.

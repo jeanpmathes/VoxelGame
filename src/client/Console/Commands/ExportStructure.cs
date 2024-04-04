@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Structures;
@@ -20,25 +21,25 @@ namespace VoxelGame.Client.Console.Commands;
 public class ExportStructure : Command
 {
     /// <inheritdoc />
-    public override string Name => "export-structure";
+    public override String Name => "export-structure";
 
     /// <inheritdoc />
-    public override string HelpText => "Exports a structure to a file. Default content (Air, None) is ignored.";
+    public override String HelpText => "Exports a structure to a file. Default content (Air, None) is ignored.";
 
     /// <exclude />
-    public void Invoke(int x, int y, int z, int extentsX, int extentsY, int extentsZ, string name)
+    public void Invoke(Int32 x, Int32 y, Int32 z, Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
     {
         Export((x, y, z), (extentsX, extentsY, extentsZ), name);
     }
 
     /// <exclude />
-    public void Invoke(int extentsX, int extentsY, int extentsZ, string name)
+    public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
     {
         if (Context.Player.TargetPosition is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
         else Context.Console.WriteError("No position targeted.");
     }
 
-    private void Export(Vector3i position, Vector3i extents, string name)
+    private void Export(Vector3i position, Vector3i extents, String name)
     {
         StaticStructure? structure = StaticStructure.Read(Context.Player.World, position, extents);
 

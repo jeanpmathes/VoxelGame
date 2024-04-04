@@ -13,17 +13,17 @@ public partial class StaticStructure
  #pragma warning disable CS1591
     public class Vector
     {
-        public int[] Values { get; set; } = [0, 0, 0];
+        public Int32[] Values { get; set; } = [0, 0, 0];
     }
 
     public class Placement
     {
         public Vector Position { get; set; } = new();
-        public string Block { get; set; } = nameof(Logic.Blocks.Instance.Air);
-        public int Data { get; set; }
-        public string Fluid { get; set; } = nameof(Logic.Fluids.Instance.None);
-        public int Level { get; set; } = (int) FluidLevel.Eight;
-        public bool IsStatic { get; set; } = true;
+        public String Block { get; set; } = nameof(Logic.Blocks.Instance.Air);
+        public Int32 Data { get; set; }
+        public String Fluid { get; set; } = nameof(Logic.Fluids.Instance.None);
+        public Int32 Level { get; set; } = (Int32) FluidLevel.Eight;
+        public Boolean IsStatic { get; set; } = true;
     }
 
     /// <summary>

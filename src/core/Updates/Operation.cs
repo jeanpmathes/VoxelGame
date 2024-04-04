@@ -18,12 +18,12 @@ namespace VoxelGame.Core.Updates;
 /// </summary>
 public abstract class Operation
 {
-    private const int Working = (int) Status.Running;
+    private const Int32 Working = (Int32) Status.Running;
 
-    private int workStatus = Working;
+    private Int32 workStatus = Working;
     private Exception? workException;
 
-    private bool started;
+    private Boolean started;
 
     /// <summary>
     ///     Get the current status of the operation.
@@ -35,17 +35,17 @@ public abstract class Operation
     ///     The work-status is an internal status that becomes the external status after an update.
     ///     If this returns true, the operation is considered successful and will complete on the next update.
     /// </summary>
-    protected bool IsWorkStatusOk => (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0) == Status.Ok;
+    protected Boolean IsWorkStatusOk => (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0) == Status.Ok;
 
     /// <summary>
     ///     Whether the operation is completed.
     /// </summary>
-    private bool IsCompleted => Status != Status.Running;
+    private Boolean IsCompleted => Status != Status.Running;
 
     /// <summary>
     ///     Whether the operation is currently running.
     /// </summary>
-    public bool IsRunning => Status == Status.Running;
+    public Boolean IsRunning => Status == Status.Running;
 
     /// <summary>
     ///     Gets the error that occurred during the operation, if any.
@@ -55,7 +55,7 @@ public abstract class Operation
     /// <summary>
     ///     Whether the operation was successful.
     /// </summary>
-    public bool IsOk => Status == Status.Ok;
+    public Boolean IsOk => Status == Status.Ok;
 
     /// <summary>
     ///     Invoked when the operation has completed.
@@ -86,10 +86,10 @@ public abstract class Operation
     {
         Status status = exception == null ? Status.Ok : Status.Error;
 
-        Complete((int) status, exception);
+        Complete((Int32) status, exception);
     }
 
-    private void Complete(int status, Exception? exception)
+    private void Complete(Int32 status, Exception? exception)
     {
         Interlocked.Exchange(ref workStatus, status);
         Interlocked.Exchange(ref workException, exception);
@@ -166,7 +166,7 @@ public abstract class Operation
 /// <typeparam name="T">The type of the result.</typeparam>
 public abstract class Operation<T> : Operation
 {
-    private object? workResult;
+    private Object? workResult;
 
     /// <inheritdoc />
     protected Operation()

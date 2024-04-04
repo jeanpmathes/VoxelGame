@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 
@@ -21,14 +22,14 @@ public static class BlockModels
     /// <returns>The fallback block model.</returns>
     public static BlockModel CreateFallback()
     {
-        const float begin = 0.275f;
-        const float size = 0.5f;
+        const Single begin = 0.275f;
+        const Single size = 0.5f;
 
-        int[][] uvs = BlockMeshes.GetBlockUVs(isRotated: false);
+        Int32[][] uvs = BlockMeshes.GetBlockUVs(isRotated: false);
 
         Quad BuildQuad(BlockSide side)
         {
-            Vertex BuildVertex(IReadOnlyList<int> corner, IReadOnlyList<int> uv)
+            Vertex BuildVertex(IReadOnlyList<Int32> corner, IReadOnlyList<Int32> uv)
             {
                 return new Vertex
                 {
@@ -40,7 +41,7 @@ public static class BlockModels
                 };
             }
 
-            side.Corners(out int[] a, out int[] b, out int[] c, out int[] d);
+            side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 
             return new Quad
             {

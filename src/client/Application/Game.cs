@@ -69,7 +69,7 @@ public sealed class Game : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
-    public void Update(double deltaTime, Timer? timer)
+    public void Update(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -92,7 +92,7 @@ public sealed class Game : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()
@@ -109,7 +109,7 @@ public sealed class Game : IDisposable
         Dispose(disposing: false);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GrassBlock : CoveredDirtBlock, ICombustible
 {
-    internal GrassBlock(string name, string namedID, TextureLayout normal, TextureLayout wet) :
+    internal GrassBlock(String name, String namedID, TextureLayout normal, TextureLayout wet) :
         base(
             name,
             namedID,
@@ -27,7 +28,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
             supportsFullGrowth: false) {}
 
     /// <inheritdoc />
-    public bool Burn(World world, Vector3i position, Block fire)
+    public Boolean Burn(World world, Vector3i position, Block fire)
     {
         world.SetBlock(Logic.Blocks.Instance.GrassBurned.AsInstance(), position);
         fire.Place(world, position.Above());
@@ -36,14 +37,14 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         FluidInstance? fluid = world.GetFluid(position);
 
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
             world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
 
-        for (int yOffset = -1; yOffset <= 1; yOffset++)
+        for (Int32 yOffset = -1; yOffset <= 1; yOffset++)
             foreach (Orientation orientation in Orientations.All)
             {
                 Vector3i otherPosition = orientation.Offset(position) + Vector3i.UnitY * yOffset;

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 
 namespace VoxelGame.Manual.Elements;
@@ -13,9 +14,9 @@ namespace VoxelGame.Manual.Elements;
 /// </summary>
 internal class Item : IElement
 {
-    private readonly string? bullet;
+    private readonly String? bullet;
 
-    internal Item(string? bullet)
+    internal Item(String? bullet)
     {
         this.bullet = bullet;
     }

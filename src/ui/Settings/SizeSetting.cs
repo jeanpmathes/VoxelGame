@@ -27,7 +27,7 @@ internal class SizeSetting : Setting
     private readonly Action<Vector2i> set;
     private readonly Func<Vector2i>? update;
 
-    internal SizeSetting(string name, Func<Vector2i> get, Action<Vector2i> set, Func<Vector2i>? update)
+    internal SizeSetting(String name, Func<Vector2i> get, Action<Vector2i> set, Func<Vector2i>? update)
     {
         this.get = get;
         this.set = set;
@@ -36,7 +36,7 @@ internal class SizeSetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {
@@ -47,7 +47,7 @@ internal class SizeSetting : Setting
         NumericUpDown x = new(layout)
         {
             Min = 1,
-            Max = short.MaxValue,
+            Max = Int16.MaxValue,
             Step = 1,
             Value = current.X,
             VerticalAlignment = VerticalAlignment.Stretch,
@@ -64,7 +64,7 @@ internal class SizeSetting : Setting
         NumericUpDown y = new(layout)
         {
             Min = 1,
-            Max = short.MaxValue,
+            Max = Int16.MaxValue,
             Step = 1,
             Value = current.Y,
             VerticalAlignment = VerticalAlignment.Stretch,
@@ -93,9 +93,9 @@ internal class SizeSetting : Setting
 
         return;
 
-        void OnValueChanged(object? sender, EventArgs args)
+        void OnValueChanged(Object? sender, EventArgs args)
         {
-            var value = new Vector2i((int) Math.Round(x.Value), (int) Math.Round(y.Value));
+            var value = new Vector2i((Int32) Math.Round(x.Value), (Int32) Math.Round(y.Value));
             set(value);
             Validator.Validate();
         }

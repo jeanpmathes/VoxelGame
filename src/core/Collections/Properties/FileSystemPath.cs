@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 
 namespace VoxelGame.Core.Collections.Properties;
@@ -16,7 +17,7 @@ public class FileSystemPath : Property
     /// <summary>
     ///     Create a new <see cref="FileSystemPath" />.
     /// </summary>
-    public FileSystemPath(string name, FileSystemInfo path) : base(name)
+    public FileSystemPath(String name, FileSystemInfo path) : base(name)
     {
         Path = path;
     }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.UI.Providers;
@@ -16,12 +17,12 @@ public interface IPlayerDataProvider
     /// <summary>
     ///     The current block/fluid mode.
     /// </summary>
-    public string Mode { get; }
+    public String Mode { get; }
 
     /// <summary>
     ///     The current block/fluid selection.
     /// </summary>
-    public string Selection { get; }
+    public String Selection { get; }
 
     /// <summary>
     /// Data for debugging purposes.

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 
 namespace VoxelGame.Core.Profiling;
@@ -16,9 +17,9 @@ namespace VoxelGame.Core.Profiling;
 ///     The profiler the state machine is associated with. If no profiler is provided, the global
 ///     profiler is used.
 /// </param>
-public class StateTracker(string name, Profile? profile = null)
+public class StateTracker(String name, Profile? profile = null)
 {
-    private readonly List<string> lifetime = [];
+    private readonly List<String> lifetime = [];
 
     /// <summary>
     ///     Records a state transition.
@@ -26,14 +27,14 @@ public class StateTracker(string name, Profile? profile = null)
     /// </summary>
     /// <param name="from">The previous state, or null if the state machine is just starting.</param>
     /// <param name="to">The new state, or null if the state machine is just stopping.</param>
-    public void Transition(object? from, object? to)
+    public void Transition(Object? from, Object? to)
     {
         Profile? profiler = profile ?? Profile.Instance;
 
         if (profiler == null) return;
 
-        string? fromName = from?.GetType().Name;
-        string? toName = to?.GetType().Name;
+        String? fromName = from?.GetType().Name;
+        String? toName = to?.GetType().Name;
 
         profiler.RecordStateTransition(name, fromName, toName);
 

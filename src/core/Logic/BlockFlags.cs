@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Logic;
@@ -17,48 +18,48 @@ public record BlockFlags
     /// <summary>
     ///     Whether the block is full.
     /// </summary>
-    public bool IsFull { get; init; }
+    public Boolean IsFull { get; init; }
 
     /// <summary>
     ///     Whether the block is opaque.
     /// </summary>
-    public bool IsOpaque { get; init; }
+    public Boolean IsOpaque { get; init; }
 
     /// <summary>
     ///     Whether faces are rendered at non-opaque blocks.
     /// </summary>
-    public bool RenderFaceAtNonOpaques { get; init; }
+    public Boolean RenderFaceAtNonOpaques { get; init; }
 
     /// <summary>
     ///     Whether the block is solid.
     /// </summary>
-    public bool IsSolid { get; init; }
+    public Boolean IsSolid { get; init; }
 
     /// <summary>
     ///     Whether the block receives collision.
     /// </summary>
-    public bool ReceiveCollisions { get; init; }
+    public Boolean ReceiveCollisions { get; init; }
 
     /// <summary>
     ///     Whether the block is a trigger.
     /// </summary>
-    public bool IsTrigger { get; init; }
+    public Boolean IsTrigger { get; init; }
 
     /// <summary>
     ///     Whether the block is replaceable.
     /// </summary>
-    public bool IsReplaceable { get; init; }
+    public Boolean IsReplaceable { get; init; }
 
     /// <summary>
     ///     Whether the block is interactable.
     /// </summary>
-    public bool IsInteractable { get; init; }
+    public Boolean IsInteractable { get; init; }
 
     /// <summary>
     ///     Whether the block is unshaded.
     ///     An unshaded block does not receive shadows and other forms of shading.
     /// </summary>
-    public bool IsUnshaded { get; init; }
+    public Boolean IsUnshaded { get; init; }
 
     /// <summary>
     ///     Create flags for an empty block.

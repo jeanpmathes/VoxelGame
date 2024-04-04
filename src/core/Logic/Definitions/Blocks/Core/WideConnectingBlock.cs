@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
@@ -35,12 +36,12 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
     /// <param name="extensionModel">The name of the model for the connections between posts.</param>
     /// <param name="boundingVolume">The bounding box of the post.</param>
     protected WideConnectingBlock(
-        string name,
-        string namedID,
-        string texture,
-        bool isOpaque,
-        string postModel,
-        string extensionModel,
+        String name,
+        String namedID,
+        String texture,
+        Boolean isOpaque,
+        String postModel,
+        String extensionModel,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -66,7 +67,7 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
 
         List<BlockModel> requiredModels = new(capacity: 5);
 
-        for (uint data = 0b00_0000; data <= 0b00_1111; data++)
+        for (UInt32 data = 0b00_0000; data <= 0b00_1111; data++)
         {
             requiredModels.Clear();
             requiredModels.Add(post);
@@ -90,6 +91,6 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
     /// </summary>
     protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return meshes[(int) info.Data & 0b00_1111].GetMeshData();
+        return meshes[(Int32) info.Data & 0b00_1111].GetMeshData();
     }
 }

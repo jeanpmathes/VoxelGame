@@ -28,9 +28,9 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     private readonly List<BlockMesh> footMeshes = new(capacity: 4);
     private readonly List<BlockMesh> headMeshes = new(capacity: 4);
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal BedBlock(string name, string namedID, string model) :
+    internal BedBlock(String name, String namedID, String model) :
         base(
             name,
             namedID,
@@ -65,13 +65,13 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         headMeshes.Add(headParts.west.Mesh);
         footMeshes.Add(footParts.west.Mesh);
 
-        for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        bool isHead = (info.Data & 0b1) == 1;
-        var orientation = (int) ((info.Data & 0b00_0110) >> 1);
+        Boolean isHead = (info.Data & 0b1) == 1;
+        var orientation = (Int32) ((info.Data & 0b00_0110) >> 1);
         var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
 
         BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
@@ -79,9 +79,9 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         return mesh.GetMeshData(color.ToTintColor());
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
-        bool isBase = (data & 0b1) == 1;
+        Boolean isBase = (data & 0b1) == 1;
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
 
         var legs = new BoundingVolume[2];
@@ -146,13 +146,13 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b11_1111];
+        return volumes[(Int32) data & 0b11_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         if (!world.HasFullAndSolidGround(position, solidify: true)) return false;
 
@@ -169,16 +169,16 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
-        world.SetBlock(this.AsInstance((uint) orientation << 1), position);
-        world.SetBlock(this.AsInstance((uint) (((int) orientation << 1) | 1)), otherPosition);
+        world.SetBlock(this.AsInstance((UInt32) orientation << 1), position);
+        world.SetBlock(this.AsInstance((UInt32) (((Int32) orientation << 1) | 1)), otherPosition);
 
         world.SpawnPosition = new Vector3d(position.X, position.Y + 1f, position.Z);
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
-        bool isHead = (data & 0b1) == 1;
+        Boolean isHead = (data & 0b1) == 1;
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
         Orientation placementOrientation = isHead ? orientation.Opposite() : orientation;
 
@@ -187,9 +187,9 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        bool isHead = (data & 0b1) == 1;
+        Boolean isHead = (data & 0b1) == 1;
 
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
         Orientation placementOrientation = isHead ? orientation.Opposite() : orientation;
@@ -202,7 +202,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) Destroy(world, position);
     }

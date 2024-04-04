@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,10 +20,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 {
-    private readonly bool hasNeutralTint;
+    private readonly Boolean hasNeutralTint;
     private readonly TextureLayout wet;
 
-    private int[] wetTextureIndices = null!;
+    private Int32[] wetTextureIndices = null!;
 
     /// <summary>
     ///     Create a new <see cref="DirtBlock" />.
@@ -33,8 +34,8 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     /// <param name="wet">The texture layout when wet.</param>
     /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
     /// <param name="supportsFullGrowth">Whether the block supports full growth.</param>
-    protected CoveredDirtBlock(string name, string namedID, TextureLayout normal, TextureLayout wet,
-        bool hasNeutralTint, bool supportsFullGrowth) :
+    protected CoveredDirtBlock(String name, String namedID, TextureLayout normal, TextureLayout wet,
+        Boolean hasNeutralTint, Boolean supportsFullGrowth) :
         base(
             name,
             namedID,
@@ -48,13 +49,13 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public virtual bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public virtual Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
 
     /// <inheritdoc />
-    public bool SupportsFullGrowth { get; }
+    public Boolean SupportsFullGrowth { get; }
 
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
@@ -71,13 +72,13 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 
         mesh = mesh with {Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None};
 
-        if (info.Fluid.IsFluid) mesh = mesh with {TextureIndex = wetTextureIndices[(int) info.Side]};
+        if (info.Fluid.IsFluid) mesh = mesh with {TextureIndex = wetTextureIndices[(Int32) info.Side]};
 
         return mesh;
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return DirtBehaviour.CanPlaceCovered(world, position, actor);
     }
@@ -89,7 +90,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }

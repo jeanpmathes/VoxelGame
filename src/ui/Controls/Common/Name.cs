@@ -21,7 +21,7 @@ public class Name : ControlBase
 {
     private readonly Label label;
 
-    private Func<string, bool> validator = _ => true;
+    private Func<String, Boolean> validator = _ => true;
 
     /// <inheritdoc />
     internal Name(ControlBase parent, Context context, ControlBase menu) : base(parent)
@@ -53,7 +53,7 @@ public class Name : ControlBase
     /// <summary>
     ///     Gets or sets the text of the label.
     /// </summary>
-    public string Text
+    public String Text
     {
         get => label.Text;
         init => label.Text = value;
@@ -63,7 +63,7 @@ public class Name : ControlBase
     ///     Set the validator for the name.
     /// </summary>
     /// <param name="newValidator">The new validator function.</param>
-    public void SetValidator(Func<string, bool> newValidator)
+    public void SetValidator(Func<String, Boolean> newValidator)
     {
         validator = newValidator;
     }

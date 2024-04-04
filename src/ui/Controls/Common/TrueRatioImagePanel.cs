@@ -27,7 +27,7 @@ internal class TrueRatioImagePanel : ControlBase
         FitImage();
     }
 
-    internal string ImageName
+    internal String ImageName
     {
         get => imagePanel.ImageName;
         set
@@ -56,11 +56,11 @@ internal class TrueRatioImagePanel : ControlBase
 
         if (imageSize == Size.Zero || availableSize == Size.Zero) return;
 
-        float desiredRatio = imageSize.Width / (float) imageSize.Height;
-        float availableRatio = availableSize.Width / (float) availableSize.Height;
+        Single desiredRatio = imageSize.Width / (Single) imageSize.Height;
+        Single availableRatio = availableSize.Width / (Single) availableSize.Height;
 
-        float fittedWidth;
-        float fittedHeight;
+        Single fittedWidth;
+        Single fittedHeight;
 
         if (desiredRatio > availableRatio)
         {
@@ -73,10 +73,10 @@ internal class TrueRatioImagePanel : ControlBase
             fittedHeight = imageSize.Width / availableRatio;
         }
 
-        var fittedSize = new Size((int) Math.Ceiling(fittedWidth), (int) Math.Ceiling(fittedHeight));
+        var fittedSize = new Size((Int32) Math.Ceiling(fittedWidth), (Int32) Math.Ceiling(fittedHeight));
 
-        int offsetX = imageSize.Width - fittedSize.Width;
-        int offsetY = imageSize.Height - fittedSize.Height;
+        Int32 offsetX = imageSize.Width - fittedSize.Width;
+        Int32 offsetY = imageSize.Height - fittedSize.Height;
 
         imagePanel.TextureRect = new Rectangle(offsetX, offsetY, fittedSize);
     }

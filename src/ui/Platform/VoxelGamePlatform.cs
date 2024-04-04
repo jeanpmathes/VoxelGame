@@ -26,7 +26,7 @@ namespace VoxelGame.UI.Platform
         // Clipboard related code from:
         // http://forums.getpaint.net/index.php?/topic/13712-trouble-accessing-the-clipboard/page__view__findpost__p__226140
 
-        private const string LibrariesCategory = "Libraries";
+        private const String LibrariesCategory = "Libraries";
         private readonly Action<MouseCursor> setCursor;
         private readonly Stopwatch watch;
 
@@ -44,18 +44,18 @@ namespace VoxelGame.UI.Platform
         ///     Gets text from clipboard.
         /// </summary>
         /// <returns>Clipboard text.</returns>
-        public string GetClipboardText()
+        public String GetClipboardText()
         {
-            var ret = string.Empty;
+            var ret = String.Empty;
 
             Thread staThread = new(
                 () =>
                 {
                     try
                     {
-                        string? text = ClipboardService.GetText();
+                        String? text = ClipboardService.GetText();
 
-                        if (string.IsNullOrEmpty(text))
+                        if (String.IsNullOrEmpty(text))
                         {
                             return;
                         }
@@ -83,7 +83,7 @@ namespace VoxelGame.UI.Platform
         /// </summary>
         /// <param name="text">Text to set.</param>
         /// <returns>True if succeeded.</returns>
-        public bool SetClipboardText(string text)
+        public Boolean SetClipboardText(String text)
         {
             var ret = false;
 
@@ -115,7 +115,7 @@ namespace VoxelGame.UI.Platform
         ///     Gets elapsed time since this class was initialized.
         /// </summary>
         /// <returns>Time interval in seconds.</returns>
-        public double GetTimeInSeconds()
+        public Double GetTimeInSeconds()
         {
             return watch.Elapsed.TotalSeconds;
         }
@@ -196,7 +196,7 @@ namespace VoxelGame.UI.Platform
                 {
                     if (!driveInfo.IsReady) continue;
 
-                    folders.Add(string.IsNullOrWhiteSpace(driveInfo.VolumeLabel)
+                    folders.Add(String.IsNullOrWhiteSpace(driveInfo.VolumeLabel)
                         ? new SpecialFolder(driveInfo.Name, "Computer", driveInfo.Name)
                         : new SpecialFolder(
                             $"{driveInfo.VolumeLabel} ({driveInfo.Name})",
@@ -217,7 +217,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Get file name from path.
         /// </summary>
-        public string GetFileName(string path)
+        public String GetFileName(String path)
         {
             return Path.GetFileName(path);
         }
@@ -225,7 +225,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Get directory name from path.
         /// </summary>
-        public string GetDirectoryName(string path)
+        public String GetDirectoryName(String path)
         {
             return Path.GetDirectoryName(path)!;
         }
@@ -233,7 +233,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Check if file exists.
         /// </summary>
-        public bool FileExists(string path)
+        public Boolean FileExists(String path)
         {
             return File.Exists(path);
         }
@@ -241,7 +241,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Check if directory exists.
         /// </summary>
-        public bool DirectoryExists(string path)
+        public Boolean DirectoryExists(String path)
         {
             return Directory.Exists(path);
         }
@@ -249,7 +249,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Create directory.
         /// </summary>
-        public void CreateDirectory(string path)
+        public void CreateDirectory(String path)
         {
             Directory.CreateDirectory(path);
         }
@@ -257,7 +257,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Combine paths.
         /// </summary>
-        public string Combine(string path1, string path2)
+        public String Combine(String path1, String path2)
         {
             return Path.Combine(path1, path2);
         }
@@ -265,7 +265,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Combine paths.
         /// </summary>
-        public string Combine(string path1, string path2, string path3)
+        public String Combine(String path1, String path2, String path3)
         {
             return Path.Combine(path1, path2, path3);
         }
@@ -273,7 +273,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Combine paths.
         /// </summary>
-        public string Combine(string path1, string path2, string path3, string path4)
+        public String Combine(String path1, String path2, String path3, String path4)
         {
             return Path.Combine(path1, path2, path3, path4);
         }
@@ -281,12 +281,12 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Get current directory.
         /// </summary>
-        public string CurrentDirectory => Environment.CurrentDirectory;
+        public String CurrentDirectory => Environment.CurrentDirectory;
 
         /// <summary>
         ///     Get all directories at a given path.
         /// </summary>
-        public IEnumerable<IFileSystemDirectoryInfo> GetDirectories(string path)
+        public IEnumerable<IFileSystemDirectoryInfo> GetDirectories(String path)
         {
             DirectoryInfo di = new(path);
 
@@ -304,7 +304,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Get all files at a given path.
         /// </summary>
-        public IEnumerable<IFileSystemFileInfo> GetFiles(string path, string filter)
+        public IEnumerable<IFileSystemFileInfo> GetFiles(String path, String filter)
         {
             DirectoryInfo di = new(path);
 
@@ -323,7 +323,7 @@ namespace VoxelGame.UI.Platform
         /// <summary>
         ///     Get a file stream to a given path.
         /// </summary>
-        public Stream GetFileStream(string path, bool isWritable)
+        public Stream GetFileStream(String path, Boolean isWritable)
         {
             return new FileStream(
                 path,
@@ -333,16 +333,16 @@ namespace VoxelGame.UI.Platform
 
         private sealed class SpecialFolder : ISpecialFolder
         {
-            public SpecialFolder(string name, string category, string path)
+            public SpecialFolder(String name, String category, String path)
             {
                 Name = name;
                 Category = category;
                 Path = path;
             }
 
-            public string Name { get; }
-            public string Category { get; }
-            public string Path { get; }
+            public String Name { get; }
+            public String Category { get; }
+            public String Path { get; }
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace VoxelGame.UI.Platform
             /// </summary>
             /// <param name="path">The path of the file or directory.</param>
             /// <param name="lastWriteTime">The last write time of the file or directory.</param>
-            protected FileSystemItemInfo(string path, DateTime lastWriteTime)
+            protected FileSystemItemInfo(String path, DateTime lastWriteTime)
             {
                 Name = Path.GetFileName(path);
                 FullName = path;
@@ -366,50 +366,50 @@ namespace VoxelGame.UI.Platform
             /// <summary>
             ///     Get the name of the file or directory.
             /// </summary>
-            public string Name { get; internal set; }
+            public String Name { get; }
 
             /// <summary>
             ///     Get the full path of the file or directory.
             /// </summary>
-            public string FullName { get; internal set; }
+            public String FullName { get; }
 
             /// <summary>
             ///     Get the formatted last write time of the file or directory.
             /// </summary>
-            public string FormattedLastWriteTime { get; internal set; }
+            public String FormattedLastWriteTime { get; }
         }
 
         private sealed class FileSystemDirectoryInfo : FileSystemItemInfo, IFileSystemDirectoryInfo
         {
-            public FileSystemDirectoryInfo(string path, DateTime lastWriteTime)
+            public FileSystemDirectoryInfo(String path, DateTime lastWriteTime)
                 : base(path, lastWriteTime) {}
         }
 
         private sealed class FileSystemFileInfo : FileSystemItemInfo, IFileSystemFileInfo
         {
-            public FileSystemFileInfo(string path, DateTime lastWriteTime, long length)
+            public FileSystemFileInfo(String path, DateTime lastWriteTime, Int64 length)
                 : base(path, lastWriteTime)
             {
                 FormattedFileLength = FormatFileLength(length);
             }
 
-            public string FormattedFileLength { get; internal set; }
+            public String FormattedFileLength { get; }
 
-            private static string FormatFileLength(long length)
+            private static String FormatFileLength(Int64 length)
             {
                 if (length > 1024 * 1024 * 1024)
                 {
-                    return $"{(double) length / (1024 * 1024 * 1024):0.0} GB";
+                    return $"{(Double) length / (1024 * 1024 * 1024):0.0} GB";
                 }
 
                 if (length > 1024 * 1024)
                 {
-                    return $"{(double) length / (1024 * 1024):0.0} MB";
+                    return $"{(Double) length / (1024 * 1024):0.0} MB";
                 }
 
                 if (length > 1024)
                 {
-                    return $"{(double) length / 1024:0.0} kB";
+                    return $"{(Double) length / 1024:0.0} kB";
                 }
 
                 return $"{length} B";

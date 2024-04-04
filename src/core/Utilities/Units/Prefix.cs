@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Utilities.Units;
 /// <summary>
 ///     A unit prefix.
 /// </summary>
-public record Prefix(string Symbol, double Factor)
+public record Prefix(String Symbol, Double Factor)
 {
     private static readonly List<Prefix> prefixes = new();
 
@@ -21,7 +21,7 @@ public record Prefix(string Symbol, double Factor)
     /// </summary>
     public static IEnumerable<Prefix> All => prefixes;
 
-    private static Prefix Create(string symbol, double factor)
+    private static Prefix Create(String symbol, Double factor)
     {
         Prefix prefix = new(symbol, factor);
 
@@ -35,7 +35,7 @@ public record Prefix(string Symbol, double Factor)
     /// </summary>
     /// <param name="value">The value to find the best prefix for.</param>
     /// <returns>The closest prefix.</returns>
-    public static Prefix FindBest(double value)
+    public static Prefix FindBest(Double value)
     {
         value = Math.Abs(value);
 

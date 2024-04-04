@@ -16,7 +16,7 @@ public partial class Fluid
     /// <summary>
     ///     The maximum amount of fluid ticks per frame.
     /// </summary>
-    internal const int MaxFluidTicksPerFrameAndChunk = 1024;
+    internal const Int32 MaxFluidTicksPerFrameAndChunk = 1024;
 
     /// <summary>
     ///     Schedules a tick according to the viscosity.
@@ -24,13 +24,13 @@ public partial class Fluid
     protected void ScheduleTick(World world, Vector3i position)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleFluidTick(new FluidTick(position, this), (uint) Viscosity);
+        chunk?.ScheduleFluidTick(new FluidTick(position, this), (UInt32) Viscosity);
     }
 
     /// <summary>
     ///     Will schedule a tick for a fluid according to the viscosity.
     /// </summary>
-    internal void TickSoon(World world, Vector3i position, bool isStatic)
+    internal void TickSoon(World world, Vector3i position, Boolean isStatic)
     {
         if (!isStatic || this == Fluids.Instance.None) return;
 
@@ -50,11 +50,11 @@ public partial class Fluid
 
     internal struct FluidTick(Vector3i position, Fluid target) : ITickable, IEquatable<FluidTick>
     {
-        private int x = position.X;
-        private int y = position.Y;
-        private int z = position.Z;
+        private Int32 x = position.X;
+        private Int32 y = position.Y;
+        private Int32 z = position.Z;
 
-        private uint target = target.ID;
+        private UInt32 target = target.ID;
 
         public void Tick(World world)
         {
@@ -74,29 +74,29 @@ public partial class Fluid
             serializer.Serialize(ref target);
         }
 
-        public bool Equals(FluidTick other)
+        public Boolean Equals(FluidTick other)
         {
             return x == other.x && y == other.y && z == other.z && target == other.target;
         }
 
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is FluidTick other && Equals(other);
         }
 
 #pragma warning disable S2328
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(x, y, z, target);
         }
 #pragma warning restore S2328
 
-        public static bool operator ==(FluidTick left, FluidTick right)
+        public static Boolean operator ==(FluidTick left, FluidTick right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(FluidTick left, FluidTick right)
+        public static Boolean operator !=(FluidTick left, FluidTick right)
         {
             return !left.Equals(right);
         }

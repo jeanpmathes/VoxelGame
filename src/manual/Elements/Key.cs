@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 
 namespace VoxelGame.Manual.Elements;
@@ -13,9 +14,9 @@ namespace VoxelGame.Manual.Elements;
 /// </summary>
 internal class Key : IElement
 {
-    private readonly object key;
+    private readonly Object key;
 
-    internal Key(object key)
+    internal Key(Object key)
     {
         this.key = key;
     }

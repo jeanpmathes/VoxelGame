@@ -27,7 +27,7 @@ public sealed class Cache<TK, TV> : IDisposable
     ///     Create a new cache with the given capacity.
     /// </summary>
     /// <param name="capacity">The capacity of the cache.</param>
-    public Cache(int capacity)
+    public Cache(Int32 capacity)
     {
         Capacity = capacity;
     }
@@ -36,7 +36,7 @@ public sealed class Cache<TK, TV> : IDisposable
     ///     The capacity of the cache.
     ///     This is the maximum number of objects that can be stored.
     /// </summary>
-    private int Capacity { get; }
+    private Int32 Capacity { get; }
 
     /// <summary>
     ///     Tries to get the value associated with the specified key.
@@ -53,7 +53,7 @@ public sealed class Cache<TK, TV> : IDisposable
     ///     If true, the cache essentially becomes a linked map.
     /// </param>
     /// <returns>true if the cache contains an element with the specified key; otherwise, false.</returns>
-    public bool TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value, bool remove = false)
+    public Boolean TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value, Boolean remove = false)
     {
         Throw.IfDisposed(disposed);
 
@@ -122,9 +122,9 @@ public sealed class Cache<TK, TV> : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

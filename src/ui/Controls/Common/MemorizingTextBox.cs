@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Gwen.Net.Control;
@@ -15,10 +16,10 @@ namespace VoxelGame.UI.Controls.Common;
 /// </summary>
 public class MemorizingTextBox : TextBox
 {
-    private const int MaxMemorySize = 99;
+    private const Int32 MaxMemorySize = 99;
 
-    private LinkedListNode<string>? current;
-    private string? edited;
+    private LinkedListNode<String>? current;
+    private String? edited;
 
     /// <summary>
     ///     Creates a new <see cref="MemorizingTextBox" />.
@@ -30,12 +31,12 @@ public class MemorizingTextBox : TextBox
     ///     Get or set the collection used as memory.
     ///     A lower index indicates more recent input.
     /// </summary>
-    public LinkedList<string> Memory { get; private set; } = new();
+    public LinkedList<String> Memory { get; private set; } = new();
 
     /// <summary>
     ///     Set the backing memory to a new collection.
     /// </summary>
-    public void SetMemory(LinkedList<string> memory)
+    public void SetMemory(LinkedList<String> memory)
     {
         Memory = memory;
         current = null;
@@ -47,17 +48,17 @@ public class MemorizingTextBox : TextBox
     /// </summary>
     public void Memorize()
     {
-        if (string.IsNullOrWhiteSpace(Text)) return;
+        if (String.IsNullOrWhiteSpace(Text)) return;
 
         Memory.AddFirst(Text);
 
         if (Memory.Count > MaxMemorySize) Memory.RemoveLast();
 
         current = null;
-        Text = string.Empty;
+        Text = String.Empty;
     }
 
-    private void SetText(string text)
+    private void SetText(String text)
     {
         Text = text;
 
@@ -66,7 +67,7 @@ public class MemorizingTextBox : TextBox
     }
 
     /// <inheritdoc />
-    protected override bool OnKeyUp(bool down)
+    protected override Boolean OnKeyUp(Boolean down)
     {
         if (!down) return false;
 
@@ -89,7 +90,7 @@ public class MemorizingTextBox : TextBox
     }
 
     /// <inheritdoc />
-    protected override bool OnKeyDown(bool down)
+    protected override Boolean OnKeyDown(Boolean down)
     {
         if (!down) return false;
 
@@ -98,7 +99,7 @@ public class MemorizingTextBox : TextBox
         if (current == Memory.First)
         {
             current = null;
-            SetText(edited ?? string.Empty);
+            SetText(edited ?? String.Empty);
         }
         else
         {

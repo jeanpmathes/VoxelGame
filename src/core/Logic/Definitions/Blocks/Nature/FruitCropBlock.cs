@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -24,12 +25,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly Block fruit;
-    private readonly string texture;
+    private readonly String texture;
 
     private readonly List<BoundingVolume> volumes = new();
     private readonly List<BlockMesh> meshes = new();
 
-    internal FruitCropBlock(string name, string namedID, string texture, Block fruit) :
+    internal FruitCropBlock(String name, String namedID, String texture, Block fruit) :
         base(
             name,
             namedID,
@@ -39,12 +40,12 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
         this.texture = texture;
         this.fruit = fruit;
 
-        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_1111]);
+        return new IFoliage.MeshData(meshes[(Int32) info.Data & 0b00_1111]);
     }
 
     /// <inheritdoc />
@@ -56,19 +57,19 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int baseTextureIndex = indexProvider.GetTextureIndex(texture);
+        Int32 baseTextureIndex = indexProvider.GetTextureIndex(texture);
 
-        (int dead, int initial, int last) textureIndices =
+        (Int32 dead, Int32 initial, Int32 last) textureIndices =
         (
             baseTextureIndex + 0,
             baseTextureIndex + 1,
             baseTextureIndex + 2
         );
 
-        for (uint data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(data, textureIndices, visuals));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(data, textureIndices, visuals));
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         var stage = (GrowthStage) ((data >> 1) & 0b111);
 
@@ -81,12 +82,12 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
                 new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f));
     }
 
-    private static BlockMesh CreateMesh(uint data, (int dead, int initial, int last) textureIndices, VisualConfiguration visuals)
+    private static BlockMesh CreateMesh(UInt32 data, (Int32 dead, Int32 initial, Int32 last) textureIndices, VisualConfiguration visuals)
     {
         var stage = (GrowthStage) ((data >> 1) & 0b111);
-        bool isLowered = (data & 0b1) != 0;
+        Boolean isLowered = (data & 0b1) != 0;
 
-        int textureIndex = stage switch
+        Int32 textureIndex = stage switch
         {
             GrowthStage.Initial => textureIndices.initial,
             GrowthStage.First => textureIndices.initial,
@@ -103,13 +104,13 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return PlantBehaviour.CanPlace(world, position);
     }
@@ -121,28 +122,28 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         if (world.GetBlock(position.Below())?.Block is not IPlantable ground) return;
 
         var stage = (GrowthStage) ((data >> 1) & 0b111);
-        uint isLowered = data & 0b1;
+        UInt32 isLowered = data & 0b1;
 
         switch (stage)
         {
             case < GrowthStage.Ready:
-                world.SetBlock(this.AsInstance((uint) ((int) (stage + 1) << 1) | isLowered), position);
+                world.SetBlock(this.AsInstance((UInt32) ((Int32) (stage + 1) << 1) | isLowered), position);
 
                 break;
 
             case GrowthStage.Ready when ground.SupportsFullGrowth && world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater:
-                world.SetBlock(this.AsInstance(((uint) GrowthStage.Dead << 1) | isLowered), position);
+                world.SetBlock(this.AsInstance(((UInt32) GrowthStage.Dead << 1) | isLowered), position);
 
                 break;
 
@@ -156,7 +157,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
                 {
                     if (!fruit.Place(world, orientation.Offset(position))) continue;
 
-                    world.SetBlock(this.AsInstance(((uint) GrowthStage.Second << 1) | isLowered), position);
+                    world.SetBlock(this.AsInstance(((UInt32) GrowthStage.Second << 1) | isLowered), position);
 
                     break;
                 }

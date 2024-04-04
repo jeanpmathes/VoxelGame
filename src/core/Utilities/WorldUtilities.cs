@@ -22,7 +22,7 @@ public static class BlockUtilities
     /// <param name="position">The position.</param>
     /// <param name="mod">The value range. The resulting number will be in [0, mod).</param>
     /// <returns></returns>
-    public static int GetPositionDependentNumber(Vector3i position, int mod)
+    public static Int32 GetPositionDependentNumber(Vector3i position, Int32 mod)
     {
         return Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
     }
@@ -33,9 +33,9 @@ public static class BlockUtilities
     /// <param name="position">The position.</param>
     /// <param name="mod">The value range. The resulting number will be in [0, mod).</param>
     /// <returns></returns>
-    public static uint GetPositionDependentNumber(Vector3i position, uint mod)
+    public static UInt32 GetPositionDependentNumber(Vector3i position, UInt32 mod)
     {
-        return (uint) Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
+        return (UInt32) Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
     }
 }
 
@@ -49,11 +49,11 @@ public static class WorldExtensions
     ///     Check if a given position has full and solid ground below it.
     ///     If the position below cannot be found, false is returned.
     /// </summary>
-    public static bool HasFullAndSolidGround(this World world, Vector3i position, bool solidify = false)
+    public static Boolean HasFullAndSolidGround(this World world, Vector3i position, Boolean solidify = false)
     {
         Vector3i groundPosition = position.Below();
         BlockInstance ground = world.GetBlock(groundPosition) ?? BlockInstance.Default;
-        bool isSolid = ground.IsSolidAndFull;
+        Boolean isSolid = ground.IsSolidAndFull;
 
         if (!solidify || isSolid || ground.Block is not IPotentiallySolid solidifiable) return isSolid;
 
@@ -66,7 +66,7 @@ public static class WorldExtensions
     ///     Check if a given position has an opaque block above it.
     ///     If the position above cannot be found, null is returned.
     /// </summary>
-    public static bool? HasOpaqueTop(this World world, Vector3i position)
+    public static Boolean? HasOpaqueTop(this World world, Vector3i position)
     {
         BlockInstance? top = world.GetBlock(position.Above());
 
@@ -78,7 +78,7 @@ public static class WorldExtensions
     /// <summary>
     ///     Check if a given block is lowered exactly one height step.
     /// </summary>
-    public static bool IsLowered(this World world, Vector3i position)
+    public static Boolean IsLowered(this World world, Vector3i position)
     {
         BlockInstance? below = world.GetBlock(position.Below());
 

@@ -28,7 +28,7 @@ internal class SettingsMenu : StandardMenu
 {
     private readonly List<ControlBase> categories = new();
     private readonly List<SettingsProvider> settingsProviders;
-    private int currentCategoryIndex = -1;
+    private Int32 currentCategoryIndex = -1;
 
     internal SettingsMenu(ControlBase parent, IEnumerable<SettingsProvider> settingsProviders,
         Context context) : base(
@@ -48,7 +48,7 @@ internal class SettingsMenu : StandardMenu
                 Text = settingsProviders[i].Category
             };
 
-            int categoryIndex = i;
+            Int32 categoryIndex = i;
 
             category.Released += (_, _) =>
             {

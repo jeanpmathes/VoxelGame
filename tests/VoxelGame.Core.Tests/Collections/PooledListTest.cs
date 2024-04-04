@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Collections;
 using Xunit;
 
@@ -14,7 +15,7 @@ public class PooledListTest
     [Fact]
     public void TestAddAndAccess()
     {
-        using PooledList<int> list = new();
+        using PooledList<Int32> list = new();
 
         list.Add(item: 1);
         list.Add(item: 2);
@@ -30,7 +31,7 @@ public class PooledListTest
     [Fact]
     public void TestAddRange()
     {
-        using PooledList<int> list = new();
+        using PooledList<Int32> list = new();
 
         list.AddRange(collection: new[] {1, 2, 3});
 
@@ -42,7 +43,7 @@ public class PooledListTest
     [Fact]
     public void TestClear()
     {
-        using PooledList<int> list = new();
+        using PooledList<Int32> list = new();
 
         list.AddRange(collection: new[] {1, 2, 3});
         list.Clear();
@@ -53,7 +54,7 @@ public class PooledListTest
     [Fact]
     public void TestContainsAndRemove()
     {
-        using PooledList<int> list = new();
+        using PooledList<Int32> list = new();
 
         list.AddRange(collection: new[] {1, 2, 3});
 
@@ -62,7 +63,7 @@ public class PooledListTest
         Assert.Contains(expected: 3, list);
         Assert.DoesNotContain(expected: 4, list);
 
-        int index = list.IndexOf(item: 2);
+        Int32 index = list.IndexOf(item: 2);
         list.RemoveAt(index);
 
         Assert.Contains(expected: 2, list);

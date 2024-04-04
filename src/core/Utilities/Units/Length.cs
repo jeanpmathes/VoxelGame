@@ -16,28 +16,28 @@ public readonly struct Length : IMeasure, IEquatable<Length>
     /// <summary>
     ///     Get the length, in meters.
     /// </summary>
-    public double Meters { get; init; }
+    public Double Meters { get; init; }
 
     /// <inheritdoc />
     public static Unit Unit => Unit.Meter;
 
     /// <inheritdoc />
-    double IMeasure.Value => Meters;
+    Double IMeasure.Value => Meters;
 
     /// <inheritdoc />
-    public bool Equals(Length other)
+    public Boolean Equals(Length other)
     {
         return Meters.Equals(other.Meters);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Length other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return Meters.GetHashCode();
     }
@@ -45,7 +45,7 @@ public readonly struct Length : IMeasure, IEquatable<Length>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(Length left, Length right)
+    public static Boolean operator ==(Length left, Length right)
     {
         return left.Equals(right);
     }
@@ -53,13 +53,13 @@ public readonly struct Length : IMeasure, IEquatable<Length>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(Length left, Length right)
+    public static Boolean operator !=(Length left, Length right)
     {
         return !left.Equals(right);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return IMeasure.ToString(this);
     }

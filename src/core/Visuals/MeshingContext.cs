@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
@@ -89,7 +90,7 @@ public class MeshingContext
         var neighborSections = new Section?[6];
 
         foreach (BlockSide side in BlockSide.All.Sides())
-            neighborSections[(int) side] =
+            neighborSections[(Int32) side] =
                 context.GetSection(side.Offset(position));
 
         return neighborSections;
@@ -106,11 +107,11 @@ public class MeshingContext
         return colors;
     }
 
-    private static MeshFaceHolder[] CreateMeshFaceHolders(float inset = 0.0f)
+    private static MeshFaceHolder[] CreateMeshFaceHolders(Single inset = 0.0f)
     {
         var holders = new MeshFaceHolder[6];
 
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(int) side] = new MeshFaceHolder(side, inset);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[(Int32) side] = new MeshFaceHolder(side, inset);
 
         return holders;
     }
@@ -120,7 +121,7 @@ public class MeshingContext
     /// </summary>
     /// <param name="isOpaque">Whether the mesh is opaque or not.</param>
     /// <returns>The meshing object.</returns>
-    public IMeshing GetBasicMesh(bool isOpaque)
+    public IMeshing GetBasicMesh(Boolean isOpaque)
     {
         return isOpaque ? basicOpaqueMeshing : basicTransparentMeshing;
     }
@@ -129,18 +130,18 @@ public class MeshingContext
     ///     Get the block mesh face holder for (full) blocks.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public MeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, bool isOpaque)
+    public MeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueFullBlockMeshFaceHolders[(int) side] : transparentFullBlockMeshFaceHolders[(int) side];
+        return isOpaque ? opaqueFullBlockMeshFaceHolders[(Int32) side] : transparentFullBlockMeshFaceHolders[(Int32) side];
     }
 
     /// <summary>
     ///     Get the block mesh face holder for varying height faces, given a block side.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, bool isOpaque)
+    public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[(int) side] : transparentVaryingHeightBlockMeshFaceHolders[(int) side];
+        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[(Int32) side] : transparentVaryingHeightBlockMeshFaceHolders[(Int32) side];
     }
 
     /// <summary>
@@ -181,7 +182,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(int) side];
+            Section? neighbor = neighbors[(Int32) side];
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
@@ -210,7 +211,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(int) side];
+            Section? neighbor = neighbors[(Int32) side];
             block = neighbor?.GetBlock(position);
         }
 

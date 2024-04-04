@@ -27,7 +27,7 @@ public interface IView
     /// <summary>
     /// Get the parameters that define the view.
     /// </summary>
-    public record Parameters(double FieldOfView, double AspectRatio, (double near, double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
+    public record Parameters(Double FieldOfView, Double AspectRatio, (Double near, Double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
     {
         /// <summary>
         ///     Create a frustum from the view parameters.

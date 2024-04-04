@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -22,12 +23,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // aa: axis
 public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
-    private readonly float diameter;
+    private readonly Single diameter;
 
     private readonly List<BlockMesh> meshes = new(capacity: 3);
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal StraightSteelPipeBlock(string name, string namedID, float diameter, string model) :
+    internal StraightSteelPipeBlock(String name, String namedID, Single diameter, String model) :
         base(
             name,
             namedID,
@@ -42,7 +43,7 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
         meshes.Add(y.Mesh);
         meshes.Add(z.Mesh);
 
-        for (uint data = 0; data <= 0b00_0011; data++)
+        for (UInt32 data = 0; data <= 0b00_0011; data++)
         {
             if (data == 0b00_0011) continue; // End condition not changed to keep consistent with other blocks.
 
@@ -52,33 +53,33 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        BlockMesh mesh = meshes[(int) info.Data & 0b00_0011];
+        BlockMesh mesh = meshes[(Int32) info.Data & 0b00_0011];
 
         return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
-    public bool IsFluidRendered => false;
+    public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
     {
         return IsSideOpen(world, position, side);
     }
 
-    private BoundingVolume CreateVolume(uint data)
+    private BoundingVolume CreateVolume(UInt32 data)
     {
         var axis = (Axis) (data & 0b00_0011);
 
@@ -86,18 +87,18 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_0011];
+        return volumes[(Int32) data & 0b00_0011];
     }
 
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((uint) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
     }
 
-    private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

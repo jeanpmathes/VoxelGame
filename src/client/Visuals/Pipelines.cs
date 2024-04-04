@@ -31,7 +31,7 @@ public sealed class Pipelines : IDisposable
     private readonly List<IDisposable> bindings = [];
 
     private LoadingContext? loadingContext;
-    private bool loaded;
+    private Boolean loaded;
 
     private RasterPipeline postProcessingPipeline = null!;
     private ShaderBuffer<RaytracingData>? raytracingDataBuffer;
@@ -151,7 +151,7 @@ public sealed class Pipelines : IDisposable
     /// <param name="preset">The preset to use.</param>
     /// <typeparam name="T">The type of the buffer.</typeparam>
     /// <returns>The pipeline and the buffer, if loading was successful.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(Support.Core.Client client, string name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(Support.Core.Client client, String name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>
     {
         Debug.Assert(loadingContext != null);
 
@@ -180,7 +180,7 @@ public sealed class Pipelines : IDisposable
     /// <param name="name">The name of the pipeline, which is also the name of the shader file.</param>
     /// <param name="preset">The preset to use.</param>
     /// <returns>The pipeline, if loading was successful.</returns>
-    private RasterPipeline? LoadPipeline(Support.Core.Client client, string name, ShaderPresets.IPreset preset)
+    private RasterPipeline? LoadPipeline(Support.Core.Client client, String name, ShaderPresets.IPreset preset)
     {
         Debug.Assert(loadingContext != null);
 
@@ -230,29 +230,29 @@ public sealed class Pipelines : IDisposable
         /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
-        [MarshalAs(UnmanagedType.Bool)] public bool wireframe;
+        [MarshalAs(UnmanagedType.Bool)] public Boolean wireframe;
 
         /// <summary>
         ///     The wind direction, used for foliage swaying.
         /// </summary>
         public Vector3 windDirection;
 
-        private (bool, Vector3) Pack => (wireframe, windDirection);
+        private (Boolean, Vector3) Pack => (wireframe, windDirection);
 
         /// <inheritdoc />
-        public bool Equals(RaytracingData other)
+        public Boolean Equals(RaytracingData other)
         {
             return Pack.Equals(other.Pack);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is RaytracingData other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return Pack.GetHashCode();
         }
@@ -260,7 +260,7 @@ public sealed class Pipelines : IDisposable
         /// <summary>
         ///     Check if two <see cref="RaytracingData" />s are equal.
         /// </summary>
-        public static bool operator ==(RaytracingData left, RaytracingData right)
+        public static Boolean operator ==(RaytracingData left, RaytracingData right)
         {
             return left.Equals(right);
         }
@@ -268,7 +268,7 @@ public sealed class Pipelines : IDisposable
         /// <summary>
         ///     Check if two <see cref="RaytracingData" />s are not equal.
         /// </summary>
-        public static bool operator !=(RaytracingData left, RaytracingData right)
+        public static Boolean operator !=(RaytracingData left, RaytracingData right)
         {
             return !left.Equals(right);
         }
@@ -276,9 +276,9 @@ public sealed class Pipelines : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

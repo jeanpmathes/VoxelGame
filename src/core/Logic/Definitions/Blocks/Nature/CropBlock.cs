@@ -24,15 +24,15 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // s: stage
 public class CropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly string texture;
+    private readonly String texture;
 
     private readonly List<BoundingVolume> volumes = [];
     private readonly List<BlockMesh> meshes = [];
 
-    private (int second, int third, int fourth, int fifth, int sixth, int final, int dead) stages;
+    private (Int32 second, Int32 third, Int32 fourth, Int32 fifth, Int32 sixth, Int32 final, Int32 dead) stages;
 
-    internal CropBlock(string name, string namedID, string texture, int second, int third, int fourth, int fifth,
-        int sixth, int final, int dead) :
+    internal CropBlock(String name, String namedID, String texture, Int32 second, Int32 third, Int32 fourth, Int32 fifth,
+        Int32 sixth, Int32 final, Int32 dead) :
         base(
             name,
             namedID,
@@ -43,12 +43,12 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
 
         stages = (second, third, fourth, fifth, sixth, final, dead);
 
-        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        return new IFoliage.MeshData(meshes[(int) info.Data & 0b00_1111]);
+        return new IFoliage.MeshData(meshes[(Int32) info.Data & 0b00_1111]);
     }
 
     /// <inheritdoc />
@@ -60,11 +60,11 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int baseIndex = indexProvider.GetTextureIndex(texture);
+        Int32 baseIndex = indexProvider.GetTextureIndex(texture);
 
         if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
 
-        int[] stageTextureIndices =
+        Int32[] stageTextureIndices =
         [
             baseIndex,
             baseIndex + stages.second,
@@ -76,10 +76,10 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.dead
         ];
 
-        for (uint data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, stageTextureIndices, data));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, stageTextureIndices, data));
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         switch ((GrowthStage) (data & 0b00_0111))
         {
@@ -109,22 +109,22 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
         }
     }
 
-    private static BlockMesh CreateMesh(Quality quality, int[] stageTextureIndices, uint data)
+    private static BlockMesh CreateMesh(Quality quality, Int32[] stageTextureIndices, UInt32 data)
     {
-        int textureIndex = stageTextureIndices[data & 0b00_0111];
-        bool isLowered = (data & 0b00_1000) != 0;
+        Int32 textureIndex = stageTextureIndices[data & 0b00_0111];
+        Boolean isLowered = (data & 0b00_1000) != 0;
 
         return BlockMeshes.CreateCropPlantMesh(quality, createMiddlePiece: true, textureIndex, isLowered);
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Below())?.Block is IPlantable;
     }
@@ -132,35 +132,35 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        bool isLowered = world.IsLowered(position);
+        Boolean isLowered = world.IsLowered(position);
 
-        var data = (uint) GrowthStage.Initial;
+        var data = (UInt32) GrowthStage.Initial;
         if (isLowered) data |= 0b00_1000;
 
         world.SetBlock(this.AsInstance(data), position);
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
             Destroy(world, position);
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         var stage = (GrowthStage) (data & 0b00_0111);
-        uint lowered = data & 0b00_1000;
+        UInt32 lowered = data & 0b00_1000;
 
         if (stage is GrowthStage.Final or GrowthStage.Dead ||
             world.GetBlock(position.Below())?.Block is not IPlantable plantable) return;
 
-        if ((int) stage > 2)
+        if ((Int32) stage > 2)
         {
             if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
             {
-                world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
+                world.SetBlock(this.AsInstance(lowered | (UInt32) GrowthStage.Dead), position);
 
                 return;
             }
@@ -169,7 +169,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
             if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
         }
 
-        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+        world.SetBlock(this.AsInstance(lowered | (UInt32) (stage + 1)), position);
     }
 
     private enum GrowthStage

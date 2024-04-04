@@ -24,7 +24,7 @@ public abstract class Chainable
     /// <param name="content">The text content to add.</param>
     /// <param name="style">The style of the text to add.</param>
     /// <returns>The current chain.</returns>
-    public Chainable Text(string content, TextStyle style = TextStyle.Normal)
+    public Chainable Text(String content, TextStyle style = TextStyle.Normal)
     {
         AddElement(new Text(content, style));
 
@@ -36,7 +36,7 @@ public abstract class Chainable
     /// </summary>
     /// <param name="k">The key to describe.</param>
     /// <returns>The current chain.</returns>
-    public Chainable Key(object k)
+    public Chainable Key(Object k)
     {
         AddElement(new Key(k));
 
@@ -59,7 +59,7 @@ public abstract class Chainable
     /// </summary>
     /// <param name="value">The value to represent.</param>
     /// <returns>This.</returns>
-    public Chainable Boolean(bool value)
+    public Chainable Boolean(System.Boolean value)
     {
         AddElement(new Boolean(value));
 
@@ -83,7 +83,7 @@ public abstract class Chainable
     /// </summary>
     /// <param name="bullet">An optional bullet leading the item.</param>
     /// <returns>This.</returns>
-    public Chainable Item(string? bullet = null)
+    public Chainable Item(String? bullet = null)
     {
         AddElement(new Item(bullet));
 

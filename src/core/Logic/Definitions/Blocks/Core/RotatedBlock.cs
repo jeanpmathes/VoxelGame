@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // a: axis
 public class RotatedBlock : BasicBlock, ICombustible
 {
-    internal RotatedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
+    internal RotatedBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -34,7 +35,7 @@ public class RotatedBlock : BasicBlock, ICombustible
     /// <returns>The rotated block.</returns>
     public BlockInstance GetInstance(Axis axis)
     {
-        return this.AsInstance((byte) axis);
+        return this.AsInstance((Byte) axis);
     }
 
     /// <inheritdoc />
@@ -43,11 +44,11 @@ public class RotatedBlock : BasicBlock, ICombustible
         Axis axis = ToAxis(info.Data);
 
         // Check if the texture has to be rotated.
-        bool isLeftOrRightSide = info.Side is BlockSide.Left or BlockSide.Right;
-        bool onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
-        bool onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
+        Boolean isLeftOrRightSide = info.Side is BlockSide.Left or BlockSide.Right;
+        Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
+        Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
 
-        bool rotated = onXAndRotated || onZAndRotated;
+        Boolean rotated = onXAndRotated || onZAndRotated;
 
         return ISimple.CreateData(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
     }
@@ -55,17 +56,17 @@ public class RotatedBlock : BasicBlock, ICombustible
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((uint) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
     }
 
-    private static Axis ToAxis(uint data)
+    private static Axis ToAxis(UInt32 data)
     {
         return (Axis) (data & 0b00_0011);
     }
 
-    private static int TranslateIndex(BlockSide side, Axis axis)
+    private static Int32 TranslateIndex(BlockSide side, Axis axis)
     {
-        var index = (int) side;
+        var index = (Int32) side;
 
         index = axis switch
         {

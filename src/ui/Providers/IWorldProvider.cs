@@ -58,7 +58,7 @@ public interface IWorldProvider
     ///     Create a new world and then load it. Will cause a scene change.
     /// </summary>
     /// <param name="name">The name of the world to create.</param>
-    void BeginCreatingWorld(string name);
+    void BeginCreatingWorld(String name);
 
     /// <summary>
     ///     Delete a world.
@@ -81,14 +81,14 @@ public interface IWorldProvider
     /// </param>
     /// <param name="duplicateName">The name of the duplicated world. Must be a valid name.</param>
     /// <returns>The operation that duplicates the world.</returns>
-    Operation DuplicateWorld(IWorldInfo info, string duplicateName);
+    Operation DuplicateWorld(IWorldInfo info, String duplicateName);
 
     /// <summary>
     ///     Check if a name is valid for a world.
     /// </summary>
     /// <param name="name">The name to check.</param>
     /// <returns>True if the given name is valid.</returns>
-    bool IsWorldNameValid(string name);
+    Boolean IsWorldNameValid(String name);
 
     /// <summary>
     ///     Rename a world.
@@ -98,14 +98,14 @@ public interface IWorldProvider
     ///     <see cref="Refresh" />.
     /// </param>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
-    void RenameWorld(IWorldInfo info, string newName);
+    void RenameWorld(IWorldInfo info, String newName);
 
     /// <summary>
     ///     Set whether a world is a favorite.
     /// </summary>
     /// <param name="info">The world for which to set the favorite status.</param>
     /// <param name="isFavorite">Whether the world should be a favorite.</param>
-    void SetFavorite(IWorldInfo info, bool isFavorite);
+    void SetFavorite(IWorldInfo info, Boolean isFavorite);
 
     /// <summary>
     ///     Information about a single world.
@@ -115,12 +115,12 @@ public interface IWorldProvider
         /// <summary>
         ///     The name of the world.
         /// </summary>
-        string Name { get; }
+        String Name { get; }
 
         /// <summary>
         ///     The version of the client in which the world was saved last.
         /// </summary>
-        string Version { get; }
+        String Version { get; }
 
         /// <summary>
         ///     The directory where the world is stored.
@@ -140,6 +140,6 @@ public interface IWorldProvider
         /// <summary>
         ///     Whether the world is a favorite.
         /// </summary>
-        bool IsFavorite { get; }
+        Boolean IsFavorite { get; }
     }
 }

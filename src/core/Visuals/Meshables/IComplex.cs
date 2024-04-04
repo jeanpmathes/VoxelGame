@@ -53,7 +53,7 @@ public interface IComplex : IBlockMeshable
         {
             this.quads = quads;
 
-            QuadCount = (uint) quads.Length;
+            QuadCount = (UInt32) quads.Length;
 
             Tint = TintColor.None;
             IsAnimated = false;
@@ -67,7 +67,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     Get the quad count of the mesh.
         /// </summary>
-        public uint QuadCount { get; }
+        public UInt32 QuadCount { get; }
 
         /// <summary>
         ///     The block tint.
@@ -77,23 +77,23 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     Whether the block is animated.
         /// </summary>
-        public bool IsAnimated { get; init; }
+        public Boolean IsAnimated { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(MeshData other)
+        public Boolean Equals(MeshData other)
         {
             return (Tint, IsAnimated, quads) ==
                    (other.Tint, other.IsAnimated, quads);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is MeshData other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(quads, Tint, IsAnimated);
         }
@@ -101,7 +101,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     The equality operator.
         /// </summary>
-        public static bool operator ==(MeshData left, MeshData right)
+        public static Boolean operator ==(MeshData left, MeshData right)
         {
             return left.Equals(right);
         }
@@ -109,7 +109,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     The inequality operator.
         /// </summary>
-        public static bool operator !=(MeshData left, MeshData right)
+        public static Boolean operator !=(MeshData left, MeshData right)
         {
             return !left.Equals(right);
         }

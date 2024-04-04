@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities.Units;
@@ -15,8 +16,8 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Cover
 {
-    private const double FlowerFactor = 0.05;
-    private readonly bool hasPlants;
+    private const Double FlowerFactor = 0.05;
+    private readonly Boolean hasPlants;
 
     private FastNoiseLite noise = null!;
 
@@ -24,7 +25,7 @@ public class Cover
     ///     Create a new cover generator.
     /// </summary>
     /// <param name="hasPlants">Whether the cover should generate plants.</param>
-    public Cover(bool hasPlants)
+    public Cover(Boolean hasPlants)
     {
         this.hasPlants = hasPlants;
     }
@@ -44,7 +45,7 @@ public class Cover
     /// <summary>
     ///     Get the cover for a given block.
     /// </summary>
-    public Content GetContent(Vector3i position, bool isFilled, in Map.Sample sample)
+    public Content GetContent(Vector3i position, Boolean isFilled, in Map.Sample sample)
     {
         if (isFilled) return Content.Default;
 
@@ -55,7 +56,7 @@ public class Cover
 
         if (!hasPlants) return Content.Default;
 
-        float value = noise.GetNoise(position.X, position.Y, position.Z);
+        Single value = noise.GetNoise(position.X, position.Y, position.Z);
         value = value > 0 ? value : value + 1;
 
         if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);

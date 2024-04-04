@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -23,12 +24,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly string bottomTexture;
-    private readonly int topTexOffset;
+    private readonly String bottomTexture;
+    private readonly Int32 topTexOffset;
 
     private readonly List<BlockMesh> meshes = new();
 
-    internal DoubleCrossPlantBlock(string name, string namedID, string bottomTexture, int topTexOffset,
+    internal DoubleCrossPlantBlock(String name, String namedID, String bottomTexture, Int32 topTexOffset,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -42,9 +43,9 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        bool isUpper = (info.Data & 0b01) != 0;
+        Boolean isUpper = (info.Data & 0b01) != 0;
 
-        return new IFoliage.MeshData(meshes[(int) (info.Data & 0b00_0011)])
+        return new IFoliage.MeshData(meshes[(Int32) (info.Data & 0b00_0011)])
         {
             Tint = TintColor.Neutral,
             IsDoublePlant = true,
@@ -61,22 +62,22 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
-        int topTextureIndex = bottomTextureIndex + topTexOffset;
+        Int32 bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
+        Int32 topTextureIndex = bottomTextureIndex + topTexOffset;
 
-        for (uint data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, bottomTextureIndex, topTextureIndex, visuals));
+        for (UInt32 data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, bottomTextureIndex, topTextureIndex, visuals));
     }
 
-    private static BlockMesh CreateMesh(uint data, int bottomTextureIndex, int topTextureIndex, VisualConfiguration visuals)
+    private static BlockMesh CreateMesh(UInt32 data, Int32 bottomTextureIndex, Int32 topTextureIndex, VisualConfiguration visuals)
     {
-        bool isUpper = (data & 0b01) != 0;
-        bool isLowered = (data & 0b10) != 0;
+        Boolean isUpper = (data & 0b01) != 0;
+        Boolean isLowered = (data & 0b10) != 0;
 
         return BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, isUpper ? topTextureIndex : bottomTextureIndex, isLowered);
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is IPlantable;
@@ -85,25 +86,25 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        bool isLowered = world.IsLowered(position);
+        Boolean isLowered = world.IsLowered(position);
 
-        uint data = (isLowered ? 1u : 0u) << 1;
+        UInt32 data = (isLowered ? 1u : 0u) << 1;
 
         world.SetBlock(this.AsInstance(data), position);
         world.SetBlock(this.AsInstance(data | 1), position.Above());
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
-        bool isBase = (data & 0b1) == 0;
+        Boolean isBase = (data & 0b1) == 0;
 
         world.SetDefaultBlock(position);
         world.SetDefaultBlock(isBase ? position.Above() : position.Below());
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b1) == 0 &&

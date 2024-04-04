@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.UI.Providers;
 
 /// <summary>
@@ -14,10 +16,10 @@ public interface IPerformanceProvider
     /// <summary>
     ///     The current FPS (frames per second).
     /// </summary>
-    public double FPS { get; }
+    public Double FPS { get; }
 
     /// <summary>
     ///     The current UPS (updates per second).
     /// </summary>
-    public double UPS { get; }
+    public Double UPS { get; }
 }

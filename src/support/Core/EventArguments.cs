@@ -20,4 +20,4 @@ public record SizeChangeEventArgs(Vector2i OldSize, Vector2i NewSize);
 /// </summary>
 /// <param name="OldFocus">Whether the window was focused before.</param>
 /// <param name="NewFocus">Whether the window is focused now.</param>
-public record FocusChangeEventArgs(bool OldFocus, bool NewFocus);
+public record FocusChangeEventArgs(Boolean OldFocus, Boolean NewFocus);

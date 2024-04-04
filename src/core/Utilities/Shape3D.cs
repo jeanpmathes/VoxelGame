@@ -22,7 +22,7 @@ public abstract class Shape3D
     /// <summary>
     ///     Get the size, which is the distance between the furthest points.
     /// </summary>
-    public abstract float Size { get; }
+    public abstract Single Size { get; }
 
     /// <summary>
     ///     Get whether the shape contains the given point.
@@ -30,14 +30,14 @@ public abstract class Shape3D
     /// <param name="point">The point to check.</param>
     /// <param name="closeness">How close the point is to the shape.</param>
     /// <returns>Whether the point is contained in the shape.</returns>
-    public abstract bool Contains(Vector3 point, out float closeness);
+    public abstract Boolean Contains(Vector3 point, out Single closeness);
 
     /// <summary>
     ///     Get whether the shape contains the given point.
     /// </summary>
     /// <param name="point">The point to check.</param>
     /// <returns>Whether the point is contained in the shape.</returns>
-    public bool Contains(Vector3 point)
+    public Boolean Contains(Vector3 point)
     {
         return Contains(point, out _);
     }
@@ -51,18 +51,18 @@ public sealed class Sphere : Shape3D
     /// <summary>
     ///     The radius of the sphere.
     /// </summary>
-    public float Radius { get; init; }
+    public Single Radius { get; init; }
 
-    private float RadiusSquared => Radius * Radius;
-
-    /// <inheritdoc />
-    public override float Size => Radius * 2;
+    private Single RadiusSquared => Radius * Radius;
 
     /// <inheritdoc />
-    public override bool Contains(Vector3 point, out float closeness)
+    public override Single Size => Radius * 2;
+
+    /// <inheritdoc />
+    public override Boolean Contains(Vector3 point, out Single closeness)
     {
-        float distanceSquared = (point - Position).LengthSquared;
-        float radiusSquared = RadiusSquared;
+        Single distanceSquared = (point - Position).LengthSquared;
+        Single radiusSquared = RadiusSquared;
 
         closeness = 1 - distanceSquared / RadiusSquared;
 
@@ -83,10 +83,10 @@ public sealed class Spheroid : Shape3D
     private Vector3 RadiusSquared => Radius * Radius;
 
     /// <inheritdoc />
-    public override float Size => Radius.Length * 2;
+    public override Single Size => Radius.Length * 2;
 
     /// <inheritdoc />
-    public override bool Contains(Vector3 point, out float closeness)
+    public override Boolean Contains(Vector3 point, out Single closeness)
     {
         point -= Position;
 
@@ -105,31 +105,31 @@ public sealed class Cone : Shape3D
     /// <summary>
     ///     The bottom radius of the cone.
     /// </summary>
-    public float BottomRadius { get; init; }
+    public Single BottomRadius { get; init; }
 
     /// <summary>
     ///     The top radius of the cone.
     /// </summary>
-    public float TopRadius { get; init; }
+    public Single TopRadius { get; init; }
 
     /// <summary>
     ///     The height of the cone.
     /// </summary>
-    public float Height { get; init; }
+    public Single Height { get; init; }
 
     /// <inheritdoc />
-    public override float Size => Math.Max(Math.Max(BottomRadius, TopRadius) * 2, Height);
+    public override Single Size => Math.Max(Math.Max(BottomRadius, TopRadius) * 2, Height);
 
     /// <inheritdoc />
-    public override bool Contains(Vector3 point, out float closeness)
+    public override Boolean Contains(Vector3 point, out Single closeness)
     {
         point -= Position;
 
-        float height = point.Y / Height;
-        float radius = MathHelper.Lerp(BottomRadius, TopRadius, height);
+        Single height = point.Y / Height;
+        Single radius = MathHelper.Lerp(BottomRadius, TopRadius, height);
 
-        float radiusSquared = radius * radius;
-        float distanceSquared = point.Xz.LengthSquared;
+        Single radiusSquared = radius * radius;
+        Single distanceSquared = point.Xz.LengthSquared;
 
         closeness = 1 - distanceSquared / radiusSquared;
 

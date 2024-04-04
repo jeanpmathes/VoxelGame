@@ -61,7 +61,7 @@ internal sealed class VGui : IGwenGui
 
         Debug.Assert(Settings.SkinFiles.Any());
 
-        foreach ((FileInfo skinFile, int index) in Settings.SkinFiles.Select((f, i) => (f, i)))
+        foreach ((FileInfo skinFile, Int32 index) in Settings.SkinFiles.Select((f, i) => (f, i)))
         {
             var failed = false;
 
@@ -145,39 +145,39 @@ internal sealed class VGui : IGwenGui
         Parent.Input.MouseWheel -= OnMouseWheel;
     }
 
-    private void OnKeyUp(object? sender, KeyboardKeyEventArgs obj)
+    private void OnKeyUp(Object? sender, KeyboardKeyEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessKeyUp(obj));
     }
 
-    private void OnKeyDown(object? sender, KeyboardKeyEventArgs obj)
+    private void OnKeyDown(Object? sender, KeyboardKeyEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessKeyDown(obj));
     }
 
-    private void OnTextInput(object? sender, TextInputEventArgs obj)
+    private void OnTextInput(Object? sender, TextInputEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessTextInput(obj));
     }
 
-    private void OnMouseButton(object? sender, MouseButtonEventArgs obj)
+    private void OnMouseButton(Object? sender, MouseButtonEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessMouseButton(obj));
     }
 
-    private void OnMouseMove(object? sender, MouseMoveEventArgs obj)
+    private void OnMouseMove(Object? sender, MouseMoveEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessMouseMove(obj));
     }
 
-    private void OnMouseWheel(object? sender, MouseWheelEventArgs obj)
+    private void OnMouseWheel(Object? sender, MouseWheelEventArgs obj)
     {
         inputEvents.Add(() => input.ProcessMouseWheel(obj));
     }
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     public void Dispose()
     {
@@ -185,7 +185,7 @@ internal sealed class VGui : IGwenGui
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

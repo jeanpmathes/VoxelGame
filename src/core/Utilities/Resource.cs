@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 
 namespace VoxelGame.Core.Utilities;
@@ -35,15 +36,15 @@ public enum Access
 /// </summary>
 public sealed class Resource
 {
-    private readonly string name;
-    private bool isWrittenTo;
-    private int readerCount;
+    private readonly String name;
+    private Boolean isWrittenTo;
+    private Int32 readerCount;
 
     /// <summary>
     ///     Creates a new resource with the given name.
     /// </summary>
     /// <param name="name"></param>
-    public Resource(string name)
+    public Resource(String name)
     {
         this.name = name;
     }
@@ -51,17 +52,17 @@ public sealed class Resource
     /// <summary>
     ///     Get whether there is any reader or writer currently using the resource.
     /// </summary>
-    public bool IsAcquired => readerCount > 0 || isWrittenTo;
+    public Boolean IsAcquired => readerCount > 0 || isWrittenTo;
 
     /// <summary>
     ///     Get whether it is possible to read from the resource.
     /// </summary>
-    public bool CanRead => !isWrittenTo;
+    public Boolean CanRead => !isWrittenTo;
 
     /// <summary>
     ///     Get whether it is possible to write to the resource.
     /// </summary>
-    public bool CanWrite => readerCount == 0 && CanRead;
+    public Boolean CanWrite => readerCount == 0 && CanRead;
 
     /// <summary>
     ///     Check if this resource is currently held by a specific guard.
@@ -69,7 +70,7 @@ public sealed class Resource
     /// <param name="guard">The guard to check.</param>
     /// <param name="access">The access level to check for.</param>
     /// <returns>True if the guard holds the resource with the specified access level.</returns>
-    public bool IsHeldBy(Guard guard, Access access)
+    public Boolean IsHeldBy(Guard guard, Access access)
     {
         return access switch
         {
@@ -80,7 +81,7 @@ public sealed class Resource
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return name;
     }
@@ -147,7 +148,7 @@ public sealed class Resource
     /// </summary>
     /// <param name="access">The access type to acquire.</param>
     /// <returns>Whether it is possible to acquire the resource.</returns>
-    public bool CanAcquire(Access access)
+    public Boolean CanAcquire(Access access)
     {
         return access switch
         {

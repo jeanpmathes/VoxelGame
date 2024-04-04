@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -27,13 +28,13 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : IPipeConnectable
 {
-    private readonly float diameter;
+    private readonly Single diameter;
     private readonly List<BlockMesh> meshes = new(capacity: 64);
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal PipeBlock(string name, string namedID, float diameter, string centerModel, string connectorModel,
-        string surfaceModel) :
+    internal PipeBlock(String name, String namedID, Single diameter, String centerModel, String connectorModel,
+        String surfaceModel) :
         base(
             name,
             namedID,
@@ -57,7 +58,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         connectors.Lock();
         surfaces.Lock();
 
-        for (uint data = 0b00_0000; data <= 0b11_1111; data++)
+        for (UInt32 data = 0b00_0000; data <= 0b11_1111; data++)
         {
             var sides = (BlockSides) data;
 
@@ -78,31 +79,31 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        BlockMesh mesh = meshes[(int) info.Data];
+        BlockMesh mesh = meshes[(Int32) info.Data];
 
         return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
-    public bool IsFluidRendered => false;
+    public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return IsSideOpen(world, position, side);
     }
 
-    private BoundingVolume CreateVolume(uint data)
+    private BoundingVolume CreateVolume(UInt32 data)
     {
         List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
 
-        double connectorWidth = (0.5 - diameter) / 2.0;
+        Double connectorWidth = (0.5 - diameter) / 2.0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -123,15 +124,15 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b11_1111];
+        return volumes[(Int32) data & 0b11_1111];
     }
 
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        uint data = GetConnectionData(world, position);
+        UInt32 data = GetConnectionData(world, position);
 
         OpenOpposingSide(ref data);
 
@@ -139,15 +140,15 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
-        uint updatedData = GetConnectionData(world, position);
+        UInt32 updatedData = GetConnectionData(world, position);
         OpenOpposingSide(ref updatedData);
 
         if (updatedData != data) world.SetBlock(this.AsInstance(updatedData), position);
     }
 
-    private uint GetConnectionData(World world, Vector3i position)
+    private UInt32 GetConnectionData(World world, Vector3i position)
     {
         var sides = BlockSides.None;
 
@@ -160,10 +161,10 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
                                               connectable.IsConnectable(world, side, otherPosition))) sides |= side.ToFlag();
         }
 
-        return (uint) sides;
+        return (UInt32) sides;
     }
 
-    private static void OpenOpposingSide(ref uint data)
+    private static void OpenOpposingSide(ref UInt32 data)
     {
         if (BitHelper.CountSetBits(data) != 1) return;
 
@@ -174,7 +175,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         if ((data & 0b00_0011) != 0) data = 0b00_0011;
     }
 
-    private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

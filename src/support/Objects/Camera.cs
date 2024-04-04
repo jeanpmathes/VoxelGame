@@ -20,13 +20,13 @@ namespace VoxelGame.Support.Objects;
 [NativeMarshalling(typeof(CameraMarshaller))]
 public class Camera : NativeObject, IView
 {
-    private double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
-    private double fovY;
+    private Double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
+    private Double fovY;
 
-    private bool advancedDataDirty;
+    private Boolean advancedDataDirty;
 
-    private double pitch;
-    private double yaw;
+    private Double pitch;
+    private Double yaw;
 
     private Vector3 preparedPosition = Vector3.Zero;
 
@@ -63,12 +63,12 @@ public class Camera : NativeObject, IView
     /// <summary>
     ///     Get or set the camera pitch.
     /// </summary>
-    public double Pitch
+    public Double Pitch
     {
         get => MathHelper.RadiansToDegrees(pitch);
         set
         {
-            double angle = MathHelper.Clamp(value, min: -89.0, max: 89.0);
+            Double angle = MathHelper.Clamp(value, min: -89.0, max: 89.0);
             pitch = MathHelper.DegreesToRadians(angle);
             UpdateVectors();
         }
@@ -77,7 +77,7 @@ public class Camera : NativeObject, IView
     /// <summary>
     ///     Get or set the camera yaw.
     /// </summary>
-    public double Yaw
+    public Double Yaw
     {
         get => MathHelper.RadiansToDegrees(yaw);
         set
@@ -92,7 +92,7 @@ public class Camera : NativeObject, IView
     /// <summary>
     ///     Set the horizontal (X) field of view, in degrees.
     /// </summary>
-    public double FovX
+    public Double FovX
     {
         get => MathHelper.RadiansToDegrees(fovX);
 
@@ -106,16 +106,16 @@ public class Camera : NativeObject, IView
     /// <summary>
     ///     Get the vertical (Y) field of view, in degrees.
     /// </summary>
-    private double FovY => MathHelper.RadiansToDegrees(fovY);
+    private Double FovY => MathHelper.RadiansToDegrees(fovY);
 
-    private static double FarClipping => 1000.0;
+    private static Double FarClipping => 1000.0;
 
-    private static double NearClipping => 0.05;
+    private static Double NearClipping => 0.05;
 
     /// <inheritdoc />
     public IView.Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Front, Up, Right));
 
-    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
+    private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
         RecalculateFovY();
         Synchronize();
@@ -133,14 +133,14 @@ public class Camera : NativeObject, IView
     /// <param name="near">The near clipping plane.</param>
     /// <param name="far">The far clipping plane.</param>
     /// <returns>The partial frustum.</returns>
-    public Frustum GetPartialFrustum(double near, double far)
+    public Frustum GetPartialFrustum(Double near, Double far)
     {
         return new Frustum(fovY, Client.AspectRatio, (near, far), Position, Front, Up, Right);
     }
 
     internal override void PrepareSynchronization()
     {
-        const float maxDistance = 528.0f;
+        const Single maxDistance = 528.0f;
 
         Vector3d adaptedPosition = new(
             Position.X % maxDistance,
@@ -150,7 +150,7 @@ public class Camera : NativeObject, IView
         Vector3d offset = adaptedPosition - Position;
         Client.Space.SetAdjustment(offset);
 
-        preparedPosition = ((float) adaptedPosition.X, (float) adaptedPosition.Y, (float) adaptedPosition.Z);
+        preparedPosition = ((Single) adaptedPosition.X, (Single) adaptedPosition.Y, (Single) adaptedPosition.Z);
     }
 
     internal override void Synchronize()
@@ -160,9 +160,9 @@ public class Camera : NativeObject, IView
             NativeMethods.UpdateAdvancedCameraData(this,
                 new AdvancedCameraData
                 {
-                    Fov = (float) FovY,
-                    Near = (float) NearClipping,
-                    Far = (float) FarClipping
+                    Fov = (Single) FovY,
+                    Near = (Single) NearClipping,
+                    Far = (Single) FarClipping
                 });
 
             advancedDataDirty = false;

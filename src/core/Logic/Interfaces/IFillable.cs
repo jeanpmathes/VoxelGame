@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic.Interfaces;
@@ -16,7 +17,7 @@ public interface IFillable : IBlockBase
     /// <summary>
     ///     Whether the fluid filling this block should be rendered.
     /// </summary>
-    bool IsFluidRendered => !IsSolidAndFull();
+    Boolean IsFluidRendered => !IsSolidAndFull();
 
     /// <summary>
     ///     Check whether a given block at a given location allows inflow trough a certain side.
@@ -26,7 +27,7 @@ public interface IFillable : IBlockBase
     /// <param name="side">The side through which water would flow in.</param>
     /// <param name="fluid">The fluid that flows in.</param>
     /// <returns>Whether the fluid is allowed to flow in.</returns>
-    bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return true;
     }
@@ -38,7 +39,7 @@ public interface IFillable : IBlockBase
     /// <param name="position">The block position.</param>
     /// <param name="side">The side through which the fluid wants to flow.</param>
     /// <returns>true if outflow is allowed.</returns>
-    bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return true;
     }

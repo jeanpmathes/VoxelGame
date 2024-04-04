@@ -40,7 +40,7 @@ public sealed class GameScene : IScene
     private readonly GameUserInterface ui;
     private readonly ToggleButton uiToggle;
 
-    private bool isMouseUnlockedByUserRequest;
+    private Boolean isMouseUnlockedByUserRequest;
 
     internal GameScene(Application.Client client, World world)
     {
@@ -70,12 +70,12 @@ public sealed class GameScene : IScene
     /// <summary>
     ///     Get whether any overlay is open. If this is the case, game input should be disabled.
     /// </summary>
-    public bool IsOverlayOpen { get; private set; }
+    public Boolean IsOverlayOpen { get; private set; }
 
     /// <summary>
     ///     Get whether the game window is focused.
     /// </summary>
-    public bool IsWindowFocused => Client.IsFocused;
+    public Boolean IsWindowFocused => Client.IsFocused;
 
     /// <summary>
     ///     Get the game played in this scene.
@@ -115,7 +115,7 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(double deltaTime, Timer? timer)
+    public void Render(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -133,7 +133,7 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Update(double deltaTime, Timer? timer)
+    public void Update(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -190,7 +190,7 @@ public sealed class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public bool CanCloseWindow()
+    public Boolean CanCloseWindow()
     {
         return false;
     }
@@ -259,7 +259,7 @@ public sealed class GameScene : IScene
         // The mouse was unlocked, but the user did not explicitly request it.
     }
 
-    private void OnFocusChanged(object? sender, FocusChangeEventArgs e)
+    private void OnFocusChanged(Object? sender, FocusChangeEventArgs e)
     {
         if (!Client.IsFocused) ui.HandleLossOfFocus();
     }
@@ -272,9 +272,9 @@ public sealed class GameScene : IScene
 
     #region IDisposable Support.
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

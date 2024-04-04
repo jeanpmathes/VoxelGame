@@ -20,14 +20,14 @@ public static class StringUtilities
     /// <param name="text">The text to shorten.</param>
     /// <param name="maxLength">The maximum length of the text. Must be greater than 3.</param>
     /// <returns>The shortened text.</returns>
-    public static string Ellipsis(this string text, int maxLength)
+    public static String Ellipsis(this String text, Int32 maxLength)
     {
-        const string ellipsis = "...";
+        const String ellipsis = "...";
 
         Debug.Assert(maxLength > ellipsis.Length);
 
         return text.Length <= maxLength
             ? text
-            : string.Concat(text.AsSpan(start: 0, maxLength - ellipsis.Length), ellipsis);
+            : String.Concat(text.AsSpan(start: 0, maxLength - ellipsis.Length), ellipsis);
     }
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class EternalFlame : BasicBlock, ICombustible
 {
-    internal EternalFlame(string name, string namedID, TextureLayout layout) :
+    internal EternalFlame(String name, String namedID, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -24,7 +25,7 @@ public class EternalFlame : BasicBlock, ICombustible
             layout) {}
 
     /// <inheritdoc />
-    public bool Burn(World world, Vector3i position, Block fire)
+    public Boolean Burn(World world, Vector3i position, Block fire)
     {
         return false;
     }

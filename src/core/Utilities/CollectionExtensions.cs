@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 
 namespace VoxelGame.Core.Utilities;
@@ -54,6 +55,6 @@ public static class CollectionExtensions
     /// </summary>
     public static IEnumerable<T> FastReverse<T>(this IList<T> list)
     {
-        for (int i = list.Count - 1; i >= 0; i--) yield return list[i];
+        for (Int32 i = list.Count - 1; i >= 0; i--) yield return list[i];
     }
 }

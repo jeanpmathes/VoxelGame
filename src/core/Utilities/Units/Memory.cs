@@ -16,28 +16,28 @@ public readonly struct Memory : IMeasure, IEquatable<Memory>
     /// <summary>
     ///     Get the memory, in bytes.
     /// </summary>
-    public double Bytes { get; init; }
+    public Double Bytes { get; init; }
 
     /// <inheritdoc />
     public static Unit Unit => Unit.Byte;
 
     /// <inheritdoc />
-    double IMeasure.Value => Bytes;
+    Double IMeasure.Value => Bytes;
 
     /// <inheritdoc />
-    public bool Equals(Memory other)
+    public Boolean Equals(Memory other)
     {
         return Bytes.Equals(other.Bytes);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Memory other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return Bytes.GetHashCode();
     }
@@ -45,7 +45,7 @@ public readonly struct Memory : IMeasure, IEquatable<Memory>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(Memory left, Memory right)
+    public static Boolean operator ==(Memory left, Memory right)
     {
         return left.Equals(right);
     }
@@ -53,13 +53,13 @@ public readonly struct Memory : IMeasure, IEquatable<Memory>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(Memory left, Memory right)
+    public static Boolean operator !=(Memory left, Memory right)
     {
         return !left.Equals(right);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return IMeasure.ToString(this);
     }

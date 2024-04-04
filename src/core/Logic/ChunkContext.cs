@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -36,7 +37,7 @@ public class ChunkContext
     private readonly ChunkActivatorWeak activateWeakly;
     private readonly ChunkDeactivator deactivate;
 
-    private readonly List<(int max, int current)> budgets = [];
+    private readonly List<(Int32 max, Int32 current)> budgets = [];
 
     private readonly World world;
 
@@ -119,9 +120,9 @@ public class ChunkContext
     /// </summary>
     /// <param name="maxValue">The maximum value of the budget.</param>
     /// <returns>The <see cref="Limit" /> representing the budget.</returns>
-    public Limit DeclareBudget(int maxValue)
+    public Limit DeclareBudget(Int32 maxValue)
     {
-        int index = budgets.Count;
+        Int32 index = budgets.Count;
         budgets.Add((maxValue, maxValue));
 
         return new Limit(this, index);
@@ -132,8 +133,8 @@ public class ChunkContext
     /// </summary>
     public Guard? TryAllocate(Limit limit)
     {
-        int index = limit.GetID(this);
-        (int max, int current) = budgets[index];
+        Int32 index = limit.GetID(this);
+        (Int32 max, Int32 current) = budgets[index];
 
         if (current == 0) return null;
 
@@ -147,8 +148,8 @@ public class ChunkContext
     /// </summary>
     private void Free(Limit limit)
     {
-        int index = limit.GetID(this);
-        (int max, int current) = budgets[index];
+        Int32 index = limit.GetID(this);
+        (Int32 max, Int32 current) = budgets[index];
         Debug.Assert(current < max);
 
         budgets[index] = (max, current + 1);

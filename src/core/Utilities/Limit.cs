@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 
 namespace VoxelGame.Core.Utilities;
@@ -13,15 +14,15 @@ namespace VoxelGame.Core.Utilities;
 /// </summary>
 public class Limit
 {
-    private readonly int id;
-    private readonly object source;
+    private readonly Int32 id;
+    private readonly Object source;
 
     /// <summary>
     ///     Creates a new limit.
     /// </summary>
     /// <param name="source">The source / issuer of the limit.</param>
     /// <param name="id">The id of the limit.</param>
-    public Limit(object source, int id)
+    public Limit(Object source, Int32 id)
     {
         this.source = source;
         this.id = id;
@@ -32,7 +33,7 @@ public class Limit
     /// </summary>
     /// <param name="requester">The object requesting the id, must be the same as the source.</param>
     /// <returns>The id of the limit.</returns>
-    public int GetID(object requester)
+    public Int32 GetID(Object requester)
     {
         Debug.Assert(ReferenceEquals(source, requester));
 
@@ -40,7 +41,7 @@ public class Limit
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return $"Limit({id}, from: {source})";
     }

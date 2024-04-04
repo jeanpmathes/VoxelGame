@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic;
@@ -32,11 +33,11 @@ public class SectionGrid : IGrid
     {
         if (!sectionPosition.Contains(position)) return null;
 
-        (int x, int y, int z) localPosition = Section.ToLocalPosition(position);
+        (Int32 x, Int32 y, Int32 z) localPosition = Section.ToLocalPosition(position);
 
         if (!Section.IsInBounds(localPosition)) return null;
 
-        uint val = section.GetContent(localPosition.x, localPosition.y, localPosition.z);
+        UInt32 val = section.GetContent(localPosition.x, localPosition.y, localPosition.z);
         Section.Decode(val, out Content content);
 
         return content;
@@ -47,7 +48,7 @@ public class SectionGrid : IGrid
     {
         if (!sectionPosition.Contains(position)) return;
 
-        (int x, int y, int z) localPosition = Section.ToLocalPosition(position);
+        (Int32 x, Int32 y, Int32 z) localPosition = Section.ToLocalPosition(position);
 
         if (!Section.IsInBounds(localPosition)) return;
 

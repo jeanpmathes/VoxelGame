@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -26,9 +27,9 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     private readonly TextureLayout layout;
 
     private readonly List<BoundingVolume> volumes = new();
-    private int[] textures = null!;
+    private Int32[] textures = null!;
 
-    internal ConcreteBlock(string name, string namedID, TextureLayout layout) :
+    internal ConcreteBlock(String name, String namedID, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -37,20 +38,20 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     {
         this.layout = layout;
 
-        static BoundingVolume CreateVolume(uint data)
+        static BoundingVolume CreateVolume(UInt32 data)
         {
-            Decode(data, out _, out int height);
+            Decode(data, out _, out Int32 height);
 
             return BoundingVolume.BlockWithHeight(height);
         }
 
-        for (uint data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     /// <inheritdoc />
-    public int GetHeight(uint data)
+    public Int32 GetHeight(UInt32 data)
     {
-        Decode(data, out _, out int height);
+        Decode(data, out _, out Int32 height);
 
         return height;
     }
@@ -61,13 +62,13 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 
         return new IVaryingHeight.MeshData
         {
-            TextureIndex = textures[(int) info.Side],
+            TextureIndex = textures[(Int32) info.Side],
             Tint = color.ToTintColor()
         };
     }
 
     /// <inheritdoc />
-    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -83,9 +84,9 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b11_1111];
+        return volumes[(Int32) data & 0b11_1111];
     }
 
     /// <inheritdoc />
@@ -108,25 +109,25 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        Decode(data, out BlockColor color, out int height);
-        var next = (BlockColor) ((int) color + 1);
+        Decode(data, out BlockColor color, out Int32 height);
+        var next = (BlockColor) ((Int32) color + 1);
         actor.World.SetBlock(this.AsInstance(Encode(next, height)), position);
     }
 
-    private static uint Encode(BlockColor color, int height)
+    private static UInt32 Encode(BlockColor color, Int32 height)
     {
         var val = 0;
-        val |= ((int) color << 3) & 0b11_1000;
+        val |= ((Int32) color << 3) & 0b11_1000;
         val |= (height / 2) & 0b00_0111;
 
-        return (uint) val;
+        return (UInt32) val;
     }
 
-    private static void Decode(uint data, out BlockColor color, out int height)
+    private static void Decode(UInt32 data, out BlockColor color, out Int32 height)
     {
         color = (BlockColor) ((data & 0b11_1000) >> 3);
-        height = (int) (data & 0b00_0111) * 2 + 1;
+        height = (Int32) (data & 0b00_0111) * 2 + 1;
     }
 }

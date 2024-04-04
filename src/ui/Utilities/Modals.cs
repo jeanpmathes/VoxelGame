@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
@@ -60,7 +61,7 @@ internal static class Modals
     /// <summary>
     ///     Opens a modal that blocks access to the ui, until it is closed by code.
     /// </summary>
-    internal static CloseHandel OpenBlockingModal(ControlBase parent, string message, Context context)
+    internal static CloseHandel OpenBlockingModal(ControlBase parent, String message, Context context)
     {
         Window modal = new(parent)
         {

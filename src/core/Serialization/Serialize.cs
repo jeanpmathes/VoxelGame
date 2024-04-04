@@ -34,7 +34,7 @@ public static class Serialize
     {
         try
         {
-            string json = JsonSerializer.Serialize(obj, options);
+            String json = JsonSerializer.Serialize(obj, options);
             file.WriteAllText(json);
 
             return null;
@@ -57,7 +57,7 @@ public static class Serialize
     {
         try
         {
-            string json = file.ReadAllText();
+            String json = file.ReadAllText();
 
             obj = JsonSerializer.Deserialize<T>(json) ?? fallback();
 
@@ -91,7 +91,7 @@ public static class Serialize
     /// <param name="signature">The signature of the file format defined by the entity.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? SaveBinary<T>(T entity, FileInfo file, string signature = "") where T : IEntity
+    public static Exception? SaveBinary<T>(T entity, FileInfo file, String signature = "") where T : IEntity
     {
         try
         {
@@ -118,7 +118,7 @@ public static class Serialize
     /// <param name="signature">The signature of the file format defined by the entity.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? LoadBinary<T>(FileInfo file, T entity, string signature = "") where T : IEntity
+    public static Exception? LoadBinary<T>(FileInfo file, T entity, String signature = "") where T : IEntity
     {
         try
         {
@@ -145,7 +145,7 @@ public static class Serialize
     /// <param name="signature">The signature of the file format defined by the entity.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Exception? LoadBinary<T>(FileInfo file, out T entity, string signature = "") where T : IEntity, new()
+    public static Exception? LoadBinary<T>(FileInfo file, out T entity, String signature = "") where T : IEntity, new()
     {
         entity = new T();
 

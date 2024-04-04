@@ -13,8 +13,8 @@ namespace VoxelGame.Support.Input.Actions;
 /// </summary>
 public class ToggleButton : Button
 {
-    private bool hasReleased;
-    private bool state;
+    private Boolean hasReleased;
+    private Boolean state;
 
     /// <summary>
     ///     Create a new toggle button.
@@ -26,7 +26,7 @@ public class ToggleButton : Button
     /// <summary>
     ///     Get the current button state.
     /// </summary>
-    public bool State
+    public Boolean State
     {
         get => state;
         private set
@@ -39,7 +39,7 @@ public class ToggleButton : Button
     /// <summary>
     ///     Whether the button was toggled this frame.
     /// </summary>
-    public bool Changed { get; private set; }
+    public Boolean Changed { get; private set; }
 
     /// <summary>
     ///     Reset the button state.
@@ -52,7 +52,7 @@ public class ToggleButton : Button
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <inheritdoc />
-    protected override void Update(object? sender, EventArgs e)
+    protected override void Update(Object? sender, EventArgs e)
     {
         KeyState currentState = Input.KeyState;
 

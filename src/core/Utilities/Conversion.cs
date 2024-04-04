@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using OpenTK.Mathematics;
@@ -41,7 +42,7 @@ public static class Conversion
     /// </summary>
     public static Vector3 ToVector3(this Vector3d vector)
     {
-        return new Vector3((float) vector.X, (float) vector.Y, (float) vector.Z);
+        return new Vector3((Single) vector.X, (Single) vector.Y, (Single) vector.Z);
     }
 
     /// <summary>
@@ -59,7 +60,7 @@ public static class Conversion
     /// </summary>
     public static Vector4 ToVector4(this Vector4d vector)
     {
-        return new Vector4((float) vector.X, (float) vector.Y, (float) vector.Z, (float) vector.W);
+        return new Vector4((Single) vector.X, (Single) vector.Y, (Single) vector.Z, (Single) vector.W);
     }
 
     /// <summary>
@@ -67,7 +68,7 @@ public static class Conversion
     /// </summary>
     public static Vector2 ToVector2(this Vector2d vector)
     {
-        return new Vector2((float) vector.X, (float) vector.Y);
+        return new Vector2((Single) vector.X, (Single) vector.Y);
     }
 
     /// <summary>
@@ -91,7 +92,7 @@ public static class Conversion
     /// </summary>
     /// <param name="vector">The vector to convert.</param>
     /// <returns>The tuple.</returns>
-    public static (int x, int y, int z) ToTuple(this Vector3i vector)
+    public static (Int32 x, Int32 y, Int32 z) ToTuple(this Vector3i vector)
     {
         return (vector.X, vector.Y, vector.Z);
     }
@@ -115,13 +116,13 @@ public static class Conversion
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static Vector2i ToVector2i(this Vector2 vector)
     {
-        return new Vector2i((int) vector.X, (int) vector.Y);
+        return new Vector2i((Int32) vector.X, (Int32) vector.Y);
     }
 
     /// <summary>
     ///     Convert a bool to an int.
     /// </summary>
-    public static int ToInt(this bool b)
+    public static Int32 ToInt(this Boolean b)
     {
         return b ? 1 : 0;
     }
@@ -129,7 +130,7 @@ public static class Conversion
     /// <summary>
     ///     Convert a bool to an uint.
     /// </summary>
-    public static uint ToUInt(this bool b)
+    public static UInt32 ToUInt(this Boolean b)
     {
         return b ? 1u : 0u;
     }

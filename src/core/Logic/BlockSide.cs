@@ -109,14 +109,14 @@ public static class BlockSideExtensions
 {
     // Corners of a block.
 
-    private static readonly int[] c001 = [0, 0, 1];
-    private static readonly int[] c011 = [0, 1, 1];
-    private static readonly int[] c111 = [1, 1, 1];
-    private static readonly int[] c101 = [1, 0, 1];
-    private static readonly int[] c000 = [0, 0, 0];
-    private static readonly int[] c010 = [0, 1, 0];
-    private static readonly int[] c110 = [1, 1, 0];
-    private static readonly int[] c100 = [1, 0, 0];
+    private static readonly Int32[] c001 = [0, 0, 1];
+    private static readonly Int32[] c011 = [0, 1, 1];
+    private static readonly Int32[] c111 = [1, 1, 1];
+    private static readonly Int32[] c101 = [1, 0, 1];
+    private static readonly Int32[] c000 = [0, 0, 0];
+    private static readonly Int32[] c010 = [0, 1, 0];
+    private static readonly Int32[] c110 = [1, 1, 0];
+    private static readonly Int32[] c100 = [1, 0, 0];
 
     private static readonly Vector3i[] directions =
     [
@@ -138,7 +138,7 @@ public static class BlockSideExtensions
     /// </summary>
     /// <param name="side">The side flags.</param>
     /// <returns>A string representation.</returns>
-    public static string ToCompactString(this BlockSides side)
+    public static String ToCompactString(this BlockSides side)
     {
         StringBuilder builder = new(capacity: 6);
         builder.Append(value: '-', repeatCount: 6);
@@ -219,7 +219,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Check whether this side is a lateral side, meaning not at the top or bottom.
     /// </summary>
-    public static bool IsLateral(this BlockSide side)
+    public static Boolean IsLateral(this BlockSide side)
     {
         return side switch
         {
@@ -240,7 +240,7 @@ public static class BlockSideExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3i Direction(this BlockSide side)
     {
-        int index = (int) side + 1;
+        Int32 index = (Int32) side + 1;
 
         if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
 
@@ -274,7 +274,7 @@ public static class BlockSideExtensions
     /// </summary>
     public static SectionPosition Offset(this BlockSide side, SectionPosition pos)
     {
-        (int x, int y, int z) = side.Direction();
+        (Int32 x, Int32 y, Int32 z) = side.Direction();
 
         return new SectionPosition(pos.X + x, pos.Y + y, pos.Z + z);
     }
@@ -284,7 +284,7 @@ public static class BlockSideExtensions
     /// </summary>
     public static ChunkPosition Offset(this BlockSide side, ChunkPosition pos)
     {
-        (int x, int y, int z) = side.Direction();
+        (Int32 x, Int32 y, Int32 z) = side.Direction();
 
         return new ChunkPosition(pos.X + x, pos.Y + y, pos.Z + z);
     }
@@ -311,7 +311,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Check if this side is contained in the given side flags.
     /// </summary>
-    public static bool IsSet(this BlockSide side, BlockSides flags)
+    public static Boolean IsSet(this BlockSide side, BlockSides flags)
     {
         return flags.HasFlag(side.ToFlag());
     }
@@ -320,7 +320,7 @@ public static class BlockSideExtensions
     ///     Get the corners of this side of a block.
     ///     Every of the four corners is represented by an integer array with three elements.
     /// </summary>
-    public static void Corners(this BlockSide side, out int[] a, out int[] b, out int[] c, out int[] d)
+    public static void Corners(this BlockSide side, out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d)
     {
         switch (side)
         {

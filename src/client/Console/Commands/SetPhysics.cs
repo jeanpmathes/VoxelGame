@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,13 +17,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetPhysics : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-physics";
+    public override String Name => "set-physics";
 
     /// <inheritdoc />
-    public override string HelpText => "Set whether to enable physics for the player.";
+    public override String HelpText => "Set whether to enable physics for the player.";
 
     /// <exclude />
-    public void Invoke(bool enabled)
+    public void Invoke(Boolean enabled)
     {
         Do(Context, enabled);
     }
@@ -30,7 +31,7 @@ public class SetPhysics : Command
     /// <summary>
     ///     Externally simulate a command invocation, setting the physics state.
     /// </summary>
-    public static void Do(Context context, bool enabled)
+    public static void Do(Context context, Boolean enabled)
     {
         context.Player.DoPhysics = enabled;
     }

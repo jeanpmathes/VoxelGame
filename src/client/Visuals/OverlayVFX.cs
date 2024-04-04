@@ -24,8 +24,8 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class OverlayVFX : VFX
 {
-    private const int BlockMode = 0;
-    private const int FluidMode = 1;
+    private const Int32 BlockMode = 0;
+    private const Int32 FluidMode = 1;
 
     private readonly Support.Core.Client client;
     private readonly ShaderBuffer<Data> data;
@@ -34,19 +34,19 @@ public sealed class OverlayVFX : VFX
 
     private IDisposable? disposable;
 
-    private int mode = BlockMode;
+    private Int32 mode = BlockMode;
     private TintColor tint = TintColor.None;
-    private bool isAnimated;
+    private Boolean isAnimated;
 
-    private float lowerBound;
-    private float upperBound;
+    private Single lowerBound;
+    private Single upperBound;
 
-    private int textureID;
-    private int firstFluidTextureID;
-    private bool isTextureInitialized;
+    private Int32 textureID;
+    private Int32 firstFluidTextureID;
+    private Boolean isTextureInitialized;
 
-    private bool isVertexBufferUploaded;
-    private (uint start, uint length) rangeOfVertexBuffer;
+    private Boolean isVertexBufferUploaded;
+    private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
     private OverlayVFX(Support.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
@@ -56,7 +56,7 @@ public sealed class OverlayVFX : VFX
     }
 
     /// <inheritdoc />
-    public override bool IsEnabled { get; set; }
+    public override Boolean IsEnabled { get; set; }
 
     /// <summary>
     ///     Create a new <see cref="OverlayVFX" />.
@@ -122,12 +122,12 @@ public sealed class OverlayVFX : VFX
     /// </summary>
     /// <param name="newLowerBound">The lower bound.</param>
     /// <param name="newUpperBound">The upper bound.</param>
-    public void SetBounds(double newLowerBound, double newUpperBound)
+    public void SetBounds(Double newLowerBound, Double newUpperBound)
     {
         Throw.IfDisposed(disposed);
 
-        lowerBound = (float) newLowerBound;
-        upperBound = (float) newUpperBound;
+        lowerBound = (Single) newLowerBound;
+        upperBound = (Single) newUpperBound;
     }
 
     private void SetAttributes(OverlayTexture overlay)
@@ -146,7 +146,7 @@ public sealed class OverlayVFX : VFX
         Matrix4d view = Matrix4d.Identity;
         var projection = Matrix4d.CreateOrthographic(width: 2.0, 2.0 / client.AspectRatio, depthNear: 0.0, depthFar: 1.0);
 
-        (uint, uint, uint, uint) attributes = (0, 0, 0, 0);
+        (UInt32, UInt32, UInt32, UInt32) attributes = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref attributes, textureID);
         Meshing.SetTint(ref attributes, tint);
@@ -203,27 +203,27 @@ public sealed class OverlayVFX : VFX
         /// <summary>
         ///     The lower bound of the overlay.
         /// </summary>
-        public readonly float LowerBound;
+        public readonly Single LowerBound;
 
         /// <summary>
         ///     The upper bound of the overlay.
         /// </summary>
-        public readonly float UpperBound;
+        public readonly Single UpperBound;
 
         /// <summary>
         ///     The mode of the overlay, either block or fluid.
         /// </summary>
-        public readonly int Mode;
+        public readonly Int32 Mode;
 
         /// <summary>
         ///     The index of the first fluid texture.
         /// </summary>
-        public readonly int FirstFluidTextureIndex;
+        public readonly Int32 FirstFluidTextureIndex;
 
         /// <summary>
         ///     Create a new <see cref="Data" /> instance.
         /// </summary>
-        public Data(Matrix4 mvp, (uint, uint, uint, uint) attributes, (float lower, float upper) bounds, int mode, int firstFluidTextureIndex)
+        public Data(Matrix4 mvp, (UInt32, UInt32, UInt32, UInt32) attributes, (Single lower, Single upper) bounds, Int32 mode, Int32 firstFluidTextureIndex)
         {
             MVP = mvp;
             Attributes = EncodeAttributes(attributes);
@@ -233,28 +233,28 @@ public sealed class OverlayVFX : VFX
             FirstFluidTextureIndex = firstFluidTextureIndex;
         }
 
-        private static Vector4i EncodeAttributes((uint a, uint b, uint c, uint d) attributes)
+        private static Vector4i EncodeAttributes((UInt32 a, UInt32 b, UInt32 c, UInt32 d) attributes)
         {
-            return new Vector4i((int) attributes.a, (int) attributes.b, (int) attributes.c, (int) attributes.d);
+            return new Vector4i((Int32) attributes.a, (Int32) attributes.b, (Int32) attributes.c, (Int32) attributes.d);
         }
 
         /// <summary>
         ///     Check equality.
         /// </summary>
-        public bool Equals(Data other)
+        public Boolean Equals(Data other)
         {
             return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex)
                    == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is Data other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex);
         }
@@ -262,7 +262,7 @@ public sealed class OverlayVFX : VFX
         /// <summary>
         ///     The equality operator.
         /// </summary>
-        public static bool operator ==(Data left, Data right)
+        public static Boolean operator ==(Data left, Data right)
         {
             return left.Equals(right);
         }
@@ -270,7 +270,7 @@ public sealed class OverlayVFX : VFX
         /// <summary>
         ///     The inequality operator.
         /// </summary>
-        public static bool operator !=(Data left, Data right)
+        public static Boolean operator !=(Data left, Data right)
         {
             return !left.Equals(right);
         }
@@ -278,10 +278,10 @@ public sealed class OverlayVFX : VFX
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

@@ -21,33 +21,33 @@ namespace VoxelGame.Core.Generation.Default;
 
 public partial class Map
 {
-    private const float MinimumLandHeight = +0.05f;
-    private const float AverageWaterHeight = -0.4f;
+    private const Single MinimumLandHeight = +0.05f;
+    private const Single AverageWaterHeight = -0.4f;
 
-    private const double PieceHeightChangeRange = 0.2;
+    private const Double PieceHeightChangeRange = 0.2;
 
-    private const double MaxDivergentBoundaryLandOffset = -0.025;
-    private const double MaxDivergentBoundaryWaterOffset = +0.2;
+    private const Double MaxDivergentBoundaryLandOffset = -0.025;
+    private const Double MaxDivergentBoundaryWaterOffset = +0.2;
 
-    private const double MaxConvergentBoundaryLandLifting = +0.7;
-    private const double MaxConvergentBoundaryWaterLifting = +0.4;
-    private const double MaxConvergentBoundaryWaterSinking = -0.4;
+    private const Double MaxConvergentBoundaryLandLifting = +0.7;
+    private const Double MaxConvergentBoundaryWaterLifting = +0.4;
+    private const Double MaxConvergentBoundaryWaterSinking = -0.4;
 
-    private static (List<List<short>>, Dictionary<short, double>) FillWithPieces(Data data, GeneratingNoise noise)
+    private static (List<List<Int16>>, Dictionary<Int16, Double>) FillWithPieces(Data data, GeneratingNoise noise)
     {
         noise.Pieces.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
         noise.Pieces.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
         noise.Pieces.SetFrequency(frequency: 0.05f);
 
-        short currentPiece = 0;
-        Dictionary<double, short> valueToPiece = new();
+        Int16 currentPiece = 0;
+        Dictionary<Double, Int16> valueToPiece = new();
 
-        Dictionary<short, HashSet<short>> adjacencyHashed = new();
+        Dictionary<Int16, HashSet<Int16>> adjacencyHashed = new();
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            double value = noise.Pieces.GetNoise(x, y);
+            Double value = noise.Pieces.GetNoise(x, y);
             ref Cell current = ref data.GetCell(x, y);
 
             if (!valueToPiece.ContainsKey(value)) valueToPiece[value] = currentPiece++;
@@ -60,15 +60,15 @@ public partial class Map
         return (Algorithms.BuildAdjacencyList(adjacencyHashed), Algorithms.InvertDictionary(valueToPiece));
     }
 
-    private static void UpdateAdjacencies(Data data, IDictionary<short, HashSet<short>> adjacencyHashed, ref Cell current, (int, int) position)
+    private static void UpdateAdjacencies(Data data, IDictionary<Int16, HashSet<Int16>> adjacencyHashed, ref Cell current, (Int32, Int32) position)
     {
-        void AddAdjacency(short a, short b)
+        void AddAdjacency(Int16 a, Int16 b)
         {
             adjacencyHashed.GetOrAdd(a).Add(b);
             adjacencyHashed.GetOrAdd(b).Add(a);
         }
 
-        (int x, int y) = position;
+        (Int32 x, Int32 y) = position;
 
         if (x != 0)
         {
@@ -85,15 +85,15 @@ public partial class Map
         }
     }
 
-    private static (List<(short, double)>, Dictionary<short, List<short>>) BuildContinents(Data data, List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
+    private static (List<(Int16, Double)>, Dictionary<Int16, List<Int16>>) BuildContinents(Data data, List<List<Int16>> adjacency, IDictionary<Int16, Double> pieceToValue)
     {
-        UnionFind merge = new((short) adjacency.Count);
+        UnionFind merge = new((Int16) adjacency.Count);
 
         DoContinentBuying(adjacency, pieceToValue, merge);
         DoContinentConsuming(adjacency, merge);
         DoContinentMerging(adjacency, merge);
 
-        bool[] isLand = DoLandCreation(adjacency, pieceToValue);
+        Boolean[] isLand = DoLandCreation(adjacency, pieceToValue);
         DoLandGapFilling(adjacency, isLand, merge);
         DoLandBorderFlooding(data, isLand);
 
@@ -101,7 +101,7 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
-            short piece = current.continent;
+            Int16 piece = current.continent;
 
             current.continent = merge.Find(piece);
 
@@ -109,7 +109,7 @@ public partial class Map
             else current.height += AverageWaterHeight;
         }
 
-        (List<short> mergedNodes, Dictionary<short, List<short>> mergedAdjacency) = Algorithms.MergeAdjacencyList(adjacency, merge.Find);
+        (List<Int16> mergedNodes, Dictionary<Int16, List<Int16>> mergedAdjacency) = Algorithms.MergeAdjacencyList(adjacency, merge.Find);
 
         return (Algorithms.AppendData(mergedNodes, pieceToValue), mergedAdjacency);
     }
@@ -117,14 +117,14 @@ public partial class Map
     /// <summary>
     ///     Merge single pieces together.
     /// </summary>
-    private static void DoContinentMerging(List<List<short>> adjacency, UnionFind merge)
+    private static void DoContinentMerging(List<List<Int16>> adjacency, UnionFind merge)
     {
-        for (short piece = 0; piece < adjacency.Count; piece++)
+        for (Int16 piece = 0; piece < adjacency.Count; piece++)
         {
             if (adjacency[piece].Count == 0) continue;
             if (merge.GetSize(piece) > 1) continue;
 
-            foreach (short neighbor in adjacency[piece])
+            foreach (Int16 neighbor in adjacency[piece])
             {
                 if (merge.GetSize(neighbor) != 1) continue;
 
@@ -138,13 +138,13 @@ public partial class Map
     /// <summary>
     ///     Merge pieces into continents that completely surround them.
     /// </summary>
-    private static void DoContinentConsuming(List<List<short>> adjacency, UnionFind merge)
+    private static void DoContinentConsuming(List<List<Int16>> adjacency, UnionFind merge)
     {
-        for (short piece = 0; piece < adjacency.Count; piece++)
+        for (Int16 piece = 0; piece < adjacency.Count; piece++)
         {
             if (adjacency[piece].Count == 0) continue;
 
-            short anyNeighbor = merge.Find(adjacency[piece].First());
+            Int16 anyNeighbor = merge.Find(adjacency[piece].First());
 
             if (adjacency[piece].All(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(piece, anyNeighbor);
         }
@@ -153,22 +153,22 @@ public partial class Map
     /// <summary>
     ///     Let continents buy neighbors with their budget.
     /// </summary>
-    private static void DoContinentBuying(List<List<short>> adjacency, IDictionary<short, double> pieceToValue, UnionFind merge)
+    private static void DoContinentBuying(List<List<Int16>> adjacency, IDictionary<Int16, Double> pieceToValue, UnionFind merge)
     {
-        int GetBudget(short piece)
+        Int32 GetBudget(Int16 piece)
         {
-            const double continentMerging = 0.525;
+            const Double continentMerging = 0.525;
 
-            double value = Math.Abs(pieceToValue[piece]);
+            Double value = Math.Abs(pieceToValue[piece]);
 
-            return (int) Math.Floor(Math.Pow(x: 2, value / continentMerging) - 0.9);
+            return (Int32) Math.Floor(Math.Pow(x: 2, value / continentMerging) - 0.9);
         }
 
-        for (short piece = 0; piece < adjacency.Count; piece++)
+        for (Int16 piece = 0; piece < adjacency.Count; piece++)
         {
-            int budget = GetBudget(piece);
+            Int32 budget = GetBudget(piece);
 
-            foreach (short adjacent in adjacency[piece])
+            foreach (Int16 adjacent in adjacency[piece])
             {
                 if (budget <= 0) continue;
 
@@ -181,28 +181,28 @@ public partial class Map
     /// <summary>
     ///     Give all pieces a land-budget that they can use to make themselves and other pieces land.
     /// </summary>
-    private static bool[] DoLandCreation(List<List<short>> adjacency, IDictionary<short, double> pieceToValue)
+    private static Boolean[] DoLandCreation(List<List<Int16>> adjacency, IDictionary<Int16, Double> pieceToValue)
     {
-        var isLand = new bool[adjacency.Count];
+        var isLand = new Boolean[adjacency.Count];
 
-        bool HasBudget(short piece)
+        Boolean HasBudget(Int16 piece)
         {
-            const double landCreation = 0.9;
+            const Double landCreation = 0.9;
 
-            double value = Math.Abs(pieceToValue[piece]);
+            Double value = Math.Abs(pieceToValue[piece]);
 
             return value > landCreation;
         }
 
-        for (short piece = 0; piece < adjacency.Count; piece++)
+        for (Int16 piece = 0; piece < adjacency.Count; piece++)
         {
-            bool hasBudget = HasBudget(piece);
+            Boolean hasBudget = HasBudget(piece);
 
             if (!hasBudget) continue;
 
             isLand[piece] = true;
 
-            foreach (short adjacent in adjacency[piece]) isLand[adjacent] = true;
+            foreach (Int16 adjacent in adjacency[piece]) isLand[adjacent] = true;
         }
 
         return isLand;
@@ -211,13 +211,13 @@ public partial class Map
     /// <summary>
     ///     Fill single pieces of land/water surrounded by the other type if they are not bordering a different continent.
     /// </summary>
-    private static void DoLandGapFilling(List<List<short>> adjacency, bool[] isLand, UnionFind merge)
+    private static void DoLandGapFilling(List<List<Int16>> adjacency, Boolean[] isLand, UnionFind merge)
     {
-        for (short piece = 0; piece < adjacency.Count; piece++)
+        for (Int16 piece = 0; piece < adjacency.Count; piece++)
         {
             if (adjacency[piece].Count == 0) continue;
 
-            bool surrounded = adjacency[piece].Aggregate(seed: true, (current, neighbor) => current && (isLand[piece] != isLand[neighbor] || !merge.Connected(piece, neighbor)));
+            Boolean surrounded = adjacency[piece].Aggregate(seed: true, (current, neighbor) => current && (isLand[piece] != isLand[neighbor] || !merge.Connected(piece, neighbor)));
 
             if (surrounded) isLand[piece] = !isLand[piece];
         }
@@ -226,9 +226,9 @@ public partial class Map
     /// <summary>
     ///     Flood all land pieces at the world border.
     /// </summary>
-    private static void DoLandBorderFlooding(Data data, IList<bool> isLand)
+    private static void DoLandBorderFlooding(Data data, IList<Boolean> isLand)
     {
-        void FloodCell(int x, int y)
+        void FloodCell(Int32 x, Int32 y)
         {
             ref readonly Cell cell = ref data.GetCell(x, y);
             isLand[cell.continent] = false;
@@ -246,42 +246,42 @@ public partial class Map
 
     private static void GenerateTerrain(Data data, GeneratingNoise noise)
     {
-        (List<List<short>> adjacency, Dictionary<short, double> pieceToValue) pieces = FillWithPieces(data, noise);
+        (List<List<Int16>> adjacency, Dictionary<Int16, Double> pieceToValue) pieces = FillWithPieces(data, noise);
 
         AddPieceHeights(data, pieces.pieceToValue);
 
-        (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
+        (List<(Int16, Double)> nodes, Dictionary<Int16, List<Int16>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
 
         GenerateStoneTypes(data, noise);
         SimulateTectonics(data, continents);
     }
 
-    private static void AddPieceHeights(Data data, IDictionary<short, double> pieceToValue)
+    private static void AddPieceHeights(Data data, IDictionary<Int16, Double> pieceToValue)
     {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             ref Cell cell = ref data.GetCell(x, y);
 
-            double offset = pieceToValue[cell.continent] * PieceHeightChangeRange;
-            cell.height += (float) offset;
+            Double offset = pieceToValue[cell.continent] * PieceHeightChangeRange;
+            cell.height += (Single) offset;
         }
     }
 
     private static void SimulateTectonics(Data data,
-        (List<(short, double)> nodes, Dictionary<short, List<short>> adjancecy) continents)
+        (List<(Int16, Double)> nodes, Dictionary<Int16, List<Int16>> adjancecy) continents)
     {
-        Dictionary<short, Vector2d> driftDirections = GetDriftDirections(continents.nodes);
-        Dictionary<(short, short), TectonicCollision> collisions = new();
+        Dictionary<Int16, Vector2d> driftDirections = GetDriftDirections(continents.nodes);
+        Dictionary<(Int16, Int16), TectonicCollision> collisions = new();
 
-        var offsets = new float[CellCount];
+        var offsets = new Single[CellCount];
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
 
-            void CheckForCollision((int x, int y) neighborPosition)
+            void CheckForCollision((Int32 x, Int32 y) neighborPosition)
             {
                 Cell neighbor = data.GetCell(neighborPosition.x, neighborPosition.y);
 
@@ -319,7 +319,7 @@ public partial class Map
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            float value = noise.Stone.GetNoise(x, y);
+            Single value = noise.Stone.GetNoise(x, y);
             value = Math.Abs(value);
 
             StoneType stoneType = value switch
@@ -334,7 +334,7 @@ public partial class Map
         }
     }
 
-    private static void AddOffsetsToData(Data data, float[] offsets)
+    private static void AddOffsetsToData(Data data, Single[] offsets)
     {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -344,12 +344,12 @@ public partial class Map
         }
     }
 
-    private static bool IsOutOfBounds(Vector2i position)
+    private static Boolean IsOutOfBounds(Vector2i position)
     {
         return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
     }
 
-    private static void HandleTectonicCollision(Data data, IDictionary<(short, short), TectonicCollision> collisions, float[] offsets,
+    private static void HandleTectonicCollision(Data data, IDictionary<(Int16, Int16), TectonicCollision> collisions, Single[] offsets,
         TectonicCell a, TectonicCell b)
     {
         TectonicCollision collision;
@@ -398,9 +398,9 @@ public partial class Map
     ///     If both cells are land, they are pushed upwards.
     ///     If one cell is land and the other is not, the water cell is pushed under the land cell.
     /// </summary>
-    private static void HandleConvergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
+    private static void HandleConvergentBoundary(Data data, Single[] offsets, TectonicCell a, TectonicCell b)
     {
-        double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
         Vector2d direction;
         Vector2i start;
 
@@ -429,15 +429,15 @@ public partial class Map
             otherCell.conditions |= CellConditions.Vulcanism;
             otherCell.stoneType = StoneType.Granite;
 
-            Data.Get(offsets, water.position) = (float) (strength * MaxConvergentBoundaryWaterSinking);
+            Data.Get(offsets, water.position) = (Single) (strength * MaxConvergentBoundaryWaterSinking);
         }
 
         foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
         {
             if (IsOutOfBounds(cellPosition)) continue;
 
-            double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
-            Data.Get(offsets, cellPosition) = (float) (strength * maxLifting);
+            Double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
+            Data.Get(offsets, cellPosition) = (Single) (strength * maxLifting);
         }
     }
 
@@ -462,9 +462,9 @@ public partial class Map
     ///     If both cells are land, a rift is created.
     ///     If both cells are water, a rift and vulcanism is created.
     /// </summary>
-    private static void HandleDivergentBoundary(Data data, float[] offsets, TectonicCell a, TectonicCell b)
+    private static void HandleDivergentBoundary(Data data, Single[] offsets, TectonicCell a, TectonicCell b)
     {
-        double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
 
         ref Cell cellA = ref data.GetCell(a.position);
         ref Cell cellB = ref data.GetCell(b.position);
@@ -484,17 +484,17 @@ public partial class Map
         cellA.conditions |= conditions;
         cellB.conditions |= conditions;
 
-        Data.Get(offsets, a.position) = (float) (divergence * (cellA.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
-        Data.Get(offsets, b.position) = (float) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        Data.Get(offsets, a.position) = (Single) (divergence * (cellA.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        Data.Get(offsets, b.position) = (Single) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
     }
 
-    private static Dictionary<short, Vector2d> GetDriftDirections(List<(short, double)> continentsNodes)
+    private static Dictionary<Int16, Vector2d> GetDriftDirections(List<(Int16, Double)> continentsNodes)
     {
-        Dictionary<short, Vector2d> driftDirections = new();
+        Dictionary<Int16, Vector2d> driftDirections = new();
 
-        foreach ((short node, double value) in continentsNodes)
+        foreach ((Int16 node, Double value) in continentsNodes)
         {
-            double angle = value * Math.PI;
+            Double angle = value * Math.PI;
             driftDirections[node] = VMath.CreateVectorFromAngle(angle);
         }
 
@@ -521,8 +521,8 @@ public partial class Map
         Color land = Color.Green;
 
         Color terrain = current.IsLand ? land : water;
-        double mixStrength = Math.Abs(current.height) - 0.5;
-        bool darken = mixStrength > 0;
+        Double mixStrength = Math.Abs(current.height) - 0.5;
+        Boolean darken = mixStrength > 0;
 
         Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(mixStrength));
 
@@ -533,7 +533,7 @@ public partial class Map
     {
         Vector2 center = new(Width / 2.0f, Width / 2.0f);
 
-        float GetTemperature(float distance)
+        Single GetTemperature(Single distance)
         {
             return Math.Abs(Math.Abs(distance * 0.025f - 1.0f) % 2.0f - 1.0f);
         }
@@ -541,8 +541,8 @@ public partial class Map
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            float distance = (center - (x, y)).Length;
-            float temperature = GetTemperature(distance);
+            Single distance = (center - (x, y)).Length;
+            Single temperature = GetTemperature(distance);
 
             ref Cell current = ref data.GetCell(x, y);
             current.temperature = temperature;
@@ -573,7 +573,7 @@ public partial class Map
 
     private static HumidityData[] CreateInitialHumidityData()
     {
-        const float initialHumidity = 0.15f;
+        const Single initialHumidity = 0.15f;
 
         var initial = new HumidityData[Width * Width];
 
@@ -587,7 +587,7 @@ public partial class Map
         HumidityData[] current = CreateInitialHumidityData();
         HumidityData[] next = CreateInitialHumidityData();
 
-        const int simulationSteps = 100;
+        const Int32 simulationSteps = 100;
 
         for (var step = 0; step < simulationSteps; step++)
         {
@@ -614,7 +614,7 @@ public partial class Map
             });
     }
 
-    private static IEnumerable<(Vector2i position, bool isInWind)> GetNeighbors(Vector2i position)
+    private static IEnumerable<(Vector2i position, Boolean isInWind)> GetNeighbors(Vector2i position)
     {
         if (position.X > 0) yield return ((position.X - 1, position.Y), false);
         if (position.X < Width - 1) yield return ((position.X + 1, position.Y), true);
@@ -630,10 +630,10 @@ public partial class Map
     /// </summary>
     private static HumidityData SimulateCellClimate(in Data data, in HumidityData[] state, Vector2i position)
     {
-        const float evaporationRate = 0.5f;
-        const float precipitationRate = 0.25f;
-        const float runoffRate = 0.25f;
-        const float windStrength = 5.0f;
+        const Single evaporationRate = 0.5f;
+        const Single precipitationRate = 0.25f;
+        const Single runoffRate = 0.25f;
+        const Single windStrength = 5.0f;
 
         Cell cell = data.GetCell(position);
         HumidityData current = Data.Get(state, position);
@@ -647,7 +647,7 @@ public partial class Map
 
         if (cell.IsLand)
         {
-            float evaporation = next.humidity * evaporationRate;
+            Single evaporation = next.humidity * evaporationRate;
             next.humidity -= evaporation;
             next.clouds += evaporation;
         }
@@ -657,11 +657,11 @@ public partial class Map
             next.clouds += evaporationRate;
         }
 
-        float precipitation = next.clouds * precipitationRate;
+        Single precipitation = next.clouds * precipitationRate;
         next.clouds -= precipitation;
         next.humidity += precipitation;
 
-        float cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature - 0.1f);
+        Single cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature - 0.1f);
 
         if (next.clouds > cloudMaximum)
         {
@@ -673,7 +673,7 @@ public partial class Map
         next.runoff = next.humidity * runoffRate * (1.0f / 4.0f);
         next.clouds = 0.0f;
 
-        foreach ((Vector2i neighborPosition, bool isInWind) in GetNeighbors(position))
+        foreach ((Vector2i neighborPosition, Boolean isInWind) in GetNeighbors(position))
         {
             Cell neighborCell = data.GetCell(neighborPosition);
             HumidityData neighborData = Data.Get(state, neighborPosition);
@@ -761,11 +761,11 @@ public partial class Map
 
     private record struct HumidityData
     {
-        public float clouds;
+        public Single clouds;
 
-        public float dispersal;
-        public float humidity;
-        public float runoff;
+        public Single dispersal;
+        public Single humidity;
+        public Single runoff;
     }
 
     private enum TectonicCollision
@@ -777,7 +777,7 @@ public partial class Map
 
     private record struct TectonicCell
     {
-        public short continent;
+        public Int16 continent;
         public Vector2d drift;
         public Vector2i position;
     }

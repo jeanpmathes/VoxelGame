@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -23,7 +24,7 @@ public class AirBlock : Block, IFillable
     /// </summary>
     /// <param name="name">The name of this block</param>
     /// <param name="namedID">The unique and unlocalized name of this block.</param>
-    internal AirBlock(string name, string namedID) :
+    internal AirBlock(String name, String namedID) :
         base(
             name,
             namedID,
@@ -31,13 +32,13 @@ public class AirBlock : Block, IFillable
             BoundingVolume.Block) {}
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return false;
     }
 
     /// <inheritdoc />
-    protected override bool CanDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected override Boolean CanDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
         return false;
     }

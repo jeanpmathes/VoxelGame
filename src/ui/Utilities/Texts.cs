@@ -20,7 +20,7 @@ public static class Texts
     ///     Format a date time to display both date and time.
     /// </summary>
     /// <param name="dateTime">The date time to format.</param>
-    public static string FormatDateTime(DateTime dateTime)
+    public static String FormatDateTime(DateTime dateTime)
     {
         DateTime localTime = dateTime.ToLocalTime();
 
@@ -33,7 +33,7 @@ public static class Texts
     /// <param name="dateTime">The date and time of the event.</param>
     /// <param name="hasOccurred">Whether the event has actually occurred.</param>
     /// <returns>The formatted time since the event occurred.</returns>
-    public static string FormatTimeSinceEvent(DateTime? dateTime, out bool hasOccurred)
+    public static String FormatTimeSinceEvent(DateTime? dateTime, out Boolean hasOccurred)
     {
         hasOccurred = dateTime.HasValue;
 
@@ -54,16 +54,16 @@ public static class Texts
             _ => Language.TimeSinceEventMomentAgo
         };
 
-        string Format(string pattern, double value)
+        String Format(String pattern, Double value)
         {
-            return string.Format(CultureInfo.CurrentCulture, pattern, (long) value);
+            return String.Format(CultureInfo.CurrentCulture, pattern, (Int64) value);
         }
     }
 
     /// <summary>
     ///     Format the status of an operation.
     /// </summary>
-    private static string FormatStatus(Status status)
+    private static String FormatStatus(Status status)
     {
         return status switch
         {
@@ -77,7 +77,7 @@ public static class Texts
     /// <summary>
     ///     Format an operation and its status.
     /// </summary>
-    public static string FormatOperation(string operation, Status status)
+    public static String FormatOperation(String operation, Status status)
     {
         return $"{operation}: {FormatStatus(status)}";
     }

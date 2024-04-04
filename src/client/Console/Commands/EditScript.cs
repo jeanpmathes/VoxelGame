@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
@@ -18,13 +19,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class EditScript : Command
 {
     /// <inheritdoc />
-    public override string Name => "edit-script";
+    public override String Name => "edit-script";
 
     /// <inheritdoc />
-    public override string HelpText => "Edit a ready script by opening it.";
+    public override String HelpText => "Edit a ready script by opening it.";
 
     /// <exclude />
-    public void Invoke(string name)
+    public void Invoke(String name)
     {
         Do(Context, name);
     }
@@ -34,7 +35,7 @@ public class EditScript : Command
     /// </summary>
     /// <param name="context">The context to use.</param>
     /// <param name="name">The name of the script to edit.</param>
-    public static void Do(Context context, string name)
+    public static void Do(Context context, String name)
     {
         FileInfo? path = context.Player.World.Data.CreateScript(name, "");
 

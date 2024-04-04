@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class PermeableBlock : BasicBlock, IFillable
 {
-    internal PermeableBlock(string name, string namedID, TextureLayout layout) :
+    internal PermeableBlock(String name, String namedID, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -25,7 +26,7 @@ public class PermeableBlock : BasicBlock, IFillable
             layout) {}
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }

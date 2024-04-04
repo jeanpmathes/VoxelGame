@@ -31,15 +31,15 @@ public sealed class ScreenElementVFX : VFX
 
     private IDisposable? disposable;
 
-    private float scaling = 1.0f;
+    private Single scaling = 1.0f;
 
     private Color4 color = Color4.White;
 
     private Texture? texture;
-    private bool isTextureInitialized;
+    private Boolean isTextureInitialized;
 
-    private bool isVertexBufferUploaded;
-    private (uint start, uint length) rangeOfVertexBuffer;
+    private Boolean isVertexBufferUploaded;
+    private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
     private ScreenElementVFX(Support.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
@@ -51,7 +51,7 @@ public sealed class ScreenElementVFX : VFX
     }
 
     /// <inheritdoc />
-    public override bool IsEnabled { get; set; }
+    public override Boolean IsEnabled { get; set; }
 
     /// <summary>
     ///     Create a new <see cref="ScreenElementVFX" />.
@@ -108,7 +108,7 @@ public sealed class ScreenElementVFX : VFX
     ///     Set the scale of the texture.
     /// </summary>
     /// <param name="newScaling">The new scale.</param>
-    public void SetScale(float newScaling)
+    public void SetScale(Single newScaling)
     {
         scaling = newScaling;
     }
@@ -180,19 +180,19 @@ public sealed class ScreenElementVFX : VFX
         /// <summary>
         ///     Check equality.
         /// </summary>
-        public bool Equals(Data other)
+        public Boolean Equals(Data other)
         {
             return (MVP, Color) == (other.MVP, other.Color);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is Data other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(MVP, Color);
         }
@@ -200,7 +200,7 @@ public sealed class ScreenElementVFX : VFX
         /// <summary>
         ///     The equality operator.
         /// </summary>
-        public static bool operator ==(Data left, Data right)
+        public static Boolean operator ==(Data left, Data right)
         {
             return left.Equals(right);
         }
@@ -208,7 +208,7 @@ public sealed class ScreenElementVFX : VFX
         /// <summary>
         ///     The inequality operator.
         /// </summary>
-        public static bool operator !=(Data left, Data right)
+        public static Boolean operator !=(Data left, Data right)
         {
             return !left.Equals(right);
         }
@@ -216,10 +216,10 @@ public sealed class ScreenElementVFX : VFX
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

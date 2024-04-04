@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections.Properties;
@@ -43,11 +44,11 @@ public class PropertyBasedTreeControl : TreeControl
     private sealed class TreeControlBuilder(TreeControl tree, Context context) : Visitor
     {
         private TreeNode current = tree.RootNode;
-        private int index;
+        private Int32 index;
 
-        private bool top = true;
+        private Boolean top = true;
 
-        private TreeNode? FindNode(string name)
+        private TreeNode? FindNode(String name)
         {
             while (current.NodeCount > index)
             {
@@ -62,7 +63,7 @@ public class PropertyBasedTreeControl : TreeControl
             return null;
         }
 
-        private TreeNode FindOrCreateNode(string name, string text)
+        private TreeNode FindOrCreateNode(String name, String text)
         {
             TreeNode? node = FindNode(name);
 
@@ -92,7 +93,7 @@ public class PropertyBasedTreeControl : TreeControl
                 top = false;
             }
 
-            int previousIndex = index;
+            Int32 previousIndex = index;
             index = 0;
 
             base.Visit(group);
@@ -111,7 +112,7 @@ public class PropertyBasedTreeControl : TreeControl
         {
             TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
 
-            string icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
+            String icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
             Color color = error.IsCritical ? Colors.Error : Colors.Warning;
 
             node.SetImage(icon, Context.SmallIconSize, color);

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,10 +17,10 @@ namespace VoxelGame.Client.Console.Commands;
 public class Clear : Command
 {
     /// <inheritdoc />
-    public override string Name => "clear";
+    public override String Name => "clear";
 
     /// <inheritdoc />
-    public override string HelpText => "Clear the console.";
+    public override String HelpText => "Clear the console.";
 
     /// <exclude />
     public void Invoke()

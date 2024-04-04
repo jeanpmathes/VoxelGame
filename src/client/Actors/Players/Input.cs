@@ -22,7 +22,7 @@ internal sealed class Input
     private readonly Button crouchButton;
     private readonly Button destroyButton;
 
-    private readonly float interactionCooldown = 0.25f;
+    private readonly Single interactionCooldown = 0.25f;
 
     private readonly Button interactOrPlaceButton;
     private readonly Button jumpButton;
@@ -35,7 +35,7 @@ internal sealed class Input
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
-    private double timer;
+    private Double timer;
 
     internal Input(Player player)
     {
@@ -70,25 +70,25 @@ internal sealed class Input
         selectionAxis = new InputAxis(nextButton, previousButton);
     }
 
-    internal bool ShouldJump => jumpButton.IsDown;
+    internal Boolean ShouldJump => jumpButton.IsDown;
 
-    internal bool ShouldCrouch => crouchButton.IsDown;
+    internal Boolean ShouldCrouch => crouchButton.IsDown;
 
-    private bool IsCooldownOver => timer >= interactionCooldown;
+    private Boolean IsCooldownOver => timer >= interactionCooldown;
 
-    internal bool ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
+    internal Boolean ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
 
-    internal bool ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
+    internal Boolean ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
 
-    internal bool ShouldChangePlacementMode => placementModeToggle.Changed;
+    internal Boolean ShouldChangePlacementMode => placementModeToggle.Changed;
 
-    internal bool ShouldSelectTargeted => selectTargetedButton.IsDown;
+    internal Boolean ShouldSelectTargeted => selectTargetedButton.IsDown;
 
-    internal bool IsInteractionBlocked => blockInteractButton.IsDown;
+    internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
 
-    internal Vector3d GetMovement(float normalSpeed, float sprintSpeed)
+    internal Vector3d GetMovement(Single normalSpeed, Single sprintSpeed)
     {
-        (float x, float z) = movementInput.Value;
+        (Single x, Single z) = movementInput.Value;
         Vector3d movement = x * player.Forward + z * player.Right;
 
         if (movement != Vector3d.Zero)
@@ -99,7 +99,7 @@ internal sealed class Input
         return movement;
     }
 
-    internal void Update(double deltaTime)
+    internal void Update(Double deltaTime)
     {
         timer += deltaTime;
     }
@@ -109,15 +109,15 @@ internal sealed class Input
         timer = 0;
     }
 
-    internal int GetSelectionChange()
+    internal Int32 GetSelectionChange()
     {
         return Math.Sign(selectionAxis.Value);
     }
 
-    internal Vector3d GetFlyingMovement(double flyingSpeed, double flyingSprintSpeed)
+    internal Vector3d GetFlyingMovement(Double flyingSpeed, Double flyingSprintSpeed)
     {
-        (float x, float z) = movementInput.Value;
-        float y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
+        (Single x, Single z) = movementInput.Value;
+        Single y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
 
         Vector3d movement = x * player.LookingDirection + y * Vector3d.UnitY + z * player.CameraRight;
 

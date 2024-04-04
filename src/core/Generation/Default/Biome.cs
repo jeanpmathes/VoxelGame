@@ -19,28 +19,28 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Biome
 {
-    private readonly string name;
-    private (Layer layer, int depth)[] lowerHorizon = null!;
+    private readonly String name;
+    private (Layer layer, Int32 depth)[] lowerHorizon = null!;
 
     /// <summary>
     ///     The depth to the solid layer, without dampening.
     /// </summary>
-    private int minDepthToSolid;
+    private Int32 minDepthToSolid;
 
     /// <summary>
     ///     The minimum width of the biome, without dampening.
     /// </summary>
-    private int minWidth;
+    private Int32 minWidth;
 
     private FastNoiseLite noise = null!;
 
-    private (Layer layer, int depth)[] upperHorizon = null!;
+    private (Layer layer, Int32 depth)[] upperHorizon = null!;
 
     /// <summary>
     ///     Create a new biome. Most values must be set with the init-properties.
     /// </summary>
     /// <param name="name">The name of the biome.</param>
-    public Biome(string name)
+    public Biome(String name)
     {
         this.name = name;
     }
@@ -53,17 +53,17 @@ public class Biome
     /// <summary>
     ///     Get the normal width of the ice layer on oceans.
     /// </summary>
-    public int IceWidth { get; init; }
+    public Int32 IceWidth { get; init; }
 
     /// <summary>
     ///     The amplitude of the noise used to generate the biome.
     /// </summary>
-    public float Amplitude { get; init; }
+    public Single Amplitude { get; init; }
 
     /// <summary>
     ///     The frequency of the noise used to generate the biome.
     /// </summary>
-    public float Frequency { get; init; }
+    public Single Frequency { get; init; }
 
     /// <summary>
     ///     All layers that are part of the biome.
@@ -89,12 +89,12 @@ public class Biome
     /// <summary>
     ///     The width of the dampening layer.
     /// </summary>
-    private int MaxDampenWidth { get; set; }
+    private Int32 MaxDampenWidth { get; set; }
 
     /// <summary>
     ///     The depth to the dampening layer.
     /// </summary>
-    private int DepthToDampen { get; set; }
+    private Int32 DepthToDampen { get; set; }
 
     /// <summary>
     ///     The dampen layer.
@@ -139,10 +139,10 @@ public class Biome
 
         var hasReachedSolid = false;
 
-        List<(Layer layer, int depth)> newUpperHorizon = new();
-        List<(Layer layer, int depth)> newLowerHorizon = new();
+        List<(Layer layer, Int32 depth)> newUpperHorizon = new();
+        List<(Layer layer, Int32 depth)> newLowerHorizon = new();
 
-        List<(Layer layer, int depth)> currentHorizon = newUpperHorizon;
+        List<(Layer layer, Int32 depth)> currentHorizon = newUpperHorizon;
 
         foreach (Layer layer in Layers)
         {
@@ -182,7 +182,7 @@ public class Biome
     /// </summary>
     /// <param name="position">The position of the column.</param>
     /// <returns>The offset value.</returns>
-    public float GetOffset(Vector2i position)
+    public Single GetOffset(Vector2i position)
     {
         return noise.GetNoise(position.X, position.Y) * Amplitude;
     }
@@ -192,15 +192,15 @@ public class Biome
     /// </summary>
     /// <param name="originalOffset">The offset of the colum.</param>
     /// <returns>The applied dampening.</returns>
-    public Dampening CalculateDampening(int originalOffset)
+    public Dampening CalculateDampening(Int32 originalOffset)
     {
-        const int dampenThreshold = 2;
-        int normalWidth = MaxDampenWidth / 2;
+        const Int32 dampenThreshold = 2;
+        Int32 normalWidth = MaxDampenWidth / 2;
 
         if (Math.Abs(originalOffset) <= dampenThreshold) return new Dampening(originalOffset, originalOffset, normalWidth);
 
-        int maxDampening = MaxDampenWidth / 2;
-        int dampenedOffset = Math.Clamp(Math.Abs(originalOffset) - dampenThreshold, min: 0, maxDampening) * Math.Sign(originalOffset);
+        Int32 maxDampening = MaxDampenWidth / 2;
+        Int32 dampenedOffset = Math.Clamp(Math.Abs(originalOffset) - dampenThreshold, min: 0, maxDampening) * Math.Sign(originalOffset);
 
         return new Dampening(dampenedOffset, originalOffset, normalWidth + dampenedOffset);
     }
@@ -210,7 +210,7 @@ public class Biome
     /// </summary>
     /// <param name="dampening">The dampening.</param>
     /// <returns>The total width of the biome.</returns>
-    public int GetTotalWidth(Dampening dampening)
+    public Int32 GetTotalWidth(Dampening dampening)
     {
         return minWidth + dampening.Width;
     }
@@ -223,13 +223,13 @@ public class Biome
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <returns>The biome content.</returns>
-    public Content GetContent(int depthBelowSurface, Dampening dampening, Map.StoneType stoneType, bool isFilled)
+    public Content GetContent(Int32 depthBelowSurface, Dampening dampening, Map.StoneType stoneType, Boolean isFilled)
     {
         Layer current;
-        int depthInLayer;
-        int actualOffset;
+        Int32 depthInLayer;
+        Int32 actualOffset;
 
-        bool isInUpperHorizon = depthBelowSurface < DepthToDampen;
+        Boolean isInUpperHorizon = depthBelowSurface < DepthToDampen;
 
         if (isInUpperHorizon)
         {
@@ -238,15 +238,15 @@ public class Biome
         }
         else
         {
-            (actualOffset, _, int usedWidth) = dampening;
-            int depthToLowerHorizon = DepthToDampen + usedWidth;
+            (actualOffset, _, Int32 usedWidth) = dampening;
+            Int32 depthToLowerHorizon = DepthToDampen + usedWidth;
 
             if (depthBelowSurface < depthToLowerHorizon) (current, depthInLayer) = (Dampen!, depthBelowSurface - DepthToDampen);
             else (current, depthInLayer) = lowerHorizon[depthBelowSurface - depthToLowerHorizon];
         }
 
-        int actualDepthToSolid = minDepthToSolid + dampening.Width;
-        bool isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
+        Int32 actualDepthToSolid = minDepthToSolid + dampening.Width;
+        Boolean isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
 
         return current.GetContent(depthInLayer, actualOffset, stoneType, isFilledAtCurrentDepth);
     }
@@ -254,13 +254,13 @@ public class Biome
     /// <summary>
     ///     Get the depth to the first solid layer, depending on the dampening.
     /// </summary>
-    public int GetDepthToSolid(Dampening dampening)
+    public Int32 GetDepthToSolid(Dampening dampening)
     {
         return minDepthToSolid + dampening.Width;
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return name;
     }
@@ -268,5 +268,5 @@ public class Biome
     /// <summary>
     ///     The dampening applied to a column.
     /// </summary>
-    public record struct Dampening(int DampenedOffset, int OriginalOffset, int Width);
+    public record struct Dampening(Int32 DampenedOffset, Int32 OriginalOffset, Int32 Width);
 }

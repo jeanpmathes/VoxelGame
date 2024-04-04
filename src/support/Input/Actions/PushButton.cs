@@ -13,8 +13,8 @@ namespace VoxelGame.Support.Input.Actions;
 /// </summary>
 public class PushButton : Button
 {
-    private bool hasReleased;
-    private bool pushed;
+    private Boolean hasReleased;
+    private Boolean pushed;
 
     /// <summary>
     ///     Create a new push button.
@@ -26,7 +26,7 @@ public class PushButton : Button
     /// <summary>
     ///     Get whether the button is pushed this frame.
     /// </summary>
-    public bool Pushed
+    public Boolean Pushed
     {
         get => pushed;
         private set
@@ -39,7 +39,7 @@ public class PushButton : Button
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <inheritdoc />
-    protected override void Update(object? sender, EventArgs e)
+    protected override void Update(Object? sender, EventArgs e)
     {
         KeyState state = Input.KeyState;
 

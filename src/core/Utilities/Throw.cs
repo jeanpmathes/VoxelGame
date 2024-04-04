@@ -33,11 +33,11 @@ public class Throw
     /// <param name="disposed">Whether the object is disposed.</param>
     /// <exception cref="ObjectDisposedException">Thrown if the object is disposed.</exception>
     [Conditional("DEBUG")]
-    public static void IfDisposed(bool disposed)
+    public static void IfDisposed(Boolean disposed)
     {
         if (!disposed) return;
 
-        string? obj = new StackTrace().GetFrame(index: 1)?.GetMethod()?.ReflectedType?.Name;
+        String? obj = new StackTrace().GetFrame(index: 1)?.GetMethod()?.ReflectedType?.Name;
 
         throw new ObjectDisposedException(obj);
     }
@@ -49,7 +49,7 @@ public class Throw
     /// <param name="message">The message to throw.</param>
     /// <exception cref="ArgumentNullException">Thrown if the object is null.</exception>
     [Conditional("DEBUG")]
-    public static void IfNull([NotNull] object? obj, string message = "")
+    public static void IfNull([NotNull] Object? obj, String message = "")
     {
         if (obj is null) throw new ArgumentNullException(message);
     }
@@ -59,7 +59,7 @@ public class Throw
     /// </summary>
     /// <returns>True if the current thread is the main thread.</returns>
     [Conditional("DEBUG")]
-    public static void IfNotOnMainThread(object @object, [CallerMemberName] string operation = "")
+    public static void IfNotOnMainThread(Object @object, [CallerMemberName] String operation = "")
     {
         if (ApplicationInformation.Instance.IsOnMainThread) return;
 
@@ -74,7 +74,7 @@ public class Throw
     /// <param name="object">The object that was not disposed.</param>
     /// <param name="trace">The stack trace of object creation.</param>
     // Intentionally not conditional.
-    public static void ForMissedDispose(string type, object? @object = null, StackTrace? trace = null)
+    public static void ForMissedDispose(String type, Object? @object = null, StackTrace? trace = null)
     {
         logger.LogWarning(Events.Dispose, "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at:\n{Trace}", type, @object, trace);
 

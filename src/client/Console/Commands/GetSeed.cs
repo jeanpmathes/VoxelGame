@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,15 +17,15 @@ namespace VoxelGame.Client.Console.Commands;
 public class GetSeed : Command
 {
     /// <inheritdoc />
-    public override string Name => "get-seed";
+    public override String Name => "get-seed";
 
     /// <inheritdoc />
-    public override string HelpText => "Gets the world seed.";
+    public override String HelpText => "Gets the world seed.";
 
     /// <exclude />
     public void Invoke()
     {
-        (int upper, int lower) = Context.Player.World.Seed;
+        (Int32 upper, Int32 lower) = Context.Player.World.Seed;
         Context.Console.WriteResponse($"({upper}, {lower})");
     }
 }

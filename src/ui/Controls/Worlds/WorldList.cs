@@ -70,7 +70,7 @@ public class WorldList : ControlBase
     ///     Build a list of worlds. This will remove any previous content.
     /// </summary>
     /// <param name="filter">A filter to apply. Only worlds matching the filter will be displayed.</param>
-    public void BuildList(string filter = "")
+    public void BuildList(String filter = "")
     {
         Table worlds = CreateWorldTable();
 
@@ -100,7 +100,7 @@ public class WorldList : ControlBase
     /// </summary>
     /// <param name="text">The text to display.</param>
     /// <param name="isError">Whether the text is an error message.</param>
-    public void BuildText(string text, bool isError = false)
+    public void BuildText(String text, Boolean isError = false)
     {
         Table worlds = CreateWorldTable();
         TableRow row = worlds.AddRow();

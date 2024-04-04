@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -22,7 +23,7 @@ namespace VoxelGame.Client.Application.Settings;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public sealed class GraphicsSettings : ISettingsProvider
 {
-    private readonly List<Setting> settings = new();
+    private readonly List<Setting> settings = [];
 
     internal GraphicsSettings(Properties.Settings clientSettings)
     {
@@ -55,8 +56,8 @@ public sealed class GraphicsSettings : ISettingsProvider
                 WindowSize.Accessors,
                 () => Client.Instance.Size));
 
-        RenderResolutionScale = new Bindable<float>(
-            () => (float) clientSettings.RenderResolutionScale,
+        RenderResolutionScale = new Bindable<Single>(
+            () => (Single) clientSettings.RenderResolutionScale,
             scale =>
             {
                 clientSettings.RenderResolutionScale = scale;
@@ -87,7 +88,7 @@ public sealed class GraphicsSettings : ISettingsProvider
     /// <summary>
     ///     The render resolution scale.
     /// </summary>
-    public Bindable<float> RenderResolutionScale { get; }
+    public Bindable<Single> RenderResolutionScale { get; }
 
     /// <summary>
     ///     Get the visual configuration from the settings.
@@ -98,10 +99,10 @@ public sealed class GraphicsSettings : ISettingsProvider
     };
 
     /// <inheritdoc />
-    static string ISettingsProvider.Category => Language.Graphics;
+    static String ISettingsProvider.Category => Language.Graphics;
 
     /// <inheritdoc />
-    static string ISettingsProvider.Description => Language.GraphicsSettingsDescription;
+    static String ISettingsProvider.Description => Language.GraphicsSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;

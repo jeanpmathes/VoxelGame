@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace VoxelGame.Manual.Utility;
 /// </summary>
 public class Documentation
 {
-    private readonly Dictionary<string, string> documentation;
+    private readonly Dictionary<String, String> documentation;
 
     /// <summary>
     ///     Create a documentation file for an assembly.
@@ -34,15 +35,15 @@ public class Documentation
         FileInfo location = new(assembly.Location);
         DirectoryInfo directory = location.Directory!;
 
-        string name = assembly.GetName().Name!;
+        String name = assembly.GetName().Name!;
         FileInfo path = directory.GetFile(name + ".xml");
 
         return path;
     }
 
-    private static Dictionary<string, string> ReadDocumentation(Assembly assembly)
+    private static Dictionary<String, String> ReadDocumentation(Assembly assembly)
     {
-        Dictionary<string, string> loadedDocumentation = new();
+        Dictionary<String, String> loadedDocumentation = new();
 
         XmlDocument doc = new();
         doc.Load(GetDocumentationFile(assembly).OpenText());
@@ -56,8 +57,8 @@ public class Documentation
         {
             if (member.Name != "member") continue;
 
-            string name = member.GetAttribute("name");
-            string? value = member["summary"]?.InnerText;
+            String name = member.GetAttribute("name");
+            String? value = member["summary"]?.InnerText;
 
             if (value == null) continue;
 
@@ -72,11 +73,11 @@ public class Documentation
     /// </summary>
     /// <param name="field">The field to get the summary for.</param>
     /// <returns>The summary.</returns>
-    public string GetFieldSummary(MemberInfo field)
+    public String GetFieldSummary(MemberInfo field)
     {
         return documentation.TryGetValue(
             $"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}",
-            out string? summary)
+            out String? summary)
             ? summary
             : "";
     }
@@ -86,11 +87,11 @@ public class Documentation
     /// </summary>
     /// <param name="property">The property to get the summary for.</param>
     /// <returns>The summary.</returns>
-    public string GetPropertySummary(MemberInfo property)
+    public String GetPropertySummary(MemberInfo property)
     {
         return documentation.TryGetValue(
             $"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}",
-            out string? summary)
+            out String? summary)
             ? summary
             : "";
     }

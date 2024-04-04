@@ -28,7 +28,7 @@ public sealed class TextureArray : IEnumerable<Texture>
     /// <summary>
     ///     Get the number of textures in the array.
     /// </summary>
-    public int Count => textures.Length;
+    public Int32 Count => textures.Length;
 
     /// <inheritdoc />
     public IEnumerator<Texture> GetEnumerator()
@@ -48,7 +48,7 @@ public sealed class TextureArray : IEnumerable<Texture>
     /// <param name="images">The textures to load. Mip-levels are grouped together.</param>
     /// <param name="count">The number of textures in the array, excluding mip-levels.</param>
     /// <param name="mips">The number of mip-levels that are included per base texture.</param>
-    public static TextureArray Load(Client client, Span<Image> images, int count, int mips)
+    public static TextureArray Load(Client client, Span<Image> images, Int32 count, Int32 mips)
     {
         Debug.Assert(images.Length > 0);
         Debug.Assert(images.Length % mips == 0);
@@ -62,8 +62,8 @@ public sealed class TextureArray : IEnumerable<Texture>
 
         for (var index = 0; index < count; index++)
         {
-            int begin = index * mips;
-            int end = begin + mips;
+            Int32 begin = index * mips;
+            Int32 end = begin + mips;
 
             Debug.Assert(images[begin].Size == size);
             data[index] = client.LoadTexture(images[begin..end]);

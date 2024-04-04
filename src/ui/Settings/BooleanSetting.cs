@@ -18,10 +18,10 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class BooleanSetting : Setting
 {
-    private readonly Func<bool> get;
-    private readonly Action<bool> set;
+    private readonly Func<Boolean> get;
+    private readonly Action<Boolean> set;
 
-    internal BooleanSetting(string name, Func<bool> get, Action<bool> set)
+    internal BooleanSetting(String name, Func<Boolean> get, Action<Boolean> set)
     {
         this.get = get;
         this.set = set;
@@ -29,7 +29,7 @@ internal class BooleanSetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {

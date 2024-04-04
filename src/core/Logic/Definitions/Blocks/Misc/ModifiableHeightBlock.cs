@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class ModifiableHeightBlock : VaryingHeightBlock
 {
-    internal ModifiableHeightBlock(string name, string namedID, TextureLayout layout) :
+    internal ModifiableHeightBlock(String name, String namedID, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -25,9 +26,9 @@ public class ModifiableHeightBlock : VaryingHeightBlock
             layout) {}
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        uint height = data & 0b00_1111;
+        UInt32 height = data & 0b00_1111;
         height++;
 
         if (height <= IHeightVariable.MaximumHeight) actor.World.SetBlock(this.AsInstance(height), position);

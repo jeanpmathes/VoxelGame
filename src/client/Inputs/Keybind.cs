@@ -17,13 +17,13 @@ namespace VoxelGame.Client.Inputs;
 /// </summary>
 public readonly struct Keybind : IEquatable<Keybind>
 {
-    private readonly string id;
+    private readonly String id;
     private readonly Binding type;
 
     /// <summary>
     ///     Get the name of the keybind.
     /// </summary>
-    public string Name { get; }
+    public String Name { get; }
 
     /// <summary>
     ///     Get the key used by the keybind per default.
@@ -37,7 +37,7 @@ public readonly struct Keybind : IEquatable<Keybind>
         SimpleButton
     }
 
-    private Keybind(string id, string name, Binding type, VirtualKeys defaultKeyOrButton)
+    private Keybind(String id, String name, Binding type, VirtualKeys defaultKeyOrButton)
     {
         this.id = id;
         Name = name;
@@ -47,7 +47,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         if (obj is Keybind other) return this == other;
 
@@ -55,13 +55,13 @@ public readonly struct Keybind : IEquatable<Keybind>
     }
 
     /// <inheritdoc />
-    public bool Equals(Keybind other)
+    public Boolean Equals(Keybind other)
     {
         return id.Equals(other.id, StringComparison.InvariantCulture);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return id.GetHashCode(StringComparison.InvariantCulture);
     }
@@ -72,7 +72,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="left">The first keybind.</param>
     /// <param name="right">The second keybind.</param>
     /// <returns>True if both keybinds are equal.</returns>
-    public static bool operator ==(Keybind left, Keybind right)
+    public static Boolean operator ==(Keybind left, Keybind right)
     {
         return left.Equals(right);
     }
@@ -83,13 +83,13 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="left">The first keybind.</param>
     /// <param name="right">The second keybind.</param>
     /// <returns>True if both keybinds are not equal.</returns>
-    public static bool operator !=(Keybind left, Keybind right)
+    public static Boolean operator !=(Keybind left, Keybind right)
     {
         return !(left == right);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return id;
     }
@@ -101,7 +101,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterButton(string id, string name, VirtualKeys defaultKey)
+    public static Keybind RegisterButton(String id, String name, VirtualKeys defaultKey)
     {
         return Register(
             id,
@@ -117,7 +117,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterToggle(string id, string name, VirtualKeys defaultKey)
+    public static Keybind RegisterToggle(String id, String name, VirtualKeys defaultKey)
     {
         return Register(
             id,
@@ -133,7 +133,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <param name="name">The display name of the keybind. Can be localized.</param>
     /// <param name="defaultKey">The default key to use initially.</param>
     /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterPushButton(string id, string name, VirtualKeys defaultKey)
+    public static Keybind RegisterPushButton(String id, String name, VirtualKeys defaultKey)
     {
         return Register(
             id,
@@ -142,7 +142,7 @@ public readonly struct Keybind : IEquatable<Keybind>
             defaultKey);
     }
 
-    private static Keybind Register(string id, string name, Binding type, VirtualKeys defaultKey)
+    private static Keybind Register(String id, String name, Binding type, VirtualKeys defaultKey)
     {
         var bind = new Keybind(id, name, type, defaultKey);
 

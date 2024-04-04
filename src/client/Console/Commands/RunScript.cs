@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using VoxelGame.UI.UserInterfaces;
@@ -18,13 +19,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class RunScript : Command
 {
     /// <inheritdoc />
-    public override string Name => "run-script";
+    public override String Name => "run-script";
 
     /// <inheritdoc />
-    public override string HelpText => "Runs a script.";
+    public override String HelpText => "Runs a script.";
 
     /// <exclude />
-    public void Invoke(string name)
+    public void Invoke(String name)
     {
         if (!Context.IsScript) Do(Context, name);
         else Context.Console.WriteError("Cannot run scripts from scripts.");
@@ -37,9 +38,9 @@ public class RunScript : Command
     /// <param name="name">The name of the script to edit.</param>
     /// <param name="ignoreErrors">Whether to ignore errors.</param>
     /// <returns>Whether a script was run.</returns>
-    public static bool Do(Context context, string name, bool ignoreErrors = false)
+    public static Boolean Do(Context context, String name, Boolean ignoreErrors = false)
     {
-        string? script = context.Player.World.Data.GetScript(name);
+        String? script = context.Player.World.Data.GetScript(name);
 
         FollowUp followUp = new("Edit script",
             () =>

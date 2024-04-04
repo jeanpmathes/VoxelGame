@@ -30,7 +30,7 @@ public abstract class Decoration
     ///     placement.
     /// </param>
     /// <param name="decorator">The decorator that will be used to place the decoration.</param>
-    protected Decoration(string name, float rarity, Decorator decorator)
+    protected Decoration(String name, Single rarity, Decorator decorator)
     {
         Name = name;
         Rarity = rarity;
@@ -41,17 +41,17 @@ public abstract class Decoration
     /// <summary>
     ///     Get the size of the decoration. Must be less or equal than <see cref="Section.Size" />.
     /// </summary>
-    public abstract int Size { get; }
+    public abstract Int32 Size { get; }
 
     /// <summary>
     ///     The rarity of the decoration. Must be between 0 and 1. A higher value indicates a lower chance of placement.
     /// </summary>
-    private float Rarity { get; }
+    private Single Rarity { get; }
 
     /// <summary>
     ///     Get the name of the decoration.
     /// </summary>
-    public string Name { get; }
+    public String Name { get; }
 
     /// <summary>
     ///     Place decorations of this type in a section.
@@ -66,7 +66,7 @@ public abstract class Decoration
             DecorateColumn((x, z), noise, context);
     }
 
-    private void DecorateColumn((int x, int z) column, Noise noise, Context context)
+    private void DecorateColumn((Int32 x, Int32 z) column, Noise noise, Context context)
     {
         Vector3i position = context.Position.FirstBlock + (column.x, 0, column.z);
 
@@ -74,7 +74,7 @@ public abstract class Decoration
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
-        int surfaceHeight = Generator.GetWorldHeight(column, sample, out _);
+        Int32 surfaceHeight = Generator.GetWorldHeight(column, sample, out _);
 
         PlacementContext placementContext = new(Random: 0.0f, Depth: 0, context.Generator.Map.GetStoneType((column.x, 0, column.z), sample), context.Palette);
 
@@ -82,7 +82,7 @@ public abstract class Decoration
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (!noise.CheckCandidate(position, Rarity, out float random)) continue;
+            if (!noise.CheckCandidate(position, Rarity, out Single random)) continue;
 
             placementContext = placementContext with {Random = random, Depth = surfaceHeight - position.Y};
 
@@ -113,7 +113,7 @@ public abstract class Decoration
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Generator">The generator that is placing the decoration.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<float> Noise, int Index, Palette Palette, Generator Generator) : IGrid
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> Noise, Int32 Index, Palette Palette, Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
@@ -122,7 +122,7 @@ public abstract class Decoration
         /// <returns>The content of the position.</returns>
         public Content? GetContent(Vector3i position)
         {
-            uint data = GetSection(position).GetContent(position);
+            UInt32 data = GetSection(position).GetContent(position);
             Section.Decode(data, out Content content);
 
             return content;
@@ -135,7 +135,7 @@ public abstract class Decoration
         /// <param name="position">The position. Must be in the same section or a neighbor.</param>
         public void SetContent(Content content, Vector3i position)
         {
-            uint data = Section.Encode(content);
+            UInt32 data = Section.Encode(content);
 
             GetSection(position).SetContent(position, data);
         }
@@ -143,7 +143,7 @@ public abstract class Decoration
         private Section GetSection(Vector3i position)
         {
             SectionPosition target = SectionPosition.From(position);
-            (int dx, int dy, int dz) = Position.OffsetTo(target);
+            (Int32 dx, Int32 dy, Int32 dz) = Position.OffsetTo(target);
 
             Debug.Assert(dx is -1 or 0 or 1);
             Debug.Assert(dy is -1 or 0 or 1);
@@ -155,7 +155,7 @@ public abstract class Decoration
 
     private sealed class Noise
     {
-        private readonly Array3D<float> noise;
+        private readonly Array3D<Single> noise;
         private readonly Random randomNumberGenerator;
 
         public Noise(in Context context)
@@ -164,10 +164,10 @@ public abstract class Decoration
             randomNumberGenerator = new Random(HashCode.Combine(context.Position, context.Index));
         }
 
-        public bool CheckCandidate(Vector3i position, float rarity, out float random)
+        public Boolean CheckCandidate(Vector3i position, Single rarity, out Single random)
         {
             random = randomNumberGenerator.NextSingle();
-            (int x, int y, int z) = Section.ToLocalPosition(position);
+            (Int32 x, Int32 y, Int32 z) = Section.ToLocalPosition(position);
 
             return noise[x, y, z] > random * rarity;
         }
@@ -180,5 +180,5 @@ public abstract class Decoration
     /// <param name="Depth">The depth of the position.</param>
     /// <param name="StoneType">The stone type of the current column.</param>
     /// <param name="Palette">The palette of the world generation.</param>
-    public record struct PlacementContext(float Random, int Depth, Map.StoneType StoneType, Palette Palette);
+    public record struct PlacementContext(Single Random, Int32 Depth, Map.StoneType StoneType, Palette Palette);
 }

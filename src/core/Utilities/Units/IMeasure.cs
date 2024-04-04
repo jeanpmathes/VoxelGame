@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Utilities.Units;
 
 /// <summary>
@@ -19,7 +21,7 @@ public interface IMeasure
     /// <summary>
     ///     The value of the measures.
     /// </summary>
-    double Value { get; }
+    Double Value { get; }
 
     /// <summary>
     ///     If set, only this prefix will be used for the measure.
@@ -32,7 +34,7 @@ public interface IMeasure
     /// <param name="measure">The measure to convert to string.</param>
     /// <typeparam name="T">The type of the measure.</typeparam>
     /// <returns>The string representation of the measure.</returns>
-    public static string ToString<T>(T measure) where T : IMeasure
+    public static String ToString<T>(T measure) where T : IMeasure
     {
         Prefix prefix = measure.Prefix ?? Prefix.FindBest(measure.Value);
 

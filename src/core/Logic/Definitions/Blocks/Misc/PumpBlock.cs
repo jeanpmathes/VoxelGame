@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -17,9 +18,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
 {
-    private readonly int pumpDistance;
+    private readonly Int32 pumpDistance;
 
-    internal PumpBlock(string name, string namedID, int pumpDistance, TextureLayout layout) :
+    internal PumpBlock(String name, String namedID, Int32 pumpDistance, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -29,17 +30,17 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         this.pumpDistance = pumpDistance;
     }
 
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return side != BlockSide.Top;
     }
 
-    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return side == BlockSide.Top;
     }
 
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         Fluid.Elevate(actor.World, position, pumpDistance);
     }

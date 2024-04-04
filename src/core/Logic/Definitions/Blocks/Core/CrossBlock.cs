@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CrossBlock : Block, IFillable, IComplex
 {
-    private readonly string texture;
+    private readonly String texture;
 
     private BlockMesh mesh = null!;
 
@@ -25,7 +26,7 @@ public class CrossBlock : Block, IFillable, IComplex
     ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
     ///     Cross blocks are never full, solid, or opaque.
     /// </summary>
-    protected CrossBlock(string name, string namedID, string texture, BlockFlags flags,
+    protected CrossBlock(String name, String namedID, String texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable
 {
-    internal CoveredGrassSpreadableBlock(string name, string namedID, TextureLayout normal, bool hasNeutralTint) :
+    internal CoveredGrassSpreadableBlock(String name, String namedID, TextureLayout normal, Boolean hasNeutralTint) :
         base(
             name,
             namedID,

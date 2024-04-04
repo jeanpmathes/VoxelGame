@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
@@ -33,7 +34,7 @@ public class FenceBlock : WideConnectingBlock, ICombustible
     /// <param name="texture">The texture to apply to the model.</param>
     /// <param name="postModel">The name of the post model. All model textures are ignored.</param>
     /// <param name="extensionModel">The name of the extension model. All model textures are ignored.</param>
-    internal FenceBlock(string name, string namedID, string texture, string postModel, string extensionModel) :
+    internal FenceBlock(String name, String namedID, String texture, String postModel, String extensionModel) :
         base(
             name,
             namedID,
@@ -45,17 +46,17 @@ public class FenceBlock : WideConnectingBlock, ICombustible
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3d(x: 0.1875f, y: 0.5f, z: 0.1875f)))
     {
-        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
-        bool north = (data & 0b00_1000) != 0;
-        bool east = (data & 0b00_0100) != 0;
-        bool south = (data & 0b00_0010) != 0;
-        bool west = (data & 0b00_0001) != 0;
+        Boolean north = (data & 0b00_1000) != 0;
+        Boolean east = (data & 0b00_0100) != 0;
+        Boolean south = (data & 0b00_0010) != 0;
+        Boolean west = (data & 0b00_0001) != 0;
 
-        int extensions = BitHelper.CountSetBooleans(north, east, south, west);
+        Int32 extensions = BitHelper.CountSetBooleans(north, east, south, west);
 
         var children = new BoundingVolume[2 * extensions];
         extensions = 0;
@@ -117,8 +118,8 @@ public class FenceBlock : WideConnectingBlock, ICombustible
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 }

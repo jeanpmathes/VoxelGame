@@ -32,7 +32,7 @@ public sealed class ChunkSet : IDisposable
     /// <summary>
     ///     Get the number of active chunks.
     /// </summary>
-    public int ActiveCount => AllActive.Count();
+    public Int32 ActiveCount => AllActive.Count();
 
     /// <summary>
     ///     All active chunks.
@@ -42,7 +42,7 @@ public sealed class ChunkSet : IDisposable
     /// <summary>
     ///     Get whether there are no chunks, neither active nor inactive.
     /// </summary>
-    public bool IsEmpty => chunks.Count == 0;
+    public Boolean IsEmpty => chunks.Count == 0;
 
     /// <summary>
     ///     Request that a position has an active chunk.
@@ -120,7 +120,7 @@ public sealed class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        const int maxUpdates = 3;
+        const Int32 maxUpdates = 3;
 
         for (var count = 0; count < maxUpdates; count++)
             foreach (Chunk chunk in chunks.Values)
@@ -158,13 +158,13 @@ public sealed class ChunkSet : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose of the chunks.
     /// </summary>
     /// <param name="disposing">True when disposing intentionally.</param>
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

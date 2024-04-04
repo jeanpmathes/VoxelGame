@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
@@ -24,13 +25,13 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: open
 public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
-    private readonly float diameter;
+    private readonly Single diameter;
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal SteelPipeValveBlock(string name, string namedID, float diameter, string openModel,
-        string closedModel) :
+    internal SteelPipeValveBlock(String name, String namedID, Single diameter, String openModel,
+        String closedModel) :
         base(
             name,
             namedID,
@@ -52,7 +53,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         meshes.Add(closedZ.Mesh);
         meshes.Add(item: null);
 
-        for (uint data = 0; data <= 0b00_0111; data++)
+        for (UInt32 data = 0; data <= 0b00_0111; data++)
         {
             volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
         }
@@ -60,36 +61,36 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
-        BlockMesh? mesh = meshes[(int) info.Data & 0b00_0111];
+        BlockMesh? mesh = meshes[(Int32) info.Data & 0b00_0111];
         Debug.Assert(mesh != null);
 
         return mesh.GetMeshData();
     }
 
     /// <inheritdoc />
-    public bool IsFluidRendered => false;
+    public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
         return side.Axis() == (Axis) (block.Data & 0b00_0011);
     }
 
-    private BoundingVolume CreateVolume(uint data)
+    private BoundingVolume CreateVolume(UInt32 data)
     {
         var axis = (Axis) (data & 0b00_0011);
 
@@ -97,24 +98,24 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) (data & 0b00_0111)];
+        return volumes[(Int32) (data & 0b00_0111)];
     }
 
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((uint) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
     }
 
-    private static bool IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

@@ -62,7 +62,7 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Whether overlay rendering is allowed. Building overlay is still possible, but it will not be rendered.
     /// </summary>
-    public bool IsOverlayAllowed { get; set; } = true;
+    public Boolean IsOverlayAllowed { get; set; } = true;
 
     private T RegisterVFX<T>(T vfx) where T : VFX
     {
@@ -184,7 +184,7 @@ public sealed class VisualInterface : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()
@@ -201,7 +201,7 @@ public sealed class VisualInterface : IDisposable
         Dispose(disposing: false);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

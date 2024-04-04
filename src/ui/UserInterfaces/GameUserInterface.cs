@@ -25,8 +25,8 @@ public class GameUserInterface : UserInterface
     private IPlayerDataProvider? playerDataProvider;
     private ICollection<SettingsProvider>? settingsProviders;
 
-    private bool isActive;
-    private bool isHidden;
+    private Boolean isActive;
+    private Boolean isHidden;
 
     /// <summary>
     ///     Creates a new game user interface.
@@ -35,7 +35,7 @@ public class GameUserInterface : UserInterface
     /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(Input input, IScaleProvider scale, UIResources resources, bool drawBackground) : base(
+    public GameUserInterface(Input input, IScaleProvider scale, UIResources resources, Boolean drawBackground) : base(
         input,
         scale,
         resources,
@@ -62,7 +62,7 @@ public class GameUserInterface : UserInterface
     ///     If the UI is not active, it will not be drawn.
     /// </summary>
     /// <param name="active">Whether the UI is active.</param>
-    public void SetActive(bool active)
+    public void SetActive(Boolean active)
     {
         isActive = active;
 
@@ -73,7 +73,7 @@ public class GameUserInterface : UserInterface
     {
         if (control == null) return;
 
-        bool visible = isActive && !isHidden;
+        Boolean visible = isActive && !isHidden;
         control.IsHidden = !visible;
     }
 
@@ -193,7 +193,7 @@ public class GameUserInterface : UserInterface
         control?.ToggleConsole();
     }
 
-    internal void DoWorldExit(bool exitToOS)
+    internal void DoWorldExit(Boolean exitToOS)
     {
         WorldExit(this, new ExitEventArgs {ExitToOS = exitToOS});
     }
@@ -216,6 +216,6 @@ public class GameUserInterface : UserInterface
         /// <summary>
         ///     Whether the complete application should be exited.
         /// </summary>
-        public bool ExitToOS { get; set; }
+        public Boolean ExitToOS { get; set; }
     }
 }

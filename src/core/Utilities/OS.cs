@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -32,7 +33,7 @@ public class OS
     /// </summary>
     /// <param name="title">A title for the text. Will be used as part of the file name.</param>
     /// <param name="text">The text to show.</param>
-    public static void Show(string title, string text)
+    public static void Show(String title, String text)
     {
         DirectoryInfo directory = FileSystem.CreateTemporaryDirectory();
         FileInfo file = directory.GetFile($"{title}.txt");

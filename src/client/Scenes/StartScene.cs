@@ -32,11 +32,11 @@ public sealed class StartScene : IScene
 
     private readonly WorldProvider worldProvider;
 
-    private bool isFirstUpdate = true;
+    private Boolean isFirstUpdate = true;
 
-    private int? loadWorldDirectly;
+    private Int32? loadWorldDirectly;
 
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
+    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
     {
         this.client = client;
         this.resourceLoadingFailure = resourceLoadingFailure;
@@ -85,7 +85,7 @@ public sealed class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(double deltaTime, Timer? timer)
+    public void Render(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -93,7 +93,7 @@ public sealed class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Update(double deltaTime, Timer? timer)
+    public void Update(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -123,7 +123,7 @@ public sealed class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public bool CanCloseWindow()
+    public Boolean CanCloseWindow()
     {
         return ui.IsSafeToClose;
     }
@@ -157,9 +157,9 @@ public sealed class StartScene : IScene
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

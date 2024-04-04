@@ -18,13 +18,13 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class IntegerSetting : Setting
 {
-    private readonly Func<int> get;
-    private readonly int max;
+    private readonly Func<Int32> get;
+    private readonly Int32 max;
 
-    private readonly int min;
-    private readonly Action<int> set;
+    private readonly Int32 min;
+    private readonly Action<Int32> set;
 
-    internal IntegerSetting(string name, int min, int max, Func<int> get, Action<int> set)
+    internal IntegerSetting(String name, Int32 min, Int32 max, Func<Int32> get, Action<Int32> set)
     {
         this.get = get;
         this.set = set;
@@ -35,7 +35,7 @@ internal class IntegerSetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {
@@ -49,7 +49,7 @@ internal class IntegerSetting : Setting
 
         integer.ValueChanged += (_, _) =>
         {
-            var value = (int) Math.Round(integer.Value);
+            var value = (Int32) Math.Round(integer.Value);
             set(value);
             Validator.Validate();
         };

@@ -31,12 +31,12 @@ public abstract class Button : InputAction
     /// <summary>
     ///     Get whether the button is pressed.
     /// </summary>
-    public bool IsDown { get; private protected set; }
+    public Boolean IsDown { get; private protected set; }
 
     /// <summary>
     ///     Get whether the button is up.
     /// </summary>
-    public bool IsUp => !IsDown;
+    public Boolean IsUp => !IsDown;
 
     /// <summary>
     ///     Set the binding to a different key or button.

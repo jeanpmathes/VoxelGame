@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class OrientedBlock : BasicBlock
 {
-    internal OrientedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
+    internal OrientedBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -31,22 +31,22 @@ public class OrientedBlock : BasicBlock
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(
-            this.AsInstance((uint) (actor?.LookingDirection.ToOrientation() ?? Orientation.North)),
+            this.AsInstance((UInt32) (actor?.LookingDirection.ToOrientation() ?? Orientation.North)),
             position);
     }
 
-    private static int TranslateIndex(BlockSide side, Orientation orientation)
+    private static Int32 TranslateIndex(BlockSide side, Orientation orientation)
     {
-        var index = (int) side;
+        var index = (Int32) side;
 
         if (index is < 0 or > 5) throw new ArgumentOutOfRangeException(nameof(side));
 
         if (side is BlockSide.Bottom or BlockSide.Top) return index;
 
-        if (((int) orientation & 0b01) == 1)
+        if (((Int32) orientation & 0b01) == 1)
             index = (3 - index * (1 - (index & 2))) % 5; // Rotates the index one step
 
-        if (((int) orientation & 0b10) == 2) index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
+        if (((Int32) orientation & 0b10) == 2) index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
 
         return index;
     }

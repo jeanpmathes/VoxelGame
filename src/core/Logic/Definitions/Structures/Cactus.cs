@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
@@ -17,7 +18,7 @@ public class Cactus : DynamicStructure
     public override Vector3i Extents => new(x: 1, y: 3, z: 1);
 
     /// <inheritdoc />
-    protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
     {
         return (new Content(Logic.Blocks.Instance.Cactus), true);
     }

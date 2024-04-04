@@ -18,9 +18,9 @@ public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides
 {
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
@@ -57,7 +57,7 @@ public sealed class SectionMeshData : IDisposable
     /// <summary>
     ///     Get whether this mesh data is empty.
     /// </summary>
-    public bool IsFilled => GetTotalSize() > 0;
+    public Boolean IsFilled => GetTotalSize() > 0;
 
     /// <summary>
     ///     The basic mesh data.
@@ -78,7 +78,7 @@ public sealed class SectionMeshData : IDisposable
     /// </summary>
     public required IMeshing FluidMeshing { get; init; }
 
-    private int GetTotalSize()
+    private Int32 GetTotalSize()
     {
         var size = 0;
 
@@ -93,9 +93,9 @@ public sealed class SectionMeshData : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

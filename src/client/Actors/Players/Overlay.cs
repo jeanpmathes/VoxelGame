@@ -25,12 +25,12 @@ namespace VoxelGame.Client.Actors.Players;
 /// <param name="Texture">The texture of the overlay.</param>
 /// <param name="IsBlock">Whether the overlay is a block or a fluid.</param>
 /// <param name="Position">The position of the overlay block/fluid.</param>
-public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, Vector3i Position)
+public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBlock, Vector3i Position)
 {
     /// <summary>
     ///     Whether the overlay is a fluid.
     /// </summary>
-    public bool IsFluid => !IsBlock;
+    public Boolean IsFluid => !IsBlock;
 
     /// <summary>
     ///     Measure the size of the overlay to display with the given positions and their contents.
@@ -40,7 +40,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref double lowerBound, ref double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref Double lowerBound, ref Double upperBound)
     {
         IView.Parameters definition = view.Definition;
 
@@ -55,7 +55,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
         foreach ((Content content, Vector3i position) in positions)
         {
-            (double, double)? newBounds = null;
+            (Double, Double)? newBounds = null;
             IOverlayTextureProvider? overlayTextureProvider = null;
             var isBlock = false;
 
@@ -76,7 +76,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
             if (newBounds is null) continue;
 
-            (double newLowerBound, double newUpperBound) = newBounds.Value;
+            (Double newLowerBound, Double newUpperBound) = newBounds.Value;
             OverlayTexture texture = overlayTextureProvider!.GetOverlayTexture(content);
 
             lowerBound = Math.Min(newLowerBound, lowerBound);
@@ -88,7 +88,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
     {
         var height = 15;
 
@@ -97,16 +97,16 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
     {
-        int height = fluid.Level.GetBlockHeight();
+        Int32 height = fluid.Level.GetBlockHeight();
 
         return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(Int32 height, Vector3d position, Boolean inverted, Frustum frustum)
     {
-        float actualHeight = (height + 1) * (1.0f / 16.0f);
+        Single actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
 
         Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
@@ -124,9 +124,9 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         Vector2d a = viewPlane.Project2D(dimensions.a, axis);
         Vector2d b = viewPlane.Project2D(dimensions.b, axis);
 
-        double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
+        Double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
 
-        (double newLowerBound, double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
+        (Double newLowerBound, Double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
 
         newLowerBound = Math.Max(newLowerBound, val2: 0);
         newUpperBound = Math.Min(newUpperBound, val2: 1);

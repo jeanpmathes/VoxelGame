@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Utilities;
 public sealed class Guard : IDisposable
 {
     private readonly Action release;
-    private readonly object resource;
+    private readonly Object resource;
 
     private readonly StackTrace? stackTrace;
 
@@ -24,7 +24,7 @@ public sealed class Guard : IDisposable
     /// </summary>
     /// <param name="resource">The resource to guard.</param>
     /// <param name="release">The method to call when the guard is disposed.</param>
-    public Guard(object resource, Action release)
+    public Guard(Object resource, Action release)
     {
         this.resource = resource;
         this.release = release;
@@ -37,7 +37,7 @@ public sealed class Guard : IDisposable
     /// </summary>
     /// <param name="object">The object to check.</param>
     /// <returns>True if the guard is guarding the resource.</returns>
-    public bool IsGuarding(object @object)
+    public Boolean IsGuarding(Object @object)
     {
         Throw.IfDisposed(disposed);
 
@@ -46,12 +46,12 @@ public sealed class Guard : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose of this guard.
     /// </summary>
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

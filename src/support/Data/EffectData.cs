@@ -25,5 +25,5 @@ public struct EffectVertex
     /// <summary>
     ///     Additional data for the vertex, for any purpose determined by the shader.
     /// </summary>
-    public uint Data;
+    public UInt32 Data;
 }

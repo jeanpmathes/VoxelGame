@@ -43,7 +43,7 @@ public class Search : ControlBase
 
         button.Released += (_, _) =>
         {
-            filter.Text = string.Empty;
+            filter.Text = String.Empty;
             // Event is invoked by the text box.
         };
     }
@@ -52,9 +52,9 @@ public class Search : ControlBase
     ///     Get the current search filter.
     ///     If no filter is set, the string is empty.
     /// </summary>
-    public string Filter { get; private set; } = string.Empty;
+    public String Filter { get; private set; } = String.Empty;
 
-    private void UpdateFilter(string filter)
+    private void UpdateFilter(String filter)
     {
         Filter = filter;
 

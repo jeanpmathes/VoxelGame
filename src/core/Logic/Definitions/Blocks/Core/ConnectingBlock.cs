@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -30,7 +31,7 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
     /// <param name="namedID">The string ID of the block.</param>
     /// <param name="flags">The flags describing the block.</param>
     /// <param name="boundingVolume">The block bounding box.</param>
-    protected ConnectingBlock(string name, string namedID, BlockFlags flags, BoundingVolume boundingVolume) :
+    protected ConnectingBlock(String name, String namedID, BlockFlags flags, BoundingVolume boundingVolume) :
         base(
             name,
             namedID,
@@ -44,16 +45,16 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
-        uint newData = data;
+        UInt32 newData = data;
 
         if (side.IsLateral())
             newData = CheckNeighbor(side.Offset(position), side.Opposite(), side.ToOrientation().ToFlag(), newData);
 
         if (newData != data) world.SetBlock(this.AsInstance(newData), position);
 
-        uint CheckNeighbor(Vector3i neighborPosition, BlockSide neighborSide, uint mask, uint oldData)
+        UInt32 CheckNeighbor(Vector3i neighborPosition, BlockSide neighborSide, UInt32 mask, UInt32 oldData)
         {
             if (world.GetBlock(neighborPosition)?.Block is TConnectable neighbor &&
                 neighbor.IsConnectable(world, neighborSide, neighborPosition)) oldData |= mask;

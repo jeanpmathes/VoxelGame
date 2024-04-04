@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
 
     private readonly UpdateCounter updateCounter;
-    private readonly int maxTicksPerUpdate;
+    private readonly Int32 maxTicksPerUpdate;
 
     private World? world;
 
@@ -34,14 +35,14 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
     /// </summary>
     /// <param name="maxTicksPerUpdate">The maximum amount of ticks per update.</param>
     /// <param name="updateCounter">The current update counter.</param>
-    public ScheduledTickManager(int maxTicksPerUpdate, UpdateCounter updateCounter)
+    public ScheduledTickManager(Int32 maxTicksPerUpdate, UpdateCounter updateCounter)
     {
         this.maxTicksPerUpdate = maxTicksPerUpdate;
         this.updateCounter = updateCounter;
     }
 
     /// <inheritdoc />
-    public static int Version => 1;
+    public static Int32 Version => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)
@@ -89,7 +90,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
     ///     The offset from the current update until the tickable should be ticked. Must be greater than
     ///     0.
     /// </param>
-    public void Add(T tick, uint tickOffset)
+    public void Add(T tick, UInt32 tickOffset)
     {
         Debug.Assert(tickOffset > 0);
 
@@ -97,7 +98,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 
         do
         {
-            ulong targetUpdate = updateCounter.Current + tickOffset;
+            UInt64 targetUpdate = updateCounter.Current + tickOffset;
             ticks = FindOrCreateTargetTick(targetUpdate);
 
             if (ticks.tickables.Count < maxTicksPerUpdate) break;
@@ -113,7 +114,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
         ticks.tickables.Add(tick);
     }
 
-    private TicksHolder FindOrCreateTargetTick(ulong targetTick)
+    private TicksHolder FindOrCreateTargetTick(UInt64 targetTick)
     {
         TicksHolder? last = null;
         TicksHolder? current = nextTicks;
@@ -195,14 +196,14 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
         nextTicks = null;
     }
 
-    private sealed class TicksHolder(ulong targetUpdate) : IValue
+    private sealed class TicksHolder(UInt64 targetUpdate) : IValue
     {
         public readonly List<T> tickables = [];
         public TicksHolder? next;
 
-        public ulong targetUpdate = targetUpdate;
+        public UInt64 targetUpdate = targetUpdate;
 
-        public TicksHolder() : this(ulong.MaxValue) {}
+        public TicksHolder() : this(UInt64.MaxValue) {}
 
         public void Serialize(Serializer serializer)
         {

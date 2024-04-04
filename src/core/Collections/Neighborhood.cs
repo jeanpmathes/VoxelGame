@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -18,7 +19,7 @@ public static class Neighborhood
     /// <summary>
     ///     The length of a neighbor-array in one dimension.
     /// </summary>
-    public const int Length = 3;
+    public const Int32 Length = 3;
 
     /// <summary>
     ///     The index of the center of the array.
@@ -28,7 +29,7 @@ public static class Neighborhood
     /// <summary>
     ///     Get all indices of the array.
     /// </summary>
-    public static IEnumerable<(int x, int y, int z)> Indices => VMath.Range3(Length, Length, Length);
+    public static IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices => VMath.Range3(Length, Length, Length);
 }
 
 /// <summary>

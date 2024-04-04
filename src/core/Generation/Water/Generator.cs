@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
@@ -21,13 +22,13 @@ public class Generator : IWorldGenerator
     private readonly Content empty = Content.Default;
     private readonly Content water = new(fluid: Fluids.Instance.SeaWater);
 
-    private readonly int waterLevel;
+    private readonly Int32 waterLevel;
 
     /// <summary>
     ///     Create a new water generator.
     /// </summary>
     /// <param name="waterLevel">The water level (inclusive) below which the world is filled with water.</param>
-    public Generator(int waterLevel = 0)
+    public Generator(Int32 waterLevel = 0)
     {
         this.waterLevel = waterLevel;
     }
@@ -36,9 +37,9 @@ public class Generator : IWorldGenerator
     public IMap Map { get; } = new Map();
 
     /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange)
+    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
     {
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z));
+        for (Int32 y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z));
     }
 
     /// <inheritdoc />
@@ -60,7 +61,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
         #pragma warning disable S1168 // A null-return indicates that the name is not valid, which is different from not finding anything.
         return null;

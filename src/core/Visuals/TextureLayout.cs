@@ -32,37 +32,37 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     The front texture index.
     /// </summary>
-    public int Front { get; }
+    public Int32 Front { get; }
 
     /// <summary>
     ///     The back texture index.
     /// </summary>
-    public int Back { get; }
+    public Int32 Back { get; }
 
     /// <summary>
     ///     The left texture index.
     /// </summary>
-    public int Left { get; }
+    public Int32 Left { get; }
 
     /// <summary>
     ///     The right texture index.
     /// </summary>
-    public int Right { get; }
+    public Int32 Right { get; }
 
     /// <summary>
     ///     The bottom texture index.
     /// </summary>
-    public int Bottom { get; }
+    public Int32 Bottom { get; }
 
     /// <summary>
     ///     The top texture index.
     /// </summary>
-    public int Top { get; }
+    public Int32 Top { get; }
 
     /// <summary>
     ///     Create a new texture layout, with all texture indices directly set to a specific value.
     /// </summary>
-    public TextureLayout(int front, int back, int left, int right, int bottom, int top)
+    public TextureLayout(Int32 front, Int32 back, Int32 left, Int32 right, Int32 bottom, Int32 top)
     {
         Front = front;
         Back = back;
@@ -75,9 +75,9 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where every side has the same texture.
     /// </summary>
-    public static TextureLayout Uniform(string texture)
+    public static TextureLayout Uniform(String texture)
     {
-        int i = blockTextureIndexProvider.GetTextureIndex(texture);
+        Int32 i = blockTextureIndexProvider.GetTextureIndex(texture);
 
         return new TextureLayout(i, i, i, i, i, i);
     }
@@ -85,8 +85,8 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where every side has a different texture.
     /// </summary>
-    public static TextureLayout Unique(string front, string back, string left, string right, string bottom,
-        string top)
+    public static TextureLayout Unique(String front, String back, String left, String right, String bottom,
+        String top)
     {
         return new TextureLayout(
             blockTextureIndexProvider.GetTextureIndex(front),
@@ -100,10 +100,10 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
     /// </summary>
-    public static TextureLayout Column(string sides, string ends)
+    public static TextureLayout Column(String sides, String ends)
     {
-        int sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
-        int endIndex = blockTextureIndexProvider.GetTextureIndex(ends);
+        Int32 sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
+        Int32 endIndex = blockTextureIndexProvider.GetTextureIndex(ends);
 
         return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
     }
@@ -111,10 +111,10 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
     /// </summary>
-    public static TextureLayout Column(string texture, int sideOffset, int endOffset)
+    public static TextureLayout Column(String texture, Int32 sideOffset, Int32 endOffset)
     {
-        int sideIndex = blockTextureIndexProvider.GetTextureIndex(texture) + sideOffset;
-        int endIndex = blockTextureIndexProvider.GetTextureIndex(texture) + endOffset;
+        Int32 sideIndex = blockTextureIndexProvider.GetTextureIndex(texture) + sideOffset;
+        Int32 endIndex = blockTextureIndexProvider.GetTextureIndex(texture) + endOffset;
 
         return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
     }
@@ -123,11 +123,11 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around
     ///     it.
     /// </summary>
-    public static TextureLayout UniqueColumn(string sides, string bottom, string top)
+    public static TextureLayout UniqueColumn(String sides, String bottom, String top)
     {
-        int sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
-        int bottomIndex = blockTextureIndexProvider.GetTextureIndex(bottom);
-        int topIndex = blockTextureIndexProvider.GetTextureIndex(top);
+        Int32 sideIndex = blockTextureIndexProvider.GetTextureIndex(sides);
+        Int32 bottomIndex = blockTextureIndexProvider.GetTextureIndex(bottom);
+        Int32 topIndex = blockTextureIndexProvider.GetTextureIndex(top);
 
         return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, bottomIndex, topIndex);
     }
@@ -135,10 +135,10 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where all sides but the front have the same texture.
     /// </summary>
-    public static TextureLayout UniqueFront(string front, string rest)
+    public static TextureLayout UniqueFront(String front, String rest)
     {
-        int frontIndex = blockTextureIndexProvider.GetTextureIndex(front);
-        int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
+        Int32 frontIndex = blockTextureIndexProvider.GetTextureIndex(front);
+        Int32 restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
 
         return new TextureLayout(frontIndex, restIndex, restIndex, restIndex, restIndex, restIndex);
     }
@@ -146,10 +146,10 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Returns a texture layout where all sides but the top side have the same texture.
     /// </summary>
-    public static TextureLayout UniqueTop(string rest, string top)
+    public static TextureLayout UniqueTop(String rest, String top)
     {
-        int topIndex = blockTextureIndexProvider.GetTextureIndex(top);
-        int restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
+        Int32 topIndex = blockTextureIndexProvider.GetTextureIndex(top);
+        Int32 restIndex = blockTextureIndexProvider.GetTextureIndex(rest);
 
         return new TextureLayout(restIndex, restIndex, restIndex, restIndex, restIndex, topIndex);
     }
@@ -158,10 +158,10 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     ///     Returns a texture layout using fluid textures. The layout itself is similar to
     ///     <see cref="TextureLayout.Column(string, string)" />.
     /// </summary>
-    public static TextureLayout Fluid(string sides, string ends)
+    public static TextureLayout Fluid(String sides, String ends)
     {
-        int sideIndex = fluidTextureIndexProvider.GetTextureIndex(sides);
-        int endIndex = fluidTextureIndexProvider.GetTextureIndex(ends);
+        Int32 sideIndex = fluidTextureIndexProvider.GetTextureIndex(sides);
+        Int32 endIndex = fluidTextureIndexProvider.GetTextureIndex(ends);
 
         return new TextureLayout(sideIndex, sideIndex, sideIndex, sideIndex, endIndex, endIndex);
     }
@@ -173,7 +173,7 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     ///     The texture index array. The array is of length 6, with the indices in the side order defined by
     ///     <see cref="BlockSide" />.
     /// </returns>
-    public int[] GetTexIndexArray()
+    public Int32[] GetTexIndexArray()
     {
         return
         [
@@ -190,7 +190,7 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// </summary>
     /// <param name="layout"></param>
     /// <returns></returns>
-    public static implicit operator (int, int, int, int, int, int)(TextureLayout layout)
+    public static implicit operator (Int32, Int32, Int32, Int32, Int32, Int32)(TextureLayout layout)
     {
         return layout.ToValueTuple();
     }
@@ -199,13 +199,13 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     ///     Get this texture layout as a value tuple.
     /// </summary>
     /// <returns>The tuple containing the texture numbers.</returns>
-    public (int, int, int, int, int, int) ToValueTuple()
+    public (Int32, Int32, Int32, Int32, Int32, Int32) ToValueTuple()
     {
         return (Front, Back, Left, Right, Bottom, Top);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Front, Back, Left, Right, Bottom, Top);
     }
@@ -213,7 +213,7 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Check equality between two texture layouts.
     /// </summary>
-    public static bool operator ==(TextureLayout left, TextureLayout right)
+    public static Boolean operator ==(TextureLayout left, TextureLayout right)
     {
         return left.Equals(right);
     }
@@ -221,13 +221,13 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     /// <summary>
     ///     Check inequality between two texture layouts.
     /// </summary>
-    public static bool operator !=(TextureLayout left, TextureLayout right)
+    public static Boolean operator !=(TextureLayout left, TextureLayout right)
     {
         return !(left == right);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         if (obj is TextureLayout other) return Equals(other);
 
@@ -235,7 +235,7 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     }
 
     /// <inheritdoc />
-    public bool Equals(TextureLayout other)
+    public Boolean Equals(TextureLayout other)
     {
         return ToValueTuple() == other.ToValueTuple();
     }

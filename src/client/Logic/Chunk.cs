@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -22,11 +23,11 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public partial class Chunk : Core.Logic.Chunk
 {
-    private const int MaxMeshDataStep = 16;
+    private const Int32 MaxMeshDataStep = 16;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    private bool hasMeshData;
-    private int meshDataIndex;
+    private Boolean hasMeshData;
+    private Int32 meshDataIndex;
     private BlockSides meshedSides;
 
     /// <summary>
@@ -61,7 +62,7 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     [SuppressMessage("Performance", "CA1822:Mark members as static")]
-    private Section GetSection(int index)
+    private Section GetSection(Int32 index)
     {
         return GetSectionByIndex(index).Cast();
     }
@@ -96,7 +97,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// <param name="y">The y position of the section relative in this chunk.</param>
     /// <param name="z">The z position of the section relative in this chunk.</param>
     /// <param name="context">The chunk meshing context.</param>
-    public void CreateAndSetMesh(int x, int y, int z, ChunkMeshingContext context)
+    public void CreateAndSetMesh(Int32 x, Int32 y, Int32 z, ChunkMeshingContext context)
     {
         Throw.IfDisposed(disposed);
 
@@ -159,7 +160,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// </summary>
     /// <param name="local">The local position of the section.</param>
     /// <param name="sides">The sides that are missing for the section.</param>
-    public void SetSectionAsIncomplete((int x, int y, int z) local, BlockSides sides)
+    public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, BlockSides sides)
     {
         Throw.IfDisposed(disposed);
 
@@ -198,7 +199,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// </summary>
     /// <param name="meshData">The mesh data to apply.</param>
     /// <returns>True if this step was the final step.</returns>
-    public bool DoMeshDataSetStep(ChunkMeshData meshData)
+    public Boolean DoMeshDataSetStep(ChunkMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
@@ -234,7 +235,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         Box3d chunkBox = VMath.CreateBox3(Position.Center, Extents);
 
-        const double tolerance = 16.0;
+        const Double tolerance = 16.0;
 
         if (!hasMeshData || !frustum.IsBoxVisible(chunkBox, tolerance))
         {
@@ -251,7 +252,7 @@ public partial class Chunk : Core.Logic.Chunk
             Vector3d position = sectionPosition.FirstBlock;
 
             Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
-            bool visible = frustum.IsBoxVisible(sectionBox, tolerance);
+            Boolean visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
             GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(visible);
         }
@@ -264,10 +265,10 @@ public partial class Chunk : Core.Logic.Chunk
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

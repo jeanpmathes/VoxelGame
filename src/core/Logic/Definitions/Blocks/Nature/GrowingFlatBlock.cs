@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -20,8 +21,8 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // a: age
 public class GrowingFlatBlock : FlatBlock, ICombustible
 {
-    internal GrowingFlatBlock(string name, string namedID, string texture, float climbingVelocity,
-        float slidingVelocity) :
+    internal GrowingFlatBlock(String name, String namedID, String texture, Single climbingVelocity,
+        Single slidingVelocity) :
         base(
             name,
             namedID,
@@ -42,11 +43,11 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         var orientation = (Orientation) (data & 0b00_0011);
 
-        (Block block, uint dataAbove) = world.GetBlock(position.Above()) ?? BlockInstance.Default;
+        (Block block, UInt32 dataAbove) = world.GetBlock(position.Above()) ?? BlockInstance.Default;
 
         // If another block of this type is above, no solid block is required to hold.
         if (block == this &&
@@ -58,13 +59,13 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
-        var age = (int) ((data & 0b1_1100) >> 2);
+        var age = (Int32) ((data & 0b1_1100) >> 2);
 
-        if (age < 7) world.SetBlock(this.AsInstance((uint) (((age + 1) << 2) | (int) orientation)), position);
+        if (age < 7) world.SetBlock(this.AsInstance((UInt32) (((age + 1) << 2) | (Int32) orientation)), position);
         else if (world.GetBlock(position.Below())?.Block == Logic.Blocks.Instance.Air)
-            world.SetBlock(this.AsInstance((uint) orientation), position.Below());
+            world.SetBlock(this.AsInstance((UInt32) orientation), position.Below());
     }
 }
