@@ -160,7 +160,7 @@ namespace vg
     { \
         vg::ray::SetColor(payload, shadingColor); \
         vg::ray::SetNormal(payload, float3(0.0f, 0.0f, 0.0f)); \
-        vg::ray::SetPosition(payload, float3(0.0f, 0.0f, 0.0f)); \
+        vg::ray::SetPosition(payload, WorldRayOrigin() + RayTCurrent() * WorldRayDirection()); \
     } (void)0
 
 #endif

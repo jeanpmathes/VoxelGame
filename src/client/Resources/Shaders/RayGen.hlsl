@@ -126,6 +126,14 @@ float GetReflectance(
         color.rgb = rgb;
         color.a   = a;
 
+        if (iteration == 0)
+        {
+            float4 const hitInViewSpace = mul(float4(main.position, 1), native::rt::camera.view);
+            float4 const hitInClipSpace = mul(hitInViewSpace, native::rt::camera.projection);
+
+            depth = hitInClipSpace.z / hitInClipSpace.w;
+        }
+
         if (color.a >= 1.0f) break;
 
         bool const incoming = dot(direction, main.normal) < 0;
@@ -154,14 +162,6 @@ float GetReflectance(
         origin    = main.position;
         normal    = main.normal;
         direction = refracted;
-        
-        if (iteration == 0)
-        {
-            float4 const hitInViewSpace = mul(float4(origin, 1), native::rt::camera.view);
-            float4 const hitInClipSpace = mul(hitInViewSpace, native::rt::camera.projection);
-
-            depth = hitInClipSpace.z / hitInClipSpace.w;
-        }
 
         min = 0;
         iteration++;
