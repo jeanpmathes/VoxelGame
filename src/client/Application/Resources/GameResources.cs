@@ -109,7 +109,7 @@ public sealed class GameResources : IDisposable
 
         UI.Load(client, loadingContext);
 
-        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
+        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, TextureBundle.GetTextureSlots(BlockTextures, FluidTextures), visuals, loadingContext);
 
         TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
@@ -124,7 +124,7 @@ public sealed class GameResources : IDisposable
             "Texture/Block ratio: {Ratio:F02}",
             BlockTextures.Count / (Double) Blocks.Instance.Count);
 
-        Fluids.Load(FluidTextures, loadingContext);
+        Fluids.Load(FluidTextures, FluidTextures, loadingContext);
 
         Player.Load(client, loadingContext);
 

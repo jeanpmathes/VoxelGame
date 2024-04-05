@@ -260,13 +260,29 @@ public readonly struct TintColor : IEquatable<TintColor>
     }
 
     /// <summary>
-    ///     Select this tint or the neutral tint.
+    ///     Select this tint or a given one if this tint is neutral.
     /// </summary>
-    /// <param name="neutral">The neutral tint.</param>
+    /// <param name="neutral">The tint to use instead if this tint is neutral.</param>
     /// <returns>The selected tint.</returns>
     public TintColor Select(TintColor neutral)
     {
         return IsNeutral ? neutral : this;
+    }
+
+    /// <summary>
+    ///     Apply a tint to a color.
+    /// </summary>
+    public static Color4 Multiply(Color4 color, TintColor tint)
+    {
+        return new Color4(color.R * tint.r, color.G * tint.g, color.B * tint.b, color.A);
+    }
+
+    /// <summary>
+    ///     Apply a tint to a color.
+    /// </summary>
+    public static Color4 operator *(Color4 color, TintColor tint)
+    {
+        return Multiply(color, tint);
     }
 
     /// <inheritdoc />

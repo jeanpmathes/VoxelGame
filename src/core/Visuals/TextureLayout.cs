@@ -10,7 +10,7 @@ using VoxelGame.Core.Logic;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Provides functionality to define the textures of a default six-sided block or a fluid.
+///     Provides functionality to define the textures of a default six-sided block or fluid.
 /// </summary>
 public readonly struct TextureLayout : IEquatable<TextureLayout>
 {
@@ -173,7 +173,7 @@ public readonly struct TextureLayout : IEquatable<TextureLayout>
     ///     The texture index array. The array is of length 6, with the indices in the side order defined by
     ///     <see cref="BlockSide" />.
     /// </returns>
-    public Int32[] GetTexIndexArray()
+    public Int32[] GetTextureIndexArray()
     {
         return
         [

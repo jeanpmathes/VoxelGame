@@ -36,7 +36,7 @@ public class Fluids
     private readonly List<Fluid> fluidList = [];
     private readonly Dictionary<String, Fluid> namedFluidDictionary = new();
 
-    private Fluids(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    private Fluids(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
     {
         List<Fluid> allFluids = [];
 
@@ -174,7 +174,7 @@ public class Fluids
 
             var id = (UInt32) (fluidList.Count - 1);
 
-            fluid.Setup(id, indexProvider);
+            fluid.Setup(id, indexProvider, dominantColorProvider);
 
             loadingContext.ReportSuccess(Events.FluidLoad, nameof(Fluid), fluid.NamedID);
         }
@@ -295,11 +295,11 @@ public class Fluids
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.FluidLoad, "Fluid Loading"))
         {
-            Instance = new Fluids(indexProvider, loadingContext);
+            Instance = new Fluids(indexProvider, dominantColorProvider, loadingContext);
         }
     }
 }

@@ -6,10 +6,11 @@
 
 using System.Collections;
 using System.Diagnostics;
+using System.Drawing;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Objects;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Support.Graphics;
 
@@ -19,10 +20,12 @@ namespace VoxelGame.Support.Graphics;
 public sealed class TextureArray : IEnumerable<Texture>
 {
     private readonly Texture[] textures;
+    private readonly Color[] dominantColors;
 
-    private TextureArray(Texture[] textures)
+    private TextureArray(Texture[] textures, Color[] dominantColors)
     {
         this.textures = textures;
+        this.dominantColors = dominantColors;
     }
 
     /// <summary>
@@ -42,6 +45,18 @@ public sealed class TextureArray : IEnumerable<Texture>
     }
 
     /// <summary>
+    ///     Get the dominant color of the texture at the given index.
+    ///     The dominant color is the color of the last mip-level.
+    ///     If no color is available, the color will be black.
+    /// </summary>
+    /// <param name="index">The index of the texture.</param>
+    /// <returns>The dominant color.</returns>
+    public Color GetDominantColor(Int32 index)
+    {
+        return dominantColors[index];
+    }
+
+    /// <summary>
     ///     Load a new array texture. It will be filled with all textures found in the given directory.
     /// </summary>
     /// <param name="client">The client that will own the texture.</param>
@@ -54,8 +69,8 @@ public sealed class TextureArray : IEnumerable<Texture>
         Debug.Assert(images.Length % mips == 0);
         Debug.Assert(images.Length == mips * count);
 
-        // Split the full texture list into parts and create the array textures.
         var data = new Texture[count];
+        var colors = new Color[count];
 
         // ReSharper disable once RedundantAssignment
         Vector2i size = images[index: 0].Size;
@@ -67,9 +82,13 @@ public sealed class TextureArray : IEnumerable<Texture>
 
             Debug.Assert(images[begin].Size == size);
             data[index] = client.LoadTexture(images[begin..end]);
+
+            Int32 last = end - 1;
+
+            if (images[last].Size == (1, 1)) colors[index] = images[last].GetPixel(x: 0, y: 0);
         }
 
-        return new TextureArray(data);
+        return new TextureArray(data, colors);
     }
 
     /// <summary>

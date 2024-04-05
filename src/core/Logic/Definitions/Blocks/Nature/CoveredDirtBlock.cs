@@ -62,7 +62,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
         base.OnSetup(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTexIndexArray();
+        wetTextureIndices = wet.GetTextureIndexArray();
     }
 
     /// <inheritdoc />

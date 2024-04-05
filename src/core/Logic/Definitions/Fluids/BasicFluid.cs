@@ -22,8 +22,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private readonly TextureLayout movingLayout;
     private readonly TextureLayout staticLayout;
 
-    private Int32[] movingTex = null!;
-    private Int32[] staticTex = null!;
+    private Int32[] movingTextures = null!;
+    private Int32[] staticTextures = null!;
+
+    private Color4 dominantColor;
 
     /// <summary>
     ///     Create a new basic fluid.
@@ -65,17 +67,30 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider)
+    protected override void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
-        movingTex = movingLayout.GetTexIndexArray();
-        staticTex = staticLayout.GetTexIndexArray();
+        movingTextures = movingLayout.GetTextureIndexArray();
+        staticTextures = staticLayout.GetTextureIndexArray();
+
+        dominantColor = dominantColorProvider.GetDominantColor(staticTextures[0]);
+    }
+
+    /// <inheritdoc />
+    public override Color4? GetColor(TintColor tint)
+    {
+        Color4 color = dominantColor;
+
+        if (hasNeutralTint)
+            color *= tint;
+
+        return color;
     }
 
     /// <inheritdoc />
     protected override FluidMeshData GetMeshData(FluidMeshInfo info)
     {
         return FluidMeshData.Basic(
-            info.IsStatic ? staticTex[(Int32) info.Side] : movingTex[(Int32) info.Side],
+            info.IsStatic ? staticTextures[(Int32) info.Side] : movingTextures[(Int32) info.Side],
             hasNeutralTint ? TintColor.Neutral : TintColor.None);
     }
 

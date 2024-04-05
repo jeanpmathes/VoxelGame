@@ -42,7 +42,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         base.OnSetup(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTexIndexArray();
+        wetTextureIndices = wet.GetTextureIndexArray();
     }
 
     /// <inheritdoc />

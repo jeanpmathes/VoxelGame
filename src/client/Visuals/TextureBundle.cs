@@ -12,6 +12,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -24,7 +25,7 @@ namespace VoxelGame.Client.Visuals;
 ///     A list of textures that can be used by shaders.
 ///     Each texture has a name and index.
 /// </summary>
-public sealed class TextureBundle : ITextureIndexProvider
+public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvider
 {
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
@@ -41,17 +42,19 @@ public sealed class TextureBundle : ITextureIndexProvider
         TextureIndices = textureIndices;
     }
 
-    /// <summary>
-    ///     The array that stores all textures.
-    /// </summary>
-    public TextureArray TextureArray { get; }
-
+    private TextureArray TextureArray { get; }
     private Dictionary<String, Int32> TextureIndices { get; }
 
     /// <summary>
     ///     Get the number of textures in the bundle.
     /// </summary>
     public Int32 Count => TextureArray.Count;
+
+    /// <inheritdoc />
+    public Color4 GetDominantColor(Int32 index)
+    {
+        return TextureArray.GetDominantColor(index);
+    }
 
     /// <inheritdoc />
     public Int32 GetTextureIndex(String name)
@@ -70,6 +73,14 @@ public sealed class TextureBundle : ITextureIndexProvider
         loadingContext.ReportWarning(Events.MissingResource, "Texture", name, "Texture not found");
 
         return 0;
+    }
+
+    /// <summary>
+    /// Get the arrays filling the texture slots.
+    /// </summary>
+    public static (TextureArray, TextureArray) GetTextureSlots(TextureBundle first, TextureBundle second)
+    {
+        return (first.TextureArray, second.TextureArray);
     }
 
     /// <summary>
