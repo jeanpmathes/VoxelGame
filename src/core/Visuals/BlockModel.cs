@@ -23,10 +23,6 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-[SuppressMessage(
-    "Performance",
-    "CA1819:Properties should not return arrays",
-    Justification = "This class is meant for data storage.")]
 public sealed class BlockModel
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
@@ -57,17 +53,20 @@ public sealed class BlockModel
     /// <summary>
     ///     The names of the textures used by this model.
     /// </summary>
+    [SuppressMessage(
+        "Performance",
+        "CA1819:Properties should not return arrays",
+        Justification = "This class is meant for data storage.")]
     public String[] TextureNames { get; set; } = Array.Empty<String>();
 
     /// <summary>
     ///     The quads that make up this model.
     /// </summary>
+    [SuppressMessage(
+        "Performance",
+        "CA1819:Properties should not return arrays",
+        Justification = "This class is meant for data storage.")]
     public Quad[] Quads { get; set; } = Array.Empty<Quad>();
-
-    /// <summary>
-    ///     The vertex count of this model.
-    /// </summary>
-    public Int32 VertexCount => Quads.Length * 4;
 
     /// <summary>
     ///     Get the model as a block mesh.
@@ -163,13 +162,9 @@ public sealed class BlockModel
         {
             Quad old = Quads[i];
 
-            Quads[i] = new Quad
+            Quads[i] = old with
             {
-                TextureId = 0,
-                Vert0 = old.Vert0,
-                Vert1 = old.Vert1,
-                Vert2 = old.Vert2,
-                Vert3 = old.Vert3
+                TextureId = 0
             };
         }
     }

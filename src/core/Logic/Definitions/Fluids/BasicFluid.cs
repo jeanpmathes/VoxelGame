@@ -25,6 +25,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private Int32[] movingTextures = null!;
     private Int32[] staticTextures = null!;
 
+    private Int32 mainTexture;
     private Color4 dominantColor;
 
     /// <summary>
@@ -60,7 +61,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         return new OverlayTexture
         {
-            TextureIdentifier = staticLayout.Front,
+            TextureIdentifier = mainTexture,
             Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None,
             IsAnimated = true
         };
@@ -69,10 +70,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
-        movingTextures = movingLayout.GetTextureIndexArray();
-        staticTextures = staticLayout.GetTextureIndexArray();
+        movingTextures = movingLayout.GetTextureIndexArray(indexProvider);
+        staticTextures = staticLayout.GetTextureIndexArray(indexProvider);
 
-        dominantColor = dominantColorProvider.GetDominantColor(staticTextures[0]);
+        mainTexture = staticTextures[(Int32) BlockSide.Front];
+        dominantColor = dominantColorProvider.GetDominantColor(mainTexture);
     }
 
     /// <inheritdoc />

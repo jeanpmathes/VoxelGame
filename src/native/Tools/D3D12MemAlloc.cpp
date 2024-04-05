@@ -2865,7 +2865,7 @@ struct AllocationRequest
     UINT64 sumFreeSize; // Sum size of free items that overlap with proposed allocation.
     UINT64 sumItemSize; // Sum size of items to make lost that overlap with proposed allocation.
     SuballocationList::iterator item;
-    BOOL zeroInitialized = FALSE; // TODO Implement proper handling in TLSF and Linear, using ZeroInitializedRange class.
+    BOOL zeroInitialized = FALSE;
 };
 #endif // _D3D12MA_ALLOCATION_REQUEST
 

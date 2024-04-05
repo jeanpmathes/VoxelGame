@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
@@ -220,17 +221,6 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
 
         List<Image> images = [];
 
-        void AddTexture(Image texture)
-        {
-            images.Add(texture);
-
-            count++;
-
-            PreprocessImage(images[^1]);
-
-            images.AddRange(images[^1].GenerateMipmaps(mips, mipmap));
-        }
-
         foreach (Image texture in extraTextures) AddTexture(texture);
 
         foreach (FileInfo path in paths)
@@ -242,7 +232,7 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
                     image.Height == resolution) // Check if image consists of correctly sized textures
                 {
                     Int32 textureCount = image.Width / resolution;
-                    indices.Add(path.GetFileNameWithoutExtension(), count);
+                    AddTextureIndices(indices, path, count, textureCount);
 
                     for (var j = 0; j < textureCount; j++) AddTexture(image.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
                 }
@@ -260,6 +250,40 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
             }
 
         return new LoadingResult(indices, images, count, mips);
+
+        void AddTexture(Image texture)
+        {
+            images.Add(texture);
+
+            count++;
+
+            PreprocessImage(images[^1]);
+
+            images.AddRange(images[^1].GenerateMipmaps(mips, mipmap));
+        }
+    }
+
+    private static void AddTextureIndices(IDictionary<String, Int32> indices, FileInfo file, Int32 index, Int32 size)
+    {
+        String name = GetTextureName(file);
+
+        indices[name] = index;
+
+        if (size == 1) return;
+
+        for (var offset = 0; offset < size; offset++)
+            indices[$"{name}:{offset}"] = index + offset;
+    }
+
+    private static String GetTextureName(FileInfo file)
+    {
+        StringBuilder name = new();
+
+        foreach (Char c in file.GetFileNameWithoutExtension())
+            if (Char.IsLetterOrDigit(c) || c == '_')
+                name.Append(c);
+
+        return name.ToString();
     }
 
     private sealed record LoadingResult(Dictionary<String, Int32> Indices, List<Image> Images, Int32 Count, Int32 Mips);

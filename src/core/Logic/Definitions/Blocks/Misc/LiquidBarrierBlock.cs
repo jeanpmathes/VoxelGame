@@ -48,7 +48,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     {
         base.OnSetup(indexProvider, visuals);
 
-        openTextureIndices = open.GetTextureIndexArray();
+        openTextureIndices = open.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />

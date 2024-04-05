@@ -146,7 +146,7 @@ public class Blocks
                 Language.Log,
                 nameof(Log),
                 BlockFlags.Basic,
-                TextureLayout.Column("log", sideOffset: 0, endOffset: 1)));
+                TextureLayout.Column("log:0", "log:1")));
 
             Wood = Register(new OrganicConstructionBlock(
                 Language.Wood,
@@ -172,7 +172,7 @@ public class Blocks
             Cactus = Register(new GrowingBlock(
                 Language.Cactus,
                 nameof(Cactus),
-                TextureLayout.Column("cactus", sideOffset: 0, endOffset: 1),
+                TextureLayout.Column("cactus:0", "cactus:1"),
                 Sand,
                 maxHeight: 4));
 
@@ -180,13 +180,13 @@ public class Blocks
                 Language.Pumpkin,
                 nameof(Pumpkin),
                 BlockFlags.Basic,
-                TextureLayout.Column("pumpkin_side", "pumpkin_top")));
+                TextureLayout.Column("pumpkin:0", "pumpkin:1")));
 
             Melon = Register(new GroundedBlock(
                 Language.Melon,
                 nameof(Melon),
                 BlockFlags.Basic,
-                TextureLayout.Column("melon_side", "melon_top")));
+                TextureLayout.Column("melon:0", "melon:1")));
 
             Spiderweb = Register(new SpiderWebBlock(
                 Language.SpiderWeb,

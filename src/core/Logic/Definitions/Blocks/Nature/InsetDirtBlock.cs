@@ -83,8 +83,8 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        dryTextureIndices = dryLayout.GetTextureIndexArray();
-        wetTextureIndices = wetLayout.GetTextureIndexArray();
+        dryTextureIndices = dryLayout.GetTextureIndexArray(indexProvider);
+        wetTextureIndices = wetLayout.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />

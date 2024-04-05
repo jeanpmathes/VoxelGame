@@ -111,7 +111,6 @@ public sealed class GameResources : IDisposable
 
         Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, TextureBundle.GetTextureSlots(BlockTextures, FluidTextures), visuals, loadingContext);
 
-        TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
 
         BlockTextures.EnableLoading(loadingContext);
