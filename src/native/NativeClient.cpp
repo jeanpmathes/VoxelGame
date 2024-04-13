@@ -6,8 +6,6 @@
 
 #include "stdafx.h"
 
-
-
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
@@ -19,6 +17,12 @@ NativeClient::NativeClient(Configuration const& configuration)
   , m_resolution(Resolution(configuration.width, configuration.height) * configuration.renderScale)
   , m_debugCallback(configuration.onDebug)
   , m_space(std::make_unique<Space>(*this))
+#if defined(USE_NSIGHT_AFTERMATH)
+  , m_gpuCrashTracker(
+        m_markerMap,
+        m_shaderDatabase,
+        GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+#endif
 {
     if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
 }

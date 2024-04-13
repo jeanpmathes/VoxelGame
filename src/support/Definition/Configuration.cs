@@ -206,6 +206,16 @@ internal static partial class Native
         internal String title;
 
         /// <summary>
+        ///     The name of the application.
+        /// </summary>
+        internal String applicationName;
+
+        /// <summary>
+        ///     The version of the application.
+        /// </summary>
+        internal String applicationVersion;
+
+        /// <summary>
         ///     A handle to the icon to use for the window.
         /// </summary>
         internal IntPtr icon;
@@ -245,6 +255,8 @@ internal static partial class Native
                 height = managed.height,
                 title = UnicodeStringMarshaller.ConvertToUnmanaged(managed.title),
                 icon = managed.icon,
+                applicationName = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationName),
+                applicationVersion = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationVersion),
                 renderScale = managed.renderScale,
                 options = managed.options
             };
@@ -275,6 +287,8 @@ internal static partial class Native
             internal UInt32 height;
             internal IntPtr title;
             internal IntPtr icon;
+            internal IntPtr applicationName;
+            internal IntPtr applicationVersion;
             internal Single renderScale;
             internal ConfigurationOptions options;
         }

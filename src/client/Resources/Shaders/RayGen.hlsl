@@ -249,7 +249,7 @@ float GetReflectance(
             else fog          = Fog::CreateDefault();
         }
     }
-
+    
     native::rt::colorOutput[launchIndex] = RGBA(color);
     native::rt::depthOutput[launchIndex] = depth;
 }

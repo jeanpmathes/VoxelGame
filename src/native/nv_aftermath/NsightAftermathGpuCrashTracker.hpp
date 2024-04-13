@@ -39,7 +39,15 @@ public:
     constexpr static UINT MARKER_FRAME_HISTORY = 4;
     using MarkerMap = std::array<std::map<uint64_t, std::string>, MARKER_FRAME_HISTORY>;
 
-    GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase);
+    struct Description
+    {
+        std::string applicationName;
+        std::string applicationVersion;
+
+        static Description Create(LPWSTR applicationName, LPWSTR applicationVersion);
+    };
+
+    GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase, Description description);
     ~GpuCrashTracker();
 
     GpuCrashTracker(GpuCrashTracker const&)            = delete;
@@ -64,7 +72,7 @@ public:
 private:
     void OnCrashDump(void const* pGpuCrashDump, uint32_t gpuCrashDumpSize);
     void OnShaderDebugInfo(void const* pShaderDebugInfo, uint32_t shaderDebugInfoSize);
-    void OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription);
+    void OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription) const;
     void OnResolveMarker(
         void const* pMarkerData, uint32_t markerDataSize, void** ppResolvedMarkerData,
         uint32_t*   pResolvedMarkerDataSize) const;
@@ -105,4 +113,6 @@ private:
     std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<uint8_t>> m_shaderDebugInfo = {};
     MarkerMap const&                                                          m_markerMap;
     ShaderDatabase const&                                                     m_shaderDatabase;
+
+    Description const m_description;
 };

@@ -177,9 +177,9 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap m_markerMap       = {};
-    ShaderDatabase             m_shaderDatabase  = {};
-    GpuCrashTracker            m_gpuCrashTracker = {m_markerMap, m_shaderDatabase};
+    GpuCrashTracker::MarkerMap m_markerMap      = {};
+    ShaderDatabase             m_shaderDatabase = {};
+    GpuCrashTracker            m_gpuCrashTracker;
 
 public:
     void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
@@ -211,8 +211,6 @@ private:
 
 #if defined(USE_NSIGHT_AFTERMATH)
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetupShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
-
-
 #else
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)
 #endif

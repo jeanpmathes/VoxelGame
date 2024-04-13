@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
@@ -111,6 +112,8 @@ public class Client : IDisposable
             height = (UInt32) windowSettings.Size.Y,
             title = windowSettings.Title,
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
+            applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
+            applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
                 allowTearing: false,
