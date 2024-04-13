@@ -41,16 +41,57 @@ vg::ray::TraceResult Trace(float3 const origin, float3 const direction, float co
 }
 
 /**
- * \brief Apply fog to a trace result.
- * \param trace The trace result.
- * \param path The path length of the ray, excluding the current hit.
+ * \brief Parameters for fog.
  */
-void ApplyFog(inout vg::ray::TraceResult trace, float const path)
+struct Fog
 {
-    float const c   = path + trace.distance;
-    float const fog = 1.0f - exp(-0.00002f * POW2(c));
-    trace.color.rgb = lerp(trace.color.rgb, vg::SKY_COLOR, clamp(fog, 0.0f, 1.0f));
-} 
+    float3 color;
+    float  density;
+    float  path;
+
+    /**
+     * \brief Create a default configuration, creating weak sky-colored fog.
+     */
+    static Fog CreateDefault()
+    {
+        Fog fog;
+        fog.color   = vg::SKY_COLOR;
+        fog.density = 0.00002f;
+        fog.path    = 0.0f;
+        return fog;
+    }
+
+    /**
+     * \brief Create a fog configuration for a fog volume.
+     * \param color The color of the volume.
+     * \return The fog configuration.
+     */
+    static Fog CreateVolume(float3 const color)
+    {
+        Fog fog;
+        fog.color   = color;
+        fog.density = 0.02000f;
+        fog.path    = 0.0f;
+        return fog;
+    }
+
+    /**
+     * \brief Apply the fog to a trace result.
+     * \param trace The trace result.
+     */
+    void Apply(inout vg::ray::TraceResult trace)
+    {
+        float const c   = path + trace.distance;
+        float const fog = 1.0f - exp(-density * POW2(c));
+        trace.color.rgb = lerp(trace.color.rgb, color, clamp(fog, 0.0f, 1.0f));
+    }
+
+    /**
+     * \brief Extend the path length.
+     * \param distance The distance by which to extend the path.
+     */
+    void Extend(float const distance) { path += distance; }
+};
 
 /**
  * \brief Calculate the reflectance factor at a hit.
@@ -101,6 +142,11 @@ float GetReflectance(
     float  min    = native::rt::camera.near * length(direction);
     direction     = normalize(direction);
 
+    float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
+    Fog         fog       = Fog::CreateDefault();
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f
+        && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
+
     int    iteration = 0;
     float4 color     = 0;
     float  depth     = 0;
@@ -108,14 +154,16 @@ float GetReflectance(
 
     float                reflectance = 0.0f;
     vg::ray::TraceResult reflection  = vg::ray::GetEmptyTraceResult();
-    
-    while (color.a < 1.0f && iteration < 10 && any(direction))
+
+    while (color.a < 1.0f && iteration < 5 && any(direction))
     {
         vg::ray::TraceResult main = Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, path);
 
-        ApplyFog(main, path);
+        fog.Apply(main);
+        fog.Extend(main.distance);
+        
         path += main.distance;
-
+        
         float const alpha = main.color.a;
 
         main.color = lerp(main.color, reflection.color, reflectance);
@@ -165,6 +213,8 @@ float GetReflectance(
 
         min = 0;
         iteration++;
+
+        bool mainRayIsReflection = false;
         
         if (reflectance > 0.0f)
         {
@@ -177,7 +227,8 @@ float GetReflectance(
 
                 reflection = Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, path);
 
-                ApplyFog(reflection, path);
+                fog.Apply(reflection);
+                
                 // Intentionally not updating the path length.
             }
             else
@@ -187,7 +238,15 @@ float GetReflectance(
                 reflectance = 0.0f;
                 normal      = normal * -1.0f;
                 direction   = reflected;
+
+                mainRayIsReflection = true;
             }
+        }
+
+        if (alpha < 1.0f && !mainRayIsReflection)
+        {
+            if (incoming) fog = Fog::CreateVolume(main.fogColor);
+            else fog          = Fog::CreateDefault();
         }
     }
 

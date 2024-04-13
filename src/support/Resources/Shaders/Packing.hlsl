@@ -46,7 +46,7 @@ namespace native
          * Pack a RGBA color into two integers, each containing two channels.
          * Every channel is stored in 16 bits.
          */
-        uint2 PackColor(in float4 const color)
+        uint2 PackColor4(in float4 const color)
         {
             float4 const clamped = saturate(color);
 
@@ -59,13 +59,32 @@ namespace native
         /**
          * Unpack a RGBA color from two integers, each containing two channels.
          */
-        float4 UnpackColor(in uint2 const packed)
+        float4 UnpackColor4(in uint2 const packed)
         {
             return float4(
                 float(packed.x & 0xFFFF) / 65535.0f,
                 float(packed.x >> 16) / 65535.0f,
                 float(packed.y & 0xFFFF) / 65535.0f,
                 float(packed.y >> 16) / 65535.0f);
+        }
+
+        /**
+         * Pack a RGB color into an integer.
+         */
+        uint PackColor3(in float3 const color)
+        {
+            return uint(color.r * 255.0f) | int(color.g * 255.0f) << 8 | int(color.b * 255.0f) << 16;
+        }
+
+        /**
+         * Unpack a RGB color from an integer.
+         */
+        float3 UnpackColor3(in uint const packed)
+        {
+            return float3(
+                float(packed & 0xFF) / 255.0f,
+                float(packed >> 8 & 0xFF) / 255.0f,
+                float(packed >> 16 & 0xFF) / 255.0f);
         }
     }
 }

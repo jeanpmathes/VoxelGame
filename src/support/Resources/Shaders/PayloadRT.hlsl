@@ -26,7 +26,7 @@ namespace native
             uint2 color : read(caller, anyhit, closesthit, miss) : write(caller, anyhit, closesthit, miss);
             float2 normal : read(caller, anyhit, closesthit, miss) : write(caller, closesthit, miss);
             float3 position : read(caller, anyhit, closesthit, miss) : write(caller, anyhit, closesthit, miss);
-            uint1 data : read(caller) : write(caller);
+            uint1 data : read(caller, anyhit, closesthit, miss) : write(caller, anyhit, closesthit, miss);
         };
 
         /**

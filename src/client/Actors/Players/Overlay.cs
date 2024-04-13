@@ -24,8 +24,9 @@ namespace VoxelGame.Client.Actors.Players;
 /// <param name="Size">The size of the overlay, which is the distance between the upper and lower bound.</param>
 /// <param name="Texture">The texture of the overlay.</param>
 /// <param name="IsBlock">Whether the overlay is a block or a fluid.</param>
-/// <param name="Position">The position of the overlay block/fluid.</param>
-public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBlock, Vector3i Position)
+/// <param name="Position">The position of the overlay block/fluid that is causing the overlay.</param>
+/// <param name="Content">The content of the world causing the overlay, meaning the block and fluid at the position.</param>
+public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBlock, Vector3i Position, Content Content)
 {
     /// <summary>
     ///     Whether the overlay is a fluid.
@@ -82,7 +83,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
             lowerBound = Math.Min(newLowerBound, lowerBound);
             upperBound = Math.Max(newUpperBound, upperBound);
 
-            overlays.Add(new Overlay(newUpperBound - newLowerBound, texture, isBlock, position));
+            overlays.Add(new Overlay(newUpperBound - newLowerBound, texture, isBlock, position, content));
         }
 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
@@ -137,6 +138,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     /// <summary>
     ///     Apply the tint of the world position, if the overlay texture tint is neutral.
     /// </summary>
+    /// <param name="world">The world in which the overlay is rendered.</param>
     /// <returns>A new overlay texture with the tint applied.</returns>
     public OverlayTexture GetWithAppliedTint(World world)
     {
@@ -144,8 +146,20 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
 
         (TintColor block, TintColor fluid) = world.Map.GetPositionTint(Position);
 
-        if (IsBlock) return Texture with {Tint = block};
+        return Texture with {Tint = IsBlock ? block : fluid};
+    }
 
-        return Texture with {Tint = fluid};
+    /// <summary>
+    ///     Get the color of the fog caused by the block or fluid overlay.
+    /// </summary>
+    /// <param name="world">The world in which the overlay is rendered.</param>
+    /// <returns>The color of the fog, or null if no fog is caused.</returns>
+    public Color4? GetFogColor(World world)
+    {
+        if (IsBlock) return null;
+
+        (TintColor _, TintColor fluid) = world.Map.GetPositionTint(Position);
+
+        return Content.Fluid.Fluid.GetColor(fluid);
     }
 }

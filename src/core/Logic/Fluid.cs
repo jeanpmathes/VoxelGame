@@ -249,7 +249,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            Boolean singleSided = blockToCheck is {IsSolidAndFull: true};
+            Boolean singleSided = blockToCheck is {IsSolidAndFull: true, IsOpaqueAndFull: true};
 
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 

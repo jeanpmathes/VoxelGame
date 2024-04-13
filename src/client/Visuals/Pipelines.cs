@@ -237,7 +237,18 @@ public sealed class Pipelines : IDisposable
         /// </summary>
         public Vector3 windDirection;
 
-        private (Boolean, Vector3) Pack => (wireframe, windDirection);
+        /// <summary>
+        ///     The size of the part of the view plane that is inside a fog volume. Given in relative size, positive values start
+        ///     from the bottom, negative values from the top.
+        /// </summary>
+        public Single fogOverlapSize;
+
+        /// <summary>
+        ///     Color of the fog volume the view plane is currently in, represented as a RGB vector.
+        /// </summary>
+        public Vector3 fogOverlapColor;
+
+        private (Boolean, Vector3, Single, Vector3) Pack => (wireframe, windDirection, fogOverlapSize, fogOverlapColor);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)

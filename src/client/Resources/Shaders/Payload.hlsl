@@ -33,6 +33,7 @@
  *
  * Data: (uint1)
  *  - The field is zeroed on trace start.
+ *  - The lower 24 bits are used for the fog color, which can be provided by the hit shader.
  */
 namespace vg
 {
@@ -40,12 +41,12 @@ namespace vg
     {
         float4 GetColor(in native::rt::HitInfo const payload)
         {
-            return float4(native::packing::UnpackColor(payload.color));
+            return float4(native::packing::UnpackColor4(payload.color));
         }
 
         void SetColor(inout native::rt::HitInfo payload, in float4 const color)
         {
-            payload.color = native::packing::PackColor(color);
+            payload.color = native::packing::PackColor4(color);
         }
 
         float3 GetNormal(in native::rt::HitInfo const payload) { return native::packing::UnpackNormal(payload.normal); }
@@ -74,6 +75,18 @@ namespace vg
 
         void SetData(inout native::rt::HitInfo payload, in int const data) { payload.data.x = data; }
 
+        static int const FOG_COLOR_MASK = 0x00FFFFFF;
+
+        float3 GetFogColor(in native::rt::HitInfo const payload)
+        {
+            return float3(native::packing::UnpackColor3(payload.data.x & FOG_COLOR_MASK));
+        }
+
+        void SetFogColor(inout native::rt::HitInfo payload, in float3 const color)
+        {
+            payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color);
+        }
+        
         /**
          * \brief Create an initialized hit info / ray payload struct.
          * \param path The total path length.
@@ -104,6 +117,7 @@ namespace vg
             float4 color;
             int    data;
             float  distance;
+            float3 fogColor;
         };
 
         /**
@@ -118,6 +132,7 @@ namespace vg
             result.color    = float4(0.0f, 0.0f, 0.0f, 0.0f);
             result.data     = 0;
             result.distance = 0.0f;
+            result.fogColor = float3(0.0f, 0.0f, 0.0f);
 
             return result;
         }
@@ -134,6 +149,7 @@ namespace vg
             result.color    = GetColor(payload);
             result.data     = GetData(payload);
             result.distance = length(GetPosition(payload) - origin);
+            result.fogColor = GetFogColor(payload);
 
             return result;
         }
