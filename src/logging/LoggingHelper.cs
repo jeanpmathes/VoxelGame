@@ -34,7 +34,7 @@ public static class LoggingHelper
     /// </summary>
     /// <param name="category">The category of the logging.</param>
     /// <returns>The logger.</returns>
-    public static ILogger CreateLogger(string category)
+    public static ILogger CreateLogger(String category)
     {
         return LoggerFactory.CreateLogger(category);
     }
@@ -46,7 +46,7 @@ public static class LoggingHelper
     /// <param name="logDebug">Whether to log debug messages.</param>
     /// <param name="appDataDirectory">The application directory, in which a log folder is created.</param>
     /// <returns></returns>
-    public static ILogger SetupLogging(string category, bool logDebug, FileSystemInfo appDataDirectory)
+    public static ILogger SetupLogging(String category, Boolean logDebug, FileSystemInfo appDataDirectory)
     {
         Debug.Assert(LoggerFactory == null);
 

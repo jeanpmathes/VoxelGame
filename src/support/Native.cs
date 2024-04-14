@@ -28,14 +28,14 @@ internal static class Native
 
     private static readonly Dictionary<IntPtr, Light> lights = new();
 
-    private static readonly Dictionary<uint, object> draw2DCallbacks = new();
+    private static readonly Dictionary<UInt32, Object> draw2DCallbacks = new();
 
     private static Definition.Native.ScreenshotFunc? screenshotCallback;
 
     /// <summary>
     ///     Get current allocator statistics as a string.
     /// </summary>
-    internal static string GetAllocatorStatistics(Client client)
+    internal static String GetAllocatorStatistics(Client client)
     {
         var result = "";
 
@@ -48,7 +48,7 @@ internal static class Native
     ///     Get the DRED (Device Removed Extended Data) string.
     ///     This is only available in debug builds and after a device removal.
     /// </summary>
-    internal static string GetDRED(Client client)
+    internal static String GetDRED(Client client)
     {
         var result = "";
 
@@ -144,7 +144,7 @@ internal static class Native
     /// <param name="client">The client.</param>
     /// <param name="materialIndex">The material index, as defined in pipeline setup.</param>
     /// <returns>The mesh.</returns>
-    internal static Mesh CreateMesh(Client client, uint materialIndex)
+    internal static Mesh CreateMesh(Client client, UInt32 materialIndex)
     {
         IntPtr mesh = NativeMethods.CreateMesh(client, materialIndex);
 
@@ -248,7 +248,7 @@ internal static class Native
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
     {
-        description.BufferSize = (uint) Marshal.SizeOf<T>();
+        description.BufferSize = (UInt32) Marshal.SizeOf<T>();
 
         IntPtr pipelinePointer = NativeMethods.CreateRasterPipeline(client, description, callback);
 
@@ -270,10 +270,10 @@ internal static class Native
     /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
     /// <returns>An object that allows removing the pipeline.</returns>
-    internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, int priority, Action<Draw2D> callback)
+    internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
         Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
-        uint id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2dCallback);
+        UInt32 id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2dCallback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(id));
         draw2DCallbacks[id] = draw2dCallback;
@@ -299,19 +299,19 @@ internal static class Native
 
         TextureDescription description = new()
         {
-            Width = (uint) texture[index: 0].Width,
-            Height = (uint) texture[index: 0].Height,
-            MipLevels = (uint) texture.Length,
+            Width = (UInt32) texture[index: 0].Width,
+            Height = (UInt32) texture[index: 0].Height,
+            MipLevels = (UInt32) texture.Length,
             ColorFormat = texture[index: 0].StorageFormat.ToNative()
         };
 
-        int** data = stackalloc int*[texture.Length];
+        Int32** data = stackalloc Int32*[texture.Length];
         var handles = new GCHandle[texture.Length];
 
         for (var index = 0; index < texture.Length; index++)
         {
             handles[index] = GCHandle.Alloc(texture[index].GetData(texture[index].StorageFormat), GCHandleType.Pinned);
-            data[index] = (int*) Marshal.UnsafeAddrOfPinnedArrayElement(texture[index].GetData(texture[index].StorageFormat), index: 0);
+            data[index] = (Int32*) Marshal.UnsafeAddrOfPinnedArrayElement(texture[index].GetData(texture[index].StorageFormat), index: 0);
         }
 
         IntPtr result = NativeMethods.LoadTexture(client, data, description);
@@ -321,6 +321,6 @@ internal static class Native
             handles[index].Free();
         }
 
-        return new Texture(result, client, new Vector2i((int) description.Width, (int) description.Height));
+        return new Texture(result, client, new Vector2i((Int32) description.Width, (Int32) description.Height));
     }
 }

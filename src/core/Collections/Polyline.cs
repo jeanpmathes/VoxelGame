@@ -31,7 +31,7 @@ public class Polyline
     /// <summary>
     ///     The left function, which is used outside of the interval defined by the points.
     /// </summary>
-    public Func<double, double> Left { get; init; }
+    public Func<Double, Double> Left { get; init; }
 
     /// <summary>
     ///     The list of points that define the line segments. There must be at least two points.
@@ -41,14 +41,14 @@ public class Polyline
     /// <summary>
     ///     The right function, which is used outside of the interval defined by the points.
     /// </summary>
-    public Func<double, double> Right { get; init; }
+    public Func<Double, Double> Right { get; init; }
 
     /// <summary>
     ///     Evaluates the function at the given position.
     /// </summary>
     /// <param name="x">The position to evaluate at.</param>
     /// <returns>The value of the function at the given position.</returns>
-    public double Evaluate(double x)
+    public Double Evaluate(Double x)
     {
         Debug.Assert(Points.Count >= 2);
 

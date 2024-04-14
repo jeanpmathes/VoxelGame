@@ -53,7 +53,7 @@ struct CommandAllocatorGroup
     ComPtr<ID3D12GraphicsCommandList4>                      commandList;
     bool                                                    open = false;
 
-    static void Initialize(ComPtr<ID3D12Device> device, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE type);
+    static void Initialize(NativeClient const& client, CommandAllocatorGroup* group, D3D12_COMMAND_LIST_TYPE type);
 
     void Reset(UINT frameIndex, ComPtr<ID3D12PipelineState> pipelineState = nullptr);
     void Close();

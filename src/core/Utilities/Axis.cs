@@ -52,7 +52,7 @@ public static class AxisExtensions
     /// <summary>
     ///     Get the axis as a <see cref="Vector3" />.
     /// </summary>
-    public static Vector3d Vector3(this Axis axis, float onAxis, float other)
+    public static Vector3d Vector3(this Axis axis, Single onAxis, Single other)
     {
         return axis switch
         {

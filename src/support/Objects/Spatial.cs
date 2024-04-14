@@ -16,7 +16,7 @@ namespace VoxelGame.Support.Objects;
 [NativeMarshalling(typeof(SpatialMarshaller))]
 public class Spatial : NativeObject
 {
-    private bool dirty = true;
+    private Boolean dirty = true;
 
     private Vector3d position = Vector3d.Zero;
     private Quaterniond rotation = Quaterniond.Identity;

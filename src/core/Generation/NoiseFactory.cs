@@ -19,7 +19,7 @@ public class NoiseFactory
     ///     Creates a new noise factory with an initial seed.
     /// </summary>
     /// <param name="seed">The seed to use.</param>
-    public NoiseFactory(int seed)
+    public NoiseFactory(Int32 seed)
     {
         random = new Random(seed);
     }
@@ -30,6 +30,6 @@ public class NoiseFactory
     /// </summary>
     /// <returns>A new noise generator, using a different seed.</returns>
     #pragma warning disable S4049 // Changes state, should be a method
-    public FastNoiseLite GetNextNoise() => new(random.Next(int.MinValue, int.MaxValue));
+    public FastNoiseLite GetNextNoise() => new(random.Next(Int32.MinValue, Int32.MaxValue));
     #pragma warning restore S4049 // Changes state, should be a method
 }

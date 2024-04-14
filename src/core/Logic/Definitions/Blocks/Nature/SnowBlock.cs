@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -19,10 +20,10 @@ public class SnowBlock : GroundedModifiableHeightBlock, IFillable
     /// <summary>
     ///     Creates a new instance of the <see cref="SnowBlock" /> class.
     /// </summary>
-    internal SnowBlock(string name, string namedID, TextureLayout layout) : base(name, namedID, layout) {}
+    internal SnowBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         BlockInstance? block = world.GetBlock(position);
 

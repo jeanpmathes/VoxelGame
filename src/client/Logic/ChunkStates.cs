@@ -41,7 +41,7 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        protected override bool WaitOnNeighbors => true;
+        protected override Boolean WaitOnNeighbors => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -117,7 +117,7 @@ public partial class Chunk
 
             if (guard == null) return;
 
-            bool finished = Chunk.DoMeshDataSetStep(meshData);
+            Boolean finished = Chunk.DoMeshDataSetStep(meshData);
 
             if (!finished) return;
 

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Drawing;
 using OpenTK.Mathematics;
 
@@ -17,7 +18,7 @@ public static class Colors
     /// <summary>
     ///     Check if a given color has any opaqueness, meaning the alpha channel is not 0.
     /// </summary>
-    public static bool HasOpaqueness(this Color color)
+    public static Boolean HasOpaqueness(this Color color)
     {
         return color.A != 0;
     }
@@ -28,13 +29,13 @@ public static class Colors
     /// <param name="a">The first color.</param>
     /// <param name="b">The second color.</param>
     /// <param name="f">The mixing factor for linear interpolation.</param>
-    public static Color Mix(Color a, Color b, double f = 0.5)
+    public static Color Mix(Color a, Color b, Double f = 0.5)
     {
         return Color.FromArgb(
-            (int) MathHelper.Lerp(a.A, b.A, f),
-            (int) MathHelper.Lerp(a.R, b.R, f),
-            (int) MathHelper.Lerp(a.G, b.G, f),
-            (int) MathHelper.Lerp(a.B, b.B, f));
+            (Int32) MathHelper.Lerp(a.A, b.A, f),
+            (Int32) MathHelper.Lerp(a.R, b.R, f),
+            (Int32) MathHelper.Lerp(a.G, b.G, f),
+            (Int32) MathHelper.Lerp(a.B, b.B, f));
     }
 
     /// <summary>
@@ -44,12 +45,12 @@ public static class Colors
     /// <param name="g">The green value.</param>
     /// <param name="b">The blue value.</param>
     /// <returns>The color.</returns>
-    public static Color FromRGB(float r, float g, float b)
+    public static Color FromRGB(Single r, Single g, Single b)
     {
         return Color.FromArgb(
             alpha: 255,
-            (int) (MathHelper.Clamp(r, min: 0, max: 1) * 255),
-            (int) (MathHelper.Clamp(g, min: 0, max: 1) * 255),
-            (int) (MathHelper.Clamp(b, min: 0, max: 1) * 255));
+            (Int32) (MathHelper.Clamp(r, min: 0, max: 1) * 255),
+            (Int32) (MathHelper.Clamp(g, min: 0, max: 1) * 255),
+            (Int32) (MathHelper.Clamp(b, min: 0, max: 1) * 255));
     }
 }

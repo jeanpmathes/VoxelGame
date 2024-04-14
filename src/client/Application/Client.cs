@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Application.Settings;
@@ -77,11 +78,11 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal GameResources Resources { get; }
 
-    private double FPS => screenBehaviour.FPS;
-    private double UPS => screenBehaviour.UPS;
+    private Double FPS => screenBehaviour.FPS;
+    private Double UPS => screenBehaviour.UPS;
 
-    double IPerformanceProvider.FPS => FPS;
-    double IPerformanceProvider.UPS => UPS;
+    Double IPerformanceProvider.FPS => FPS;
+    Double IPerformanceProvider.UPS => UPS;
 
     protected override void OnInit()
     {
@@ -103,7 +104,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         ManualBuilder.EmitManual();
     }
 
-    protected override void OnRender(double delta)
+    protected override void OnRender(Double delta)
     {
         using Timer? timer = logger.BeginTimedScoped("Client Render");
 
@@ -111,7 +112,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         screenBehaviour.Render(delta);
     }
 
-    protected override void OnUpdate(double delta)
+    protected override void OnUpdate(Double delta)
     {
         using Timer? timer = logger.BeginTimedScoped("Client Update");
 
@@ -130,7 +131,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         Resources.Dispose();
     }
 
-    protected override bool CanClose()
+    protected override Boolean CanClose()
     {
         return sceneManager.CanCloseWindow();
     }
@@ -149,7 +150,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     ///     Exit the current game.
     /// </summary>
     /// <param name="exitToOS">Whether to exit the complete application or just to the start scene.</param>
-    internal void ExitGame(bool exitToOS)
+    internal void ExitGame(Boolean exitToOS)
     {
         IScene? scene = null;
 
@@ -164,7 +165,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         Close();
     }
 
-    private void OnSizeChanged(object? sender, SizeChangeEventArgs e)
+    private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
         logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
 
@@ -173,10 +174,10 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
-    protected override void Dispose(bool disposing)
+    protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

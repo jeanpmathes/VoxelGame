@@ -53,6 +53,15 @@ buffer needs to be kept until the command list execution is finished.
 
 namespace nv_helpers_dx12
 {
+    void TopLevelASGenerator::Clear()
+    {
+        m_instances.clear();
+
+        m_resultSizeInBytes               = 0;
+        m_scratchSizeInBytes              = 0;
+        m_instanceDescriptionsSizeInBytes = 0;
+    }
+
     void TopLevelASGenerator::AddInstance(
         D3D12_GPU_VIRTUAL_ADDRESS const       bottomLevelAS,
         DirectX::XMFLOAT4X4 const&            transform,
@@ -114,10 +123,12 @@ namespace nv_helpers_dx12
         bool const                                updateOnly,
         Allocation<ID3D12Resource> const&         previousResult) const
     {
+        constexpr D3D12_RANGE none = {0, 0};
+
         D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
         if (HRESULT const ok = descriptorsBuffer.resource->Map(
                 0,
-                nullptr,
+                &none,
                 reinterpret_cast<void**>(&instanceDescription));
             FAILED(ok) || !instanceDescription)
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
@@ -133,9 +144,9 @@ namespace nv_helpers_dx12
             instanceDescription[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
             instanceDescription[i].Flags                               = m_instances[i].flags;
 
-            DirectX::XMMATRIX const instance = XMLoadFloat4x4(m_instances[i].transform);
-            DirectX::XMMATRIX       m        = XMMatrixTranspose(instance);
-            std::memcpy(instanceDescription[i].Transform, &m, sizeof instanceDescription[i].Transform);
+            DirectX::XMMATRIX const instance   = XMLoadFloat4x4(m_instances[i].transform);
+            DirectX::XMMATRIX       transposed = XMMatrixTranspose(instance);
+            std::memcpy(instanceDescription[i].Transform, &transposed, sizeof instanceDescription[i].Transform);
 
             instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS;
             instanceDescription[i].InstanceMask          = m_instances[i].inclusionMask;
@@ -151,11 +162,6 @@ namespace nv_helpers_dx12
 
         if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
             flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-
-        if (m_flags != D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
-            throw std::logic_error("Cannot update a top-level AS not originally built for updates.");
-        if (updateOnly && !previousResult.IsSet())
-            throw std::logic_error("Top-level hierarchy update requires the previous hierarchy.");
 
         flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 

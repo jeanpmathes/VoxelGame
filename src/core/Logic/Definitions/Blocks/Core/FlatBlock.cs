@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -22,12 +23,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class FlatBlock : Block, IFillable, IComplex
 {
-    private readonly float climbingVelocity;
+    private readonly Single climbingVelocity;
 
     private readonly List<BlockMesh> meshes = new();
-    private readonly float slidingVelocity;
+    private readonly Single slidingVelocity;
 
-    private readonly string texture;
+    private readonly String texture;
     private readonly List<BoundingVolume> volumes = new();
 
     /// <summary>
@@ -39,7 +40,7 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <param name="texture">The texture to use for the block.</param>
     /// <param name="climbingVelocity">The velocity of players climbing the block.</param>
     /// <param name="slidingVelocity">The velocity of players sliding along the block.</param>
-    internal FlatBlock(string name, string namedID, string texture, float climbingVelocity, float slidingVelocity) :
+    internal FlatBlock(String name, String namedID, String texture, Single climbingVelocity, Single slidingVelocity) :
         base(
             name,
             namedID,
@@ -51,7 +52,7 @@ public class FlatBlock : Block, IFillable, IComplex
 
         this.texture = texture;
 
-        for (uint data = 0; data <= 0b00_0011; data++)
+        for (UInt32 data = 0; data <= 0b00_0011; data++)
         {
             BoundingVolume volume = (Orientation) (data & 0b00_0011) switch
             {
@@ -91,13 +92,13 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <returns>The block with the given orientation.</returns>
     public BlockInstance GetInstance(Orientation orientation)
     {
-        return this.AsInstance((uint) orientation);
+        return this.AsInstance((UInt32) orientation);
     }
 
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int textureIndex = indexProvider.GetTextureIndex(texture);
+        Int32 textureIndex = indexProvider.GetTextureIndex(texture);
 
         foreach (Orientation orientation in Orientations.All)
         {
@@ -111,13 +112,13 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) (data & 0b00_0011)];
+        return volumes[(Int32) (data & 0b00_0011)];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         BlockSide side = actor?.TargetSide ?? BlockSide.Front;
 
@@ -132,11 +133,11 @@ public class FlatBlock : Block, IFillable, IComplex
     {
         BlockSide side = actor?.TargetSide ?? BlockSide.Front;
         if (!side.IsLateral()) side = BlockSide.Back;
-        world.SetBlock(this.AsInstance((uint) side.ToOrientation()), position);
+        world.SetBlock(this.AsInstance((UInt32) side.ToOrientation()), position);
     }
 
     /// <inheritdoc />
-    protected override void ActorCollision(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         Vector3d forwardMovement = Vector3d.Dot(actor.Movement, actor.Forward) * actor.Forward;
         Vector3d newVelocity;
@@ -144,7 +145,7 @@ public class FlatBlock : Block, IFillable, IComplex
         if (forwardMovement.LengthSquared > 0.1f &&
             (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
         {
-            float yVelocity = Vector3d.CalculateAngle(actor.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
+            Single yVelocity = Vector3d.CalculateAngle(actor.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
                 ? climbingVelocity
                 : -climbingVelocity;
 
@@ -154,7 +155,7 @@ public class FlatBlock : Block, IFillable, IComplex
         {
             newVelocity = new Vector3d(
                 actor.Velocity.X,
-                MathHelper.Clamp(actor.Velocity.Y, -slidingVelocity, double.MaxValue),
+                MathHelper.Clamp(actor.Velocity.Y, -slidingVelocity, Double.MaxValue),
                 actor.Velocity.Z);
         }
 
@@ -162,14 +163,14 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
     }
 
 
     private protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
-        bool schedule)
+        Boolean schedule)
     {
         if (!side.IsLateral()) return;
 
@@ -185,7 +186,7 @@ public class FlatBlock : Block, IFillable, IComplex
     /// </summary>
     protected virtual IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        var meshIndex = (int) (info.Data & 0b00_0011);
+        var meshIndex = (Int32) (info.Data & 0b00_0011);
 
         return meshes[meshIndex].GetMeshData();
     }

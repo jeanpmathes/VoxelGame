@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
@@ -98,7 +99,7 @@ public sealed class WorldElement : VerticalLayout
 
         Label text = new(last)
         {
-            Text = $"{Language.LastLoaded}: {Texts.FormatTimeSinceEvent(world.DateTimeOfLastLoad, out bool hasOccurred)}",
+            Text = $"{Language.LastLoaded}: {Texts.FormatTimeSinceEvent(world.DateTimeOfLastLoad, out Boolean hasOccurred)}",
             Font = context.Fonts.Small,
             TextColor = Colors.Secondary
         };

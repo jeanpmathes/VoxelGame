@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Linq;
 using System.Numerics;
 
@@ -19,7 +20,7 @@ public static class BitHelper
     /// </summary>
     /// <param name="n">The unsigned integer in which to count the set bits.</param>
     /// <returns>The number of set bits.</returns>
-    public static int CountSetBits(uint n)
+    public static Int32 CountSetBits(UInt32 n)
     {
         return BitOperations.PopCount(n);
     }
@@ -29,7 +30,7 @@ public static class BitHelper
     /// </summary>
     /// <param name="booleans">The array or parameter to count the true values in.</param>
     /// <returns>Return the count.</returns>
-    public static int CountSetBooleans(params bool[] booleans)
+    public static Int32 CountSetBooleans(params Boolean[] booleans)
     {
         return booleans.Sum(b => b.ToInt());
     }
@@ -37,8 +38,8 @@ public static class BitHelper
     /// <summary>
     ///     Get a bit-mask of a given size.
     /// </summary>
-    public static uint GetMask(int size)
+    public static UInt32 GetMask(Int32 size)
     {
-        return (uint) (1 << size) - 1;
+        return (UInt32) (1 << size) - 1;
     }
 }

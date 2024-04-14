@@ -22,7 +22,7 @@ public abstract class Player : PhysicsActor
     /// <param name="world">The world the player is in.</param>
     /// <param name="mass">The mass the player has.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
-    protected Player(World world, float mass, BoundingVolume boundingVolume) : base(
+    protected Player(World world, Single mass, BoundingVolume boundingVolume) : base(
         world,
         mass,
         boundingVolume)
@@ -30,16 +30,16 @@ public abstract class Player : PhysicsActor
         Position = World.SpawnPosition;
         Chunk = ChunkPosition.From(Position.Floor());
 
-        for (int x = -LoadDistance; x <= LoadDistance; x++)
-        for (int y = -LoadDistance; y <= LoadDistance; y++)
-        for (int z = -LoadDistance; z <= LoadDistance; z++)
+        for (Int32 x = -LoadDistance; x <= LoadDistance; x++)
+        for (Int32 y = -LoadDistance; y <= LoadDistance; y++)
+        for (Int32 z = -LoadDistance; z <= LoadDistance; z++)
             World.RequestChunk(Chunk.Offset(x, y, z));
     }
 
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static int LoadDistance => 2;
+    public static Int32 LoadDistance => 2;
 
     /// <summary>
     ///     The position of the current chunk this player is in.
@@ -47,7 +47,7 @@ public abstract class Player : PhysicsActor
     public ChunkPosition Chunk { get; private set; }
 
     /// <inheritdoc />
-    protected sealed override void Update(double deltaTime)
+    protected sealed override void Update(Double deltaTime)
     {
         OnUpdate(deltaTime);
         ProcessChunkChange();
@@ -57,7 +57,7 @@ public abstract class Player : PhysicsActor
     ///     Called every time the player is updated.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    protected abstract void OnUpdate(double deltaTime);
+    protected abstract void OnUpdate(Double deltaTime);
 
     /// <summary>
     ///     Check if the current chunk has changed and request new chunks if needed / release unneeded chunks.
@@ -68,9 +68,9 @@ public abstract class Player : PhysicsActor
 
         if (currentChunk == Chunk) return;
 
-        int deltaX = Math.Abs(currentChunk.X - Chunk.X);
-        int deltaY = Math.Abs(currentChunk.Y - Chunk.Y);
-        int deltaZ = Math.Abs(currentChunk.Z - Chunk.Z);
+        Int32 deltaX = Math.Abs(currentChunk.X - Chunk.X);
+        Int32 deltaY = Math.Abs(currentChunk.Y - Chunk.Y);
+        Int32 deltaZ = Math.Abs(currentChunk.Z - Chunk.Z);
 
         // Check if player moved completely out of claimed chunks
         if (deltaX > 2 * LoadDistance || deltaY > 2 * LoadDistance || deltaZ > 2 * LoadDistance)
@@ -85,9 +85,9 @@ public abstract class Player : PhysicsActor
     /// </summary>
     private void ReleaseAndRequestAll(ChunkPosition currentChunk)
     {
-        for (int x = -LoadDistance; x <= LoadDistance; x++)
-        for (int y = -LoadDistance; y <= LoadDistance; y++)
-        for (int z = -LoadDistance; z <= LoadDistance; z++)
+        for (Int32 x = -LoadDistance; x <= LoadDistance; x++)
+        for (Int32 y = -LoadDistance; y <= LoadDistance; y++)
+        for (Int32 z = -LoadDistance; z <= LoadDistance; z++)
         {
             World.ReleaseChunk(Chunk.Offset(x, y, z));
             World.RequestChunk(currentChunk.Offset(x, y, z));
@@ -97,18 +97,18 @@ public abstract class Player : PhysicsActor
     /// <summary>
     ///     Release and request chunks around the player using a shifted window.
     /// </summary>
-    private void ReleaseAndRequestShifting(ChunkPosition currentChunk, int deltaX,
-        int deltaY, int deltaZ)
+    private void ReleaseAndRequestShifting(ChunkPosition currentChunk, Int32 deltaX,
+        Int32 deltaY, Int32 deltaZ)
     {
-        int signX = currentChunk.X - Chunk.X >= 0 ? 1 : -1;
-        int signY = currentChunk.Y - Chunk.Y >= 0 ? 1 : -1;
-        int signZ = currentChunk.Z - Chunk.Z >= 0 ? 1 : -1;
+        Int32 signX = currentChunk.X - Chunk.X >= 0 ? 1 : -1;
+        Int32 signY = currentChunk.Y - Chunk.Y >= 0 ? 1 : -1;
+        Int32 signZ = currentChunk.Z - Chunk.Z >= 0 ? 1 : -1;
 
         DoRequests(deltaX, 2 * LoadDistance + 1, 2 * LoadDistance + 1);
         DoRequests(2 * LoadDistance + 1, deltaY, 2 * LoadDistance + 1);
         DoRequests(2 * LoadDistance + 1, 2 * LoadDistance + 1, deltaZ);
 
-        void DoRequests(int xMax, int yMax, int zMax)
+        void DoRequests(Int32 xMax, Int32 yMax, Int32 zMax)
         {
             if (xMax == 0 || yMax == 0 || zMax == 0) return;
 

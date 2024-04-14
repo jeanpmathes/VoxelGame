@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -18,9 +19,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
 {
     private readonly TextureLayout wet;
-    private int[] wetTextureIndices = null!;
+    private Int32[] wetTextureIndices = null!;
 
-    internal DirtBlock(string name, string namedID, TextureLayout normal, TextureLayout wet) :
+    internal DirtBlock(String name, String namedID, TextureLayout normal, TextureLayout wet) :
         base(
             name,
             namedID,
@@ -31,7 +32,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
@@ -41,7 +42,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         base.OnSetup(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTexIndexArray();
+        wetTextureIndices = wet.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />
@@ -50,13 +51,13 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if (info.Fluid.IsFluid)
-            mesh = mesh with {TextureIndex = wetTextureIndices[(int) info.Side]};
+            mesh = mesh with {TextureIndex = wetTextureIndices[(Int32) info.Side]};
 
         return mesh;
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         FluidInstance? potentialFluid = world.GetFluid(position);
 

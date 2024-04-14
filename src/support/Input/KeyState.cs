@@ -18,8 +18,8 @@ namespace VoxelGame.Support.Input;
 public class KeyState
 {
     private static readonly VirtualKeys[] allKeys = (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys));
-    private readonly BitArray keys = new((int) VirtualKeys.LastKey + 1);
-    private readonly BitArray keysPrevious = new((int) VirtualKeys.LastKey + 1);
+    private readonly BitArray keys = new((Int32) VirtualKeys.LastKey + 1);
+    private readonly BitArray keysPrevious = new((Int32) VirtualKeys.LastKey + 1);
 
     internal KeyState() {}
 
@@ -27,7 +27,7 @@ public class KeyState
     ///     Gets a value indicating whether any key is currently down.
     /// </summary>
     /// <value><c>true</c> if any key is down; otherwise, <c>false</c>.</value>
-    public bool IsAnyKeyDown => GetAnyKeyDown() != null;
+    public Boolean IsAnyKeyDown => GetAnyKeyDown() != null;
 
     /// <summary>
     ///     Get the first key that is down.
@@ -52,13 +52,13 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys">key</see> which state should be changed.</param>
     /// <param name="down">The new state the key should be changed to.</param>
-    internal void SetKeyState(VirtualKeys key, bool down)
+    internal void SetKeyState(VirtualKeys key, Boolean down)
     {
-        keys[(int) key] = down;
+        keys[(Int32) key] = down;
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         var builder = new StringBuilder();
         builder.Append(value: '{');
@@ -67,7 +67,7 @@ public class KeyState
         for (VirtualKeys key = 0; key <= VirtualKeys.LastKey; key++)
             if (IsKeyDown(key))
             {
-                builder.Append(CultureInfo.InvariantCulture, $"{(!first ? ", " : string.Empty)}{key}");
+                builder.Append(CultureInfo.InvariantCulture, $"{(!first ? ", " : String.Empty)}{key}");
                 first = false;
             }
 
@@ -92,9 +92,9 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys">key</see> to check.</param>
     /// <returns><c>true</c> if <paramref name="key" /> is in the down state; otherwise, <c>false</c>.</returns>
-    public bool IsKeyDown(VirtualKeys key)
+    public Boolean IsKeyDown(VirtualKeys key)
     {
-        return keys[(int) key];
+        return keys[(Int32) key];
     }
 
     /// <summary>
@@ -102,9 +102,9 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys" /> to check.</param>
     /// <returns><c>true</c> if <paramref name="key" /> is in the up state; otherwise, <c>false</c>.</returns>
-    public bool IsKeyUp(VirtualKeys key)
+    public Boolean IsKeyUp(VirtualKeys key)
     {
-        return !keys[(int) key];
+        return !keys[(Int32) key];
     }
 
     /// <summary>
@@ -112,9 +112,9 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys" /> to check.</param>
     /// <returns><c>true</c> if <paramref name="key" /> was in the down state; otherwise, <c>false</c>.</returns>
-    public bool WasKeyDown(VirtualKeys key)
+    public Boolean WasKeyDown(VirtualKeys key)
     {
-        return keysPrevious[(int) key];
+        return keysPrevious[(Int32) key];
     }
 
     /// <summary>
@@ -122,9 +122,9 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys">key</see> to check.</param>
     /// <returns>True if the key is pressed in this frame, but not the last frame.</returns>
-    public bool IsKeyPressed(VirtualKeys key)
+    public Boolean IsKeyPressed(VirtualKeys key)
     {
-        return IsKeyDown(key) && !keysPrevious[(int) key];
+        return IsKeyDown(key) && !keysPrevious[(Int32) key];
     }
 
     /// <summary>
@@ -132,8 +132,8 @@ public class KeyState
     /// </summary>
     /// <param name="key">The <see cref="VirtualKeys">key</see> to check.</param>
     /// <returns>True if the key is released in this frame, but pressed the last frame.</returns>
-    public bool IsKeyReleased(VirtualKeys key)
+    public Boolean IsKeyReleased(VirtualKeys key)
     {
-        return !IsKeyDown(key) && keysPrevious[(int) key];
+        return !IsKeyDown(key) && keysPrevious[(Int32) key];
     }
 }

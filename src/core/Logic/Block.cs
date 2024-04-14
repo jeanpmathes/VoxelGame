@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -16,9 +17,9 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<string>
+public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>
 {
-    private const uint InvalidID = uint.MaxValue;
+    private const UInt32 InvalidID = UInt32.MaxValue;
     private readonly BoundingVolume boundingVolume;
 
     /// <summary>
@@ -28,7 +29,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
     /// <param name="flags">The block flags setting specific options.</param>
     /// <param name="boundingVolume">The base bounding volume for this block. Is used for placement checks.</param>
-    protected Block(string name, string namedID, BlockFlags flags, BoundingVolume boundingVolume)
+    protected Block(String name, String namedID, BlockFlags flags, BoundingVolume boundingVolume)
     {
         Name = name;
         NamedID = namedID;
@@ -55,40 +56,40 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     public IBlockBase Base => this;
 
     /// <inheritdoc />
-    public uint ID { get; private set; } = InvalidID;
+    public UInt32 ID { get; private set; } = InvalidID;
 
     /// <inheritdoc />
-    public string Name { get; }
+    public String Name { get; }
 
     /// <inheritdoc />
-    public string NamedID { get; }
+    public String NamedID { get; }
 
     /// <inheritdoc />
-    public bool RenderFaceAtNonOpaques { get; }
+    public Boolean RenderFaceAtNonOpaques { get; }
 
     /// <inheritdoc />
-    public bool ReceiveCollisions { get; }
+    public Boolean ReceiveCollisions { get; }
 
     /// <inheritdoc />
-    public bool IsTrigger { get; }
+    public Boolean IsTrigger { get; }
 
     /// <inheritdoc />
-    public bool IsReplaceable { get; }
+    public Boolean IsReplaceable { get; }
 
     /// <inheritdoc />
-    public bool IsInteractable { get; }
+    public Boolean IsInteractable { get; }
 
     /// <inheritdoc />
-    public bool IsUnshaded { get; }
+    public Boolean IsUnshaded { get; }
 
     /// <inheritdoc />
-    public bool IsFull { get; }
+    public Boolean IsFull { get; }
 
     /// <inheritdoc />
-    public bool IsOpaque { get; }
+    public Boolean IsOpaque { get; }
 
     /// <inheritdoc />
-    public bool IsSolid { get; }
+    public Boolean IsSolid { get; }
 
     /// <summary>
     ///     Attempt to place the block in the world.
@@ -97,7 +98,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="position">The position at which to place the block.</param>
     /// <param name="actor"></param>
     /// <returns>True if placement was successful.</returns>
-    public bool Place(World world, Vector3i position, PhysicsActor? actor = null)
+    public Boolean Place(World world, Vector3i position, PhysicsActor? actor = null)
     {
         Content? content = world.GetContent(position);
 
@@ -105,7 +106,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
 
         (BlockInstance block, FluidInstance _) = content.Value;
 
-        bool canPlace = block.Block.IsReplaceable && CanPlace(world, position, actor);
+        Boolean canPlace = block.Block.IsReplaceable && CanPlace(world, position, actor);
 
         if (!canPlace) return canPlace;
 
@@ -122,7 +123,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="position">The position at which to destroy to block.</param>
     /// <param name="actor">The actor destroying the block.</param>1
     /// <returns>True if destruction was successful.</returns>
-    public bool Destroy(World world, Vector3i position, PhysicsActor? actor = null)
+    public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -134,9 +135,9 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
         return true;
     }
 
-    string IIdentifiable<string>.ID => NamedID;
+    String IIdentifiable<String>.ID => NamedID;
 
-    uint IIdentifiable<uint>.ID => ID;
+    UInt32 IIdentifiable<UInt32>.ID => ID;
 
     /// <summary>
     ///     Setup the block.
@@ -144,7 +145,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="id">The ID of the block.</param>
     /// <param name="indexProvider">The index provider for the block textures.</param>
     /// <param name="visuals">The visual configuration of the game.</param>
-    public void Setup(uint id, ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    public void Setup(UInt32 id, ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Debug.Assert(ID == InvalidID);
         ID = id;
@@ -179,7 +180,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// </summary>
     /// <param name="data">The block data.</param>
     /// <returns>The bounding volume for the given data.</returns>
-    protected virtual BoundingVolume GetBoundingVolume(uint data)
+    protected virtual BoundingVolume GetBoundingVolume(UInt32 data)
     {
         return boundingVolume;
     }
@@ -191,7 +192,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="actor">The actor that performs placement.</param>
     /// <returns>True if placement is possible.</returns>
-    public virtual bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public virtual Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return true;
     }
@@ -216,7 +217,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="data">The block data.</param>
     /// <param name="actor">The actor that performs placement.</param>
     /// <returns></returns>
-    protected virtual bool CanDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected virtual Boolean CanDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
         return true;
     }
@@ -229,7 +230,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="data">The block data.</param>
     /// <param name="actor">The actor that performs placement.</param>
-    protected virtual void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected virtual void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
         world.SetDefaultBlock(position);
     }
@@ -251,7 +252,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="actor">The actor that collided with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void ActorCollision(PhysicsActor actor, Vector3i position, uint data) {}
+    protected virtual void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data) {}
 
     /// <summary>
     ///     Called when a block and an actor collide.
@@ -270,7 +271,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="actor">The actor that interacted with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void ActorInteract(PhysicsActor actor, Vector3i position, uint data) {}
+    protected virtual void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data) {}
 
     /// <summary>
     ///     Called when the content at a position changes. This is called on the new block at that position.
@@ -289,17 +290,17 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     /// <param name="position">The block position.</param>
     /// <param name="data">The data of the block next to the changed position.</param>
     /// <param name="side">The side of the block where the change happened.</param>
-    public virtual void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side) {}
+    public virtual void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side) {}
 
     /// <summary>
     ///     This method is called randomly on some blocks every update.
     /// </summary>
-    public virtual void RandomUpdate(World world, Vector3i position, uint data) {}
+    public virtual void RandomUpdate(World world, Vector3i position, UInt32 data) {}
 
     /// <summary>
     ///     This method is called for scheduled updates.
     /// </summary>
-    protected virtual void ScheduledUpdate(World world, Vector3i position, uint data) {}
+    protected virtual void ScheduledUpdate(World world, Vector3i position, UInt32 data) {}
 
     /// <summary>
     ///     This method is called on every block after the chunk the block is in has been generated.
@@ -312,7 +313,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<uint>, IIdentifiable<
     }
 
     /// <inheritdoc />
-    public sealed override string ToString()
+    public sealed override String ToString()
     {
         return NamedID;
     }

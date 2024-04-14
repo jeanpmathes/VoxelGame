@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -18,7 +19,7 @@ public class SaltWaterFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="SaltWaterFluid" />.
     /// </summary>
-    public SaltWaterFluid(string name, string namedID, float density, int viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
+    public SaltWaterFluid(String name, String namedID, Single density, Int32 viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
         base(
             name,
             namedID,
@@ -30,7 +31,7 @@ public class SaltWaterFluid : BasicFluid
             RenderType.Transparent) {}
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
+    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         if (!isStatic || level != FluidLevel.One) return;
         if (!world.HasFullAndSolidGround(position)) return;

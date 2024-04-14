@@ -17,7 +17,7 @@ public class OptionalKey
     /// <summary>
     ///     Get or set whether the key should use the default value.
     /// </summary>
-    public bool Default { get; set; } = true;
+    public Boolean Default { get; set; } = true;
 
     /// <summary>
     ///     The key, if <see cref="Default" /> is false, or an invalid value if <see cref="Default" /> is true.
@@ -36,7 +36,7 @@ public static class OptionalKeyExtensions
     /// <param name="key">The key to serialize.</param>
     /// <param name="isDefault">Whether to use a default value instead.</param>
     /// <returns>The optional key.</returns>
-    public static OptionalKey GetSettings(this VirtualKeys key, bool isDefault)
+    public static OptionalKey GetSettings(this VirtualKeys key, Boolean isDefault)
     {
         return isDefault ? new OptionalKey() : new OptionalKey {Default = false, Key = key};
     }

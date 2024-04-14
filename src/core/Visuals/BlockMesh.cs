@@ -67,16 +67,16 @@ public class BlockMesh
         return Subdivide(DivideAlongV);
     }
 
-    private BlockMesh Subdivide(Action<int, BlockMesh> divider)
+    private BlockMesh Subdivide(Action<Int32, BlockMesh> divider)
     {
         BlockMesh mesh = new(new Quad[quads.Length * 2]);
 
         for (var quad = 0; quad < quads.Length; quad++)
         {
-            int first = quad * 2;
+            Int32 first = quad * 2;
             mesh.quads[first] = quads[quad];
 
-            int second = quad * 2 + 1;
+            Int32 second = quad * 2 + 1;
             mesh.quads[second] = quads[quad];
 
             divider(quad, mesh);
@@ -85,10 +85,10 @@ public class BlockMesh
         return mesh;
     }
 
-    private void DivideAlongU(int quad, BlockMesh mesh)
+    private void DivideAlongU(Int32 quad, BlockMesh mesh)
     {
-        int first = quad * 2;
-        int second = quad * 2 + 1;
+        Int32 first = quad * 2;
+        Int32 second = quad * 2 + 1;
 
         Vector3 midLeftPosition = (quads[quad].A + quads[quad].B) / 2;
         Vector3 midRightPosition = (quads[quad].D + quads[quad].C) / 2;
@@ -107,10 +107,10 @@ public class BlockMesh
         Meshing.SetUVs(ref mesh.quads[second].data, midLeftUV, uv.b, uv.c, midRightUV);
     }
 
-    private void DivideAlongV(int quad, BlockMesh mesh)
+    private void DivideAlongV(Int32 quad, BlockMesh mesh)
     {
-        int first = quad * 2;
-        int second = quad * 2 + 1;
+        Int32 first = quad * 2;
+        Int32 second = quad * 2 + 1;
 
         Vector3 midBottomPosition = (quads[quad].A + quads[quad].D) / 2;
         Vector3 midTopPosition = (quads[quad].B + quads[quad].C) / 2;
@@ -135,7 +135,7 @@ public class BlockMesh
     /// <param name="tint">An optional tint.</param>
     /// <param name="isAnimated">Whether the model is animated.</param>
     /// <returns>The mesh data.</returns>
-    public IComplex.MeshData GetMeshData(TintColor? tint = null, bool isAnimated = false)
+    public IComplex.MeshData GetMeshData(TintColor? tint = null, Boolean isAnimated = false)
     {
         return new IComplex.MeshData(quads)
         {
@@ -149,9 +149,9 @@ public class BlockMesh
     /// </summary>
     /// <param name="count">The number of quads, will be set to the length of the array.</param>
     /// <returns>The mesh data.</returns>
-    public Quad[] GetMeshData(out uint count)
+    public Quad[] GetMeshData(out UInt32 count)
     {
-        count = (uint) quads.Length;
+        count = (UInt32) quads.Length;
 
         return quads;
     }
@@ -192,14 +192,14 @@ public class BlockMesh
         /// <summary>
         ///     The data of the quad.
         /// </summary>
-        public (uint a, uint b, uint c, uint d) data;
+        public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data;
 
         #pragma warning restore S1104
 
         /// <summary>
         ///     Check whether this quad is equal to another.
         /// </summary>
-        public bool Equals(Quad other)
+        public Boolean Equals(Quad other)
         {
             #pragma warning disable S1067
             return A.Equals(other.A)
@@ -211,13 +211,13 @@ public class BlockMesh
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is Quad other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(A, B, C, D);
         }
@@ -225,7 +225,7 @@ public class BlockMesh
         /// <summary>
         ///     Check equality of two quads.
         /// </summary>
-        public static bool operator ==(Quad left, Quad right)
+        public static Boolean operator ==(Quad left, Quad right)
         {
             return left.Equals(right);
         }
@@ -233,7 +233,7 @@ public class BlockMesh
         /// <summary>
         ///     Check inequality of two quads.
         /// </summary>
-        public static bool operator !=(Quad left, Quad right)
+        public static Boolean operator !=(Quad left, Quad right)
         {
             return !left.Equals(right);
         }

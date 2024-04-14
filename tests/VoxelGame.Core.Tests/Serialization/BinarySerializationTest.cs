@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Core.Serialization;
@@ -22,7 +23,7 @@ public class BinarySerializationTest
             q = Data.TestState.C
         };
 
-        int[] p = [1, 2, 3, 4, 5];
+        Int32[] p = [1, 2, 3, 4, 5];
 
         using MemoryStream stream = new();
         using BinarySerializer serializer = new(stream, "test");
@@ -54,24 +55,24 @@ public class BinarySerializationTest
 
         public readonly List<TestValue> r = [new TestValue {value = 21}, new TestValue {value = 22}];
 
-        private int a = 1;
-        private long b = 2;
-        private int c = 3;
-        private uint d = 4;
-        private long e = 5;
-        private ulong f = 6;
-        private short g = 7;
-        private ushort h = 8;
-        private byte i = 9;
-        private sbyte j = 10;
-        private float k = 11.0f;
-        private double l = 12.0;
-        private bool m = true;
-        private char n = '4';
-        public string o = "fifteen";
-        public int[] p = [16, 17, 18, 19, 20];
+        private Int32 a = 1;
+        private Int64 b = 2;
+        private Int32 c = 3;
+        private UInt32 d = 4;
+        private Int64 e = 5;
+        private UInt64 f = 6;
+        private Int16 g = 7;
+        private UInt16 h = 8;
+        private Byte i = 9;
+        private SByte j = 10;
+        private Single k = 11.0f;
+        private Double l = 12.0;
+        private Boolean m = true;
+        private Char n = '4';
+        public String o = "fifteen";
+        public Int32[] p = [16, 17, 18, 19, 20];
         public TestState q = TestState.B;
-        public static int Version => 12;
+        public static Int32 Version => 12;
 
         public void Serialize(Serializer serializer, IEntity.Header header)
         {
@@ -99,7 +100,7 @@ public class BinarySerializationTest
 
         public class TestValue : IValue
         {
-            public int value;
+            public Int32 value;
 
             public void Serialize(Serializer serializer)
             {

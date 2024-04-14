@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Collections;
 using VoxelGame.Support.Input.Actions;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Client.Application;
 /// </summary>
 internal sealed class ScreenBehaviour
 {
-    private const int DeltaBufferCapacity = 50;
+    private const Int32 DeltaBufferCapacity = 50;
     private readonly Client client;
 
     private readonly ToggleButton fullscreenToggle;
@@ -32,18 +33,18 @@ internal sealed class ScreenBehaviour
     /// <summary>
     ///     Get the fps of the screen.
     /// </summary>
-    internal double FPS => 1.0 / renderDeltaBuffer.Average;
+    internal Double FPS => 1.0 / renderDeltaBuffer.Average;
 
     /// <summary>
     ///     Get the ups of the screen.
     /// </summary>
-    internal double UPS => 1.0 / updateDeltaBuffer.Average;
+    internal Double UPS => 1.0 / updateDeltaBuffer.Average;
 
     /// <summary>
     ///     Call when rendering.
     /// </summary>
     /// <param name="time">The time since the last render operation.</param>
-    internal void Render(double time)
+    internal void Render(Double time)
     {
         renderDeltaBuffer.Write(time);
     }
@@ -52,7 +53,7 @@ internal sealed class ScreenBehaviour
     ///     Call when updating.
     /// </summary>
     /// <param name="time">The time since the last update operation.</param>
-    internal void Update(double time)
+    internal void Update(Double time)
     {
         if (client.IsFocused && fullscreenToggle.Changed) client.ToggleFullscreen();
 

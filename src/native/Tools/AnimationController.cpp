@@ -43,13 +43,13 @@ void AnimationController::SetupResourceLayout(ShaderResources::Description* desc
         m_inputGeometryListLocation,
         CreateSizeGetter(&m_meshes),
         getSourceDescriptor,
-        CreateListBuilder(&m_meshes, getIndexOfMesh));
+        CreateBagBuilder(&m_meshes, getIndexOfMesh));
 
     m_dstGeometryList = description->AddUnorderedAccessViewDescriptorList(
         m_outputGeometryListLocation,
         CreateSizeGetter(&m_meshes),
         getDestinationDescriptor,
-        CreateListBuilder(&m_meshes, getIndexOfMesh));
+        CreateBagBuilder(&m_meshes, getIndexOfMesh));
 }
 
 void AnimationController::Initialize(NativeClient& client, ComPtr<ID3D12RootSignature> const& rootSignature)
@@ -119,40 +119,26 @@ void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> const& commandL
 {
     if (m_threadGroupData.empty()) return;
 
-    std::vector<CD3DX12_RESOURCE_BARRIER> barriers;
-    barriers.reserve(m_meshes.GetCount());
+    CreateBarriers();
 
-    barriers.clear();
-    for (auto const& mesh : m_meshes)
-        barriers.emplace_back(
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                mesh->GetGeometryBuffer().Get(),
-                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
-    commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
+    commandList->ResourceBarrier(static_cast<UINT>(m_entryBarriers.size()), m_entryBarriers.data());
 
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->Dispatch(static_cast<UINT>(m_threadGroupData.size()), 1, 1);
 
-    barriers.clear();
-    for (auto const& mesh : m_meshes)
-        barriers.emplace_back(
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                mesh->GetGeometryBuffer().Get(),
-                D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-    commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
+    commandList->ResourceBarrier(static_cast<UINT>(m_exitBarriers.size()), m_exitBarriers.data());
 }
 
 void AnimationController::CreateBLAS(
     ComPtr<ID3D12GraphicsCommandList4> const& commandList,
     std::vector<ID3D12Resource*>*             uavs)
 {
-    for (auto const& mesh : m_meshes)
+    m_meshes.ForEach(
+        [&](Mesh* const& mesh)
     {
         constexpr bool isForAnimation = true;
         mesh->CreateBLAS(commandList, uavs, isForAnimation);
-    }
+    });
 }
 
 void AnimationController::UpdateThreadGroupData()
@@ -181,7 +167,8 @@ void AnimationController::UpdateThreadGroupData()
         submission.count             = count;
     };
 
-    for (auto const& mesh : m_meshes)
+    m_meshes.ForEach(
+        [this, &addSubmission](Mesh* const& mesh)
     {
         auto const meshIndex     = static_cast<UINT>(mesh->GetAnimationHandle());
         auto const instanceIndex = static_cast<UINT>(mesh->GetActiveIndex().value());
@@ -192,7 +179,7 @@ void AnimationController::UpdateThreadGroupData()
             UINT const count = std::min(elementCount - offset, anim::MAX_ELEMENTS_PER_SUBMISSION);
             addSubmission(meshIndex, instanceIndex, offset, count);
         }
-    }
+    });
 }
 
 void AnimationController::UploadThreadGroupData(
@@ -255,4 +242,29 @@ void AnimationController::UploadThreadGroupData(
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
     commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
+}
+
+void AnimationController::CreateBarriers()
+{
+    m_entryBarriers.clear();
+    m_entryBarriers.reserve(m_meshes.GetCount());
+
+    m_exitBarriers.clear();
+    m_exitBarriers.reserve(m_meshes.GetCount());
+
+    m_meshes.ForEach(
+        [this](Mesh* const& mesh)
+        {
+            m_entryBarriers.emplace_back(
+                CD3DX12_RESOURCE_BARRIER::Transition(
+                    mesh->GetGeometryBuffer().Get(),
+                    D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                    D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+
+            m_exitBarriers.emplace_back(
+                CD3DX12_RESOURCE_BARRIER::Transition(
+                    mesh->GetGeometryBuffer().Get(),
+                    D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                    D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
+        });
 }

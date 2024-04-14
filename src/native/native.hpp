@@ -55,6 +55,9 @@ struct Configuration
     LPWSTR title;
     HICON  icon;
 
+    LPWSTR applicationName;
+    LPWSTR applicationVersion;
+
     FLOAT renderScale;
 
     ConfigurationOptions options;

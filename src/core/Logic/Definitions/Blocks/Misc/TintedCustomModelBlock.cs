@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // c: color
 public class TintedCustomModelBlock : CustomModelBlock, ICombustible
 {
-    internal TintedCustomModelBlock(string name, string namedID, BlockFlags flags, string modelName,
+    internal TintedCustomModelBlock(String name, String namedID, BlockFlags flags, String modelName,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -37,7 +38,7 @@ public class TintedCustomModelBlock : CustomModelBlock, ICombustible
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }

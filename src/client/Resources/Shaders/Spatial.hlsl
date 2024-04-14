@@ -69,6 +69,8 @@ namespace vg
                 vertices[instance][vertexIndex + 1].data,
                 vertices[instance][vertexIndex + 2].data,
                 vertices[instance][vertexIndex + 3].data);
+
+            if (decode::GetNormalInvertedFlag(data)) normal *= -1.0f;
         }
 
         /**
@@ -175,8 +177,10 @@ namespace vg
          */
         float3 CalculateShading(in Info info, float3 const baseColor)
         {
+            bool const inner = decode::GetNormalInvertedFlag(info.data);
+            
             float3 const dirToLight = native::spatial::global.lightDir * -1.0f;
-            float3 const normal     = info.normal;
+            float3 const normal     = info.normal * (inner ? -1.0f : 1.0f);
 
             float3 color = baseColor;
 
@@ -186,9 +190,9 @@ namespace vg
             if (shaded)
             {
                 RayDesc ray;
-                ray.Origin    = info.GetPosition();
+                ray.Origin    = info.GetPosition() + normal * native::rt::RAY_EPSILON;
                 ray.Direction = dirToLight;
-                ray.TMin      = native::rt::RAY_EPSILON;
+                ray.TMin      = 0.0f;
                 ray.TMax      = native::rt::RAY_DISTANCE;
 
                 native::rt::ShadowHitInfo shadowPayload;

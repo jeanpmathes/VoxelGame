@@ -26,17 +26,17 @@ namespace VoxelGame.UI.UserInterfaces;
 #pragma warning disable S2931 // Controls are disposed by their parent.
 public class ConsoleInterface
 {
-    private const int MaxConsoleLogLength = 200;
+    private const Int32 MaxConsoleLogLength = 200;
 
-    private const string DefaultMarker = "[ ]";
-    private const string FollowUpMarker = "[a]";
+    private const String DefaultMarker = "[ ]";
+    private const String FollowUpMarker = "[a]";
     private static readonly Color echoColor = Colors.Secondary;
     private static readonly Color responseColor = Colors.Primary;
     private static readonly Color errorColor = Colors.Error;
     private readonly IConsoleProvider console;
 
     private readonly LinkedList<Entry> consoleLog = new();
-    private readonly LinkedList<string> consoleMemory = new();
+    private readonly LinkedList<String> consoleMemory = new();
 
     private readonly Context context;
 
@@ -59,7 +59,7 @@ public class ConsoleInterface
             Array.Empty<FollowUp>()));
     }
 
-    internal bool IsOpen => consoleWindow != null;
+    internal Boolean IsOpen => consoleWindow != null;
 
     internal void OpenWindow()
     {
@@ -131,7 +131,7 @@ public class ConsoleInterface
 
         void Submit()
         {
-            string input = consoleInput.Text;
+            String input = consoleInput.Text;
             consoleInput.Memorize();
 
             if (input.Length == 0) return;
@@ -147,7 +147,7 @@ public class ConsoleInterface
     /// <param name="message">The message text.</param>
     /// <param name="type">The type of message.</param>
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    private void Write(string message, EntryType type, FollowUp[] followUp)
+    private void Write(String message, EntryType type, FollowUp[] followUp)
     {
         Entry entry = new(message, type, followUp);
 
@@ -172,7 +172,7 @@ public class ConsoleInterface
 
         (Font font, Color color) = entry.GetStyle(context);
 
-        void SetText(int column, string text)
+        void SetText(Int32 column, String text)
         {
             row.SetCellText(column, text);
             row.SetCellFont(column, font);
@@ -214,7 +214,7 @@ public class ConsoleInterface
     /// </summary>
     /// <param name="message">The message text.</param>
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteResponse(string message, FollowUp[] followUp)
+    public void WriteResponse(String message, FollowUp[] followUp)
     {
         Write(message, EntryType.Response, followUp);
     }
@@ -224,7 +224,7 @@ public class ConsoleInterface
     /// </summary>
     /// <param name="message">The message text.</param>
     /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteError(string message, FollowUp[] followUp)
+    public void WriteError(String message, FollowUp[] followUp)
     {
         Write(message, EntryType.Error, followUp);
     }
@@ -267,7 +267,7 @@ public class ConsoleInterface
         Echo
     }
 
-    private sealed record Entry(string Text, EntryType Type, FollowUp[] FollowUp)
+    private sealed record Entry(String Text, EntryType Type, FollowUp[] FollowUp)
     {
         public (Font font, Color color) GetStyle(Context context)
         {

@@ -20,17 +20,17 @@ public struct TextureDescription
     /// <summary>
     ///     The width of the texture.
     /// </summary>
-    public uint Width;
+    public UInt32 Width;
 
     /// <summary>
     ///     The height of the texture.
     /// </summary>
-    public uint Height;
+    public UInt32 Height;
 
     /// <summary>
     ///     The number of mip-levels in the texture.
     /// </summary>
-    public uint MipLevels;
+    public UInt32 MipLevels;
 
     /// <summary>
     ///     The used color format.

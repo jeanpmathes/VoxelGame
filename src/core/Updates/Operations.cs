@@ -56,7 +56,7 @@ public static class Operations
     /// <returns>The operation.</returns>
     public static Operation CreateDone()
     {
-        return new WrapperOperation<int>(result: 0);
+        return new WrapperOperation<Int32>(result: 0);
     }
 
     /// <summary>

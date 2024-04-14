@@ -35,12 +35,12 @@ public class World : Core.Logic.World
 
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
-    private static readonly int minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
+    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
     /// </summary>
-    private readonly HashSet<(Chunk chunk, (int x, int y, int z))> sectionsToMesh = [];
+    private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
 
     private readonly Space space;
 
@@ -49,7 +49,7 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public World(DirectoryInfo path, string name, (int upper, int lower) seed) : base(path, name, seed)
+    public World(DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
     {
         space = Application.Client.Instance.Space;
 
@@ -116,9 +116,9 @@ public class World : Core.Logic.World
 
         void CullActiveChunks()
         {
-            for (int x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
-            for (int y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
-            for (int z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
+            for (Int32 x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
+            for (Int32 y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
+            for (Int32 z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
             {
                 Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
                 chunk?.Cast().CullSections(frustum);
@@ -131,7 +131,7 @@ public class World : Core.Logic.World
     /// </summary>
     /// <param name="deltaTime">Time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(double deltaTime, Timer? updateTimer)
+    public void Update(Double deltaTime, Timer? updateTimer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
 
@@ -203,7 +203,7 @@ public class World : Core.Logic.World
         player?.OnDeactivate();
     }
 
-    private void DoTicksOnEverything(double deltaTime)
+    private void DoTicksOnEverything(Double deltaTime)
     {
         foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
 
@@ -212,7 +212,7 @@ public class World : Core.Logic.World
 
     private void MeshAndClearSectionList()
     {
-        foreach ((Chunk chunk, (int x, int y, int z)) in sectionsToMesh)
+        foreach ((Chunk chunk, (Int32 x, Int32 y, Int32 z)) in sectionsToMesh)
             chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared));
 
         sectionsToMesh.Clear();
@@ -262,9 +262,9 @@ public class World : Core.Logic.World
         CheckAxis(axis: 1);
         CheckAxis(axis: 2);
 
-        void CheckAxis(int axis)
+        void CheckAxis(Int32 axis)
         {
-            int axisSectionPosition = position[axis] & (Core.Logic.Section.Size - 1);
+            Int32 axisSectionPosition = position[axis] & (Core.Logic.Section.Size - 1);
 
             Vector3i direction = new()
             {

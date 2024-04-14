@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Serialization;
 
 /// <summary>
@@ -16,7 +18,7 @@ public interface IEntity
     /// <summary>
     ///     Get the current version of the entity.
     /// </summary>
-    public static abstract int Version { get; }
+    public static abstract Int32 Version { get; }
 
     /// <summary>
     ///     Serialize the entity.
@@ -29,5 +31,5 @@ public interface IEntity
     ///     Header of an entity.
     /// </summary>
     /// <param name="Version">The version of the entity.</param>
-    public record struct Header(int Version);
+    public record struct Header(Int32 Version);
 }

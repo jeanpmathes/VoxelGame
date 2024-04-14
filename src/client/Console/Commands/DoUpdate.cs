@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
@@ -17,10 +18,10 @@ namespace VoxelGame.Client.Console.Commands;
 public class DoUpdate : Command
 {
     /// <inheritdoc />
-    public override string Name => "do-update";
+    public override String Name => "do-update";
 
     /// <inheritdoc />
-    public override string HelpText => "Cause a random update to occur for a targeted position.";
+    public override String HelpText => "Cause a random update to occur for a targeted position.";
 
     /// <exclude />
     public void Invoke()
@@ -30,14 +31,14 @@ public class DoUpdate : Command
     }
 
     /// <exclude />
-    public void Invoke(int x, int y, int z)
+    public void Invoke(Int32 x, Int32 y, Int32 z)
     {
         Update((x, y, z));
     }
 
     private void Update(Vector3i position)
     {
-        bool success = Context.Player.World.DoRandomUpdate(position);
+        Boolean success = Context.Player.World.DoRandomUpdate(position);
         if (!success) Context.Console.WriteError("Cannot update at this position.");
     }
 }

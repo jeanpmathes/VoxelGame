@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public class WorldData
 {
-    private const string InfoFileName = "info.json";
+    private const String InfoFileName = "info.json";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
@@ -50,7 +50,7 @@ public class WorldData
         DebugDirectory = AddSubdirectory("Debug");
         ScriptDirectory = AddSubdirectory("Scripts");
 
-        DirectoryInfo AddSubdirectory(string name)
+        DirectoryInfo AddSubdirectory(String name)
         {
             DirectoryInfo subdirectory = directory.GetDirectory(name);
 
@@ -103,9 +103,9 @@ public class WorldData
     /// </summary>
     /// <param name="information">The information to make valid.</param>
     /// <param name="silent">If true, no log messages will be emitted.</param>
-    private static void MakeWorldInformationValid(WorldInformation information, bool silent = false)
+    private static void MakeWorldInformationValid(WorldInformation information, Boolean silent = false)
     {
-        string validWorldName = MakeWorldNameValid(information.Name);
+        String validWorldName = MakeWorldNameValid(information.Name);
 
         if (!silent && validWorldName != information.Name)
         {
@@ -113,7 +113,7 @@ public class WorldData
             information.Name = validWorldName;
         }
 
-        uint validWorldSize = ClampSize(information.Size);
+        UInt32 validWorldSize = ClampSize(information.Size);
 
         if (!silent && validWorldSize != information.Size)
         {
@@ -135,11 +135,11 @@ public class WorldData
     /// </summary>
     /// <param name="name">The name to make valid.</param>
     /// <returns>The valid name.</returns>
-    public static string MakeWorldNameValid(string name)
+    public static String MakeWorldNameValid(String name)
     {
         StringBuilder builder = new(name.Length);
 
-        foreach (char c in name.Trim())
+        foreach (Char c in name.Trim())
         {
             if (Array.Exists(Path.GetInvalidFileNameChars(), value => value == c)) continue;
             if (Array.Exists(['.', ',', '{', '}'], value => value == c)) continue;
@@ -155,7 +155,7 @@ public class WorldData
         return builder.ToString();
     }
 
-    private static uint ClampSize(uint size)
+    private static UInt32 ClampSize(UInt32 size)
     {
         return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
     }
@@ -188,7 +188,7 @@ public class WorldData
     /// <param name="name">The name of the blob.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
     /// <returns>The entity, or null if an error occurred.</returns>
-    public T? ReadBlob<T>(string name) where T : class, IEntity, new()
+    public T? ReadBlob<T>(String name) where T : class, IEntity, new()
     {
         Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
 
@@ -205,7 +205,7 @@ public class WorldData
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
-    public void WriteBlob<T>(string name, T entity) where T : class, IEntity, new()
+    public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
     {
         Exception? exception = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
 
@@ -213,7 +213,7 @@ public class WorldData
             logger.LogError(Events.WorldIO, exception, "Failed to write blob '{Name}'", name);
     }
 
-    private FileInfo GetScriptPath(string name)
+    private FileInfo GetScriptPath(String name)
     {
         return ScriptDirectory.GetFile($"{name}.txt");
     }
@@ -223,7 +223,7 @@ public class WorldData
     /// </summary>
     /// <param name="name">The name of the script.</param>
     /// <returns>The content of the script, or null if the script does not exist.</returns>
-    public string? GetScript(string name)
+    public String? GetScript(String name)
     {
         try
         {
@@ -243,7 +243,7 @@ public class WorldData
     /// <param name="name">The name of the script.</param>
     /// <param name="content">The initial content of the script.</param>
     /// <returns>The path to the script, or null if an error occurred.</returns>
-    public FileInfo? CreateScript(string name, string content)
+    public FileInfo? CreateScript(String name, String content)
     {
         try
         {
@@ -289,7 +289,7 @@ public class WorldData
     /// </summary>
     /// <param name="directory">The directory to check.</param>
     /// <returns>True if the directory is a world directory.</returns>
-    public static bool IsWorldDirectory(DirectoryInfo directory)
+    public static Boolean IsWorldDirectory(DirectoryInfo directory)
     {
         return directory.GetFile(InfoFileName).Exists;
     }
@@ -367,7 +367,7 @@ public class WorldData
     ///     Rename the world.
     /// </summary>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
-    public void Rename(string newName)
+    public void Rename(String newName)
     {
         logger.LogInformation(Events.WorldIO, "Renaming world '{OldName}' to '{NewName}'", Information.Name, newName);
 

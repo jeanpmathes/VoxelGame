@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Logging;
 
 /// <summary>
@@ -14,95 +16,95 @@ public static class Events
     /// <summary>
     ///     The default ID, which is also used if no ID is given.
     /// </summary>
-    public const int Default = 0;
+    public const Int32 Default = 0;
 
     /// <summary>
     ///     Events related to the logging system itself.
     /// </summary>
-    public const int Meta = 60000;
+    public const Int32 Meta = 60000;
 
     #region GENERAL APPLICATION
 
     /// <summary>
     ///     Information related to the application.
     /// </summary>
-    public const int ApplicationInformation = 1;
+    public const Int32 ApplicationInformation = 1;
 
     /// <summary>
     ///     Events that indicate a change of the general application state.
     /// </summary>
-    public const int ApplicationState = 10;
+    public const Int32 ApplicationState = 10;
 
     /// <summary>
     ///     Occurs when the state of the application window has changed.
     /// </summary>
-    public const int WindowState = 11;
+    public const Int32 WindowState = 11;
 
     /// <summary>
     ///     Events related to OS interactions.
     /// </summary>
-    public const int OS = 20;
+    public const Int32 OS = 20;
 
     /// <summary>
     ///     Events related to file system operations.
     /// </summary>
-    public const int FileIO = 50;
+    public const Int32 FileIO = 50;
 
     /// <summary>
     ///     Events related to the scene system.
     /// </summary>
-    public const int Scene = 60;
+    public const Int32 Scene = 60;
 
     /// <summary>
     ///     Events related to the in-game console.
     /// </summary>
-    public const int Console = 70;
+    public const Int32 Console = 70;
 
     /// <summary>
     ///     Events related to the disposal of objects.
     /// </summary>
-    public const int Dispose = 99;
+    public const Int32 Dispose = 99;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of resources.
     /// </summary>
-    public const int ResourceLoad = 100;
+    public const Int32 ResourceLoad = 100;
 
     /// <summary>
     ///     Occurs with events or information connected to the successful loading of creations.
     ///     Creations are user-made resources that are loaded during an active game session.
     /// </summary>
-    public const int CreationLoad = 102;
+    public const Int32 CreationLoad = 102;
 
     /// <summary>
     ///     Occurs when a texture or model that is requested could not be loaded and a fallback is used.
     /// </summary>
-    public const int MissingResource = 110;
+    public const Int32 MissingResource = 110;
 
     /// <summary>
     ///     Occurs when entire resource directories or file structures are not available.
     /// </summary>
-    public const int MissingDepository = 111;
+    public const Int32 MissingDepository = 111;
 
     /// <summary>
     ///     Occurs when a creation is not available or could not be loaded.
     /// </summary>
-    public const int MissingCreation = 112;
+    public const Int32 MissingCreation = 112;
 
     /// <summary>
     ///     A general event category for everything input related.
     /// </summary>
-    public const int InputSystem = 200;
+    public const Int32 InputSystem = 200;
 
     /// <summary>
     ///     Occurs when a key bind is registered or the binding is changed.
     /// </summary>
-    public const int SetKeyBind = 210;
+    public const Int32 SetKeyBind = 210;
 
     /// <summary>
     ///     Occurs when the active scene is changed.
     /// </summary>
-    public const int SceneChange = 300;
+    public const Int32 SceneChange = 300;
 
     #endregion GENERAL APPLICATION
 
@@ -111,62 +113,62 @@ public static class Events
     /// <summary>
     ///     Events indicating a change of the world state.
     /// </summary>
-    public const int WorldState = 1000;
+    public const Int32 WorldState = 1000;
 
     /// <summary>
     ///     Events related to saving and loading worlds.
     /// </summary>
-    public const int WorldIO = 1001;
+    public const Int32 WorldIO = 1001;
 
     /// <summary>
     ///     An error that occurs when saving the world.
     /// </summary>
-    public const int WorldSavingError = 1010;
+    public const Int32 WorldSavingError = 1010;
 
     /// <summary>
     ///     An error that occurs when loading a world, e.g. when the meta file is damaged.
     /// </summary>
-    public const int WorldLoadingError = 1011;
+    public const Int32 WorldLoadingError = 1011;
 
     /// <summary>
     ///     An error that occurs when saving a chunk.
     /// </summary>
-    public const int ChunkSavingError = 1012;
+    public const Int32 ChunkSavingError = 1012;
 
     /// <summary>
     ///     An error that occurs when loading a chunk.
     /// </summary>
-    public const int ChunkLoadingError = 1013;
+    public const Int32 ChunkLoadingError = 1013;
 
     /// <summary>
     ///     An error that occurs when meshing a chunk.
     /// </summary>
-    public const int ChunkMeshingError = 1014;
+    public const Int32 ChunkMeshingError = 1014;
 
     /// <summary>
     ///     Different chunk operations like loading, saving or generating.
     /// </summary>
-    public const int ChunkOperation = 1030;
+    public const Int32 ChunkOperation = 1030;
 
     /// <summary>
     ///     Occurs when a chunk is requested.
     /// </summary>
-    public const int ChunkRequest = 1031;
+    public const Int32 ChunkRequest = 1031;
 
     /// <summary>
     ///     Occurs when a chunk is released.
     /// </summary>
-    public const int ChunkRelease = 1032;
+    public const Int32 ChunkRelease = 1032;
 
     /// <summary>
     ///     Events related to world generation.
     /// </summary>
-    public const int WorldGeneration = 1060;
+    public const Int32 WorldGeneration = 1060;
 
     /// <summary>
     ///     Any event concerning the physics system.
     /// </summary>
-    public const int PhysicsSystem = 1200;
+    public const Int32 PhysicsSystem = 1200;
 
     #endregion WORLD LOGIC
 
@@ -175,12 +177,12 @@ public static class Events
     /// <summary>
     ///     Occurs when loading blocks.
     /// </summary>
-    public const int BlockLoad = 2000;
+    public const Int32 BlockLoad = 2000;
 
     /// <summary>
     ///     Occurs when stored block information refers to unknown blocks.
     /// </summary>
-    public const int UnknownBlock = 2010;
+    public const Int32 UnknownBlock = 2010;
 
     #endregion BLOCKS
 
@@ -189,12 +191,12 @@ public static class Events
     /// <summary>
     ///     Occurs when loading fluids.
     /// </summary>
-    public const int FluidLoad = 2500;
+    public const Int32 FluidLoad = 2500;
 
     /// <summary>
     ///     Occurs when stored block information refers to unknown blocks.
     /// </summary>
-    public const int UnknownFluid = 2510;
+    public const Int32 UnknownFluid = 2510;
 
     #endregion LIQUIDS
 
@@ -203,22 +205,22 @@ public static class Events
     /// <summary>
     ///     Events related to render pipeline loading and compilation.
     /// </summary>
-    public const int RenderPipelineSetup = 3000;
+    public const Int32 RenderPipelineSetup = 3000;
 
     /// <summary>
     ///     Errors that occur during render pipeline setup.
     /// </summary>
-    public const int RenderPipelineError = 3001;
+    public const Int32 RenderPipelineError = 3001;
 
     /// <summary>
     ///     Occurs when a screenshot is taken.
     /// </summary>
-    public const int Screenshot = 3150;
+    public const Int32 Screenshot = 3150;
 
     /// <summary>
     ///     Occurs when DirectX issues a debug message.
     /// </summary>
-    public const int DirectXDebug = 3500;
+    public const Int32 DirectXDebug = 3500;
 
     #endregion RENDERING AND VISUALS
 }

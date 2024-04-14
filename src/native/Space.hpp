@@ -170,7 +170,10 @@ public:
     };
 
     void Update(double delta);
-    void Render(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth, RenderData const& data);
+    void Render(
+        Allocation<ID3D12Resource> const& color,
+        Allocation<ID3D12Resource> const& depth,
+        RenderData const&                 data);
     void CleanupRender();
 
     /**
@@ -309,9 +312,12 @@ private:
     DrawablesGroup<Effect>  m_effects{*m_nativeClient, m_drawables};
     std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
-    TLAS m_topLevelASBuffers;
+    nv_helpers_dx12::TopLevelASGenerator m_tlasGenerator;
+    TLAS                                 m_topLevelASBuffers;
 
     std::vector<AnimationController> m_animations = {};
 
     SharedIndexBuffer m_indexBuffer;
+
+    std::vector<ID3D12Resource*> m_uavs;
 };

@@ -58,7 +58,7 @@ internal static class BasicCameraDataMarshaller
 /// <param name="Near">The distance to the near plane.</param>
 /// <param name="Far">The distance to the far plane.</param>
 [NativeMarshalling(typeof(AdvancedCameraDataMarshaller))]
-public record struct AdvancedCameraData(float Fov, float Near, float Far);
+public record struct AdvancedCameraData(Single Fov, Single Near, Single Far);
 
 [CustomMarshaller(typeof(AdvancedCameraData), MarshalMode.ManagedToUnmanagedIn, typeof(AdvancedCameraDataMarshaller))]
 internal static class AdvancedCameraDataMarshaller
@@ -81,8 +81,8 @@ internal static class AdvancedCameraDataMarshaller
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal ref struct Unmanaged
     {
-        internal float fov;
-        internal float near;
-        internal float far;
+        internal Single fov;
+        internal Single near;
+        internal Single far;
     }
 }

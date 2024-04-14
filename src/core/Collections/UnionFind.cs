@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
@@ -11,21 +13,21 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public class UnionFind
 {
-    private readonly short[] id;
-    private readonly short[] size;
+    private readonly Int16[] id;
+    private readonly Int16[] size;
 
     /// <summary>
     ///     Creates a new union find structure with the given number of elements.
     /// </summary>
     /// <param name="n">The number of elements.</param>
-    public UnionFind(short n)
+    public UnionFind(Int16 n)
     {
         Count = n;
 
-        id = new short[n];
-        size = new short[n];
+        id = new Int16[n];
+        size = new Int16[n];
 
-        for (short i = 0; i < n; i++)
+        for (Int16 i = 0; i < n; i++)
         {
             id[i] = i;
             size[i] = 1;
@@ -35,22 +37,22 @@ public class UnionFind
     /// <summary>
     ///     Gets the number of elements in the union find structure.
     /// </summary>
-    public short Count { get; private set; }
+    public Int16 Count { get; private set; }
 
     /// <summary>
     ///     Finds the root of the given element.
     /// </summary>
     /// <param name="p">The element to find the root of.</param>
     /// <returns>The root of the given element.</returns>
-    public short Find(short p)
+    public Int16 Find(Int16 p)
     {
-        short root = p;
+        Int16 root = p;
 
         while (root != id[root]) root = id[root];
 
         while (p != root)
         {
-            short next = id[p];
+            Int16 next = id[p];
             id[p] = root;
             p = next;
         }
@@ -64,14 +66,14 @@ public class UnionFind
     /// <param name="p">The first element.</param>
     /// <param name="q">The second element.</param>
     /// <returns>The root of the new union.</returns>
-    public short Union(short p, short q)
+    public Int16 Union(Int16 p, Int16 q)
     {
-        short i = Find(p);
-        short j = Find(q);
+        Int16 i = Find(p);
+        Int16 j = Find(q);
 
         if (i == j) return i;
 
-        short root;
+        Int16 root;
 
         if (size[i] < size[j])
         {
@@ -99,7 +101,7 @@ public class UnionFind
     /// <param name="p">The first element. </param>
     /// <param name="q">The second element. </param>
     /// <returns>True if the two given elements are in the same union.</returns>
-    public bool Connected(short p, short q)
+    public Boolean Connected(Int16 p, Int16 q)
     {
         return Find(p) == Find(q);
     }
@@ -109,7 +111,7 @@ public class UnionFind
     /// </summary>
     /// <param name="p">The element to get the size of.</param>
     /// <returns>The size of the given element's union.</returns>
-    public int GetSize(short p)
+    public Int32 GetSize(Int16 p)
     {
         return size[Find(p)];
     }

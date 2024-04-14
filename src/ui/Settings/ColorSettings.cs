@@ -24,7 +24,7 @@ internal class ColorSettings : Setting
     private readonly Func<Color> get;
     private readonly Action<Color> set;
 
-    internal ColorSettings(string name, Func<Color> get, Action<Color> set)
+    internal ColorSettings(String name, Func<Color> get, Action<Color> set)
     {
         this.get = get;
         this.set = set;
@@ -32,7 +32,7 @@ internal class ColorSettings : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {

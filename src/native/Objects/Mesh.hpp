@@ -71,9 +71,9 @@ public:
      * \param isForAnimation Whether the BLAS is created for animation. If true and the mesh is modified and a BLAS will be created later anyway, this call will be ignored.
      */
     void CreateBLAS(
-        ComPtr<ID3D12GraphicsCommandList4> commandList,
-        std::vector<ID3D12Resource*>*      uavs,
-        bool                               isForAnimation = false);
+        ComPtr<ID3D12GraphicsCommandList4> const& commandList,
+        std::vector<ID3D12Resource*>*             uavs,
+        bool                                      isForAnimation = false);
     BLAS const& GetBLAS();
 
     void                                      SetAnimationHandle(AnimationController::Handle handle);

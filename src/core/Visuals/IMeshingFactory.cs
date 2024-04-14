@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
@@ -15,5 +17,5 @@ public interface IMeshingFactory
     /// </summary>
     /// <param name="hint">A hint for the size of the mesh that will be created.</param>
     /// <returns>The new meshing instance.</returns>
-    public IMeshing Create(int hint);
+    public IMeshing Create(Int32 hint);
 }

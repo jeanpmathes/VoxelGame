@@ -24,7 +24,7 @@ internal class QualitySetting : Setting
     private readonly MenuItem[] items = new MenuItem[Qualities.Count];
     private readonly Action<Quality> set;
 
-    internal QualitySetting(string name, Func<Quality> get, Action<Quality> set)
+    internal QualitySetting(String name, Func<Quality> get, Action<Quality> set)
     {
         this.get = get;
         this.set = set;
@@ -32,16 +32,16 @@ internal class QualitySetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {
         ComboBox qualitySelection = new(control);
 
         foreach (Quality quality in Qualities.All())
-            items[(int) quality] = qualitySelection.AddItem(quality.Name(), "", quality);
+            items[(Int32) quality] = qualitySelection.AddItem(quality.Name(), "", quality);
 
-        qualitySelection.SelectedItem = items[(int) get()];
+        qualitySelection.SelectedItem = items[(Int32) get()];
 
         qualitySelection.ItemSelected += (_, args) => set((Quality) ((MenuItem) args.SelectedItem).UserData!);
     }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic.Interfaces;
@@ -20,7 +21,7 @@ public interface ICombustible : IBlockBase
     /// <param name="position">The position of the block.</param>
     /// <param name="fire">The fire block that caused the burning.</param>
     /// <returns>true if the block was destroyed, false if not.</returns>
-    public bool Burn(World world, Vector3i position, Block fire)
+    public Boolean Burn(World world, Vector3i position, Block fire)
     {
         return Destroy(world, position);
     }

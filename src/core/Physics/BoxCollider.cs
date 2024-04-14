@@ -46,7 +46,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Check if this collider contains a point.
     /// </summary>
-    public bool Contains(Vector3d point)
+    public Boolean Contains(Vector3d point)
     {
         return Volume.Contains(point - Position);
     }
@@ -54,7 +54,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Check if this collider is intersected by a ray.
     /// </summary>
-    public bool Intersects(Ray ray)
+    public Boolean Intersects(Ray ray)
     {
         return Volume.Intersects(ray.Translated(-Position));
     }
@@ -62,7 +62,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Check if this collider is intersected by a frustum.
     /// </summary>
-    public bool Intersects(Frustum frustum)
+    public Boolean Intersects(Frustum frustum)
     {
         return Volume.Intersects(frustum.Translated(-Position));
     }
@@ -72,12 +72,12 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// </summary>
     /// <param name="other">The other collider.</param>
     /// <returns>True if they intersect.</returns>
-    public bool Intersects(BoxCollider other)
+    public Boolean Intersects(BoxCollider other)
     {
         BoxCollider self = this;
         Vector3d offset = other.Position - Position;
 
-        bool Check(BoundingVolume volume)
+        Boolean Check(BoundingVolume volume)
         {
             Box3d box = new(volume.Min + offset, volume.Max + offset);
 
@@ -98,12 +98,12 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Check if this collider intersects with another collider, and also set the collision planes.
     /// </summary>
-    public bool Intersects(BoxCollider other, ref bool x, ref bool y, ref bool z)
+    public Boolean Intersects(BoxCollider other, ref Boolean x, ref Boolean y, ref Boolean z)
     {
         BoxCollider self = this;
         Vector3d offset = other.Position - Position;
 
-        bool Check(BoundingVolume volume, ref bool lx, ref bool ly, ref bool lz)
+        Boolean Check(BoundingVolume volume, ref Boolean lx, ref Boolean ly, ref Boolean lz)
         {
             Box3d box = new(volume.Min + offset, volume.Max + offset);
 
@@ -121,8 +121,8 @@ public struct BoxCollider : IEquatable<BoxCollider>
         return Check(other.Volume, ref x, ref y, ref z);
     }
 
-    private bool IntersectsTerrain_NonRecursive(World world, out bool xCollision, out bool yCollision,
-        out bool zCollision, ISet<(Vector3i position, Block block)> blockIntersections,
+    private Boolean IntersectsTerrain_NonRecursive(World world, out Boolean xCollision, out Boolean yCollision,
+        out Boolean zCollision, ISet<(Vector3i position, Block block)> blockIntersections,
         ISet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
         var intersects = false;
@@ -132,10 +132,10 @@ public struct BoxCollider : IEquatable<BoxCollider>
         zCollision = false;
 
         // Calculate the range of blocks to check.
-        double highestExtent = Volume.Extents.X > Volume.Extents.Y ? Volume.Extents.X : Volume.Extents.Y;
+        Double highestExtent = Volume.Extents.X > Volume.Extents.Y ? Volume.Extents.X : Volume.Extents.Y;
         highestExtent = highestExtent > Volume.Extents.Z ? highestExtent : Volume.Extents.Z;
 
-        int range = (int) Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
+        Int32 range = (Int32) Math.Round(highestExtent * 2, MidpointRounding.AwayFromZero) + 1;
 
         if (range % 2 == 0) range++;
 
@@ -143,9 +143,9 @@ public struct BoxCollider : IEquatable<BoxCollider>
         Vector3i center = Center.Floor();
 
         // Loop through the world and check for collisions.
-        for (int x = (range - 1) / -2; x <= (range - 1) / 2; x++)
-        for (int y = (range - 1) / -2; y <= (range - 1) / 2; y++)
-        for (int z = (range - 1) / -2; z <= (range - 1) / 2; z++)
+        for (Int32 x = (range - 1) / -2; x <= (range - 1) / 2; x++)
+        for (Int32 y = (range - 1) / -2; y <= (range - 1) / 2; y++)
+        for (Int32 z = (range - 1) / -2; z <= (range - 1) / 2; z++)
         {
             Vector3i position = center + new Vector3i(x, y, z);
 
@@ -196,11 +196,11 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Calculate all intersections of this <see cref="BoxCollider" /> with the terrain.
     /// </summary>
-    public bool IntersectsTerrain(World world, out bool xCollision, out bool yCollision, out bool zCollision,
+    public Boolean IntersectsTerrain(World world, out Boolean xCollision, out Boolean yCollision, out Boolean zCollision,
         HashSet<(Vector3i position, Block block)> blockIntersections,
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
-        bool isIntersecting = IntersectsTerrain_NonRecursive(
+        Boolean isIntersecting = IntersectsTerrain_NonRecursive(
             world,
             out xCollision,
             out yCollision,
@@ -214,11 +214,11 @@ public struct BoxCollider : IEquatable<BoxCollider>
         {
             BoxCollider childCollider = Volume[i].GetColliderAt(Position);
 
-            bool childIntersecting = childCollider.IntersectsTerrain(
+            Boolean childIntersecting = childCollider.IntersectsTerrain(
                 world,
-                out bool childX,
-                out bool childY,
-                out bool childZ,
+                out Boolean childX,
+                out Boolean childY,
+                out Boolean childZ,
                 blockIntersections,
                 fluidIntersections);
 
@@ -233,19 +233,19 @@ public struct BoxCollider : IEquatable<BoxCollider>
     }
 
     /// <inheritdoc />
-    public bool Equals(BoxCollider other)
+    public Boolean Equals(BoxCollider other)
     {
         return ReferenceEquals(Volume, other.Volume) && Position.Equals(other.Position);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is BoxCollider other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Volume, Position);
     }
@@ -253,7 +253,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Equality operator.
     /// </summary>
-    public static bool operator ==(BoxCollider left, BoxCollider right)
+    public static Boolean operator ==(BoxCollider left, BoxCollider right)
     {
         return left.Equals(right);
     }
@@ -261,7 +261,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
     /// <summary>
     ///     Inequality operator.
     /// </summary>
-    public static bool operator !=(BoxCollider left, BoxCollider right)
+    public static Boolean operator !=(BoxCollider left, BoxCollider right)
     {
         return !left.Equals(right);
     }

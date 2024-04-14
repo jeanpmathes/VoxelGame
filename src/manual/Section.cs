@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Manual.Elements;
@@ -16,9 +17,9 @@ namespace VoxelGame.Manual;
 public class Section : Chainable
 {
     private readonly List<IElement> elements = new();
-    private readonly string title;
+    private readonly String title;
 
-    private Section(string title)
+    private Section(String title)
     {
         this.title = title;
     }
@@ -28,7 +29,7 @@ public class Section : Chainable
     /// </summary>
     /// <param name="title">The title of the section.</param>
     /// <returns>The created section.</returns>
-    public static Section Create(string title)
+    public static Section Create(String title)
     {
         return new Section(title);
     }
@@ -44,7 +45,7 @@ public class Section : Chainable
         return this;
     }
 
-    internal void Generate(StreamWriter writer, string parent)
+    internal void Generate(StreamWriter writer, String parent)
     {
         writer.WriteLine(
             @$"\subsection{{{title}}}\label{{subsec:{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}}}");

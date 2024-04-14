@@ -33,14 +33,14 @@ public abstract class World : IDisposable, IGrid
     ///     This value also describes the word extents in blocks, thus the world size is two times this value.
     ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
-    public const uint BlockLimit = 50_000_000;
+    public const UInt32 BlockLimit = 50_000_000;
 
-    private const uint ChunkLimit = BlockLimit / Chunk.BlockSize;
+    private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
     /// <summary>
     ///     The limit of the world extents, in sections.
     /// </summary>
-    public const uint SectionLimit = BlockLimit / Section.Size;
+    public const UInt32 SectionLimit = BlockLimit / Section.Size;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
@@ -62,7 +62,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    protected World(DirectoryInfo path, string name, (int upper, int lower) seed) :
+    protected World(DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) :
         this(
             new WorldData(new WorldInformation
                 {
@@ -93,7 +93,7 @@ public abstract class World : IDisposable, IGrid
     ///     Setup of readonly fields and non-optional steps.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-    private World(WorldData data, bool isNew)
+    private World(WorldData data, Boolean isNew)
     {
         timer = logger.BeginTimedScoped("World Setup", TimingStyle.Once);
 
@@ -127,12 +127,12 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the world creation seed.
     /// </summary>
-    public (int upper, int lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
+    public (Int32 upper, Int32 lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
 
     /// <summary>
     ///     Get whether the world is active.
     /// </summary>
-    public bool IsActive => CurrentState == State.Active;
+    public Boolean IsActive => CurrentState == State.Active;
 
     /// <summary>
     ///     Get the world state.
@@ -166,12 +166,12 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get or set the world size in blocks.
     /// </summary>
-    public uint SizeInBlocks
+    public UInt32 SizeInBlocks
     {
         get => Data.Information.Size;
         set
         {
-            uint oldSize = Data.Information.Size;
+            UInt32 oldSize = Data.Information.Size;
             Data.Information.Size = value;
 
             Data.EnsureValidInformation();
@@ -183,7 +183,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the extents of the world. This mark the reachable area of the world.
     /// </summary>
-    public Vector3i Extents => new((int) SizeInBlocks, (int) SizeInBlocks, (int) SizeInBlocks);
+    public Vector3i Extents => new((Int32) SizeInBlocks, (Int32) SizeInBlocks, (Int32) SizeInBlocks);
 
     /// <summary>
     ///     Get the info map of this world.
@@ -193,7 +193,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the active chunk count.
     /// </summary>
-    protected int ActiveChunkCount => chunks.ActiveCount;
+    protected Int32 ActiveChunkCount => chunks.ActiveCount;
 
     /// <summary>
     ///     All active chunks.
@@ -280,7 +280,7 @@ public abstract class World : IDisposable, IGrid
     ///     Process the deactivation, assuming it has been started.
     /// </summary>
     /// <returns>Whether the deactivation is finished.</returns>
-    protected bool ProcessDeactivation()
+    protected Boolean ProcessDeactivation()
     {
         Throw.IfDisposed(disposed);
 
@@ -288,7 +288,7 @@ public abstract class World : IDisposable, IGrid
 
         (Task saving, Action callback) = deactivation.Value;
 
-        bool done = saving.IsCompleted && chunks.IsEmpty;
+        Boolean done = saving.IsCompleted && chunks.IsEmpty;
 
         if (!done) return false;
 
@@ -333,7 +333,7 @@ public abstract class World : IDisposable, IGrid
     /// <param name="name">The name of the element.</param>
     /// <param name="maxDistance">The maximum distance to search.</param>
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
-    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
         Throw.IfDisposed(disposed);
 
@@ -377,7 +377,7 @@ public abstract class World : IDisposable, IGrid
 
         if (chunk != null)
         {
-            uint val = chunk.GetSection(position).GetContent(position);
+            UInt32 val = chunk.GetSection(position).GetContent(position);
             Section.Decode(val, out Content content);
 
             potentialContent = content;
@@ -441,19 +441,19 @@ public abstract class World : IDisposable, IGrid
     ///     Set the <c>isStatic</c> flag of a fluid without causing any updates around this fluid.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void ModifyFluid(bool isStatic, Vector3i position)
+    internal void ModifyFluid(Boolean isStatic, Vector3i position)
     {
         ModifyWorldData(position, ~Section.StaticMask, isStatic ? Section.StaticMask : 0);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, bool tickFluid)
+    private void SetContent(in Content content, Vector3i position, Boolean tickFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        uint val = Section.Encode(content);
+        UInt32 val = Section.Encode(content);
 
         chunk.GetSection(position).SetContent(position, val);
 
@@ -489,13 +489,13 @@ public abstract class World : IDisposable, IGrid
     ///     Modify the data of a position, without causing any updates.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ModifyWorldData(Vector3i position, uint clearMask, uint addMask)
+    private void ModifyWorldData(Vector3i position, UInt32 clearMask, UInt32 addMask)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        uint val = chunk.GetSection(position).GetContent(position);
+        UInt32 val = chunk.GetSection(position).GetContent(position);
 
         val &= clearMask;
         val |= addMask;
@@ -530,7 +530,7 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     /// <param name="position">The position.</param>
     /// <returns>True if both the fluid and block at the position received a random update.</returns>
-    public bool DoRandomUpdate(Vector3i position)
+    public Boolean DoRandomUpdate(Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
@@ -556,7 +556,7 @@ public abstract class World : IDisposable, IGrid
     ///     Get whether a chunk position is in the maximum allowed world limits.
     ///     Such a position can still be outside of the reachable <see cref="Extents" />.
     /// </summary>
-    private static bool IsInLimits(ChunkPosition position)
+    private static Boolean IsInLimits(ChunkPosition position)
     {
         return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
@@ -565,7 +565,7 @@ public abstract class World : IDisposable, IGrid
     ///     Get whether a section position is in the maximum allowed world limits.
     ///     Such a position can still be outside of the reachable <see cref="Extents" />.
     /// </summary>
-    public static bool IsInLimits(SectionPosition position)
+    public static Boolean IsInLimits(SectionPosition position)
     {
         return Math.Abs(position.X) <= SectionLimit && Math.Abs(position.Y) <= SectionLimit && Math.Abs(position.Z) <= SectionLimit;
     }
@@ -574,11 +574,11 @@ public abstract class World : IDisposable, IGrid
     ///     Get whether a block position is in the maximum allowed world limits.
     ///     Such a position can still be outside of the reachable <see cref="Extents" />.
     /// </summary>
-    private static bool IsInLimits(Vector3i position)
+    private static Boolean IsInLimits(Vector3i position)
     {
-        if (position.X is int.MinValue) return false;
-        if (position.Y is int.MinValue) return false;
-        if (position.Z is int.MinValue) return false;
+        if (position.X is Int32.MinValue) return false;
+        if (position.Y is Int32.MinValue) return false;
+        if (position.Z is Int32.MinValue) return false;
 
         return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
@@ -661,7 +661,7 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
     /// <returns>True if the chunk is active.</returns>
-    protected bool IsChunkActive(ChunkPosition position)
+    protected Boolean IsChunkActive(ChunkPosition position)
     {
         Throw.IfDisposed(disposed);
 
@@ -675,7 +675,7 @@ public abstract class World : IDisposable, IGrid
     /// <param name="position">The position of the chunk.</param>
     /// <param name="chunk">The chunk at the given position or null if no chunk was found.</param>
     /// <returns>True if a chunk was found.</returns>
-    public bool TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
+    public Boolean TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
         Throw.IfDisposed(disposed);
 
@@ -712,13 +712,13 @@ public abstract class World : IDisposable, IGrid
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose of the world.
     /// </summary>
     /// <param name="disposing">True when disposing intentionally.</param>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

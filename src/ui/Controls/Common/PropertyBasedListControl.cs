@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Gwen.Net;
@@ -31,10 +32,10 @@ public class PropertyBasedListControl : ControlBase
 
     private sealed class PropertyControlBuilder : Visitor
     {
-        private const int KeyColumn = 0;
-        private const int ValueColumn = 1;
+        private const Int32 KeyColumn = 0;
+        private const Int32 ValueColumn = 1;
 
-        private readonly Stack<(string prefix, int number, VerticalLayout parent, ListBox? list)> stack = new();
+        private readonly Stack<(String prefix, Int32 number, VerticalLayout parent, ListBox? list)> stack = new();
 
         private readonly Context context;
 
@@ -47,9 +48,9 @@ public class PropertyBasedListControl : ControlBase
 
         public override void Visit(Group group)
         {
-            (string prefix, int number, VerticalLayout parent, ListBox? list) current = stack.Pop();
+            (String prefix, Int32 number, VerticalLayout parent, ListBox? list) current = stack.Pop();
 
-            int number = current.number + 1;
+            Int32 number = current.number + 1;
             var prefix = $"{current.prefix}{number}";
             var header = $"{prefix} {group.Name}";
 
@@ -103,7 +104,7 @@ public class PropertyBasedListControl : ControlBase
 
         private void EnsureList()
         {
-            (string prefix, int number, VerticalLayout parent, ListBox? list) current = stack.Pop();
+            (String prefix, Int32 number, VerticalLayout parent, ListBox? list) current = stack.Pop();
 
             if (current.list == null)
             {
@@ -122,11 +123,11 @@ public class PropertyBasedListControl : ControlBase
             stack.Push(current);
         }
 
-        private ListBoxRow AddRow(string key, string value)
+        private ListBoxRow AddRow(String key, String value)
         {
             EnsureList();
 
-            (string prefix, int number, VerticalLayout parent, ListBox? list) current = stack.Peek();
+            (String prefix, Int32 number, VerticalLayout parent, ListBox? list) current = stack.Peek();
 
             ListBoxRow row = new(current.list!);
 

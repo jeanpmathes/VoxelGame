@@ -26,7 +26,7 @@ public static class General
     /// <summary>
     ///     Signifies an implication. If a is true, b must be true as well.
     /// </summary>
-    public static bool Implies(this bool a, bool b)
+    public static Boolean Implies(this Boolean a, Boolean b)
     {
         return !a || b;
     }

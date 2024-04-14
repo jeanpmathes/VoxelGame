@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -21,7 +22,7 @@ public interface IConnectable : IBlockBase
     /// <param name="side">The side to check for connect-ability. Only front, back, left and right are valid.</param>
     /// <param name="position">The block position.</param>
     /// <returns>True if connection is supported; false if not.</returns>
-    public bool IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
     {
         return true;
     }
@@ -32,10 +33,10 @@ public interface IConnectable : IBlockBase
     /// <param name="world">The world the block is in.</param>
     /// <param name="position">The world position of the block.</param>
     /// <returns>The connection data.</returns>
-    public static uint GetConnectionData<TConnectable>(World world, Vector3i position)
+    public static UInt32 GetConnectionData<TConnectable>(World world, Vector3i position)
         where TConnectable : IConnectable
     {
-        uint data = 0;
+        UInt32 data = 0;
 
         foreach (Orientation orientation in Orientations.All)
         {

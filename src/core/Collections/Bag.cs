@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Collections;
 /// <typeparam name="T">The type of the items in the bag.</typeparam>
 public class Bag<T> : IEnumerable<T>
 {
-    private readonly PriorityQueue<int, int> gaps = new();
+    private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
     private readonly List<T> items = new();
@@ -38,7 +38,7 @@ public class Bag<T> : IEnumerable<T>
     ///     Access this bag by index.
     /// </summary>
     /// <param name="index">The index to access. Cannot be larger then the item count.</param>
-    public T this[int index]
+    public T this[Int32 index]
     {
         get => items[index];
         set
@@ -72,7 +72,7 @@ public class Bag<T> : IEnumerable<T>
     ///     Removes a value from the bag.
     /// </summary>
     /// <param name="index">The index of the item to remove.</param>
-    public void RemoveAt(int index)
+    public void RemoveAt(Int32 index)
     {
         items[index] = gapValue;
         gaps.Enqueue(index, index);
@@ -83,9 +83,9 @@ public class Bag<T> : IEnumerable<T>
     /// </summary>
     /// <param name="item">The item to add.</param>
     /// <returns>The index of the item.</returns>
-    public int Add(T item)
+    public Int32 Add(T item)
     {
-        int gap = GetNextGap();
+        Int32 gap = GetNextGap();
         items[gap] = item;
 
         return gap;
@@ -95,9 +95,9 @@ public class Bag<T> : IEnumerable<T>
     ///     Apply a function to all items in the bag.
     /// </summary>
     /// <param name="function">The function. If the function returns false, the item is removed.</param>
-    public void Apply(Func<T, bool> function)
+    public void Apply(Func<T, Boolean> function)
     {
-        int count = items.Count;
+        Int32 count = items.Count;
 
         for (var index = 0; index < count; index++)
         {
@@ -107,9 +107,9 @@ public class Bag<T> : IEnumerable<T>
         }
     }
 
-    private int GetNextGap()
+    private Int32 GetNextGap()
     {
-        if (gaps.TryDequeue(out int index, out _)) return index;
+        if (gaps.TryDequeue(out Int32 index, out _)) return index;
 
         index = items.Count;
         items.Add(gapValue);

@@ -32,7 +32,7 @@ public sealed class DeletionBox : Window
 
         HorizontalAlignment = HorizontalAlignment.Left;
         VerticalAlignment = VerticalAlignment.Top;
-        MaximumSize = new Size((int) (canvas.ActualWidth * 0.8), canvas.ActualHeight);
+        MaximumSize = new Size((Int32) (canvas.ActualWidth * 0.8), canvas.ActualHeight);
         StartPosition = StartPosition.CenterParent;
 
         Title = parameters.Title;
@@ -107,7 +107,7 @@ public sealed class DeletionBox : Window
         };
     }
 
-    private static Button CreateButton(ControlBase parent, string text)
+    private static Button CreateButton(ControlBase parent, String text)
     {
         Button button = new(parent)
         {
@@ -124,7 +124,7 @@ public sealed class DeletionBox : Window
     /// </summary>
     /// <param name="Title">The title of the deletion box.</param>
     /// <param name="Text">The text of the deletion box.</param>
-    public record Parameters(string Title, string Text);
+    public record Parameters(String Title, String Text);
 
     /// <summary>
     ///     The actions associated with the deletion box.

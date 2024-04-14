@@ -30,11 +30,11 @@ internal class KeyOrButtonSetting : Setting
     private readonly Action reset;
     private readonly Action<VirtualKeys> set;
 
-    private readonly Func<bool> validate;
+    private readonly Func<Boolean> validate;
 
     private Button rebind = null!;
 
-    internal KeyOrButtonSetting(string name, Func<VirtualKeys> get, Action<VirtualKeys> set, Func<bool> validate,
+    internal KeyOrButtonSetting(String name, Func<VirtualKeys> get, Action<VirtualKeys> set, Func<Boolean> validate,
         Action reset)
     {
         this.get = get;
@@ -46,7 +46,7 @@ internal class KeyOrButtonSetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {
@@ -93,7 +93,7 @@ internal class KeyOrButtonSetting : Setting
 
     internal override void Validate()
     {
-        bool valid = validate();
+        Boolean valid = validate();
         rebind.TextColorOverride = valid ? Colors.Primary : Colors.Error;
     }
 }

@@ -21,5 +21,5 @@ public class MouseButtonEventArgs : EventArgs
     /// <summary>
     ///     Whether the button was pressed or released.
     /// </summary>
-    public bool IsPressed { get; init; }
+    public Boolean IsPressed { get; init; }
 }

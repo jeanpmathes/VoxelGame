@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -18,7 +19,7 @@ public static class PlantBehaviour
     /// <summary>
     ///     Check whether a plant can be placed at a given position.
     /// </summary>
-    public static bool CanPlace(World world, Vector3i position)
+    public static Boolean CanPlace(World world, Vector3i position)
     {
         BlockInstance? ground = world.GetBlock(position.Below());
 
@@ -31,7 +32,7 @@ public static class PlantBehaviour
     /// </summary>
     public static void DoPlace(Block self, World world, Vector3i position)
     {
-        bool isLowered = world.IsLowered(position);
+        Boolean isLowered = world.IsLowered(position);
         world.SetBlock(self.AsInstance(isLowered ? 1u : 0u), position);
     }
 

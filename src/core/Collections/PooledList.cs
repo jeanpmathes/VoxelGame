@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Collections;
 [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 public sealed class PooledList<T> : IList<T>, IDisposable
 {
-    private const string NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
+    private const String NoUseAfterReturnMessage = "The list is not usable after it has been returned to the pool.";
 
     private readonly ArrayPool<T> arrayPool;
 
@@ -43,7 +43,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     /// <param name="capacity">The minimum number of elements that the new list can initially store. The</param>
     [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH")]
-    public PooledList(int capacity)
+    public PooledList(Int32 capacity)
     {
         arrayPool = ArrayPool<T>.Shared;
 
@@ -61,7 +61,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     /// <param name="capacity">The minimum number of elements that the new list can initially store. The</param>
     /// <param name="arrayPool">The <see cref="ArrayPool{T}" /> to use.</param>
-    public PooledList(int capacity, ArrayPool<T> arrayPool) : this(capacity)
+    public PooledList(Int32 capacity, ArrayPool<T> arrayPool) : this(capacity)
     {
         this.arrayPool = arrayPool;
     }
@@ -69,7 +69,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <summary>
     ///     Gets or sets the minimum number of elements the internal data structure can hold without resizing.
     /// </summary>
-    public int Capacity
+    public Int32 Capacity
     {
         get
         {
@@ -104,12 +104,12 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <inheritdoc />
-    public bool Remove(T item)
+    public Boolean Remove(T item)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        int index = IndexOf(item);
+        Int32 index = IndexOf(item);
 
         if (index < 0) return false;
 
@@ -121,22 +121,22 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <summary>
     ///     Gets the number of elements contained in the <see cref="PooledList{T}" />.
     /// </summary>
-    public int Count { get; private set; }
+    public Int32 Count { get; private set; }
 
     /// <inheritdoc />
-    public bool IsReadOnly => false;
+    public Boolean IsReadOnly => false;
 
     /// <summary>
     ///     Gets or sets the element at the specified index.
     /// </summary>
-    public T this[int index]
+    public T this[Int32 index]
     {
         get
         {
             Throw.IfDisposed(disposed);
             Throw.IfNull(items, NoUseAfterReturnMessage);
 
-            if ((uint) index >= (uint) Count)
+            if ((UInt32) index >= (UInt32) Count)
                 throw new ArgumentOutOfRangeException(
                     nameof(index),
                     $@"The index has to be smaller then the size '{Count}'.");
@@ -149,7 +149,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
             Throw.IfDisposed(disposed);
             Throw.IfNull(items, NoUseAfterReturnMessage);
 
-            if ((uint) index >= (uint) Count)
+            if ((UInt32) index >= (UInt32) Count)
                 throw new ArgumentOutOfRangeException(
                     nameof(index),
                     $@"The index has to be smaller then the size '{Count}'.");
@@ -195,7 +195,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <inheritdoc />
-    public int IndexOf(T item)
+    public Int32 IndexOf(T item)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
@@ -204,12 +204,12 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <inheritdoc />
-    public void Insert(int index, T item)
+    public void Insert(Int32 index, T item)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        if ((uint) index > (uint) Count)
+        if ((UInt32) index > (UInt32) Count)
             throw new ArgumentOutOfRangeException(
                 nameof(index),
                 $@"The index has to be smaller or equal then the size '{Count}'.");
@@ -222,12 +222,12 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <summary>
     ///     Removes the element at the specified index of the <see cref="PooledList{T}" />.
     /// </summary>
-    public void RemoveAt(int index)
+    public void RemoveAt(Int32 index)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        if ((uint) index >= (uint) Count)
+        if ((UInt32) index >= (UInt32) Count)
             throw new ArgumentOutOfRangeException(
                 $"The index '{index}' is not allowed to be larger then the size of the list.");
 
@@ -250,7 +250,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <inheritdoc />
-    public bool Contains(T item)
+    public Boolean Contains(T item)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
@@ -263,7 +263,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <inheritdoc />
-    public void CopyTo(T[] array, int arrayIndex)
+    public void CopyTo(T[] array, Int32 arrayIndex)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
@@ -271,7 +271,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         Array.Copy(items, sourceIndex: 0, array, arrayIndex, Count);
     }
 
-    private T[] MoveIntoNew(int newSize)
+    private T[] MoveIntoNew(Int32 newSize)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
@@ -298,7 +298,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
 
-        int count = collection.Count;
+        Int32 count = collection.Count;
 
         if (count <= 0) return;
 
@@ -348,7 +348,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         if (this == pooledList)
             throw new ArgumentException($@"Adding '{this}' to itself not allowed", nameof(pooledList));
 
-        int count = pooledList.Count;
+        Int32 count = pooledList.Count;
 
         if (count > 0)
         {
@@ -365,16 +365,16 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     ///     This operation can cause the <see cref="PooledList{T}" /> to be resized.
     /// </summary>
     /// <param name="min">The minimum amount of elements the <see cref="PooledList{T}" /> should be able to hold.</param>
-    public void EnsureCapacity(int min)
+    public void EnsureCapacity(Int32 min)
     {
         Throw.IfDisposed(disposed);
         Throw.IfNull(items, NoUseAfterReturnMessage);
 
         if (items.Length >= min) return;
 
-        int newCapacity = items.Length == 0 ? 4 : items.Length * 2;
+        Int32 newCapacity = items.Length == 0 ? 4 : items.Length * 2;
 
-        if ((uint) newCapacity > int.MaxValue) newCapacity = int.MaxValue;
+        if ((UInt32) newCapacity > Int32.MaxValue) newCapacity = Int32.MaxValue;
 
         if (newCapacity < min) newCapacity = min;
 
@@ -410,9 +410,9 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

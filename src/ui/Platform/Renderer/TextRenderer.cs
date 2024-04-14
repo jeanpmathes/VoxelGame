@@ -30,7 +30,7 @@ public sealed class TextRenderer : IDisposable
     /// <summary>
     ///     Creates a new instance of <see cref="TextRenderer" />.
     /// </summary>
-    public TextRenderer(int width, int height, DirectXRenderer renderer)
+    public TextRenderer(Int32 width, Int32 height, DirectXRenderer renderer)
     {
         Debug.Assert(width > 0);
         Debug.Assert(height > 0);
@@ -56,7 +56,7 @@ public sealed class TextRenderer : IDisposable
     ///     The origin (0, 0) lies at the top-left corner of the backing store.
     /// </param>
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
-    public void SetString(string text, Font font, Brush brush, Point point, StringFormat format)
+    public void SetString(String text, Font font, Brush brush, Point point, StringFormat format)
     {
         Throw.IfDisposed(disposed);
 
@@ -78,7 +78,7 @@ public sealed class TextRenderer : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Disposes the instance.
@@ -89,7 +89,7 @@ public sealed class TextRenderer : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

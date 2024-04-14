@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic;
@@ -52,7 +53,7 @@ public static class VerticalFlowExtensions
     ///     Get the flow encoded as a bit for shaders.
     ///     When encoded, static is ignored.
     /// </summary>
-    public static int GetBit(this VerticalFlow flow)
+    public static Int32 GetBit(this VerticalFlow flow)
     {
         return flow switch
         {

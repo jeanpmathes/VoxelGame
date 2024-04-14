@@ -60,7 +60,7 @@ public sealed class ChunkPool : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()

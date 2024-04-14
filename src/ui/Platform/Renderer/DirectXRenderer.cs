@@ -69,7 +69,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    protected override void OnScaleChanged(float oldScale)
+    protected override void OnScaleChanged(Single oldScale)
     {
         textStorage.Flush();
     }
@@ -102,7 +102,7 @@ public sealed class DirectXRenderer : RendererBase
 
     /// <inheritdoc />
     public override void DrawTexturedRect(Texture texture, Rectangle targetRect,
-        float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
+        Single u1 = 0, Single v1 = 0, Single u2 = 1, Single v2 = 1)
     {
         if (texture.RendererData == null)
         {
@@ -114,7 +114,7 @@ public sealed class DirectXRenderer : RendererBase
         TextureList.Handle handle = TextureSupport.GetTextureHandle(texture);
         targetRect = Translate(targetRect);
 
-        bool differentTexture = currentTexture != handle;
+        Boolean differentTexture = currentTexture != handle;
 
         if (!currentTexture.IsValid || differentTexture) renderPipeline.PushCall(currentTexture);
 
@@ -124,7 +124,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override bool LoadFont(Font font)
+    public override Boolean LoadFont(Font font)
     {
         return textSupport.LoadFont(font);
     }
@@ -142,7 +142,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override Size MeasureText(Font font, string text)
+    public override Size MeasureText(Font font, String text)
     {
         if (font.RendererData is not System.Drawing.Font sysFont
             || Math.Abs(font.RealSize - font.Size * Scale) > 2)
@@ -171,7 +171,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void RenderText(Font font, Point position, string text)
+    public override void RenderText(Font font, Point position, String text)
     {
         renderPipeline.PushCall(currentTexture);
 
@@ -210,10 +210,10 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override void LoadTextureRaw(Texture texture, byte[] pixelData)
+    public override void LoadTextureRaw(Texture texture, Byte[] pixelData)
     {
-        Span<byte> bytes = pixelData;
-        Span<int> pixels = MemoryMarshal.Cast<byte, int>(bytes);
+        Span<Byte> bytes = pixelData;
+        Span<Int32> pixels = MemoryMarshal.Cast<Byte, Int32>(bytes);
 
         Image image = new(pixels, Image.Format.BGRA, texture.Width, texture.Height);
 
@@ -237,7 +237,7 @@ public sealed class DirectXRenderer : RendererBase
     }
 
     /// <inheritdoc />
-    public override Color PixelColor(Texture texture, uint x, uint y, Color defaultColor)
+    public override Color PixelColor(Texture texture, UInt32 x, UInt32 y, Color defaultColor)
     {
         return textureSupport.GetTexturePixel(texture, (x, y)) ?? defaultColor;
     }

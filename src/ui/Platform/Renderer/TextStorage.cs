@@ -21,9 +21,9 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class TextStorage : IDisposable
 {
     private readonly DirectXRenderer rendering;
-    private readonly Cache<(string, Font), TextRenderer> cache = new(capacity: 100);
+    private readonly Cache<(String, Font), TextRenderer> cache = new(capacity: 100);
 
-    private Dictionary<(string, Font), Entry> used = new();
+    private Dictionary<(String, Font), Entry> used = new();
 
     /// <summary>
     ///     Creates a new text cache.
@@ -44,7 +44,7 @@ public sealed class TextStorage : IDisposable
     /// <summary>
     ///     Get the texture for the given text and font if it exists, otherwise return null.
     /// </summary>
-    public Texture? GetTexture(Font font, string text)
+    public Texture? GetTexture(Font font, String text)
     {
         Throw.IfDisposed(disposed);
 
@@ -69,7 +69,7 @@ public sealed class TextStorage : IDisposable
     /// <summary>
     ///     Get or create the texture for the given text and font.
     /// </summary>
-    public Texture GetOrCreateTexture(Font font, string text)
+    public Texture GetOrCreateTexture(Font font, String text)
     {
         Throw.IfDisposed(disposed);
 
@@ -94,9 +94,9 @@ public sealed class TextStorage : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Dictionary<(string, Font), Entry> newStrings = new();
+        Dictionary<(String, Font), Entry> newStrings = new();
 
-        foreach (KeyValuePair<(string, Font), Entry> pair in used)
+        foreach (KeyValuePair<(String, Font), Entry> pair in used)
             if (pair.Value.Accessed)
             {
                 pair.Value.Accessed = false;
@@ -132,14 +132,14 @@ public sealed class TextStorage : IDisposable
         }
 
         public TextRenderer Renderer { get; }
-        public bool Accessed { get; set; }
+        public Boolean Accessed { get; set; }
     }
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

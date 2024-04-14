@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class BiomeDistribution
 {
-    private const int Resolution = 10;
+    private const Int32 Resolution = 10;
     private readonly Biomes biomes;
     private readonly Biome?[,] distribution;
 
@@ -51,15 +51,15 @@ public class BiomeDistribution
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
     /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
     /// <returns>The biome at the given temperature and humidity.</returns>
-    public Biome GetBiome(float temperature, float humidity)
+    public Biome GetBiome(Single temperature, Single humidity)
     {
         Debug.Assert(temperature is >= 0 and <= 1);
         Debug.Assert(humidity is >= 0 and <= 1);
 
         humidity = Math.Clamp(humidity, min: 0, temperature);
 
-        var x = (int) Math.Floor(humidity * Resolution);
-        var y = (int) Math.Floor(temperature * Resolution);
+        var x = (Int32) Math.Floor(humidity * Resolution);
+        var y = (Int32) Math.Floor(temperature * Resolution);
 
         x = Math.Clamp(x, min: 0, Resolution - 1);
         y = Math.Clamp(y, min: 0, Resolution - 1);
@@ -78,7 +78,7 @@ public class BiomeDistribution
     /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
     /// <param name="isCliff">Whether the coastline is a cliff.</param>
     /// <returns>The appropriate coastline biome.</returns>
-    public Biome GetCoastlineBiome(float temperature, float humidity, bool isCliff)
+    public Biome GetCoastlineBiome(Single temperature, Single humidity, Boolean isCliff)
     {
         if (!isCliff) return biomes.Beach;
 
@@ -93,7 +93,7 @@ public class BiomeDistribution
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
     /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
     /// <returns>The appropriate ocean biome.</returns>
-    public Biome GetOceanBiome(float temperature, float humidity)
+    public Biome GetOceanBiome(Single temperature, Single humidity)
     {
         Biome biome = GetBiome(temperature, humidity);
 

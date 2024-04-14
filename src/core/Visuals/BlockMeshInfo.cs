@@ -17,7 +17,7 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     /// <summary>
     ///     Create a new block mesh info.
     /// </summary>
-    public BlockMeshInfo(BlockSide side, uint data, Fluid fluid)
+    public BlockMeshInfo(BlockSide side, UInt32 data, Fluid fluid)
     {
         Side = side;
         Data = data;
@@ -32,7 +32,7 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     /// <summary>
     ///     The data of the block.
     /// </summary>
-    public uint Data { get; init; }
+    public UInt32 Data { get; init; }
 
     /// <summary>
     ///     The fluid at the block position.
@@ -40,27 +40,27 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     public Fluid Fluid { get; init; }
 
     /// <inheritdoc />
-    public bool Equals(BlockMeshInfo other)
+    public Boolean Equals(BlockMeshInfo other)
     {
         return Side == other.Side && Data == other.Data && Fluid.Equals(other.Fluid);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is BlockMeshInfo other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
-        return HashCode.Combine((int) Side, Data, Fluid);
+        return HashCode.Combine((Int32) Side, Data, Fluid);
     }
 
     /// <summary>
     ///     The equality operator.
     /// </summary>
-    public static bool operator ==(BlockMeshInfo left, BlockMeshInfo right)
+    public static Boolean operator ==(BlockMeshInfo left, BlockMeshInfo right)
     {
         return left.Equals(right);
     }
@@ -68,7 +68,7 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     /// <summary>
     ///     The inequality operator.
     /// </summary>
-    public static bool operator !=(BlockMeshInfo left, BlockMeshInfo right)
+    public static Boolean operator !=(BlockMeshInfo left, BlockMeshInfo right)
     {
         return !left.Equals(right);
     }

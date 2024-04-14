@@ -13,12 +13,12 @@ namespace VoxelGame.Manual.Elements;
 /// </summary>
 internal class Boolean : IElement
 {
-    internal Boolean(bool value)
+    internal Boolean(System.Boolean value)
     {
         Value = value;
     }
 
-    private bool Value { get; }
+    private System.Boolean Value { get; }
 
     void IElement.Generate(StreamWriter writer)
     {

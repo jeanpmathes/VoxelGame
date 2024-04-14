@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Collections.Properties;
 
 /// <summary>
@@ -16,7 +18,7 @@ public abstract class Property
     ///     Creates a new property with the given name.
     /// </summary>
     /// <param name="name">The name of the property.</param>
-    protected Property(string name)
+    protected Property(String name)
     {
         Name = name;
     }
@@ -24,7 +26,7 @@ public abstract class Property
     /// <summary>
     ///     The name of the property.
     /// </summary>
-    public string Name { get; }
+    public String Name { get; }
 
     /// <summary>
     ///     Accepts a visitor and calls the appropriate method.

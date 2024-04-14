@@ -14,5 +14,5 @@ public class MouseWheelEventArgs : EventArgs
     /// <summary>
     ///     The mouse wheel delta.
     /// </summary>
-    public double Delta { get; init; }
+    public Double Delta { get; init; }
 }

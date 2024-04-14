@@ -23,7 +23,7 @@ public class SimpleButton : Button
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <inheritdoc />
-    protected override void Update(object? sender, EventArgs e)
+    protected override void Update(Object? sender, EventArgs e)
     {
         KeyState state = Input.KeyState;
         IsDown = state.IsKeyDown(Key);

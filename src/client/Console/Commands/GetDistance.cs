@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Units;
@@ -18,19 +19,19 @@ namespace VoxelGame.Client.Console.Commands;
 public class GetDistance : Command
 {
     /// <inheritdoc />
-    public override string Name => "get-distance";
+    public override String Name => "get-distance";
 
     /// <inheritdoc />
-    public override string HelpText => "Get the distance to a specified point or target.";
+    public override String HelpText => "Get the distance to a specified point or target.";
 
     /// <exclude />
-    public void Invoke(double x, double y, double z)
+    public void Invoke(Double x, Double y, Double z)
     {
         DetermineDistance((x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(string target)
+    public void Invoke(String target)
     {
         if (GetNamedPosition(target) is {} position) DetermineDistance(position);
         else Context.Console.WriteError($"Unknown target: {target}");

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
@@ -23,10 +24,10 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     private readonly TextureLayout layout;
 
     private readonly List<BoundingVolume> volumes = new();
-    private int[] textureIndices = null!;
+    private Int32[] textureIndices = null!;
 
     /// <inheritdoc />
-    protected VaryingHeightBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
+    protected VaryingHeightBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -44,16 +45,16 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     public BlockInstance FullHeightInstance => GetInstance(IVaryingHeight.MaximumHeight);
 
     /// <inheritdoc />
-    public virtual int GetHeight(uint data)
+    public virtual Int32 GetHeight(UInt32 data)
     {
-        return (int) (data & 0b00_1111);
+        return (Int32) (data & 0b00_1111);
     }
 
     IVaryingHeight.MeshData IVaryingHeight.GetMeshData(BlockMeshInfo info)
     {
         return new IVaryingHeight.MeshData
         {
-            TextureIndex = textureIndices[(int) info.Side],
+            TextureIndex = textureIndices[(Int32) info.Side],
             Tint = TintColor.None
         };
     }
@@ -63,11 +64,11 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     /// </summary>
     /// <param name="height">The height of the block, in the range [0, 15].</param>
     /// <returns>The block instance.</returns>
-    public BlockInstance GetInstance(int height)
+    public BlockInstance GetInstance(Int32 height)
     {
         Debug.Assert(height >= 0 && height <= IVaryingHeight.MaximumHeight);
 
-        return this.AsInstance((uint) height);
+        return this.AsInstance((UInt32) height);
     }
 
     /// <summary>
@@ -84,18 +85,18 @@ public class VaryingHeightBlock : Block, IVaryingHeight
 
     private void CreateVolumes()
     {
-        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(BoundingVolume.BlockWithHeight(GetHeight(data)));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(BoundingVolume.BlockWithHeight(GetHeight(data)));
     }
 
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        textureIndices = layout.GetTexIndexArray();
+        textureIndices = layout.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 }

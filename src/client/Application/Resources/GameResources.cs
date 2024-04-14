@@ -109,9 +109,8 @@ public sealed class GameResources : IDisposable
 
         UI.Load(client, loadingContext);
 
-        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, (BlockTextures.TextureArray, FluidTextures.TextureArray), visuals, loadingContext);
+        Pipelines = Pipelines.Load(FileSystem.GetResourceDirectory("Shaders"), client, TextureBundle.GetTextureSlots(BlockTextures, FluidTextures), visuals, loadingContext);
 
-        TextureLayout.SetProviders(BlockTextures, FluidTextures);
         BlockModel.SetBlockTextureIndexProvider(BlockTextures);
 
         BlockTextures.EnableLoading(loadingContext);
@@ -122,9 +121,9 @@ public sealed class GameResources : IDisposable
         logger.LogDebug(
             Events.ResourceLoad,
             "Texture/Block ratio: {Ratio:F02}",
-            BlockTextures.Count / (double) Blocks.Instance.Count);
+            BlockTextures.Count / (Double) Blocks.Instance.Count);
 
-        Fluids.Load(FluidTextures, loadingContext);
+        Fluids.Load(FluidTextures, FluidTextures, loadingContext);
 
         Player.Load(client, loadingContext);
 
@@ -138,9 +137,9 @@ public sealed class GameResources : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

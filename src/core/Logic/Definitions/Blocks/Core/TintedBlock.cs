@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -20,10 +21,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // c: color
 public class TintedBlock : BasicBlock, IWideConnectable
 {
-    private readonly bool isAnimated;
+    private readonly Boolean isAnimated;
 
-    internal TintedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout,
-        bool isAnimated = false) :
+    internal TintedBlock(String name, String namedID, BlockFlags flags, TextureLayout layout,
+        Boolean isAnimated = false) :
         base(
             name,
             namedID,
@@ -43,13 +44,13 @@ public class TintedBlock : BasicBlock, IWideConnectable
         };
     }
 
-    private static TintColor GetTintColor(uint data)
+    private static TintColor GetTintColor(UInt32 data)
     {
         return ((BlockColor) (0b01_1111 & data)).ToTintColor();
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }

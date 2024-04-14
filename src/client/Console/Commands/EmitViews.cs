@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -20,10 +21,10 @@ namespace VoxelGame.Client.Console.Commands;
 public class EmitViews : Command
 {
     /// <inheritdoc />
-    public override string Name => "emit-views";
+    public override String Name => "emit-views";
 
     /// <inheritdoc />
-    public override string HelpText => "Emit views of the generated map for debugging.";
+    public override String HelpText => "Emit views of the generated map for debugging.";
 
     /// <exclude />
     public void Invoke()

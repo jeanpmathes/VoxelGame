@@ -25,10 +25,10 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class StartUI : ControlBase
 {
-    private const int MainMenuIndex = 0;
-    private const int SettingsMenuIndex = 1;
-    private const int WorldSelectionMenuIndex = 2;
-    private const int CreditsMenuIndex = 3;
+    private const Int32 MainMenuIndex = 0;
+    private const Int32 SettingsMenuIndex = 1;
+    private const Int32 WorldSelectionMenuIndex = 2;
+    private const Int32 CreditsMenuIndex = 3;
 
     private readonly List<StandardMenu> menus = new();
     private readonly MainMenu mainMenu;
@@ -67,7 +67,7 @@ internal class StartUI : ControlBase
         OpenMenu(MainMenuIndex);
     }
 
-    private void OpenMenu(int index)
+    private void OpenMenu(Int32 index)
     {
         foreach (StandardMenu menu in menus) menu.Hide();
 

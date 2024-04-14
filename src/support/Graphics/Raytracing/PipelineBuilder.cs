@@ -46,13 +46,13 @@ public class PipelineBuilder
         NoShadow = Visible
     }
 
-    private readonly List<MaterialConfig> materials = new();
-    private readonly List<ShaderFile> shaderFiles = new();
+    private readonly List<MaterialConfig> materials = [];
+    private readonly List<ShaderFile> shaderFiles = [];
 
     private TextureArray? firstTextureSlot;
     private TextureArray? secondTextureSlot;
 
-    private uint customDataBufferSize;
+    private UInt32 customDataBufferSize;
 
     /// <summary>
     ///     Add a shader file to the pipeline.
@@ -60,13 +60,13 @@ public class PipelineBuilder
     /// <param name="file">The file to add.</param>
     /// <param name="groups">The hit groups in the file.</param>
     /// <param name="names">The ungrouped symbols in the file.</param>
-    public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, string[]? names = null)
+    public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, String[]? names = null)
     {
-        List<string> exports = [..names ?? Array.Empty<string>()];
+        List<String> exports = [..names ?? Array.Empty<String>()];
 
-        void AddIfNotEmpty(string? name)
+        void AddIfNotEmpty(String? name)
         {
-            if (!string.IsNullOrEmpty(name)) exports.Add(name);
+            if (!String.IsNullOrEmpty(name)) exports.Add(name);
         }
 
         foreach (HitGroup group in groups ?? Array.Empty<HitGroup>())
@@ -88,10 +88,10 @@ public class PipelineBuilder
     {
         AddShaderFile(file);
 
-        return new Animation((uint) shaderFiles.Count - 1);
+        return new Animation((UInt32) shaderFiles.Count - 1);
     }
 
-    private static string CleanUpName(string name)
+    private static String CleanUpName(String name)
     {
         return name.Replace(nameof(Material), "", StringComparison.InvariantCulture);
     }
@@ -106,13 +106,13 @@ public class PipelineBuilder
     /// <param name="shadow">The hit group for shadows.</param>
     /// <param name="animation">An optional animation to be executed before the raytracing.</param>
     /// <returns>The material.</returns>
-    public Material AddMaterial(string name, Groups groups, bool isOpaque, HitGroup normal, HitGroup shadow, Animation? animation = null)
+    public Material AddMaterial(String name, Groups groups, Boolean isOpaque, HitGroup normal, HitGroup shadow, Animation? animation = null)
     {
-        int index = materials.Count;
+        Int32 index = materials.Count;
 
         materials.Add(new MaterialConfig(CleanUpName(name), groups, isOpaque, animation?.ShaderFileIndex, normal, shadow));
 
-        return new Material((uint) index);
+        return new Material((UInt32) index);
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public class PipelineBuilder
     /// <typeparam name="T">The type of the custom data buffer.</typeparam>
     public void SetCustomDataBufferType<T>() where T : unmanaged
     {
-        customDataBufferSize = (uint) Marshal.SizeOf<T>();
+        customDataBufferSize = (UInt32) Marshal.SizeOf<T>();
     }
 
     /// <summary>
@@ -148,11 +148,11 @@ public class PipelineBuilder
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
-    public bool Build(Client client, LoadingContext loadingContext)
+    public Boolean Build(Client client, LoadingContext loadingContext)
     {
         Debug.Assert(customDataBufferSize == 0);
 
-        return Build<byte>(client, loadingContext, out _);
+        return Build<Byte>(client, loadingContext, out _);
     }
 
     /// <summary>
@@ -165,9 +165,9 @@ public class PipelineBuilder
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
-    public bool Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    public Boolean Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
-        (ShaderFileDescription[] files, string[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
+        (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
         Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
 
@@ -179,8 +179,8 @@ public class PipelineBuilder
             symbols = symbols,
             materials = materialDescriptions,
             textures = textures,
-            textureCountFirstSlot = (uint) (firstTextureSlot?.Count ?? 0),
-            textureCountSecondSlot = (uint) (secondTextureSlot?.Count ?? 0),
+            textureCountFirstSlot = (UInt32) (firstTextureSlot?.Count ?? 0),
+            textureCountSecondSlot = (UInt32) (secondTextureSlot?.Count ?? 0),
             customDataBufferSize = customDataBufferSize,
             onShaderLoadingError = (_, message) =>
             {
@@ -198,9 +198,9 @@ public class PipelineBuilder
         return true;
     }
 
-    private (ShaderFileDescription[], string[], MaterialDescription[], Texture[]) BuildDescriptions()
+    private (ShaderFileDescription[], String[], MaterialDescription[], Texture[]) BuildDescriptions()
     {
-        List<string> symbols = [];
+        List<String> symbols = [];
         List<ShaderFileDescription> shaderFileDescriptions = [];
 
         foreach (ShaderFile shaderFile in shaderFiles)
@@ -210,7 +210,7 @@ public class PipelineBuilder
             shaderFileDescriptions.Add(new ShaderFileDescription
             {
                 path = shaderFile.File.FullName,
-                symbolCount = (uint) shaderFile.Exports.Length
+                symbolCount = (UInt32) shaderFile.Exports.Length
             });
         }
 
@@ -236,7 +236,7 @@ public class PipelineBuilder
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
-    private static void ReportFailure(LoadingContext loadingContext, string message)
+    private static void ReportFailure(LoadingContext loadingContext, String message)
     {
         loadingContext.ReportFailure(Events.RenderPipelineError, nameof(SpacePipelineDescription), "RT_Pipeline", message);
     }
@@ -246,9 +246,9 @@ public class PipelineBuilder
         foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(SpacePipelineDescription), shader.File);
     }
 
-    private sealed record ShaderFile(FileInfo File, string[] Exports);
+    private sealed record ShaderFile(FileInfo File, String[] Exports);
 
-    private sealed record MaterialConfig(string Name, Groups Groups, bool IsOpaque, uint? Animation, HitGroup Normal, HitGroup Shadow);
+    private sealed record MaterialConfig(String Name, Groups Groups, Boolean IsOpaque, UInt32? Animation, HitGroup Normal, HitGroup Shadow);
 
     /// <summary>
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.
@@ -256,11 +256,11 @@ public class PipelineBuilder
     /// <param name="ClosestHitSymbol">The name of the closest hit shader.</param>
     /// <param name="AnyHitSymbol">The name of the any hit shader, or empty if there is none.</param>
     /// <param name="IntersectionSymbol">The name of the intersection shader, or empty if there is none.</param>
-    public sealed record HitGroup(string ClosestHitSymbol, string AnyHitSymbol = "", string IntersectionSymbol = "");
+    public sealed record HitGroup(String ClosestHitSymbol, String AnyHitSymbol = "", String IntersectionSymbol = "");
 
     /// <summary>
     ///     Defines an animation, which is a compute shader that is executed before the raytracing.
     /// </summary>
     /// <param name="ShaderFileIndex">The index of the shader file that contains the animation.</param>
-    public sealed record Animation(uint ShaderFileIndex);
+    public sealed record Animation(UInt32 ShaderFileIndex);
 }

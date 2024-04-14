@@ -22,69 +22,69 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     The size of a section, which is the number of blocks in a single axis.
     /// </summary>
-    public const int Size = 16;
+    public const Int32 Size = 16;
 
     /// <summary>
     ///     The shift to get the data.
     /// </summary>
-    public const int DataShift = 12;
+    public const Int32 DataShift = 12;
 
     /// <summary>
     ///     The shift to get the fluid.
     /// </summary>
-    public const int FluidShift = 18;
+    public const Int32 FluidShift = 18;
 
     /// <summary>
     ///     The shift to get the level.
     /// </summary>
-    public const int LevelShift = 23;
+    public const Int32 LevelShift = 23;
 
     /// <summary>
     ///     The shift to get the isStatic value.
     /// </summary>
-    public const int StaticShift = 26;
+    public const Int32 StaticShift = 26;
 
     /// <summary>
     ///     Mask to get only the block.
     /// </summary>
-    public const uint BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
+    public const UInt32 BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
 
     /// <summary>
     ///     Mask to get only the data.
     /// </summary>
-    public const uint DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+    public const UInt32 DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
 
     /// <summary>
     ///     Mask to get only the fluid.
     /// </summary>
-    public const uint FluidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
+    public const UInt32 FluidMask = 0b0000_0000_0111_1100_0000_0000_0000_0000;
 
     /// <summary>
     ///     Mask to get only the level.
     /// </summary>
-    public const uint LevelMask = 0b0000_0011_1000_0000_0000_0000_0000_0000;
+    public const UInt32 LevelMask = 0b0000_0011_1000_0000_0000_0000_0000_0000;
 
     /// <summary>
     ///     Mask to get only the isStatic value.
     /// </summary>
-    public const uint StaticMask = 0b0000_0100_0000_0000_0000_0000_0000_0000;
+    public const UInt32 StaticMask = 0b0000_0100_0000_0000_0000_0000_0000_0000;
 
     /// <summary>
     ///     Integer result of <c>lb(SectionSize)</c>.
     /// </summary>
-    public static readonly int SizeExp = BitOperations.Log2(Size);
+    public static readonly Int32 SizeExp = BitOperations.Log2(Size);
 
     /// <summary>
     ///     Integer result of <c>lb(SectionSize) * 2</c>.
     /// </summary>
-    public static readonly int SizeExp2 = SizeExp * 2;
+    public static readonly Int32 SizeExp2 = SizeExp * 2;
 
     /// <summary>
     ///     Creates a new section.
     /// </summary>
     protected Section()
     {
-        blocks = new uint[Size * Size * Size];
+        blocks = new UInt32[Size * Size * Size];
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class Section : IDisposable, IEntity
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
 
     /// <inheritdoc />
-    public static int Version => 1;
+    public static Int32 Version => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)
@@ -126,7 +126,7 @@ public class Section : IDisposable, IEntity
     /// <param name="z">The z position of the block data in this section.</param>
     /// <returns>The block data.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public uint GetContent(int x, int y, int z)
+    public UInt32 GetContent(Int32 x, Int32 y, Int32 z)
     {
         Throw.IfDisposed(disposed);
 
@@ -139,7 +139,7 @@ public class Section : IDisposable, IEntity
     /// <param name="blockPosition">The world position. Must be in the section.</param>
     /// <returns>The content at the given position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public uint GetContent(Vector3i blockPosition)
+    public UInt32 GetContent(Vector3i blockPosition)
     {
         Throw.IfDisposed(disposed);
 
@@ -154,7 +154,7 @@ public class Section : IDisposable, IEntity
     /// <param name="z">The z position of the block data in this section.</param>
     /// <param name="data">The data to set.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetContent(int x, int y, int z, uint data)
+    public void SetContent(Int32 x, Int32 y, Int32 z, UInt32 data)
     {
         Throw.IfDisposed(disposed);
 
@@ -167,7 +167,7 @@ public class Section : IDisposable, IEntity
     /// <param name="blockPosition">The world position. Must be in the section.</param>
     /// <param name="value">The value to set at the specified position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetContent(Vector3i blockPosition, uint value)
+    public void SetContent(Vector3i blockPosition, UInt32 value)
     {
         Throw.IfDisposed(disposed);
 
@@ -179,7 +179,7 @@ public class Section : IDisposable, IEntity
     /// </summary>
     /// <param name="worldPosition">The world position.</param>
     /// <returns>The local 3D-index.</returns>
-    public static (int x, int y, int z) ToLocalPosition(Vector3i worldPosition)
+    public static (Int32 x, Int32 y, Int32 z) ToLocalPosition(Vector3i worldPosition)
     {
         return (worldPosition.X & (Size - 1), worldPosition.Y & (Size - 1), worldPosition.Z & (Size - 1));
     }
@@ -189,13 +189,27 @@ public class Section : IDisposable, IEntity
     /// </summary>
     /// <param name="localPosition">The local position.</param>
     /// <returns>Whether the position is in bounds.</returns>
-    public static bool IsInBounds((int x, int y, int z) localPosition)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Boolean IsInBounds((Int32 x, Int32 y, Int32 z) localPosition)
+    {
+        return IsInBounds(localPosition.x, localPosition.y, localPosition.z);
+    }
+
+    /// <summary>
+    ///     Check whether a position is in bounds.
+    /// </summary>
+    /// <param name="x">The x component of the local position.</param>
+    /// <param name="y">The y component of the local position.</param>
+    /// <param name="z">The z component of the local position.</param>
+    /// <returns>Whether the position is in bounds.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Boolean IsInBounds(Int32 x, Int32 y, Int32 z)
     {
         var inBounds = true;
 
-        inBounds &= localPosition.x is >= 0 and < Size;
-        inBounds &= localPosition.y is >= 0 and < Size;
-        inBounds &= localPosition.z is >= 0 and < Size;
+        inBounds &= x is >= 0 and < Size;
+        inBounds &= y is >= 0 and < Size;
+        inBounds &= z is >= 0 and < Size;
 
         return inBounds;
     }
@@ -208,8 +222,8 @@ public class Section : IDisposable, IEntity
     {
         Throw.IfDisposed(disposed);
 
-        uint val = GetPos(out Vector3i selectedPosition);
-        Decode(val, out Block block, out uint data, out _, out _, out _);
+        UInt32 val = GetPos(out Vector3i selectedPosition);
+        Decode(val, out Block block, out UInt32 data, out _, out _, out _);
 
         Vector3i blockPosition = selectedPosition + position.FirstBlock;
 
@@ -219,7 +233,7 @@ public class Section : IDisposable, IEntity
             data);
 
         val = GetPos(out selectedPosition);
-        Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out bool isStatic);
+        Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
         Vector3i fluidPosition = selectedPosition + position.FirstBlock;
 
@@ -229,10 +243,10 @@ public class Section : IDisposable, IEntity
             level,
             isStatic);
 
-        uint GetPos(out Vector3i randomPosition)
+        UInt32 GetPos(out Vector3i randomPosition)
         {
-            int index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
-            uint posVal = blocks[index];
+            Int32 index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
+            UInt32 posVal = blocks[index];
 
             randomPosition.Z = index & (Size - 1);
             index = (index - randomPosition.Z) >> SizeExp;
@@ -248,8 +262,8 @@ public class Section : IDisposable, IEntity
     ///     Decode the section content into block and fluid information.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Decode(uint val, out Block block, out uint data, out Fluid fluid, out FluidLevel level,
-        out bool isStatic)
+    public static void Decode(UInt32 val, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level,
+        out Boolean isStatic)
     {
         block = Blocks.Instance.TranslateID(val & BlockMask);
         data = (val & DataMask) >> DataShift;
@@ -262,9 +276,9 @@ public class Section : IDisposable, IEntity
     ///     Decode the section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Decode(uint val, out Content content)
+    public static void Decode(UInt32 val, out Content content)
     {
-        Decode(val, out Block block, out uint data, out Fluid fluid, out FluidLevel level, out bool isStatic);
+        Decode(val, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
         content = new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
     }
@@ -273,20 +287,20 @@ public class Section : IDisposable, IEntity
     ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Encode(IBlockBase block, uint data, Fluid fluid, FluidLevel level, bool isStatic)
+    public static UInt32 Encode(IBlockBase block, UInt32 data, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
-        return (uint) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
-                       | (((uint) level << LevelShift) & LevelMask)
-                       | ((fluid.ID << FluidShift) & FluidMask)
-                       | ((data << DataShift) & DataMask)
-                       | (block.ID & BlockMask));
+        return (UInt32) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
+                         | (((UInt32) level << LevelShift) & LevelMask)
+                         | ((fluid.ID << FluidShift) & FluidMask)
+                         | ((data << DataShift) & DataMask)
+                         | (block.ID & BlockMask));
     }
 
     /// <summary>
     ///     Encode world content information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Encode(in Content content)
+    public static UInt32 Encode(in Content content)
     {
         return Encode(content.Block.Block, content.Block.Data, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
     }
@@ -295,7 +309,7 @@ public class Section : IDisposable, IEntity
     ///     Encode block and fluid information into section content, with defaults for all values.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Encode(IBlockBase? block = null, Fluid? fluid = null)
+    public static UInt32 Encode(IBlockBase? block = null, Fluid? fluid = null)
     {
         return Encode(block ?? Blocks.Instance.Air, data: 0, fluid ?? Fluids.Instance.None, FluidLevel.Eight, isStatic: true);
     }
@@ -310,9 +324,9 @@ public class Section : IDisposable, IEntity
     {
         Throw.IfDisposed(disposed);
 
-        uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
+        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
-        uint data = (val & DataMask) >> DataShift;
+        UInt32 data = (val & DataMask) >> DataShift;
 
         return Blocks.Instance.TranslateID(val & BlockMask).AsInstance(data);
     }
@@ -327,7 +341,7 @@ public class Section : IDisposable, IEntity
     {
         Throw.IfDisposed(disposed);
 
-        uint val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
+        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
         var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
 
@@ -338,7 +352,7 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     The blocks stored in this section.
     /// </summary>
-    protected uint[] blocks;
+    protected UInt32[] blocks;
 
     /// <summary>
     ///     The position of this section.
@@ -351,13 +365,13 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     Whether the section is disposed.
     /// </summary>
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose of the section.
     /// </summary>
     /// <param name="disposing">Whether disposing is intentional or caused by GC.</param>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

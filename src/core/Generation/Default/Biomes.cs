@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Biomes
 {
-    private readonly List<Biome> biomes = new();
+    private readonly List<Biome> biomes = [];
 
     private Biomes()
     {

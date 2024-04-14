@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class NaturalBlock : BasicBlock, ICombustible
 {
-    private readonly bool hasNeutralTint;
+    private readonly Boolean hasNeutralTint;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="NaturalBlock" /> class.
@@ -26,7 +27,7 @@ public class NaturalBlock : BasicBlock, ICombustible
     /// <param name="hasNeutralTint">Whether the block has a neutral tint.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="layout">The texture layout.</param>
-    public NaturalBlock(string name, string namedID, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) :
+    public NaturalBlock(String name, String namedID, Boolean hasNeutralTint, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,

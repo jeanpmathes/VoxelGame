@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Numerics;
 
 namespace VoxelGame.Core.Collections.Properties;
@@ -16,7 +17,7 @@ public class Integer : Property
     /// <summary>
     ///     Create a new <see cref="Integer" />.
     /// </summary>
-    public Integer(string name, BigInteger value) : base(name)
+    public Integer(String name, BigInteger value) : base(name)
     {
         Value = value;
     }

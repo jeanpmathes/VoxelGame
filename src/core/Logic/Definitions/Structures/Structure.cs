@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -25,7 +26,7 @@ public abstract class Structure
     ///     Whether the structure can be placed in the current state.
     /// </summary>
     /// <returns>True if the structure can be placed, false otherwise.</returns>
-    public abstract bool IsPlaceable { get; }
+    public abstract Boolean IsPlaceable { get; }
 
     /// <summary>
     ///     Get the content of the structure at the given offset.
@@ -35,14 +36,14 @@ public abstract class Structure
     ///     The content at the given offset and a bool indicating whether to overwrite blocks. Can be null if the
     ///     structure does not contain anything at the given offset.
     /// </returns>
-    protected abstract (Content content, bool overwrite)? GetContent(Vector3i offset);
+    protected abstract (Content content, Boolean overwrite)? GetContent(Vector3i offset);
 
     /// <summary>
     ///     Pass the structure a seed to generate its content.
     ///     Only some structures need a seed.
     /// </summary>
     /// <param name="seed">The seed.</param>
-    public virtual void SetStructureSeed(int seed) {}
+    public virtual void SetStructureSeed(Int32 seed) {}
 
     /// <summary>
     ///     Place the structure in a grid at the given position.
@@ -86,15 +87,15 @@ public abstract class Structure
 
         if (offsetMin == offsetMax) return;
 
-        for (int x = offsetMin.X; x < offsetMax.X; x++)
-        for (int y = offsetMin.Y; y < offsetMax.Y; y++)
-        for (int z = offsetMin.Z; z < offsetMax.Z; z++)
+        for (Int32 x = offsetMin.X; x < offsetMax.X; x++)
+        for (Int32 y = offsetMin.Y; y < offsetMax.Y; y++)
+        for (Int32 z = offsetMin.Z; z < offsetMax.Z; z++)
             PlaceContent(grid, position, orientation, (x, y, z));
     }
 
     private void PlaceContent(IGrid grid, Vector3i position, Orientation orientation, Vector3i orientedOffset)
     {
-        (Content content, bool overwrite)? data = GetContent(GetDeOrientedOffset(orientedOffset, orientation));
+        (Content content, Boolean overwrite)? data = GetContent(GetDeOrientedOffset(orientedOffset, orientation));
 
         if (data is not {content: var content, overwrite: var overwrite}) return;
 
@@ -132,7 +133,7 @@ public abstract class Structure
     /// <summary>
     ///     Get whether an offset is within the extents of the structure.
     /// </summary>
-    protected bool IsInExtents(Vector3i offset)
+    protected Boolean IsInExtents(Vector3i offset)
     {
         var isInExtents = true;
 

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -25,19 +26,19 @@ public class Fluids
     /// <summary>
     ///     The maximum amount of different fluids that can be registered.
     /// </summary>
-    private const int FluidLimit = 32;
+    private const Int32 FluidLimit = 32;
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private const int mPas = 15;
+    private const Int32 mPas = 15;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Fluid>();
 
-    private readonly List<Fluid> fluidList = new();
-    private readonly Dictionary<string, Fluid> namedFluidDictionary = new();
+    private readonly List<Fluid> fluidList = [];
+    private readonly Dictionary<String, Fluid> namedFluidDictionary = new();
 
-    private Fluids(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    private Fluids(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
     {
-        List<Fluid> allFluids = new();
+        List<Fluid> allFluids = [];
 
         Fluid Register(Fluid fluid)
         {
@@ -79,7 +80,7 @@ public class Fluids
             Language.Steam,
             nameof(Steam),
             density: 0.5f,
-            (int) (0.25 * mPas),
+            (Int32) (0.25 * mPas),
             hasNeutralTint: false,
             TextureLayout.Fluid("steam_moving_side", "steam_moving"),
             TextureLayout.Fluid("steam_static_side", "steam_static"),
@@ -107,7 +108,7 @@ public class Fluids
             Language.NaturalGas,
             nameof(NaturalGas),
             density: 0.8f,
-            (int) (0.5 * mPas),
+            (Int32) (0.5 * mPas),
             hasNeutralTint: false,
             TextureLayout.Fluid("gas_moving_side", "gas_moving"),
             TextureLayout.Fluid("gas_static_side", "gas_static"),
@@ -135,7 +136,7 @@ public class Fluids
             Language.Petrol,
             nameof(Petrol),
             density: 740f,
-            (int) (0.9 * mPas),
+            (Int32) (0.9 * mPas),
             hasNeutralTint: false,
             TextureLayout.Fluid("petrol_moving_side", "petrol_moving"),
             TextureLayout.Fluid("petrol_static_side", "petrol_static"),
@@ -145,7 +146,7 @@ public class Fluids
             Language.Wine,
             nameof(Wine),
             density: 1090f,
-            (int) (1.4 * mPas),
+            (Int32) (1.4 * mPas),
             hasNeutralTint: false,
             TextureLayout.Fluid("wine_moving_side", "wine_moving"),
             TextureLayout.Fluid("wine_static_side", "wine_static"),
@@ -155,7 +156,7 @@ public class Fluids
             Language.Beer,
             nameof(Beer),
             density: 1030f,
-            (int) (1.5 * mPas),
+            (Int32) (1.5 * mPas),
             hasNeutralTint: false,
             TextureLayout.Fluid("beer_moving_side", "beer_moving"),
             TextureLayout.Fluid("beer_static_side", "beer_static"),
@@ -171,9 +172,9 @@ public class Fluids
             fluidList.Add(fluid);
             namedFluidDictionary.Add(fluid.NamedID, fluid);
 
-            var id = (uint) (fluidList.Count - 1);
+            var id = (UInt32) (fluidList.Count - 1);
 
-            fluid.Setup(id, indexProvider);
+            fluid.Setup(id, indexProvider, dominantColorProvider);
 
             loadingContext.ReportSuccess(Events.FluidLoad, nameof(Fluid), fluid.NamedID);
         }
@@ -259,16 +260,16 @@ public class Fluids
     /// <summary>
     ///     Gets the count of registered fluids..
     /// </summary>
-    public int Count => fluidList.Count;
+    public Int32 Count => fluidList.Count;
 
     /// <summary>
     ///     Translates a fluid ID to a reference to the fluid that has that ID. If the ID is not valid, none is returned.
     /// </summary>
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
-    public Fluid TranslateID(uint id)
+    public Fluid TranslateID(UInt32 id)
     {
-        if (fluidList.Count > id) return fluidList[(int) id];
+        if (fluidList.Count > id) return fluidList[(Int32) id];
 
         logger.LogWarning(
             Events.UnknownFluid,
@@ -284,7 +285,7 @@ public class Fluids
     /// </summary>
     /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The fluid, or null.</returns>
-    public Fluid? TranslateNamedID(string namedID)
+    public Fluid? TranslateNamedID(String namedID)
     {
         namedFluidDictionary.TryGetValue(namedID, out Fluid? fluid);
 
@@ -294,11 +295,11 @@ public class Fluids
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
     {
         using (loadingContext.BeginStep(Events.FluidLoad, "Fluid Loading"))
         {
-            Instance = new Fluids(indexProvider, loadingContext);
+            Instance = new Fluids(indexProvider, dominantColorProvider, loadingContext);
         }
     }
 }

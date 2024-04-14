@@ -11,7 +11,9 @@ using System.Drawing;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -24,37 +26,39 @@ namespace VoxelGame.Client.Visuals;
 ///     A list of textures that can be used by shaders.
 ///     Each texture has a name and index.
 /// </summary>
-public sealed class TextureBundle : ITextureIndexProvider
+public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvider
 {
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
-    private const string MissingTextureName = "missing_texture";
+    private const String MissingTextureName = "missing_texture";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
 
     private LoadingContext? loadingContext;
 
-    private TextureBundle(TextureArray textureArray, Dictionary<string, int> textureIndices)
+    private TextureBundle(TextureArray textureArray, Dictionary<String, Int32> textureIndices)
     {
         TextureArray = textureArray;
         TextureIndices = textureIndices;
     }
 
-    /// <summary>
-    ///     The array that stores all textures.
-    /// </summary>
-    public TextureArray TextureArray { get; }
-
-    private Dictionary<string, int> TextureIndices { get; }
+    private TextureArray TextureArray { get; }
+    private Dictionary<String, Int32> TextureIndices { get; }
 
     /// <summary>
     ///     Get the number of textures in the bundle.
     /// </summary>
-    public int Count => TextureArray.Count;
+    public Int32 Count => TextureArray.Count;
 
     /// <inheritdoc />
-    public int GetTextureIndex(string name)
+    public Color4 GetDominantColor(Int32 index)
+    {
+        return TextureArray.GetDominantColor(index);
+    }
+
+    /// <inheritdoc />
+    public Int32 GetTextureIndex(String name)
     {
         if (name == MissingTextureName) return 0;
 
@@ -65,11 +69,19 @@ public sealed class TextureBundle : ITextureIndexProvider
             return 0;
         }
 
-        if (TextureIndices.TryGetValue(name, out int value)) return value;
+        if (TextureIndices.TryGetValue(name, out Int32 value)) return value;
 
         loadingContext.ReportWarning(Events.MissingResource, "Texture", name, "Texture not found");
 
         return 0;
+    }
+
+    /// <summary>
+    /// Get the arrays filling the texture slots.
+    /// </summary>
+    public static (TextureArray, TextureArray) GetTextureSlots(TextureBundle first, TextureBundle second)
+    {
+        return (first.TextureArray, second.TextureArray);
     }
 
     /// <summary>
@@ -86,7 +98,7 @@ public sealed class TextureBundle : ITextureIndexProvider
     /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
     public static TextureBundle Load(
         Support.Core.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory,
-        int resolution, int maxTextures, Image.MipmapAlgorithm mipmap)
+        Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
@@ -122,9 +134,9 @@ public sealed class TextureBundle : ITextureIndexProvider
 
             textures = textures[..maxTextures];
 
-            int maxIndex = maxTextures - 1;
+            Int32 maxIndex = maxTextures - 1;
 
-            foreach ((string key, int index) in result.Indices)
+            foreach ((String key, Int32 index) in result.Indices)
                 if (index > maxIndex)
                     result.Indices[key] = 0;
         }
@@ -155,10 +167,10 @@ public sealed class TextureBundle : ITextureIndexProvider
 
     private static void PreprocessImage(Image image)
     {
-        long r = 0;
-        long g = 0;
-        long b = 0;
-        long count = 0;
+        Int64 r = 0;
+        Int64 g = 0;
+        Int64 b = 0;
+        Int64 count = 0;
 
         for (var x = 0; x < image.Width; x++)
         for (var y = 0; y < image.Height; y++)
@@ -174,9 +186,9 @@ public sealed class TextureBundle : ITextureIndexProvider
             count++;
         }
 
-        int GetAverage(long sum)
+        Int32 GetAverage(Int64 sum)
         {
-            return (int) Math.Sqrt(sum / (double) count);
+            return (Int32) Math.Sqrt(sum / (Double) count);
         }
 
         Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
@@ -201,24 +213,13 @@ public sealed class TextureBundle : ITextureIndexProvider
     /// <remarks>
     ///     Textures provided have to have the height given by the resolution, and the width must be a multiple of it.
     /// </remarks>
-    private static LoadingResult LoadImages(int resolution, IEnumerable<FileInfo> paths, List<Image> extraTextures, Image.MipmapAlgorithm mipmap)
+    private static LoadingResult LoadImages(Int32 resolution, IEnumerable<FileInfo> paths, List<Image> extraTextures, Image.MipmapAlgorithm mipmap)
     {
-        Dictionary<string, int> indices = new();
+        Dictionary<String, Int32> indices = new();
         var count = 0;
-        int mips = BitOperations.Log2((uint) resolution) + 1;
+        Int32 mips = BitOperations.Log2((UInt32) resolution) + 1;
 
         List<Image> images = [];
-
-        void AddTexture(Image texture)
-        {
-            images.Add(texture);
-
-            count++;
-
-            PreprocessImage(images[^1]);
-
-            images.AddRange(images[^1].GenerateMipmaps(mips, mipmap));
-        }
 
         foreach (Image texture in extraTextures) AddTexture(texture);
 
@@ -230,8 +231,8 @@ public sealed class TextureBundle : ITextureIndexProvider
                 if (image.Width % resolution == 0 &&
                     image.Height == resolution) // Check if image consists of correctly sized textures
                 {
-                    int textureCount = image.Width / resolution;
-                    indices.Add(path.GetFileNameWithoutExtension(), count);
+                    Int32 textureCount = image.Width / resolution;
+                    AddTextureIndices(indices, path, count, textureCount);
 
                     for (var j = 0; j < textureCount; j++) AddTexture(image.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
                 }
@@ -249,7 +250,41 @@ public sealed class TextureBundle : ITextureIndexProvider
             }
 
         return new LoadingResult(indices, images, count, mips);
+
+        void AddTexture(Image texture)
+        {
+            images.Add(texture);
+
+            count++;
+
+            PreprocessImage(images[^1]);
+
+            images.AddRange(images[^1].GenerateMipmaps(mips, mipmap));
+        }
     }
 
-    private sealed record LoadingResult(Dictionary<string, int> Indices, List<Image> Images, int Count, int Mips);
+    private static void AddTextureIndices(IDictionary<String, Int32> indices, FileInfo file, Int32 index, Int32 size)
+    {
+        String name = GetTextureName(file);
+
+        indices[name] = index;
+
+        if (size == 1) return;
+
+        for (var offset = 0; offset < size; offset++)
+            indices[$"{name}:{offset}"] = index + offset;
+    }
+
+    private static String GetTextureName(FileInfo file)
+    {
+        StringBuilder name = new();
+
+        foreach (Char c in file.GetFileNameWithoutExtension())
+            if (Char.IsLetterOrDigit(c) || c == '_')
+                name.Append(c);
+
+        return name.ToString();
+    }
+
+    private sealed record LoadingResult(Dictionary<String, Int32> Indices, List<Image> Images, Int32 Count, Int32 Mips);
 }

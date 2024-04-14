@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,13 +17,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetSpeed : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-speed";
+    public override String Name => "set-speed";
 
     /// <inheritdoc />
-    public override string HelpText => "Sets the player flying speed.";
+    public override String HelpText => "Sets the player flying speed.";
 
     /// <exclude />
-    public void Invoke(double speed)
+    public void Invoke(Double speed)
     {
         switch (speed)
         {

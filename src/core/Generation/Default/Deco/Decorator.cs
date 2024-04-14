@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 
@@ -27,5 +28,5 @@ public abstract class Decorator
     /// <param name="context">The placement context of the decoration.</param>
     /// <param name="grid">The grid in which the position is.</param>
     /// <returns>True if the decoration should be placed, false otherwise.</returns>
-    public abstract bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid);
+    public abstract Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid);
 }

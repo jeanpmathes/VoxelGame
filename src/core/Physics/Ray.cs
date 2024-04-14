@@ -27,12 +27,12 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     The length of the ray.
     /// </summary>
-    public float Length { get; }
+    public Single Length { get; }
 
     /// <summary>
     ///     Create a new ray trough 3D space.
     /// </summary>
-    public Ray(Vector3d origin, Vector3d direction, float length)
+    public Ray(Vector3d origin, Vector3d direction, Single length)
     {
         Origin = origin;
         Direction = direction.Normalized();
@@ -53,7 +53,7 @@ public readonly struct Ray : IEquatable<Ray>
     public Vector3d EndPoint => Origin + Direction * Length;
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Origin.GetHashCode(), Direction.GetHashCode());
     }
@@ -61,7 +61,7 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     Compare two rays for equality.
     /// </summary>
-    public static bool operator ==(Ray left, Ray right)
+    public static Boolean operator ==(Ray left, Ray right)
     {
         return left.Equals(right);
     }
@@ -69,13 +69,13 @@ public readonly struct Ray : IEquatable<Ray>
     /// <summary>
     ///     Compare two rays for inequality.
     /// </summary>
-    public static bool operator !=(Ray left, Ray right)
+    public static Boolean operator !=(Ray left, Ray right)
     {
         return !(left == right);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         if (obj is Ray ray) return Equals(ray);
 
@@ -83,7 +83,7 @@ public readonly struct Ray : IEquatable<Ray>
     }
 
     /// <inheritdoc />
-    public bool Equals(Ray other)
+    public Boolean Equals(Ray other)
     {
         return Origin.Equals(other.Origin) && Direction.Equals(other.Direction);
     }

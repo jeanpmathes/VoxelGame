@@ -26,9 +26,21 @@ namespace vg
          * \brief The direction of the wind.
          */
         float3 windDir;
+
+        /**
+         * \brief The size of the part of the view plane that is inside a fog volume. Given in relative size, positive values start from the bottom, negative values from the top.
+         */
+        float fogOverlapSize;
+
+        /**
+         * \brief Color of the fog volume the view plane is currently in.
+         */
+        float3 fogOverlapColor;
     };
 
     ConstantBuffer<Custom> custom : register(b1);
+
+    static float3 const SKY_COLOR = float3(0.5f, 0.8f, 0.9f);
 }
 
 #endif

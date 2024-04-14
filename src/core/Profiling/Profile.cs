@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,8 +25,8 @@ public class Profile(ProfilerConfiguration configuration)
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Profile>();
 
-    private readonly ConcurrentDictionary<string, TimingMeasurement> measurements = new();
-    private readonly Dictionary<string, StateMachine> stateMachines = new();
+    private readonly ConcurrentDictionary<String, TimingMeasurement> measurements = new();
+    private readonly Dictionary<String, StateMachine> stateMachines = new();
 
     /// <summary>
     ///     Get the configuration of the profiler.
@@ -62,7 +63,7 @@ public class Profile(ProfilerConfiguration configuration)
         logger.LogInformation("Creating profiler exit report");
 
         Property report = Instance.GenerateReport(full: true);
-        string text = PropertyPrinter.Print(report);
+        String text = PropertyPrinter.Print(report);
 
         OS.Show("Report", text);
     }
@@ -76,7 +77,7 @@ public class Profile(ProfilerConfiguration configuration)
     ///     Only valid if the profiler is configured to be full.
     /// </param>
     /// <returns>The report.</returns>
-    public Property GenerateReport(bool full = false)
+    public Property GenerateReport(Boolean full = false)
     {
         List<Property> timings = [];
 
@@ -103,9 +104,9 @@ public class Profile(ProfilerConfiguration configuration)
     /// <param name="key">The unique key of the measurement.</param>
     /// <param name="parent">The unique key of the parent measurement, if any.</param>
     /// <param name="style">The style of the measurement.</param>
-    public void PrepareTimingMeasurement(string key, string? parent, TimingStyle style)
+    public void PrepareTimingMeasurement(String key, String? parent, TimingStyle style)
     {
-        bool added = measurements.TryAdd(key, new TimingMeasurement(key, style, parent == null));
+        Boolean added = measurements.TryAdd(key, new TimingMeasurement(key, style, parent == null));
 
         if (added && parent != null)
             measurements[parent].AddChild(measurements[key]);
@@ -117,7 +118,7 @@ public class Profile(ProfilerConfiguration configuration)
     /// </summary>
     /// <param name="key">The unique key of the measurement.</param>
     /// <param name="duration">The duration of the measurement.</param>
-    public void FinishTimingMeasurement(string key, double duration)
+    public void FinishTimingMeasurement(String key, Double duration)
     {
         measurements[key].AddTiming(duration);
     }
@@ -129,7 +130,7 @@ public class Profile(ProfilerConfiguration configuration)
     /// <param name="name">The name of the state machine that is profiled.</param>
     /// <param name="fromName">The previous state, or null if the state machine is just starting.</param>
     /// <param name="toName">The new state, or null if the state machine is just stopping.</param>
-    public void RecordStateTransition(string name, string? fromName, string? toName)
+    public void RecordStateTransition(String name, String? fromName, String? toName)
     {
         StateMachine stateMachine = stateMachines.GetOrAdd(name, new StateMachine(name));
 
@@ -143,11 +144,11 @@ public class Profile(ProfilerConfiguration configuration)
     ///     total.
     /// </summary>
     /// <param name="name">The name of the state machine for which to update the state durations.</param>
-    public void UpdateStateDurations(string name)
+    public void UpdateStateDurations(String name)
     {
         StateMachine stateMachine = stateMachines.GetOrAdd(name, new StateMachine(name));
 
-        foreach ((string state, int count) in stateMachine.activeStates)
+        foreach ((String state, Int32 count) in stateMachine.activeStates)
         {
             stateMachine.stateDurations[state] = stateMachine.stateDurations.GetValueOrDefault(state) + count;
             stateMachine.totalDurations += count;
@@ -162,7 +163,7 @@ public class Profile(ProfilerConfiguration configuration)
     ///     The lifetime of the state machine instance.
     ///     It is represented as a sequence of states.
     /// </param>
-    public void RecordStateLifetime(string name, IEnumerable<string> lifetime)
+    public void RecordStateLifetime(String name, IEnumerable<String> lifetime)
     {
         Debug.Assert(Configuration == ProfilerConfiguration.Full);
 
@@ -170,18 +171,18 @@ public class Profile(ProfilerConfiguration configuration)
         stateMachine.lifetimes.Add(lifetime);
     }
 
-    private sealed class TimingMeasurement(string name, TimingStyle style, bool isRoot)
+    private sealed class TimingMeasurement(String name, TimingStyle style, Boolean isRoot)
     {
         private readonly List<TimingMeasurement> children = [];
 
-        private readonly object timingLock = new();
-        private readonly object childrenLock = new();
+        private readonly Object timingLock = new();
+        private readonly Object childrenLock = new();
         private CircularTimeBuffer? reoccurring;
-        private double once;
+        private Double once;
 
-        public bool IsRoot => isRoot;
+        public Boolean IsRoot => isRoot;
 
-        public void AddTiming(double duration)
+        public void AddTiming(Double duration)
         {
             lock (timingLock)
             {
@@ -230,20 +231,20 @@ public class Profile(ProfilerConfiguration configuration)
         }
     }
 
-    private sealed class StateMachine(string name)
+    private sealed class StateMachine(String name)
     {
-        public readonly Dictionary<string, int> activeStates = new();
-        public readonly Dictionary<string, long> stateDurations = new();
+        public readonly Dictionary<String, Int32> activeStates = new();
+        public readonly Dictionary<String, Int64> stateDurations = new();
 
-        public readonly List<IEnumerable<string>> lifetimes = [];
+        public readonly List<IEnumerable<String>> lifetimes = [];
 
-        public double totalDurations;
+        public Double totalDurations;
 
         private Group GenerateActiveStatesReport()
         {
             List<Property> states = [];
 
-            foreach ((string state, int count) in activeStates) states.Add(new Integer(state, count));
+            foreach ((String state, Int32 count) in activeStates) states.Add(new Integer(state, count));
 
             return new Group("Active", states);
         }
@@ -252,7 +253,7 @@ public class Profile(ProfilerConfiguration configuration)
         {
             List<Property> states = [];
 
-            foreach ((string state, long duration) in stateDurations) states.Add(new Message(state, $"{duration / totalDurations:P2}"));
+            foreach ((String state, Int64 duration) in stateDurations) states.Add(new Message(state, $"{duration / totalDurations:P2}"));
 
             return new Group("Durations", states);
         }
@@ -261,11 +262,11 @@ public class Profile(ProfilerConfiguration configuration)
         {
             List<Property> content = [];
 
-            foreach (IEnumerable<string> lifetime in lifetimes)
+            foreach (IEnumerable<String> lifetime in lifetimes)
             {
                 StringBuilder builder = new();
 
-                foreach (string state in lifetime)
+                foreach (String state in lifetime)
                 {
                     if (builder.Length > 0) builder.Append(" -> ");
 
@@ -278,7 +279,7 @@ public class Profile(ProfilerConfiguration configuration)
             return new Group("Lifetimes", content);
         }
 
-        public Property GenerateReport(bool full)
+        public Property GenerateReport(Boolean full)
         {
             List<Property> content =
             [

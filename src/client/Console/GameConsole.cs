@@ -23,7 +23,7 @@ public class GameConsole : IConsoleProvider
     /// <summary>
     ///     The name of the script to execute when the world is ready.
     /// </summary>
-    public const string WorldReadyScript = "world_ready";
+    public const String WorldReadyScript = "world_ready";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
@@ -42,7 +42,7 @@ public class GameConsole : IConsoleProvider
     }
 
     /// <inheritdoc />
-    public void ProcessInput(string input)
+    public void ProcessInput(String input)
     {
         if (game.Console == null)
             throw new InvalidOperationException();
@@ -62,7 +62,7 @@ public class GameConsole : IConsoleProvider
 
         logger.LogDebug("Trying to execute world ready script");
 
-        bool executed = RunScript.Do(new Context(game.Console, commandInvoker, game.Player), WorldReadyScript, ignoreErrors: true);
+        Boolean executed = RunScript.Do(new Context(game.Console, commandInvoker, game.Player), WorldReadyScript, ignoreErrors: true);
 
         if (executed) logger.LogInformation(Events.Console, "Executed world ready script");
         else logger.LogDebug("No world ready script found");
@@ -80,24 +80,24 @@ public class GameConsole : IConsoleProvider
 
         invoker.AddParser(
             Parser.BuildParser(
-                s => int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => int.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                s => Int32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
+                s => Int32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
 
         invoker.AddParser(
             Parser.BuildParser(
-                s => uint.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => uint.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                s => UInt32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
+                s => UInt32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
 
         invoker.AddParser(
             Parser.BuildParser(
-                s => double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                s => Double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
+                s => Double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
 
         invoker.AddParser(Parser.BuildParser(
             s => Enum.IsDefined(typeof(Orientation), s),
             Enum.Parse<Orientation>));
 
-        invoker.AddParser(Parser.BuildParser(s => bool.TryParse(s, out _), bool.Parse));
+        invoker.AddParser(Parser.BuildParser(s => Boolean.TryParse(s, out _), Boolean.Parse));
 
         invoker.SearchCommands();
         invoker.AddCommand(new Help(invoker));

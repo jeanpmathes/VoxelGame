@@ -32,12 +32,12 @@ public class Texture : NativeObject
     /// <summary>
     ///     Gets the width of the texture.
     /// </summary>
-    public int Width => size.X;
+    public Int32 Width => size.X;
 
     /// <summary>
     ///     Gets the height of the texture.
     /// </summary>
-    public int Height => size.Y;
+    public Int32 Height => size.Y;
 
     /// <summary>
     ///     Load a texture from a file. This is only allowed during the loading phase.
@@ -47,7 +47,7 @@ public class Texture : NativeObject
     /// <param name="loadingContext">The loading context.</param>
     /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
     /// <returns></returns>
-    public static Texture Load(Client client, FileInfo path, LoadingContext? loadingContext, int fallbackResolution = 16)
+    public static Texture Load(Client client, FileInfo path, LoadingContext? loadingContext, Int32 fallbackResolution = 16)
     {
         Image image;
 

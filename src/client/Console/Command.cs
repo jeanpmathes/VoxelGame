@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 
@@ -21,10 +22,10 @@ public abstract class Command : ICommand
     protected Context Context { get; private set; } = null!;
 
     /// <inheritdoc />
-    public abstract string Name { get; }
+    public abstract String Name { get; }
 
     /// <inheritdoc />
-    public abstract string HelpText { get; }
+    public abstract String HelpText { get; }
 
     [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Intentionally hidden.")]
     void ICommand.SetContext(Context context)
@@ -37,7 +38,7 @@ public abstract class Command : ICommand
     /// </summary>
     /// <param name="name">The name of the position.</param>
     /// <returns>The position, or null if it does not exist.</returns>
-    protected Vector3d? GetNamedPosition(string name)
+    protected Vector3d? GetNamedPosition(String name)
     {
         return name switch
         {
@@ -60,12 +61,12 @@ public interface ICommand
     /// <summary>
     ///     Get the name of this command.
     /// </summary>
-    public string Name { get; }
+    public String Name { get; }
 
     /// <summary>
     ///     Get the help text for this command.
     /// </summary>
-    public string HelpText { get; }
+    public String HelpText { get; }
 
     /// <summary>
     ///     Set the current command execution context.

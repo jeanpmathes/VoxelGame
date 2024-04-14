@@ -25,7 +25,7 @@ public readonly struct Plane : IEquatable<Plane>
     /// </summary>
     public Vector3d Point { get; }
 
-    private readonly double d;
+    private readonly Double d;
 
     /// <summary>
     ///     Creates a plane. The normal parameter has to be normalized.
@@ -72,8 +72,8 @@ public readonly struct Plane : IEquatable<Plane>
         Vector3d xAxis = axis.Normalized();
         Vector3d yAxis = Vector3d.Cross(axis.Normalized(), Normal).Normalized();
 
-        double projectedX = Vector3d.Dot(offset, xAxis);
-        double projectedY = Vector3d.Dot(offset, yAxis);
+        Double projectedX = Vector3d.Dot(offset, xAxis);
+        Double projectedY = Vector3d.Dot(offset, yAxis);
 
         return new Vector2d(projectedX, projectedY);
     }
@@ -97,12 +97,12 @@ public readonly struct Plane : IEquatable<Plane>
 
         Vector3d l = Vector3d.Cross(n2, normal);
 
-        double n = Vector3d.Dot(n1, l);
+        Double n = Vector3d.Dot(n1, l);
 
         if (VMath.NearlyZero(n)) return null;
 
         Vector3d p = p1 - p2;
-        double t = Vector3d.Dot(n1, p) / n;
+        Double t = Vector3d.Dot(n1, p) / n;
         Vector3d point = p2 + t * l;
 
         return new Line(point, normal);
@@ -113,25 +113,25 @@ public readonly struct Plane : IEquatable<Plane>
     /// </summary>
     /// <param name="point">The point to calculate the distance to.</param>
     /// <returns>The distance to the point.</returns>
-    public double GetDistanceTo(Vector3d point)
+    public Double GetDistanceTo(Vector3d point)
     {
         return Vector3d.Dot(point, Normal) + d;
     }
 
     /// <inheritdoc />
-    public bool Equals(Plane other)
+    public Boolean Equals(Plane other)
     {
         return Normal.Equals(other.Normal) && Point.Equals(other.Point);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Plane other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Normal, Point);
     }
@@ -139,7 +139,7 @@ public readonly struct Plane : IEquatable<Plane>
     /// <summary>
     ///     Checks if two planes are equal.
     /// </summary>
-    public static bool operator ==(Plane left, Plane right)
+    public static Boolean operator ==(Plane left, Plane right)
     {
         return left.Equals(right);
     }
@@ -147,7 +147,7 @@ public readonly struct Plane : IEquatable<Plane>
     /// <summary>
     ///     Checks if two planes are not equal.
     /// </summary>
-    public static bool operator !=(Plane left, Plane right)
+    public static Boolean operator !=(Plane left, Plane right)
     {
         return !left.Equals(right);
     }

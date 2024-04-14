@@ -20,9 +20,9 @@ public sealed class TextureSupport
 {
     private readonly TextureList textures;
 
-    private readonly Dictionary<string, string> preloadNameToPath = new();
+    private readonly Dictionary<String, String> preloadNameToPath = new();
 
-    private bool textureDiscardAllowed;
+    private Boolean textureDiscardAllowed;
 
     /// <summary>
     ///     Creates a new texture support class.
@@ -79,7 +79,7 @@ public sealed class TextureSupport
     {
         TextureList.Handle handle = TextureList.Handle.Invalid;
 
-        if (preloadNameToPath.TryGetValue(texture.Name, out string? path)) handle = textures.GetTexture(path);
+        if (preloadNameToPath.TryGetValue(texture.Name, out String? path)) handle = textures.GetTexture(path);
 
         if (!handle.IsValid) handle = textures.GetTexture(texture.Name);
 
@@ -116,7 +116,7 @@ public sealed class TextureSupport
     /// <param name="texture">The texture in which to get the pixel.</param>
     /// <param name="pixel">The pixel to get.</param>
     /// <returns>The color of the pixel, or null if the texture is not valid.</returns>
-    public Color? GetTexturePixel(Texture texture, (uint x, uint y) pixel)
+    public Color? GetTexturePixel(Texture texture, (UInt32 x, UInt32 y) pixel)
     {
         if (texture.RendererData == null) return null;
 

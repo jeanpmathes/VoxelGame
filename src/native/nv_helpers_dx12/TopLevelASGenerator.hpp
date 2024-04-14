@@ -43,6 +43,11 @@ namespace nv_helpers_dx12
     {
     public:
         /**
+         * \brief Clear all added instances.
+         */
+        void Clear();
+        
+        /**
          * \brief Add an instance to the top-level acceleration structure. The instance is represented by a bottom-level AS, a transform, an instance ID and the index of the hit group indicating which shaders are executed upon hitting any geometry within the instance.
          * \param bottomLevelAS Bottom-level acceleration structure containing the actual geometric data of the instance.
          * \param transform Transform matrix to apply to the instance, allowing the same bottom-level AS to be used at several world-space positions.
@@ -112,6 +117,7 @@ namespace nv_helpers_dx12
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        
         std::vector<Instance> m_instances{};
 
         UINT64 m_scratchSizeInBytes              = 0;

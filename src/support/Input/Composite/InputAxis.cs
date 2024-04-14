@@ -30,7 +30,7 @@ public class InputAxis
     /// <summary>
     ///     Get the value of the axis.
     /// </summary>
-    public float Value
+    public Single Value
     {
         get
         {

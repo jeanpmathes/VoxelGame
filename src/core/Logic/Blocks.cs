@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -22,6 +23,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Logic;
 
 #pragma warning disable S1192 // Definition class.
+#pragma warning disable S104 // Definition class.
 
 /// <summary>
 ///     Contains all block definitions of the core game.
@@ -31,12 +33,12 @@ public class Blocks
     /// <summary>
     ///     The maximum amount of different blocks that can be registered.
     /// </summary>
-    private const int BlockLimit = 1 << Section.DataShift;
+    private const Int32 BlockLimit = 1 << Section.DataShift;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
 
     private readonly List<Block> blockList = [];
-    private readonly Dictionary<string, Block> namedBlockDictionary = new();
+    private readonly Dictionary<String, Block> namedBlockDictionary = new();
 
     private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
@@ -144,7 +146,7 @@ public class Blocks
                 Language.Log,
                 nameof(Log),
                 BlockFlags.Basic,
-                TextureLayout.Column("log", sideOffset: 0, endOffset: 1)));
+                TextureLayout.Column("log:0", "log:1")));
 
             Wood = Register(new OrganicConstructionBlock(
                 Language.Wood,
@@ -170,7 +172,7 @@ public class Blocks
             Cactus = Register(new GrowingBlock(
                 Language.Cactus,
                 nameof(Cactus),
-                TextureLayout.Column("cactus", sideOffset: 0, endOffset: 1),
+                TextureLayout.Column("cactus:0", "cactus:1"),
                 Sand,
                 maxHeight: 4));
 
@@ -178,13 +180,13 @@ public class Blocks
                 Language.Pumpkin,
                 nameof(Pumpkin),
                 BlockFlags.Basic,
-                TextureLayout.Column("pumpkin_side", "pumpkin_top")));
+                TextureLayout.Column("pumpkin:0", "pumpkin:1")));
 
             Melon = Register(new GroundedBlock(
                 Language.Melon,
                 nameof(Melon),
                 BlockFlags.Basic,
-                TextureLayout.Column("melon_side", "melon_top")));
+                TextureLayout.Column("melon:0", "melon:1")));
 
             Spiderweb = Register(new SpiderWebBlock(
                 Language.SpiderWeb,
@@ -689,32 +691,32 @@ public class Blocks
                 BlockFlags.Basic,
                 TextureLayout.Uniform("obsidian_paving")));
 
-            GraniteRubble = Register(new PermeableConstructionBlock(
+            GraniteRubble = Register(new PermeableBlock(
                 Language.GraniteRubble,
                 nameof(GraniteRubble),
                 TextureLayout.Uniform("granite_rubble")));
 
-            SandstoneRubble = Register(new PermeableConstructionBlock(
+            SandstoneRubble = Register(new PermeableBlock(
                 Language.SandstoneRubble,
                 nameof(SandstoneRubble),
                 TextureLayout.Uniform("sandstone_rubble")));
 
-            LimestoneRubble = Register(new PermeableConstructionBlock(
+            LimestoneRubble = Register(new PermeableBlock(
                 Language.LimestoneRubble,
                 nameof(LimestoneRubble),
                 TextureLayout.Uniform("limestone_rubble")));
 
-            MarbleRubble = Register(new PermeableConstructionBlock(
+            MarbleRubble = Register(new PermeableBlock(
                 Language.MarbleRubble,
                 nameof(MarbleRubble),
                 TextureLayout.Uniform("marble_rubble")));
 
-            PumiceRubble = Register(new PermeableConstructionBlock(
+            PumiceRubble = Register(new PermeableBlock(
                 Language.PumiceRubble,
                 nameof(PumiceRubble),
                 TextureLayout.Uniform("pumice_rubble")));
 
-            ObsidianRubble = Register(new PermeableConstructionBlock(
+            ObsidianRubble = Register(new PermeableBlock(
                 Language.ObsidianRubble,
                 nameof(ObsidianRubble),
                 TextureLayout.Uniform("obsidian_rubble")));
@@ -1087,7 +1089,7 @@ public class Blocks
                 blockList.Add(block);
                 namedBlockDictionary.Add(block.NamedID, block);
 
-                var id = (uint) (blockList.Count - 1);
+                var id = (UInt32) (blockList.Count - 1);
 
                 block.Setup(id, indexProvider, visuals);
 
@@ -1106,7 +1108,7 @@ public class Blocks
     /// <summary>
     ///     Gets the count of registered blocks.
     /// </summary>
-    public int Count => blockList.Count;
+    public Int32 Count => blockList.Count;
 
     /// <summary>
     ///     Get special blocks as their actual block type.
@@ -1119,9 +1121,9 @@ public class Blocks
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Block TranslateID(uint id)
+    public Block TranslateID(UInt32 id)
     {
-        if (blockList.Count > id) return blockList[(int) id];
+        if (blockList.Count > id) return blockList[(Int32) id];
 
         logger.LogWarning(
             Events.UnknownBlock,
@@ -1137,7 +1139,7 @@ public class Blocks
     /// </summary>
     /// <param name="namedID">The named ID to translate.</param>
     /// <returns>The block, or null if no block with the ID exists.</returns>
-    public Block? TranslateNamedID(string namedID)
+    public Block? TranslateNamedID(String namedID)
     {
         namedBlockDictionary.TryGetValue(namedID, out Block? block);
 

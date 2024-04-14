@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -27,14 +28,14 @@ public class FlatBlockDecoration : Decoration
     /// <param name="rarity">The rarity of the decoration. </param>
     /// <param name="block">The block to place.</param>
     /// <param name="filter">The blocks to place on.</param>
-    public FlatBlockDecoration(string name, float rarity, FlatBlock block, ISet<Block> filter) : base(name, rarity, new WallDecorator())
+    public FlatBlockDecoration(String name, Single rarity, FlatBlock block, ISet<Block> filter) : base(name, rarity, new WallDecorator())
     {
         this.block = block;
         this.filter = filter;
     }
 
     /// <inheritdoc />
-    public override int Size => 1;
+    public override Int32 Size => 1;
 
     /// <inheritdoc />
     protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)

@@ -4,24 +4,27 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+#include "Payload.hlsl"
 #include "Section.hlsl"
 
 [shader("anyhit")]void BasicTransparentSectionAnyHit(
     inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
-    vg::spatial::Info const info      = vg::spatial::GetCurrentInfo(attributes);
-    float4                  baseColor = vg::section::GetBasicBaseColor(GET_PATH, info);
+    float const path = vg::ray::GetPathLength(payload);
+    
+    vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
+    float4                  color = vg::section::GetBasicBaseColor(path, info);
 
-    if (baseColor.a >= 0.1f)
+    if (color.a >= 0.1f)
     {
         float const currentRayT = RayTCurrent();
-        float const storedRayT  = payload.distance;
+        float const storedRayT  = vg::ray::GetRayDistance(payload);
 
         if (currentRayT < storedRayT)
         {
-            if (baseColor.a >= 0.3f) baseColor *= vg::decode::GetTintColor(info.data);
+            if (color.a >= 0.3f) color *= vg::decode::GetTintColor(info.data);
 
-            SET_HIT_INFO(payload, info, baseColor.rgb);
+            SET_INTERMEDIATE_HIT_INFO(payload, info, RGBA(color));
         }
     }
     else IgnoreHit();
@@ -30,21 +33,21 @@
 [shader("closesthit")]void BasicTransparentSectionClosestHit(
     inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
-    vg::spatial::Info const info      = vg::spatial::GetCurrentInfo(attributes);
-    float3 const            baseColor = payload.color;
+    vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
+    float3 const            color = vg::ray::GetColor(payload).rgb;
 
-    SET_HIT_INFO(payload, info, CalculateShading(info, baseColor.rgb));
+    SET_FINAL_HIT_INFO(payload, info, RGBA(CalculateShading(info, color.rgb)));
 }
 
 [shader("anyhit")]void BasicTransparentShadowAnyHit(
     inout native::rt::ShadowHitInfo, native::rt::Attributes const attributes)
 {
-    vg::spatial::Info const info      = vg::spatial::GetCurrentInfo(attributes);
-    float4                  baseColor = vg::section::GetBasicBaseColor(GET_SHADOW_PATH, info);
+    vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
+    float4                  color = vg::section::GetBasicBaseColor(vg::section::SHADOW_PATH, info);
 
     bool const isHittingFront = dot(info.normal, WorldRayDirection()) > 0.0f;
 
-    if (baseColor.a >= 0.1f && isHittingFront) AcceptHitAndEndSearch();
+    if (color.a >= 0.1f && isHittingFront) AcceptHitAndEndSearch();
     else IgnoreHit();
 }
 

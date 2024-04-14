@@ -21,13 +21,13 @@ public class CommandInvoker
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
 
-    private readonly Dictionary<string, CommandGroup> commandGroups = new();
+    private readonly Dictionary<String, CommandGroup> commandGroups = new();
     private readonly Dictionary<Type, Parser> parsers = new();
 
     /// <summary>
     ///     Get the names of all registered commands.
     /// </summary>
-    public IEnumerable<string> CommandNames => commandGroups.Keys;
+    public IEnumerable<String> CommandNames => commandGroups.Keys;
 
     /// <summary>
     ///     Invoked when new commands are added or discovered.
@@ -39,7 +39,7 @@ public class CommandInvoker
     /// </summary>
     /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
     /// <returns>The help text.</returns>
-    public string GetCommandHelpText(string commandName)
+    public String GetCommandHelpText(String commandName)
     {
         return commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup)
             ? commandGroup.Command.HelpText
@@ -51,7 +51,7 @@ public class CommandInvoker
     /// </summary>
     /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
     /// <returns>All signatures for the command.</returns>
-    public IEnumerable<string> GetCommandSignatures(string commandName)
+    public IEnumerable<String> GetCommandSignatures(String commandName)
     {
         if (!commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
             throw new ArgumentException("Command not found.");
@@ -59,7 +59,7 @@ public class CommandInvoker
         return GetCommandSignatures(commandName, commandGroup);
     }
 
-    private static IEnumerable<string> GetCommandSignatures(string commandName, CommandGroup commandGroup)
+    private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
     {
         foreach (MethodInfo commandOverload in commandGroup.Overloads)
         {
@@ -100,7 +100,7 @@ public class CommandInvoker
         var count = 0;
 
         foreach (Type type in Assembly.GetCallingAssembly().GetTypes()
-                     .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Command))))
+                     .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(Command))))
         {
             ICommand? command = null;
 
@@ -144,9 +144,9 @@ public class CommandInvoker
     /// </summary>
     /// <param name="input">The console input.</param>
     /// <param name="context">The command context in which the command should be executed.</param>
-    public void InvokeCommand(string input, Context context)
+    public void InvokeCommand(String input, Context context)
     {
-        (string commandName, string[] args) = ParseInput(input);
+        (String commandName, String[] args) = ParseInput(input);
 
         if (commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
         {
@@ -169,27 +169,27 @@ public class CommandInvoker
         }
     }
 
-    private static (string commandName, string[] args) ParseInput(string input)
+    private static (String commandName, String[] args) ParseInput(String input)
     {
         StringBuilder commandName = new();
 
-        foreach (char c in input)
+        foreach (Char c in input)
         {
             if (c == ' ') break;
 
             commandName.Append(c);
         }
 
-        List<StringBuilder> args = new();
+        List<StringBuilder> args = [];
 
         var isNextArg = true;
         var isQuoted = false;
         var isEscaped = false;
 
-        int nextIndex = commandName.Length + 1;
-        string remaining = input.Length > nextIndex ? input[nextIndex..] : "";
+        Int32 nextIndex = commandName.Length + 1;
+        String remaining = input.Length > nextIndex ? input[nextIndex..] : "";
 
-        foreach (char c in remaining)
+        foreach (Char c in remaining)
             switch (c)
             {
                 case ' ' when !isQuoted:
@@ -219,13 +219,13 @@ public class CommandInvoker
         return (commandName.ToString(), args.Select(a => a.ToString()).ToArray());
     }
 
-    private MethodInfo? ResolveOverload(List<MethodInfo> overloads, string[] args)
+    private MethodInfo? ResolveOverload(List<MethodInfo> overloads, IReadOnlyList<String> args)
     {
         foreach (MethodInfo method in overloads)
         {
             ParameterInfo[] parameters = method.GetParameters();
 
-            if (parameters.Length != args.Length) continue;
+            if (parameters.Length != args.Count) continue;
 
             var isValid = true;
 
@@ -252,13 +252,13 @@ public class CommandInvoker
         return null;
     }
 
-    private void Invoke(ICommand command, MethodBase method, IReadOnlyList<string> args, Context context)
+    private void Invoke(ICommand command, MethodBase method, IReadOnlyList<String> args, Context context)
     {
         ParameterInfo[] parameters = method.GetParameters();
 
         try
         {
-            var parsedArgs = new object[args.Count];
+            var parsedArgs = new Object[args.Count];
 
             for (var i = 0; i < args.Count; i++)
                 parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);

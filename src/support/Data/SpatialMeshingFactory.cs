@@ -21,7 +21,7 @@ public class SpatialMeshingFactory : IMeshingFactory
 
     /// <inheritdoc />
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Interface implementation.")]
-    public IMeshing Create(int hint)
+    public IMeshing Create(Int32 hint)
     {
         return new SpatialMeshing(hint);
     }

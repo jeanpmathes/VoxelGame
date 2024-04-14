@@ -1,0 +1,3 @@
+﻿Cigolle, Z. H., Donow, S., Evangelakos, D., Mara, M., McGuire, M., & Meyer, Q. (2014). 
+A survey of efficient representations for independent unit vectors. 
+Journal of Computer Graphics Techniques, 3(2).

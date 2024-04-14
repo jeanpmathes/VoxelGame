@@ -12,7 +12,7 @@ namespace VoxelGame.Support.Interop;
 ///     Helper for marshalling strings to unmanaged code.
 /// </summary>
 #pragma warning disable S1694
-public abstract class UnicodeStringMarshaller : IMarshaller<string?, IntPtr>
+public abstract class UnicodeStringMarshaller : IMarshaller<String?, IntPtr>
 #pragma warning restore S1694
 {
     /// <summary>
@@ -20,7 +20,7 @@ public abstract class UnicodeStringMarshaller : IMarshaller<string?, IntPtr>
     /// </summary>
     /// <param name="managed">The managed string to convert.</param>
     /// <returns>The unmanaged string.</returns>
-    public static IntPtr ConvertToUnmanaged(string? managed)
+    public static IntPtr ConvertToUnmanaged(String? managed)
     {
         return Marshal.StringToHGlobalUni(managed);
     }

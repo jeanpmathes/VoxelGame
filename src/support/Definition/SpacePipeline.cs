@@ -22,15 +22,15 @@ namespace VoxelGame.Support.Definition;
 internal struct SpacePipelineDescription
 {
     internal ShaderFileDescription[] shaderFiles;
-    internal string[] symbols;
+    internal String[] symbols;
 
     internal MaterialDescription[] materials;
 
     internal Texture[] textures;
-    internal uint textureCountFirstSlot;
-    internal uint textureCountSecondSlot;
+    internal UInt32 textureCountFirstSlot;
+    internal UInt32 textureCountSecondSlot;
 
-    internal uint customDataBufferSize;
+    internal UInt32 customDataBufferSize;
 
     internal Native.NativeErrorFunc onShaderLoadingError;
 }
@@ -42,18 +42,18 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
     internal struct Unmanaged
     {
         internal ShaderFileDescriptionMarshaller.Unmanaged* shaderFiles;
-        internal uint shaderFileCount;
+        internal UInt32 shaderFileCount;
 
         internal IntPtr* symbols;
 
         internal MaterialDescriptionMarshaller.Unmanaged* materials;
-        internal uint materialCount;
+        internal UInt32 materialCount;
 
         internal IntPtr* textures;
-        internal uint textureCountFirstSlot;
-        internal uint textureCountSecondSlot;
+        internal UInt32 textureCountFirstSlot;
+        internal UInt32 textureCountSecondSlot;
 
-        internal uint customDataBufferSize;
+        internal UInt32 customDataBufferSize;
         internal IntPtr onShaderLoadingError;
     }
 
@@ -61,20 +61,20 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
     {
         private Unmanaged unmanaged;
 
-        private uint symbolCount;
-        private uint textureCount;
+        private UInt32 symbolCount;
+        private UInt32 textureCount;
 
         internal void FromManaged(SpacePipelineDescription managed)
         {
             unmanaged = new Unmanaged
             {
                 shaderFiles = Marshalling.ConvertToUnmanaged<ShaderFileDescription, ShaderFileDescriptionMarshaller.Unmanaged,
-                    ShaderFileDescriptionMarshaller.Marshaller>(managed.shaderFiles, out uint shaderFileCount),
+                    ShaderFileDescriptionMarshaller.Marshaller>(managed.shaderFiles, out UInt32 shaderFileCount),
                 shaderFileCount = shaderFileCount,
-                symbols = Marshalling.ConvertToUnmanaged<string, IntPtr,
+                symbols = Marshalling.ConvertToUnmanaged<String, IntPtr,
                     UnicodeStringMarshaller>(managed.symbols, out symbolCount),
                 materials = Marshalling.ConvertToUnmanaged<MaterialDescription, MaterialDescriptionMarshaller.Unmanaged,
-                    MaterialDescriptionMarshaller.Marshaller>(managed.materials, out uint materialCount),
+                    MaterialDescriptionMarshaller.Marshaller>(managed.materials, out UInt32 materialCount),
                 materialCount = materialCount,
                 textures = Marshalling.ConvertToUnmanaged<Texture, IntPtr,
                     NativeObjectMarshaller.Marshaller>(managed.textures, out textureCount),
@@ -95,7 +95,7 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
             Marshalling.Free<ShaderFileDescription, ShaderFileDescriptionMarshaller.Unmanaged,
                 ShaderFileDescriptionMarshaller.Marshaller>(unmanaged.shaderFiles, unmanaged.shaderFileCount);
 
-            Marshalling.Free<string, IntPtr,
+            Marshalling.Free<String, IntPtr,
                 UnicodeStringMarshaller>(unmanaged.symbols, symbolCount);
 
             Marshalling.Free<MaterialDescription, MaterialDescriptionMarshaller.Unmanaged,
@@ -113,8 +113,8 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
 [NativeMarshalling(typeof(ShaderFileDescriptionMarshaller))]
 internal struct ShaderFileDescription
 {
-    internal string path;
-    internal uint symbolCount;
+    internal String path;
+    internal UInt32 symbolCount;
 }
 
 [CustomMarshaller(typeof(ShaderFileDescription), MarshalMode.ManagedToUnmanagedIn, typeof(ShaderFileDescriptionMarshaller))]
@@ -152,7 +152,7 @@ internal static class ShaderFileDescriptionMarshaller
     internal struct Unmanaged
     {
         internal IntPtr path;
-        internal uint symbolCount;
+        internal UInt32 symbolCount;
     }
 }
 
@@ -162,21 +162,21 @@ internal static class ShaderFileDescriptionMarshaller
 [StructLayout(LayoutKind.Sequential)]
 internal struct MaterialDescription
 {
-    internal string name;
-    internal bool isVisible;
-    internal bool isShadowCaster;
-    internal bool isOpaque;
+    internal String name;
+    internal Boolean isVisible;
+    internal Boolean isShadowCaster;
+    internal Boolean isOpaque;
 
-    internal bool isAnimated;
-    internal uint animationShaderIndex;
+    internal Boolean isAnimated;
+    internal UInt32 animationShaderIndex;
 
-    internal string normalClosestHitSymbol;
-    internal string normalAnyHitSymbol;
-    internal string normalIntersectionSymbol;
+    internal String normalClosestHitSymbol;
+    internal String normalAnyHitSymbol;
+    internal String normalIntersectionSymbol;
 
-    internal string shadowClosestHitSymbol;
-    internal string shadowAnyHitSymbol;
-    internal string shadowIntersectionSymbol;
+    internal String shadowClosestHitSymbol;
+    internal String shadowAnyHitSymbol;
+    internal String shadowIntersectionSymbol;
 }
 
 [CustomMarshaller(typeof(MaterialDescription), MarshalMode.ManagedToUnmanagedIn, typeof(MaterialDescriptionMarshaller))]
@@ -230,11 +230,11 @@ internal static class MaterialDescriptionMarshaller
     internal struct Unmanaged
     {
         internal IntPtr name;
-        internal int isVisible;
-        internal int isShadowCaster;
-        internal int isOpaque;
-        internal int isAnimated;
-        internal uint animationShaderIndex;
+        internal Int32 isVisible;
+        internal Int32 isShadowCaster;
+        internal Int32 isOpaque;
+        internal Int32 isAnimated;
+        internal UInt32 animationShaderIndex;
         internal IntPtr normalClosestHitSymbol;
         internal IntPtr normalAnyHitSymbol;
         internal IntPtr normalIntersectionSymbol;

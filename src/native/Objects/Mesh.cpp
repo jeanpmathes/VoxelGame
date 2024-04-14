@@ -148,9 +148,9 @@ ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBuff
 }
 
 void Mesh::CreateBLAS(
-    ComPtr<ID3D12GraphicsCommandList4> commandList,
-    std::vector<ID3D12Resource*>*      uavs,
-    bool                               isForAnimation)
+    ComPtr<ID3D12GraphicsCommandList4> const& commandList,
+    std::vector<ID3D12Resource*>*             uavs,
+    bool const                                isForAnimation)
 {
     Require(uavs != nullptr);
 

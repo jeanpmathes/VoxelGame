@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -21,7 +22,7 @@ public interface IGrassSpreadable : IBlockBase
     /// <param name="position">The position of the block.</param>
     /// <param name="grass">The grass block that is spreading.</param>
     /// <returns>True when the grass block successfully spread.</returns>
-    public bool SpreadGrass(World world, Vector3i position, Block grass)
+    public Boolean SpreadGrass(World world, Vector3i position, Block grass)
     {
         if (world.GetBlock(position)?.Block != this || world.HasOpaqueTop(position) != false) return false;
 

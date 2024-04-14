@@ -18,14 +18,14 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public readonly struct TintColor : IEquatable<TintColor>
 {
-    private readonly float r;
-    private readonly float g;
-    private readonly float b;
+    private readonly Single r;
+    private readonly Single g;
+    private readonly Single b;
 
     /// <summary>
     ///     Whether the tint is neutral. It will then be replaced with a tint defined externally.
     /// </summary>
-    public bool IsNeutral { get; }
+    public Boolean IsNeutral { get; }
 
     /// <summary>
     ///     Create a new tint color.
@@ -33,7 +33,7 @@ public readonly struct TintColor : IEquatable<TintColor>
     /// <param name="r">The red value, in the range [0, 1].</param>
     /// <param name="g">The green value, in the range [0, 1].</param>
     /// <param name="b">The blue value, in the range [0, 1].</param>
-    public TintColor(float r, float g, float b)
+    public TintColor(Single r, Single g, Single b)
     {
         this.r = r;
         this.g = g;
@@ -56,7 +56,7 @@ public readonly struct TintColor : IEquatable<TintColor>
         IsNeutral = false;
     }
 
-    private TintColor(float r, float g, float b, bool isNeutral)
+    private TintColor(Single r, Single g, Single b, Boolean isNeutral)
     {
         this.r = r;
         this.g = g;
@@ -247,7 +247,7 @@ public readonly struct TintColor : IEquatable<TintColor>
     /// <summary>
     ///     Gets the tint as bits.
     /// </summary>
-    public uint ToBits => ((uint) (r * 7f) << 6) | ((uint) (g * 7f) << 3) | (uint) (b * 7f);
+    public UInt32 ToBits => ((UInt32) (r * 7f) << 6) | ((UInt32) (g * 7f) << 3) | (UInt32) (b * 7f);
 
     /// <summary>
     ///     Convert this color to a <see cref="Color4" />.
@@ -260,17 +260,33 @@ public readonly struct TintColor : IEquatable<TintColor>
     }
 
     /// <summary>
-    ///     Select this tint or the neutral tint.
+    ///     Select this tint or a given one if this tint is neutral.
     /// </summary>
-    /// <param name="neutral">The neutral tint.</param>
+    /// <param name="neutral">The tint to use instead if this tint is neutral.</param>
     /// <returns>The selected tint.</returns>
     public TintColor Select(TintColor neutral)
     {
         return IsNeutral ? neutral : this;
     }
 
+    /// <summary>
+    ///     Apply a tint to a color.
+    /// </summary>
+    public static Color4 Multiply(Color4 color, TintColor tint)
+    {
+        return new Color4(color.R * tint.r, color.G * tint.g, color.B * tint.b, color.A);
+    }
+
+    /// <summary>
+    ///     Apply a tint to a color.
+    /// </summary>
+    public static Color4 operator *(Color4 color, TintColor tint)
+    {
+        return Multiply(color, tint);
+    }
+
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         if (obj is TintColor other) return Equals(other);
 
@@ -278,21 +294,21 @@ public readonly struct TintColor : IEquatable<TintColor>
     }
 
     /// <inheritdoc />
-    public bool Equals(TintColor other)
+    public Boolean Equals(TintColor other)
     {
         return ToBits == other.ToBits && other.IsNeutral == IsNeutral;
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
-        return (IsNeutral ? 1 : 0 << 9) | ((int) (r * 7f) << 6) | ((int) (g * 7f) << 3) | (int) (b * 7f);
+        return (IsNeutral ? 1 : 0 << 9) | ((Int32) (r * 7f) << 6) | ((Int32) (g * 7f) << 3) | (Int32) (b * 7f);
     }
 
     /// <summary>
     ///     Compare two tints for equality.
     /// </summary>
-    public static bool operator ==(TintColor left, TintColor right)
+    public static Boolean operator ==(TintColor left, TintColor right)
     {
         return left.Equals(right);
     }
@@ -300,7 +316,7 @@ public readonly struct TintColor : IEquatable<TintColor>
     /// <summary>
     ///     Compare two tints for inequality.
     /// </summary>
-    public static bool operator !=(TintColor left, TintColor right)
+    public static Boolean operator !=(TintColor left, TintColor right)
     {
         return !(left == right);
     }

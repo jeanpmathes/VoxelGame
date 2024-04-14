@@ -53,37 +53,42 @@ public static class Meshing
         /// <summary>
         ///     Whether the quad does not receive shading.
         /// </summary>
-        IsUnshaded = 2
+        IsUnshaded = 2,
+
+        /// <summary>
+        ///     Whether the normal of the quad should be inverted.
+        /// </summary>
+        IsNormalInverted = 3
     }
 
-    private const int UVShift = 15;
+    private const Int32 UVShift = 15;
 
-    private const int BitsPerTextureIndex = 13;
-    private const int BitsPerFluidTextureIndex = 11;
+    private const Int32 BitsPerTextureIndex = 13;
+    private const Int32 BitsPerFluidTextureIndex = 11;
 
     /// <summary>
     ///     The maximum amount of textures that can be used.
     /// </summary>
-    public const int MaxTextureCount = 1 << BitsPerTextureIndex;
+    public const Int32 MaxTextureCount = 1 << BitsPerTextureIndex;
 
     /// <summary>
     ///     The maximum amount of fluid textures that can be used.
     /// </summary>
-    public const int MaxFluidTextureCount = 1 << BitsPerFluidTextureIndex;
+    public const Int32 MaxFluidTextureCount = 1 << BitsPerFluidTextureIndex;
 
-    private static readonly uint uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
+    private static readonly UInt32 uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
 
-    private static readonly uint textureIndexMask = BitHelper.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
+    private static readonly UInt32 textureIndexMask = BitHelper.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
 
     /// <summary>
     ///     Encode a vector in base 17, assuming all components are in the range [0, 1].
     /// </summary>
-    private static uint EncodeInBase17(Vector4 vector)
+    private static UInt32 EncodeInBase17(Vector4 vector)
     {
-        uint x = VMath.RoundedToUInt(vector.X * 16);
-        uint y = VMath.RoundedToUInt(vector.Y * 16);
-        uint z = VMath.RoundedToUInt(vector.Z * 16);
-        uint w = VMath.RoundedToUInt(vector.W * 16);
+        UInt32 x = VMath.RoundedToUInt(vector.X * 16);
+        UInt32 y = VMath.RoundedToUInt(vector.Y * 16);
+        UInt32 z = VMath.RoundedToUInt(vector.Z * 16);
+        UInt32 w = VMath.RoundedToUInt(vector.W * 16);
 
         return w * 17 * 17 * 17 +
                z * 17 * 17 +
@@ -91,12 +96,12 @@ public static class Meshing
                x;
     }
 
-    private static Vector4 DecodeFromBase17(uint value)
+    private static Vector4 DecodeFromBase17(UInt32 value)
     {
-        uint x = value % 17;
-        uint y = value / 17 % 17;
-        uint z = value / 17 / 17 % 17;
-        uint w = value / 17 / 17 / 17 % 17;
+        UInt32 x = value % 17;
+        UInt32 y = value / 17 % 17;
+        UInt32 z = value / 17 / 17 % 17;
+        UInt32 w = value / 17 / 17 / 17 % 17;
 
         return new Vector4(x, y, z, w) / 16;
     }
@@ -110,7 +115,7 @@ public static class Meshing
     /// <param name="uvC">The UV coordinate of the third vertex.</param>
     /// <param name="uvD">The UV coordinate of the fourth vertex.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetUVs(ref (uint a, uint b, uint c, uint d) data,
+    public static void SetUVs(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
         Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD)
     {
         data.c &= ~uvMask;
@@ -126,7 +131,7 @@ public static class Meshing
     /// <param name="data">The data of the quad.</param>
     /// <returns>The UV coordinates of the quad.</returns>
     public static (Vector2 a, Vector2 b, Vector2 c, Vector2 d) GetUVs(
-        ref (uint a, uint b, uint c, uint d) data)
+        ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
         Vector4 u = DecodeFromBase17((data.c & uvMask) >> UVShift);
         Vector4 v = DecodeFromBase17((data.d & uvMask) >> UVShift);
@@ -138,7 +143,7 @@ public static class Meshing
     ///     Mirror UVs that are already set on the U axis.
     /// </summary>
     /// <param name="data">The data of the quad.</param>
-    public static void MirrorUVs(ref (uint a, uint b, uint c, uint d) data)
+    public static void MirrorUVs(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
         Vector4 u = DecodeFromBase17((data.c & uvMask) >> UVShift);
 
@@ -152,7 +157,7 @@ public static class Meshing
     /// <param name="data">The data of the quad.</param>
     /// <param name="mirror">Whether the texture should be mirrored along the U axis.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetFullUVs(ref (uint a, uint b, uint c, uint d) data, bool mirror = false)
+    public static void SetFullUVs(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean mirror = false)
     {
         if (mirror) SetUVs(ref data, (1, 0), (1, 1), (0, 1), (0, 0));
         else SetUVs(ref data, (0, 0), (0, 1), (1, 1), (1, 0));
@@ -162,12 +167,12 @@ public static class Meshing
     ///     Set the texture repetition for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTextureRepetition(ref (uint a, uint b, uint c, uint d) data, bool isRotated, uint height, uint length)
+    public static void SetTextureRepetition(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, UInt32 height, UInt32 length)
     {
-        const int heightShift = 0;
-        const int lengthShift = 4;
+        const Int32 heightShift = 0;
+        const Int32 lengthShift = 4;
 
-        uint repetition = !isRotated
+        UInt32 repetition = !isRotated
             ? (height << heightShift) | (length << lengthShift)
             : (length << heightShift) | (height << lengthShift);
 
@@ -178,29 +183,29 @@ public static class Meshing
     ///     Set a foliage flag for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetFoliageFlag(ref (uint a, uint b, uint c, uint d) data, FoliageQuadFlag flag, bool value)
+    public static void SetFoliageFlag(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, FoliageQuadFlag flag, Boolean value)
     {
-        data.c |= value.ToUInt() << (int) flag;
+        data.c |= value.ToUInt() << (Int32) flag;
     }
 
     /// <summary>
     ///     Set the texture index for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTextureIndex(ref (uint a, uint b, uint c, uint d) data, int index)
+    public static void SetTextureIndex(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Int32 index)
     {
-        data.a |= (uint) index & textureIndexMask;
+        data.a |= (UInt32) index & textureIndexMask;
     }
 
     /// <summary>
     ///     Set the tint for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTint(ref (uint a, uint b, uint c, uint d) data, TintColor tint)
+    public static void SetTint(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, TintColor tint)
     {
         Debug.Assert(!tint.IsNeutral);
 
-        const int tintShift = 23;
+        const Int32 tintShift = 23;
         data.b |= tint.ToBits << tintShift;
     }
 
@@ -208,8 +213,11 @@ public static class Meshing
     ///     Set a flag for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetFlag(ref (uint a, uint b, uint c, uint d) data, QuadFlag flag, bool value)
+    public static void SetFlag(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, QuadFlag flag, Boolean value)
     {
-        data.b |= value.ToUInt() << (int) flag;
+        var shift = (Int32) flag;
+
+        if (value) data.b |= 1u << shift;
+        else data.b &= ~(1u << shift);
     }
 }

@@ -112,7 +112,7 @@
             <PrecompiledHeader>Use</PrecompiledHeader>
             <Optimization>Disabled</Optimization>
             <FunctionLevelLinking>true</FunctionLevelLinking>
-            <PreprocessorDefinitions>NATIVE_DEBUG;USE_PIX;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <PreprocessorDefinitions>NATIVE_DEBUG;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <SDLCheck>true</SDLCheck>
             <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <CompileAsWinRT>false</CompileAsWinRT>

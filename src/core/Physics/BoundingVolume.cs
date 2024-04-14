@@ -97,12 +97,12 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Get a child bounding box.
     /// </summary>
     /// <param name="i">The index of the child.</param>
-    public BoundingVolume this[int i] => children[i];
+    public BoundingVolume this[Int32 i] => children[i];
 
     /// <summary>
     ///     Get the number of children.
     /// </summary>
-    public int ChildCount => children.Length;
+    public Int32 ChildCount => children.Length;
 
     /// <summary>
     ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Block" />.
@@ -116,7 +116,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public static BoundingVolume CrossBlock => new(
         new Vector3d(x: 0.5, y: 0.5, z: 0.5),
         new Vector3d(x: 0.355, y: 0.5, z: 0.355));
-    
+
     /// <summary>
     ///     Gets the child bounds of this bounding volume, or the bounds of this bounding volume if it has no children.
     /// </summary>
@@ -130,9 +130,9 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     /// <param name="height">The height of the bounding box, should be a value between 0 and 15.</param>
     /// <returns>The bounding box.</returns>
-    public static BoundingVolume BlockWithHeight(int height)
+    public static BoundingVolume BlockWithHeight(Int32 height)
     {
-        float halfHeight = (height + 1) * 0.03125f;
+        Single halfHeight = (height + 1) * 0.03125f;
 
         return new BoundingVolume(
             new Vector3d(x: 0.5f, halfHeight, z: 0.5f),
@@ -152,7 +152,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Checks if this bounding box or one of its children contain a point.
     /// </summary>
-    public bool Contains(Vector3d point)
+    public Boolean Contains(Vector3d point)
     {
         if (Box.Contains(point, boundaryInclusive: true))
             return true;
@@ -170,7 +170,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Check if this box intersects a frustum.
     /// </summary>
-    public bool Intersects(Frustum frustum)
+    public Boolean Intersects(Frustum frustum)
     {
         if (frustum.IsBoxInFrustum(Box)) return true;
 
@@ -189,7 +189,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Intersects(Box3d other)
+    public Boolean Intersects(Box3d other)
     {
         if (Collision.IsIntersecting(Box, other))
             return true;
@@ -208,14 +208,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Check if this <see cref="BoundingVolume" /> intersects with the given <see cref="Box3" />.
     ///     This will also set the collision planes.
     /// </summary>
-    public bool Intersects(Box3d other, ref bool x, ref bool y, ref bool z)
+    public Boolean Intersects(Box3d other, ref Boolean x, ref Boolean y, ref Boolean z)
     {
         if (Collision.IsIntersecting(Box, other, ref x, ref y, ref z))
             return true;
 
-        bool dx = x;
-        bool dy = y;
-        bool dz = z;
+        Boolean dx = x;
+        Boolean dy = y;
+        Boolean dz = z;
 
         if (ChildCount == 0) return false;
         if (!Collision.IsIntersecting(ChildBounds, other, ref dx, ref dy, ref dz)) return false;
@@ -230,7 +230,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Returns true if the given ray intersects this <see cref="BoundingVolume" /> or any of its children.
     /// </summary>
-    public bool Intersects(Ray ray)
+    public Boolean Intersects(Ray ray)
     {
         if (Collision.IsIntersecting(Box, ray))
             return true;
@@ -248,7 +248,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     #region Equality Support
 
     /// <inheritdoc />
-    public bool Equals(BoundingVolume? other)
+    public Boolean Equals(BoundingVolume? other)
     {
         if (!Box.Equals(other?.Box)) return false;
         if (ChildCount != other.ChildCount) return false;
@@ -261,7 +261,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         if (obj is BoundingVolume other) return Equals(other);
 
@@ -269,7 +269,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }

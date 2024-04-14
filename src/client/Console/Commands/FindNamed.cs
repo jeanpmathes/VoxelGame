@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,30 +24,30 @@ namespace VoxelGame.Client.Console.Commands;
 public class FindNamed : Command
 {
     /// <inheritdoc />
-    public override string Name => "find-named";
+    public override String Name => "find-named";
 
     /// <inheritdoc />
-    public override string HelpText => "Search and find any named generated object in the world.";
+    public override String HelpText => "Search and find any named generated object in the world.";
 
     /// <exclude />
-    public void Invoke(string name)
+    public void Invoke(String name)
     {
         Search(name);
     }
 
     /// <exclude />
-    public void Invoke(string name, int count)
+    public void Invoke(String name, Int32 count)
     {
         Search(name, count);
     }
 
     /// <exclude />
-    public void Invoke(string name, int count, uint maxDistance)
+    public void Invoke(String name, Int32 count, UInt32 maxDistance)
     {
         Search(name, count, maxDistance);
     }
 
-    private void Search(string name, int count = 1, uint maxDistance = Chunk.BlockSize * 100)
+    private void Search(String name, Int32 count = 1, UInt32 maxDistance = Chunk.BlockSize * 100)
     {
         if (count < 1)
         {

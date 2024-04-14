@@ -25,23 +25,23 @@ public class WorldInformation
     /// <summary>
     ///     The name of the world.
     /// </summary>
-    public string Name { get; set; } = "No Name";
+    public String Name { get; set; } = "No Name";
 
     /// <summary>
     ///     The first seed used to generate the world.
     /// </summary>
-    public int UpperSeed { get; set; } = 2133;
+    public Int32 UpperSeed { get; set; } = 2133;
 
     /// <summary>
     ///     The second seed used to generate the world.
     /// </summary>
-    public int LowerSeed { get; set; } = 3213;
+    public Int32 LowerSeed { get; set; } = 3213;
 
     /// <summary>
     ///     The size of the world, as extents.
     ///     This means the number of blocks on each side is twice the size.
     /// </summary>
-    public uint Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
+    public UInt32 Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
 
     /// <summary>
     ///     The creation date of the world.
@@ -51,7 +51,7 @@ public class WorldInformation
     /// <summary>
     ///     The game version in which the world was created.
     /// </summary>
-    public string Version { get; set; } = "missing";
+    public String Version { get; set; } = "missing";
 
     /// <summary>
     ///     The spawn information of the world.
@@ -105,17 +105,17 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     /// <summary>
     ///     The x position of the spawn.
     /// </summary>
-    public double X { get; set; }
+    public Double X { get; set; }
 
     /// <summary>
     ///     The y position of the spawn.
     /// </summary>
-    public double Y { get; set; }
+    public Double Y { get; set; }
 
     /// <summary>
     ///     The z position of the spawn.
     /// </summary>
-    public double Z { get; set; }
+    public Double Z { get; set; }
 
     /// <summary>
     ///     Create spawn information from a vector.
@@ -134,19 +134,19 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     public Vector3d Position => new(X, Y, Z);
 
     /// <inheritdoc />
-    public bool Equals(SpawnInformation other)
+    public Boolean Equals(SpawnInformation other)
     {
         return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is SpawnInformation other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(X, Y, Z);
     }
@@ -154,7 +154,7 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     /// <summary>
     ///     Determine equality between two spawn information.
     /// </summary>
-    public static bool operator ==(SpawnInformation left, SpawnInformation right)
+    public static Boolean operator ==(SpawnInformation left, SpawnInformation right)
     {
         return left.Equals(right);
     }
@@ -162,7 +162,7 @@ public struct SpawnInformation : IEquatable<SpawnInformation>
     /// <summary>
     ///     Determine inequality between two spawn information.
     /// </summary>
-    public static bool operator !=(SpawnInformation left, SpawnInformation right)
+    public static Boolean operator !=(SpawnInformation left, SpawnInformation right)
     {
         return !left.Equals(right);
     }

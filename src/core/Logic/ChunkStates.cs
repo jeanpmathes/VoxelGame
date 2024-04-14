@@ -48,7 +48,7 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        public override bool IsIntendingToGetReady => true;
+        public override Boolean IsIntendingToGetReady => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -144,7 +144,7 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        public override bool IsIntendingToGetReady => true;
+        public override Boolean IsIntendingToGetReady => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -198,7 +198,7 @@ public partial class Chunk
 
             chunks = new Neighborhood<Chunk?>();
 
-            foreach ((int x, int y, int z) in Neighborhood.Indices)
+            foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             {
                 (Chunk chunk, Guard)? neighbor = neighbors[x, y, z];
 
@@ -214,7 +214,7 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        public override bool IsIntendingToGetReady => true;
+        public override Boolean IsIntendingToGetReady => true;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -314,10 +314,10 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.Write;
 
         /// <inheritdoc />
-        protected override bool AllowSharingAccess => true;
+        protected override Boolean AllowSharingAccess => true;
 
         /// <inheritdoc />
-        protected override bool AllowStealing => true;
+        protected override Boolean AllowStealing => true;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -350,7 +350,7 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.Write;
 
         /// <inheritdoc />
-        protected override bool AllowStealing => true;
+        protected override Boolean AllowStealing => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -366,13 +366,13 @@ public partial class Chunk
     /// </summary>
     public class Used : ChunkState
     {
-        private readonly bool wasActive;
+        private readonly Boolean wasActive;
 
         /// <summary>
         ///     Create the used state.
         /// </summary>
         /// <param name="wasActive">Whether the chunk was active before.</param>
-        public Used(bool wasActive)
+        public Used(Boolean wasActive)
         {
             this.wasActive = wasActive;
         }

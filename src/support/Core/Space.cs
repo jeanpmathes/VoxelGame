@@ -61,7 +61,7 @@ public class Space
     /// <summary>
     ///     Check whether the adjustment has changed since the last set.
     /// </summary>
-    public bool HasAdjustmentChanged { get; private set; }
+    public Boolean HasAdjustmentChanged { get; private set; }
 
     /// <summary>
     ///     Create a new mesh.
@@ -125,8 +125,8 @@ public class Space
         Vector3d adjustedPosition = spatial.Position + adjustment;
         Quaterniond adjustedRotation = spatial.Rotation;
 
-        Vector3 adaptedPosition = new((float) adjustedPosition.X, (float) adjustedPosition.Y, (float) adjustedPosition.Z);
-        Vector4 adaptedRotation = new((float) adjustedRotation.X, (float) adjustedRotation.Y, (float) adjustedRotation.Z, (float) adjustedRotation.W);
+        Vector3 adaptedPosition = new((Single) adjustedPosition.X, (Single) adjustedPosition.Y, (Single) adjustedPosition.Z);
+        Vector4 adaptedRotation = new((Single) adjustedRotation.X, (Single) adjustedRotation.Y, (Single) adjustedRotation.Z, (Single) adjustedRotation.W);
 
         return new SpatialData
         {

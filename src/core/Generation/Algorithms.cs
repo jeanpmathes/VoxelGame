@@ -25,13 +25,13 @@ public static class Algorithms
     /// </summary>
     /// <param name="adjacencyHashed">The hash-based adjacency list.</param>
     /// <returns>The normal array based adjacency list.</returns>
-    public static List<List<short>> BuildAdjacencyList(Dictionary<short, HashSet<short>> adjacencyHashed)
+    public static List<List<Int16>> BuildAdjacencyList(Dictionary<Int16, HashSet<Int16>> adjacencyHashed)
     {
-        List<List<short>> adjacency = [];
+        List<List<Int16>> adjacency = [];
 
-        for (short id = 0; id < adjacencyHashed.Count; id++)
+        for (Int16 id = 0; id < adjacencyHashed.Count; id++)
         {
-            List<short> neighbors = [..adjacencyHashed[id]];
+            List<Int16> neighbors = [..adjacencyHashed[id]];
             neighbors.Sort();
             adjacency.Add(neighbors);
         }
@@ -53,26 +53,26 @@ public static class Algorithms
     /// <param name="original">The original adjacency list.</param>
     /// <param name="merge">A function giving the containing node id for a node id of the original.</param>
     /// <returns>The merged adjacency list.</returns>
-    public static (List<short>, Dictionary<short, List<short>>) MergeAdjacencyList(List<List<short>> original, Func<short, short> merge)
+    public static (List<Int16>, Dictionary<Int16, List<Int16>>) MergeAdjacencyList(List<List<Int16>> original, Func<Int16, Int16> merge)
     {
-        Dictionary<short, HashSet<short>> adjacencyHashed = new();
+        Dictionary<Int16, HashSet<Int16>> adjacencyHashed = new();
 
-        for (short current = 0; current < original.Count; current++)
+        for (Int16 current = 0; current < original.Count; current++)
         {
-            short mergedCurrent = merge(current);
+            Int16 mergedCurrent = merge(current);
 
-            HashSet<short> currentSet = adjacencyHashed.GetOrAdd(mergedCurrent);
+            HashSet<Int16> currentSet = adjacencyHashed.GetOrAdd(mergedCurrent);
 
-            foreach (short neighbor in original[current])
+            foreach (Int16 neighbor in original[current])
             {
-                short mergedNeighbor = merge(neighbor);
+                Int16 mergedNeighbor = merge(neighbor);
 
                 if (mergedCurrent != mergedNeighbor) currentSet.Add(mergedNeighbor);
             }
         }
 
-        List<short> nodes = adjacencyHashed.Keys.OrderBy(key => key).ToList();
-        Dictionary<short, List<short>> adjacency = adjacencyHashed.ToDictionary(pair => pair.Key, pair => new List<short>(pair.Value));
+        List<Int16> nodes = adjacencyHashed.Keys.OrderBy(key => key).ToList();
+        Dictionary<Int16, List<Int16>> adjacency = adjacencyHashed.ToDictionary(pair => pair.Key, pair => new List<Int16>(pair.Value));
 
         return (nodes, adjacency);
     }
@@ -96,14 +96,14 @@ public static class Algorithms
     /// <param name="direction">The direction of the ray.</param>
     /// <param name="length">The length of the ray.</param>
     /// <returns>The cells traversed by the ray.</returns>
-    public static IEnumerable<Vector2i> TraverseCells(Vector2i start, Vector2d direction, double length)
+    public static IEnumerable<Vector2i> TraverseCells(Vector2i start, Vector2d direction, Double length)
     {
-        double Frac0(double value)
+        Double Frac0(Double value)
         {
             return value - Math.Floor(value);
         }
 
-        double Frac1(double value)
+        Double Frac1(Double value)
         {
             return 1 - value + Math.Floor(value);
         }
@@ -113,11 +113,11 @@ public static class Algorithms
         Vector2i current = start;
         Vector2i step = direction.Sign();
 
-        double tDeltaX = step.X != 0 ? step.X / ray.X : double.MaxValue;
-        double tDeltaY = step.Y != 0 ? step.Y / ray.Y : double.MaxValue;
+        Double tDeltaX = step.X != 0 ? step.X / ray.X : Double.MaxValue;
+        Double tDeltaY = step.Y != 0 ? step.Y / ray.Y : Double.MaxValue;
 
-        double tMaxX = step.X > 0 ? tDeltaX * Frac1(origin.X) : tDeltaX * Frac0(origin.X);
-        double tMaxY = step.Y > 0 ? tDeltaY * Frac1(origin.Y) : tDeltaY * Frac0(origin.Y);
+        Double tMaxX = step.X > 0 ? tDeltaX * Frac1(origin.X) : tDeltaX * Frac0(origin.X);
+        Double tMaxY = step.Y > 0 ? tDeltaY * Frac1(origin.Y) : tDeltaY * Frac0(origin.Y);
 
         yield return start;
 

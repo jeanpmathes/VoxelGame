@@ -37,12 +37,12 @@ internal class PlacementSelection
     /// <summary>
     ///     Get the name of the current selection.
     /// </summary>
-    internal string SelectionName => IsBlockMode ? ActiveBlock.Name : ActiveFluid.Name;
+    internal String SelectionName => IsBlockMode ? ActiveBlock.Name : ActiveFluid.Name;
 
     /// <summary>
     ///     Get the name of the current mode.
     /// </summary>
-    internal string ModeName => IsBlockMode ? Language.Block : Language.Fluid;
+    internal String ModeName => IsBlockMode ? Language.Block : Language.Fluid;
 
     /// <summary>
     ///     The current active block.
@@ -57,13 +57,13 @@ internal class PlacementSelection
     /// <summary>
     ///     Whether the current mode is block mode.
     /// </summary>
-    internal bool IsBlockMode { get; private set; } = true;
+    internal Boolean IsBlockMode { get; private set; } = true;
 
     /// <summary>
     ///     Perform the selection based on current input.
     /// </summary>
     /// <returns>Whether the selection changed.</returns>
-    internal bool DoBlockFluidSelection()
+    internal Boolean DoBlockFluidSelection()
     {
         var updateData = false;
 
@@ -74,7 +74,7 @@ internal class PlacementSelection
         return updateData;
     }
 
-    private bool SelectMode()
+    private Boolean SelectMode()
     {
         if (!input.ShouldChangePlacementMode) return false;
 
@@ -83,29 +83,29 @@ internal class PlacementSelection
         return true;
     }
 
-    private bool SelectFromList()
+    private Boolean SelectFromList()
     {
-        int change = input.GetSelectionChange();
+        Int32 change = input.GetSelectionChange();
 
         if (change == 0) return false;
 
         if (IsBlockMode)
         {
-            long nextBlockId = ActiveBlock.ID + change;
+            Int64 nextBlockId = ActiveBlock.ID + change;
             nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
-            ActiveBlock = Blocks.Instance.TranslateID((uint) nextBlockId);
+            ActiveBlock = Blocks.Instance.TranslateID((UInt32) nextBlockId);
         }
         else
         {
-            long nextFluidId = ActiveFluid.ID + change;
+            Int64 nextFluidId = ActiveFluid.ID + change;
             nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
-            ActiveFluid = Fluids.Instance.TranslateID((uint) nextFluidId);
+            ActiveFluid = Fluids.Instance.TranslateID((UInt32) nextFluidId);
         }
 
         return true;
     }
 
-    private bool SelectTargeted()
+    private Boolean SelectTargeted()
     {
         if (!input.ShouldSelectTargeted) return false;
 

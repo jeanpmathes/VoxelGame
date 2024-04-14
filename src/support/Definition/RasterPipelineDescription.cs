@@ -22,12 +22,12 @@ public struct RasterPipelineDescription
     /// <summary>
     ///     Path to the vertex shader.
     /// </summary>
-    internal string VertexShaderPath { get; private init; }
+    internal String VertexShaderPath { get; private init; }
 
     /// <summary>
     ///     Path to the pixel shader.
     /// </summary>
-    internal string PixelShaderPath { get; private init; }
+    internal String PixelShaderPath { get; private init; }
 
     /// <summary>
     ///     The shader preset.
@@ -37,7 +37,7 @@ public struct RasterPipelineDescription
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
     /// </summary>
-    internal uint BufferSize { get; set; }
+    internal UInt32 BufferSize { get; set; }
 
     /// <summary>
     ///     The topology of the mesh. Only used for <see cref="ShaderPresets.ShaderPreset.SpatialEffect" />.
@@ -98,7 +98,7 @@ internal static class RasterPipelineDescriptionMarshaller
         internal IntPtr vertexShaderPath;
         internal IntPtr pixelShaderPath;
         internal ShaderPresets.ShaderPreset shaderPreset;
-        internal uint bufferSize;
+        internal UInt32 bufferSize;
         internal Topology topology;
         internal Filter filter;
     }

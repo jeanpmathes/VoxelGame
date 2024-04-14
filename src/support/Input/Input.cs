@@ -99,7 +99,7 @@ public class Input
         KeyState.Update();
     }
 
-    internal void OnKeyDown(byte key)
+    internal void OnKeyDown(Byte key)
     {
         var virtualKey = (VirtualKeys) key;
 
@@ -109,7 +109,7 @@ public class Input
         HandleKey(virtualKey, down: true);
     }
 
-    internal void OnKeyUp(byte key)
+    internal void OnKeyUp(Byte key)
     {
         var virtualKey = (VirtualKeys) key;
 
@@ -124,7 +124,7 @@ public class Input
         HandleKey(virtualKey, down: false);
     }
 
-    internal void OnChar(char character)
+    internal void OnChar(Char character)
     {
         TextInput(this,
             new TextInputEventArgs
@@ -133,7 +133,7 @@ public class Input
             });
     }
 
-    internal void OnMouseMove(int x, int y)
+    internal void OnMouseMove(Int32 x, Int32 y)
     {
         Mouse.OnMouseMove((x, y));
 
@@ -144,7 +144,7 @@ public class Input
             });
     }
 
-    internal void OnMouseWheel(double delta)
+    internal void OnMouseWheel(Double delta)
     {
         MouseWheel(this,
             new MouseWheelEventArgs
@@ -153,7 +153,7 @@ public class Input
             });
     }
 
-    private void HandleKey(VirtualKeys key, bool down)
+    private void HandleKey(VirtualKeys key, Boolean down)
     {
         if (mouseButtons.Contains(key))
         {

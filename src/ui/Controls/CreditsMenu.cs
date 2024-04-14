@@ -46,7 +46,7 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach ((Document credits, string name) in Context.Resources.CreateAttributions(Context))
+        foreach ((Document credits, String name) in Context.Resources.CreateAttributions(Context))
         {
             ScrollControl page = new(tabs)
             {

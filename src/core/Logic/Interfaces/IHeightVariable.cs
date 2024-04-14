@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Logic.Interfaces;
@@ -19,25 +20,25 @@ public interface IHeightVariable : IBlockBase
     /// <summary>
     ///     The maximum height. A block with this height completely fills a position.
     /// </summary>
-    public static int MaximumHeight => 15;
+    public static Int32 MaximumHeight => 15;
 
     /// <summary>
     ///     Special constant to indicate that a block has no height.
     ///     This is only allowed in certain cases.
     /// </summary>
-    public static int NoHeight => -1;
+    public static Int32 NoHeight => -1;
 
     /// <summary>
     ///     The half height. A block with this height fills half of a position.
     /// </summary>
-    public static int HalfHeight => MaximumHeight / 2;
+    public static Int32 HalfHeight => MaximumHeight / 2;
 
     /// <inheritdoc />
-    bool IBlockBase.IsSideFull(BlockSide side, uint data)
+    Boolean IBlockBase.IsSideFull(BlockSide side, UInt32 data)
     {
         if (side == BlockSide.Bottom) return true;
 
-        int height = GetHeight(data);
+        Int32 height = GetHeight(data);
 
         return height == MaximumHeight;
     }
@@ -47,7 +48,7 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     /// <param name="fluidHeight">The fluid height, in the range [-1, 7].</param>
     /// <returns>The block height, in the range [-1, 15].</returns>
-    public static int GetBlockHeightFromFluidHeight(int fluidHeight)
+    public static Int32 GetBlockHeightFromFluidHeight(Int32 fluidHeight)
     {
         return fluidHeight * 2 + 1;
     }
@@ -57,9 +58,9 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     /// <param name="height">The height of the face.</param>
     /// <returns>The size of the face.</returns>
-    public static float GetSize(int height)
+    public static Single GetSize(Int32 height)
     {
-        return (height + 1) / (float) (MaximumHeight + 1);
+        return (height + 1) / (Single) (MaximumHeight + 1);
     }
 
     /// <summary>
@@ -67,7 +68,7 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     /// <param name="height">The height of the face.</param>
     /// <returns>The gap of the face.</returns>
-    public static float GetGap(int height)
+    public static Single GetGap(Int32 height)
     {
         return 1 - GetSize(height);
     }
@@ -78,9 +79,9 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     /// <param name="height">The height of the face.</param>
     /// <returns>The bounds of the face.</returns>
-    public static (Vector2 min, Vector2 max) GetBounds(int height)
+    public static (Vector2 min, Vector2 max) GetBounds(Int32 height)
     {
-        float size = GetSize(height);
+        Single size = GetSize(height);
 
         return (new Vector2(x: 0, y: 0), new Vector2(x: 1, size));
     }
@@ -90,5 +91,5 @@ public interface IHeightVariable : IBlockBase
     /// </summary>
     /// <param name="data">The data from which to extract the height.</param>
     /// <returns>The block height.</returns>
-    int GetHeight(uint data);
+    Int32 GetHeight(UInt32 data);
 }

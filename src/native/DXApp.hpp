@@ -198,8 +198,6 @@ private:
     };
 
     bool m_isUpdateTimerRunning = false;
-
-    POINT m_lastMousePosition = {};
     bool  m_isActive          = false;
 };
 

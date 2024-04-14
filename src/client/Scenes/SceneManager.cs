@@ -65,7 +65,7 @@ public class SceneManager
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void Render(double deltaTime, Timer? timer)
+    public void Render(Double deltaTime, Timer? timer)
     {
         current?.Render(deltaTime, timer);
     }
@@ -75,7 +75,7 @@ public class SceneManager
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void Update(double deltaTime, Timer? timer)
+    public void Update(Double deltaTime, Timer? timer)
     {
         current?.Update(deltaTime, timer);
     }
@@ -92,7 +92,7 @@ public class SceneManager
     /// <summary>
     ///     Whether the current scene allows that the window is closed.
     /// </summary>
-    public bool CanCloseWindow()
+    public Boolean CanCloseWindow()
     {
         return current?.CanCloseWindow() ?? true;
     }

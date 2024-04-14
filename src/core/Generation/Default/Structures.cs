@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Structures
 {
-    private readonly Dictionary<string, GeneratedStructure> structuresByName = new();
+    private readonly Dictionary<String, GeneratedStructure> structuresByName = new();
 
     private Structures() {}
 
@@ -77,7 +78,7 @@ public class Structures
             foreach (GeneratedStructure structure in structures)
             {
                 // ReSharper disable once RedundantAssignment
-                bool success = Instance.structuresByName.TryAdd(structure.Name, structure);
+                Boolean success = Instance.structuresByName.TryAdd(structure.Name, structure);
 
                 Debug.Assert(success);
             }
@@ -96,7 +97,7 @@ public class Structures
     /// <summary>
     ///     Search for a given structure.
     /// </summary>
-    public IEnumerable<Vector3i>? Search(Vector3i start, string name, uint maxDistance, Generator generator)
+    public IEnumerable<Vector3i>? Search(Vector3i start, String name, UInt32 maxDistance, Generator generator)
     {
         GeneratedStructure? structure = structuresByName.GetValueOrDefault(name);
 

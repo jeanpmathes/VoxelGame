@@ -22,11 +22,11 @@ public static class Arguments
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static int Handle(string[] args, SetupLogging setupLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, SetupLogging setupLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
-        var logDebugOption = new Option<bool>(
+        var logDebugOption = new Option<Boolean>(
             "--log-debug",
             description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
             getDefaultValue: () => Program.IsDebug
@@ -35,7 +35,7 @@ public static class Arguments
         logDebugOption.AddAlias("-dbg");
         command.AddOption(logDebugOption);
 
-        var loadWorldDirectlyOption = new Option<int>(
+        var loadWorldDirectlyOption = new Option<Int32>(
             "--load-world-directly",
             description: "Select the number of a world to load directly, skipping the main menu. Use 0 to disable.",
             getDefaultValue: () => 0
@@ -50,7 +50,7 @@ public static class Arguments
 
         command.AddOption(loadWorldDirectlyOption);
 
-        var supportGraphicalDebuggerOption = new Option<bool>(
+        var supportGraphicalDebuggerOption = new Option<Boolean>(
             "--pix",
             description: "Whether to configure some features in a way that improve the PIX debugging experience at the cost of performance and validation.",
             getDefaultValue: () => false
@@ -58,7 +58,7 @@ public static class Arguments
 
         command.AddOption(supportGraphicalDebuggerOption);
 
-        var useGraphicsProcessingUnitBasedValidationOption = new Option<bool>(
+        var useGraphicsProcessingUnitBasedValidationOption = new Option<Boolean>(
             "--gbv",
             description: "Whether to use GPU-based validation. Has no effect if PIX support is enabled.",
             getDefaultValue: () => false
@@ -100,9 +100,9 @@ public static class Arguments
         return command.Invoke(args);
     }
 
-    private static int RunApplication(ILogger logger, Func<ILogger, int> app)
+    private static Int32 RunApplication(ILogger logger, Func<ILogger, Int32> app)
     {
-        int exitCode = app(logger);
+        Int32 exitCode = app(logger);
 
         logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
 
@@ -118,20 +118,20 @@ public delegate ILogger SetupLogging(LoggingParameters parameters);
 /// <summary>
 ///     The parameters for setting up logging.
 /// </summary>
-public record LoggingParameters(bool LogDebug);
+public record LoggingParameters(Boolean LogDebug);
 
 /// <summary>
 ///     Runs the game.
 /// </summary>
-public delegate int RunGame(GameParameters parameters, ILogger logger);
+public delegate Int32 RunGame(GameParameters parameters, ILogger logger);
 
 /// <summary>
 ///     The parameters for launching the game.
 /// </summary>
-public record GameParameters(int LoadWorldDirectly, ProfilerConfiguration Profile, bool SupportPIX, bool UseGBV)
+public record GameParameters(Int32 LoadWorldDirectly, ProfilerConfiguration Profile, Boolean SupportPIX, Boolean UseGBV)
 {
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.
     /// </summary>
-    public int? DirectlyLoadedWorldIndex => LoadWorldDirectly == 0 ? null : LoadWorldDirectly - 1;
+    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly == 0 ? null : LoadWorldDirectly - 1;
 }

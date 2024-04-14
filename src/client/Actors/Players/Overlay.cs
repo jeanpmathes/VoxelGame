@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Support.Graphics;
 
 namespace VoxelGame.Client.Actors.Players;
 
@@ -23,26 +24,39 @@ namespace VoxelGame.Client.Actors.Players;
 /// <param name="Size">The size of the overlay, which is the distance between the upper and lower bound.</param>
 /// <param name="Texture">The texture of the overlay.</param>
 /// <param name="IsBlock">Whether the overlay is a block or a fluid.</param>
-/// <param name="Position">The position of the overlay block/fluid.</param>
-public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, Vector3i Position)
+/// <param name="Position">The position of the overlay block/fluid that is causing the overlay.</param>
+/// <param name="Content">The content of the world causing the overlay, meaning the block and fluid at the position.</param>
+public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBlock, Vector3i Position, Content Content)
 {
+    /// <summary>
+    ///     Whether the overlay is a fluid.
+    /// </summary>
+    public Boolean IsFluid => !IsBlock;
+
     /// <summary>
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
-    /// <param name="frustum">The frustum to use for the measurement.</param>
+    /// <param name="view">The view to measure the overlays in.</param>
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Frustum frustum, ref double lowerBound, ref double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref Double lowerBound, ref Double upperBound)
     {
-        List<Overlay> overlays = new();
+        IView.Parameters definition = view.Definition;
+
+        // The following multiplier is a somewhat dirty hack to improve alignment of the overlay with the actual surface.
+        // A potential reason for the misalignment could be the float-based calculations on the native side.
+
+        Frustum frustum = (definition with {Clipping = (definition.Clipping.near * 1.022, definition.Clipping.far)}).Frustum;
+
+        List<Overlay> overlays = [];
 
         var anyIsBlock = false;
 
         foreach ((Content content, Vector3i position) in positions)
         {
-            (double, double)? newBounds = null;
+            (Double, Double)? newBounds = null;
             IOverlayTextureProvider? overlayTextureProvider = null;
             var isBlock = false;
 
@@ -63,19 +77,19 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
             if (newBounds is null) continue;
 
-            (double newLowerBound, double newUpperBound) = newBounds.Value;
+            (Double newLowerBound, Double newUpperBound) = newBounds.Value;
             OverlayTexture texture = overlayTextureProvider!.GetOverlayTexture(content);
 
             lowerBound = Math.Min(newLowerBound, lowerBound);
             upperBound = Math.Max(newUpperBound, upperBound);
 
-            overlays.Add(new Overlay(newUpperBound - newLowerBound, texture, isBlock, position));
+            overlays.Add(new Overlay(newUpperBound - newLowerBound, texture, isBlock, position, content));
         }
 
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
     {
         var height = 15;
 
@@ -84,16 +98,16 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
     {
-        int height = fluid.Level.GetBlockHeight();
+        Int32 height = fluid.Level.GetBlockHeight();
 
         return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, frustum);
     }
 
-    private static (double lower, double upper)? GetOverlayBounds(int height, Vector3d position, bool inverted, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(Int32 height, Vector3d position, Boolean inverted, Frustum frustum)
     {
-        float actualHeight = (height + 1) * (1.0f / 16.0f);
+        Single actualHeight = (height + 1) * (1.0f / 16.0f);
         if (inverted) actualHeight = 1.0f - actualHeight;
 
         Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
@@ -111,9 +125,9 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
         Vector2d a = viewPlane.Project2D(dimensions.a, axis);
         Vector2d b = viewPlane.Project2D(dimensions.b, axis);
 
-        double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
+        Double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
 
-        (double newLowerBound, double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
+        (Double newLowerBound, Double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
 
         newLowerBound = Math.Max(newLowerBound, val2: 0);
         newUpperBound = Math.Min(newUpperBound, val2: 1);
@@ -124,6 +138,7 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
     /// <summary>
     ///     Apply the tint of the world position, if the overlay texture tint is neutral.
     /// </summary>
+    /// <param name="world">The world in which the overlay is rendered.</param>
     /// <returns>A new overlay texture with the tint applied.</returns>
     public OverlayTexture GetWithAppliedTint(World world)
     {
@@ -131,8 +146,20 @@ public sealed record Overlay(double Size, OverlayTexture Texture, bool IsBlock, 
 
         (TintColor block, TintColor fluid) = world.Map.GetPositionTint(Position);
 
-        if (IsBlock) return Texture with {Tint = block};
+        return Texture with {Tint = IsBlock ? block : fluid};
+    }
 
-        return Texture with {Tint = fluid};
+    /// <summary>
+    ///     Get the color of the fog caused by the block or fluid overlay.
+    /// </summary>
+    /// <param name="world">The world in which the overlay is rendered.</param>
+    /// <returns>The color of the fog, or null if no fog is caused.</returns>
+    public Color4? GetFogColor(World world)
+    {
+        if (IsBlock) return null;
+
+        (TintColor _, TintColor fluid) = world.Map.GetPositionTint(Position);
+
+        return Content.Fluid.Fluid.GetColor(fluid);
     }
 }

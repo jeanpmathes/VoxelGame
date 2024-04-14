@@ -25,8 +25,8 @@ public class Mouse
     private Vector2i oldPosition;
     private Vector2i position;
 
-    private bool isCursorLocked;
-    private bool isCursorLockRequiredOnFocus;
+    private Boolean isCursorLocked;
+    private Boolean isCursorLockRequiredOnFocus;
 
     internal Mouse(Client client)
     {
@@ -83,12 +83,14 @@ public class Mouse
     /// </summary>
     public Vector2d Delta { get; private set; }
 
+    private Vector2i Center => client.Size / 2;
+
     internal void Update()
     {
-        NativeMethods.GetMousePosition(client, out long x, out long y);
-        position = new Vector2i((int) x, (int) y);
+        NativeMethods.GetMousePosition(client, out Int64 x, out Int64 y);
+        position = new Vector2i((Int32) x, (Int32) y);
 
-        Vector2d delta = Position - oldPosition;
+        Vector2d newDelta = position - oldPosition;
 
         if (client.Size.X == 0 || client.Size.Y == 0)
         {
@@ -97,18 +99,19 @@ public class Mouse
             return;
         }
 
-        double xScale = 1f / client.Size.X;
-        double yScale = 1f / client.Size.Y;
+        Double xScale = 1f / client.Size.X;
+        Double yScale = 1f / client.Size.Y;
 
-        delta = Vector2d.Multiply(delta, (xScale, -yScale)) * 1000;
-        delta = Vector2d.Lerp(oldDelta, delta, blend: 0.7f);
+        newDelta = Vector2d.Multiply(newDelta, (xScale, -yScale)) * 1000;
+        newDelta = Vector2d.Lerp(oldDelta, newDelta, blend: 0.7f);
 
-        if (isCursorLocked) Position = new Vector2i(client.Size.X, client.Size.Y) / 2;
+        if (isCursorLocked)
+            Position = Center;
 
         oldDelta = Delta;
         oldPosition = Position;
 
-        Delta = delta;
+        Delta = newDelta;
     }
 
     /// <summary>
@@ -132,20 +135,28 @@ public class Mouse
     ///     Set whether the cursor should be locked, i.e. hidden and grabbed.
     /// </summary>
     /// <param name="locked">Whether the cursor should be locked.</param>
-    public void SetCursorLock(bool locked)
+    public void SetCursorLock(Boolean locked)
     {
-        bool wasCursorLocked = isCursorLocked;
-
+        Boolean wasCursorLocked = isCursorLocked;
         isCursorLocked = locked;
 
         if (locked) storedPosition = Position;
 
         NativeMethods.SetCursorLock(client, locked);
 
-        if (locked) return;
+        if (locked)
+        {
+            Position = Center;
+            Delta = Vector2d.Zero;
 
-        if (storedPosition != null && wasCursorLocked) Position = storedPosition.Value;
+            oldPosition = Position;
+            oldDelta = Delta;
+        }
+        else
+        {
+            if (storedPosition != null && wasCursorLocked) Position = storedPosition.Value;
 
-        isCursorLockRequiredOnFocus = false;
+            isCursorLockRequiredOnFocus = false;
+        }
     }
 }

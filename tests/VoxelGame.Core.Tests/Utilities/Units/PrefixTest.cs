@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Utilities.Units;
 using Xunit;
 
@@ -20,9 +21,9 @@ public class PrefixTest
     [Fact]
     public void TestFindClosestExtremes()
     {
-        Assert.Equal(Prefix.Exa, Prefix.FindBest(double.MaxValue));
+        Assert.Equal(Prefix.Exa, Prefix.FindBest(Double.MaxValue));
         Assert.Equal(Prefix.Atto, Prefix.FindBest(value: 1e-30));
-        Assert.Equal(Prefix.None, Prefix.FindBest(double.Epsilon));
+        Assert.Equal(Prefix.None, Prefix.FindBest(Double.Epsilon));
     }
 
     [Fact]

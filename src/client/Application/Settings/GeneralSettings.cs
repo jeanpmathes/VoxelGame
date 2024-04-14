@@ -21,12 +21,12 @@ namespace VoxelGame.Client.Application.Settings;
 /// </summary>
 public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
 {
-    private readonly List<Setting> settings = new();
+    private readonly List<Setting> settings = [];
 
     internal GeneralSettings(Properties.Settings clientSettings)
     {
-        ScaleOfUI = new Bindable<float>(
-            () => (float) clientSettings.ScaleOfUI,
+        ScaleOfUI = new Bindable<Single>(
+            () => (Single) clientSettings.ScaleOfUI,
             f =>
             {
                 clientSettings.ScaleOfUI = f;
@@ -56,8 +56,8 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 Language.CrosshairColor,
                 CrosshairColor.Accessors));
 
-        CrosshairScale = new Bindable<float>(
-            () => (float) clientSettings.CrosshairScale,
+        CrosshairScale = new Bindable<Single>(
+            () => (Single) clientSettings.CrosshairScale,
             f =>
             {
                 clientSettings.CrosshairScale = f;
@@ -100,8 +100,8 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 Language.SelectionBoxBrightColor,
                 BrightSelectionColor.Accessors));
 
-        MouseSensitivity = new Bindable<float>(
-            () => (float) clientSettings.MouseSensitivity,
+        MouseSensitivity = new Bindable<Single>(
+            () => (Single) clientSettings.MouseSensitivity,
             f =>
             {
                 clientSettings.MouseSensitivity = f;
@@ -121,7 +121,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
     ///     The scale factor of the UI.
     /// </summary>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-    public Bindable<float> ScaleOfUI { get; }
+    public Bindable<Single> ScaleOfUI { get; }
 
     /// <summary>
     ///     The color of the crosshair.
@@ -131,7 +131,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
     /// <summary>
     ///     Get or set the crosshair scale setting.
     /// </summary>
-    public Bindable<float> CrosshairScale { get; }
+    public Bindable<Single> CrosshairScale { get; }
 
     /// <summary>
     ///     The color of the selection box on bright background.
@@ -146,22 +146,22 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
     /// <summary>
     ///     Get or set the mouse sensitivity setting.
     /// </summary>
-    public Bindable<float> MouseSensitivity { get; }
+    public Bindable<Single> MouseSensitivity { get; }
 
     /// <inheritdoc />
-    float IScaleProvider.Scale => ScaleOfUI;
+    Single IScaleProvider.Scale => ScaleOfUI;
 
     /// <inheritdoc />
-    IDisposable IScaleProvider.Subscribe(Action<float> action)
+    IDisposable IScaleProvider.Subscribe(Action<Single> action)
     {
         return ScaleOfUI.Bind(args => action(args.NewValue));
     }
 
     /// <inheritdoc />
-    static string ISettingsProvider.Category => Language.General;
+    static String ISettingsProvider.Category => Language.General;
 
     /// <inheritdoc />
-    static string ISettingsProvider.Description => Language.GeneralSettingsDescription;
+    static String ISettingsProvider.Description => Language.GeneralSettingsDescription;
 
     /// <inheritdoc />
     public IEnumerable<Setting> Settings => settings;

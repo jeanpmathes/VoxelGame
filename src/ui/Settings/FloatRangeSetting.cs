@@ -21,16 +21,16 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class FloatRangeSetting : Setting
 {
-    private readonly Func<float> get;
-    private readonly Action<float> set;
+    private readonly Func<Single> get;
+    private readonly Action<Single> set;
 
-    private readonly float min;
-    private readonly float max;
+    private readonly Single min;
+    private readonly Single max;
 
-    private readonly bool percentage;
-    private readonly float? step;
+    private readonly Boolean percentage;
+    private readonly Single? step;
 
-    internal FloatRangeSetting(string name, float min, float max, bool percentage, float? step, Func<float> get, Action<float> set)
+    internal FloatRangeSetting(String name, Single min, Single max, Boolean percentage, Single? step, Func<Single> get, Action<Single> set)
     {
         this.get = get;
         this.set = set;
@@ -44,7 +44,7 @@ internal class FloatRangeSetting : Setting
         Name = name;
     }
 
-    protected override string Name { get; }
+    protected override String Name { get; }
 
     private protected override void FillControl(ControlBase control, Context context)
     {
@@ -59,7 +59,7 @@ internal class FloatRangeSetting : Setting
 
         if (step is {} stepValue)
         {
-            floatRange.NotchCount = (int) ((max - min) / stepValue);
+            floatRange.NotchCount = (Int32) ((max - min) / stepValue);
             floatRange.SnapToNotches = true;
         }
 

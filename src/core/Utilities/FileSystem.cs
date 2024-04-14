@@ -25,7 +25,7 @@ public static class FileSystem
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
 
-    private static readonly ISet<string> reservedNames = new HashSet<string>
+    private static readonly ISet<String> reservedNames = new HashSet<String>
     {
         "CON",
         "PRN",
@@ -61,7 +61,7 @@ public static class FileSystem
     /// <param name="subdirectories">A list of subdirectories.</param>
     /// <returns>The subdirectory.</returns>
     /// <exception cref="IOException">If the directory could not be created.</exception>
-    public static DirectoryInfo CreateSubdirectory(Environment.SpecialFolder parent, params string[] subdirectories)
+    public static DirectoryInfo CreateSubdirectory(Environment.SpecialFolder parent, params String[] subdirectories)
     {
         return Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(parent), Path.Combine(subdirectories)));
     }
@@ -72,7 +72,7 @@ public static class FileSystem
     /// <param name="parent">The parent directory.</param>
     /// <param name="fileName">The file name.</param>
     /// <returns>The file path.</returns>
-    public static FileInfo GetFile(this DirectoryInfo parent, string fileName)
+    public static FileInfo GetFile(this DirectoryInfo parent, String fileName)
     {
         return new FileInfo(Path.Combine(parent.FullName, fileName));
     }
@@ -83,7 +83,7 @@ public static class FileSystem
     /// <param name="parent">The parent directory.</param>
     /// <param name="directoryName">The subdirectory name.</param>
     /// <returns>The subdirectory path.</returns>
-    public static DirectoryInfo GetDirectory(this DirectoryInfo parent, string directoryName)
+    public static DirectoryInfo GetDirectory(this DirectoryInfo parent, String directoryName)
     {
         return new DirectoryInfo(Path.Combine(parent.FullName, directoryName));
     }
@@ -97,7 +97,7 @@ public static class FileSystem
     /// <param name="access">The requested access.</param>
     /// <param name="share">The sharing mode.</param>
     /// <returns>The file stream.</returns>
-    public static FileStream OpenFile(this DirectoryInfo parent, string fileName, FileMode mode, FileAccess access, FileShare share = FileShare.None)
+    public static FileStream OpenFile(this DirectoryInfo parent, String fileName, FileMode mode, FileAccess access, FileShare share = FileShare.None)
     {
         return parent.GetFile(fileName).Open(mode, access, share);
     }
@@ -107,7 +107,7 @@ public static class FileSystem
     /// </summary>
     /// <param name="file">The file.</param>
     /// <returns>The file text.</returns>
-    public static string ReadAllText(this FileInfo file)
+    public static String ReadAllText(this FileInfo file)
     {
         return File.ReadAllText(file.FullName);
     }
@@ -117,7 +117,7 @@ public static class FileSystem
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="text">The text to write.</param>
-    public static void WriteAllText(this FileInfo file, string text)
+    public static void WriteAllText(this FileInfo file, String text)
     {
         File.WriteAllText(file.FullName, text);
     }
@@ -127,7 +127,7 @@ public static class FileSystem
     /// </summary>
     /// <param name="path">The folder structure.</param>
     /// <returns>The directory path.</returns>
-    public static DirectoryInfo GetResourceDirectory(params string[] path)
+    public static DirectoryInfo GetResourceDirectory(params String[] path)
     {
         return new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Resources", Path.Combine(path)));
     }
@@ -135,12 +135,12 @@ public static class FileSystem
     /// <summary>
     ///     Get the path to this resource file or directory relative to the resource directory.
     /// </summary>
-    public static string GetResourceRelativePath(this FileSystemInfo resource)
+    public static String GetResourceRelativePath(this FileSystemInfo resource)
     {
         return Path.GetRelativePath(GetResourceDirectory().FullName, resource.FullName);
     }
 
-    private static bool IsNameReserved(string name)
+    private static Boolean IsNameReserved(String name)
     {
         return reservedNames.Contains(name);
     }
@@ -151,7 +151,7 @@ public static class FileSystem
     /// <param name="parent">The parent directory.</param>
     /// <param name="name">The first directory name, that will be modified if necessary.</param>
     /// <returns>The unique directory.</returns>
-    public static DirectoryInfo GetUniqueDirectory(DirectoryInfo parent, string name)
+    public static DirectoryInfo GetUniqueDirectory(DirectoryInfo parent, String name)
     {
         StringBuilder path = new(Path.Combine(parent.FullName, name));
 
@@ -161,12 +161,12 @@ public static class FileSystem
 
         Regex pattern = new(Regex.Escape(name) + @"\s\((\d+)\)", RegexOptions.NonBacktracking);
 
-        int number = parent.EnumerateDirectories()
+        Int32 number = parent.EnumerateDirectories()
             .Select(directory => pattern.Match(directory.Name))
             .Where(match => match.Success)
             .Select(match =>
             {
-                int.TryParse(match.Groups[groupnum: 1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result);
+                Int32.TryParse(match.Groups[groupnum: 1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out Int32 result);
 
                 return result;
             })
@@ -184,7 +184,7 @@ public static class FileSystem
     /// <summary>
     ///     Get the file name without extension.
     /// </summary>
-    public static string GetFileNameWithoutExtension(this FileInfo file)
+    public static String GetFileNameWithoutExtension(this FileInfo file)
     {
         return Path.GetFileNameWithoutExtension(file.FullName);
     }
@@ -194,7 +194,7 @@ public static class FileSystem
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns>The full path.</returns>
-    public static DirectoryInfo GetFullPath(string path)
+    public static DirectoryInfo GetFullPath(String path)
     {
         return new DirectoryInfo(Path.GetFullPath(path));
     }
@@ -205,7 +205,7 @@ public static class FileSystem
     /// <returns>The temporary directory.</returns>
     public static DirectoryInfo CreateTemporaryDirectory()
     {
-        string? directory;
+        String? directory;
 
         do
         {

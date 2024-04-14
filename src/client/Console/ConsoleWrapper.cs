@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Concurrent;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -16,7 +17,7 @@ namespace VoxelGame.Client.Console;
 public class ConsoleWrapper
 {
     private readonly ConsoleInterface consoleInterface;
-    private readonly ConcurrentQueue<(string message, FollowUp[] followUp)> responses = new();
+    private readonly ConcurrentQueue<(String message, FollowUp[] followUp)> responses = new();
 
     /// <summary>
     ///     Create a new console wrapper.
@@ -33,7 +34,7 @@ public class ConsoleWrapper
     /// </summary>
     /// <param name="response">The response to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
-    public void WriteResponse(string response, params FollowUp[] followUp)
+    public void WriteResponse(String response, params FollowUp[] followUp)
     {
         Throw.IfNotOnMainThread(this);
         consoleInterface.WriteResponse(response, followUp);
@@ -45,7 +46,7 @@ public class ConsoleWrapper
     /// </summary>
     /// <param name="response">The response to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
-    public void EnqueueResponse(string response, params FollowUp[] followUp)
+    public void EnqueueResponse(String response, params FollowUp[] followUp)
     {
         responses.Enqueue((response, followUp));
     }
@@ -57,7 +58,7 @@ public class ConsoleWrapper
     {
         Throw.IfNotOnMainThread(this);
 
-        while (responses.TryDequeue(out (string message, FollowUp[] followUp) response))
+        while (responses.TryDequeue(out (String message, FollowUp[] followUp) response))
             WriteResponse(response.message, response.followUp);
     }
 
@@ -67,7 +68,7 @@ public class ConsoleWrapper
     /// </summary>
     /// <param name="error">The error to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
-    public void WriteError(string error, params FollowUp[] followUp)
+    public void WriteError(String error, params FollowUp[] followUp)
     {
         Throw.IfNotOnMainThread(this);
         consoleInterface.WriteError(error, followUp);

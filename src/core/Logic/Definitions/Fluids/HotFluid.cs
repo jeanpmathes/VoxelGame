@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -18,7 +19,7 @@ public class HotFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="HotFluid" />.
     /// </summary>
-    public HotFluid(string name, string namedID, float density, int viscosity, bool hasNeutralTint,
+    public HotFluid(String name, String namedID, Single density, Int32 viscosity, Boolean hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout,
         RenderType renderType = RenderType.Opaque) :
         base(
@@ -42,7 +43,7 @@ public class HotFluid : BasicFluid
     }
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, bool isStatic)
+    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         BurnAround(world, position);
     }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -18,5 +19,5 @@ public class PermeableNaturalBlock : NaturalBlock, IFillable
     /// <summary>
     ///     Creates a new permeable natural block.
     /// </summary>
-    public PermeableNaturalBlock(string name, string namedID, bool hasNeutralTint, BlockFlags flags, TextureLayout layout) : base(name, namedID, hasNeutralTint, flags, layout) {}
+    public PermeableNaturalBlock(String name, String namedID, Boolean hasNeutralTint, BlockFlags flags, TextureLayout layout) : base(name, namedID, hasNeutralTint, flags, layout) {}
 }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GroundedBlock : BasicBlock, ICombustible
 {
-    internal GroundedBlock(string name, string namedID, BlockFlags flags, TextureLayout layout) :
+    internal GroundedBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
         base(
             name,
             namedID,
@@ -27,13 +28,13 @@ public class GroundedBlock : BasicBlock, ICombustible
             layout) {}
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.HasFullAndSolidGround(position, solidify: true);
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) ScheduleDestroy(world, position);
     }

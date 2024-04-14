@@ -26,9 +26,9 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 public class Generator : IWorldGenerator
 {
-    private const int SeaLevel = 0;
+    private const Int32 SeaLevel = 0;
 
-    private const string MapBlobName = "default_map";
+    private const String MapBlobName = "default_map";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
     private readonly FastNoiseLite decorationNoise;
@@ -76,7 +76,7 @@ public class Generator : IWorldGenerator
         {
             Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
-            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory, out bool dirty);
+            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory, out Boolean dirty);
 
             if (dirty)
                 Map.Store(world.Data, MapBlobName);
@@ -95,7 +95,7 @@ public class Generator : IWorldGenerator
     public Map Map { get; }
 
     /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange)
+    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
     {
         Map.Sample sample = Map.GetSample((x, z));
 
@@ -103,12 +103,12 @@ public class Generator : IWorldGenerator
         {
             Map = Map,
             Sample = sample,
-            WorldHeight = GetWorldHeight((x, z), sample, out int effectiveOffset),
+            WorldHeight = GetWorldHeight((x, z), sample, out Int32 effectiveOffset),
             Dampening = CreateFilledDampening(effectiveOffset, sample),
             IceWidth = GetIceWidth(sample)
         };
 
-        for (int y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z), context);
+        for (Int32 y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z), context);
     }
 
     /// <inheritdoc />
@@ -130,7 +130,7 @@ public class Generator : IWorldGenerator
 
         Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
 
-        Array3D<float> noise = GenerateDecorationNoise(position);
+        Array3D<Single> noise = GenerateDecorationNoise(position);
 
         var index = 0;
 
@@ -159,7 +159,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance)
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
         return Structures.Instance.Search(start, name, maxDistance, this);
     }
@@ -186,13 +186,13 @@ public class Generator : IWorldGenerator
     /// <param name="sample">A map sample for the column.</param>
     /// <param name="effectiveOffset">The effective offset of the column.</param>
     /// <returns>The world height.</returns>
-    public static int GetWorldHeight(Vector2i column, in Map.Sample sample, out int effectiveOffset)
+    public static Int32 GetWorldHeight(Vector2i column, in Map.Sample sample, out Int32 effectiveOffset)
     {
-        double offset = GetOffset(column, sample);
-        double height = sample.Height * Map.MaxHeight;
+        Double offset = GetOffset(column, sample);
+        Double height = sample.Height * Map.MaxHeight;
 
-        var rawHeight = (int) height;
-        var modifiedHeight = (int) (height + offset);
+        var rawHeight = (Int32) height;
+        var modifiedHeight = (Int32) (height + offset);
         effectiveOffset = rawHeight - modifiedHeight;
 
         return modifiedHeight;
@@ -203,14 +203,14 @@ public class Generator : IWorldGenerator
     /// </summary>
     /// <param name="column">The column to get the height for.</param>
     /// <returns>The world height.</returns>
-    public int GetWorldHeight(Vector2i column)
+    public Int32 GetWorldHeight(Vector2i column)
     {
         return GetWorldHeight(column, Map.GetSample(column), out _);
     }
 
-    private Array3D<float> GenerateDecorationNoise(SectionPosition position)
+    private Array3D<Single> GenerateDecorationNoise(SectionPosition position)
     {
-        var noise = new Array3D<float>(Section.Size);
+        var noise = new Array3D<Single>(Section.Size);
 
         for (var x = 0; x < Section.Size; x++)
         for (var y = 0; y < Section.Size; y++)
@@ -246,7 +246,7 @@ public class Generator : IWorldGenerator
         return biomes;
     }
 
-    private static double GetOffset(Vector2i position, in Map.Sample sample)
+    private static Double GetOffset(Vector2i position, in Map.Sample sample)
     {
         return VMath.MixingBilinearInterpolation(
             sample.Biome00.GetOffset(position),
@@ -260,9 +260,9 @@ public class Generator : IWorldGenerator
     /// <summary>
     ///     Fill up the dampening to get the first solid layers of all biomes at the same height.
     /// </summary>
-    private static Biome.Dampening CreateFilledDampening(int offset, in Map.Sample sample)
+    private static Biome.Dampening CreateFilledDampening(Int32 offset, in Map.Sample sample)
     {
-        (int a, int b, int c, int d, int e) depths = (
+        (Int32 a, Int32 b, Int32 c, Int32 d, Int32 e) depths = (
             sample.Biome00.GetDepthToSolid(sample.Biome00.CalculateDampening(offset)),
             sample.Biome10.GetDepthToSolid(sample.Biome10.CalculateDampening(offset)),
             sample.Biome01.GetDepthToSolid(sample.Biome01.CalculateDampening(offset)),
@@ -275,37 +275,37 @@ public class Generator : IWorldGenerator
         else if (depths.d <= depths.a && depths.d <= depths.b && depths.d <= depths.c) depths.d *= 2;
         else depths.e *= 2;
 
-        var targetDepth = (int) VMath.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
+        var targetDepth = (Int32) VMath.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
         Biome.Dampening dampening = sample.ActualBiome.CalculateDampening(offset);
 
-        int fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);
+        Int32 fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);
         fill = Math.Max(val1: 0, fill);
 
         return dampening with {Width = dampening.Width + fill};
     }
 
-    private static int GetIceWidth(in Map.Sample sample)
+    private static Int32 GetIceWidth(in Map.Sample sample)
     {
-        (int a, int b, int c, int d, int e) widths = (
+        (Int32 a, Int32 b, Int32 c, Int32 d, Int32 e) widths = (
             sample.Biome00.IceWidth,
             sample.Biome10.IceWidth,
             sample.Biome01.IceWidth,
             sample.Biome11.IceWidth,
             sample.SpecialBiome.IceWidth);
 
-        return (int) Math.Round(VMath.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
+        return (Int32) Math.Round(VMath.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
         if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core);
 
-        int depth = context.WorldHeight - position.Y;
-        bool isFilled = position.Y <= SeaLevel;
+        Int32 depth = context.WorldHeight - position.Y;
+        Boolean isFilled = position.Y <= SeaLevel;
 
         if (depth < 0) // A negative depths means that the block is above the world height.
         {
-            bool isIce = isFilled && Math.Abs(position.Y - SeaLevel) < context.IceWidth;
+            Boolean isIce = isFilled && Math.Abs(position.Y - SeaLevel) < context.IceWidth;
 
             if (isIce) return new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
 
@@ -323,7 +323,7 @@ public class Generator : IWorldGenerator
         return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, isFilled, stoneType, context);
     }
 
-    private static Content GetBiomeContent(int depth, bool isFilled, Map.StoneType stoneType, Context context)
+    private static Content GetBiomeContent(Int32 depth, Boolean isFilled, Map.StoneType stoneType, Context context)
     {
         Content content = context.Biome.GetContent(depth, context.Dampening, stoneType, isFilled);
 
@@ -342,7 +342,7 @@ public class Generator : IWorldGenerator
 
     private readonly record struct Context
     {
-        public int WorldHeight { get; init; }
+        public Int32 WorldHeight { get; init; }
 
         public Biome.Dampening Dampening { get; init; }
 
@@ -352,7 +352,7 @@ public class Generator : IWorldGenerator
 
         public Map Map { private get; init; }
 
-        public int IceWidth { get; init; }
+        public Int32 IceWidth { get; init; }
 
         public Map.StoneType GetStoneType(Vector3i position)
         {

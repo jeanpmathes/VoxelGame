@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Interfaces;
@@ -31,13 +32,13 @@ public class PlantableDecorator : SurfaceDecorator
     /// </summary>
     /// <param name="offset">An offset to apply to the checked position.</param>
     /// <param name="width">The width of the surface column. See <see cref="SurfaceDecorator" />.</param>
-    public PlantableDecorator(Vector3i offset, int width) : base(width)
+    public PlantableDecorator(Vector3i offset, Int32 width) : base(width)
     {
         this.offset = offset;
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
+    public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         position += offset;
 

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
@@ -29,7 +30,7 @@ public interface IWorldGenerator
     /// <param name="z">The z position of the world.</param>
     /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
     /// <returns>The data in the column.</returns>
-    IEnumerable<Content> GenerateColumn(int x, int z, (int start, int end) heightRange);
+    IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange);
 
     /// <summary>
     ///     Decorate a section of the world.
@@ -58,5 +59,5 @@ public interface IWorldGenerator
     /// <param name="name">The name of the element.</param>
     /// <param name="maxDistance">The maximum distance to search.</param>
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
-    IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, string name, uint maxDistance);
+    IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance);
 }

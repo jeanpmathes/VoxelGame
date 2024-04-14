@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 
@@ -19,7 +20,7 @@ public class NoFluid : Fluid
     /// </summary>
     /// <param name="name">The name of the fluid.</param>
     /// <param name="namedID">The named ID.</param>
-    public NoFluid(string name, string namedID) :
+    public NoFluid(String name, String namedID) :
         base(
             name,
             namedID,

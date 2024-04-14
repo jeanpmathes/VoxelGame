@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
@@ -30,7 +31,7 @@ internal class InGameDisplay : ControlBase
     private readonly ControlBase debugViewRoot;
     private readonly PropertyBasedTreeControl debugViewContent;
 
-    private bool debugMode;
+    private Boolean debugMode;
 
     internal InGameDisplay(ControlBase parent, Context context) : base(parent)
     {
@@ -92,7 +93,7 @@ internal class InGameDisplay : ControlBase
         };
     }
 
-    internal void SetUpdateRate(double fps, double ups)
+    internal void SetUpdateRate(Double fps, Double ups)
     {
         performance.Text = $"FPS/UPS: {fps:000}/{ups:000}";
     }

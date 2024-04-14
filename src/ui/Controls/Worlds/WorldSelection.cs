@@ -35,7 +35,7 @@ internal class WorldSelection : StandardMenu
     private Search search = null!;
     private WorldList worlds = null!;
 
-    private bool isFirstOpen = true;
+    private Boolean isFirstOpen = true;
 
     private CancellationTokenSource? refreshCancellation;
 
@@ -191,7 +191,7 @@ internal class WorldSelection : StandardMenu
             refreshCancellation.Token);
     }
 
-    private void SetButtonBarEnabled(bool enabled)
+    private void SetButtonBarEnabled(Boolean enabled)
     {
         foreach (Button button in buttonBar)
         {
@@ -255,9 +255,9 @@ internal class WorldSelection : StandardMenu
         name.TextChanged += (_, _) => ValidateInput(out _);
         create.Released += (_, _) => CreateWorld();
 
-        void ValidateInput(out bool isValid)
+        void ValidateInput(out Boolean isValid)
         {
-            string input = name.Text;
+            String input = name.Text;
             isValid = worldProvider.IsWorldNameValid(input);
 
             name.TextColor = isValid ? Colors.Primary : Colors.Error;
@@ -268,7 +268,7 @@ internal class WorldSelection : StandardMenu
 
         void CreateWorld()
         {
-            ValidateInput(out bool isValid);
+            ValidateInput(out Boolean isValid);
 
             if (isValid) worldProvider.BeginCreatingWorld(name.Text);
         }

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Collections.Properties;
@@ -16,7 +17,7 @@ public class Measure : Property
     /// <summary>
     ///     Create a new measure property.
     /// </summary>
-    public Measure(string name, IMeasure value) : base(name)
+    public Measure(String name, IMeasure value) : base(name)
     {
         Value = value;
     }

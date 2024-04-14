@@ -34,7 +34,7 @@ public class StartUserInterface : UserInterface
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
     public StartUserInterface(Input input, IScaleProvider scale, IWorldProvider worldProvider,
-        ICollection<SettingsProvider> settingsProviders, UIResources resources, bool drawBackground) : base(
+        ICollection<SettingsProvider> settingsProviders, UIResources resources, Boolean drawBackground) : base(
         input,
         scale,
         resources,
@@ -66,7 +66,7 @@ public class StartUserInterface : UserInterface
     /// </summary>
     /// <param name="resources">The resources that are missing.</param>
     /// <param name="isCriticalMissing">Whether a critical resource is missing, preventing the game from starting.</param>
-    public void PresentResourceLoadingFailure(Property resources, bool isCriticalMissing)
+    public void PresentResourceLoadingFailure(Property resources, Boolean isCriticalMissing)
     {
         Debug.Assert(control != null);
 

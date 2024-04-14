@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class OrganicDoorBlock : DoorBlock, ICombustible
 {
-    internal OrganicDoorBlock(string name, string namedID, string closed, string open) :
+    internal OrganicDoorBlock(String name, String namedID, String closed, String open) :
         base(
             name,
             namedID,

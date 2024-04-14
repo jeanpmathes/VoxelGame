@@ -29,13 +29,13 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
             if (blockToCheck == null) return;
 
-            bool isFullHeight = GetHeight(info.Data) == MaximumHeight;
+            Boolean isFullHeight = GetHeight(info.Data) == MaximumHeight;
 
             if ((side != BlockSide.Top || isFullHeight) && ISimple.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
             MeshData mesh = GetMeshData(info with {Side = side});
 
-            bool isModified = side != BlockSide.Bottom && !isFullHeight;
+            Boolean isModified = side != BlockSide.Bottom && !isFullHeight;
 
             if (isModified) MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
             else MeshLikeSimple(position, side, mesh, IsOpaque, IsUnshaded, context);
@@ -68,7 +68,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void MeshLikeSimple(
-        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, bool isUnshaded, MeshingContext context)
+        Vector3i position, BlockSide side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
         ISimple.AddSimpleMesh(position,
             side,
@@ -87,12 +87,12 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MeshLikeFluid(Vector3i position, BlockSide side, [DisallowNull] BlockInstance? blockToCheck, BlockMeshInfo info, MeshData mesh, MeshingContext context)
     {
-        int height = GetHeight(info.Data);
+        Int32 height = GetHeight(info.Data);
 
         if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
             toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
-        (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
+        (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
@@ -130,7 +130,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         /// <summary>
         ///     Get the texture index.
         /// </summary>
-        public int TextureIndex { get; init; }
+        public Int32 TextureIndex { get; init; }
 
         /// <summary>
         ///     The block tint.
@@ -138,20 +138,20 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         public TintColor Tint { get; init; }
 
         /// <inheritdoc />
-        public bool Equals(MeshData other)
+        public Boolean Equals(MeshData other)
         {
             return (TextureIndex, Tint) ==
                    (other.TextureIndex, other.Tint);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is MeshData other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(TextureIndex, Tint);
         }
@@ -159,7 +159,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         /// <summary>
         ///     Equality operator.
         /// </summary>
-        public static bool operator ==(MeshData left, MeshData right)
+        public static Boolean operator ==(MeshData left, MeshData right)
         {
             return left.Equals(right);
         }
@@ -167,7 +167,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         /// <summary>
         ///     Inequality operator.
         /// </summary>
-        public static bool operator !=(MeshData left, MeshData right)
+        public static Boolean operator !=(MeshData left, MeshData right)
         {
             return !left.Equals(right);
         }

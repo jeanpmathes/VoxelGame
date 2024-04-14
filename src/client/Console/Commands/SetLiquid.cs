@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -18,25 +19,25 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetFluid : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-fluid";
+    public override String Name => "set-fluid";
 
     /// <inheritdoc />
-    public override string HelpText => "Sets the fluid at the target position. Can cause invalid fluid state.";
+    public override String HelpText => "Sets the fluid at the target position. Can cause invalid fluid state.";
 
     /// <exclude />
-    public void Invoke(string namedID, int level, int x, int y, int z)
+    public void Invoke(String namedID, Int32 level, Int32 x, Int32 y, Int32 z)
     {
         Set(namedID, level, (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(string namedID, int level)
+    public void Invoke(String namedID, Int32 level)
     {
         if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, level, targetPosition);
         else Context.Console.WriteError("No position targeted.");
     }
 
-    private void Set(string namedID, int levelData, Vector3i position)
+    private void Set(String namedID, Int32 levelData, Vector3i position)
     {
         Fluid? fluid = Fluids.Instance.TranslateNamedID(namedID);
 

@@ -48,7 +48,7 @@ public interface IFoliage : IBlockMeshable
     public readonly struct MeshData : IEquatable<MeshData>
     {
         private readonly BlockMesh.Quad[] quads;
-        private readonly uint quadCount;
+        private readonly UInt32 quadCount;
 
         /// <summary>
         ///     Create the mesh data.
@@ -71,7 +71,7 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     Get the quad count of the mesh.
         /// </summary>
-        public uint QuadCount => quadCount;
+        public UInt32 QuadCount => quadCount;
 
         /// <summary>
         ///     The block tint.
@@ -81,34 +81,34 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     Whether the block is animated.
         /// </summary>
-        public bool IsAnimated { get; init; }
+        public Boolean IsAnimated { get; init; }
 
         /// <summary>
         ///     Get whether this block is the upper part.
         /// </summary>
-        public bool IsUpperPart { get; init; }
+        public Boolean IsUpperPart { get; init; }
 
         /// <summary>
         ///     Get whether this block is a double plant.
         /// </summary>
-        public bool IsDoublePlant { get; init; }
+        public Boolean IsDoublePlant { get; init; }
 
         /// <summary>
         ///     Check equality.
         /// </summary>
-        public bool Equals(MeshData other)
+        public Boolean Equals(MeshData other)
         {
             return (quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant) == (other.quads, other.Tint, other.IsAnimated, other.IsUpperPart, other.IsDoublePlant);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is MeshData other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant);
         }
@@ -116,7 +116,7 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     Check equality.
         /// </summary>
-        public static bool operator ==(MeshData left, MeshData right)
+        public static Boolean operator ==(MeshData left, MeshData right)
         {
             return left.Equals(right);
         }
@@ -124,7 +124,7 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     Check inequality.
         /// </summary>
-        public static bool operator !=(MeshData left, MeshData right)
+        public static Boolean operator !=(MeshData left, MeshData right)
         {
             return !left.Equals(right);
         }

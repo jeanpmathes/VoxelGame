@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
@@ -17,13 +18,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetSpawnPoint : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-spawnpoint";
+    public override String Name => "set-spawnpoint";
 
     /// <inheritdoc />
-    public override string HelpText => "Sets the spawn position for the current world.";
+    public override String HelpText => "Sets the spawn position for the current world.";
 
     /// <exclude />
-    public void Invoke(double x, double y, double z)
+    public void Invoke(Double x, Double y, Double z)
     {
         SetSpawnPosition((x, y, z));
     }

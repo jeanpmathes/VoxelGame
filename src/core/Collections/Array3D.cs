@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,7 +25,7 @@ public class Array3D<T> : IEnumerable<T>
     ///     Create a new array with the given length in all dimensions.
     /// </summary>
     /// <param name="length">The length of all dimensions. Must be greater than 0.</param>
-    public Array3D(int length)
+    public Array3D(Int32 length)
     {
         Debug.Assert(length > 0);
 
@@ -35,7 +36,7 @@ public class Array3D<T> : IEnumerable<T>
     /// <summary>
     ///     Get the length of each dimension.
     /// </summary>
-    public int Length { get; }
+    public Int32 Length { get; }
 
     /// <summary>
     ///     Access the element at the given position.
@@ -43,7 +44,7 @@ public class Array3D<T> : IEnumerable<T>
     /// <param name="x">The x coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
     /// <param name="y">The y coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
     /// <param name="z">The z coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
-    public T this[int x, int y, int z]
+    public T this[Int32 x, Int32 y, Int32 z]
     {
         get => GetRef(x, y, z);
         set => GetRef(x, y, z) = value;
@@ -52,7 +53,7 @@ public class Array3D<T> : IEnumerable<T>
     /// <summary>
     ///     Get all indices of the array.
     /// </summary>
-    public IEnumerable<(int x, int y, int z)> Indices => VMath.Range3(Length, Length, Length);
+    public IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices => VMath.Range3(Length, Length, Length);
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
@@ -65,7 +66,7 @@ public class Array3D<T> : IEnumerable<T>
         return GetEnumerator();
     }
 
-    private ref T GetRef(int x, int y, int z)
+    private ref T GetRef(Int32 x, Int32 y, Int32 z)
     {
         Debug.Assert(x >= 0 && x < Length);
         Debug.Assert(y >= 0 && y < Length);

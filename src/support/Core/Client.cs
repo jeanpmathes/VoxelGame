@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
@@ -95,22 +96,24 @@ public class Client : IDisposable
             onResize = (width, height) =>
             {
                 Vector2i oldSize = Size;
-                Size = new Vector2i((int) width, (int) height);
+                Size = new Vector2i((Int32) width, (Int32) height);
 
                 OnSizeChange(this, new SizeChangeEventArgs(oldSize, Size));
             },
             onActiveStateChange = newState =>
             {
-                bool oldState = IsFocused;
+                Boolean oldState = IsFocused;
                 IsFocused = newState;
 
                 if (oldState != newState) OnFocusChange(this, new FocusChangeEventArgs(oldState, IsFocused));
             },
             onDebug = D3D12Debug.Enable(this),
-            width = (uint) windowSettings.Size.X,
-            height = (uint) windowSettings.Size.Y,
+            width = (UInt32) windowSettings.Size.X,
+            height = (UInt32) windowSettings.Size.Y,
             title = windowSettings.Title,
-            icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty)?.Handle ?? IntPtr.Zero,
+            icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
+            applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
+            applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
                 allowTearing: false,
@@ -132,24 +135,24 @@ public class Client : IDisposable
     /// <summary>
     ///     Whether the client is currently in the update cycle.
     /// </summary>
-    internal bool IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+    internal Boolean IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
 
     /// <summary>
     ///     Whether the client is currently in the render cycle.
     /// </summary>
-    internal bool IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+    internal Boolean IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
 
     /// <summary>
     ///     Whether the client is currently outside of any cycle but still on the main thread.
     /// </summary>
-    internal bool IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
+    internal Boolean IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
 
     internal Synchronizer Sync { get; } = new();
 
     /// <summary>
     ///     Get the total elapsed time.
     /// </summary>
-    private double Time { get; set; }
+    private Double Time { get; set; }
 
     /// <summary>
     ///     Get the space rendered by the client.
@@ -169,12 +172,12 @@ public class Client : IDisposable
     /// <summary>
     ///     Get the current aspect ratio <c>x/y</c>.
     /// </summary>
-    public double AspectRatio => Size.X / (double) Size.Y;
+    public Double AspectRatio => Size.X / (Double) Size.Y;
 
     /// <summary>
     ///     Get whether the window is focused.
     /// </summary>
-    public bool IsFocused { get; private set; }
+    public Boolean IsFocused { get; private set; }
 
     /// <summary>
     ///     Called when the focus / active state of the window changes.
@@ -194,12 +197,12 @@ public class Client : IDisposable
         return Support.Native.InitializeRaytracing<T>(this, description);
     }
 
-    private static string FormatErrorMessage(int hr, string message)
+    private static String FormatErrorMessage(Int32 hr, String message)
     {
         return $"{message} | {Marshal.GetExceptionForHR(hr)?.Message ?? "No Description"}";
     }
 
-    private static void OnError(int hr, string message)
+    private static void OnError(Int32 hr, String message)
     {
         Debugger.Break();
 
@@ -212,12 +215,12 @@ public class Client : IDisposable
         throw exception;
     }
 
-    internal string GetDRED()
+    internal String GetDRED()
     {
         return Support.Native.GetDRED(this);
     }
 
-    internal string GetAllocatorStatistics()
+    internal String GetAllocatorStatistics()
     {
         return Support.Native.GetAllocatorStatistics(this);
     }
@@ -233,7 +236,7 @@ public class Client : IDisposable
     /// <summary>
     ///     Decide whether the window can be closed right now.
     /// </summary>
-    protected virtual bool CanClose()
+    protected virtual Boolean CanClose()
     {
         return true;
     }
@@ -247,13 +250,13 @@ public class Client : IDisposable
     ///     Called for each update step.
     /// </summary>
     /// <param name="delta">The time since the last update in seconds.</param>
-    protected virtual void OnUpdate(double delta) {}
+    protected virtual void OnUpdate(Double delta) {}
 
     /// <summary>
     ///     Called for each render step.
     /// </summary>
     /// <param name="delta">The time since the last render in seconds.</param>
-    protected virtual void OnRender(double delta) {}
+    protected virtual void OnRender(Double delta) {}
 
     /// <summary>
     ///     Called when the client is destroyed.
@@ -266,7 +269,7 @@ public class Client : IDisposable
     /// <param name="description">A description of the pipeline.</param>
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <returns>The created pipeline, or <c>null</c> if the pipeline could not be created.</returns>
-    public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<string> errorCallback)
+    public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<String> errorCallback)
     {
         Throw.IfDisposed(disposed);
 
@@ -280,14 +283,14 @@ public class Client : IDisposable
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<string> errorCallback) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>
     {
         Throw.IfDisposed(disposed);
 
         return Support.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
-    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<string> errorCallback)
+    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
     {
         return (hr, message) => errorCallback(FormatErrorMessage(hr, message));
     }
@@ -313,7 +316,7 @@ public class Client : IDisposable
     /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
     /// <returns>A disposable object which can be used to remove the pipeline.</returns>
-    public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, int priority, Action<Draw2D> callback)
+    public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
         Throw.IfDisposed(disposed);
 
@@ -365,14 +368,14 @@ public class Client : IDisposable
         Support.Native.EnqueueScreenshot(this,
             (data, width, height) =>
             {
-                var copy = new int[width * height];
+                var copy = new Int32[width * height];
                 Marshal.Copy(data, copy, startIndex: 0, copy.Length);
 
                 FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
                 Task.Run(() =>
                 {
-                    Image screenshot = new(copy, Image.Format.BGRA, (int) width, (int) height);
+                    Image screenshot = new(copy, Image.Format.BGRA, (Int32) width, (Int32) height);
                     Exception? exception = screenshot.Save(path);
 
                     if (exception == null) logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
@@ -385,11 +388,11 @@ public class Client : IDisposable
     ///     Run the client. This methods returns when the client is closed.
     /// </summary>
     /// <returns>The exit code of the client.</returns>
-    public int Run()
+    public Int32 Run()
     {
         Throw.IfDisposed(disposed);
 
-        int exit = NativeMethods.Run(this);
+        Int32 exit = NativeMethods.Run(this);
 
         logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
 
@@ -402,13 +405,13 @@ public class Client : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Dispose the client.
     /// </summary>
     /// <param name="disposing">Whether the method was called by the user.</param>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

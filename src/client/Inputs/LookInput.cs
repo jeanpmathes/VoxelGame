@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Support.Input.Devices;
 
@@ -16,14 +17,14 @@ public class LookInput
 {
     private readonly Mouse mouse;
 
-    private float sensitivity;
+    private Single sensitivity;
 
     /// <summary>
     ///     Create a new look input wrapper.
     /// </summary>
     /// <param name="mouse">The mouse providing the movement.</param>
     /// <param name="sensitivity">The sensitivity to apply to the mouse movement.</param>
-    public LookInput(Mouse mouse, float sensitivity)
+    public LookInput(Mouse mouse, Single sensitivity)
     {
         this.mouse = mouse;
         this.sensitivity = sensitivity;
@@ -38,7 +39,7 @@ public class LookInput
     ///     Set the sensitivity of the look input.
     /// </summary>
     /// <param name="newSensitivity">The new sensitivity.</param>
-    public void SetSensitivity(float newSensitivity)
+    public void SetSensitivity(Single newSensitivity)
     {
         sensitivity = newSensitivity;
     }

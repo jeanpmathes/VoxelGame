@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
@@ -28,10 +29,10 @@ public class WallBlock : WideConnectingBlock
     private readonly BlockMesh straightX;
     private readonly BlockMesh straightZ;
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
-    internal WallBlock(string name, string namedID, string texture, string postModel, string extensionModel,
-        string extensionStraight) :
+    internal WallBlock(String name, String namedID, String texture, String postModel, String extensionModel,
+        String extensionStraight) :
         base(
             name,
             namedID,
@@ -50,18 +51,18 @@ public class WallBlock : WideConnectingBlock
         straightX = straightXModel.Mesh;
         straightZ = straightZModel.Mesh;
 
-        for (uint data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
-        bool north = (data & 0b00_1000) != 0;
-        bool east = (data & 0b00_0100) != 0;
-        bool south = (data & 0b00_0010) != 0;
-        bool west = (data & 0b00_0001) != 0;
+        Boolean north = (data & 0b00_1000) != 0;
+        Boolean east = (data & 0b00_0100) != 0;
+        Boolean south = (data & 0b00_0010) != 0;
+        Boolean west = (data & 0b00_0001) != 0;
 
-        bool useStraightZ = north && south && !east && !west;
-        bool useStraightX = !north && !south && east && west;
+        Boolean useStraightZ = north && south && !east && !west;
+        Boolean useStraightX = !north && !south && east && west;
 
         if (useStraightZ)
             return new BoundingVolume(
@@ -73,7 +74,7 @@ public class WallBlock : WideConnectingBlock
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.5f),
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.1875f));
 
-        int extensions = BitHelper.CountSetBits(data & 0b1111);
+        Int32 extensions = BitHelper.CountSetBits(data & 0b1111);
 
         var children = new BoundingVolume[extensions];
         extensions = 0;
@@ -117,21 +118,21 @@ public class WallBlock : WideConnectingBlock
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b00_1111];
+        return volumes[(Int32) data & 0b00_1111];
     }
 
     /// <inheritdoc />
     protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        bool north = (info.Data & 0b00_1000) != 0;
-        bool east = (info.Data & 0b00_0100) != 0;
-        bool south = (info.Data & 0b00_0010) != 0;
-        bool west = (info.Data & 0b00_0001) != 0;
+        Boolean north = (info.Data & 0b00_1000) != 0;
+        Boolean east = (info.Data & 0b00_0100) != 0;
+        Boolean south = (info.Data & 0b00_0010) != 0;
+        Boolean west = (info.Data & 0b00_0001) != 0;
 
-        bool useStraightZ = north && south && !east && !west;
-        bool useStraightX = !north && !south && east && west;
+        Boolean useStraightZ = north && south && !east && !west;
+        Boolean useStraightX = !north && !south && east && west;
 
         if (useStraightZ || useStraightX)
             return useStraightZ ? straightZ.GetMeshData() : straightX.GetMeshData();

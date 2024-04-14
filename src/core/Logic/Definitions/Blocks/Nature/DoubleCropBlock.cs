@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -24,19 +25,19 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly string texture;
+    private readonly String texture;
 
     private readonly List<BlockMesh> meshes = [];
     private readonly List<BoundingVolume> volumes = [];
 
     private (
-        int dead, int first, int second, int third,
-        (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth, (int low, int top) final
+        Int32 dead, Int32 first, Int32 second, Int32 third,
+        (Int32 low, Int32 top) fourth, (Int32 low, Int32 top) fifth, (Int32 low, Int32 top) sixth, (Int32 low, Int32 top) final
         ) stages;
 
-    internal DoubleCropBlock(string name, string namedID, string texture, int dead, int first, int second,
-        int third, (int low, int top) fourth, (int low, int top) fifth, (int low, int top) sixth,
-        (int low, int top) final) :
+    internal DoubleCropBlock(String name, String namedID, String texture, Int32 dead, Int32 first, Int32 second,
+        Int32 third, (Int32 low, Int32 top) fourth, (Int32 low, Int32 top) fifth, (Int32 low, Int32 top) sixth,
+        (Int32 low, Int32 top) final) :
         base(
             name,
             namedID,
@@ -47,17 +48,17 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 
         stages = (dead, first, second, third, fourth, fifth, sixth, final);
 
-        for (uint data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
-        var stageData = (int) (info.Data & 0b00_0111);
+        var stageData = (Int32) (info.Data & 0b00_0111);
 
-        bool isUpper = (info.Data & 0b00_1000) != 0;
-        bool hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
+        Boolean isUpper = (info.Data & 0b00_1000) != 0;
+        Boolean hasUpper = (GrowthStage) stageData >= GrowthStage.Fourth;
 
-        return new IFoliage.MeshData(meshes[(int) (info.Data & 0b01_1111)])
+        return new IFoliage.MeshData(meshes[(Int32) (info.Data & 0b01_1111)])
         {
             IsDoublePlant = hasUpper,
             IsUpperPart = isUpper
@@ -73,11 +74,11 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        int baseIndex = indexProvider.GetTextureIndex(texture);
+        Int32 baseIndex = indexProvider.GetTextureIndex(texture);
 
         if (baseIndex == 0) stages = (0, 0, 0, 0, (0, 0), (0, 0), (0, 0), (0, 0));
 
-        int[] stageTextureIndicesLow =
+        Int32[] stageTextureIndicesLow =
         [
             baseIndex + stages.dead,
             baseIndex + stages.first,
@@ -89,7 +90,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.final.low
         ];
 
-        int[] stageTextureIndicesTop =
+        Int32[] stageTextureIndicesTop =
         [
             0,
             0,
@@ -101,15 +102,15 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
             baseIndex + stages.final.top
         ];
 
-        for (uint data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, stageTextureIndicesLow, stageTextureIndicesTop, visuals));
+        for (UInt32 data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, stageTextureIndicesLow, stageTextureIndicesTop, visuals));
     }
 
-    private static BoundingVolume CreateVolume(uint data)
+    private static BoundingVolume CreateVolume(UInt32 data)
     {
         var stage = (GrowthStage) (data & 0b00_0111);
 
-        bool isLowerAndStillGrowing = (data & 0b00_1000) == 0 && stage == GrowthStage.Initial;
-        bool isUpperAndStillGrowing = (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth;
+        Boolean isLowerAndStillGrowing = (data & 0b00_1000) == 0 && stage == GrowthStage.Initial;
+        Boolean isUpperAndStillGrowing = (data & 0b00_1000) != 0 && stage is GrowthStage.Fourth or GrowthStage.Fifth;
 
         if (isLowerAndStillGrowing || isUpperAndStillGrowing)
             return BoundingVolume.BlockWithHeight(height: 7);
@@ -117,25 +118,25 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         return BoundingVolume.BlockWithHeight(height: 15);
     }
 
-    private static BlockMesh CreateMesh(uint data, int[] stageTextureIndicesLow, int[] stageTextureIndicesTop, VisualConfiguration visuals)
+    private static BlockMesh CreateMesh(UInt32 data, Int32[] stageTextureIndicesLow, Int32[] stageTextureIndicesTop, VisualConfiguration visuals)
     {
-        var stageData = (int) (data & 0b00_0111);
-        bool isUpper = (data & 0b00_1000) != 0;
-        bool isLowered = (data & 0b01_0000) != 0;
+        var stageData = (Int32) (data & 0b00_0111);
+        Boolean isUpper = (data & 0b00_1000) != 0;
+        Boolean isLowered = (data & 0b01_0000) != 0;
 
-        int textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
+        Int32 textureIndex = !isUpper ? stageTextureIndicesLow[stageData] : stageTextureIndicesTop[stageData];
 
         return BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered);
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
-        return volumes[(int) data & 0b01_1111];
+        return volumes[(Int32) data & 0b01_1111];
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Below())?.Block is IPlantable;
     }
@@ -143,27 +144,27 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        bool isLowered = world.IsLowered(position);
+        Boolean isLowered = world.IsLowered(position);
 
-        var data = (uint) GrowthStage.Initial;
+        var data = (UInt32) GrowthStage.Initial;
         if (isLowered) data |= 0b01_0000;
 
         world.SetBlock(this.AsInstance(data), position);
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, uint data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
     {
         world.SetDefaultBlock(position);
 
-        bool isBase = (data & 0b00_1000) == 0;
+        Boolean isBase = (data & 0b00_1000) == 0;
 
-        if ((data & 0b00_0111) >= (int) GrowthStage.Fourth)
+        if ((data & 0b00_0111) >= (Int32) GrowthStage.Fourth)
             world.SetDefaultBlock(isBase ? position.Above() : position.Below());
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
@@ -171,42 +172,42 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void RandomUpdate(World world, Vector3i position, uint data)
+    public override void RandomUpdate(World world, Vector3i position, UInt32 data)
     {
         var stage = (GrowthStage) (data & 0b00_0111);
-        uint lowered = data & 0b01_0000;
+        UInt32 lowered = data & 0b01_0000;
 
         // If this block is the upper part, the random update is ignored.
         if ((data & 0b00_1000) != 0) return;
 
         if (world.GetBlock(position.Below())?.Block is not IPlantable plantable) return;
-        if ((int) stage > 2 && !plantable.SupportsFullGrowth) return;
+        if ((Int32) stage > 2 && !plantable.SupportsFullGrowth) return;
         if (stage is GrowthStage.Final or GrowthStage.Dead) return;
 
         if (stage >= GrowthStage.Third) GrowBothParts(world, position, plantable, lowered, stage);
-        else world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+        else world.SetBlock(this.AsInstance(lowered | (UInt32) (stage + 1)), position);
     }
 
-    private void GrowBothParts(World world, Vector3i position, IPlantable plantable, uint lowered,
+    private void GrowBothParts(World world, Vector3i position, IPlantable plantable, UInt32 lowered,
         GrowthStage stage)
     {
         if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
         {
-            world.SetBlock(this.AsInstance(lowered | (uint) GrowthStage.Dead), position);
+            world.SetBlock(this.AsInstance(lowered | (UInt32) GrowthStage.Dead), position);
             if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
 
             return;
         }
 
         BlockInstance? above = world.GetBlock(position.Above());
-        bool growthPossible = above?.Block.IsReplaceable == true || above?.Block == this;
+        Boolean growthPossible = above?.Block.IsReplaceable == true || above?.Block == this;
 
         if (!growthPossible || !plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
 
-        world.SetBlock(this.AsInstance(lowered | (uint) (stage + 1)), position);
+        world.SetBlock(this.AsInstance(lowered | (UInt32) (stage + 1)), position);
 
         world.SetBlock(
-            this.AsInstance(lowered | (uint) (0b00_1000 | ((int) stage + 1))),
+            this.AsInstance(lowered | (UInt32) (0b00_1000 | ((Int32) stage + 1))),
             position.Above());
     }
 

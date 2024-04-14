@@ -17,7 +17,7 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& command
     Require(m_drawables.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(m_nativeClient->GetDevice(), spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*m_nativeClient, spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
     CreateTLAS();
@@ -126,16 +126,19 @@ void Space::Update(double)
 
     m_camera.Update();
 
-    for (auto const& drawable : m_drawables) drawable->Update();
+    m_drawables.ForEach([this](Drawable* drawable) { drawable->Update(); });
 }
 
-void Space::Render(Allocation<ID3D12Resource> color, Allocation<ID3D12Resource> depth, RenderData const& data)
+void Space::Render(
+    Allocation<ID3D12Resource> const& color,
+    Allocation<ID3D12Resource> const& depth,
+    RenderData const&                 data)
 {
     m_globalConstantBufferMapping->time = static_cast<float>(m_nativeClient->GetTotalRenderTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
-
+        
         EnqueueUploads();
         UpdateGlobalShaderResources();
         m_globalShaderResources->Bind(GetCommandList());
@@ -511,7 +514,7 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
         {
             return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetInstanceDataViewDescriptor();
         },
-        CreateListBuilder(&m_meshes.GetActive(), getIndexOfMesh));
+        CreateBagBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 
     m_meshGeometryBufferList = description->AddShaderResourceViewDescriptorList(
         {.reg = 1, .space = 0},
@@ -520,7 +523,7 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
         {
             return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetGeometryBufferViewDescriptor();
         },
-        CreateListBuilder(&m_meshes.GetActive(), getIndexOfMesh));
+        CreateBagBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 }
 
 void Space::SetupAnimationResourceLayout(ShaderResources::Description* description)
@@ -634,13 +637,14 @@ void Space::RunAnimations() { for (auto& animation : m_animations) animation.Run
 
 void Space::BuildAccelerationStructures()
 {
-    std::vector<ID3D12Resource*> uavs;
+    m_uavs.clear();
+    m_uavs.reserve(m_animations.size() + m_meshes.GetModifiedCount());
+    
+    for (auto& animation : m_animations) animation.CreateBLAS(GetCommandList(), &m_uavs);
 
-    for (auto& animation : m_animations) animation.CreateBLAS(GetCommandList(), &uavs);
+    for (Mesh* mesh : m_meshes.GetModified()) mesh->CreateBLAS(GetCommandList(), &m_uavs);
 
-    for (Mesh* mesh : m_meshes.GetModified()) mesh->CreateBLAS(GetCommandList(), &uavs);
-
-    m_resultBufferAllocator.CreateBarriers(GetCommandList(), uavs);
+    m_resultBufferAllocator.CreateBarriers(GetCommandList(), m_uavs);
 
     CreateTLAS();
     UpdateTopLevelAccelerationStructureView();
@@ -648,29 +652,30 @@ void Space::BuildAccelerationStructures()
 
 void Space::CreateTLAS()
 {
-    nv_helpers_dx12::TopLevelASGenerator topLevelASGenerator;
+    m_tlasGenerator.Clear();
 
-    for (Mesh* mesh : m_meshes.GetActive())
+    m_meshes.GetActive().ForEach(
+        [this](Mesh* mesh)
     {
-        // The CCW flag is used because DirectX uses left-handed coordinates.
-
         Require(mesh->GetActiveIndex().has_value());
         UINT const instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
 
-        topLevelASGenerator.AddInstance(
+        // The CCW flag is used because DirectX uses left-handed coordinates.
+
+        m_tlasGenerator.AddInstance(
             mesh->GetBLAS().result.GetAddress(),
             mesh->GetTransform(),
             instanceID,
             mesh->GetMaterial().index,
             static_cast<BYTE>(mesh->GetMaterial().flags),
             D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
-    }
+    });
 
     UINT64 scratchSize;
     UINT64 resultSize;
     UINT64 instanceDescriptionSize;
 
-    topLevelASGenerator.ComputeASBufferSizes(
+    m_tlasGenerator.ComputeASBufferSizes(
         GetDevice().Get(),
         false,
         &scratchSize,
@@ -708,7 +713,7 @@ void Space::CreateTLAS()
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDescription);
 
-    topLevelASGenerator.Generate(
+    m_tlasGenerator.Generate(
         GetCommandList().Get(),
         m_topLevelASBuffers.scratch,
         m_topLevelASBuffers.result,
@@ -807,7 +812,7 @@ void Space::DrawEffects(RenderData const& data)
 
     data.viewport->Set(GetCommandList());
 
-    for (Effect const* effect : m_effects.GetActive()) effect->Draw(GetCommandList());
+    m_effects.GetActive().ForEach([this](Effect const* effect) { effect->Draw(GetCommandList()); });
 }
 
 void Space::UpdateOutputResourceViews()

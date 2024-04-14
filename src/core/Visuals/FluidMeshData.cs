@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public sealed class FluidMeshData
 {
-    private FluidMeshData(int textureIndex, TintColor tint)
+    private FluidMeshData(Int32 textureIndex, TintColor tint)
     {
         TextureIndex = textureIndex;
         Tint = tint;
@@ -20,7 +22,7 @@ public sealed class FluidMeshData
     /// <summary>
     ///     The texture index.
     /// </summary>
-    public int TextureIndex { get; }
+    public Int32 TextureIndex { get; }
 
     /// <summary>
     ///     The tint color.
@@ -38,7 +40,7 @@ public sealed class FluidMeshData
     /// <param name="textureIndex">The texture index.</param>
     /// <param name="tint">The tint color.</param>
     /// <returns>The mesh data.</returns>
-    public static FluidMeshData Basic(int textureIndex, TintColor tint)
+    public static FluidMeshData Basic(Int32 textureIndex, TintColor tint)
     {
         return new FluidMeshData(textureIndex, tint);
     }

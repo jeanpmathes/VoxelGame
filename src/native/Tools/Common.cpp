@@ -36,15 +36,15 @@ std::wstring GetObjectName(ComPtr<ID3D12Object> const object)
 void SetObjectName(ComPtr<ID3D12Object> object, std::wstring const& name) { TryDo(object->SetName(name.c_str())); }
 
 void CommandAllocatorGroup::Initialize(
-    ComPtr<ID3D12Device>          device,
+    NativeClient const&           client,
     CommandAllocatorGroup*        group,
     D3D12_COMMAND_LIST_TYPE const type)
 {
-    for (UINT n = 0; n < FRAME_COUNT; n++)
-        TryDo(device->CreateCommandAllocator(type, IID_PPV_ARGS(&group->commandAllocators[n])));
+    for (UINT n = 0; n < FRAME_COUNT; n++) TryDo(
+        client.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(&group->commandAllocators[n])));
 
     TryDo(
-        device->CreateCommandList(
+        client.GetDevice()->CreateCommandList(
             0,
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             group->commandAllocators[0].Get(),
@@ -52,7 +52,7 @@ void CommandAllocatorGroup::Initialize(
             IID_PPV_ARGS(&group->commandList)));
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    NativeClient::SetupCommandListForAftermath(group->commandList);
+    client.SetupCommandListForAftermath(group->commandList);
 #endif
 
     TryDo(group->commandList->Close());

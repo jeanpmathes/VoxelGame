@@ -16,12 +16,12 @@ public interface IScaleProvider
     /// <summary>
     ///     Get the scale of the UI.
     /// </summary>
-    public float Scale { get; }
+    public Single Scale { get; }
 
     /// <summary>
     ///     Subscribe to changes of the scale of the UI.
     /// </summary>
     /// <param name="action">The action to be called when the scale changes.</param>
     /// <returns>An <see cref="IDisposable" /> that can be used to unsubscribe.</returns>
-    public IDisposable Subscribe(Action<float> action);
+    public IDisposable Subscribe(Action<Single> action);
 }

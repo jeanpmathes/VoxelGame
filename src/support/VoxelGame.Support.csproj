@@ -71,4 +71,10 @@
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Resources\Shaders\Packing.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>

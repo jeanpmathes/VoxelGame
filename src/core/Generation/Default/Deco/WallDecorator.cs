@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Utilities;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Generation.Default.Deco;
 public class WallDecorator : Decorator
 {
     /// <inheritdoc />
-    public override bool CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
+    public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
         Content? content = grid.GetContent(position);
 

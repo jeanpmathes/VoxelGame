@@ -15,14 +15,14 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
 {
-    private int x;
-    private int y;
-    private int z;
+    private Int32 x;
+    private Int32 y;
+    private Int32 z;
 
     /// <summary>
     ///     Create a chunk position with the given coordinates.
     /// </summary>
-    public ChunkPosition(int x, int y, int z)
+    public ChunkPosition(Int32 x, Int32 y, Int32 z)
     {
         this.x = x;
         this.y = y;
@@ -32,34 +32,34 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// <summary>
     ///     The x coordinate.
     /// </summary>
-    public int X => x;
+    public Int32 X => x;
 
     /// <summary>
     ///     The y coordinate.
     /// </summary>
-    public int Y => y;
+    public Int32 Y => y;
 
     /// <summary>
     ///     The z coordinate.
     /// </summary>
-    public int Z => z;
+    public Int32 Z => z;
 
     /// <summary>
     ///     The equality comparison.
     /// </summary>
-    public bool Equals(ChunkPosition other)
+    public Boolean Equals(ChunkPosition other)
     {
         return X == other.X && Y == other.Y && Z == other.Z;
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is ChunkPosition other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(X, Y, Z);
     }
@@ -67,7 +67,7 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// <summary>
     ///     The equality operator.
     /// </summary>
-    public static bool operator ==(ChunkPosition left, ChunkPosition right)
+    public static Boolean operator ==(ChunkPosition left, ChunkPosition right)
     {
         return left.Equals(right);
     }
@@ -75,7 +75,7 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// <summary>
     ///     The inequality operator.
     /// </summary>
-    public static bool operator !=(ChunkPosition left, ChunkPosition right)
+    public static Boolean operator !=(ChunkPosition left, ChunkPosition right)
     {
         return !left.Equals(right);
     }
@@ -83,7 +83,7 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// <summary>
     ///     Offset a chunk position by the given amount.
     /// </summary>
-    public ChunkPosition Offset(int xOffset, int yOffset, int zOffset)
+    public ChunkPosition Offset(Int32 xOffset, Int32 yOffset, Int32 zOffset)
     {
         return new ChunkPosition(X + xOffset, Y + yOffset, Z + zOffset);
     }
@@ -124,17 +124,17 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// </summary>
     public static ChunkPosition From(Vector3i worldPosition)
     {
-        (int worldX, int worldY, int worldZ) = worldPosition;
+        (Int32 worldX, Int32 worldY, Int32 worldZ) = worldPosition;
 
-        int chunkX = worldX >> Chunk.BlockSizeExp;
-        int chunkY = worldY >> Chunk.BlockSizeExp;
-        int chunkZ = worldZ >> Chunk.BlockSizeExp;
+        Int32 chunkX = worldX >> Chunk.BlockSizeExp;
+        Int32 chunkY = worldY >> Chunk.BlockSizeExp;
+        Int32 chunkZ = worldZ >> Chunk.BlockSizeExp;
 
         return new ChunkPosition(chunkX, chunkY, chunkZ);
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return $"({X}|{Y}|{Z})";
     }

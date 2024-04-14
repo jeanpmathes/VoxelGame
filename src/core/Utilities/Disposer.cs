@@ -15,7 +15,7 @@ public sealed class Disposer : IDisposable
 {
     private readonly Action dispose;
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Create a new <see cref="Disposer" />.
@@ -33,7 +33,7 @@ public sealed class Disposer : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

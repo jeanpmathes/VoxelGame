@@ -17,13 +17,13 @@ internal class Text : IElement
 {
     private readonly TextStyle style;
 
-    internal Text(string text, TextStyle style)
+    internal Text(String text, TextStyle style)
     {
         Content = text;
         this.style = style;
     }
 
-    private string Content { get; }
+    private String Content { get; }
 
     void IElement.Generate(StreamWriter writer)
     {

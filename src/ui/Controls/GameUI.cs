@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -32,7 +33,7 @@ internal class GameUI : ControlBase
     private readonly ICollection<SettingsProvider> settingsProviders;
 
     private Window? gameMenu;
-    private bool isSettingsMenuOpen;
+    private Boolean isSettingsMenuOpen;
 
     internal GameUI(GameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
         IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
@@ -51,7 +52,7 @@ internal class GameUI : ControlBase
 
     internal ConsoleInterface Console { get; }
 
-    private bool IsGameMenuOpen => gameMenu != null;
+    private Boolean IsGameMenuOpen => gameMenu != null;
 
     internal void UpdatePerformanceData()
     {

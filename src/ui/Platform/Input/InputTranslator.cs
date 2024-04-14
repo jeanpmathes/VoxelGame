@@ -21,7 +21,7 @@ public class InputTranslator
 {
     private readonly Canvas canvas;
 
-    private bool controlPressed;
+    private Boolean controlPressed;
     private Vector2 lastMousePosition;
 
     /// <summary>
@@ -70,9 +70,9 @@ public class InputTranslator
         }
     }
 
-    private static char TranslateChar(VirtualKeys key)
+    private static Char TranslateChar(VirtualKeys key)
     {
-        if (key is >= VirtualKeys.A and <= VirtualKeys.Z) return (char) ('a' + ((int) key - (int) VirtualKeys.A));
+        if (key is >= VirtualKeys.A and <= VirtualKeys.Z) return (Char) ('a' + ((Int32) key - (Int32) VirtualKeys.A));
 
         return ' ';
     }
@@ -95,10 +95,10 @@ public class InputTranslator
         lastMousePosition = args.Position;
 
         canvas.Input_MouseMoved(
-            (int) lastMousePosition.X,
-            (int) lastMousePosition.Y,
-            (int) deltaPosition.X,
-            (int) deltaPosition.Y);
+            (Int32) lastMousePosition.X,
+            (Int32) lastMousePosition.Y,
+            (Int32) deltaPosition.X,
+            (Int32) deltaPosition.Y);
     }
 
     /// <summary>
@@ -106,16 +106,16 @@ public class InputTranslator
     /// </summary>
     public void ProcessMouseWheel(MouseWheelEventArgs args)
     {
-        double delta = args.Delta * 60;
-        canvas.Input_MouseWheel((int) delta);
+        Double delta = args.Delta * 60;
+        canvas.Input_MouseWheel((Int32) delta);
     }
 
     /// <summary>
     ///     Processes a key down event.
     /// </summary>
-    public bool ProcessKeyDown(KeyboardKeyEventArgs args)
+    public Boolean ProcessKeyDown(KeyboardKeyEventArgs args)
     {
-        char ch = TranslateChar(args.Key);
+        Char ch = TranslateChar(args.Key);
 
         if (InputHandler.DoSpecialKeys(canvas, ch)) return false;
 
@@ -138,7 +138,7 @@ public class InputTranslator
     /// <summary>
     ///     Processes a key up event.
     /// </summary>
-    public bool ProcessKeyUp(KeyboardKeyEventArgs args)
+    public Boolean ProcessKeyUp(KeyboardKeyEventArgs args)
     {
         GwenMappedKey key = TranslateKeyCode(args.Key);
 

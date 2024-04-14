@@ -23,7 +23,7 @@ public abstract class UserInterface : IDisposable
     private readonly Input input;
     private readonly IScaleProvider scale;
     private readonly UIResources resources;
-    private readonly bool drawBackground;
+    private readonly Boolean drawBackground;
 
     private readonly IDisposable scaleSubscription;
 
@@ -36,7 +36,7 @@ public abstract class UserInterface : IDisposable
     /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, bool drawBackground)
+    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, Boolean drawBackground)
     {
         this.input = input;
         this.scale = scale;
@@ -56,7 +56,7 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Whether it is safe to close this user interface (e.g. when the application is closing).
     /// </summary>
-    public bool IsSafeToClose => !Context.IsInModal;
+    public Boolean IsSafeToClose => !Context.IsInModal;
 
     /// <summary>
     ///     Load the user interface.
@@ -127,7 +127,7 @@ public abstract class UserInterface : IDisposable
 
     private void UpdateScale()
     {
-        float newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
+        Single newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
 
         if (VMath.NearlyZero(newScale)) return;
 
@@ -136,13 +136,13 @@ public abstract class UserInterface : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Override to dispose of resources.
     /// </summary>
     /// <param name="disposing">True if dispose was called by custom code.</param>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

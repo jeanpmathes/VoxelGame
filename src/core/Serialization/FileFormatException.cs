@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.IO;
 
 namespace VoxelGame.Core.Serialization;
@@ -18,9 +19,9 @@ public sealed class FileFormatException : IOException
     /// </summary>
     /// <param name="file">The file that is not in the expected format.</param>
     /// <param name="info">Additional information about the exception.</param>
-    public FileFormatException(string file, string? info = null) : base(FormatMessage(file, info)) {}
+    public FileFormatException(String file, String? info = null) : base(FormatMessage(file, info)) {}
 
-    private static string FormatMessage(string file, string? info)
+    private static String FormatMessage(String file, String? info)
     {
         var message = $"File '{file}' is not in the expected format";
 

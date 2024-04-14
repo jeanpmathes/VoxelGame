@@ -4,17 +4,22 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+#include "Payload.hlsl"
 #include "Section.hlsl"
 
 [shader("closesthit")]void FluidSectionClosestHit(
     inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
-    vg::spatial::Info const info = vg::spatial::GetCurrentInfo(attributes);
-    float4 const baseColor = vg::section::GetFluidBaseColor(GET_PATH, info) * vg::decode::GetTintColor(info.data);
+    float const path = vg::ray::GetPathLength(payload);
+    
+    vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
+    float4 const            tint  = vg::decode::GetTintColor(info.data);
+    float4 const            color = vg::section::GetFluidBaseColor(path, info) * tint;
 
-    SET_HIT_INFO(payload, info, vg::spatial::CalculateShading(info, baseColor.rgb));
+    float4 const dominant = vg::section::GetFluidDominantColor(info);
+    vg::ray::SetFogColor(payload, dominant.rgb * tint.rgb);
 
-    payload.alpha = baseColor.a;
+    SET_FINAL_HIT_INFO(payload, info, float4(vg::spatial::CalculateShading(info, color.rgb), color.a));
 }
 
 [shader("closesthit")]void FluidShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)

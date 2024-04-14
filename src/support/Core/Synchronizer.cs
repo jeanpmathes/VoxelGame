@@ -16,7 +16,7 @@ namespace VoxelGame.Support.Core;
 /// </summary>
 public class Synchronizer
 {
-    private const int DoNotCall = -1;
+    private const Int32 DoNotCall = -1;
     private readonly Bag<Entry?> objects = new(gapValue: null);
 
     private readonly Bag<NativeObject?> preSyncBag = new(gapValue: null);
@@ -55,8 +55,8 @@ public class Synchronizer
     {
         Throw.IfNotOnMainThread(objects);
 
-        int preSyncIndex = preSyncBag.Add(nativeObject);
-        int syncIndex = syncBag.Add(nativeObject);
+        Int32 preSyncIndex = preSyncBag.Add(nativeObject);
+        Int32 syncIndex = syncBag.Add(nativeObject);
 
         return new Handle(objects.Add(new Entry(nativeObject, preSyncIndex, syncIndex)));
     }
@@ -112,7 +112,7 @@ public class Synchronizer
     /// <summary>
     ///     A handle to a native object that is registered in the synchronizer.
     /// </summary>
-    internal record struct Handle(int Index);
+    internal record struct Handle(Int32 Index);
 
-    private sealed record Entry(NativeObject NativeObject, int PreSyncIndex, int SyncIndex);
+    private sealed record Entry(NativeObject NativeObject, Int32 PreSyncIndex, Int32 SyncIndex);
 }

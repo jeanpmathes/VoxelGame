@@ -31,7 +31,7 @@ public static class FieldIterationExtensions
     /// <summary>
     ///     Get the values for all fields with a certain type, and the corresponding field documentation.
     /// </summary>
-    public static IEnumerable<(T, string)> GetValues<T>(this object obj, Documentation documentation)
+    public static IEnumerable<(T, String)> GetValues<T>(this Object obj, Documentation documentation)
     {
         return obj.GetType().GetProperties(typeof(T))
             .Where(info => info.GetValue(obj) != null)

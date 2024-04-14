@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -21,7 +22,7 @@ public class Group : Property, IEnumerable<Property>
     /// </summary>
     /// <param name="name">The name of the group.</param>
     /// <param name="children">The children of the group.</param>
-    public Group(string name, IEnumerable<Property>? children = null) : base(name)
+    public Group(String name, IEnumerable<Property>? children = null) : base(name)
     {
         if (children != null)
             this.children.AddRange(children);

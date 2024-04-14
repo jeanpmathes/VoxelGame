@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -16,13 +17,13 @@ namespace VoxelGame.Client.Console.Commands;
 public class SetOverlays : Command
 {
     /// <inheritdoc />
-    public override string Name => "set-overlays";
+    public override String Name => "set-overlays";
 
     /// <inheritdoc />
-    public override string HelpText => "Set whether the fluid/block overlays are enabled.";
+    public override String HelpText => "Set whether the fluid/block overlays are enabled.";
 
     /// <exclude />
-    public void Invoke(bool enabled)
+    public void Invoke(Boolean enabled)
     {
         Do(Context, enabled);
     }
@@ -30,7 +31,7 @@ public class SetOverlays : Command
     /// <summary>
     ///     Externally simulate a command invocation, setting the overlay state.
     /// </summary>
-    public static void Do(Context context, bool enabled)
+    public static void Do(Context context, Boolean enabled)
     {
         context.Player.SetOverlayAllowed(enabled);
     }

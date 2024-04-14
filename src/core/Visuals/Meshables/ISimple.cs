@@ -67,9 +67,9 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void AddSimpleMesh(
-        Vector3i position, BlockSide side, MeshData mesh, bool isOpaque, bool isUnshaded, MeshingContext context)
+        Vector3i position, BlockSide side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
-        (uint a, uint b, uint c, uint d) data = (0, 0, 0, 0);
+        (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
@@ -94,10 +94,10 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <param name="side">The side of the current block that is being checked.</param>
     /// <returns>True if the face is hidden, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsHiddenFace(IBlockBase current, BlockInstance neighbor, BlockSide side)
+    public static Boolean IsHiddenFace(IBlockBase current, BlockInstance neighbor, BlockSide side)
     {
-        bool blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
-                                              || (current is {IsOpaque: false, RenderFaceAtNonOpaques: false} && !neighbor.Block.RenderFaceAtNonOpaques);
+        Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
+                                                 || (current is {IsOpaque: false, RenderFaceAtNonOpaques: false} && !neighbor.Block.RenderFaceAtNonOpaques);
 
         return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
     }
@@ -110,7 +110,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <summary>
     ///     Create mesh data for a basic block.
     /// </summary>
-    protected static MeshData CreateData(int textureIndex, bool isTextureRotated)
+    protected static MeshData CreateData(Int32 textureIndex, Boolean isTextureRotated)
     {
         return new MeshData
         {
@@ -129,12 +129,12 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     Get the texture index.
         /// </summary>
-        internal int TextureIndex { get; init; }
+        internal Int32 TextureIndex { get; init; }
 
         /// <summary>
         ///     Whether the texture is rotated.
         /// </summary>
-        internal bool IsTextureRotated { get; init; }
+        internal Boolean IsTextureRotated { get; init; }
 
         /// <summary>
         ///     The block tint.
@@ -144,28 +144,28 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     Whether the block is animated.
         /// </summary>
-        internal bool IsAnimated { get; init; }
+        internal Boolean IsAnimated { get; init; }
 
         /// <summary>
         ///     Whether the block is actually animated, meaning animation is safe.
         /// </summary>
-        internal bool IsActuallyAnimated => IsAnimated && TextureIndex != 0;
+        internal Boolean IsActuallyAnimated => IsAnimated && TextureIndex != 0;
 
         /// <inheritdoc />
-        public bool Equals(MeshData other)
+        public Boolean Equals(MeshData other)
         {
             return (TextureIndex, IsTextureRotated, Tint, IsAnimated) ==
                    (other.TextureIndex, other.IsTextureRotated, other.Tint, other.IsAnimated);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is MeshData other && Equals(other);
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
             return HashCode.Combine(TextureIndex, IsTextureRotated, Tint, IsAnimated);
         }
@@ -173,7 +173,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     Equality operator.
         /// </summary>
-        public static bool operator ==(MeshData left, MeshData right)
+        public static Boolean operator ==(MeshData left, MeshData right)
         {
             return left.Equals(right);
         }
@@ -181,7 +181,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     Inequality operator.
         /// </summary>
-        public static bool operator !=(MeshData left, MeshData right)
+        public static Boolean operator !=(MeshData left, MeshData right)
         {
             return !left.Equals(right);
         }

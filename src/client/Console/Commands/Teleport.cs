@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
@@ -17,19 +18,19 @@ namespace VoxelGame.Client.Console.Commands;
 public class Teleport : Command
 {
     /// <inheritdoc />
-    public override string Name => "teleport";
+    public override String Name => "teleport";
 
     /// <inheritdoc />
-    public override string HelpText => "Teleport to a specified position or target.";
+    public override String HelpText => "Teleport to a specified position or target.";
 
     /// <exclude />
-    public void Invoke(double x, double y, double z)
+    public void Invoke(Double x, Double y, Double z)
     {
         Do(Context, (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(string target)
+    public void Invoke(String target)
     {
         if (GetNamedPosition(target) is {} position) Do(Context, position);
         else Context.Console.WriteError($"Unknown target: {target}");

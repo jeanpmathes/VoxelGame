@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
 
@@ -40,7 +41,7 @@ public class SceneFactory
     /// <param name="resourceLoadingFailure">A resource loading failure that occurred during the game start, if any.</param>
     /// <param name="loadWorldDirectly">The index of the world to load directly, if any.</param>
     /// <returns>The created scene.</returns>
-    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, int? loadWorldDirectly)
+    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
     {
         return new StartScene(client, resourceLoadingFailure, loadWorldDirectly);
     }

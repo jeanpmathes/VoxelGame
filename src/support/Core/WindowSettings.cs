@@ -16,7 +16,7 @@ public record WindowSettings
     /// <summary>
     ///     The title of the window.
     /// </summary>
-    public string Title { get; init; } = "New Window";
+    public String Title { get; init; } = "New Window";
 
     /// <summary>
     ///     The initial size of the window.
@@ -26,17 +26,17 @@ public record WindowSettings
     /// <summary>
     ///     The scale at which the world space is rendered.
     /// </summary>
-    public float RenderScale { get; init; } = 1.0f;
+    public Single RenderScale { get; init; } = 1.0f;
 
     /// <summary>
     ///     Gets a value indicating whether to enable special PIX support.
     /// </summary>
-    public bool SupportPIX { get; init; }
+    public Boolean SupportPIX { get; init; }
 
     /// <summary>
     ///     Gets a value indicating whether to use GBV.
     /// </summary>
-    public bool UseGBV { get; init; }
+    public Boolean UseGBV { get; init; }
 
     /// <summary>
     ///     Get a version of these settings with corrected values that are safe to use.

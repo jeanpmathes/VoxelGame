@@ -39,7 +39,7 @@ public static class Raycast
         return CastVoxelRay(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
     }
 
-    private static (Vector3i hit, BlockSide side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, bool> rayIntersectionCheck)
+    private static (Vector3i hit, BlockSide side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, Boolean> rayIntersectionCheck)
     {
         Vector3i hit;
         BlockSide side;
@@ -50,12 +50,12 @@ public static class Raycast
          * See: J. Amanatides and A. Woo, A Fast Voxel Traversal Algorithm for Ray Tracing, Eurographics, 1987.
          */
 
-        double Frac0(double value)
+        Double Frac0(Double value)
         {
             return value - Math.Floor(value);
         }
 
-        double Frac1(double value)
+        Double Frac1(Double value)
         {
             return 1 - value + Math.Floor(value);
         }
@@ -71,14 +71,14 @@ public static class Raycast
         Vector3i step = direction.Sign();
 
         // Calculate distance so component equals voxel border.
-        double tDeltaX = step.X != 0 ? step.X / length.X : double.MaxValue;
-        double tDeltaY = step.Y != 0 ? step.Y / length.Y : double.MaxValue;
-        double tDeltaZ = step.Z != 0 ? step.Z / length.Z : double.MaxValue;
+        Double tDeltaX = step.X != 0 ? step.X / length.X : Double.MaxValue;
+        Double tDeltaY = step.Y != 0 ? step.Y / length.Y : Double.MaxValue;
+        Double tDeltaZ = step.Z != 0 ? step.Z / length.Z : Double.MaxValue;
 
         // Calculate the distance to the next voxel border.
-        double tMaxX = step.X > 0 ? tDeltaX * Frac1(ray.Origin.X) : tDeltaX * Frac0(ray.Origin.X);
-        double tMaxY = step.Y > 0 ? tDeltaY * Frac1(ray.Origin.Y) : tDeltaY * Frac0(ray.Origin.Y);
-        double tMaxZ = step.Z > 0 ? tDeltaZ * Frac1(ray.Origin.Z) : tDeltaZ * Frac0(ray.Origin.Z);
+        Double tMaxX = step.X > 0 ? tDeltaX * Frac1(ray.Origin.X) : tDeltaX * Frac0(ray.Origin.X);
+        Double tMaxY = step.Y > 0 ? tDeltaY * Frac1(ray.Origin.Y) : tDeltaY * Frac0(ray.Origin.Y);
+        Double tMaxZ = step.Z > 0 ? tDeltaZ * Frac1(ray.Origin.Z) : tDeltaZ * Frac0(ray.Origin.Z);
 
         // Check if the ray intersects the bounding box of the voxel.
         if (rayIntersectionCheck(ray, current))
@@ -142,7 +142,7 @@ public static class Raycast
         return null;
     }
 
-    private static bool BlockIntersectionCheck(World world, Ray ray, Vector3i position)
+    private static Boolean BlockIntersectionCheck(World world, Ray ray, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -152,7 +152,7 @@ public static class Raycast
         return block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
-    private static bool FluidIntersectionCheck(World world, Ray ray, Vector3i position)
+    private static Boolean FluidIntersectionCheck(World world, Ray ray, Vector3i position)
     {
         FluidInstance? potentialFluid = world.GetFluid(position);
 
@@ -171,25 +171,22 @@ public static class Raycast
     /// <param name="range">The range of the area to check in each direction.</param>
     /// <param name="frustum">The frustum to check against.</param>
     /// <returns>A list of positions that intersect with the frustum.</returns>
-    public static IEnumerable<(Content content, Vector3i position)> CastFrustum(World world, Vector3i center, int range, Frustum frustum)
+    public static IEnumerable<(Content content, Vector3i position)> CastFrustum(World world, Vector3i center, Int32 range, Frustum frustum)
     {
-        int extents = range * 2 + 1;
+        Int32 extents = range * 2 + 1;
         Vector3i min = center - new Vector3i(range);
 
         List<(Content content, Vector3i position)> positions = new(extents * extents * extents);
 
-        foreach ((int x, int y, int z) offset in VMath.Range3(extents, extents, extents))
+        foreach ((Int32 x, Int32 y, Int32 z) offset in VMath.Range3(extents, extents, extents))
         {
             Vector3i position = min + offset;
             Content? content = world.GetContent(position);
 
-            if (content is not var (block, _)) continue;
+            if (content is not var (block, fluid)) continue;
 
-            BoxCollider collider = block.Block.GetCollider(world, position);
-
-            if (!collider.Intersects(frustum)) continue;
-
-            positions.Add((content.Value, position));
+            if (block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
+            else if (fluid.Fluid != Fluids.Instance.None && Fluid.GetCollider(position, fluid.Level).Intersects(frustum)) positions.Add((content.Value, position));
         }
 
         return positions;

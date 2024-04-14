@@ -16,47 +16,47 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public class CircularTimeBuffer
 {
-    private readonly double[] buffer;
-    private readonly int capacity;
+    private readonly Double[] buffer;
+    private readonly Int32 capacity;
 
-    private double total;
+    private Double total;
 
-    private int filledSlots;
-    private int writeIndex;
+    private Int32 filledSlots;
+    private Int32 writeIndex;
 
     /// <summary>
     ///     Create a new <see cref="CircularTimeBuffer" /> with the specified capacity.
     /// </summary>
     /// <param name="capacity">The capacity, must be larger than zero.</param>
-    public CircularTimeBuffer(int capacity)
+    public CircularTimeBuffer(Int32 capacity)
     {
         if (capacity < 1)
             throw new ArgumentOutOfRangeException(nameof(capacity), @"Capacity has to be larger than zero.");
 
         this.capacity = capacity;
-        buffer = new double[capacity];
+        buffer = new Double[capacity];
     }
 
     /// <summary>
     ///     Get the average of all values in the buffer.
     /// </summary>
-    public double Average => total / filledSlots;
+    public Double Average => total / filledSlots;
 
     /// <summary>
     ///     Get the maximum value in the buffer.
     /// </summary>
-    public double Max { get; private set; } = double.MinValue;
+    public Double Max { get; private set; } = Double.MinValue;
 
     /// <summary>
     ///     Get the minimum value in the buffer.
     /// </summary>
-    public double Min { get; private set; } = double.MaxValue;
+    public Double Min { get; private set; } = Double.MaxValue;
 
     /// <summary>
     ///     Write a new value to the buffer.
     /// </summary>
     /// <param name="time">The value to write.</param>
-    public void Write(double time)
+    public void Write(Double time)
     {
         var old = 0.0;
 

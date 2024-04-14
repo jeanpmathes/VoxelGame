@@ -22,12 +22,12 @@ public static class Marshalling
     /// <typeparam name="TUnmanaged">The type of the unmanaged array elements.</typeparam>
     /// <typeparam name="TMarshaller">The marshaller for the managed and unmanaged types.</typeparam>
     /// <returns>The unmanaged array.</returns>
-    public static unsafe TUnmanaged* ConvertToUnmanaged<TManaged, TUnmanaged, TMarshaller>(TManaged[] managed, out uint length)
+    public static unsafe TUnmanaged* ConvertToUnmanaged<TManaged, TUnmanaged, TMarshaller>(TManaged[] managed, out UInt32 length)
         where TUnmanaged : unmanaged
         where TMarshaller : IMarshaller<TManaged, TUnmanaged>
     {
         TUnmanaged* unmanaged = ArrayMarshaller<TManaged, TUnmanaged>
-            .AllocateContainerForUnmanagedElements(managed, out int num);
+            .AllocateContainerForUnmanagedElements(managed, out Int32 num);
 
         ReadOnlySpan<TManaged> source = ArrayMarshaller<TManaged, TUnmanaged>
             .GetManagedValuesSource(managed);
@@ -37,7 +37,7 @@ public static class Marshalling
 
         for (var index = 0; index < num; index++) destination[index] = TMarshaller.ConvertToUnmanaged(source[index]);
 
-        length = (uint) num;
+        length = (UInt32) num;
 
         return unmanaged;
     }
@@ -50,7 +50,7 @@ public static class Marshalling
     /// <typeparam name="TManaged">The type of the managed array elements.</typeparam>
     /// <typeparam name="TUnmanaged">The type of the unmanaged array elements.</typeparam>
     /// <typeparam name="TMarshaller">The marshaller for the managed and unmanaged types.</typeparam>
-    public static unsafe void Free<TManaged, TUnmanaged, TMarshaller>(TUnmanaged* unmanaged, uint length)
+    public static unsafe void Free<TManaged, TUnmanaged, TMarshaller>(TUnmanaged* unmanaged, UInt32 length)
         where TUnmanaged : unmanaged
         where TMarshaller : IMarshaller<TManaged, TUnmanaged>
     {

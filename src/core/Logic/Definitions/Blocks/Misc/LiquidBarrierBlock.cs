@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -20,9 +21,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
 {
     private readonly TextureLayout open;
-    private int[] openTextureIndices = null!;
+    private Int32[] openTextureIndices = null!;
 
-    internal FluidBarrierBlock(string name, string namedID, TextureLayout closed, TextureLayout open) :
+    internal FluidBarrierBlock(String name, String namedID, TextureLayout closed, TextureLayout open) :
         base(
             name,
             namedID,
@@ -33,7 +34,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    public bool IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
     {
         if (fluid.IsGas) return true;
 
@@ -47,11 +48,11 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     {
         base.OnSetup(indexProvider, visuals);
 
-        openTextureIndices = open.GetTexIndexArray();
+        openTextureIndices = open.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, uint data)
+    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
     }
@@ -62,7 +63,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if ((info.Data & 0b00_0001) == 1)
-            mesh = mesh with {TextureIndex = openTextureIndices[(int) info.Side]};
+            mesh = mesh with {TextureIndex = openTextureIndices[(Int32) info.Side]};
 
         return mesh;
     }

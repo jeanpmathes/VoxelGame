@@ -59,7 +59,7 @@ public class Tree : DynamicStructure
 
     private readonly Kind kind;
 
-    private readonly (int height, float factor) needleConfig = (height: 8, factor: 0.35f);
+    private readonly (Int32 height, Single factor) needleConfig = (height: 8, factor: 0.35f);
 
     private readonly Shape3D needleCrown = new Cone
     {
@@ -71,7 +71,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i needleExtents = new(x: 5, y: 11, z: 5);
 
-    private readonly (int height, float factor) normal2Config = (height: 7, factor: 0.25f);
+    private readonly (Int32 height, Single factor) normal2Config = (height: 7, factor: 0.25f);
 
     private readonly Shape3D normal2Crown = new Spheroid
     {
@@ -81,7 +81,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i normal2Extents = new(x: 5, y: 9, z: 5);
 
-    private readonly (int height, float factor) normalConfig = (height: 7, factor: 0.25f);
+    private readonly (Int32 height, Single factor) normalConfig = (height: 7, factor: 0.25f);
 
     private readonly Shape3D normalCrown = new Sphere
     {
@@ -91,7 +91,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i normalExtents = new(x: 5, y: 9, z: 5);
 
-    private readonly (int height, float factor) palmConfig = (height: 9, factor: 0.25f);
+    private readonly (Int32 height, Single factor) palmConfig = (height: 9, factor: 0.25f);
 
     private readonly Shape3D palmCrown = new Sphere
     {
@@ -101,7 +101,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i palmExtents = new(x: 5, y: 11, z: 5);
 
-    private readonly (int height, float factor) savannaConfig = (height: 7, factor: 0.25f);
+    private readonly (Int32 height, Single factor) savannaConfig = (height: 7, factor: 0.25f);
 
     private readonly Shape3D savannaCrown = new Cone
     {
@@ -113,7 +113,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i savannaExtents = new(x: 5, y: 8, z: 5);
 
-    private readonly (int height, float factor) shrubConfig = (height: 3, factor: 0.25f);
+    private readonly (Int32 height, Single factor) shrubConfig = (height: 3, factor: 0.25f);
 
     private readonly Shape3D shrubCrown = new Sphere
     {
@@ -123,7 +123,7 @@ public class Tree : DynamicStructure
 
     private readonly Vector3i shrubExtents = new(x: 5, y: 4, z: 5);
 
-    private readonly (int height, float factor) tropicalConfig = (height: 14, factor: 0.25f);
+    private readonly (Int32 height, Single factor) tropicalConfig = (height: 14, factor: 0.25f);
 
     private readonly Shape3D tropicalCrown = new Spheroid
     {
@@ -170,7 +170,7 @@ public class Tree : DynamicStructure
         };
     }
 
-    private (int height, float factor) GetConfig()
+    private (Int32 height, Single factor) GetConfig()
     {
         return kind switch
         {
@@ -186,12 +186,12 @@ public class Tree : DynamicStructure
     }
 
     /// <inheritdoc />
-    protected override (Content content, bool overwrite)? GetContent(Vector3i offset)
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
     {
-        int center = Extents.X / 2;
+        Int32 center = Extents.X / 2;
         Debug.Assert(Extents.X == Extents.Z);
 
-        (int height, float factor) = GetConfig();
+        (Int32 height, Single factor) = GetConfig();
 
         if (offset.X == center && offset.Y == 0 && offset.Z == center)
             return (new Content(Logic.Blocks.Instance.Roots), overwrite: true);
@@ -199,7 +199,7 @@ public class Tree : DynamicStructure
         if (offset.X == center && offset.Z == center && offset.Y < height)
             return (new Content(Logic.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
-        if (!GetCrownShape().Contains(offset, out float closeness)) return null;
+        if (!GetCrownShape().Contains(offset, out Single closeness)) return null;
         if (closeness < factor * Random.NextSingle()) return null;
 
         return (new Content(Logic.Blocks.Instance.Leaves), overwrite: false);

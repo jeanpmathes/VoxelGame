@@ -17,13 +17,13 @@ public static class ShaderBuffers
     /// <summary>
     ///     The recommended packing for data structs.
     /// </summary>
-    public const int Pack = 4;
+    public const Int32 Pack = 4;
 
     /// <summary>
     ///     The maximum field offset between two fields.
     ///     Use this when padding would be required.
     /// </summary>
-    public const int FieldOffset = 4 * sizeof(float);
+    public const Int32 FieldOffset = 4 * sizeof(Single);
 }
 
 /// <summary>
@@ -49,7 +49,7 @@ public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>
     public delegate void ModifyDelegate(ref T data);
 
     private T data;
-    private bool dirty = true;
+    private Boolean dirty = true;
 
     /// <summary>
     ///     Creates a new <see cref="ShaderBuffer{T}" />.

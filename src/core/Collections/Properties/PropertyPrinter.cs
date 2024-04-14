@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Text;
 
 namespace VoxelGame.Core.Collections.Properties;
@@ -18,7 +19,7 @@ public static class PropertyPrinter
     /// </summary>
     /// <param name="property">The property to print.</param>
     /// <returns>The string representation of the property.</returns>
-    public static string Print(Property property)
+    public static String Print(Property property)
     {
         Builder builder = new();
         builder.Visit(property);
@@ -30,11 +31,11 @@ public static class PropertyPrinter
     {
         private readonly StringBuilder builder = new();
 
-        private int indent;
+        private Int32 indent;
 
-        public string String => builder.ToString();
+        public String String => builder.ToString();
 
-        private string Indent => new(c: ' ', indent);
+        private String Indent => new(c: ' ', indent);
 
         public override void Visit(Group group)
         {

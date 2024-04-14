@@ -62,7 +62,7 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Whether overlay rendering is allowed. Building overlay is still possible, but it will not be rendered.
     /// </summary>
-    public bool IsOverlayAllowed { get; set; } = true;
+    public Boolean IsOverlayAllowed { get; set; } = true;
 
     private T RegisterVFX<T>(T vfx) where T : VFX
     {
@@ -124,17 +124,36 @@ public sealed class VisualInterface : IDisposable
         var lowerBound = 1.0;
         var upperBound = 0.0;
 
-        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View.Frustum, ref lowerBound, ref upperBound).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View, ref lowerBound, ref upperBound).ToList();
 
-        if (!overlays.Any()) return;
+        Overlay? selected = null;
 
-        Overlay selected = overlays.OrderByDescending(o => o.Size).ThenBy(o => (o.Position - player.Position).Length).First();
+        if (overlays.Any())
+        {
+            selected = overlays
+                .OrderByDescending(o => o.Size)
+                .ThenBy(o => (o.Position - player.Position).Length)
+                .First();
 
-        if (selected.IsBlock) overlayVFX.SetBlockTexture(selected.GetWithAppliedTint(player.World));
-        else overlayVFX.SetFluidTexture(selected.GetWithAppliedTint(player.World));
+            if (selected.IsBlock) overlayVFX.SetBlockTexture(selected.GetWithAppliedTint(player.World));
+            else overlayVFX.SetFluidTexture(selected.GetWithAppliedTint(player.World));
 
-        overlayVFX.IsEnabled = IsOverlayAllowed;
-        overlayVFX.SetBounds(lowerBound, upperBound);
+            overlayVFX.IsEnabled = IsOverlayAllowed;
+            overlayVFX.SetBounds(lowerBound, upperBound);
+        }
+
+        var size = 0.0;
+        Color4? fog = selected?.GetFogColor(player.World);
+
+        if (fog != null)
+        {
+            size = Math.Abs(upperBound - lowerBound);
+
+            if (VMath.NearlyEqual(upperBound, b: 1.0) && lowerBound > 0.0)
+                size *= -1.0;
+        }
+
+        Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
     }
 
     /// <summary>
@@ -176,7 +195,7 @@ public sealed class VisualInterface : IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()
@@ -193,7 +212,7 @@ public sealed class VisualInterface : IDisposable
         Dispose(disposing: false);
     }
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

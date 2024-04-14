@@ -30,10 +30,35 @@
 
 #include "NsightAftermathGpuCrashTracker.hpp"
 
-GpuCrashTracker::GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase)
+GpuCrashTracker::Description GpuCrashTracker::Description::Create(
+    LPWSTR const applicationName,
+    LPWSTR const applicationVersion)
+{
+    std::wstring const wApplicationName    = applicationName;
+    std::wstring const wApplicationVersion = applicationVersion;
+
+    auto convert = [](std::wstring const& wString) -> std::string
+    {
+        std::string string;
+        string.reserve(wString.size());
+
+        for (wchar_t const& c : wString)
+            if (c > 0 && c < 128) string.push_back(static_cast<char>(c));
+
+        return string;
+    };
+
+    return {convert(wApplicationName), convert(wApplicationVersion)};
+}
+
+GpuCrashTracker::GpuCrashTracker(
+    MarkerMap const&      markerMap,
+    ShaderDatabase const& shaderDatabase,
+    Description           description)
     : m_initialized(false)
   , m_markerMap(markerMap)
   , m_shaderDatabase(shaderDatabase)
+  , m_description(std::move(description))
 {
 }
 
@@ -113,10 +138,12 @@ void GpuCrashTracker::OnShaderDebugInfo(void const* pShaderDebugInfo, uint32_t c
     WriteShaderDebugInformationToFile(identifier, pShaderDebugInfo, shaderDebugInfoSize);
 }
 
-void GpuCrashTracker::OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription)
+void GpuCrashTracker::OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription) const
 {
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, "SomeApp"); // todo: pass from c# side
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, "v1.0"); // todo: pass from c# side
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, m_description.applicationName.c_str());
+    addDescription(
+        GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion,
+        m_description.applicationVersion.c_str());
 }
 
 void GpuCrashTracker::OnResolveMarker(

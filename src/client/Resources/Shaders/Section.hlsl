@@ -13,6 +13,9 @@
 #include "Spatial.hlsl"
 #include "TextureAnimation.hlsl"
 
+#define LOAD_SLOT_ONE(index) native::rt::textureSlotOne[index.w].Load(index.xyz)
+#define LOAD_SLOT_TWO(index) native::rt::textureSlotTwo[index.w].Load(index.xyz)
+
 /**
  * \brief Utilities providing operations for rendering sections.
  */
@@ -144,7 +147,7 @@ namespace vg
 
             return int4(texel.x, texel.y, mip, textureIndex);
         }
-
+        
         /**
          * \brief Get the base color (no shading) for a basic quad.
          * \param path The length of rays up to the previous hit.
@@ -153,8 +156,8 @@ namespace vg
          */
         float4 GetBasicBaseColor(float const path, in spatial::Info const info)
         {
-            int4 index = GetBaseColorIndex(path, info, true, true);
-            return native::rt::textureSlotOne[index.w].Load(index.xyz);
+            int4 const index = GetBaseColorIndex(path, info, true, true);
+            return LOAD_SLOT_ONE(index);
         }
 
         /**
@@ -165,8 +168,8 @@ namespace vg
          */
         float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
         {
-            int4 index = GetBaseColorIndex(path, info, false, true);
-            return native::rt::textureSlotOne[index.w].Load(index.xyz);
+            int4 const index = GetBaseColorIndex(path, info, false, true);
+            return LOAD_SLOT_ONE(index);
         }
 
         /**
@@ -177,21 +180,35 @@ namespace vg
          */
         float4 GetFluidBaseColor(float const path, in spatial::Info const info)
         {
-            int4 index = GetBaseColorIndex(path, info, true, false);
-            return native::rt::textureSlotTwo[index.w].Load(index.xyz);
+            int4 const index = GetBaseColorIndex(path, info, true, false);
+            return LOAD_SLOT_TWO(index);
         }
 
-#define GET_PATH payload.alpha
-#define GET_SHADOW_PATH -1.0f
+        /**
+         * \brief Get the dominant color for a fluid quad.
+         * \param info Information about the quad.
+         * \return The dominant color of the quad.
+         */
+        float4 GetFluidDominantColor(in spatial::Info const info)
+        {
+            int4 const index = int4(
+                0,
+                0,
+                // Only one texel in highest mip level.
+                native::spatial::global.textureSize.z - 1,
+                // Index of the highest mip level.
+                decode::GetTextureIndex(info.data));
+            return LOAD_SLOT_TWO(index);
+        }
 
-#define SET_HIT_INFO(payload, info, shading) \
-    { \
-        payload.distance = RayTCurrent(); \
-        payload.normal = info.normal; \
-        payload.color = shading; \
-        payload.alpha = 1.0f; \
-    } (void)0
+        /**
+         * \brief Path length to use for shadow rays.
+         */
+        static float const SHADOW_PATH = -1.0f;
     }
 }
+
+#undef LOAD_SLOT_ONE
+#undef LOAD_SLOT_TWO
 
 #endif

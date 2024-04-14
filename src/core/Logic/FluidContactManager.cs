@@ -61,7 +61,7 @@ public class FluidContactManager
     /// <param name="fluidB">The other fluid.</param>
     /// <param name="posB">The position of fluid B.</param>
     /// <returns>If contact handling was successful and the flow step is complete.</returns>
-    public bool HandleContact(World world, FluidInstance fluidA, Vector3i posA, FluidInstance fluidB,
+    public Boolean HandleContact(World world, FluidInstance fluidA, Vector3i posA, FluidInstance fluidB,
         Vector3i posB)
     {
         Debug.Assert(fluidA != fluidB);
@@ -83,7 +83,7 @@ public class FluidContactManager
     /// <summary>
     ///     Cool lava, turning it into pumice and the coolant into steam.
     /// </summary>
-    private static bool CoolLava(World world, ContactInformation a, ContactInformation b)
+    private static Boolean CoolLava(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
@@ -100,7 +100,7 @@ public class FluidContactManager
     /// <summary>
     ///     Let lava burn the other fluid.
     /// </summary>
-    private static bool BurnWithLava(World world, ContactInformation a, ContactInformation b)
+    private static Boolean BurnWithLava(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation burned);
 
@@ -115,7 +115,7 @@ public class FluidContactManager
     /// <summary>
     ///     Swap the fluids if they are of different densities.
     /// </summary>
-    private static bool SwapByDensity(World world, ContactInformation a, ContactInformation b)
+    private static Boolean SwapByDensity(World world, ContactInformation a, ContactInformation b)
     {
         if (VMath.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
 
@@ -135,7 +135,7 @@ public class FluidContactManager
     /// <summary>
     ///     Lift the fluid with the lower density, and move the heavier fluid to the old position of the lighter fluid.
     /// </summary>
-    private static bool DensityLift(World world, ContactInformation a, ContactInformation b)
+    private static Boolean DensityLift(World world, ContactInformation a, ContactInformation b)
     {
         (ContactInformation light, ContactInformation dense) = VMath.ArgMinMax((a.fluid.Density, a), (b.fluid.Density, b));
 
@@ -160,7 +160,7 @@ public class FluidContactManager
     /// <summary>
     ///     Dissolve concrete into fresh water.
     /// </summary>
-    private static bool DissolveConcrete(World world, ContactInformation a, ContactInformation b)
+    private static Boolean DissolveConcrete(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.Concrete, out ContactInformation concrete, out ContactInformation other);
 
@@ -174,7 +174,7 @@ public class FluidContactManager
     /// <summary>
     ///     Mixes fresh water with sea water, turning the fresh water into sea water.
     /// </summary>
-    private static bool MixWater(World world, ContactInformation a, ContactInformation b)
+    private static Boolean MixWater(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out _);
         SetFluid(world, fresh.position, Fluids.Instance.SeaWater, fresh.level);
@@ -206,7 +206,7 @@ public class FluidContactManager
         fluid.TickSoon(world, position, isStatic: true);
     }
 
-    private static bool IsFlowAllowed(World world, Vector3i from, Vector3i to)
+    private static Boolean IsFlowAllowed(World world, Vector3i from, Vector3i to)
     {
         Content? fromContent = world.GetContent(from);
         Content? toContent = world.GetContent(to);
@@ -233,7 +233,7 @@ public class FluidContactManager
         public readonly Fluid fluid;
         public readonly Vector3i position;
         public readonly FluidLevel level;
-        public readonly bool isStatic;
+        public readonly Boolean isStatic;
 
         public ContactInformation(FluidInstance fluid, Vector3i position)
         {
@@ -244,28 +244,28 @@ public class FluidContactManager
             isStatic = fluid.IsStatic;
         }
 
-        public bool Equals(ContactInformation other)
+        public Boolean Equals(ContactInformation other)
         {
             return fluid.Equals(other.fluid) && position.Equals(other.position) && level == other.level &&
                    isStatic == other.isStatic;
         }
 
-        public override bool Equals(object? obj)
+        public override Boolean Equals(Object? obj)
         {
             return obj is ContactInformation other && Equals(other);
         }
 
-        public override int GetHashCode()
+        public override Int32 GetHashCode()
         {
-            return HashCode.Combine(fluid, position, (int) level, isStatic);
+            return HashCode.Combine(fluid, position, (Int32) level, isStatic);
         }
 
-        public static bool operator ==(ContactInformation left, ContactInformation right)
+        public static Boolean operator ==(ContactInformation left, ContactInformation right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(ContactInformation left, ContactInformation right)
+        public static Boolean operator !=(ContactInformation left, ContactInformation right)
         {
             return !left.Equals(right);
         }

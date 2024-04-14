@@ -5,37 +5,21 @@
 // <author>jeanpmathes</author>
 
 #include "CommonRT.hlsl"
-#include "PayloadRT.hlsl"
 #include "RayGenRT.hlsl"
 
-/**
- * \brief Create an empty hit info / ray payload struct.
- * \return The empty hit info struct.
- */
-native::rt::HitInfo GetEmptyHitInfo()
-{
-    native::rt::HitInfo payload;
-
-    payload.color    = float3(0.0f, 0.0f, 0.0f);
-    payload.alpha    = 0.0f;
-    payload.normal   = float3(0.0f, 0.0f, 0.0f);
-    payload.distance = native::rt::RAY_DISTANCE; // Allows any-hit to check if it is closer then write to payload.
-
-    return payload;
-}
+#include "Custom.hlsl"
+#include "Payload.hlsl"
 
 /**
  * \brief Trace a ray.
  * \param origin The origin of the ray.
  * \param direction The direction of the ray.
  * \param min The minimum distance of the ray.
- * \param payload The payload to write to.
  * \param path The total path length of a ray chain, must be the total length over all previous rays.
  *             This is used to calculate the ray footprint and is carried to the hit shaders trough the alpha component.
- * \return The total path length of the ray chain, including the current ray. 
+ * \return The result of the trace.
  */
-float Trace(
-    float3 const origin, float3 const direction, float const min, inout native::rt::HitInfo payload, inout float path)
+vg::ray::TraceResult Trace(float3 const origin, float3 const direction, float const min, float const path)
 {
     RayDesc ray;
     ray.Origin    = origin;
@@ -43,7 +27,7 @@ float Trace(
     ray.TMin      = min;
     ray.TMax      = native::rt::RAY_DISTANCE;
 
-    payload.alpha = path;
+    native::rt::HitInfo payload = vg::ray::GetInitialHitInfo(path);
 
     TraceRay(
         native::rt::spaceBVH,
@@ -53,8 +37,61 @@ float Trace(
         ray,
         payload);
 
-    return path + payload.distance;
+    return vg::ray::GetTraceResult(payload, origin);
 }
+
+/**
+ * \brief Parameters for fog.
+ */
+struct Fog
+{
+    float3 color;
+    float  density;
+    float  path;
+
+    /**
+     * \brief Create a default configuration, creating weak sky-colored fog.
+     */
+    static Fog CreateDefault()
+    {
+        Fog fog;
+        fog.color   = vg::SKY_COLOR;
+        fog.density = 0.00002f;
+        fog.path    = 0.0f;
+        return fog;
+    }
+
+    /**
+     * \brief Create a fog configuration for a fog volume.
+     * \param color The color of the volume.
+     * \return The fog configuration.
+     */
+    static Fog CreateVolume(float3 const color)
+    {
+        Fog fog;
+        fog.color   = color;
+        fog.density = 0.02000f;
+        fog.path    = 0.0f;
+        return fog;
+    }
+
+    /**
+     * \brief Apply the fog to a trace result.
+     * \param trace The trace result.
+     */
+    void Apply(inout vg::ray::TraceResult trace)
+    {
+        float const c   = path + trace.distance;
+        float const fog = 1.0f - exp(-density * POW2(c));
+        trace.color.rgb = lerp(trace.color.rgb, color, clamp(fog, 0.0f, 1.0f));
+    }
+
+    /**
+     * \brief Extend the path length.
+     * \param distance The distance by which to extend the path.
+     */
+    void Extend(float const distance) { path += distance; }
+};
 
 /**
  * \brief Calculate the reflectance factor at a hit.
@@ -80,7 +117,8 @@ float GetReflectance(
     if (totalInternalReflection) return 1.0f;
 
     float const cos = n1 <= n2 ? cosThetaI : cosThetaT;
-    return r0 + (1.0f - r0) * POW5(1.0f - cos);
+
+    return clamp(r0 + (1.0f - r0) * POW5(1.0f - cos), 0.0f, 1.0f);
 }
 
 [shader("raygeneration")]void RayGen()
@@ -104,63 +142,114 @@ float GetReflectance(
     float  min    = native::rt::camera.near * length(direction);
     direction     = normalize(direction);
 
+    float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
+    Fog         fog       = Fog::CreateDefault();
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f
+        && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
+
     int    iteration = 0;
     float4 color     = 0;
     float  depth     = 0;
-    float  path      = 0;
+    float  path      = length(direction);
 
-    float               reflectance   = 0.0f;
-    native::rt::HitInfo reflectionHit = GetEmptyHitInfo();
+    float                reflectance = 0.0f;
+    vg::ray::TraceResult reflection  = vg::ray::GetEmptyTraceResult();
 
-    while (color.a < 1.0f && iteration < 10 && any(direction))
+    while (color.a < 1.0f && iteration < 5 && any(direction))
     {
-        native::rt::HitInfo hit = GetEmptyHitInfo();
-        path += Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, hit, path);
+        vg::ray::TraceResult main = Trace(origin - normal * native::rt::RAY_EPSILON, direction, min, path);
 
-        bool const  incoming = dot(direction, hit.normal) < 0;
-        float const n1       = incoming ? 1.00f : 1.33f;
-        float const n2       = incoming ? 1.33f : 1.00f;
+        fog.Apply(main);
+        fog.Extend(main.distance);
+        
+        path += main.distance;
+        
+        float const alpha = main.color.a;
 
-        float3 const refracted = normalize(refract(direction, hit.normal, n1 / n2));
-        float3 const reflected = normalize(reflect(direction, hit.normal));
+        main.color = lerp(main.color, reflection.color, reflectance);
 
-        hit.color = lerp(hit.color, reflectionHit.color, reflectance);
-        hit.alpha = lerp(hit.alpha, reflectionHit.alpha, reflectance);
-
-        float const  a   = color.a + (1.0f - color.a) * hit.alpha;
-        float3 const rgb = (color.rgb * color.a + hit.color * (1.0f - color.a) * hit.alpha) / a;
+        float const  a   = color.a + (1.0f - color.a) * main.color.a;
+        float3 const rgb = (color.rgb * color.a + main.color.rgb * (1.0f - color.a) * main.color.a) / a;
 
         color.rgb = rgb;
         color.a   = a;
 
-        // If an reflectance ray is needed for the current hit, it is traced this iteration.
-        // The main ray of the next iteration is the refraction ray.
-        reflectance = hit.alpha < 1.0f ? GetReflectance(hit.normal, direction, refracted, n1, n2) : 0.0f;
-
-        origin += direction * hit.distance;
-        normal    = hit.normal;
-        direction = refracted;
-
         if (iteration == 0)
         {
-            float4 const hitInViewSpace = mul(float4(origin, 1), native::rt::camera.view);
+            float4 const hitInViewSpace = mul(float4(main.position, 1), native::rt::camera.view);
             float4 const hitInClipSpace = mul(hitInViewSpace, native::rt::camera.projection);
 
             depth = hitInClipSpace.z / hitInClipSpace.w;
         }
 
+        if (color.a >= 1.0f) break;
+
+        bool const incoming = dot(direction, main.normal) < 0;
+        bool const outgoing = !incoming;
+
+        float const n1 = incoming ? 1.00f : 1.33f;
+        float const n2 = incoming ? 1.33f : 1.00f;
+
+        if (outgoing) main.normal *= -1.0f;
+
+        float3 const refracted = normalize(refract(direction, main.normal, n1 / n2));
+        float3 const reflected = normalize(reflect(direction, main.normal));
+
+        // If an reflectance ray is needed for the current hit, it is traced this iteration.
+        // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
+
+        reflectance = alpha < 1.0f
+                          ? GetReflectance(
+                              incoming ? main.normal : main.normal * -1.0f,
+                              direction,
+                              refracted,
+                              n1,
+                              n2)
+                          : 0.0f;
+
+        origin    = main.position;
+        normal    = main.normal;
+        direction = refracted;
+
         min = 0;
         iteration++;
 
+        bool mainRayIsReflection = false;
+        
         if (reflectance > 0.0f)
         {
-            reflectionHit = GetEmptyHitInfo();
-            Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, reflectionHit, path);
+            // This shader normally has a main ray which can pass trough transparent objects.
+            // At each hit, a reflection ray can be traced.
 
-            // Because the reflection ray is not continued, it is not added to the path.
+            if (reflectance < 1.0f)
+            {
+                // This is the base case. The reflection is not continued and thus not added to the path.
+
+                reflection = Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, path);
+
+                fog.Apply(reflection);
+                
+                // Intentionally not updating the path length.
+            }
+            else
+            {
+                // This is the total reflection case. The main ray becomes the reflection ray.
+
+                reflectance = 0.0f;
+                normal      = normal * -1.0f;
+                direction   = reflected;
+
+                mainRayIsReflection = true;
+            }
+        }
+
+        if (alpha < 1.0f && !mainRayIsReflection)
+        {
+            if (incoming) fog = Fog::CreateVolume(main.fogColor);
+            else fog          = Fog::CreateDefault();
         }
     }
-
-    native::rt::colorOutput[launchIndex] = float4(color.rgb, 1.0f);
+    
+    native::rt::colorOutput[launchIndex] = RGBA(color);
     native::rt::depthOutput[launchIndex] = depth;
 }

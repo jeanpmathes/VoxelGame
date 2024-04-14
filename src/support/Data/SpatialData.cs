@@ -26,7 +26,7 @@ public struct SpatialVertex
     /// <summary>
     ///     Additional data for the vertex. The complete shader data is split over the four vertices of a quad.
     /// </summary>
-    public uint Data;
+    public UInt32 Data;
 }
 
 /// <summary>
@@ -74,32 +74,32 @@ public readonly struct AABB
     /// <summary>
     ///     The minimum x value.
     /// </summary>
-    private readonly float MinX;
+    private readonly Single MinX;
 
     /// <summary>
     ///     The minimum y value.
     /// </summary>
-    private readonly float MinY;
+    private readonly Single MinY;
 
     /// <summary>
     ///     The minimum z value.
     /// </summary>
-    private readonly float MinZ;
+    private readonly Single MinZ;
 
     /// <summary>
     ///     The maximum x value.
     /// </summary>
-    private readonly float MaxX;
+    private readonly Single MaxX;
 
     /// <summary>
     ///     The maximum y value.
     /// </summary>
-    private readonly float MaxY;
+    private readonly Single MaxY;
 
     /// <summary>
     ///     The maximum z value.
     /// </summary>
-    private readonly float MaxZ;
+    private readonly Single MaxZ;
 }
 
 /// <summary>
@@ -113,7 +113,7 @@ public readonly struct BoundsData
     ///     Initializes a new instance of the <see cref="BoundsData" /> struct, given a tuple of data.
     /// </summary>
     /// <param name="data">The data tuple.</param>
-    public BoundsData(ref (uint a, uint b, uint c, uint d) data) : this()
+    public BoundsData(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data) : this()
     {
         A = data.a;
         B = data.b;
@@ -124,7 +124,7 @@ public readonly struct BoundsData
     /// <summary>
     ///     Converts the data to a tuple.
     /// </summary>
-    public (uint a, uint b, uint c, uint d) ToTuple()
+    public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) ToTuple()
     {
         return (A, B, C, D);
     }
@@ -132,22 +132,22 @@ public readonly struct BoundsData
     /// <summary>
     ///     The first component of the data.
     /// </summary>
-    private readonly uint A;
+    private readonly UInt32 A;
 
     /// <summary>
     ///     The second component of the data.
     /// </summary>
-    private readonly uint B;
+    private readonly UInt32 B;
 
     /// <summary>
     ///     The third component of the data.
     /// </summary>
-    private readonly uint C;
+    private readonly UInt32 C;
 
     /// <summary>
     ///     The fourth component of the data.
     /// </summary>
-    private readonly uint D;
+    private readonly UInt32 D;
 }
 
 /// <summary>

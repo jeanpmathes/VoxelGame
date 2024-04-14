@@ -31,9 +31,9 @@ internal static class Vector3Marshaller
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal ref struct Unmanaged
     {
-        internal float x;
-        internal float y;
-        internal float z;
+        internal Single x;
+        internal Single y;
+        internal Single z;
     }
 }
 
@@ -59,9 +59,9 @@ internal static class Vector4Marshaller
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     internal ref struct Unmanaged
     {
-        internal float x;
-        internal float y;
-        internal float z;
-        internal float w;
+        internal Single x;
+        internal Single y;
+        internal Single z;
+        internal Single w;
     }
 }

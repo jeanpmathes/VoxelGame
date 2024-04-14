@@ -22,7 +22,7 @@ internal static partial class Native
     ///     Builds the options from the given parameters.
     ///     See <see cref="ConfigurationOptions" /> for more information.
     /// </summary>
-    internal static ConfigurationOptions BuildOptions(bool allowTearing, bool supportPIX, bool useGBV)
+    internal static ConfigurationOptions BuildOptions(Boolean allowTearing, Boolean supportPIX, Boolean useGBV)
     {
         var options = ConfigurationOptions.None;
 
@@ -38,7 +38,7 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a bool value.
     /// </summary>
-    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] bool arg);
+    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] Boolean arg);
 
     /// <summary>
     ///     A simple callback function.
@@ -48,48 +48,48 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] char arg);
+    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] Char arg);
 
     /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal delegate bool NativeCheckFunc();
+    internal delegate Boolean NativeCheckFunc();
 
     /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
-    internal delegate void NativeErrorFunc(int hresult, [MarshalAs(UnmanagedType.LPStr)] string message);
+    internal delegate void NativeErrorFunc(Int32 hresult, [MarshalAs(UnmanagedType.LPStr)] String message);
 
     /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
-    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] byte arg);
+    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] Byte arg);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] int x, [MarshalAs(UnmanagedType.I4)] int y);
+    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] Int32 x, [MarshalAs(UnmanagedType.I4)] Int32 y);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
     /// </summary>
-    internal delegate void NativeMouseWheelFunc(double delta);
+    internal delegate void NativeMouseWheelFunc(Double delta);
 
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
     /// </summary>
-    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] uint width, [MarshalAs(UnmanagedType.U4)] uint height);
+    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] UInt32 width, [MarshalAs(UnmanagedType.U4)] UInt32 height);
 
     /// <summary>
     ///     A callback that receives a double delta time value.
     /// </summary>
-    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] double arg);
+    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] Double arg);
 
     /// <summary>
     ///     A callback that receives a wide string value.
     /// </summary>
-    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] string arg);
+    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] String arg);
 
     /// <summary>
     ///     Flags that can be used to configure the native side.
@@ -193,17 +193,27 @@ internal static partial class Native
         /// <summary>
         ///     The initial window width.
         /// </summary>
-        internal uint width;
+        internal UInt32 width;
 
         /// <summary>
         ///     The initial window height.
         /// </summary>
-        internal uint height;
+        internal UInt32 height;
 
         /// <summary>
         ///     The initial window title.
         /// </summary>
-        internal string title;
+        internal String title;
+
+        /// <summary>
+        ///     The name of the application.
+        /// </summary>
+        internal String applicationName;
+
+        /// <summary>
+        ///     The version of the application.
+        /// </summary>
+        internal String applicationVersion;
 
         /// <summary>
         ///     A handle to the icon to use for the window.
@@ -213,7 +223,7 @@ internal static partial class Native
         /// <summary>
         ///     The scale at which the world is rendered, as a percentage of the window size.
         /// </summary>
-        internal float renderScale;
+        internal Single renderScale;
 
         /// <summary>
         ///     Additional options for the native side.
@@ -245,6 +255,8 @@ internal static partial class Native
                 height = managed.height,
                 title = UnicodeStringMarshaller.ConvertToUnmanaged(managed.title),
                 icon = managed.icon,
+                applicationName = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationName),
+                applicationVersion = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationVersion),
                 renderScale = managed.renderScale,
                 options = managed.options
             };
@@ -271,11 +283,13 @@ internal static partial class Native
             internal IntPtr onResize;
             internal IntPtr onActiveStateChange;
             internal IntPtr onDebug;
-            internal uint width;
-            internal uint height;
+            internal UInt32 width;
+            internal UInt32 height;
             internal IntPtr title;
             internal IntPtr icon;
-            internal float renderScale;
+            internal IntPtr applicationName;
+            internal IntPtr applicationVersion;
+            internal Single renderScale;
             internal ConfigurationOptions options;
         }
     }

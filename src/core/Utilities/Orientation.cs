@@ -58,9 +58,9 @@ public static class Orientations
     /// <returns>All orientations.</returns>
     public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
     {
-        int start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+        Int32 start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
 
-        for (int i = start; i < start + 4; i++) yield return orientations[i % 4];
+        for (Int32 i = start; i < start + 4; i++) yield return orientations[i % 4];
     }
 }
 
@@ -174,7 +174,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Convert an orientation to an integer flag.
     /// </summary>
-    public static uint ToFlag(this Orientation orientation)
+    public static UInt32 ToFlag(this Orientation orientation)
     {
         return orientation switch
         {
@@ -189,7 +189,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Check if this orientation is on the x axis.
     /// </summary>
-    public static bool IsX(this Orientation orientation)
+    public static Boolean IsX(this Orientation orientation)
     {
         return orientation.Axis() == Utilities.Axis.X;
     }
@@ -197,7 +197,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Check if this orientation is on the z axis.
     /// </summary>
-    public static bool IsZ(this Orientation orientation)
+    public static Boolean IsZ(this Orientation orientation)
     {
         return orientation.Axis() == Utilities.Axis.Z;
     }

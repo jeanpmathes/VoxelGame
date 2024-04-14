@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Collections.Properties;
 
 /// <summary>
@@ -14,7 +16,7 @@ public class Message : Property
     /// <summary>
     ///     Create a <see cref="Message" /> with a name and text.
     /// </summary>
-    public Message(string name, string text) : base(name)
+    public Message(String name, String text) : base(name)
     {
         Text = text;
     }
@@ -22,7 +24,7 @@ public class Message : Property
     /// <summary>
     ///     The text of the message.
     /// </summary>
-    public string Text { get; }
+    public String Text { get; }
 
     /// <exclude />
     internal override void Accept(Visitor visitor)

@@ -23,13 +23,9 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-[SuppressMessage(
-    "Performance",
-    "CA1819:Properties should not return arrays",
-    Justification = "This class is meant for data storage.")]
 public sealed class BlockModel
 {
-    private const string BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
+    private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
@@ -50,24 +46,27 @@ public sealed class BlockModel
     /// <param name="original">The original model to copy.</param>
     private BlockModel(BlockModel original)
     {
-        TextureNames = (string[]) original.TextureNames.Clone();
+        TextureNames = (String[]) original.TextureNames.Clone();
         Quads = (Quad[]) original.Quads.Clone();
     }
 
     /// <summary>
     ///     The names of the textures used by this model.
     /// </summary>
-    public string[] TextureNames { get; set; } = Array.Empty<string>();
+    [SuppressMessage(
+        "Performance",
+        "CA1819:Properties should not return arrays",
+        Justification = "This class is meant for data storage.")]
+    public String[] TextureNames { get; set; } = Array.Empty<String>();
 
     /// <summary>
     ///     The quads that make up this model.
     /// </summary>
+    [SuppressMessage(
+        "Performance",
+        "CA1819:Properties should not return arrays",
+        Justification = "This class is meant for data storage.")]
     public Quad[] Quads { get; set; } = Array.Empty<Quad>();
-
-    /// <summary>
-    ///     The vertex count of this model.
-    /// </summary>
-    public int VertexCount => Quads.Length * 4;
 
     /// <summary>
     ///     Get the model as a block mesh.
@@ -135,13 +134,13 @@ public sealed class BlockModel
     /// </summary>
     /// <param name="rotations">Number of rotations.</param>
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
-    public void RotateY(int rotations, bool rotateTopAndBottomTexture = true)
+    public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
         if (rotations == 0) return;
 
-        float angle = rotations * MathHelper.PiOver2 * -1f;
+        Single angle = rotations * MathHelper.PiOver2 * -1f;
 
         Matrix4 xyz = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * Matrix4.CreateRotationY(angle) *
                       Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
@@ -155,7 +154,7 @@ public sealed class BlockModel
     ///     Overwrites the textures of the model, replacing them with a single texture.
     /// </summary>
     /// <param name="newTexture">The replacement texture.</param>
-    public void OverwriteTexture(string newTexture)
+    public void OverwriteTexture(String newTexture)
     {
         TextureNames = [newTexture];
 
@@ -163,13 +162,9 @@ public sealed class BlockModel
         {
             Quad old = Quads[i];
 
-            Quads[i] = new Quad
+            Quads[i] = old with
             {
-                TextureId = 0,
-                Vert0 = old.Vert0,
-                Vert1 = old.Vert1,
-                Vert2 = old.Vert2,
-                Vert3 = old.Vert3
+                TextureId = 0
             };
         }
     }
@@ -219,7 +214,7 @@ public sealed class BlockModel
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
     /// <returns>All model versions.</returns>
     public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
-        bool rotateTopAndBottomTexture)
+        Boolean rotateTopAndBottomTexture)
     {
         BlockModel north = this;
 
@@ -243,7 +238,7 @@ public sealed class BlockModel
 
         Matrix4 rotation;
         Vector3d axis;
-        int rotations;
+        Int32 rotations;
 
         switch (side)
         {
@@ -305,7 +300,7 @@ public sealed class BlockModel
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
-    private void RotateTextureCoordinates(Vector3d axis, int rotations)
+    private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -324,7 +319,7 @@ public sealed class BlockModel
             return;
         }
 
-        var textureIndexLookup = new int[TextureNames.Length];
+        var textureIndexLookup = new Int32[TextureNames.Length];
 
         for (var i = 0; i < TextureNames.Length; i++)
             textureIndexLookup[i] = blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
@@ -367,7 +362,7 @@ public sealed class BlockModel
     /// </summary>
     /// <param name="directory">The directory to save the file to.</param>
     /// <param name="name">The name of the file.</param>
-    public void Save(DirectoryInfo directory, string name)
+    public void Save(DirectoryInfo directory, String name)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -387,7 +382,7 @@ public sealed class BlockModel
 
     #region STATIC METHODS
 
-    private static string GetFileName(string name)
+    private static String GetFileName(String name)
     {
         return name + ".json";
     }
@@ -418,7 +413,7 @@ public sealed class BlockModel
     /// </summary>
     /// <param name="name">The name of the file.</param>
     /// <returns>The loaded model.</returns>
-    public static BlockModel Load(string name)
+    public static BlockModel Load(String name)
     {
         if (loader == null)
         {
@@ -442,8 +437,8 @@ public sealed class BlockModel
     /// <returns>The combined mesh.</returns>
     public static BlockMesh GetCombinedMesh(params BlockModel[] models)
     {
-        int totalQuadCount = models.Sum(model => model.Quads.Length);
-        bool locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
+        Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
+        Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
 
         if (locked)
         {
@@ -491,7 +486,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     The texture id used for this quad.
     /// </summary>
-    public int TextureId { get; set; }
+    public Int32 TextureId { get; set; }
 
     /// <summary>
     ///     The first vertex.
@@ -541,7 +536,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Apply a rotation matrix to this quad.
     /// </summary>
-    public Quad ApplyRotationMatrixY(Matrix4 xyz, int rotations)
+    public Quad ApplyRotationMatrixY(Matrix4 xyz, Int32 rotations)
     {
         // Rotate positions.
         Vert0 = Vert0.ApplyMatrix(xyz);
@@ -565,7 +560,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Rotate the texture coordinates.
     /// </summary>
-    public Quad RotateTextureCoordinates(Vector3d axis, int rotations)
+    public Quad RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
         if (Normal.Absolute().Rounded(digits: 2) != axis) return this;
 
@@ -581,20 +576,20 @@ public struct Quad : IEquatable<Quad>
     }
 
     /// <inheritdoc />
-    public bool Equals(Quad other)
+    public Boolean Equals(Quad other)
     {
         return (TextureId, Vert0, Vert1, Vert2, Vert3) ==
                (other.TextureId, other.Vert0, other.Vert1, other.Vert2, other.Vert3);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Quad other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(TextureId, Vert0, Vert1, Vert2, Vert3);
     }
@@ -602,7 +597,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Checks if two quads are equal.
     /// </summary>
-    public static bool operator ==(Quad left, Quad right)
+    public static Boolean operator ==(Quad left, Quad right)
     {
         return left.Equals(right);
     }
@@ -610,7 +605,7 @@ public struct Quad : IEquatable<Quad>
     /// <summary>
     ///     Checks if two quads are not equal.
     /// </summary>
-    public static bool operator !=(Quad left, Quad right)
+    public static Boolean operator !=(Quad left, Quad right)
     {
         return !left.Equals(right);
     }
@@ -624,27 +619,27 @@ public struct Vertex : IEquatable<Vertex>
     /// <summary>
     ///     The x position.
     /// </summary>
-    public float X { get; set; }
+    public Single X { get; set; }
 
     /// <summary>
     ///     The y position.
     /// </summary>
-    public float Y { get; set; }
+    public Single Y { get; set; }
 
     /// <summary>
     ///     The z position.
     /// </summary>
-    public float Z { get; set; }
+    public Single Z { get; set; }
 
     /// <summary>
     ///     The u texture coordinate.
     /// </summary>
-    public float U { get; set; }
+    public Single U { get; set; }
 
     /// <summary>
     ///     The v texture coordinate.
     /// </summary>
-    public float V { get; set; }
+    public Single V { get; set; }
 
     /// <summary>
     ///     The position of the vertex.
@@ -684,19 +679,19 @@ public struct Vertex : IEquatable<Vertex>
     }
 
     /// <inheritdoc />
-    public bool Equals(Vertex other)
+    public Boolean Equals(Vertex other)
     {
         return (X, Y, Z, U, V) == (other.X, other.Y, other.Z, other.U, other.V);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public override Boolean Equals(Object? obj)
     {
         return obj is Vertex other && Equals(other);
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
+    public override Int32 GetHashCode()
     {
         return HashCode.Combine(X, Y, Z, U, V);
     }
@@ -704,7 +699,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <summary>
     ///     Checks if two vertices are equal.
     /// </summary>
-    public static bool operator ==(Vertex left, Vertex right)
+    public static Boolean operator ==(Vertex left, Vertex right)
     {
         return left.Equals(right);
     }
@@ -712,7 +707,7 @@ public struct Vertex : IEquatable<Vertex>
     /// <summary>
     ///     Checks if two vertices are not equal.
     /// </summary>
-    public static bool operator !=(Vertex left, Vertex right)
+    public static Boolean operator !=(Vertex left, Vertex right)
     {
         return !left.Equals(right);
     }

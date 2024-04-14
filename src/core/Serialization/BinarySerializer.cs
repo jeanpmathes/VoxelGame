@@ -25,7 +25,7 @@ public sealed class BinarySerializer : Serializer, IDisposable
     /// <param name="stream">The stream to write to. Will close the stream when disposed.</param>
     /// <param name="signature">The signature of the specific format.</param>
     /// <param name="file">The file that is being written to, if any.</param>
-    public BinarySerializer(Stream stream, string signature, FileInfo? file = null)
+    public BinarySerializer(Stream stream, String signature, FileInfo? file = null)
     {
         writer = new BinaryWriter(stream, Encoding.UTF8);
         destination = file;
@@ -44,103 +44,103 @@ public sealed class BinarySerializer : Serializer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref int value)
+    public override void SerializeSmall(ref Int32 value)
     {
         writer.Write7BitEncodedInt(value);
     }
 
     /// <inheritdoc />
-    public override void SerializeSmall(ref long value)
+    public override void SerializeSmall(ref Int64 value)
     {
         writer.Write7BitEncodedInt64(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref int value)
+    public override void Serialize(ref Int32 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref uint value)
+    public override void Serialize(ref UInt32 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref long value)
+    public override void Serialize(ref Int64 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ulong value)
+    public override void Serialize(ref UInt64 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref short value)
+    public override void Serialize(ref Int16 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref ushort value)
+    public override void Serialize(ref UInt16 value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref byte value)
+    public override void Serialize(ref Byte value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref sbyte value)
+    public override void Serialize(ref SByte value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref float value)
+    public override void Serialize(ref Single value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref double value)
+    public override void Serialize(ref Double value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref bool value)
+    public override void Serialize(ref Boolean value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref char value)
+    public override void Serialize(ref Char value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Serialize(ref string value)
+    public override void Serialize(ref String value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    protected override void Serialize(Span<byte> value)
+    protected override void Serialize(Span<Byte> value)
     {
         writer.Write(value);
     }
 
     /// <inheritdoc />
-    public override void Fail(string message)
+    public override void Fail(String message)
     {
         throw new FileFormatException(destination?.FullName ?? "<unknown>", message);
     }

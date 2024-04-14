@@ -19,29 +19,29 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract class ChunkState
 {
-    private const int NeighborWaitingTimeout = 10;
+    private const Int32 NeighborWaitingTimeout = 10;
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
 
     private Guard? coreGuard;
     private Guard? extendedGuard;
 
-    private int currentWaitingTime;
+    private Int32 currentWaitingTime;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
     /// </summary>
-    private bool isAccessSufficient;
+    private Boolean isAccessSufficient;
 
     /// <summary>
     ///     Whether this state has acquired all required access and is not waiting on anything.
     /// </summary>
-    private bool isEntered;
+    private Boolean isEntered;
 
-    private ((ChunkState state, bool isRequired)? transition, TransitionDescription description, Func<ChunkState?>? activator)? next;
+    private ((ChunkState state, Boolean isRequired)? transition, TransitionDescription description, Func<ChunkState?>? activator)? next;
 
     private ChunkState? previous;
 
-    private bool released;
+    private Boolean released;
 
     private RequestQueue requests = null!;
 
@@ -64,12 +64,12 @@ public abstract class ChunkState
     /// <summary>
     ///     Whether this state intends to perform a ready-transition.
     /// </summary>
-    public virtual bool IsIntendingToGetReady => false;
+    public virtual Boolean IsIntendingToGetReady => false;
 
     /// <summary>
     ///     Whether this state wants to delay entering when neighbors intend to activate.
     /// </summary>
-    protected virtual bool WaitOnNeighbors => false;
+    protected virtual Boolean WaitOnNeighbors => false;
 
     /// <summary>
     ///     Get the chunk.
@@ -84,19 +84,19 @@ public abstract class ChunkState
     /// <summary>
     ///     Get whether this chunk is active.
     /// </summary>
-    public bool IsActive => isEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+    public Boolean IsActive => isEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
 
     /// <summary>
     ///     Whether this state allows sharing its access during one update.
     /// </summary>
-    protected virtual bool AllowSharingAccess => false;
+    protected virtual Boolean AllowSharingAccess => false;
 
     /// <summary>
     ///     Whether this state allows that its access is stolen.
     ///     A state must hold write-access to its core and extended data to allow stealing.
     ///     If a state performs work on another thread, it cannot allow stealing.
     /// </summary>
-    protected virtual bool AllowStealing => false;
+    protected virtual Boolean AllowStealing => false;
 
     /// <summary>
     ///     The required access level of this state to core chunk resources.
@@ -111,7 +111,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Whether it is currently possible to steal access from this state.
     /// </summary>
-    public bool CanStealAccess => AllowStealing && isAccessSufficient;
+    public Boolean CanStealAccess => AllowStealing && isAccessSufficient;
 
     /// <summary>
     ///     Perform updates.
@@ -252,7 +252,7 @@ public abstract class ChunkState
         return nextState;
     }
 
-    private bool IsWaitingOnNeighbors()
+    private Boolean IsWaitingOnNeighbors()
     {
         if (isEntered) return false;
         if (!WaitOnNeighbors) return false;
@@ -268,7 +268,7 @@ public abstract class ChunkState
         return false;
     }
 
-    private bool EnsureRequiredAccess()
+    private Boolean EnsureRequiredAccess()
     {
         var isSufficient = true;
 
@@ -311,7 +311,7 @@ public abstract class ChunkState
         Context.Deactivate(Chunk);
     }
 
-    private bool PerformActivation()
+    private Boolean PerformActivation()
     {
         Debug.Assert(next != null);
 
@@ -322,7 +322,7 @@ public abstract class ChunkState
         if (!Chunk.CanAcquireCore(Access.Write) || !Chunk.CanAcquireExtended(Access.Write)) return false;
 
         ChunkState? activatedNext = next.Value.activator();
-        bool isRequired = activatedNext != null;
+        Boolean isRequired = activatedNext != null;
         activatedNext ??= new Chunk.Active();
 
         activatedNext.Chunk = Chunk;
@@ -369,7 +369,7 @@ public abstract class ChunkState
     /// <param name="tracker">A tracker to profile state transitions.</param>
     public static void Update(ref ChunkState state, StateTracker tracker)
     {
-        const int maxTransitions = 3;
+        const Int32 maxTransitions = 3;
 
         var count = 0;
 
@@ -461,7 +461,7 @@ public abstract class ChunkState
     }
 
     /// <inheritdoc />
-    public override string ToString()
+    public override String ToString()
     {
         return GetType().Name;
     }
@@ -481,12 +481,12 @@ public abstract class ChunkState
         ///     Whether to prioritize looping transitions (to this state) before this transition, even if this transition is
         ///     required.
         /// </summary>
-        public bool PrioritizeLoop { get; init; }
+        public Boolean PrioritizeLoop { get; init; }
 
         /// <summary>
         ///     Whether to prioritize chunk deactivation over this transition, even if this transition is required.
         /// </summary>
-        public bool PrioritizeDeactivation { get; init; }
+        public Boolean PrioritizeDeactivation { get; init; }
     }
 
     /// <summary>
@@ -497,17 +497,17 @@ public abstract class ChunkState
         /// <summary>
         ///     Whether to keep the current request even if the same state type of state is already requested.
         /// </summary>
-        public bool AllowDuplicateStateByType { get; init; }
+        public Boolean AllowDuplicateStateByType { get; init; }
 
         /// <summary>
         ///     Whether to skip this request when deactivating the chunk.
         /// </summary>
-        public bool AllowSkipOnDeactivation { get; init; }
+        public Boolean AllowSkipOnDeactivation { get; init; }
 
         /// <summary>
         ///     Whether to allow to discard this request if the next required state is the same as this request.
         /// </summary>
-        public bool AllowDiscardOnRepeat { get; init; }
+        public Boolean AllowDiscardOnRepeat { get; init; }
     }
 
     /// <summary>
@@ -528,15 +528,15 @@ public abstract class ChunkState
         {
             if (description.AllowDiscardOnRepeat)
             {
-                bool nextIsRepetition = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
-                bool currentIsRepetition = !current.isEntered && IsSameState(current, state);
+                Boolean nextIsRepetition = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
+                Boolean currentIsRepetition = !current.isEntered && IsSameState(current, state);
 
                 if (nextIsRepetition || currentIsRepetition) return;
             }
 
             if (!description.AllowDuplicateStateByType)
             {
-                bool isDuplicate = requests.Exists(request => IsSameState(request.state, state));
+                Boolean isDuplicate = requests.Exists(request => IsSameState(request.state, state));
 
                 if (isDuplicate) return;
             }
@@ -554,9 +554,9 @@ public abstract class ChunkState
         ///     before deactivation.
         /// </param>
         /// <returns>The first request, or null if no request is available.</returns>
-        public ChunkState? Dequeue(ChunkState current, bool isLooping, bool isDeactivating)
+        public ChunkState? Dequeue(ChunkState current, Boolean isLooping, Boolean isDeactivating)
         {
-            int target = -1;
+            Int32 target = -1;
 
             for (var index = 0; index < requests.Count; index++)
             {
@@ -581,7 +581,7 @@ public abstract class ChunkState
         /// <summary>
         ///     Check if two states are of the same type.
         /// </summary>
-        private static bool IsSameState(ChunkState a, ChunkState b)
+        private static Boolean IsSameState(ChunkState a, ChunkState b)
         {
             return a.GetType() == b.GetType();
         }

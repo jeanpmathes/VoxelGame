@@ -4,9 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Visuals;
@@ -63,12 +65,31 @@ public class Graphics
     ///     Sets the wireframe mode.
     /// </summary>
     /// <param name="enable">Whether to enable wireframe rendering.</param>
-    public void SetWireframe(bool enable)
+    public void SetWireframe(Boolean enable)
     {
         if (pipelines == null) return;
 
         pipelines.RaytracingDataBuffer.Modify((ref Pipelines.RaytracingData data) => data.wireframe = enable);
 
         logger.LogDebug("Wireframe mode set to {Mode}", enable);
+    }
+
+    /// <summary>
+    ///     Configure the fog values to describe the overlap between the fog and the view plane.
+    ///     This is necessary when the view plane is inside of a fog volume.
+    /// </summary>
+    /// <param name="size">
+    ///     The size of the overlap between the fog and the view plane.
+    ///     Given in relative height, positive values start from the bottom, negative values from the top.
+    ///     If the view plane is not inside of the fog, this value should be 0.
+    /// </param>
+    /// <param name="color">The color of the fog.</param>
+    public void SetFogOverlapConfiguration(Double size, Color4 color)
+    {
+        pipelines?.RaytracingDataBuffer.Modify((ref Pipelines.RaytracingData data) =>
+        {
+            data.fogOverlapSize = (Single) size;
+            data.fogOverlapColor = color.ToVector3();
+        });
     }
 }

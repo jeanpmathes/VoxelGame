@@ -31,8 +31,6 @@ Contacts for feedback:
 
 #include "BottomLevelASGenerator.hpp"
 
-#include <stdexcept>
-
 #include "DXRHelper.hpp"
 
 namespace nv_helpers_dx12
@@ -163,16 +161,7 @@ namespace nv_helpers_dx12
         // not. If yes and an update is requested, the builder is told to only update
         // the AS instead of fully rebuilding it.
         if (updateOnly && isUpdateAllowed) flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-
-        if (updateOnly && !isUpdateAllowed)
-            throw std::logic_error("Cannot update a bottom-level AS not built for updates.");
-        if (updateOnly && previousResult == 0)
-            throw std::logic_error("Bottom-level hierarchy update requires the previous hierarchy.");
-
-        if (m_resultSizeInBytes == 0 || m_scratchSizeInBytes == 0)
-            throw std::logic_error(
-                "Invalid scratch and result buffer sizes - ComputeASBufferSizes needs to be called before Build.");
-
+        
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         buildDesc.Inputs.DescsLayout               = D3D12_ELEMENTS_LAYOUT_ARRAY;

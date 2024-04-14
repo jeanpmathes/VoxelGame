@@ -23,20 +23,20 @@ public abstract class PhysicsActor : IDisposable
     /// <summary>
     ///     The gravitational constant which accelerates all physics actors.
     /// </summary>
-    private const double Gravity = -9.81;
+    private const Double Gravity = -9.81;
 
-    private const double AirDrag = 0.18;
-    private const double FluidDrag = 15.0;
+    private const Double AirDrag = 0.18;
+    private const Double FluidDrag = 15.0;
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
 
     private readonly BoundingVolume boundingVolume;
 
-    private readonly int physicsIterations = 10;
+    private readonly Int32 physicsIterations = 10;
 
     private Vector3d actualPosition;
 
-    private bool doPhysics = true;
+    private Boolean doPhysics = true;
 
     private Vector3d force;
 
@@ -46,7 +46,7 @@ public abstract class PhysicsActor : IDisposable
     /// <param name="world">The world in which the physics actor is located.</param>
     /// <param name="mass">The mass of the actor.</param>
     /// <param name="boundingVolume">The bounding box of the actor.</param>
-    protected PhysicsActor(World world, double mass, BoundingVolume boundingVolume)
+    protected PhysicsActor(World world, Double mass, BoundingVolume boundingVolume)
     {
         World = world;
 
@@ -59,7 +59,7 @@ public abstract class PhysicsActor : IDisposable
     /// <summary>
     ///     Gets the mass of this physics actor.
     /// </summary>
-    private double Mass { get; }
+    private Double Mass { get; }
 
     /// <summary>
     ///     Gets or sets the velocity of the physics actor.
@@ -83,12 +83,12 @@ public abstract class PhysicsActor : IDisposable
     /// <summary>
     ///     Get whether the physics actor touches the ground.
     /// </summary>
-    protected bool IsGrounded { get; private set; }
+    protected Boolean IsGrounded { get; private set; }
 
     /// <summary>
     ///     Get whether the physics actor is in a fluid.
     /// </summary>
-    protected bool IsSwimming { get; private set; }
+    protected Boolean IsSwimming { get; private set; }
 
     /// <summary>
     ///     Get the forward vector of the physics actor.
@@ -135,14 +135,14 @@ public abstract class PhysicsActor : IDisposable
     ///     Whether the physics actor should perform physics calculations.
     ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
     /// </summary>
-    public bool DoPhysics
+    public Boolean DoPhysics
     {
         get => doPhysics;
         set
         {
             Throw.IfDisposed(disposed);
 
-            bool oldValue = doPhysics;
+            Boolean oldValue = doPhysics;
             doPhysics = value;
 
             if (oldValue == value) return;
@@ -185,7 +185,7 @@ public abstract class PhysicsActor : IDisposable
     ///     Tick this physics actor. An actor is ticked every update.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public void Tick(double deltaTime)
+    public void Tick(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -205,7 +205,7 @@ public abstract class PhysicsActor : IDisposable
         Update(deltaTime);
     }
 
-    private void CalculatePhysics(double deltaTime)
+    private void CalculatePhysics(Double deltaTime)
     {
         IsGrounded = false;
         IsSwimming = false;
@@ -227,7 +227,7 @@ public abstract class PhysicsActor : IDisposable
             if (block.ReceiveCollisions)
                 block.ActorCollision(this, position);
 
-        double drag = AirDrag;
+        Double drag = AirDrag;
 
         if (fluidIntersections.Count != 0)
         {
@@ -241,7 +241,7 @@ public abstract class PhysicsActor : IDisposable
 
                 useFluidDrag |= fluid.IsFluid;
                 noGas = fluid.IsFluid;
-                maxLevel = Math.Max(maxLevel, (int) level);
+                maxLevel = Math.Max(maxLevel, (Int32) level);
             }
 
             if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, (maxLevel + 1) / 8.0);
@@ -261,9 +261,9 @@ public abstract class PhysicsActor : IDisposable
 
         if (collider.IntersectsTerrain(
                 World,
-                out bool xCollision,
-                out bool yCollision,
-                out bool zCollision,
+                out Boolean xCollision,
+                out Boolean yCollision,
+                out Boolean zCollision,
                 blockIntersections,
                 fluidIntersections))
         {
@@ -272,7 +272,7 @@ public abstract class PhysicsActor : IDisposable
                 Vector3i boundingBoxCenter = collider.Center.Floor();
 
                 IsGrounded = !World.GetBlock(
-                        boundingBoxCenter + (0, (int) Math.Round(collider.Volume.Extents.Y), 0))
+                        boundingBoxCenter + (0, (Int32) Math.Round(collider.Volume.Extents.Y), 0))
                     ?.Block.IsSolid ?? true;
             }
 
@@ -294,11 +294,11 @@ public abstract class PhysicsActor : IDisposable
     ///     Receives the actor update every tick.
     /// </summary>
     /// <param name="deltaTime"></param>
-    protected abstract void Update(double deltaTime);
+    protected abstract void Update(Double deltaTime);
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Disposes this actor.
@@ -321,7 +321,7 @@ public abstract class PhysicsActor : IDisposable
     ///     Disposes this actor.
     /// </summary>
     /// <param name="disposing">True if called by code.</param>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

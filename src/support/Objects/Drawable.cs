@@ -16,7 +16,7 @@ namespace VoxelGame.Support.Objects;
 [NativeMarshalling(typeof(DrawableMarshaller))]
 public class Drawable : Spatial, IDisposable
 {
-    private bool enabled;
+    private Boolean enabled;
 
     /// <summary>
     ///     Create a new drawable object.
@@ -28,7 +28,7 @@ public class Drawable : Spatial, IDisposable
     /// <summary>
     ///     Set or get the enabled state of this object. If disabled, the object will not be rendered.
     /// </summary>
-    public bool IsEnabled
+    public Boolean IsEnabled
     {
         get => enabled;
         set
@@ -44,12 +44,12 @@ public class Drawable : Spatial, IDisposable
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
     /// <summary>
     ///     Override to implement custom dispose logic.
     /// </summary>
-    protected virtual void Dispose(bool disposing)
+    protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;
 

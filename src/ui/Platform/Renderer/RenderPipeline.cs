@@ -41,8 +41,8 @@ public sealed class RenderPipeline : IDisposable
 
     private readonly PooledList<Draw2D.Vertex> vertexBuffer = new();
 
-    private uint currentVertexCount;
-    private uint totalVertexCount;
+    private UInt32 currentVertexCount;
+    private UInt32 totalVertexCount;
 
     /// <summary>
     ///     Creates a new render pipeline.
@@ -67,7 +67,7 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     Whether CPU clipping is enabled.
     /// </summary>
-    public bool IsClippingEnabled { get; set; }
+    public Boolean IsClippingEnabled { get; set; }
 
     /// <summary>
     ///     Creates a new render pipeline.
@@ -77,7 +77,7 @@ public sealed class RenderPipeline : IDisposable
         RendererBase rendererBase,
         Action preDrawAction,
         FileInfo shader,
-        Action<string> errorCallback)
+        Action<String> errorCallback)
     {
         (RasterPipeline pipeline, ShaderBuffer<Vector2>)? result = client.CreateRasterPipeline<Vector2>(
             RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
@@ -89,16 +89,16 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     Push a new rectangle to the vertex buffer.
     /// </summary>
-    public void PushRect(Rectangle rect, float u1 = 0, float v1 = 0, float u2 = 1, float v2 = 1)
+    public void PushRect(Rectangle rect, Single u1 = 0, Single v1 = 0, Single u2 = 1, Single v2 = 1)
     {
         Throw.IfDisposed(disposed);
 
         if (IsClippingEnabled && PerformClip(ref rect, ref u1, ref v1, ref u2, ref v2)) return;
 
-        float cR = renderer.DrawColor.R / 255f;
-        float cG = renderer.DrawColor.G / 255f;
-        float cB = renderer.DrawColor.B / 255f;
-        float cA = renderer.DrawColor.A / 255f;
+        Single cR = renderer.DrawColor.R / 255f;
+        Single cG = renderer.DrawColor.G / 255f;
+        Single cB = renderer.DrawColor.B / 255f;
+        Single cA = renderer.DrawColor.A / 255f;
         Color4 color = new(cR, cG, cB, cA);
 
         PushVertex(rect.X, rect.Y, new Vector2(u1, v1), ref color);
@@ -112,60 +112,60 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     CPU scissors test.
     /// </summary>
-    private bool PerformClip(ref Rectangle rect, ref float u1, ref float v1, ref float u2, ref float v2)
+    private Boolean PerformClip(ref Rectangle rect, ref Single u1, ref Single v1, ref Single u2, ref Single v2)
     {
         if (rect.Y < renderer.ClipRegion.Y)
         {
-            int oldHeight = rect.Height;
-            int delta = renderer.ClipRegion.Y - rect.Y;
+            Int32 oldHeight = rect.Height;
+            Int32 delta = renderer.ClipRegion.Y - rect.Y;
             rect.Y = renderer.ClipRegion.Y;
             rect.Height -= delta;
 
             if (rect.Height <= 0) return true;
 
-            float dv = delta / (float) oldHeight;
+            Single dv = delta / (Single) oldHeight;
 
             v1 += dv * (v2 - v1);
         }
 
         if (rect.Y + rect.Height > renderer.ClipRegion.Y + renderer.ClipRegion.Height)
         {
-            int oldHeight = rect.Height;
-            int delta = rect.Y + rect.Height - (renderer.ClipRegion.Y + renderer.ClipRegion.Height);
+            Int32 oldHeight = rect.Height;
+            Int32 delta = rect.Y + rect.Height - (renderer.ClipRegion.Y + renderer.ClipRegion.Height);
 
             rect.Height -= delta;
 
             if (rect.Height <= 0) return true;
 
-            float dv = delta / (float) oldHeight;
+            Single dv = delta / (Single) oldHeight;
 
             v2 -= dv * (v2 - v1);
         }
 
         if (rect.X < renderer.ClipRegion.X)
         {
-            int oldWidth = rect.Width;
-            int delta = renderer.ClipRegion.X - rect.X;
+            Int32 oldWidth = rect.Width;
+            Int32 delta = renderer.ClipRegion.X - rect.X;
             rect.X = renderer.ClipRegion.X;
             rect.Width -= delta;
 
             if (rect.Width <= 0) return true;
 
-            float du = delta / (float) oldWidth;
+            Single du = delta / (Single) oldWidth;
 
             u1 += du * (u2 - u1);
         }
 
         if (rect.X + rect.Width > renderer.ClipRegion.X + renderer.ClipRegion.Width)
         {
-            int oldWidth = rect.Width;
-            int delta = rect.X + rect.Width - (renderer.ClipRegion.X + renderer.ClipRegion.Width);
+            Int32 oldWidth = rect.Width;
+            Int32 delta = rect.X + rect.Width - (renderer.ClipRegion.X + renderer.ClipRegion.Width);
 
             rect.Width -= delta;
 
             if (rect.Width <= 0) return true;
 
-            float du = delta / (float) oldWidth;
+            Single du = delta / (Single) oldWidth;
 
             u2 -= du * (u2 - u1);
         }
@@ -193,11 +193,11 @@ public sealed class RenderPipeline : IDisposable
         currentVertexCount = 0;
     }
 
-    private void PushVertex(int x, int y, Vector2 uv, ref Color4 vertexColor)
+    private void PushVertex(Int32 x, Int32 y, Vector2 uv, ref Color4 vertexColor)
     {
         vertexBuffer.Add(new Draw2D.Vertex
         {
-            Position = new Vector2((short) x, (short) y),
+            Position = new Vector2((Int16) x, (Int16) y),
             TextureCoordinate = uv,
             Color = vertexColor
         });
@@ -219,10 +219,10 @@ public sealed class RenderPipeline : IDisposable
 
         foreach (DrawCall drawCall in drawCalls)
         {
-            bool texturedDraw = drawCall.Texture.IsValid;
-            int index = drawCall.Texture.Index;
+            Boolean texturedDraw = drawCall.Texture.IsValid;
+            Int32 index = drawCall.Texture.Index;
 
-            drawer.DrawBuffer((drawCall.FirstVertex, drawCall.VertexCount), (uint) index, texturedDraw);
+            drawer.DrawBuffer((drawCall.FirstVertex, drawCall.VertexCount), (UInt32) index, texturedDraw);
 
             SimpleObjectPool<DrawCall>.Shared.Return(drawCall);
         }
@@ -256,16 +256,16 @@ public sealed class RenderPipeline : IDisposable
 
     private sealed class DrawCall
     {
-        public uint FirstVertex { get; set; }
-        public uint VertexCount { get; set; }
+        public UInt32 FirstVertex { get; set; }
+        public UInt32 VertexCount { get; set; }
         public TextureList.Handle Texture { get; set; }
     }
 
     #region IDisposable Support
 
-    private bool disposed;
+    private Boolean disposed;
 
-    private void Dispose(bool disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
         if (!disposing) return;

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
@@ -19,18 +20,18 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPotentiallySolid, IAshCoverable
 {
-    private static readonly int height = IHeightVariable.MaximumHeight - 1;
+    private static readonly Int32 height = IHeightVariable.MaximumHeight - 1;
 
     private readonly TextureLayout dryLayout;
 
     private readonly BoundingVolume volume;
     private readonly TextureLayout wetLayout;
 
-    private int[] dryTextureIndices = null!;
-    private int[] wetTextureIndices = null!;
+    private Int32[] dryTextureIndices = null!;
+    private Int32[] wetTextureIndices = null!;
 
-    internal InsetDirtBlock(string name, string namedID, TextureLayout dry, TextureLayout wet,
-        bool supportsFullGrowth) :
+    internal InsetDirtBlock(String name, String namedID, TextureLayout dry, TextureLayout wet,
+        Boolean supportsFullGrowth) :
         base(
             name,
             namedID,
@@ -52,7 +53,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    public bool SupportsFullGrowth { get; }
+    public Boolean SupportsFullGrowth { get; }
 
     /// <inheritdoc />
     public void BecomeSolid(World world, Vector3i position)
@@ -61,16 +62,16 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    public int GetHeight(uint data)
+    public Int32 GetHeight(UInt32 data)
     {
         return height;
     }
 
     IVaryingHeight.MeshData IVaryingHeight.GetMeshData(BlockMeshInfo info)
     {
-        int texture = info.Fluid.IsFluid
-            ? wetTextureIndices[(int) info.Side]
-            : dryTextureIndices[(int) info.Side];
+        Int32 texture = info.Fluid.IsFluid
+            ? wetTextureIndices[(Int32) info.Side]
+            : dryTextureIndices[(Int32) info.Side];
 
         return new IVaryingHeight.MeshData
         {
@@ -82,18 +83,18 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        dryTextureIndices = dryLayout.GetTexIndexArray();
-        wetTextureIndices = wetLayout.GetTexIndexArray();
+        dryTextureIndices = dryLayout.GetTextureIndexArray(indexProvider);
+        wetTextureIndices = wetLayout.GetTextureIndexArray(indexProvider);
     }
 
     /// <inheritdoc />
-    protected override BoundingVolume GetBoundingVolume(uint data)
+    protected override BoundingVolume GetBoundingVolume(UInt32 data)
     {
         return volume;
     }
 
     /// <inheritdoc />
-    public override bool CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return DirtBehaviour.CanPlaceCovered(world, position, actor);
     }
@@ -105,7 +106,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, uint data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
     {
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }
