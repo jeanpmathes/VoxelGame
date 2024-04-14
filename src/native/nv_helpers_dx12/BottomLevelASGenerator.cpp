@@ -155,12 +155,14 @@ namespace nv_helpers_dx12
         D3D12_GPU_VIRTUAL_ADDRESS const previousResult) const
     {
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
-        bool const isUpdateAllowed = flags & D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 
         // The stored flags represent whether the AS has been built for updates or
         // not. If yes and an update is requested, the builder is told to only update
         // the AS instead of fully rebuilding it.
-        if (updateOnly && isUpdateAllowed) flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+
+        if (bool const isUpdateAllowed = flags & D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
+            updateOnly && isUpdateAllowed)
+            flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
         
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;

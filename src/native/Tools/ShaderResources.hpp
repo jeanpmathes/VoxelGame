@@ -672,6 +672,6 @@ ShaderResources::Description::ListBuilder CreateBagBuilder(
 
     return [bag, indexProvider](ShaderResources::Description::DescriptorBuilder const& builder)
     {
-        bag->ForEach([bag, indexProvider, &builder](Entry const& entry) { builder(indexProvider(entry)); });
+        bag->ForEach([indexProvider, &builder](Entry const& entry) { builder(indexProvider(entry)); });
     };
 }

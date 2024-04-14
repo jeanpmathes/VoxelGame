@@ -126,7 +126,7 @@ void Space::Update(double)
 
     m_camera.Update();
 
-    m_drawables.ForEach([this](Drawable* drawable) { drawable->Update(); });
+    m_drawables.ForEach([](Drawable* drawable) { drawable->Update(); });
 }
 
 void Space::Render(

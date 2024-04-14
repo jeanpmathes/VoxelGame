@@ -13,7 +13,6 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -52,7 +51,7 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
     public Int32 Count => TextureArray.Count;
 
     /// <inheritdoc />
-    public Color4 GetDominantColor(Int32 index)
+    public Color GetDominantColor(Int32 index)
     {
         return TextureArray.GetDominantColor(index);
     }

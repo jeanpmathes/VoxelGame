@@ -554,7 +554,13 @@ public partial class Chunk : IDisposable, IEntity
 
                 Content modifiedContent = content.Block.Block.GenerateUpdate(content);
 
-                UInt32 encodedContent = Section.Encode(modifiedContent.Block.Block, modifiedContent.Block.Data, modifiedContent.Fluid.Fluid, modifiedContent.Fluid.Level, modifiedContent.Fluid.IsStatic);
+                UInt32 encodedContent = Section.Encode(
+                    modifiedContent.Block.Block,
+                    modifiedContent.Block.Data,
+                    modifiedContent.Fluid.Fluid,
+                    modifiedContent.Fluid.Level,
+                    modifiedContent.Fluid.IsStatic);
+
                 GetSection(position).SetContent(position, encodedContent);
 
                 y++;

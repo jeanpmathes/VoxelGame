@@ -134,7 +134,7 @@ void AnimationController::CreateBLAS(
     std::vector<ID3D12Resource*>*             uavs)
 {
     m_meshes.ForEach(
-        [&](Mesh* const& mesh)
+        [&commandList, uavs](Mesh* const& mesh)
     {
         constexpr bool isForAnimation = true;
         mesh->CreateBLAS(commandList, uavs, isForAnimation);
@@ -168,7 +168,7 @@ void AnimationController::UpdateThreadGroupData()
     };
 
     m_meshes.ForEach(
-        [this, &addSubmission](Mesh* const& mesh)
+        [&addSubmission](Mesh* const& mesh)
     {
         auto const meshIndex     = static_cast<UINT>(mesh->GetAnimationHandle());
         auto const instanceIndex = static_cast<UINT>(mesh->GetActiveIndex().value());
