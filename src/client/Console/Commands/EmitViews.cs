@@ -6,8 +6,8 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
@@ -31,7 +31,7 @@ public class EmitViews : Command
     {
         DirectoryInfo path = Context.Player.World.Data.DebugDirectory;
 
-        Task.Run(() =>
+        Operations.Launch(() =>
         {
             Context.Player.World.EmitViews(path);
 

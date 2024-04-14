@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -445,17 +444,6 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Runs a task that loads a chunk from a file specified by the path.
-    /// </summary>
-    /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
-    /// <param name="chunk">The chunk to load into.</param>
-    /// <returns>A task that loads the chunk.</returns>
-    public static Task<LoadingResult> LoadAsync(FileInfo path, Chunk chunk)
-    {
-        return Task.Run(() => Load(path, chunk));
-    }
-
-    /// <summary>
     ///     Get the file name of a chunk.
     /// </summary>
     /// <param name="position">The position of the chunk.</param>
@@ -497,18 +485,6 @@ public partial class Chunk : IDisposable, IEntity
             throw exception;
 
         logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
-    }
-
-    /// <summary>
-    ///     Runs a task which saves this chunk in the directory specified by the path.
-    /// </summary>
-    /// <param name="path">The path of the directory where this chunk should be saved.</param>
-    /// <returns>A task.</returns>
-    public Task SaveAsync(DirectoryInfo path)
-    {
-        Throw.IfDisposed(disposed);
-
-        return Task.Run(() => Save(path));
     }
 
     /// <summary>
@@ -577,18 +553,6 @@ public partial class Chunk : IDisposable, IEntity
 
             generator.GenerateStructures(section, position);
         }
-    }
-
-    /// <summary>
-    ///     Run a chunk generation task.
-    /// </summary>
-    /// <param name="generator">The generator to use.</param>
-    /// <returns>The task.</returns>
-    public Task GenerateAsync(IWorldGenerator generator)
-    {
-        Throw.IfDisposed(disposed);
-
-        return Task.Run(() => Generate(generator));
     }
 
     internal void ScheduleBlockTick(Block.BlockTick tick, UInt32 tickOffset)
@@ -830,21 +794,6 @@ public partial class Chunk : IDisposable, IEntity
 
             DecorateCorner(generator, neighbors, corner);
         }
-    }
-
-    /// <summary>
-    ///     Decorate the chunk with the given neighbors. If enough neighbors are available, the chunk will be fully decorated.
-    /// </summary>
-    /// <param name="generator">The world generator.</param>
-    /// <param name="neighbors">The neighbors of this chunk.</param>
-    /// <returns>The task that decorates the chunk.</returns>
-    public Task DecorateAsync(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(ReferenceEquals(neighbors.Center, this));
-
-        return Task.Run(() => Decorate(generator, neighbors));
     }
 
     private void DecorateCenter(IWorldGenerator generator)

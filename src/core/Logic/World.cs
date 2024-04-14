@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using Properties;
@@ -18,6 +17,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -47,17 +47,18 @@ public abstract class World : IDisposable, IGrid
     private readonly ChunkSet chunks;
 
     private readonly IWorldGenerator generator;
-    private ChunkPool? chunkPool;
-
-    private State currentState = State.Activating;
-
-    private (Task saving, Action callback)? deactivation;
 
     /// <summary>
     ///     A timer to profile different states and world operations.
     ///     Will be started on world creation, inheritors are free to stop, override or restart it.
     /// </summary>
-    protected Timer? timer;
+    protected readonly Timer? timer;
+
+    private ChunkPool? chunkPool;
+
+    private State currentState = State.Activating;
+
+    private (Future saving, Action callback)? deactivation;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -271,7 +272,7 @@ public abstract class World : IDisposable, IGrid
         chunks.BeginSaving();
 
         Data.Information.Version = ApplicationInformation.Instance.Version;
-        Task saving = Task.Run(Data.Save);
+        var saving = Future.Create(Data.Save);
 
         deactivation = (saving, onFinished);
     }
@@ -286,7 +287,7 @@ public abstract class World : IDisposable, IGrid
 
         Debug.Assert(deactivation != null);
 
-        (Task saving, Action callback) = deactivation.Value;
+        (Future saving, Action callback) = deactivation.Value;
 
         Boolean done = saving.IsCompleted && chunks.IsEmpty;
 
@@ -295,7 +296,8 @@ public abstract class World : IDisposable, IGrid
         logger.LogInformation(Events.WorldIO, "Unloaded world");
         callback();
 
-        if (saving.IsFaulted) logger.LogError(Events.WorldSavingError, saving.Exception, "Failed to save world meta information");
+        if (saving.Exception is {} exception)
+            logger.LogError(Events.WorldSavingError, exception, "Failed to save world meta information");
 
         return true;
     }

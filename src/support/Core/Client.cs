@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
@@ -373,7 +374,7 @@ public class Client : IDisposable
 
                 FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
-                Task.Run(() =>
+                Operations.Launch(() =>
                 {
                     Image screenshot = new(copy, Image.Format.BGRA, (Int32) width, (Int32) height);
                     Exception? exception = screenshot.Save(path);

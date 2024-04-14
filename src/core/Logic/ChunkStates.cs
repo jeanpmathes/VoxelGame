@@ -6,9 +6,9 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
@@ -39,7 +39,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private (Task<LoadingResult> task, Guard guard)? activity;
+        private (Future<LoadingResult> future, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -53,16 +53,16 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {task: {} task, guard: {} guard})
+            if (activity is not {future: {} future, guard: {} guard})
             {
                 TryStartLoading();
             }
-            else if (task.IsCompleted)
+            else if (future.IsCompleted)
             {
                 guard.Dispose();
 
-                if (task.IsFaulted) HandleFaultedTask(task);
-                else HandleSuccessfulTask(task);
+                if (future.Exception != null) HandleFaultedFuture(future);
+                else HandleSuccessfulFuture(future);
             }
         }
 
@@ -73,14 +73,14 @@ public partial class Chunk
             if (guard == null) return;
 
             FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
-            activity = (LoadAsync(path, Chunk), guard);
+            activity = (Future.Create(() => Load(path, Chunk)), guard);
         }
 
-        private void HandleFaultedTask(Task task)
+        private void HandleFaultedFuture(Future future)
         {
             logger.LogError(
                 Events.ChunkLoadingError,
-                task.Exception!.GetBaseException(),
+                future.Exception!.GetBaseException(),
                 "An exception occurred when loading the chunk {Position}. " +
                 "The chunk has been scheduled for generation",
                 Chunk.Position);
@@ -88,9 +88,9 @@ public partial class Chunk
             SetNextState<Generating>();
         }
 
-        private void HandleSuccessfulTask(Task<LoadingResult> task)
+        private void HandleSuccessfulFuture(Future<LoadingResult> future)
         {
-            switch (task.Result)
+            switch (future.Value!)
             {
                 case LoadingResult.Success:
                     SetNextReady();
@@ -135,7 +135,7 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
-        private (Task task, Guard guard)? activity;
+        private (Future future, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -149,27 +149,27 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {task: {} task, guard: {} guard})
+            if (activity is not {future: {} future, guard: {} guard})
             {
                 guard = Context.TryAllocate(Chunk.World.MaxGenerationTasks);
 
                 if (guard == null) return;
 
-                activity = (Chunk.GenerateAsync(Context.Generator), guard);
+                activity = (Future.Create(() => Chunk.Generate(Context.Generator)), guard);
             }
-            else if (task.IsCompleted)
+            else if (future.IsCompleted)
             {
                 guard.Dispose();
 
-                if (task.IsFaulted)
+                if (future.Exception is {} exception)
                 {
                     logger.LogError(
                         Events.ChunkLoadingError,
-                        task.Exception!.GetBaseException(),
+                        exception.GetBaseException(),
                         "A critical exception occurred when generating the chunk {Position}",
                         Chunk.Position);
 
-                    throw task.Exception!.GetBaseException();
+                    throw exception.GetBaseException();
                 }
 
                 SetNextReady();
@@ -185,7 +185,7 @@ public partial class Chunk
         private readonly Neighborhood<Chunk?> chunks;
         private readonly Neighborhood<(Chunk, Guard)?> neighbors;
 
-        private (Task task, Guard guard)? activity;
+        private (Future future, Guard guard)? activity;
 
         /// <summary>
         ///     Creates a new decorating state.
@@ -225,15 +225,15 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {task: {} task, guard: {} guard})
+            if (activity is not {future: {} future, guard: {} guard})
             {
                 guard = Context.TryAllocate(Chunk.World.MaxDecorationTasks);
 
                 if (guard == null) return;
 
-                activity = (Chunk.DecorateAsync(Context.Generator, chunks), guard);
+                activity = (Future.Create(() => Decorate(Context.Generator, chunks)), guard);
             }
-            else if (task.IsCompleted)
+            else if (future.IsCompleted)
             {
                 guard.Dispose();
 
@@ -241,15 +241,15 @@ public partial class Chunk
                     if (potentialNeighbor is {} neighbor)
                         neighbor.guard.Dispose();
 
-                if (task.IsFaulted)
+                if (future.Exception is {} exception)
                 {
                     logger.LogError(
                         Events.ChunkLoadingError,
-                        task.Exception!.GetBaseException(),
+                        exception.GetBaseException(),
                         "A critical exception occurred when decorating the chunk {Position}",
                         Chunk.Position);
 
-                    throw task.Exception!.GetBaseException();
+                    throw exception.GetBaseException();
                 }
 
                 SetNextReady();
@@ -262,7 +262,7 @@ public partial class Chunk
     /// </summary>
     public class Saving : ChunkState
     {
-        private (Task task, Guard guard)? activity;
+        private (Future future, Guard guard)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -273,22 +273,22 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {task: {} task, guard: {} guard})
+            if (activity is not {future: {} future, guard: {} guard})
             {
                 guard = Context.TryAllocate(Chunk.World.MaxSavingTasks);
 
                 if (guard == null) return;
 
-                activity = (Chunk.SaveAsync(Context.Directory), guard);
+                activity = (Future.Create(() => Chunk.Save(Context.Directory)), guard);
             }
-            else if (task.IsCompleted)
+            else if (future.IsCompleted)
             {
                 guard.Dispose();
 
-                if (task.IsFaulted)
+                if (future.Exception is {} exception)
                     logger.LogError(
                         Events.ChunkSavingError,
-                        task.Exception!.GetBaseException(),
+                        exception.GetBaseException(),
                         "An exception occurred when saving chunk {Position}. " +
                         "Chunk loss is possible",
                         Chunk.Position);
