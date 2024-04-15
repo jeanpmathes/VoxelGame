@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -165,18 +164,6 @@ public partial class Chunk : Core.Logic.Chunk
         Throw.IfDisposed(disposed);
 
         GetLocalSection(local.x, local.y, local.z).Cast().SetAsIncomplete(sides);
-    }
-
-    /// <summary>
-    ///     Start a task that will create mesh data for this chunk.
-    /// </summary>
-    /// <param name="context">The chunk meshing context.</param>
-    /// <returns>The meshing task.</returns>
-    public Task<ChunkMeshData> CreateMeshDataAsync(ChunkMeshingContext context)
-    {
-        Throw.IfDisposed(disposed);
-
-        return Task.Run(() => CreateMeshData(context));
     }
 
     private ChunkMeshData CreateMeshData(ChunkMeshingContext context)

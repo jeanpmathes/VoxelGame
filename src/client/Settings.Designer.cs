@@ -72,30 +72,6 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("16")]
-        public int MaxMeshingTasks {
-            get {
-                return ((int)(this["MaxMeshingTasks"]));
-            }
-            set {
-                this["MaxMeshingTasks"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("32")]
-        public int MaxMeshDataSends {
-            get {
-                return ((int)(this["MaxMeshDataSends"]));
-            }
-            set {
-                this["MaxMeshDataSends"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Medium")]
         public global::VoxelGame.Core.Visuals.Quality FoliageQuality {
             get {

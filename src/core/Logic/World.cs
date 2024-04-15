@@ -12,7 +12,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using Properties;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
@@ -107,11 +106,6 @@ public abstract class World : IDisposable, IGrid
 
         ChunkContext = new ChunkContext(this, generator, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
 
-        MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
-        MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
-        MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
-        MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
-
         chunks = new ChunkSet(ChunkContext);
     }
 
@@ -200,26 +194,6 @@ public abstract class World : IDisposable, IGrid
     ///     All active chunks.
     /// </summary>
     protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
-
-    /// <summary>
-    ///     The max generation task limit.
-    /// </summary>
-    public Limit MaxGenerationTasks { get; }
-
-    /// <summary>
-    ///     The max decoration task limit.
-    /// </summary>
-    public Limit MaxDecorationTasks { get; }
-
-    /// <summary>
-    ///     The max loading task limit.
-    /// </summary>
-    public Limit MaxLoadingTasks { get; }
-
-    /// <summary>
-    ///     The max saving task limit.
-    /// </summary>
-    public Limit MaxSavingTasks { get; }
 
     /// <summary>
     ///     Get the chunk pool for this world.

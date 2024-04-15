@@ -11,7 +11,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using Properties;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
@@ -66,21 +65,8 @@ public class World : Core.Logic.World
         Setup();
     }
 
-    /// <summary>
-    ///     Get the max meshing task limit.
-    /// </summary>
-    public Limit MaxMeshingTasks { get; private set; } = null!;
-
-    /// <summary>
-    ///     Get the max mesh data send limit.
-    /// </summary>
-    public Limit MaxMeshDataSends { get; private set; } = null!;
-
     private void Setup()
     {
-        MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
-        MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
-
         space.Light.Direction = sunLightDirection;
     }
 

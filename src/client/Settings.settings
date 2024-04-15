@@ -15,12 +15,6 @@
         <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
             <Value Profile="(Default)">480, 270</Value>
         </Setting>
-        <Setting Name="MaxMeshingTasks" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">16</Value>
-        </Setting>
-        <Setting Name="MaxMeshDataSends" Type="System.Int32" Scope="User">
-            <Value Profile="(Default)">32</Value>
-        </Setting>
         <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
             <Value Profile="(Default)">Medium</Value>
         </Setting>

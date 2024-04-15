@@ -4,12 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
 
@@ -36,8 +32,6 @@ public class ChunkContext
     private readonly ChunkActivatorStrong activateStrongly;
     private readonly ChunkActivatorWeak activateWeakly;
     private readonly ChunkDeactivator deactivate;
-
-    private readonly List<(Int32 max, Int32 current)> budgets = [];
 
     private readonly World world;
 
@@ -113,45 +107,5 @@ public class ChunkContext
     public void Deactivate(Chunk chunk)
     {
         deactivate(chunk);
-    }
-
-    /// <summary>
-    ///     Declare a new budget.
-    /// </summary>
-    /// <param name="maxValue">The maximum value of the budget.</param>
-    /// <returns>The <see cref="Limit" /> representing the budget.</returns>
-    public Limit DeclareBudget(Int32 maxValue)
-    {
-        Int32 index = budgets.Count;
-        budgets.Add((maxValue, maxValue));
-
-        return new Limit(this, index);
-    }
-
-    /// <summary>
-    ///     Try to allocate in a budget.
-    /// </summary>
-    public Guard? TryAllocate(Limit limit)
-    {
-        Int32 index = limit.GetID(this);
-        (Int32 max, Int32 current) = budgets[index];
-
-        if (current == 0) return null;
-
-        budgets[index] = (max, current - 1);
-
-        return new Guard(limit, () => Free(limit));
-    }
-
-    /// <summary>
-    ///     Free used budget.
-    /// </summary>
-    private void Free(Limit limit)
-    {
-        Int32 index = limit.GetID(this);
-        (Int32 max, Int32 current) = budgets[index];
-        Debug.Assert(current < max);
-
-        budgets[index] = (max, current + 1);
     }
 }

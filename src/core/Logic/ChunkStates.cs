@@ -39,7 +39,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private (Future<LoadingResult> future, Guard guard)? activity;
+        private Future<LoadingResult>? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -53,27 +53,21 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {future: {} future, guard: {} guard})
+            if (activity == null)
             {
                 TryStartLoading();
             }
-            else if (future.IsCompleted)
+            else if (activity.IsCompleted)
             {
-                guard.Dispose();
-
-                if (future.Exception != null) HandleFaultedFuture(future);
-                else HandleSuccessfulFuture(future);
+                if (activity.Exception != null) HandleFaultedFuture(activity);
+                else HandleSuccessfulFuture(activity);
             }
         }
 
         private void TryStartLoading()
         {
-            Guard? guard = Context.TryAllocate(Chunk.World.MaxLoadingTasks);
-
-            if (guard == null) return;
-
             FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
-            activity = (Future.Create(() => Load(path, Chunk)), guard);
+            activity = Future.Create(() => Load(path, Chunk));
         }
 
         private void HandleFaultedFuture(Future future)
@@ -135,7 +129,7 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
-        private (Future future, Guard guard)? activity;
+        private Future? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -149,19 +143,13 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {future: {} future, guard: {} guard})
+            if (activity == null)
             {
-                guard = Context.TryAllocate(Chunk.World.MaxGenerationTasks);
-
-                if (guard == null) return;
-
-                activity = (Future.Create(() => Chunk.Generate(Context.Generator)), guard);
+                activity = Future.Create(() => Chunk.Generate(Context.Generator));
             }
-            else if (future.IsCompleted)
+            else if (activity.IsCompleted)
             {
-                guard.Dispose();
-
-                if (future.Exception is {} exception)
+                if (activity.Exception is {} exception)
                 {
                     logger.LogError(
                         Events.ChunkLoadingError,
@@ -185,7 +173,7 @@ public partial class Chunk
         private readonly Neighborhood<Chunk?> chunks;
         private readonly Neighborhood<(Chunk, Guard)?> neighbors;
 
-        private (Future future, Guard guard)? activity;
+        private Future? activity;
 
         /// <summary>
         ///     Creates a new decorating state.
@@ -225,23 +213,17 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {future: {} future, guard: {} guard})
+            if (activity == null)
             {
-                guard = Context.TryAllocate(Chunk.World.MaxDecorationTasks);
-
-                if (guard == null) return;
-
-                activity = (Future.Create(() => Decorate(Context.Generator, chunks)), guard);
+                activity = Future.Create(() => Decorate(Context.Generator, chunks));
             }
-            else if (future.IsCompleted)
+            else if (activity.IsCompleted)
             {
-                guard.Dispose();
-
                 foreach ((Chunk chunk, Guard guard)? potentialNeighbor in neighbors)
                     if (potentialNeighbor is {} neighbor)
                         neighbor.guard.Dispose();
 
-                if (future.Exception is {} exception)
+                if (activity.Exception is {} exception)
                 {
                     logger.LogError(
                         Events.ChunkLoadingError,
@@ -262,7 +244,7 @@ public partial class Chunk
     /// </summary>
     public class Saving : ChunkState
     {
-        private (Future future, Guard guard)? activity;
+        private Future? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -273,19 +255,13 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {future: {} future, guard: {} guard})
+            if (activity == null)
             {
-                guard = Context.TryAllocate(Chunk.World.MaxSavingTasks);
-
-                if (guard == null) return;
-
-                activity = (Future.Create(() => Chunk.Save(Context.Directory)), guard);
+                activity = Future.Create(() => Chunk.Save(Context.Directory));
             }
-            else if (future.IsCompleted)
+            else if (activity.IsCompleted)
             {
-                guard.Dispose();
-
-                if (future.Exception is {} exception)
+                if (activity.Exception is {} exception)
                     logger.LogError(
                         Events.ChunkSavingError,
                         exception.GetBaseException(),

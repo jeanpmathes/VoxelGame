@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -32,7 +32,7 @@ public partial class Chunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        private (Task<ChunkMeshData> task, Guard guard, ChunkMeshingContext context)? activity;
+        private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -46,23 +46,18 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {task: {} task, guard: {} guard, context: {} context})
+            if (activity is not {future: {} future, context: {} context})
             {
-                guard = Context.TryAllocate(Chunk.World.MaxMeshingTasks);
-
-                if (guard == null) return;
-
                 context = ChunkMeshingContext.Acquire(Chunk, SpatialMeshingFactory.Shared);
-                activity = (Chunk.CreateMeshDataAsync(context), guard, context);
+                activity = (Future.Create(() => Chunk.CreateMeshData(context)), context);
             }
-            else if (task.IsCompleted)
+            else if (future.IsCompleted)
             {
-                guard.Dispose();
                 context.Release();
 
-                if (task.IsFaulted)
+                if (future.Exception != null)
                 {
-                    Exception e = task.Exception?.GetBaseException() ?? new NullReferenceException();
+                    Exception e = future.Exception.GetBaseException();
 
                     logger.LogCritical(
                         Events.ChunkMeshingError,
@@ -73,12 +68,12 @@ public partial class Chunk
                     throw e;
                 }
 
-                SetNextState(new MeshDataSending(task.Result),
+                SetNextState(new MeshDataSending(future.Value!),
                     new TransitionDescription
                     {
                         Cleanup = () =>
                         {
-                            task.Result.Dispose();
+                            future.Value!.Dispose();
                         },
                         PrioritizeLoop = true,
                         PrioritizeDeactivation = true
@@ -93,7 +88,6 @@ public partial class Chunk
     public class MeshDataSending : ChunkState
     {
         private readonly ChunkMeshData meshData;
-        private Guard? guard;
 
         /// <summary>
         ///     Create a new mesh data sending state.
@@ -113,17 +107,12 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            guard ??= Context.TryAllocate(Chunk.World.MaxMeshDataSends);
-
-            if (guard == null) return;
-
             Boolean finished = Chunk.DoMeshDataSetStep(meshData);
 
             if (!finished) return;
 
             meshData.Dispose();
 
-            guard.Dispose();
             SetNextActive();
         }
     }
