@@ -28,15 +28,15 @@ public class Section : Core.Logic.Section
 
     private Boolean hasMesh;
     private BlockSides missing;
-    private SectionVFX? renderer;
+    private SectionVFX? vfx;
 
     /// <inheritdoc />
     public override void Initialize(SectionPosition newPosition)
     {
         base.Initialize(newPosition);
 
-        renderer = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
-        renderer.SetUp();
+        vfx = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
+        vfx.SetUp();
     }
 
     /// <inheritdoc />
@@ -47,14 +47,14 @@ public class Section : Core.Logic.Section
         hasMesh = false;
         missing = BlockSides.All;
 
-        Debug.Assert(renderer != null);
+        Debug.Assert(vfx != null);
 
 #pragma warning disable S2952 // Object is diposed in Dispose() too, but is overridden here and thus must be disposed here.
-        renderer.TearDown();
-        renderer.Dispose();
+        vfx.TearDown();
+        vfx.Dispose();
 #pragma warning restore S2952
 
-        renderer = null;
+        vfx = null;
     }
 
     /// <summary>
@@ -187,25 +187,25 @@ public class Section : Core.Logic.Section
     }
 
     /// <summary>
-    ///     Set whether the renderer is enabled.
+    ///     Set whether the vfx is enabled.
     /// </summary>
-    public void SetRendererEnabledState(Boolean enabled)
+    public void SetVfxEnabledState(Boolean enabled)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(renderer != null);
+        Debug.Assert(vfx != null);
 
-        renderer.IsEnabled = enabled;
+        vfx.IsEnabled = enabled;
     }
 
     private void SetMeshDataInternal(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(renderer != null);
+        Debug.Assert(vfx != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
 
-        renderer.SetData(meshData);
+        vfx.SetData(meshData);
     }
 
     #region IDisposable Support
@@ -219,8 +219,8 @@ public class Section : Core.Logic.Section
 
         if (disposing)
         {
-            renderer?.TearDown();
-            renderer?.Dispose();
+            vfx?.TearDown();
+            vfx?.Dispose();
         }
 
         base.Dispose(disposing);

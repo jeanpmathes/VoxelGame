@@ -102,12 +102,9 @@ public class World : Core.Logic.World
 
         void CullActiveChunks()
         {
-            for (Int32 x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
-            for (Int32 y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
-            for (Int32 z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
+            foreach (Core.Logic.Chunk chunk in ActiveChunks)
             {
-                Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-                chunk?.Cast().CullSections(frustum);
+                chunk.Cast().CullSections(frustum);
             }
         }
     }

@@ -136,7 +136,7 @@ public partial class Chunk : Core.Logic.Chunk
     /// <inheritdoc />
     protected override void OnDeactivation()
     {
-        DisableAllSectionRenderers();
+        DisableAllVfx();
     }
 
     /// <inheritdoc />
@@ -226,7 +226,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         if (!hasMeshData || !frustum.IsBoxVisible(chunkBox, tolerance))
         {
-            DisableAllSectionRenderers();
+            DisableAllVfx();
 
             return;
         }
@@ -241,13 +241,13 @@ public partial class Chunk : Core.Logic.Chunk
             Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
             Boolean visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
-            GetSection(LocalSectionToIndex(x, y, z)).SetRendererEnabledState(visible);
+            GetSection(LocalSectionToIndex(x, y, z)).SetVfxEnabledState(visible);
         }
     }
 
-    private void DisableAllSectionRenderers()
+    private void DisableAllVfx()
     {
-        for (var index = 0; index < SectionCount; index++) GetSection(index).SetRendererEnabledState(enabled: false);
+        for (var index = 0; index < SectionCount; index++) GetSection(index).SetVfxEnabledState(enabled: false);
     }
 
     #region IDisposable Support

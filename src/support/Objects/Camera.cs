@@ -108,7 +108,7 @@ public class Camera : NativeObject, IView
     /// </summary>
     private Double FovY => MathHelper.RadiansToDegrees(fovY);
 
-    private static Double FarClipping => 1000.0;
+    private static Double FarClipping => 10000.0;
 
     private static Double NearClipping => 0.05;
 

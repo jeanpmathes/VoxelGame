@@ -154,6 +154,15 @@ public sealed class SectionVFX : VFX
         // Intentionally left empty.
     }
 
+    private Mesh CreateMesh(Material material)
+    {
+        Mesh mesh = space.CreateMesh(material, position);
+
+        mesh.IsEnabled = enabled;
+
+        return mesh;
+    }
+
     /// <summary>
     ///     Set the section mesh data to display. Must not be discarded.
     /// </summary>
@@ -164,25 +173,25 @@ public sealed class SectionVFX : VFX
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
-            basic.opaque ??= space.CreateMesh(basicOpaqueMaterial, position);
+            basic.opaque ??= CreateMesh(basicOpaqueMaterial);
             basic.opaque.SetVertices((meshData.BasicMeshing.opaque as SpatialMeshing)!.Span);
         }
 
         if (meshData.BasicMeshing.transparent.Count > 0 || basic.transparent != null)
         {
-            basic.transparent ??= space.CreateMesh(basicTransparentMaterial, position);
+            basic.transparent ??= CreateMesh(basicTransparentMaterial);
             basic.transparent.SetVertices((meshData.BasicMeshing.transparent as SpatialMeshing)!.Span);
         }
 
         if (meshData.FoliageMeshing.Count > 0 || foliage != null)
         {
-            foliage ??= space.CreateMesh(foliageMaterial, position);
+            foliage ??= CreateMesh(foliageMaterial);
             foliage.SetVertices((meshData.FoliageMeshing as SpatialMeshing)!.Span);
         }
 
         if (meshData.FluidMeshing.Count > 0 || fluid != null)
         {
-            fluid ??= space.CreateMesh(fluidMaterial, position);
+            fluid ??= CreateMesh(fluidMaterial);
             fluid.SetVertices((meshData.FluidMeshing as SpatialMeshing)!.Span);
         }
     }
