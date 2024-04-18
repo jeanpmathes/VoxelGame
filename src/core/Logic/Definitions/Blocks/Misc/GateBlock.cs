@@ -225,7 +225,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
 
         Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
                            CheckOrientation(world, position, Orientation.West);

@@ -41,24 +41,9 @@ public class Camera : NativeObject, IView
     }
 
     /// <summary>
-    ///     Gets or sets the camera position.
-    /// </summary>
-    public Vector3d Position { get; set; }
-
-    /// <summary>
-    ///     Get the front vector of the camera.
-    /// </summary>
-    public Vector3d Front { get; private set; } = Vector3d.UnitX;
-
-    /// <summary>
     ///     Get the up vector of the camera.
     /// </summary>
     public Vector3d Up { get; private set; } = Vector3d.UnitY;
-
-    /// <summary>
-    ///     Get the right vector of the camera.
-    /// </summary>
-    public Vector3d Right { get; private set; } = Vector3d.UnitZ;
 
     /// <summary>
     ///     Get or set the camera pitch.
@@ -112,8 +97,23 @@ public class Camera : NativeObject, IView
 
     private static Double NearClipping => 0.05;
 
+    /// <summary>
+    ///     Gets or sets the camera position.
+    /// </summary>
+    public Vector3d Position { get; set; }
+
+    /// <summary>
+    ///     Get the front vector of the camera.
+    /// </summary>
+    public Vector3d Forward { get; private set; } = Vector3d.UnitX;
+
+    /// <summary>
+    ///     Get the right vector of the camera.
+    /// </summary>
+    public Vector3d Right { get; private set; } = Vector3d.UnitZ;
+
     /// <inheritdoc />
-    public IView.Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Front, Up, Right));
+    public IView.Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Forward, Up, Right));
 
     private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
@@ -135,7 +135,7 @@ public class Camera : NativeObject, IView
     /// <returns>The partial frustum.</returns>
     public Frustum GetPartialFrustum(Double near, Double far)
     {
-        return new Frustum(fovY, Client.AspectRatio, (near, far), Position, Front, Up, Right);
+        return new Frustum(fovY, Client.AspectRatio, (near, far), Position, Forward, Up, Right);
     }
 
     internal override void PrepareSynchronization()
@@ -172,7 +172,7 @@ public class Camera : NativeObject, IView
             new BasicCameraData
             {
                 Position = preparedPosition,
-                Front = Front.ToVector3(),
+                Front = Forward.ToVector3(),
                 Up = Up.ToVector3()
             });
     }
@@ -185,10 +185,10 @@ public class Camera : NativeObject, IView
         front.Y = Math.Sin(pitch);
         front.Z = Math.Cos(pitch) * Math.Sin(yaw);
 
-        Front = Vector3d.Normalize(front);
+        Forward = Vector3d.Normalize(front);
 
-        Right = Vector3d.Normalize(Vector3d.Cross(Front, Vector3d.UnitY));
-        Up = Vector3d.Normalize(Vector3d.Cross(Right, Front));
+        Right = Vector3d.Normalize(Vector3d.Cross(Forward, Vector3d.UnitY));
+        Up = Vector3d.Normalize(Vector3d.Cross(Right, Forward));
     }
 }
 

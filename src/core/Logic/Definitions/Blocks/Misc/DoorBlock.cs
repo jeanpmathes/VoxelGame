@@ -149,7 +149,7 @@ public class DoorBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
         BlockSide side = actor?.TargetSide ?? BlockSide.Top;
 
         Boolean isLeftSided = ChooseIfLeftSided(world, position, side, orientation);

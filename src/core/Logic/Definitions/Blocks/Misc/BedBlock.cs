@@ -156,7 +156,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     {
         if (!world.HasFullAndSolidGround(position, solidify: true)) return false;
 
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         return world.GetBlock(otherPosition)?.Block.IsReplaceable == true &&
@@ -166,7 +166,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         world.SetBlock(this.AsInstance((UInt32) orientation << 1), position);

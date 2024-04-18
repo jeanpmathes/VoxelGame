@@ -31,7 +31,7 @@ public class OrientedBlock : BasicBlock
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(
-            this.AsInstance((UInt32) (actor?.LookingDirection.ToOrientation() ?? Orientation.North)),
+            this.AsInstance((UInt32) (actor?.Head.Forward.ToOrientation() ?? Orientation.North)),
             position);
     }
 

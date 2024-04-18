@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Support.Graphics;
@@ -12,7 +13,7 @@ namespace VoxelGame.Support.Graphics;
 /// <summary>
 ///     Defines a view into the world, providing data that describes that view and properties like the view frustum.
 /// </summary>
-public interface IView
+public interface IView : IOrientable
 {
     /// <summary>
     ///     Get the view frustum, from near to far plane.

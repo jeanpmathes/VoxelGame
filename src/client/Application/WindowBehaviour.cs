@@ -13,17 +13,18 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The behaviour of the screen. This class offers data like FPS and UPS.
 /// </summary>
-internal sealed class ScreenBehaviour
+internal sealed class WindowBehaviour
 {
     private const Int32 DeltaBufferCapacity = 50;
+
     private readonly Client client;
 
-    private readonly ToggleButton fullscreenToggle;
     private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
-
     private readonly CircularTimeBuffer updateDeltaBuffer = new(DeltaBufferCapacity);
 
-    internal ScreenBehaviour(Client client)
+    private readonly ToggleButton fullscreenToggle;
+
+    internal WindowBehaviour(Client client)
     {
         this.client = client;
 

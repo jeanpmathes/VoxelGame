@@ -145,7 +145,7 @@ public class FlatBlock : Block, IFillable, IComplex
         if (forwardMovement.LengthSquared > 0.1f &&
             (Orientation) (data & 0b00_0011) == (-forwardMovement).ToOrientation())
         {
-            Single yVelocity = Vector3d.CalculateAngle(actor.LookingDirection, Vector3d.UnitY) < MathHelper.PiOver2
+            Single yVelocity = Vector3d.CalculateAngle(actor.Head.Forward, Vector3d.UnitY) < MathHelper.PiOver2
                 ? climbingVelocity
                 : -climbingVelocity;
 

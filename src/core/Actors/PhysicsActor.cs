@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Actors;
 /// <summary>
 ///     An actor which is affected by gravity and forces.
 /// </summary>
-public abstract class PhysicsActor : IDisposable
+public abstract class PhysicsActor : IDisposable, IOrientable
 {
     /// <summary>
     ///     The gravitational constant which accelerates all physics actors.
@@ -67,15 +67,6 @@ public abstract class PhysicsActor : IDisposable
     public Vector3d Velocity { get; set; }
 
     /// <summary>
-    ///     Get the position of the physics actor.
-    /// </summary>
-    public Vector3d Position
-    {
-        get => actualPosition;
-        protected set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
-    }
-
-    /// <summary>
     ///     Get the rotation of the physics actor.
     /// </summary>
     protected Quaterniond Rotation { get; set; }
@@ -83,22 +74,12 @@ public abstract class PhysicsActor : IDisposable
     /// <summary>
     ///     Get whether the physics actor touches the ground.
     /// </summary>
-    protected Boolean IsGrounded { get; private set; }
+    public Boolean IsGrounded { get; private set; }
 
     /// <summary>
     ///     Get whether the physics actor is in a fluid.
     /// </summary>
-    protected Boolean IsSwimming { get; private set; }
-
-    /// <summary>
-    ///     Get the forward vector of the physics actor.
-    /// </summary>
-    public Vector3d Forward => Rotation * Vector3d.UnitX;
-
-    /// <summary>
-    ///     Get the right vector of the physics actor.
-    /// </summary>
-    public Vector3d Right => Rotation * Vector3d.UnitZ;
+    public Boolean IsSwimming { get; private set; }
 
     /// <summary>
     ///     Get the world in which the physics actor is located.
@@ -111,9 +92,10 @@ public abstract class PhysicsActor : IDisposable
     public abstract Vector3d Movement { get; }
 
     /// <summary>
-    ///     Get the looking direction of the physics actor, which is also the front vector of the view camera.
+    /// The head of the physics actor, which allows to determine where the actor is looking at.
+    /// If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
     /// </summary>
-    public abstract Vector3d LookingDirection { get; }
+    public virtual IOrientable Head => this;
 
     /// <summary>
     ///     Get the block side targeted by the physics actor.
@@ -155,10 +137,29 @@ public abstract class PhysicsActor : IDisposable
     }
 
     /// <summary>
+    ///     Get the position of the physics actor.
+    /// </summary>
+    public Vector3d Position
+    {
+        get => actualPosition;
+        set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
+    }
+
+    /// <summary>
+    ///     Get the forward vector of the physics actor.
+    /// </summary>
+    public Vector3d Forward => Rotation * Vector3d.UnitX;
+
+    /// <summary>
+    ///     Get the right vector of the physics actor.
+    /// </summary>
+    public Vector3d Right => Rotation * Vector3d.UnitZ;
+
+    /// <summary>
     ///     Applies force to this actor.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
-    protected void AddForce(Vector3d additionalForce)
+    public void AddForce(Vector3d additionalForce)
     {
         Throw.IfDisposed(disposed);
 
@@ -170,7 +171,7 @@ public abstract class PhysicsActor : IDisposable
     /// </summary>
     /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
     /// <param name="maxForce">The maximum allowed force to use.</param>
-    protected void Move(Vector3d movement, Vector3d maxForce)
+    public void Move(Vector3d movement, Vector3d maxForce)
     {
         Throw.IfDisposed(disposed);
 

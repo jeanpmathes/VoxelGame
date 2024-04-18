@@ -34,7 +34,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     private readonly OperationUpdateDispatch operations = new(singleton: true);
 
-    private ScreenBehaviour screenBehaviour = null!;
+    private WindowBehaviour windowBehaviour = null!;
 
     /// <summary>
     ///     Create a new game instance.
@@ -78,8 +78,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal GameResources Resources { get; }
 
-    private Double FPS => screenBehaviour.FPS;
-    private Double UPS => screenBehaviour.UPS;
+    private Double FPS => windowBehaviour.FPS;
+    private Double UPS => windowBehaviour.UPS;
 
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
@@ -88,7 +88,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
-            screenBehaviour = new ScreenBehaviour(this);
+            windowBehaviour = new WindowBehaviour(this);
 
             LoadingContext loadingContext = new(timer);
 
@@ -109,7 +109,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         using Timer? timer = logger.BeginTimedScoped("Client Render");
 
         sceneManager.Render(delta, timer);
-        screenBehaviour.Render(delta);
+        windowBehaviour.Render(delta);
     }
 
     protected override void OnUpdate(Double delta)
@@ -122,7 +122,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         }
 
         sceneManager.Update(delta, timer);
-        screenBehaviour.Update(delta);
+        windowBehaviour.Update(delta);
     }
 
     protected override void OnDestroy()

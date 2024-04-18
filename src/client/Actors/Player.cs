@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
@@ -23,32 +22,19 @@ namespace VoxelGame.Client.Actors;
 /// <summary>
 ///     The client player, controlled by the user. There can only be one client player.
 /// </summary>
-[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "False positive.")]
 public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 {
-    private const Single FlyingSpeedFactor = 5f;
-    private const Single FlyingSprintSpeedFactor = 25f;
-
-    private const Single DiveSpeed = 8f;
-    private const Single JumpForce = 25000f;
-    private const Single Speed = 4f;
-    private const Single SprintSpeed = 6f;
-    private const Single SwimSpeed = 4f;
-
     private readonly Camera camera;
-    private readonly Vector3d cameraOffset = new(x: 0f, y: 0.65f, z: 0f);
 
     private readonly Input input;
 
     private readonly GameScene scene;
 
-    private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
-    private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
-
     private readonly PlacementSelection selector;
     private readonly VisualInterface visualInterface;
 
     private Vector3d movement;
+    private MovementStrategy movementStrategy;
 
     private BlockInstance? targetBlock;
     private FluidInstance? targetFluid;
@@ -71,35 +57,19 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         this.camera = camera;
         camera.Position = Position;
 
+        Head = new Head(camera, this);
+
         this.scene = scene;
         this.visualInterface = visualInterface;
 
-        input = new Input(this);
+        input = new Input();
         selector = new PlacementSelection(input, () => targetBlock?.Block);
+
+        movementStrategy = new DefaultMovement(input, flyingSpeed: 1.0);
     }
 
-    /// <summary>
-    ///     Get or set the flying state of the player.
-    /// </summary>
-    public Double FlyingSpeed { get; set; } = 1f;
-
     /// <inheritdoc />
-    public override Vector3d LookingDirection => camera.Front;
-
-    /// <summary>
-    ///     Get the up vector of the player camera.
-    /// </summary>
-    public Vector3d CameraUp => camera.Up;
-
-    /// <summary>
-    ///     Get the right vector of the player camera.
-    /// </summary>
-    public Vector3d CameraRight => camera.Right;
-
-    /// <summary>
-    ///     Get the looking position of the player, meaning the position of the camera.
-    /// </summary>
-    public Vector3d LookingPosition => camera.Position;
+    public override IOrientable Head { get; }
 
     /// <summary>
     ///     The previous position before teleporting.
@@ -127,11 +97,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// </summary>
     public FluidInstance TargetFluid => targetFluid ?? FluidInstance.Default;
 
-    /// <summary>
-    ///     The position of the player's head.
-    /// </summary>
-    public Vector3i HeadPosition { get; private set; }
-
     /// <inheritdoc cref="PhysicsActor" />
     public override Vector3i? TargetPosition => targetPosition;
 
@@ -141,6 +106,27 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     String IPlayerDataProvider.Selection => selector.SelectionName;
 
     String IPlayerDataProvider.Mode => selector.ModeName;
+
+    /// <summary>
+    /// Set the flying speed of the player.
+    /// </summary>
+    /// <param name="speed">The new flying speed.</param>
+    public void SetFlyingSpeed(Double speed)
+    {
+        movementStrategy.FlyingSpeed = speed;
+    }
+
+    /// <summary>
+    ///     Set whether the player is in freecam mode.
+    ///     Freecam mode means the camera can move freely without the player moving.
+    /// </summary>
+    /// <param name="freecam">True if the player is in freecam mode, false otherwise.</param>
+    public void SetFreecam(Boolean freecam)
+    {
+        movementStrategy = freecam
+            ? new FreecamMovement(this, input, movementStrategy.FlyingSpeed)
+            : new DefaultMovement(input, movementStrategy.FlyingSpeed);
+    }
 
     /// <summary>
     ///     Set whether the overlay rendering is allowed.
@@ -204,14 +190,15 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         movement = Vector3d.Zero;
 
-        camera.Position = Position + cameraOffset;
+        camera.Position = movementStrategy.GetCameraPosition(Head);
 
         UpdateTargets();
 
         if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
-            HandleMovementInput(deltaTime);
-            HandleLookInput();
+            movementStrategy.ApplyMovement(this, deltaTime);
+
+            DoLookInput();
 
             DoBlockFluidSelection();
             DoWorldInteraction();
@@ -219,7 +206,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         if (scene is {IsWindowFocused: true}) visualInterface.UpdateInput();
 
-        HeadPosition = camera.Position.Floor();
         SetBlockAndFluidOverlays();
 
         // Because interaction can change the target block or the bounding box,
@@ -248,7 +234,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
     private void UpdateTargets()
     {
-        var ray = new Ray(camera.Position, camera.Front, length: 6f);
+        var ray = new Ray(Head.Position, Head.Forward, length: 6f);
         (Vector3i, BlockSide)? hit = Raycast.CastBlockRay(World, ray);
 
         if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, fluid))
@@ -273,40 +259,9 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         else visualInterface.SetSelectionBox(collider: null);
     }
 
-    private void HandleMovementInput(Double deltaTime)
+    private void DoLookInput()
     {
-        if (DoPhysics)
-        {
-            DoNormalMovement();
-        }
-        else
-        {
-            Vector3d offset = input.GetFlyingMovement(FlyingSpeed * FlyingSpeedFactor, FlyingSpeed * FlyingSprintSpeedFactor);
-            Position += offset * deltaTime;
-        }
-    }
-
-    private void DoNormalMovement()
-    {
-        movement = input.GetMovement(Speed, SprintSpeed);
-        Move(movement, maxForce);
-
-        if (!(input.ShouldJump ^ input.ShouldCrouch)) return;
-
-        if (input.ShouldJump)
-        {
-            if (IsGrounded) AddForce(new Vector3d(x: 0, JumpForce, z: 0));
-            else if (IsSwimming) Move(Vector3d.UnitY * SwimSpeed, maxSwimForce);
-        }
-        else
-        {
-            if (IsSwimming) Move(Vector3d.UnitY * -DiveSpeed, maxSwimForce);
-        }
-    }
-
-    private void HandleLookInput()
-    {
-        // Apply the camera pitch and yaw. (the pitch is clamped in the camera class).
+        // The pitch is clamped in the camera class.
 
         (Double yaw, Double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
         camera.Yaw += yaw;
