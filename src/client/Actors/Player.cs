@@ -27,20 +27,16 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     private readonly Camera camera;
 
     private readonly Input input;
+    private readonly Targeting targeting;
+    private readonly PlacementSelection selector;
+    private readonly Interaction interaction;
+
+    private readonly VisualInterface visualInterface;
 
     private readonly GameScene scene;
 
-    private readonly PlacementSelection selector;
-    private readonly VisualInterface visualInterface;
-
     private Vector3d movement;
     private MovementStrategy movementStrategy;
-
-    private BlockInstance? targetBlock;
-    private FluidInstance? targetFluid;
-
-    private Vector3i? targetPosition;
-    private BlockSide targetSide;
 
     /// <summary>
     ///     Create a client player.
@@ -63,7 +59,9 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         this.visualInterface = visualInterface;
 
         input = new Input();
-        selector = new PlacementSelection(input, () => targetBlock?.Block);
+        targeting = new Targeting();
+        selector = new PlacementSelection(input, () => targeting.Block?.Block);
+        interaction = new Interaction(this, input, targeting, selector);
 
         movementStrategy = new DefaultMovement(input, flyingSpeed: 1.0);
     }
@@ -77,7 +75,10 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     public Vector3d PreviousPosition { get; private set; }
 
     /// <inheritdoc />
-    public override BlockSide TargetSide => targetSide;
+    public override BlockSide TargetSide => targeting.Side;
+
+    /// <inheritdoc cref="PhysicsActor" />
+    public override Vector3i? TargetPosition => targeting.Position;
 
     /// <summary>
     ///     Get the view of this player.
@@ -87,21 +88,8 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <inheritdoc />
     public override Vector3d Movement => movement;
 
-    /// <summary>
-    ///     The targeted block, or a default block if no block is targeted.
-    /// </summary>
-    public BlockInstance TargetBlock => targetBlock ?? BlockInstance.Default;
-
-    /// <summary>
-    ///     The targeted fluid, or a default fluid if no fluid is targeted.
-    /// </summary>
-    public FluidInstance TargetFluid => targetFluid ?? FluidInstance.Default;
-
-    /// <inheritdoc cref="PhysicsActor" />
-    public override Vector3i? TargetPosition => targetPosition;
-
     /// <inheritdoc />
-    public Property DebugData => new DebugProperties(this);
+    public Property DebugData => new DebugProperties(this, targeting);
 
     String IPlayerDataProvider.Selection => selector.SelectionName;
 
@@ -173,16 +161,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         visualInterface.Deactivate();
     }
 
-    private static BoxCollider? GetBlockBoundsIfVisualized(World world, Block block, Vector3i position)
-    {
-        Boolean visualized = !block.IsReplaceable;
-
-        if (Program.IsDebug)
-            visualized |= block != Blocks.Instance.Air;
-
-        return visualized ? block.GetCollider(world, position) : null;
-    }
-
     /// <inheritdoc />
     protected override void OnUpdate(Double deltaTime)
     {
@@ -192,16 +170,16 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         camera.Position = movementStrategy.GetCameraPosition(Head);
 
-        UpdateTargets();
+        targeting.Update(Head, World);
 
         if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
             movementStrategy.ApplyMovement(this, deltaTime);
 
             DoLookInput();
-
             DoBlockFluidSelection();
-            DoWorldInteraction();
+
+            interaction.Perform();
         }
 
         if (scene is {IsWindowFocused: true}) visualInterface.UpdateInput();
@@ -210,11 +188,11 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         // Because interaction can change the target block or the bounding box,
         // we search again for the target and update the selection now.
+        targeting.Update(Head, World);
 
-        UpdateTargets();
-        UpdateSelection();
-
+        visualInterface.SetSelectionBoxTarget(World, targeting.Block, targeting.Position);
         visualInterface.Update();
+
         input.Update(deltaTime);
     }
 
@@ -232,33 +210,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         visualInterface.BuildOverlay(this, Raycast.CastFrustum(World, center, range: 1, frustum));
     }
 
-    private void UpdateTargets()
-    {
-        var ray = new Ray(Head.Position, Head.Forward, length: 6f);
-        (Vector3i, BlockSide)? hit = Raycast.CastBlockRay(World, ray);
-
-        if (hit is var (hitPosition, hitSide) && World.GetContent(hitPosition) is var (block, fluid))
-        {
-            targetPosition = hitPosition;
-            targetSide = hitSide;
-
-            (targetBlock, targetFluid) = (block, fluid);
-        }
-        else
-        {
-            targetPosition = null;
-            targetSide = BlockSide.All;
-
-            (targetBlock, targetFluid) = (null, null);
-        }
-    }
-
-    private void UpdateSelection()
-    {
-        if (targetPosition is {} position && targetBlock is {} block) visualInterface.SetSelectionBox(GetBlockBoundsIfVisualized(World, block.Block, position));
-        else visualInterface.SetSelectionBox(collider: null);
-    }
-
     private void DoLookInput()
     {
         // The pitch is clamped in the camera class.
@@ -268,62 +219,6 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         camera.Pitch += pitch;
 
         Rotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
-    }
-
-    private void DoWorldInteraction()
-    {
-        if (targetBlock == null || targetFluid == null || targetPosition == null) return;
-
-        PlaceInteract(targetBlock.Value, targetPosition.Value);
-        DestroyInteract(targetBlock.Value, targetPosition.Value);
-    }
-
-    private void PlaceInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
-    {
-        if (!input.ShouldInteract) return;
-
-        Vector3i placePosition = targetedPosition;
-
-        if (input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
-        {
-            if (!targetedBlock.Block.IsReplaceable) placePosition = targetSide.Offset(placePosition);
-
-            // Prevent block placement if the block would intersect the player.
-            if (selector is {IsBlockMode: true, ActiveBlock.IsSolid: true} && Collider.Intersects(
-                    selector.ActiveBlock.GetCollider(World, placePosition))) return;
-
-            if (selector.IsBlockMode) selector.ActiveBlock.Place(World, placePosition, this);
-            else selector.ActiveFluid.Fill(World, placePosition, FluidLevel.One, BlockSide.Top, out _);
-
-            input.RegisterInteraction();
-        }
-        else if (targetedBlock.Block.IsInteractable)
-        {
-            targetedBlock.Block.ActorInteract(this, targetedPosition);
-
-            input.RegisterInteraction();
-        }
-    }
-
-    private void DestroyInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
-    {
-        if (input.ShouldDestroy)
-        {
-            if (selector.IsBlockMode) targetedBlock.Block.Destroy(World, targetedPosition, this);
-            else TakeFluid(targetedPosition);
-
-            input.RegisterInteraction();
-        }
-
-        void TakeFluid(Vector3i position)
-        {
-            var level = FluidLevel.One;
-
-            if (!targetedBlock.Block.IsReplaceable)
-                position = targetSide.Offset(position);
-
-            World.GetFluid(position)?.Fluid.Take(World, position, ref level);
-        }
     }
 
     #region IDisposable Support
