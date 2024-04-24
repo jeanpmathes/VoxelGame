@@ -22,6 +22,7 @@ using NativeErrorFunc = void(*)(HRESULT, char const*);
 
 enum class ConfigurationOptions : UINT
 {
+    NONE          = 0,
     ALLOW_TEARING = 1 << 0,
     SUPPORT_PIX   = 1 << 1,
     USE_GBV       = 1 << 2,

@@ -302,9 +302,6 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
 
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
-            // Instead of passing the useless device, nullptr and __uuidof(ID3D12Device) should be passed.
-            // The current version of PIX (2312.08) does not support this.
-
             ComPtr<ID3D12Device> uselessDevice;
             if (SUCCEEDED(
                 deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
