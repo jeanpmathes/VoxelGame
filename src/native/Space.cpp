@@ -115,9 +115,11 @@ Material const& Space::GetMaterial(UINT const index) const { return *m_materials
 
 void Space::Reset(UINT const frameIndex) { m_commandGroup.Reset(frameIndex); }
 
-std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(UINT const vertexCount)
+std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(
+    UINT const                           vertexCount,
+    std::vector<D3D12_RESOURCE_BARRIER>* barriers)
 {
-    return m_indexBuffer.GetIndexBuffer(vertexCount);
+    return m_indexBuffer.GetIndexBuffer(vertexCount, barriers);
 }
 
 void Space::Update(double)

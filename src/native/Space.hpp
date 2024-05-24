@@ -160,7 +160,9 @@ public:
      * Get a buffer containing indices for the given vertex count.
      * The indices are valid for a vertex buffer that contains a list of quads.
      */
-    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount);
+    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(
+        UINT                                 vertexCount,
+        std::vector<D3D12_RESOURCE_BARRIER>* barriers);
 
     struct RenderData
     {

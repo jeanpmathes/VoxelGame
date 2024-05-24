@@ -5,7 +5,9 @@ SharedIndexBuffer::SharedIndexBuffer(Space& space)
 {
 }
 
-std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UINT const vertexCount)
+std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(
+    UINT const                           vertexCount,
+    std::vector<D3D12_RESOURCE_BARRIER>* barriers)
 {
     Require(vertexCount > 0);
     Require(vertexCount % 4 == 0);
@@ -66,7 +68,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
         };
-        m_space.GetCommandList()->ResourceBarrier(1, &transitionCopyDestToShaderResource);
+        barriers->push_back(transitionCopyDestToShaderResource);
 
         m_sharedIndexCount = requiredIndexCount;
         m_indexBufferUploads.emplace_back(m_sharedIndexBuffer, sharedIndexUpload);

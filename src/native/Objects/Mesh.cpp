@@ -255,7 +255,7 @@ void Mesh::DoDataUpload(
 
     if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) std::tie(
         m_usedIndexBuffer,
-        m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(GetDataElementCount()); // todo: pass barrier vector
+        m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(GetDataElementCount(), barriers);
 }
 
 void Mesh::DoReset()
