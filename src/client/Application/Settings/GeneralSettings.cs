@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -120,8 +119,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
     /// <summary>
     ///     The scale factor of the UI.
     /// </summary>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-    public Bindable<Single> ScaleOfUI { get; }
+    private Bindable<Single> ScaleOfUI { get; }
 
     /// <summary>
     ///     The color of the crosshair.

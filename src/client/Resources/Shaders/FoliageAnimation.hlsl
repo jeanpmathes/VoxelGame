@@ -17,7 +17,7 @@ void ApplySway(
     float const amplitude = 0.2f;
     float const speed     = 0.8f;
 
-    float const  strength = (uv.y + (isUpperPart ? 1.0f : 0.0)) * (isDoublePlant ? 0.5f : 1.0f);
+    float const  strength = (uv.y + (isUpperPart ? 1.0f : 0.0f)) * (isDoublePlant ? 0.5f : 1.0f);
     float2 const position = vertex.position.xz + vg::custom.windDir.xz * native::spatial::global.time * speed;
 
     vertex.position += vg::custom.windDir * fnlGetNoise2D(noise, position.x, position.y) * amplitude * strength;
@@ -35,8 +35,9 @@ void ApplySway(
     noise.domain_warp_type = FNL_DOMAIN_WARP_BASICGRID;
 
     uint const threadID = submissionID.y;
-    uint const offset   = submission.offset + (submission.count / 4) * threadID;
-    uint const count    = (submission.count / 4) + (threadID == 3 ? submission.count % 4 : 0);
+    uint const batch    = submission.count / 4;
+    uint const offset   = submission.offset + batch * threadID;
+    uint const count    = batch + (threadID == (4 - 1) ? submission.count % 4 : 0);
 
     for (uint quadID = offset; quadID < offset + count; quadID++)
     {
@@ -45,7 +46,7 @@ void ApplySway(
 
         for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {
-            quad[index] = native::animation::source[submission.meshIndex][quadID * 4 + index];
+            quad[index] = native::animation::source[submission.index][quadID * 4 + index];
             data[index] = quad[index].data;
         }
 
@@ -56,7 +57,7 @@ void ApplySway(
         for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
         {
             ApplySway(quad[index], uvs[index], isUpperPart, isDoublePlant, noise);
-            native::animation::destination[submission.meshIndex][quadID * 4 + index] = quad[index];
+            native::animation::destination[submission.index][quadID * 4 + index] = quad[index];
         }
     }
 }

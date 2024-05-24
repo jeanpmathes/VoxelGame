@@ -5,7 +5,7 @@ SharedIndexBuffer::SharedIndexBuffer(Space& space)
 {
 }
 
-std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UINT vertexCount)
+std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UINT const vertexCount)
 {
     Require(vertexCount > 0);
     Require(vertexCount % 4 == 0);
@@ -15,11 +15,11 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
 
     if (requiredIndexCount > m_sharedIndexCount)
     {
-        UINT const RequiredIndexBufferSize = requiredIndexCount * sizeof(UINT);
+        UINT const requiredIndexBufferSize = requiredIndexCount * sizeof(UINT);
 
         Allocation<ID3D12Resource> sharedIndexUpload = util::AllocateBuffer(
             m_space.GetNativeClient(),
-            RequiredIndexBufferSize,
+            requiredIndexBufferSize,
             D3D12_RESOURCE_FLAG_NONE,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             D3D12_HEAP_TYPE_UPLOAD);
@@ -32,7 +32,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
             // The quads itself are defined in CW order.
 
             // DirectX also uses CW order for triangles, but in a left-handed coordinate system.
-            // Because VoxelGame uses a right-handed coordinate system, the BLAS creation Requires special handling.
+            // Because VoxelGame uses a right-handed coordinate system, the BLAS creation requires special handling.
 
             m_indices.push_back(quad * 4 + 0);
             m_indices.push_back(quad * 4 + 1);
@@ -47,7 +47,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
 
         m_sharedIndexBuffer = util::AllocateBuffer(
             m_space.GetNativeClient(),
-            RequiredIndexBufferSize,
+            requiredIndexBufferSize,
             D3D12_RESOURCE_FLAG_NONE,
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_HEAP_TYPE_DEFAULT);
@@ -58,7 +58,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
             0,
             sharedIndexUpload.resource.Get(),
             0,
-            RequiredIndexBufferSize);
+            requiredIndexBufferSize);
 
         D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
             CD3DX12_RESOURCE_BARRIER::Transition(

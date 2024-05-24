@@ -9,7 +9,7 @@
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
-UINT const   NativeClient::AGILITY_SDK_VERSION = 611;
+UINT const   NativeClient::AGILITY_SDK_VERSION = 613;
 LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
 NativeClient::NativeClient(Configuration const& configuration)
@@ -504,7 +504,7 @@ void NativeClient::OnRender(double const)
     WaitForGPU();
 
     if (m_space) m_space->CleanupRender();
-
+    
     HandleScreenshot();
 
     MoveToNextFrame();

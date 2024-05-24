@@ -29,7 +29,7 @@ class NativeClient final : public DXApp
 {
 public:
     explicit NativeClient(Configuration const& configuration);
-
+    
     [[nodiscard]] ComPtr<ID3D12Device5>      GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
 

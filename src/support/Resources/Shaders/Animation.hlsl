@@ -21,9 +21,9 @@ namespace native
          */
         struct Submission
         {
-            uint meshIndex;
-            uint instanceIndex;
-
+            uint index;
+            uint instance;
+            
             uint offset;
             uint count;
         };
@@ -37,7 +37,7 @@ namespace native
         };
 
         /**
-         * \brief Contains the data for the thread groups.
+         * \brief Contains the work description data for the thread groups.
          */
         StructuredBuffer<ThreadGroup> threadGroupData : register(t0, space3);
 

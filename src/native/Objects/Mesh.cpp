@@ -32,7 +32,7 @@ Mesh::Mesh(NativeClient& client)
     }
 }
 
-void Mesh::Initialize(UINT materialIndex)
+void Mesh::Initialize(UINT const materialIndex)
 {
     m_material = &GetClient().GetSpace()->GetMaterial(materialIndex);
 
@@ -59,9 +59,10 @@ void Mesh::Update()
 void Mesh::SetNewVertices(SpatialVertex const* vertices, UINT const vertexCount)
 {
     Require(GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES);
+    Require(vertexCount % 4 == 0);
 
     UpdateGeometryViews(vertexCount, sizeof(SpatialVertex));
-
+    
     if (bool const uploadRequired = HandleModification(vertexCount);
         !uploadRequired)
         return;
@@ -184,7 +185,9 @@ AnimationController::Handle Mesh::GetAnimationHandle() const { return m_animatio
 
 void Mesh::Accept(Visitor& visitor) { visitor.Visit(*this); }
 
-void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
+void Mesh::DoDataUpload(
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<D3D12_RESOURCE_BARRIER>*     barriers)
 {
     if (GetDataElementCount() == 0)
     {
@@ -203,20 +206,43 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
         D3D12_RESOURCE_STATE_COPY_DEST,
         D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_sourceGeometryBuffer);
-
+ 
     if (GetMaterial().IsAnimated())
     {
+        // A data upload will always trigger a fresh BLAS build.
+        // If the mesh is not active but animated, the destination buffer will be empty.
+        // Because it is inactive, the animation shader will not run and instead a copy is needed.
+        bool const requiresCopy = !GetActiveIndex().has_value();
+
+        D3D12_RESOURCE_STATES constexpr destState = D3D12_RESOURCE_STATE_COPY_DEST;
+        D3D12_RESOURCE_STATES constexpr srvState  = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+        
         util::ReAllocateBuffer(
             &m_destinationGeometryBuffer,
             GetClient(),
             geometryBufferSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+            requiresCopy ? destState : srvState,
             D3D12_HEAP_TYPE_DEFAULT);
         NAME_D3D12_OBJECT_WITH_ID(m_destinationGeometryBuffer);
+
+        if (requiresCopy)
+        {
+            commandList->CopyBufferRegion(
+                m_destinationGeometryBuffer.Get(),
+                0,
+                GetUploadDataBuffer().Get(),
+                0,
+                geometryBufferSize);
+
+            D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
+                CD3DX12_RESOURCE_BARRIER::Transition(m_destinationGeometryBuffer.Get(), destState, srvState)
+            };
+            barriers->push_back(transitionCopyDestToShaderResource);
+        }
     }
     else m_destinationGeometryBuffer = {};
-
+    
     commandList->CopyBufferRegion(m_sourceGeometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 
     D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
@@ -225,10 +251,11 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
-    commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
+    barriers->push_back(transitionCopyDestToShaderResource);
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
-        std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(GetDataElementCount());
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) std::tie(
+        m_usedIndexBuffer,
+        m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(GetDataElementCount()); // todo: pass barrier vector
 }
 
 void Mesh::DoReset()
@@ -302,7 +329,7 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& command
 {
     bool                      updateOnly;
     D3D12_GPU_VIRTUAL_ADDRESS previousResult;
-
+    
     if (m_requiresFreshBLAS)
     {
         m_requiresFreshBLAS = false;

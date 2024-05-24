@@ -22,7 +22,9 @@ void Drawable::Return()
     // No code here, because space is allowed to delete this object.
 }
 
-void Drawable::EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
+void Drawable::EnqueueDataUpload(
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<D3D12_RESOURCE_BARRIER>*     barriers)
 {
     Require(m_uploadRequired);
     Require(!m_uploadEnqueued);
@@ -30,7 +32,7 @@ void Drawable::EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
     m_uploadRequired = false;
     m_uploadEnqueued = true;
 
-    DoDataUpload(commandList);
+    DoDataUpload(commandList, barriers);
 }
 
 void Drawable::CleanupDataUpload()

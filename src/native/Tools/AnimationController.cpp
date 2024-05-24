@@ -125,7 +125,7 @@ void AnimationController::Run(ComPtr<ID3D12GraphicsCommandList4> const& commandL
 
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->Dispatch(static_cast<UINT>(m_threadGroupData.size()), 1, 1);
-
+    
     commandList->ResourceBarrier(static_cast<UINT>(m_exitBarriers.size()), m_exitBarriers.data());
 }
 
@@ -133,6 +133,8 @@ void AnimationController::CreateBLAS(
     ComPtr<ID3D12GraphicsCommandList4> const& commandList,
     std::vector<ID3D12Resource*>*             uavs)
 {
+    PIXScopedEvent(commandList.Get(), PIX_COLOR_DEFAULT, L"Animation BLAS Update");
+    
     m_meshes.ForEach(
         [&commandList, uavs](Mesh* const& mesh)
     {
@@ -144,10 +146,11 @@ void AnimationController::CreateBLAS(
 void AnimationController::UpdateThreadGroupData()
 {
     m_threadGroupData.clear();
+    
     UINT           currentSubmissionIndex = anim::SUBMISSIONS_PER_THREAD_GROUP;
     auto           addSubmission          = [this, &currentSubmissionIndex](
-        UINT const meshIndex,
-        UINT const instanceIndex,
+        UINT const index,
+        UINT const instance,
         UINT const offset,
         UINT const count)
     {
@@ -161,23 +164,23 @@ void AnimationController::UpdateThreadGroupData()
         Require(count <= anim::MAX_ELEMENTS_PER_SUBMISSION);
 
         anim::Submission& submission = m_threadGroupData.back().submissions[currentSubmissionIndex++];
-        submission.meshIndex         = meshIndex;
-        submission.instanceIndex     = instanceIndex;
+        submission.index             = index;
+        submission.instance          = instance;
         submission.offset            = offset;
         submission.count             = count;
     };
-
+    
     m_meshes.ForEach(
         [&addSubmission](Mesh* const& mesh)
     {
-        auto const meshIndex     = static_cast<UINT>(mesh->GetAnimationHandle());
-        auto const instanceIndex = static_cast<UINT>(mesh->GetActiveIndex().value());
-        UINT const elementCount  = mesh->GetGeometryUnitCount();
+        auto const index    = static_cast<UINT>(mesh->GetAnimationHandle());
+        auto const instance = static_cast<UINT>(mesh->GetActiveIndex().value());
+        UINT const elements = mesh->GetGeometryUnitCount();
 
-        for (UINT offset = 0; offset < elementCount; offset += anim::MAX_ELEMENTS_PER_SUBMISSION)
+        for (UINT offset = 0; offset < elements; offset += anim::MAX_ELEMENTS_PER_SUBMISSION)
         {
-            UINT const count = std::min(elementCount - offset, anim::MAX_ELEMENTS_PER_SUBMISSION);
-            addSubmission(meshIndex, instanceIndex, offset, count);
+            UINT const count = std::min(elements - offset, anim::MAX_ELEMENTS_PER_SUBMISSION);
+            addSubmission(index, instance, offset, count);
         }
     });
 }
@@ -199,7 +202,6 @@ void AnimationController::UploadThreadGroupData(
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_HEAP_TYPE_DEFAULT);
         util::ReAllocateBuffer(
-            //
             &m_threadGroupDataUploadBuffer,
             *m_client,
             sizeInBytes,

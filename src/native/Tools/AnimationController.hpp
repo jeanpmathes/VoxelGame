@@ -21,8 +21,8 @@ namespace anim
 #pragma pack(push, 4)
     struct Submission
     {
-        UINT meshIndex     = 0;
-        UINT instanceIndex = 0;
+        UINT index    = 0;
+        UINT instance = 0;
 
         UINT offset = 0;
         UINT count  = 0;

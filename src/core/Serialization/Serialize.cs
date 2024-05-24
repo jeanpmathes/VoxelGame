@@ -129,7 +129,7 @@ public static class Serialize
 
             deserializer.SerializeEntity(entity);
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidDataException)
         {
             return e;
         }

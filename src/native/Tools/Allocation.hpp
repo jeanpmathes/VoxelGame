@@ -45,6 +45,8 @@ public:
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
         *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
 
+        Require(m_data != nullptr);
+
         size_t const requiredSizeInBytes = m_size * sizeof(S);
         size_t const actualSizeInBytes   = m_resource.resource->GetDesc().Width;
         Require(requiredSizeInBytes <= actualSizeInBytes);
@@ -113,6 +115,7 @@ public:
     void Unmap()
     {
         Require(m_data != nullptr);
+        
         m_resource.resource->Unmap(0, nullptr);
         m_data = nullptr;
     }

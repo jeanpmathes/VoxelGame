@@ -153,16 +153,10 @@ public abstract class Decoration
         }
     }
 
-    private sealed class Noise
+    private sealed class Noise(in Context context)
     {
-        private readonly Array3D<Single> noise;
-        private readonly Random randomNumberGenerator;
-
-        public Noise(in Context context)
-        {
-            noise = context.Noise;
-            randomNumberGenerator = new Random(HashCode.Combine(context.Position, context.Index));
-        }
+        private readonly Array3D<Single> noise = context.Noise;
+        private readonly Random randomNumberGenerator = new(HashCode.Combine(context.Position, context.Index));
 
         public Boolean CheckCandidate(Vector3i position, Single rarity, out Single random)
         {

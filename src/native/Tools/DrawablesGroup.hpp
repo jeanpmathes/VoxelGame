@@ -190,11 +190,16 @@ public:
 
     void EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList4> commandList) override
     {
+        std::vector<D3D12_RESOURCE_BARRIER> barriers;
+        barriers.reserve(m_modified.Count());
+        
         for (Drawable::EntryIndex const entry : m_modified)
         {
             Require(m_entries[entry] != nullptr);
-            m_entries[entry]->EnqueueDataUpload(commandList);
+            m_entries[entry]->EnqueueDataUpload(commandList, &barriers);
         }
+
+        if (!barriers.empty()) commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
     }
 
     void CleanupDataUpload() override

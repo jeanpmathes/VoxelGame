@@ -16,6 +16,10 @@
 #undef min
 #undef max
 
+#if defined(NATIVE_DEBUG)
+#define USE_PIX
+#endif
+
 // DirectX
 
 #include "d3d12.h"

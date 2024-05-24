@@ -71,7 +71,9 @@ void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
 
 void Effect::Accept(Visitor& visitor) { visitor.Visit(*this); }
 
-void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
+void Effect::DoDataUpload(
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<D3D12_RESOURCE_BARRIER>*     barriers)
 {
     if (GetDataElementCount() == 0)
     {
@@ -98,7 +100,7 @@ void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> commandList)
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
-    commandList->ResourceBarrier(1, &transitionCopyDestToShaderResource);
+    barriers->push_back(transitionCopyDestToShaderResource);
 
     m_geometryVBV.SizeInBytes    = static_cast<UINT>(geometryBufferSize);
     m_geometryVBV.BufferLocation = m_geometryBuffer.GetGPUVirtualAddress();
