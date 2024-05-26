@@ -83,7 +83,7 @@ struct Fog
     {
         float const c   = path + trace.distance;
         float const fog = 1.0f - exp(-density * POW2(c));
-        trace.color.rgb = lerp(trace.color.rgb, color, clamp(fog, 0.0f, 1.0f));
+        trace.color     = lerp(trace.color, float4(color, 1.0f), clamp(fog, 0.0f, 1.0f));
     }
 
     /**
