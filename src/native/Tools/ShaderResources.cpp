@@ -206,13 +206,13 @@ ShaderResources::Description::AddUnorderedAccessViewDescriptorSelectionList(
 void ShaderResources::Description::AddRootParameter(
     ShaderLocation const            location,
     D3D12_ROOT_PARAMETER_TYPE const type,
-    RootParameter&&                 parameter)
+    RootParameter                   parameter)
 {
     m_rootSignatureGenerator.AddRootParameter(type, location.reg, location.space);
     m_rootParameters.emplace_back(std::move(parameter));
 }
 
-ComPtr<ID3D12RootSignature> ShaderResources::Description::GenerateRootSignature(ComPtr<ID3D12Device> device)
+ComPtr<ID3D12RootSignature> ShaderResources::Description::GenerateRootSignature(ComPtr<ID3D12Device> const& device)
 {
     return m_rootSignatureGenerator.Generate(device, false);
 }
@@ -266,8 +266,8 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
 
                 if constexpr (std::is_same_v<T, RootConstant>)
                 {
-                    auto const& [index]  = arg;
-                    auto&       constant = m_constants[index];
+                    auto const& [index, queue] = arg;
+                    auto&       constant       = m_constants[index];
 
                     commandList->SetGraphicsRoot32BitConstant(
                         static_cast<UINT>(parameterIndex),
@@ -333,8 +333,8 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
 
                 if constexpr (std::is_same_v<T, RootConstant>)
                 {
-                    auto const& [index]  = arg;
-                    auto&       constant = m_constants[index];
+                    auto const& [index, queue] = arg;
+                    auto&       constant       = m_constants[index];
 
                     commandList->SetComputeRoot32BitConstant(
                         static_cast<UINT>(parameterIndex),
@@ -388,6 +388,27 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
             },
             parameter);
     }
+}
+
+void ShaderResources::UpdateConstant(ConstantHandle handle, ComPtr<ID3D12GraphicsCommandList> const& commandList) const
+{
+    auto const& parameterIndex = static_cast<UINT>(handle);
+    auto const& parameter      = GetRootParameter(parameterIndex);
+
+    if (std::holds_alternative<RootConstant>(parameter))
+    {
+        auto const& [index, queue]               = std::get<RootConstant>(parameter);
+        auto const& [getter, rootParameterIndex] = m_constants[index];
+
+        Value32 const value = getter();
+
+        if (queue == QueueType::GRAPHICS)
+            commandList->SetGraphicsRoot32BitConstant(rootParameterIndex, value.uInteger, 0);
+        else if (queue == QueueType::COMPUTE)
+            commandList->SetComputeRoot32BitConstant(rootParameterIndex, value.uInteger, 0);
+        else Require(FALSE);
+    }
+    else Require(FALSE);
 }
 
 void ShaderResources::Update()

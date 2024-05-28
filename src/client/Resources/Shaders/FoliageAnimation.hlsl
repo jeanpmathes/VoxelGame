@@ -23,41 +23,36 @@ void ApplySway(
     vertex.position += vg::custom.windDir * fnlGetNoise2D(noise, position.x, position.y) * amplitude * strength;
 }
 
-[numthreads(16, 4, 1)]void Main(uint3 groupID : SV_GroupID, uint3 submissionID : SV_GroupThreadID)
+[numthreads(32, 1, 1)]void Main(uint3 id : SV_DispatchThreadID)
 {
-    native::animation::Submission submission = native::animation::threadGroupData[groupID.x].submissions[submissionID.
-        x];
+    uint const count  = native::animation::size.value;
+    uint const quadID = id.x;
 
-    if (submission.count == 0) return;
+    if (quadID >= count) return;
 
     fnl_state noise        = fnlCreateState();
     noise.frequency        = 0.35f;
     noise.domain_warp_type = FNL_DOMAIN_WARP_BASICGRID;
 
-    uint const threadID = submissionID.y;
-    uint const batch    = submission.count / 4;
-    uint const offset   = submission.offset + batch * threadID;
-    uint const count    = batch + (threadID == (4 - 1) ? submission.count % 4 : 0);
+    uint const instance = native::animation::index.value;
+    uint const vertexID = quadID * 4;
 
-    for (uint quadID = offset; quadID < offset + count; quadID++)
+    native::spatial::SpatialVertex quad[native::spatial::VERTICES_PER_QUAD];
+    uint4                          data;
+
+    for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
     {
-        native::spatial::SpatialVertex quad[native::spatial::VERTICES_PER_QUAD];
-        uint4                          data;
+        quad[index] = native::animation::source[instance][vertexID + index];
+        data[index] = quad[index].data;
+    }
 
-        for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
-        {
-            quad[index] = native::animation::source[submission.index][quadID * 4 + index];
-            data[index] = quad[index].data;
-        }
+    bool const     isUpperPart   = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
+    bool const     isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
+    float4x2 const uvs           = vg::decode::GetUVs(data);
 
-        bool const     isUpperPart   = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
-        bool const     isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
-        float4x2 const uvs           = vg::decode::GetUVs(data);
-
-        for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
-        {
-            ApplySway(quad[index], uvs[index], isUpperPart, isDoublePlant, noise);
-            native::animation::destination[submission.index][quadID * 4 + index] = quad[index];
-        }
+    for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)
+    {
+        ApplySway(quad[index], uvs[index], isUpperPart, isDoublePlant, noise);
+        native::animation::destination[instance][vertexID + index] = quad[index];
     }
 }

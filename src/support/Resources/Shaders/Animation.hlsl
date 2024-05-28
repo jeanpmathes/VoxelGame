@@ -9,6 +9,8 @@
 
 #include "Space.hlsl"
 
+#define SPACE space3
+
 /*
  * This contains the required structures and bindings for the animation system.
  */
@@ -16,40 +18,30 @@ namespace native
 {
     namespace animation
     {
-        /**
-         * \brief The smallest unit in which work-loads are passed to the GPU.
-         */
-        struct Submission
+        struct WorkInfo
         {
-            uint index;
-            uint instance;
-            
-            uint offset;
-            uint count;
+            uint value;
         };
 
         /**
-         * \brief All submissions for a single thread group.
+         * \brief Index of the work load.
          */
-        struct ThreadGroup
-        {
-            Submission submissions[16];
-        };
-
+        ConstantBuffer<WorkInfo> index : register(b0, space1);
+        
         /**
-         * \brief Contains the work description data for the thread groups.
+         * \brief Size of the work load.
          */
-        StructuredBuffer<ThreadGroup> threadGroupData : register(t0, space3);
-
+        ConstantBuffer<WorkInfo> size : register(b1, space1);
+        
         /**
          * \brief The source vertex data buffer. This data is read and transformed by the animation shader.
          */
-        StructuredBuffer<spatial::SpatialVertex> source[] : register(t1, space3);
+        StructuredBuffer<spatial::SpatialVertex> source[] : register(t0, SPACE);
 
         /**
          * \brief The destination vertex data buffer. This data is written to by the animation shader.
          */
-        RWStructuredBuffer<spatial::SpatialVertex> destination[] : register(u0, space3);
+        RWStructuredBuffer<spatial::SpatialVertex> destination[] : register(u0, SPACE);
     }
 }
 

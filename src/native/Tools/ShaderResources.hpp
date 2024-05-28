@@ -31,9 +31,16 @@ public:
     };
 
 private:
+    enum class QueueType : BYTE
+    {
+        GRAPHICS = 0,
+        COMPUTE  = 1
+    };
+    
     struct RootConstant
     {
-        UINT index;
+        UINT      index;
+        QueueType queue;
     };
 
     struct RootConstantBufferView
@@ -320,9 +327,9 @@ public:
             return SelectionList<Descriptor>(location, this, window);
         }
 
-        void AddRootParameter(ShaderLocation location, D3D12_ROOT_PARAMETER_TYPE type, RootParameter&& parameter);
+        void AddRootParameter(ShaderLocation location, D3D12_ROOT_PARAMETER_TYPE type, RootParameter parameter);
 
-        ComPtr<ID3D12RootSignature> GenerateRootSignature(ComPtr<ID3D12Device> device);
+        ComPtr<ID3D12RootSignature> GenerateRootSignature(ComPtr<ID3D12Device> const& device);
 
         explicit Description(UINT existingRootParameterCount);
         UINT     m_existingRootParameterCount = 0;
@@ -412,44 +419,47 @@ public:
         m_device = device;
 
         UINT        rootParameterCount = 0;
-        Description graphicsDescription(rootParameterCount);
-        graphics(graphicsDescription);
+        Description graphicsDesc(rootParameterCount);
+        graphics(graphicsDesc);
 
-        rootParameterCount = static_cast<UINT>(graphicsDescription.m_rootParameters.size());
-        Description computeDescription(rootParameterCount);
-        compute(computeDescription);
+        rootParameterCount = static_cast<UINT>(graphicsDesc.m_rootParameters.size());
+        Description computeDesc(rootParameterCount);
+        compute(computeDesc);
 
-        m_graphicsRootSignature  = graphicsDescription.GenerateRootSignature(device);
-        m_graphicsRootParameters = std::move(graphicsDescription.m_rootParameters);
+        m_graphicsRootSignature  = graphicsDesc.GenerateRootSignature(device);
+        m_graphicsRootParameters = std::move(graphicsDesc.m_rootParameters);
         NAME_D3D12_OBJECT(m_graphicsRootSignature);
 
-        m_computeRootSignature  = computeDescription.GenerateRootSignature(device);
-        m_computeRootParameters = std::move(computeDescription.m_rootParameters);
+        m_computeRootSignature  = computeDesc.GenerateRootSignature(device);
+        m_computeRootParameters = std::move(computeDesc.m_rootParameters);
         NAME_D3D12_OBJECT(m_computeRootSignature);
 
         auto                                        initializeConstants = [&](
             std::vector<RootParameter>&             rootParameters,
-            std::vector<std::function<Value32()>>&& getters)
+            std::vector<std::function<Value32()>>&& getters,
+            QueueType const                         queue)
         {
-            UINT constantIndex = 0;
+            UINT index = 0;
 
-            for (auto& parameter : rootParameters)
-                if (std::holds_alternative<RootConstant>(parameter))
+            for (UINT rootParameterIndex = 0; rootParameterIndex < rootParameters.size(); rootParameterIndex++)
+                if (std::holds_alternative<RootConstant>(rootParameters[rootParameterIndex]))
                 {
-                    auto& [index] = std::get<RootConstant>(parameter);
-                    index         = constantIndex;
+                    RootConstant& rootConstant = std::get<RootConstant>(rootParameters[rootParameterIndex]);
+                    rootConstant.index         = static_cast<UINT>(m_constants.size());
+                    rootConstant.queue         = queue;
 
-                    auto& [getter] = m_constants.emplace_back();
-                    getter         = std::move(getters[constantIndex]);
+                    Constant& constant          = m_constants.emplace_back();
+                    constant.getter             = std::move(getters[index]);
+                    constant.rootParameterIndex = rootParameterIndex;
 
-                    constantIndex++;
+                    index++;
                 }
         };
 
-        initializeConstants(m_graphicsRootParameters, std::move(graphicsDescription.m_rootConstants));
-        initializeConstants(m_computeRootParameters, std::move(computeDescription.m_rootConstants));
+        initializeConstants(m_graphicsRootParameters, std::move(graphicsDesc.m_rootConstants), QueueType::GRAPHICS);
+        initializeConstants(m_computeRootParameters, std::move(computeDesc.m_rootConstants), QueueType::COMPUTE);
 
-        m_totalTableDescriptorCount = graphicsDescription.m_heapDescriptorTableCount + computeDescription.
+        m_totalTableDescriptorCount = graphicsDesc.m_heapDescriptorTableCount + computeDesc.
             m_heapDescriptorTableCount;
 
         auto                                initializeDescriptorTables = [&](
@@ -484,11 +494,11 @@ public:
 
         initializeDescriptorTables(
             m_graphicsRootParameters,
-            graphicsDescription.m_heapDescriptorTableOffsets,
+            graphicsDesc.m_heapDescriptorTableOffsets,
             &m_totalTableOffset);
         initializeDescriptorTables(
             m_computeRootParameters,
-            computeDescription.m_heapDescriptorTableOffsets,
+            computeDesc.m_heapDescriptorTableOffsets,
             &m_totalTableOffset);
 
         auto initializeDescriptorLists = [&](std::vector<RootParameter>& rootParameters, auto const& descriptions)
@@ -515,8 +525,8 @@ public:
                 }
         };
 
-        initializeDescriptorLists(m_graphicsRootParameters, graphicsDescription.m_descriptorListDescriptions);
-        initializeDescriptorLists(m_computeRootParameters, computeDescription.m_descriptorListDescriptions);
+        initializeDescriptorLists(m_graphicsRootParameters, graphicsDesc.m_descriptorListDescriptions);
+        initializeDescriptorLists(m_computeRootParameters, computeDesc.m_descriptorListDescriptions);
 
         Update();
     }
@@ -567,6 +577,13 @@ public:
         else Require(FALSE);
     }
 
+    /**
+     * \brief Trigger an update of a root constant while the resources are bound. Will use the getter.
+     * \param handle The constant handle.
+     * \param commandList The command list to use for updating.
+     */
+    void UpdateConstant(ConstantHandle handle, ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
+
     void Update();
 
     /**
@@ -612,7 +629,8 @@ private:
 
     struct Constant
     {
-        std::function<Value32()> getter = {};
+        std::function<Value32()> getter             = {};
+        UINT                     rootParameterIndex = 0;
     };
 
     std::vector<Constant> m_constants = {};

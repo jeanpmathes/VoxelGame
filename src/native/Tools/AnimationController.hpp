@@ -13,28 +13,6 @@
 class NativeClient;
 class Mesh;
 
-namespace anim
-{
-    constexpr UINT SUBMISSIONS_PER_THREAD_GROUP = 16;
-    constexpr UINT MAX_ELEMENTS_PER_SUBMISSION  = 4 * 512;
-
-#pragma pack(push, 4)
-    struct Submission
-    {
-        UINT index    = 0;
-        UINT instance = 0;
-
-        UINT offset = 0;
-        UINT count  = 0;
-    };
-
-    struct ThreadGroup
-    {
-        Submission submissions[SUBMISSIONS_PER_THREAD_GROUP] = {0};
-    };
-#pragma pack(pop)
-}
-
 /**
  * Controls compute-shader based animations and all necessary resources.
  * Each thread group uses 16 by 4 threads, so 16 submissions are processed per thread group.
@@ -63,14 +41,14 @@ public:
     /**
      * \brief Updates shader resource data, must be called before running the animation.
      * \param resources The shader resources.
-     * \param commandList The command list to use for uploading.
      */
-    void Update(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
+    void Update(ShaderResources& resources);
     /**
      * \brief Runs the animation.
+     * \param resources The shader resources.
      * \param commandList The command list to use for running.
      */
-    void Run(ComPtr<ID3D12GraphicsCommandList4> const& commandList);
+    void Run(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
     /**
      * \brief Create the BLAS for every mesh that uses this animation.
      * \param commandList The command list to use for creating the BLAS.
@@ -79,9 +57,6 @@ public:
     void CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs);
 
 private:
-    void UpdateThreadGroupData();
-    void UploadThreadGroupData(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
-
     void CreateBarriers();
     
     ShaderResources::ShaderLocation m_threadGroupDataLocation;
@@ -94,16 +69,13 @@ private:
     IntegerSet<Handle> m_changedMeshes = {};
     IntegerSet<Handle> m_removedMeshes = {};
 
-    ShaderResources::TableHandle  m_resourceTable        = ShaderResources::TableHandle::INVALID;
-    ShaderResources::Table::Entry m_threadGroupDataEntry = ShaderResources::Table::Entry::invalid;
-    ShaderResources::ListHandle   m_srcGeometryList      = ShaderResources::ListHandle::INVALID;
-    ShaderResources::ListHandle   m_dstGeometryList      = ShaderResources::ListHandle::INVALID;
+    ShaderResources::Value32 m_workIndex = {};
+    ShaderResources::Value32 m_workSize  = {};
 
-    Allocation<ID3D12Resource>                 m_threadGroupDataBuffer          = {};
-    Allocation<ID3D12Resource>                 m_threadGroupDataUploadBuffer    = {};
-    std::vector<anim::ThreadGroup>             m_threadGroupData                = {};
-    Mapping<ID3D12Resource, anim::ThreadGroup> m_threadGroupDataMapping         = {};
-    D3D12_SHADER_RESOURCE_VIEW_DESC            m_threadGroupDataViewDescription = {};
+    ShaderResources::ConstantHandle m_workIndexConstant = ShaderResources::ConstantHandle::INVALID;
+    ShaderResources::ConstantHandle m_workSizeConstant  = ShaderResources::ConstantHandle::INVALID;
+    ShaderResources::ListHandle     m_srcGeometryList   = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle     m_dstGeometryList   = ShaderResources::ListHandle::INVALID;
 
     NativeClient* m_client = {};
     ComPtr<ID3D12PipelineState> m_pipelineState = {};

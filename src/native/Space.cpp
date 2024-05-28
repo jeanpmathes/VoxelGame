@@ -635,7 +635,10 @@ void Space::CreateShaderBindingTable()
 
 void Space::EnqueueUploads() const { for (auto* group : m_drawableGroups) group->EnqueueDataUpload(GetCommandList()); }
 
-void Space::RunAnimations() { for (auto& animation : m_animations) animation.Run(GetCommandList()); }
+void Space::RunAnimations()
+{
+    for (auto& animation : m_animations) animation.Run(*m_globalShaderResources, GetCommandList());
+}
 
 void Space::BuildAccelerationStructures()
 {
@@ -861,7 +864,7 @@ void Space::UpdateTopLevelAccelerationStructureView() const
 void Space::UpdateGlobalShaderResources()
 {
     IntegerSet const meshesToRefresh = m_meshes.ClearChanged();
-    for (auto& animation : m_animations) animation.Update(*m_globalShaderResources, GetCommandList());
+    for (auto& animation : m_animations) animation.Update(*m_globalShaderResources);
 
     m_globalShaderResources->RequestListRefresh(m_meshInstanceDataList, meshesToRefresh);
     m_globalShaderResources->RequestListRefresh(m_meshGeometryBufferList, meshesToRefresh);
