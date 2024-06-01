@@ -24,8 +24,6 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class Section : Core.Logic.Section
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
-
     private Boolean hasMesh;
     private BlockSides missing;
     private SectionVFX? vfx;
@@ -207,6 +205,12 @@ public class Section : Core.Logic.Section
 
         vfx.SetData(meshData);
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

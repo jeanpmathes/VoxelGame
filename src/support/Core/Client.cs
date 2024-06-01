@@ -26,10 +26,8 @@ namespace VoxelGame.Support.Core;
 ///     A proxy class for the native client.
 /// </summary>
 [NativeMarshalling(typeof(ClientMarshaller))]
-public class Client : IDisposable
+public partial class Client : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.
@@ -84,7 +82,7 @@ public class Client : IDisposable
             },
             onDestroy = () =>
             {
-                logger.LogInformation(Events.WindowState, "Closing window");
+                LogClosingWindow(logger);
 
                 OnDestroy();
             },
@@ -211,7 +209,7 @@ public class Client : IDisposable
         Dialog.ShowError($"Fatal error ({hr:X}): {message}");
 
         var hex = hr.ToString("X", CultureInfo.InvariantCulture);
-        logger.LogCritical(exception, "Fatal error ({HR}): {Message}", hex, message);
+        LogFatalError(logger, exception, hex, message);
 
         throw exception;
     }
@@ -379,8 +377,8 @@ public class Client : IDisposable
                     Image screenshot = new(copy, Image.Format.BGRA, (Int32) width, (Int32) height);
                     Exception? exception = screenshot.Save(path);
 
-                    if (exception == null) logger.LogInformation(Events.Screenshot, "Saved a screenshot to: {Path}", path);
-                    else logger.LogError(Events.Screenshot, exception, "Failed to save a screenshot to: {Path}", path);
+                    if (exception == null) LogSavedScreenshot(logger, path.FullName);
+                    else LogFailedToSaveScreenshot(logger, exception, path.FullName);
                 });
             });
     }
@@ -395,8 +393,8 @@ public class Client : IDisposable
 
         Int32 exit = NativeMethods.Run(this);
 
-        logger.LogDebug(Events.ApplicationState, "Client stopped running with exit code: {ExitCode}", exit);
-
+        LogClientStoppedRunning(logger, exit);
+        
         return exit;
     }
 
@@ -404,6 +402,30 @@ public class Client : IDisposable
         Definition.Native.NativeConfiguration Configuration,
         Definition.Native.NativeErrorFunc ErrorFunc);
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+
+    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Information, Message = "Closing window")]
+    private static partial void LogClosingWindow(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
+    private static partial void LogClientStoppedRunning(ILogger logger, Int32 exitCode);
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Disposing client")]
+    private static partial void LogDisposingClient(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
+    private static partial void LogSavedScreenshot(ILogger logger, String path);
+
+    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
+    private static partial void LogFailedToSaveScreenshot(ILogger logger, Exception exception, String path);
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
+    private static partial void LogFatalError(ILogger logger, Exception exception, String hr, String message);
+
+    #endregion LOGGING
+    
     #region IDisposable Support
 
     private Boolean disposed;
@@ -418,7 +440,7 @@ public class Client : IDisposable
 
         if (disposing)
         {
-            logger.LogDebug(Events.ApplicationState, "Disposing client");
+            LogDisposingClient(logger);
 
             NativeMethods.Finalize(this);
 

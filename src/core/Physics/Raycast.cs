@@ -13,7 +13,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Physics;
 
 /// <summary>
-///     Utility class for raycasts and similar operations.
+///     Utility class for ray casts and similar operations.
 /// </summary>
 public static class Raycast
 {

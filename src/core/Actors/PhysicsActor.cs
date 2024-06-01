@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Actors;
 /// <summary>
 ///     An actor which is affected by gravity and forces.
 /// </summary>
-public abstract class PhysicsActor : IDisposable, IOrientable
+public abstract partial class PhysicsActor : IDisposable, IOrientable
 {
     /// <summary>
     ///     The gravitational constant which accelerates all physics actors.
@@ -27,9 +27,7 @@ public abstract class PhysicsActor : IDisposable, IOrientable
 
     private const Double AirDrag = 0.18;
     private const Double FluidDrag = 15.0;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
-
+    
     private readonly BoundingVolume boundingVolume;
 
     private readonly Int32 physicsIterations = 10;
@@ -129,10 +127,7 @@ public abstract class PhysicsActor : IDisposable, IOrientable
 
             if (oldValue == value) return;
 
-            logger.LogInformation(
-                Events.PhysicsSystem,
-                "Set actor physics to {State}",
-                doPhysics ? "enabled" : "disabled");
+            LogSetActorPhysics(logger, doPhysics);
         }
     }
 
@@ -218,8 +213,8 @@ public abstract class PhysicsActor : IDisposable, IOrientable
         Vector3d movement = Velocity * deltaTime;
         movement *= 1f / physicsIterations;
 
-        HashSet<(Vector3i position, Block block)> blockIntersections = new();
-        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = new();
+        HashSet<(Vector3i position, Block block)> blockIntersections = [];
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = [];
 
         for (var i = 0; i < physicsIterations; i++)
             DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
@@ -247,7 +242,9 @@ public abstract class PhysicsActor : IDisposable, IOrientable
 
             if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, (maxLevel + 1) / 8.0);
 
+#pragma warning disable S2589 // IsGrounded is set in DoPhysicsStep
             if (!IsGrounded && noGas) IsSwimming = true;
+#pragma warning restore S2589
         }
 
         force = new Vector3d(x: 0, Gravity * Mass, z: 0);
@@ -297,6 +294,15 @@ public abstract class PhysicsActor : IDisposable, IOrientable
     /// <param name="deltaTime"></param>
     protected abstract void Update(Double deltaTime);
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
+
+    [LoggerMessage(EventId = Events.PhysicsSystem, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
+    private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
+
+    #endregion LOGGING
+    
     #region IDisposable Support
 
     private Boolean disposed;

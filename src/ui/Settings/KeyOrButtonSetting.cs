@@ -48,6 +48,8 @@ internal class KeyOrButtonSetting : Setting
 
     protected override String Name { get; }
 
+    public override Object Value => get();
+
     private protected override void FillControl(ControlBase control, Context context)
     {
         DockLayout layout = new(control);

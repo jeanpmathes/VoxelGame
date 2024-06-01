@@ -26,7 +26,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 {
     private readonly TextureLayout layout;
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
     private Int32[] textures = null!;
 
     internal ConcreteBlock(String name, String namedID, TextureLayout layout) :

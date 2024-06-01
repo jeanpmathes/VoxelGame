@@ -9,7 +9,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
 
@@ -95,7 +94,7 @@ public class Decorations
     /// </summary>
     public static void Initialize(LoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.ResourceLoad, "Decorations"))
+        using (loadingContext.BeginStep("Decorations"))
         {
             Instance = new Decorations();
         }

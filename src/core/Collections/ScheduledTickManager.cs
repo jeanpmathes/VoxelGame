@@ -19,10 +19,8 @@ namespace VoxelGame.Core.Collections;
 ///     Manages scheduled ticks.
 /// </summary>
 /// <typeparam name="T">The type of tickables to manage.</typeparam>
-public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
+public partial class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
-
     private readonly UpdateCounter updateCounter;
     private readonly Int32 maxTicksPerUpdate;
 
@@ -103,9 +101,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 
             if (ticks.tickables.Count < maxTicksPerUpdate) break;
 
-            logger.LogWarning(
-                "Tick for {Update} has been scheduled for following update as limit is reached",
-                targetUpdate);
+            LogTickScheduledForFollowingUpdate(logger, targetUpdate);
 
             tickOffset += 1;
 
@@ -211,4 +207,13 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
             serializer.SerializeValues(tickables);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
+
+    [LoggerMessage(EventId = Events.Simulation, Level = LogLevel.Warning, Message = "Tick for {Update} has been scheduled for following update as limit is reached")]
+    private static partial void LogTickScheduledForFollowingUpdate(ILogger logger, UInt64 update);
+
+    #endregion LOGGING
 }

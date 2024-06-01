@@ -5,15 +5,17 @@
 // <author>jeanpmathes</author>
 
 using System;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
 ///     Create scenes.
 /// </summary>
-public class SceneFactory
+public partial class SceneFactory
 {
     private readonly Application.Client client;
 
@@ -32,6 +34,8 @@ public class SceneFactory
     /// <returns>The created game scene.</returns>
     public IScene CreateGameScene(World world)
     {
+        LogCreatingGameScene(logger, world.Data.Information.Name);
+        
         return new GameScene(client, world);
     }
 
@@ -43,6 +47,20 @@ public class SceneFactory
     /// <returns>The created scene.</returns>
     public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
     {
+        LogCreatingStartScene(logger);
+        
         return new StartScene(client, resourceLoadingFailure, loadWorldDirectly);
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneFactory>();
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating game scene for world {WorldName}")]
+    private static partial void LogCreatingGameScene(ILogger logger, String worldName);
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating start scene")]
+    private static partial void LogCreatingStartScene(ILogger logger);
+
+    #endregion LOGGING
 }

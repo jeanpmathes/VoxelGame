@@ -27,8 +27,8 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     private readonly Block fruit;
     private readonly String texture;
 
-    private readonly List<BoundingVolume> volumes = new();
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BoundingVolume> volumes = [];
+    private readonly List<BlockMesh> meshes = [];
 
     internal FruitCropBlock(String name, String namedID, String texture, Block fruit) :
         base(

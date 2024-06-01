@@ -21,10 +21,8 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene the game starts in. It contains the main menu.
 /// </summary>
-public sealed class StartScene : IScene
+public sealed partial class StartScene : IScene
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
-
     private readonly Application.Client client;
 
     private readonly ResourceLoadingFailure? resourceLoadingFailure;
@@ -80,7 +78,7 @@ public sealed class StartScene : IScene
 
         if (loadWorldDirectly is null) return;
 
-        logger.LogWarning(Events.Scene, "Resource loading failure prevents direct world loading, going to main menu");
+        LogResourceLoadingFailurePreventsDirectWorldLoading(logger);
         loadWorldDirectly = null;
     }
 
@@ -99,7 +97,7 @@ public sealed class StartScene : IScene
 
         if (isFirstUpdate)
         {
-            DoFirstUpdate();
+            LoadWorldDirectlyIfRequested();
             isFirstUpdate = false;
         }
 
@@ -128,7 +126,7 @@ public sealed class StartScene : IScene
         return ui.IsSafeToClose;
     }
 
-    private void DoFirstUpdate()
+    private void LoadWorldDirectlyIfRequested()
     {
         if (loadWorldDirectly is not {} index) return;
 
@@ -136,8 +134,7 @@ public sealed class StartScene : IScene
 
         if (exception != null)
         {
-            logger.LogError(Events.Scene, exception, "Could not refresh worlds to directly-load world at index {Index}, going to main menu", index);
-
+            LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
             return;
         }
 
@@ -145,15 +142,33 @@ public sealed class StartScene : IScene
 
         if (info != null)
         {
-            logger.LogInformation(Events.Scene, "Loading world at index {Index} directly", index);
+            LogLoadingWorldDirectly(logger, index);
 
             worldProvider.BeginLoadingWorld(info);
         }
         else
         {
-            logger.LogError(Events.Scene, "Could not directly-load world at index {Index}, going to main menu", index);
+            LogCouldNotDirectlyLoadWorld(logger, index);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
+    private static partial void LogResourceLoadingFailurePreventsDirectWorldLoading(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
+    private static partial void LogCouldNotRefreshWorldsToDirectlyLoadWorld(ILogger logger, Exception exception, Int32 index);
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
+    private static partial void LogLoadingWorldDirectly(ILogger logger, Int32 index);
+
+    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
+    private static partial void LogCouldNotDirectlyLoadWorld(ILogger logger, Int32 index);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

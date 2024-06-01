@@ -23,12 +23,10 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-public sealed class BlockModel
+public sealed partial class BlockModel
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
-
+    
     private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
@@ -368,7 +366,7 @@ public sealed class BlockModel
 
         Exception? exception = Serialize.SaveJSON(this, directory.GetFile(GetFileName(name)));
 
-        if (exception != null) logger.LogWarning(Events.FileIO, exception, "Failed to save block model");
+        if (exception != null) LogFailedToSaveBlockModel(logger, exception);
     }
 
     /// <summary>
@@ -417,15 +415,15 @@ public sealed class BlockModel
     {
         if (loader == null)
         {
-            logger.LogWarning(Events.ResourceLoad, "Loading of models is currently disabled, fallback will be used instead");
-
+            LogLoadingModelsDisabled(logger);
+            
             return BlockModels.CreateFallback();
         }
 
         Exception? exception = Serialize.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
 
-        if (exception == null) loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
-        else loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, exception);
+        if (exception == null) loader.ReportSuccess(nameof(BlockModel), name);
+        else loader.ReportWarning(nameof(BlockModel), name, exception);
 
         return model;
     }
@@ -476,6 +474,18 @@ public sealed class BlockModel
     }
 
     #endregion STATIC METHODS
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Failed to save block model")]
+    private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
+    private static partial void LogLoadingModelsDisabled(ILogger logger);
+
+    #endregion LOGGING
 }
 
 /// <summary>

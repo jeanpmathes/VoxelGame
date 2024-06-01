@@ -19,11 +19,11 @@ namespace VoxelGame.Client.Actors.Players;
 /// </summary>
 internal sealed class Input
 {
+    private const Single InteractionCooldown = 0.25f;
+    
     private readonly Button blockInteractButton;
     private readonly Button crouchButton;
     private readonly Button destroyButton;
-
-    private readonly Single interactionCooldown = 0.25f;
 
     private readonly Button interactOrPlaceButton;
     private readonly Button jumpButton;
@@ -72,7 +72,7 @@ internal sealed class Input
 
     internal Boolean ShouldCrouch => crouchButton.IsDown;
 
-    private Boolean IsCooldownOver => timer >= interactionCooldown;
+    private Boolean IsCooldownOver => timer >= InteractionCooldown;
 
     internal Boolean ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
 

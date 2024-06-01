@@ -5,10 +5,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -18,10 +19,8 @@ namespace VoxelGame.Client.Application.Settings;
 ///     General game settings that are not part of any other settings category.
 ///     Changed settings in this class will be saved.
 /// </summary>
-public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
+public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScaleProvider
 {
-    private readonly List<Setting> settings = [];
-
     internal GeneralSettings(Properties.Settings clientSettings)
     {
         ScaleOfUI = new Bindable<Single>(
@@ -32,7 +31,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(ScaleOfUI),
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.ScaleOfUI,
@@ -49,7 +48,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(CrosshairColor),
             Setting.CreateColorSetting(
                 this,
                 Language.CrosshairColor,
@@ -63,7 +62,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(CrosshairScale),
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.CrosshairScale,
@@ -79,7 +78,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(DarkSelectionColor),
             Setting.CreateColorSetting(
                 this,
                 Language.SelectionBoxDarkColor,
@@ -93,7 +92,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(BrightSelectionColor),
             Setting.CreateColorSetting(
                 this,
                 Language.SelectionBoxBrightColor,
@@ -107,7 +106,7 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(MouseSensitivity),
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.MouseSensitivity,
@@ -161,6 +160,12 @@ public sealed class GeneralSettings : ISettingsProvider, IScaleProvider
     /// <inheritdoc />
     static String ISettingsProvider.Description => Language.GeneralSettingsDescription;
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GeneralSettings>();
+
     /// <inheritdoc />
-    public IEnumerable<Setting> Settings => settings;
+    protected override ILogger Logger => logger;
+
+    #endregion LOGGING
 }

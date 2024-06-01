@@ -5,14 +5,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     Block flags containing different options for a block.
 /// </summary>
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public record BlockFlags
 {
     /// <summary>

@@ -20,10 +20,8 @@ using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Inputs;
 
-internal sealed class KeybindManager : ISettingsProvider, IDisposable
+internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
-
     private readonly Dictionary<Keybind, Button> keybinds = new();
 
     private readonly Dictionary<Keybind, PushButton> pushButtons = new();
@@ -111,7 +109,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
         keybinds[bind] = button;
 
-        logger.LogDebug(Events.SetKeyBind, "Created keybind: {Bind}", bind);
+        LogCreatedKeybind(logger, bind);
     }
 
     private void InitializeStorage()
@@ -146,7 +144,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
 
         Properties.Settings.Default.Save();
 
-        logger.LogInformation(Events.InputSystem, "Finished initializing keybind settings");
+        LogFinishedInitializingKeybindSettings(logger);
     }
 
     private void InitializeUsages()
@@ -187,7 +185,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         Properties.Settings.Default[PropertyName(bind)] = key.GetSettings(isDefault);
         Properties.Settings.Default.Save();
 
-        logger.LogInformation(Events.SetKeyBind, "Rebind '{Bind}' to: {Key}", bind, key);
+        LogRebindKeybind(logger, bind, key);
 
         UpdateAddedBind(key);
     }
@@ -209,7 +207,7 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         Boolean unused = usageMap.AddBinding(key);
 
         if (!unused)
-            logger.LogWarning(Events.SetKeyBind, "Key '{Key}' is used by multiple bindings", key);
+            LogKeyUsedByMultipleBindings(logger, key);
     }
 
     private void InitializeSettings()
@@ -280,6 +278,24 @@ internal sealed class KeybindManager : ISettingsProvider, IDisposable
         VirtualKeys.MiddleButton);
 
     #endregion KEYBINDS
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
+
+    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Debug, Message = "Created keybind: {Bind}")]
+    private static partial void LogCreatedKeybind(ILogger logger, Keybind bind);
+
+    [LoggerMessage(EventId = Events.InputSystem, Level = LogLevel.Information, Message = "Finished initializing keybind settings")]
+    private static partial void LogFinishedInitializingKeybindSettings(ILogger logger);
+
+    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Warning, Message = "Key '{Key}' is used by multiple bindings")]
+    private static partial void LogKeyUsedByMultipleBindings(ILogger logger, VirtualKeys key);
+
+    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Information, Message = "Rebind '{Bind}' to: {Key}")]
+    private static partial void LogRebindKeybind(ILogger logger, Keybind bind, VirtualKeys key);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

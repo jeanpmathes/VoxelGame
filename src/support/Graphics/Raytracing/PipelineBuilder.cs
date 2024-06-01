@@ -7,7 +7,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Objects;
@@ -238,12 +237,12 @@ public class PipelineBuilder
 
     private static void ReportFailure(LoadingContext loadingContext, String message)
     {
-        loadingContext.ReportFailure(Events.RenderPipelineError, nameof(SpacePipelineDescription), "RT_Pipeline", message);
+        loadingContext.ReportFailure(nameof(SpacePipelineDescription), "RT_Pipeline", message);
     }
 
     private void ReportSuccess(LoadingContext loadingContext)
     {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(SpacePipelineDescription), shader.File);
+        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(nameof(SpacePipelineDescription), shader.File);
     }
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);

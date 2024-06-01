@@ -70,9 +70,7 @@ public partial class Chunk : IDisposable, IEntity
     public const Int32 SectionCount = Size * Size * Size;
 
     private const Int32 RandomTickBatchSize = SectionCount / 2;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
-
+    
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
@@ -408,14 +406,14 @@ public partial class Chunk : IDisposable, IEntity
         // Serialization might change the position of the chunk, so we need to store it before loading.
         ChunkPosition position = chunk.Position;
 
-        logger.LogDebug(Events.ChunkOperation, "Started loading chunk for position: {Position}", position);
-
+        LogStartedLoadingChunk(logger, position);
+        
         Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
         if (exception is FileFormatException)
         {
-            logger.LogError(Events.ChunkOperation, "File for the chunk at {Position} was invalid: format error", position);
-
+            LogInvalidChunkFormatError(logger, position);
+            
             return LoadingResult.FormatError;
         }
 
@@ -424,22 +422,22 @@ public partial class Chunk : IDisposable, IEntity
             // Because there is no check whether the file exists, IO exceptions are expected.
             // Thus, they are not logged as errors or warnings.
 
-            logger.LogDebug(Events.ChunkOperation, "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}", position, exception.Message);
-
+            LogChunkLoadError(logger, position, exception.Message);
+            
             return LoadingResult.IOError;
         }
 
-        logger.LogDebug(Events.ChunkOperation, "Finished loading chunk for position: {Position}", position);
-
+        LogFinishedLoadingChunk(logger, position);
+        
         if (chunk.Position != position)
         {
-            logger.LogWarning(Events.ChunkOperation, "File for the chunk at {Position} was invalid: position did not match", position);
-
+            LogInvalidChunkPosition(logger, position);
+            
             return LoadingResult.ValidationError;
         }
 
-        logger.LogDebug(Events.ChunkOperation, "File for the chunk at {Position} was valid", position);
-
+        LogValidChunkFile(logger, position);
+        
         return LoadingResult.Success;
     }
 
@@ -475,8 +473,8 @@ public partial class Chunk : IDisposable, IEntity
 
         FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
-        logger.LogDebug(Events.ChunkOperation, "Started saving chunk {Position} to: {Path}", Position, chunkFile);
-
+        LogStartedSavingChunk(logger, Position, chunkFile.FullName);
+        
         chunkFile.Directory?.Create();
 
         Exception? exception = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
@@ -484,7 +482,7 @@ public partial class Chunk : IDisposable, IEntity
         if (exception != null)
             throw exception;
 
-        logger.LogDebug(Events.ChunkOperation, "Finished saving chunk {Position} to: {Path}", Position, chunkFile);
+        LogFinishedSavingChunk(logger, Position, chunkFile.FullName);
     }
 
     /// <summary>
@@ -495,21 +493,13 @@ public partial class Chunk : IDisposable, IEntity
     {
         Throw.IfDisposed(disposed);
 
-        logger.LogDebug(
-            Events.ChunkOperation,
-            "Started generating chunk {Position} using '{Name}' generator",
-            Position,
-            generator);
+        LogStartedGeneratingChunk(logger, Position, generator.ToString());
 
         GenerateContent(generator);
         PlaceStructures(generator);
         DecorateCenter(generator);
 
-        logger.LogDebug(
-            Events.ChunkOperation,
-            "Finished generating chunk {Position} using '{Name}' generator",
-            Position,
-            generator);
+        LogFinishedGeneratingChunk(logger, Position, generator.ToString());
     }
 
     private void GenerateContent(IWorldGenerator generator)
@@ -985,6 +975,42 @@ public partial class Chunk : IDisposable, IEntity
         All = Center | AllCorners
     }
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started loading chunk for position: {Position}")]
+    private static partial void LogStartedLoadingChunk(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Error, Message = "File for the chunk at {Position} was invalid: format error")]
+    private static partial void LogInvalidChunkFormatError(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}")]
+    private static partial void LogChunkLoadError(ILogger logger, ChunkPosition position, String message);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished loading chunk for position: {Position}")]
+    private static partial void LogFinishedLoadingChunk(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Warning, Message = "File for the chunk at {Position} was invalid: position did not match")]
+    private static partial void LogInvalidChunkPosition(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "File for the chunk at {Position} was valid")]
+    private static partial void LogValidChunkFile(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started saving chunk {Position} to: {Path}")]
+    private static partial void LogStartedSavingChunk(ILogger logger, ChunkPosition position, String path);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished saving chunk {Position} to: {Path}")]
+    private static partial void LogFinishedSavingChunk(ILogger logger, ChunkPosition position, String path);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started generating chunk {Position} using '{Name}' generator")]
+    private static partial void LogStartedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
+    private static partial void LogFinishedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
+
+    #endregion LOGGING
+    
     #region IDisposable Support
 
     private Boolean disposed;

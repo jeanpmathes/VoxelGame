@@ -19,17 +19,17 @@ public abstract class Layer
     /// <summary>
     ///     The width of the layer, in number of blocks.
     /// </summary>
-    public Int32 Width { get; protected init; }
+    public Int32 Width { get; private init; }
 
     /// <summary>
     ///     Whether this layer is a dampen layer that requires special handling.
     /// </summary>
-    public Boolean IsDampen { get; protected init; }
+    public Boolean IsDampen { get; private init; }
 
     /// <summary>
     ///     Get whether this layer is solid and does not allow water to pass through.
     /// </summary>
-    public Boolean IsSolid { get; protected init; }
+    public Boolean IsSolid { get; private init; }
 
     /// <summary>
     ///     Get the current palette, if there is any.

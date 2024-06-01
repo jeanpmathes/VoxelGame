@@ -17,7 +17,7 @@ using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     A VFX for overlay textures. Any block or fluid texture can be used as an overlay.

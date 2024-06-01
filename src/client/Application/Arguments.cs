@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     Supports command line argument handling for this application.
 /// </summary>
-public static class Arguments
+public static partial class Arguments
 {
     /// <summary>
     ///     Handles the command line arguments.
@@ -104,10 +104,17 @@ public static class Arguments
     {
         Int32 exitCode = app(logger);
 
-        logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
+        LogExitingWithCode(logger, exitCode);
 
         return exitCode;
     }
+
+    #region LOGGING
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
+    private static partial void LogExitingWithCode(ILogger logger, Int32 exitCode);
+
+    #endregion LOGGING
 }
 
 /// <summary>

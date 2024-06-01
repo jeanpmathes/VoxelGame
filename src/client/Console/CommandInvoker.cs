@@ -17,10 +17,8 @@ namespace VoxelGame.Client.Console;
 /// <summary>
 ///     Discovers and executes commands using the <see cref="Command" /> class.
 /// </summary>
-public class CommandInvoker
+public partial class CommandInvoker
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
-
     private readonly Dictionary<String, CommandGroup> commandGroups = new();
     private readonly Dictionary<Type, Parser> parsers = new();
 
@@ -95,7 +93,7 @@ public class CommandInvoker
     /// </summary>
     public void SearchCommands()
     {
-        logger.LogDebug(Events.Console, "Searching commands");
+        LogSearchingCommands(logger);
 
         var count = 0;
 
@@ -118,11 +116,11 @@ public class CommandInvoker
             List<MethodInfo> overloads = GetOverloads(type);
 
             commandGroups[command.Name] = new CommandGroup(command, overloads);
-            logger.LogDebug(Events.Console, "Found command '{Name}'", command.Name);
+            LogFoundCommand(logger, command.Name);
             count++;
         }
 
-        logger.LogInformation(Events.Console, "Found {Count} commands", count);
+        LogFoundCommandsCount(logger, count);
         CommandsUpdated.Invoke(this, EventArgs.Empty);
     }
 
@@ -135,7 +133,7 @@ public class CommandInvoker
         List<MethodInfo> overloads = GetOverloads(command.GetType());
         commandGroups[command.Name] = new CommandGroup(command, overloads);
 
-        logger.LogDebug(Events.Console, "Added command '{Name}'", command.Name);
+        LogAddedCommand(logger, command.Name);
         CommandsUpdated.Invoke(this, EventArgs.Empty);
     }
 
@@ -159,13 +157,13 @@ public class CommandInvoker
             else
             {
                 context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
-                logger.LogInformation(Events.Console, "No overload found for command '{Command}'", commandName);
+                LogNoOverloadFound(logger, commandName);
             }
         }
         else
         {
             context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
-            logger.LogInformation(Events.Console, "Command '{Command}' not found", commandName);
+            LogCommandNotFound(logger, commandName);
         }
     }
 
@@ -266,15 +264,11 @@ public class CommandInvoker
             command.SetContext(context);
             method.Invoke(command, parsedArgs);
 
-            logger.LogDebug(Events.Console, "Invoked command '{Command}'", command.Name);
+            LogInvokedCommand(logger, command.Name);
         }
         catch (TargetInvocationException e)
         {
-            logger.LogError(
-                Events.Console,
-                e.InnerException,
-                "Error while invoking command '{Command}'",
-                method.Name);
+            LogErrorInvokingCommand(logger, e.InnerException, method.Name);
         }
     }
 
@@ -285,4 +279,34 @@ public class CommandInvoker
     }
 
     private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Searching commands")]
+    private static partial void LogSearchingCommands(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Found command '{Name}'")]
+    private static partial void LogFoundCommand(ILogger logger, String name);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Found {Count} commands")]
+    private static partial void LogFoundCommandsCount(ILogger logger, Int32 count);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Added command '{Name}'")]
+    private static partial void LogAddedCommand(ILogger logger, String name);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "No overload found for command '{Command}'")]
+    private static partial void LogNoOverloadFound(ILogger logger, String command);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Command '{Command}' not found")]
+    private static partial void LogCommandNotFound(ILogger logger, String command);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Invoked command '{Command}'")]
+    private static partial void LogInvokedCommand(ILogger logger, String command);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
+    private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
+
+    #endregion
 }

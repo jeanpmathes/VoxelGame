@@ -17,10 +17,9 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Abstract base class for chunk states.
 /// </summary>
-public abstract class ChunkState
+public abstract partial class ChunkState
 {
     private const Int32 NeighborWaitingTimeout = 10;
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
 
     private Guard? coreGuard;
     private Guard? extendedGuard;
@@ -121,7 +120,7 @@ public abstract class ChunkState
 
     private void Enter()
     {
-        if (previous != null) logger.LogDebug(Events.ChunkOperation, "Chunk {Position} state changed from {PreviousState} to {State}", Chunk.Position, previous, this);
+        if (previous != null) LogChunkStateChange(logger, Chunk.Position, previous, this);
 
         isEntered = true;
         OnEnter();
@@ -586,4 +585,13 @@ public abstract class ChunkState
             return a.GetType() == b.GetType();
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
+    private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
+
+    #endregion LOGGING
 }

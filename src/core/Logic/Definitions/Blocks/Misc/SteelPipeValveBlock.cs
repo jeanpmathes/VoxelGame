@@ -26,8 +26,8 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
     private readonly Single diameter;
+    
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
-
     private readonly List<BoundingVolume> volumes = [];
 
     internal SteelPipeValveBlock(String name, String namedID, Single diameter, String openModel,

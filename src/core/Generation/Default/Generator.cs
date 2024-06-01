@@ -24,12 +24,11 @@ namespace VoxelGame.Core.Generation.Default;
 /// <summary>
 ///     The default world generator.
 /// </summary>
-public class Generator : IWorldGenerator
+public partial class Generator : IWorldGenerator
 {
     private const Int32 SeaLevel = 0;
 
     private const String MapBlobName = "default_map";
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
     private readonly FastNoiseLite decorationNoise;
 
@@ -86,7 +85,7 @@ public class Generator : IWorldGenerator
         decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
         decorationNoise.SetFrequency(frequency: 0.5f);
 
-        logger.LogInformation(Events.WorldGeneration, "Created '{Name}' world generator", nameof(Default));
+        LogCreatedWorldGenerator(logger, nameof(Default));
     }
 
     /// <summary>
@@ -172,7 +171,7 @@ public class Generator : IWorldGenerator
     /// </summary>
     public static void Prepare(LoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.ResourceLoad, "Default Generator"))
+        using (loadingContext.BeginStep("Default Generator"))
         {
             Decorations.Initialize(loadingContext);
             Structures.Initialize(loadingContext);
@@ -359,4 +358,13 @@ public class Generator : IWorldGenerator
             return Map.GetStoneType(position, Sample);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Created '{Name}' world generator")]
+    private static partial void LogCreatedWorldGenerator(ILogger logger, String name);
+
+    #endregion LOGGING
 }

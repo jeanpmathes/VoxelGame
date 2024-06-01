@@ -8,7 +8,6 @@ using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 
 namespace VoxelGame.Support.Objects;
@@ -54,12 +53,12 @@ public class Texture : NativeObject
         try
         {
             image = Image.LoadFromFile(path);
-            loadingContext?.ReportSuccess(Events.ResourceLoad, nameof(Texture), path);
+            loadingContext?.ReportSuccess(nameof(Texture), path);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
         {
             image = Image.CreateFallback(fallbackResolution);
-            loadingContext?.ReportWarning(Events.MissingResource, nameof(Texture), path, exception);
+            loadingContext?.ReportWarning(nameof(Texture), path, exception);
         }
 
         Texture texture = client.LoadTexture(image);

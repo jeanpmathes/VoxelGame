@@ -28,10 +28,8 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene that is active when the game is played.
 /// </summary>
-public sealed class GameScene : IScene
+public sealed partial class GameScene : IScene
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
-
     private readonly ToggleButton consoleToggle;
     private readonly PushButton escapeButton;
     private readonly PushButton unlockMouse;
@@ -103,7 +101,7 @@ public sealed class GameScene : IScene
 
         Client.OnFocusChange += OnFocusChanged;
 
-        logger.LogInformation(Events.SceneChange, "Loaded GameScene");
+        LogLoadedGameScene(logger);
     }
 
     /// <inheritdoc />
@@ -269,6 +267,15 @@ public sealed class GameScene : IScene
         ui.UpdatePerformanceData();
         ui.Render();
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
+
+    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loaded the game scene")]
+    private static partial void LogLoadedGameScene(ILogger logger);
+
+    #endregion LOGGING
 
     #region IDisposable Support.
 

@@ -11,7 +11,6 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -61,7 +60,7 @@ public class Structures
     /// </summary>
     public static void Initialize(LoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.ResourceLoad, "Structures"))
+        using (loadingContext.BeginStep("Structures"))
         {
             Instance = new Structures();
 

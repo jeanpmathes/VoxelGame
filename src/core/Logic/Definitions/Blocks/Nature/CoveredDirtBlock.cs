@@ -21,8 +21,8 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 {
     private readonly Boolean hasNeutralTint;
+    
     private readonly TextureLayout wet;
-
     private Int32[] wetTextureIndices = null!;
 
     /// <summary>

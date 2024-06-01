@@ -27,7 +27,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     private readonly String bottomTexture;
     private readonly Int32 topTexOffset;
 
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BlockMesh> meshes = [];
 
     internal DoubleCrossPlantBlock(String name, String namedID, String bottomTexture, Int32 topTexOffset,
         BoundingVolume boundingVolume) :

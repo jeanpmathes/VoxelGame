@@ -25,15 +25,13 @@ namespace VoxelGame.Client.Visuals;
 ///     A list of textures that can be used by shaders.
 ///     Each texture has a name and index.
 /// </summary>
-public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvider
+public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColorProvider
 {
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
     private const String MissingTextureName = "missing_texture";
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
-
+    
     private LoadingContext? loadingContext;
 
     private TextureBundle(TextureArray textureArray, Dictionary<String, Int32> textureIndices)
@@ -63,14 +61,14 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
 
         if (loadingContext == null)
         {
-            logger.LogWarning(Events.ResourceLoad, "Loading of textures is currently disabled, fallback will be used instead");
-
+            LogLoadingDisabled(logger);
+            
             return 0;
         }
 
         if (TextureIndices.TryGetValue(name, out Int32 value)) return value;
 
-        loadingContext.ReportWarning(Events.MissingResource, "Texture", name, "Texture not found");
+        loadingContext.ReportWarning("Texture", name, "Texture not found");
 
         return 0;
     }
@@ -111,11 +109,11 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
         {
             texturePaths = Array.Empty<FileInfo>();
 
-            loadingContext.ReportWarning(Events.MissingDepository, nameof(TextureArray), textureDirectory, "Texture directory not found");
+            loadingContext.ReportWarning(nameof(TextureArray), textureDirectory, "Texture directory not found");
         }
 
         // Create fallback texture.
-        List<Image> extraTextures = new();
+        List<Image> extraTextures = [];
         var fallback = Image.CreateFallback(resolution);
         extraTextures.Add(fallback);
 
@@ -126,10 +124,7 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
         // Check if the arrays could hold all textures.
         if (result.Count > maxTextures)
         {
-            logger.LogCritical(
-                "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle",
-                extraTextures.Count,
-                maxTextures);
+            LogTooManyTextures(logger, extraTextures.Count, maxTextures);
 
             textures = textures[..maxTextures];
 
@@ -142,7 +137,7 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
 
         TextureArray loadedTextureArray = TextureArray.Load(client, textures, Math.Min(result.Count, maxTextures), result.Mips);
 
-        loadingContext.ReportSuccess(Events.ResourceLoad, nameof(TextureArray), textureDirectory);
+        loadingContext.ReportSuccess(nameof(TextureArray), textureDirectory);
 
         return new TextureBundle(loadedTextureArray, result.Indices);
     }
@@ -237,15 +232,12 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
                 }
                 else
                 {
-                    logger.LogDebug(
-                        "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}",
-                        resolution,
-                        path);
+                    LogImageSizeMismatch(logger, resolution, path);
                 }
             }
             catch (FileNotFoundException e)
             {
-                logger.LogError(e, "The image could not be loaded: {Path}", path);
+                LogImageLoadFailed(logger, e, path);
             }
 
         return new LoadingResult(indices, images, count, mips);
@@ -286,4 +278,22 @@ public sealed class TextureBundle : ITextureIndexProvider, IDominantColorProvide
     }
 
     private sealed record LoadingResult(Dictionary<String, Int32> Indices, List<Image> Images, Int32 Count, Int32 Mips);
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
+    private static partial void LogLoadingDisabled(ILogger logger);
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Critical, Message = "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle")]
+    private static partial void LogTooManyTextures(ILogger logger, Int32 count, Int32 max);
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}")]
+    private static partial void LogImageSizeMismatch(ILogger logger, Int32 resolution, FileInfo path);
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "The image could not be loaded: {Path}")]
+    private static partial void LogImageLoadFailed(ILogger logger, Exception exception, FileInfo path);
+
+    #endregion LOGGING
 }

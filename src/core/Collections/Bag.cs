@@ -23,7 +23,7 @@ public class Bag<T> : IEnumerable<T>
     private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
-    private readonly List<T> items = new();
+    private readonly List<T> items = [];
 
     /// <summary>
     ///     Create a new gapped bag.

@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -59,11 +60,7 @@ public partial class Chunk
                 {
                     Exception e = future.Exception.GetBaseException();
 
-                    logger.LogCritical(
-                        Events.ChunkMeshingError,
-                        e,
-                        "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown",
-                        Chunk.Position);
+                    LogChunkMeshingError(logger, e, Chunk.Position);
 
                     throw e;
                 }
@@ -116,4 +113,11 @@ public partial class Chunk
             SetNextActive();
         }
     }
+
+    #region LOGGING
+
+    [LoggerMessage(EventId = Events.ChunkMeshingError, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
+    private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
+
+    #endregion
 }

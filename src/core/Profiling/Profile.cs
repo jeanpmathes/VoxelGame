@@ -21,10 +21,8 @@ namespace VoxelGame.Core.Profiling;
 /// <summary>
 ///     Storage for performance profiling measurements.
 /// </summary>
-public class Profile(ProfilerConfiguration configuration)
+public partial class Profile(ProfilerConfiguration configuration)
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Profile>();
-
     private readonly ConcurrentDictionary<String, TimingMeasurement> measurements = new();
     private readonly Dictionary<String, StateMachine> stateMachines = new();
 
@@ -39,13 +37,27 @@ public class Profile(ProfilerConfiguration configuration)
     public static Profile? Instance { get; private set; }
 
     /// <summary>
+    ///     Get a profiler that is guaranteed to be active.
+    ///     Can use the global instance or create a new one.
+    /// </summary>
+    /// <param name="full">Whether to create a full profiler if creating a new one.</param>
+    /// <returns>An active profiler.</returns>
+    public static Profile GetSingleUseActiveProfiler(Boolean full = false)
+    {
+        if (Instance != null && Instance.Configuration != ProfilerConfiguration.Disabled)
+            return Instance;
+
+        return new Profile(full ? ProfilerConfiguration.Full : ProfilerConfiguration.Basic);
+    }
+    
+    /// <summary>
     ///     Create a global instance if none exists.
     /// </summary>
     public static void CreateGlobalInstance(ProfilerConfiguration configuration)
     {
         if (Instance != null) return;
 
-        logger.LogInformation("Global profiler configured: {Configuration}", configuration);
+        LogGlobalProfilerConfigured(logger, configuration);
 
         if (configuration == ProfilerConfiguration.Disabled) return;
 
@@ -60,7 +72,7 @@ public class Profile(ProfilerConfiguration configuration)
         if (Instance == null) return;
         if (Instance.Configuration != ProfilerConfiguration.Full) return;
 
-        logger.LogInformation("Creating profiler exit report");
+        LogCreatingProfilerExitReport(logger);
 
         Property report = Instance.GenerateReport(full: true);
         String text = PropertyPrinter.Print(report);
@@ -292,4 +304,16 @@ public class Profile(ProfilerConfiguration configuration)
             return new Group(name, content);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Profile>();
+
+    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Global profiler configured: {Configuration}")]
+    private static partial void LogGlobalProfilerConfigured(ILogger logger, ProfilerConfiguration configuration);
+
+    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Creating profiler exit report")]
+    private static partial void LogCreatingProfilerExitReport(ILogger logger);
+
+    #endregion LOGGING
 }

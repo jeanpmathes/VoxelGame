@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     Utility class that allows to build the Manual for the game.
 /// </summary>
-public static class ManualBuilder
+public static partial class ManualBuilder
 {
     /// <summary>
     ///     Emit a manual, if the required build flags are set.
@@ -39,8 +39,8 @@ public static class ManualBuilder
         const String path = "./../../../../../../Setup/Resources/Manual";
         DirectoryInfo directory = FileSystem.GetFullPath(path);
 
-        Logging.Logger.LogInformation(Events.ApplicationInformation, "Generating game manual");
-
+        LogGeneratingManual(logger);
+        
         Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
         Includable controls = new("controls", directory);
@@ -81,14 +81,18 @@ public static class ManualBuilder
 
         fluids.Generate();
 
-        Logging.Logger.LogInformation(
-            Events.ApplicationInformation,
-            "Saved game manual to {Path}",
-            directory.FullName);
+        LogSavedManual(logger, directory.FullName);
     }
 
-    private sealed class Logging
-    {
-        public static readonly ILogger Logger = LoggingHelper.CreateLogger<Logging>();
-    }
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(ManualBuilder));
+
+    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Generating game manual")]
+    private static partial void LogGeneratingManual(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Saved game manual to {Path}")]
+    private static partial void LogSavedManual(ILogger logger, String path);
+
+    #endregion LOGGING
 }

@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class FenceBlock : WideConnectingBlock, ICombustible
 {
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
     /// <summary>
     ///     Create a new <see cref="FenceBlock" />.

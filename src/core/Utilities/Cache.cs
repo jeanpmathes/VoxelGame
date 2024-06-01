@@ -20,7 +20,7 @@ public sealed class Cache<TK, TV> : IDisposable
     where TK : notnull
     where TV : IDisposable
 {
-    private readonly LinkedList<Entry> list = new();
+    private readonly LinkedList<Entry> list = [];
     private readonly Dictionary<TK, LinkedListNode<Entry>> map = new();
 
     /// <summary>

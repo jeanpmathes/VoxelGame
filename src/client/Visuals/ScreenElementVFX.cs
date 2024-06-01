@@ -16,7 +16,7 @@ using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     Renders textures on the screen.

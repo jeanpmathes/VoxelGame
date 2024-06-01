@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
@@ -23,10 +24,8 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal class Client : Support.Core.Client, IPerformanceProvider
+internal partial class Client : Support.Core.Client, IPerformanceProvider
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-
     private readonly GameParameters parameters;
 
     private readonly SceneFactory sceneFactory;
@@ -97,7 +96,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
             IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
             sceneManager.Load(startScene);
 
-            logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
+            LogFinishedOnLoad(logger);
         }
 
         // Optional generation of manual.
@@ -160,18 +159,33 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
         if (!exitToOS) return;
 
-        logger.LogInformation(Events.ApplicationState, "Exiting to OS");
+        LogExitingToOS(logger);
 
         Close();
     }
 
     private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
+        LogWindowResized(logger, Size);
 
         sceneManager.OnResize(Size);
     }
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Finished client loading")]
+    private static partial void LogFinishedOnLoad(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting to OS")]
+    private static partial void LogExitingToOS(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
+    private static partial void LogWindowResized(ILogger logger, Vector2i size);
+
+    #endregion
+    
     #region IDisposable Support
 
     private Boolean disposed;

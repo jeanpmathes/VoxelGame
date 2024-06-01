@@ -16,10 +16,8 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     Utility class for throwing exceptions.
 /// </summary>
-public class Throw
+public partial class Throw
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
-
     #pragma warning disable
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private static Throw instance = new();
@@ -76,8 +74,17 @@ public class Throw
     // Intentionally not conditional.
     public static void ForMissedDispose(String type, Object? @object = null, StackTrace? trace = null)
     {
-        logger.LogWarning(Events.Dispose, "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at:\n{Trace}", type, @object, trace);
-
+        LogMissedDispose(logger, type, @object, trace);
+        
         Debugger.Break();
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
+
+    [LoggerMessage(EventId = Events.Dispose, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at:\n{Trace}")]
+    private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, StackTrace? trace);
+
+    #endregion LOGGING
 }

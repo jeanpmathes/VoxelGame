@@ -28,21 +28,19 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Contains all block definitions of the core game.
 /// </summary>
-public class Blocks
+public partial class Blocks
 {
     /// <summary>
     ///     The maximum amount of different blocks that can be registered.
     /// </summary>
     private const Int32 BlockLimit = 1 << Section.DataShift;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Block>();
-
+    
     private readonly List<Block> blockList = [];
     private readonly Dictionary<String, Block> namedBlockDictionary = new();
 
     private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.BlockLoad, "Block Loading"))
+        using (loadingContext.BeginStep("Block Loading"))
         {
             List<Block> allBlocks = [];
 
@@ -1093,7 +1091,7 @@ public class Blocks
 
                 block.Setup(id, indexProvider, visuals);
 
-                loadingContext.ReportSuccess(Events.BlockLoad, nameof(Block), block.NamedID);
+                loadingContext.ReportSuccess(nameof(Block), block.NamedID);
             }
         }
 
@@ -1125,11 +1123,7 @@ public class Blocks
     {
         if (blockList.Count > id) return blockList[(Int32) id];
 
-        logger.LogWarning(
-            Events.UnknownBlock,
-            "No Block with ID {ID} could be found, returning {Air} instead",
-            id,
-            Air.NamedID);
+        LogUnknownID(logger, id, Air.NamedID);
 
         return Air;
     }
@@ -2081,4 +2075,13 @@ public class Blocks
     public Block Rust { get; }
 
     #endregion NEW BLOCKS
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Blocks>();
+
+    [LoggerMessage(EventId = Events.UnknownBlock, Level = LogLevel.Warning, Message = "No Block with ID {ID} could be found, returning {Air} instead")]
+    private static partial void LogUnknownID(ILogger logger, UInt32 id, String air);
+
+    #endregion LOGGING
 }

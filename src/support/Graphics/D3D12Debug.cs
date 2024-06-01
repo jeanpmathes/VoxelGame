@@ -58,13 +58,15 @@ internal class D3D12Debug
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);
 
-        logger.Log(
-            level,
-            eventId,
-            "DirectX Debug | Category: {Category} | Id: {Id} | Message: {Message}",
-            categoryName,
-            idResolved,
-            message);
+        if (logger.IsEnabled(level))
+            // Logging intentionally not trough source generator to allow easily setting level and event id.
+            logger.Log(
+                level,
+                eventId,
+                "DirectX Debug | Category: {Category} | Id: {Id} | Message: {Message}",
+                categoryName,
+                idResolved,
+                message);
 
         Debugger.Log((Int32) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
 

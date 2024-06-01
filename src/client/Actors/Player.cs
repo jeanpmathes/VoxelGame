@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
@@ -13,6 +14,7 @@ using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
@@ -22,7 +24,7 @@ namespace VoxelGame.Client.Actors;
 /// <summary>
 ///     The client player, controlled by the user. There can only be one client player.
 /// </summary>
-public sealed class Player : Core.Actors.Player, IPlayerDataProvider
+public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 {
     private readonly Camera camera;
 
@@ -64,6 +66,8 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         interaction = new Interaction(this, input, targeting, selector);
 
         movementStrategy = new DefaultMovement(input, flyingSpeed: 1.0);
+
+        LogCreatedNewPlayer(logger);
     }
 
     /// <inheritdoc />
@@ -101,7 +105,11 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="speed">The new flying speed.</param>
     public void SetFlyingSpeed(Double speed)
     {
+        Throw.IfDisposed(disposed);
+        
         movementStrategy.FlyingSpeed = speed;
+
+        LogSetFlyingSpeed(logger, speed);
     }
 
     /// <summary>
@@ -111,9 +119,13 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="freecam">True if the player is in freecam mode, false otherwise.</param>
     public void SetFreecam(Boolean freecam)
     {
+        Throw.IfDisposed(disposed);
+        
         movementStrategy = freecam
             ? new FreecamMovement(this, input, movementStrategy.FlyingSpeed)
             : new DefaultMovement(input, movementStrategy.FlyingSpeed);
+
+        LogSetFreecam(logger, freecam);
     }
 
     /// <summary>
@@ -124,6 +136,8 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
         Throw.IfDisposed(disposed);
 
         visualInterface.IsOverlayAllowed = allowed;
+
+        LogSetOverlayAllowed(logger, allowed);
     }
 
     /// <summary>
@@ -136,6 +150,8 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         PreviousPosition = Position;
         Position = position;
+
+        LogTeleport(logger, position);
     }
 
     /// <summary>
@@ -174,7 +190,7 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
-            movementStrategy.ApplyMovement(this, deltaTime);
+            movement = movementStrategy.ApplyMovement(this, deltaTime);
 
             DoLookInput();
             DoBlockFluidSelection();
@@ -220,6 +236,27 @@ public sealed class Player : Core.Actors.Player, IPlayerDataProvider
 
         Rotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-camera.Yaw));
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Player>();
+
+    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Created new player")]
+    private static partial void LogCreatedNewPlayer(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set flying speed to {Speed}")]
+    private static partial void LogSetFlyingSpeed(ILogger logger, Double speed);
+
+    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set freecam mode to {Freecam}")]
+    private static partial void LogSetFreecam(ILogger logger, Boolean freecam);
+
+    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set overlay rendering to {Allowed}")]
+    private static partial void LogSetOverlayAllowed(ILogger logger, Boolean allowed);
+
+    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Teleported player to {Position}")]
+    private static partial void LogTeleport(ILogger logger, Vector3d position);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

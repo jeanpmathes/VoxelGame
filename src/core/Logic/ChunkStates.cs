@@ -72,12 +72,7 @@ public partial class Chunk
 
         private void HandleFaultedFuture(Future future)
         {
-            logger.LogError(
-                Events.ChunkLoadingError,
-                future.Exception!.GetBaseException(),
-                "An exception occurred when loading the chunk {Position}. " +
-                "The chunk has been scheduled for generation",
-                Chunk.Position);
+            LogChunkLoadingError(logger, future.Exception!.GetBaseException(), Chunk.Position);
 
             SetNextState<Generating>();
         }
@@ -93,11 +88,7 @@ public partial class Chunk
 
                 case LoadingResult.IOError:
                 {
-                    logger.LogDebug(Events.ChunkLoadingError,
-                        "The chunk file for {Position} could not be loaded, " +
-                        "which is likely because the file does not exist. " +
-                        "Position will be scheduled for generation",
-                        Chunk.Position);
+                    LogChunkFileNotFound(logger, Chunk.Position);
 
                     SetNextState<Generating>();
 
@@ -106,12 +97,7 @@ public partial class Chunk
 
                 case LoadingResult.FormatError or LoadingResult.ValidationError:
                 {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        "The chunk for {Position} could not be loaded, " +
-                        "which can be caused by a corrupted or manipulated chunk file. " +
-                        "Position will be scheduled for generation",
-                        Chunk.Position);
+                    LogChunkLoadingCorruptedFile(logger, Chunk.Position);
 
                     SetNextState<Generating>();
 
@@ -151,11 +137,7 @@ public partial class Chunk
             {
                 if (activity.Exception is {} exception)
                 {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        exception.GetBaseException(),
-                        "A critical exception occurred when generating the chunk {Position}",
-                        Chunk.Position);
+                    LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
 
                     throw exception.GetBaseException();
                 }
@@ -225,11 +207,7 @@ public partial class Chunk
 
                 if (activity.Exception is {} exception)
                 {
-                    logger.LogError(
-                        Events.ChunkLoadingError,
-                        exception.GetBaseException(),
-                        "A critical exception occurred when decorating the chunk {Position}",
-                        Chunk.Position);
+                    LogChunkDecorationError(logger, exception.GetBaseException(), Chunk.Position);
 
                     throw exception.GetBaseException();
                 }
@@ -262,12 +240,7 @@ public partial class Chunk
             else if (activity.IsCompleted)
             {
                 if (activity.Exception is {} exception)
-                    logger.LogError(
-                        Events.ChunkSavingError,
-                        exception.GetBaseException(),
-                        "An exception occurred when saving chunk {Position}. " +
-                        "Chunk loss is possible",
-                        Chunk.Position);
+                    LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
 
                 SetNextReady(new TransitionDescription
                 {
@@ -392,4 +365,26 @@ public partial class Chunk
             SetNextReady();
         }
     }
+
+    #region LOGGING
+
+    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
+    private static partial void LogChunkLoadingError(ILogger logger, Exception exception, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Debug, Message = "The chunk file for {Position} could not be loaded, which is likely because the file does not exist - position will be scheduled for generation")]
+    private static partial void LogChunkFileNotFound(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "The chunk for {Position} could not be loaded, which can be caused by a corrupted or manipulated chunk file - position will be scheduled for generation")]
+    private static partial void LogChunkLoadingCorruptedFile(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
+    private static partial void LogChunkGenerationError(ILogger logger, Exception exception, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when decorating the chunk {Position}")]
+    private static partial void LogChunkDecorationError(ILogger logger, Exception exception, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkSavingError, Level = LogLevel.Error, Message = "An exception occurred when saving chunk {Position} - chunk loss is possible")]
+    private static partial void LogChunkSavingError(ILogger logger, Exception exception, ChunkPosition position);
+
+    #endregion LOGGING
 }

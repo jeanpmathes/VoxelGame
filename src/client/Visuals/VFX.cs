@@ -10,7 +10,7 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     Abstract base class for VFXs, which are used to display various things.

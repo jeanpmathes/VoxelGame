@@ -23,7 +23,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
 {
     private readonly TextureLayout layout;
 
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
     private Int32[] textureIndices = null!;
 
     /// <inheritdoc />

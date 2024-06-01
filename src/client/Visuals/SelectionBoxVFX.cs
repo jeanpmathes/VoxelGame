@@ -18,7 +18,7 @@ using VoxelGame.Support.Objects;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     A VFX that shows instances of the <see cref="BoxCollider" /> struct.
@@ -168,7 +168,9 @@ public sealed class SelectionBoxVFX : VFX
         AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
     }
 
+    #pragma warning disable S3242 // Concrete type used for performance.
     private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
+    #pragma warning restore S3242
     {
         vertices.Add(new EffectVertex {Position = a, Data = 0});
         vertices.Add(new EffectVertex {Position = b, Data = 0});

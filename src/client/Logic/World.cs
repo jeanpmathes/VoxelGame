@@ -28,10 +28,8 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     The game world, specifically for the client.
 /// </summary>
-public class World : Core.Logic.World
+public partial class World : Core.Logic.World
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
     private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
@@ -163,12 +161,12 @@ public class World : Core.Logic.World
         {
             if (ActiveChunkCount < minLoadedChunksAtStart) return;
 
-            updateTimer?.Dispose();
+            Duration readyTime = timer?.Elapsed ?? default;
+            LogWorldReady(logger, readyTime);
 
-            Duration readyTime = updateTimer?.Elapsed ?? default;
-            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}", readyTime);
-
-            updateTimer = null;
+            timer?.Dispose();
+            timer = null;
+            
             CurrentState = State.Active;
 
             OnActivation();
@@ -278,4 +276,13 @@ public class World : Core.Logic.World
             }
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}")]
+    private static partial void LogWorldReady(ILogger logger, Duration readyTime);
+
+    #endregion LOGGING
 }

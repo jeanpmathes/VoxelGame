@@ -38,6 +38,8 @@ internal class SizeSetting : Setting
 
     protected override String Name { get; }
 
+    public override Object Value => get();
+
     private protected override void FillControl(ControlBase control, Context context)
     {
         Vector2i current = get();

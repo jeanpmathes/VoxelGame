@@ -13,6 +13,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
@@ -96,7 +97,6 @@ public partial class Map : IMap
 
     private const Double MinTemperature = -5.0;
     private const Double MaxTemperature = 30.0;
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
     private static readonly Color blockTintWarm = Color.LightGreen;
     private static readonly Color blockTintCold = Color.DarkGreen;
@@ -288,7 +288,7 @@ public partial class Map : IMap
     /// </param>
     public void Initialize(WorldData world, String? blob, NoiseFactory factory, out Boolean dirty)
     {
-        logger.LogDebug(Events.WorldGeneration, "Initializing map");
+        LogInitializingMap(logger);
 
         dirty = false;
 
@@ -317,17 +317,15 @@ public partial class Map : IMap
         Debug.Assert(data == null);
         data = new Data();
 
-        logger.LogDebug(Events.WorldGeneration, "Generating map");
+        LogGeneratingMap(logger);
 
-        var stopwatch = Stopwatch.StartNew();
+        using Timer? timer = Timer.Start("Map Generation", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
 
         GenerateTerrain(data, generatingNoise);
         GenerateTemperature(data);
         GenerateHumidity(data);
 
-        stopwatch.Stop();
-
-        logger.LogInformation(Events.WorldGeneration, "Generated map in {Time}s", stopwatch.Elapsed.TotalSeconds);
+        LogGeneratedMap(logger, timer?.Elapsed ?? default);
     }
 
     /// <summary>
@@ -354,13 +352,13 @@ public partial class Map : IMap
             // The data field is set when generating the map.
             // Setting it here would prevent the map from being generated.
 
-            logger.LogInformation(Events.WorldGeneration, "Could not load map, either it does not yet exist or is corrupted");
+            LogCouldNotLoadMap(logger);
         }
         else
         {
             data = loaded;
 
-            logger.LogDebug(Events.WorldGeneration, "Loaded map");
+            LogLoadedMap(logger);
         }
     }
 
@@ -831,4 +829,25 @@ public partial class Map : IMap
     }
 
     #endregion BIOME CHANGE FUNCTION
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Initializing map")]
+    private static partial void LogInitializingMap(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Generating map")]
+    private static partial void LogGeneratingMap(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Generated map in {Duration}")]
+    private static partial void LogGeneratedMap(ILogger logger, Duration duration);
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Loaded map")]
+    private static partial void LogLoadedMap(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Could not load map, either it does not yet exist or is corrupted")]
+    private static partial void LogCouldNotLoadMap(ILogger logger);
+
+    #endregion LOGGING
 }

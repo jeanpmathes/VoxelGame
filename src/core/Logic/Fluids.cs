@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Contains all fluid definitions of the core game.
 /// </summary>
-public class Fluids
+public partial class Fluids
 {
     /// <summary>
     ///     The maximum amount of different fluids that can be registered.
@@ -30,9 +30,7 @@ public class Fluids
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     private const Int32 mPas = 15;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Fluid>();
-
+    
     private readonly List<Fluid> fluidList = [];
     private readonly Dictionary<String, Fluid> namedFluidDictionary = new();
 
@@ -176,7 +174,7 @@ public class Fluids
 
             fluid.Setup(id, indexProvider, dominantColorProvider);
 
-            loadingContext.ReportSuccess(Events.FluidLoad, nameof(Fluid), fluid.NamedID);
+            loadingContext.ReportSuccess(nameof(Fluid), fluid.NamedID);
         }
 
         ContactManager = new FluidContactManager(this);
@@ -271,11 +269,7 @@ public class Fluids
     {
         if (fluidList.Count > id) return fluidList[(Int32) id];
 
-        logger.LogWarning(
-            Events.UnknownFluid,
-            "No Fluid with ID '{ID}' could be found, returning {Fallback} instead",
-            id,
-            nameof(None));
+        LogUnknownFluid(logger, id, None.NamedID);
 
         return None;
     }
@@ -297,9 +291,18 @@ public class Fluids
     /// </summary>
     public static void Load(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.FluidLoad, "Fluid Loading"))
+        using (loadingContext.BeginStep("Fluid Loading"))
         {
             Instance = new Fluids(indexProvider, dominantColorProvider, loadingContext);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Fluids>();
+
+    [LoggerMessage(EventId = Events.UnknownFluid, Level = LogLevel.Warning, Message = "No Fluid with ID '{ID}' could be found, returning {Fallback} instead")]
+    private static partial void LogUnknownFluid(ILogger logger, UInt32 id, String fallback);
+
+    #endregion LOGGING
 }

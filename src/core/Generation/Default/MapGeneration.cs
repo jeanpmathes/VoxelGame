@@ -144,9 +144,9 @@ public partial class Map
         {
             if (adjacency[piece].Count == 0) continue;
 
-            Int16 anyNeighbor = merge.Find(adjacency[piece].First());
+            Int16 anyNeighbor = merge.Find(adjacency[piece][index: 0]);
 
-            if (adjacency[piece].All(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(piece, anyNeighbor);
+            if (adjacency[piece].TrueForAll(neighbor => anyNeighbor == merge.Find(neighbor))) merge.Union(piece, anyNeighbor);
         }
     }
 

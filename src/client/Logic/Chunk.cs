@@ -23,7 +23,6 @@ namespace VoxelGame.Client.Logic;
 public partial class Chunk : Core.Logic.Chunk
 {
     private const Int32 MaxMeshDataStep = 16;
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
     private Boolean hasMeshData;
     private Int32 meshDataIndex;
@@ -168,15 +167,17 @@ public partial class Chunk : Core.Logic.Chunk
 
     private ChunkMeshData CreateMeshData(ChunkMeshingContext context)
     {
-        logger.LogDebug(Events.ChunkOperation, "Started creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", Position, context.AvailableSides.ToCompactString());
-
+        if (logger.IsEnabled(LogLevel.Debug))
+            LogStartedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
+        
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++) sectionMeshes[s] = GetSection(s).CreateMeshData(context);
 
         meshDataIndex = 0;
 
-        logger.LogDebug(Events.ChunkOperation, "Finished creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", Position, context.AvailableSides.ToCompactString());
+        if (logger.IsEnabled(LogLevel.Debug))
+            LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
 
         return new ChunkMeshData(sectionMeshes, context.AvailableSides);
     }
@@ -249,6 +250,18 @@ public partial class Chunk : Core.Logic.Chunk
     {
         for (var index = 0; index < SectionCount; index++) GetSection(index).SetVfxEnabledState(enabled: false);
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
+    private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
+    private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

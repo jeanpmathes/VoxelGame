@@ -23,12 +23,18 @@ namespace VoxelGame.UI.Settings;
 public abstract class Setting
 {
     /// <summary>
-    ///     Get the name of the setting.
+    ///     Get the name of the setting, in natural (localized) language.
     /// </summary>
     protected abstract String Name { get; }
+    
+    /// <summary>
+    /// Provides the untyped value of the setting.
+    /// Use only for debugging purposes.
+    /// </summary>
+    public abstract Object Value { get; }
 
     /// <summary>
-    ///     The provider which provided this setting.
+    ///     The validator for the setting.
     /// </summary>
     public required ISettingsValidator Validator { get; init; } = null!;
 

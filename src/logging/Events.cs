@@ -31,6 +31,11 @@ public static class Events
     public const Int32 ApplicationInformation = 1;
 
     /// <summary>
+    ///     Information related to the application settings.
+    /// </summary>
+    public const Int32 ApplicationSettings = 2;
+
+    /// <summary>
     ///     Events that indicate a change of the general application state.
     /// </summary>
     public const Int32 ApplicationState = 10;
@@ -44,6 +49,11 @@ public static class Events
     ///     Events related to OS interactions.
     /// </summary>
     public const Int32 OS = 20;
+
+    /// <summary>
+    ///     Events related to the integrated profiler.
+    /// </summary>
+    public const Int32 Profiling = 30;
 
     /// <summary>
     ///     Events related to file system operations.
@@ -74,22 +84,17 @@ public static class Events
     ///     Occurs with events or information connected to the successful loading of creations.
     ///     Creations are user-made resources that are loaded during an active game session.
     /// </summary>
-    public const Int32 CreationLoad = 102;
+    public const Int32 CreationLoad = 101;
 
     /// <summary>
     ///     Occurs when a texture or model that is requested could not be loaded and a fallback is used.
     /// </summary>
     public const Int32 MissingResource = 110;
-
-    /// <summary>
-    ///     Occurs when entire resource directories or file structures are not available.
-    /// </summary>
-    public const Int32 MissingDepository = 111;
-
+    
     /// <summary>
     ///     Occurs when a creation is not available or could not be loaded.
     /// </summary>
-    public const Int32 MissingCreation = 112;
+    public const Int32 MissingCreation = 111;
 
     /// <summary>
     ///     A general event category for everything input related.
@@ -169,48 +174,39 @@ public static class Events
     ///     Any event concerning the physics system.
     /// </summary>
     public const Int32 PhysicsSystem = 1200;
+    
+    /// <summary>
+    ///     Any event concerning general simulation systems.
+    /// </summary>
+    public const Int32 Simulation = 1201;
+    
+    /// <summary>
+    ///     Any event related to player actions.
+    /// </summary>
+    public const Int32 Player = 1400;
 
     #endregion WORLD LOGIC
 
-    #region BLOCKS
-
-    /// <summary>
-    ///     Occurs when loading blocks.
-    /// </summary>
-    public const Int32 BlockLoad = 2000;
-
+    #region CONTENT
+    
     /// <summary>
     ///     Occurs when stored block information refers to unknown blocks.
     /// </summary>
-    public const Int32 UnknownBlock = 2010;
-
-    #endregion BLOCKS
-
-    #region LIQUIDS
-
-    /// <summary>
-    ///     Occurs when loading fluids.
-    /// </summary>
-    public const Int32 FluidLoad = 2500;
-
+    public const Int32 UnknownBlock = 2000;
+    
     /// <summary>
     ///     Occurs when stored block information refers to unknown blocks.
     /// </summary>
-    public const Int32 UnknownFluid = 2510;
+    public const Int32 UnknownFluid = 2500;
 
-    #endregion LIQUIDS
+    #endregion CONTENT
 
     #region RENDERING AND VISUALS
-
+    
     /// <summary>
-    ///     Events related to render pipeline loading and compilation.
+    ///     Events related to the render pipeline and other graphics-related operations.
     /// </summary>
-    public const Int32 RenderPipelineSetup = 3000;
-
-    /// <summary>
-    ///     Errors that occur during render pipeline setup.
-    /// </summary>
-    public const Int32 RenderPipelineError = 3001;
+    public const Int32 Graphics = 3000;
 
     /// <summary>
     ///     Occurs when a screenshot is taken.

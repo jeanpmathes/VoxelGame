@@ -21,12 +21,10 @@ namespace VoxelGame.Core.Utilities;
 ///     Some utilities for filesystem operations.
 /// </summary>
 #pragma warning disable S3242 // The distinction between file and directory information has semantic relevance.
-public static class FileSystem
+public static partial class FileSystem
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
-
-    private static readonly ISet<String> reservedNames = new HashSet<String>
-    {
+    private static readonly HashSet<String> reservedNames =
+    [
         "CON",
         "PRN",
         "AUX",
@@ -52,7 +50,7 @@ public static class FileSystem
         "LPT7",
         "LPT8",
         "LPT9"
-    };
+    ];
 
     /// <summary>
     ///     Creates all subdirectories along a path, starting from a special folder.
@@ -260,9 +258,18 @@ public static class FileSystem
         }
         catch (IOException exception)
         {
-            logger.LogWarning(exception, "Could not get the size of: {Path}", info.FullName);
+            LogGetSizeFailure(logger, exception, info.FullName);
 
             return null;
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
+    private static partial void LogGetSizeFailure(ILogger logger, IOException exception, String path);
+
+    #endregion LOGGING
 }

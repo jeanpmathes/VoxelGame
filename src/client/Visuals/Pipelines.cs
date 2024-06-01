@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 using VoxelGame.Support.Definition;
 using VoxelGame.Support.Graphics;
 using VoxelGame.Support.Graphics.Raytracing;
@@ -79,7 +78,7 @@ public sealed class Pipelines : IDisposable
     {
         Pipelines pipelines = new(directory);
 
-        using (loadingContext.BeginStep(Events.RenderPipelineSetup, "Shader Setup"))
+        using (loadingContext.BeginStep("Shader Setup"))
         {
             pipelines.loadingContext = loadingContext;
             pipelines.LoadAll(client, textureSlots, visuals);
@@ -161,13 +160,13 @@ public sealed class Pipelines : IDisposable
             RasterPipelineDescription.Create(path, preset),
             error =>
             {
-                loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
+                loadingContext.ReportFailure(nameof(RasterPipeline), path, error);
                 loaded = false;
 
                 Debugger.Break();
             });
 
-        if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
+        if (loaded) loadingContext.ReportSuccess(nameof(RasterPipeline), path);
 
         return loaded ? result : null;
     }
@@ -190,13 +189,13 @@ public sealed class Pipelines : IDisposable
             RasterPipelineDescription.Create(path, preset),
             error =>
             {
-                loadingContext.ReportFailure(Events.RenderPipelineError, nameof(RasterPipeline), path, error);
+                loadingContext.ReportFailure(nameof(RasterPipeline), path, error);
                 loaded = false;
 
                 Debugger.Break();
             });
 
-        if (loaded) loadingContext.ReportSuccess(Events.RenderPipelineSetup, nameof(RasterPipeline), path);
+        if (loaded) loadingContext.ReportSuccess(nameof(RasterPipeline), path);
 
         return loaded ? pipeline : null;
     }

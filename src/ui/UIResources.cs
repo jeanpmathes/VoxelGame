@@ -12,7 +12,6 @@ using System.Linq;
 using Gwen.Net.RichText;
 using Gwen.Net.Skin;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 using VoxelGame.UI.UserInterfaces;
@@ -71,7 +70,7 @@ public sealed class UIResources : IDisposable
 
         if (!directory.Exists)
         {
-            loadingContext.ReportWarning(Events.MissingDepository, nameof(Attribution), directory, "Directory does not exist");
+            loadingContext.ReportWarning(nameof(Attribution), directory, "Directory does not exist");
 
             return;
         }
@@ -88,13 +87,13 @@ public sealed class UIResources : IDisposable
             }
             catch (IOException exception)
             {
-                loadingContext.ReportWarning(Events.ResourceLoad, nameof(Attribution), file, exception);
+                loadingContext.ReportWarning(nameof(Attribution), file, exception);
             }
 
             if (text == null) continue;
 
             attributions.Add(new Attribution(name, text));
-            loadingContext.ReportSuccess(Events.ResourceLoad, nameof(Attribution), file);
+            loadingContext.ReportSuccess(nameof(Attribution), file);
         }
     }
 
@@ -166,9 +165,9 @@ public sealed class UIResources : IDisposable
     private static void ReportSkinLoading(Exception? skinLoadingError, FileSystemInfo skinFile, LoadingContext loadingContext)
     {
         if (skinLoadingError != null)
-            loadingContext.ReportWarning(Events.ResourceLoad, nameof(GUI), skinFile, skinLoadingError);
+            loadingContext.ReportWarning(nameof(GUI), skinFile, skinLoadingError);
         else
-            loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), skinFile);
+            loadingContext.ReportSuccess(nameof(GUI), skinFile);
     }
 
     private static void ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, LoadingContext loadingContext)
@@ -176,9 +175,9 @@ public sealed class UIResources : IDisposable
         const String type = "Shader";
 
         if (shaderLoadingError != null)
-            loadingContext.ReportFailure(Events.ResourceLoad, type, shader, shaderLoadingError, abort: true);
+            loadingContext.ReportFailure(type, shader, shaderLoadingError, abort: true);
         else
-            loadingContext.ReportSuccess(Events.ResourceLoad, type, shader);
+            loadingContext.ReportSuccess(type, shader);
     }
 
     private static void ReportTextureLoading(Dictionary<String, TexturePreload> textures, IReadOnlyDictionary<String, Exception?> textureLoadingErrors, LoadingContext loadingContext)
@@ -188,9 +187,9 @@ public sealed class UIResources : IDisposable
             Exception? error = textureLoadingErrors.GetValueOrDefault(name);
 
             if (error != null)
-                loadingContext.ReportWarning(Events.ResourceLoad, nameof(GUI), texture.File, error);
+                loadingContext.ReportWarning(nameof(GUI), texture.File, error);
             else
-                loadingContext.ReportSuccess(Events.ResourceLoad, nameof(GUI), texture.File);
+                loadingContext.ReportSuccess(nameof(GUI), texture.File);
         }
     }
 
@@ -201,7 +200,7 @@ public sealed class UIResources : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        using (loadingContext.BeginStep(Events.ResourceLoad, "UI"))
+        using (loadingContext.BeginStep("UI"))
         {
             LoadAttributions(loadingContext);
             LoadGUI(window, loadingContext);

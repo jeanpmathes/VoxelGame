@@ -24,7 +24,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly String texture;
 
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BlockMesh> meshes = [];
 
     /// <summary>
     ///     Initializes a new instance of a cross plant.

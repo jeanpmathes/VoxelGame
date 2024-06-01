@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract class World : IDisposable, IGrid
+public abstract partial class World : IDisposable, IGrid
 {
     /// <summary>
     ///     The highest absolute value of a block position coordinate component.
@@ -40,9 +40,7 @@ public abstract class World : IDisposable, IGrid
     ///     The limit of the world extents, in sections.
     /// </summary>
     public const UInt32 SectionLimit = BlockLimit / Section.Size;
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
+    
     private readonly ChunkSet chunks;
 
     private readonly IWorldGenerator generator;
@@ -51,7 +49,7 @@ public abstract class World : IDisposable, IGrid
     ///     A timer to profile different states and world operations.
     ///     Will be started on world creation, inheritors are free to stop, override or restart it.
     /// </summary>
-    protected readonly Timer? timer;
+    protected Timer? timer;
 
     private ChunkPool? chunkPool;
 
@@ -77,7 +75,7 @@ public abstract class World : IDisposable, IGrid
     {
         Data.Save();
 
-        logger.LogInformation(Events.WorldIO, "Created new world");
+        LogCreatedNewWorld(logger);
     }
 
     /// <summary>
@@ -86,7 +84,7 @@ public abstract class World : IDisposable, IGrid
     protected World(WorldData data) :
         this(data, isNew: false)
     {
-        logger.LogInformation(Events.WorldIO, "Loaded existing world");
+        LogLoadedExistingWorld(logger);
     }
 
     /// <summary>
@@ -95,7 +93,7 @@ public abstract class World : IDisposable, IGrid
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        timer = logger.BeginTimedScoped("World Setup", TimingStyle.Once);
+        timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
 
         Data = data;
 
@@ -154,7 +152,7 @@ public abstract class World : IDisposable, IGrid
         set
         {
             Data.Information.SpawnInformation = new SpawnInformation(value);
-            logger.LogInformation(Events.WorldState, "World spawn position has been set to: {Position}", value);
+            LogWorldSpawnPositionSet(logger, value);
         }
     }
 
@@ -171,7 +169,7 @@ public abstract class World : IDisposable, IGrid
 
             Data.EnsureValidInformation();
 
-            if (oldSize != Data.Information.Size) logger.LogInformation(Events.WorldState, "World size has been set to: {Size}", Data.Information.Size);
+            if (oldSize != Data.Information.Size) LogWorldSizeSet(logger, Data.Information.Size);
         }
     }
 
@@ -239,7 +237,7 @@ public abstract class World : IDisposable, IGrid
         Debug.Assert(CurrentState == State.Active);
         CurrentState = State.Deactivating;
 
-        logger.LogInformation(Events.WorldIO, "Unloading world");
+        LogUnloadingWorld(logger);
 
         OnDeactivation();
 
@@ -267,12 +265,12 @@ public abstract class World : IDisposable, IGrid
 
         if (!done) return false;
 
-        logger.LogInformation(Events.WorldIO, "Unloaded world");
+        LogUnloadedWorld(logger);
         callback();
 
         if (saving.Exception is {} exception)
-            logger.LogError(Events.WorldSavingError, exception, "Failed to save world meta information");
-
+            LogFailedToSaveWorldMetaInformation(logger, exception);
+            
         return true;
     }
 
@@ -585,7 +583,7 @@ public abstract class World : IDisposable, IGrid
 
         chunks.Request(position);
 
-        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested", position);
+        LogChunkRequested(logger, position);
     }
 
     /// <summary>
@@ -602,7 +600,7 @@ public abstract class World : IDisposable, IGrid
 
         chunks.Release(position);
 
-        logger.LogDebug(Events.ChunkRelease, "Released chunk {Position}", position);
+        LogChunkReleased(logger, position);
     }
 
     /// <summary>
@@ -685,6 +683,39 @@ public abstract class World : IDisposable, IGrid
         /// </summary>
         Deactivating
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Created new world")]
+    private static partial void LogCreatedNewWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Loaded existing world")]
+    private static partial void LogLoadedExistingWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
+    private static partial void LogUnloadingWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
+    private static partial void LogUnloadedWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
+    private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
+    private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
+    private static partial void LogWorldSizeSet(ILogger logger, UInt32 size);
+
+    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
+    private static partial void LogChunkRequested(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkRelease, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
+    private static partial void LogChunkReleased(ILogger logger, ChunkPosition position);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 
