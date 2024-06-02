@@ -21,7 +21,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class TextStorage : IDisposable
 {
     private readonly DirectXRenderer rendering;
-    private readonly Cache<(String, Font), TextRenderer> cache = new(capacity: 100);
+    private readonly Cache<(String, Font), TextRenderer> cache = new(capacity: 200);
 
     private Dictionary<(String, Font), Entry> used = new();
 

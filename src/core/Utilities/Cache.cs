@@ -39,6 +39,11 @@ public sealed class Cache<TK, TV> : IDisposable
     private Int32 Capacity { get; }
 
     /// <summary>
+    ///     Gets the number of elements in the cache.
+    /// </summary>
+    public Int32 Count => list.Count;
+
+    /// <summary>
     ///     Tries to get the value associated with the specified key.
     ///     If the key is found, the value is returned and the entry is moved to the end of the cache.
     ///     If the key is not found, the default value for the type is returned.
