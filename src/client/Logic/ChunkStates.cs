@@ -17,6 +17,13 @@ namespace VoxelGame.Client.Logic;
 
 public partial class Chunk
 {
+    #region LOGGING
+
+    [LoggerMessage(EventId = Events.ChunkMeshingError, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
+    private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
+
+    #endregion
+
     /// <summary>
     ///     Utility to allow easier access without casting.
     /// </summary>
@@ -104,20 +111,11 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            Boolean finished = Chunk.DoMeshDataSetStep(meshData);
-
-            if (!finished) return;
+            Chunk.SetMeshData(meshData);
 
             meshData.Dispose();
 
             SetNextActive();
         }
     }
-
-    #region LOGGING
-
-    [LoggerMessage(EventId = Events.ChunkMeshingError, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
-    private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
-
-    #endregion
 }

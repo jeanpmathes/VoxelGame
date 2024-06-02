@@ -22,10 +22,7 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public partial class Chunk : Core.Logic.Chunk
 {
-    private const Int32 MaxMeshDataStep = 16;
-
     private Boolean hasMeshData;
-    private Int32 meshDataIndex;
     private BlockSides meshedSides;
 
     /// <summary>
@@ -45,7 +42,6 @@ public partial class Chunk : Core.Logic.Chunk
         base.Initialize(world, position);
 
         hasMeshData = false;
-        meshDataIndex = 0;
         meshedSides = BlockSides.None;
     }
 
@@ -55,7 +51,6 @@ public partial class Chunk : Core.Logic.Chunk
         base.Reset();
 
         hasMeshData = false;
-        meshDataIndex = 0;
         meshedSides = BlockSides.None;
     }
 
@@ -169,12 +164,10 @@ public partial class Chunk : Core.Logic.Chunk
     {
         if (logger.IsEnabled(LogLevel.Debug))
             LogStartedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
-        
+
         var sectionMeshes = new SectionMeshData[SectionCount];
 
         for (var s = 0; s < SectionCount; s++) sectionMeshes[s] = GetSection(s).CreateMeshData(context);
-
-        meshDataIndex = 0;
 
         if (logger.IsEnabled(LogLevel.Debug))
             LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
@@ -183,34 +176,18 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <summary>
-    ///     Do a mesh data set-step. This will apply a part of the mesh data and activate the part.
+    ///     Set the mesh data for this chunk.
     /// </summary>
     /// <param name="meshData">The mesh data to apply.</param>
-    /// <returns>True if this step was the final step.</returns>
-    public Boolean DoMeshDataSetStep(ChunkMeshData meshData)
+    public void SetMeshData(ChunkMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
-        hasMeshData = false;
+        hasMeshData = true;
         meshedSides = meshData.Sides;
 
-        for (var count = 0; count < MaxMeshDataStep; count++)
-        {
-            GetSection(meshDataIndex).SetMeshData(meshData.SectionMeshData[meshDataIndex]);
-
-            // The index has reached the end, all sections have received their mesh data.
-            if (meshDataIndex == SectionCount - 1)
-            {
-                hasMeshData = true;
-                meshDataIndex = 0;
-
-                return true;
-            }
-
-            meshDataIndex++;
-        }
-
-        return false;
+        for (var index = 0; index < SectionCount; index++)
+            GetSection(index).SetMeshData(meshData.SectionMeshData[index]);
     }
 
     /// <summary>
