@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
@@ -23,9 +22,11 @@ public class DebugProperties : Group
     /// </summary>
     /// <param name="player">The player to get the debug properties for.</param>
     /// <param name="targeting">The targeting system of the player.</param>
-    public DebugProperties(PhysicsActor player, Targeting targeting) : base("Debug Data",
+    public DebugProperties(Core.Actors.Player player, Targeting targeting) : base("Debug Data",
     [
-        new Message("Position (Head/Target)", $"{player.Head.Position.Floor()}/{player.TargetPosition}"),
+        new Message("Position (Head)", $"{player.Head.Position.Floor()}/"),
+        new Message("Position (Target)", $"{player.TargetPosition}"),
+        new Message("Position (Chunk)", $"{player.Chunk}"),
         new Message("Target Block", FormatBlockTarget(targeting.Block ?? BlockInstance.Default)),
         new Message("Target Fluid", FormatFluidTarget(targeting.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),

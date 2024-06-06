@@ -38,7 +38,8 @@ public partial class Chunk
     /// <summary>
     ///     Meshes a chunk.
     /// </summary>
-    public class Meshing : ChunkState
+    /// <param name="side">The side of the chunk that caused the meshing to start, or <see cref="BlockSide.All"/> if not applicable.</param>
+    public class Meshing(BlockSide side) : ChunkState
     {
         private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
 
@@ -56,7 +57,7 @@ public partial class Chunk
         {
             if (activity is not {future: {} future, context: {} context})
             {
-                context = ChunkMeshingContext.Acquire(Chunk, SpatialMeshingFactory.Shared);
+                context = ChunkMeshingContext.Acquire(Chunk, Chunk.meshedSides, side, SpatialMeshingFactory.Shared);
                 activity = (Future.Create(() => Chunk.CreateMeshData(context)), context);
             }
             else if (future.IsCompleted)

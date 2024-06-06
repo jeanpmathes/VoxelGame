@@ -70,7 +70,7 @@ public partial class Chunk : IDisposable, IEntity
     public const Int32 SectionCount = Size * Size * Size;
 
     private const Int32 RandomTickBatchSize = SectionCount / 2;
-    
+
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
@@ -407,13 +407,13 @@ public partial class Chunk : IDisposable, IEntity
         ChunkPosition position = chunk.Position;
 
         LogStartedLoadingChunk(logger, position);
-        
+
         Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
         if (exception is FileFormatException)
         {
             LogInvalidChunkFormatError(logger, position);
-            
+
             return LoadingResult.FormatError;
         }
 
@@ -423,21 +423,21 @@ public partial class Chunk : IDisposable, IEntity
             // Thus, they are not logged as errors or warnings.
 
             LogChunkLoadError(logger, position, exception.Message);
-            
+
             return LoadingResult.IOError;
         }
 
         LogFinishedLoadingChunk(logger, position);
-        
+
         if (chunk.Position != position)
         {
             LogInvalidChunkPosition(logger, position);
-            
+
             return LoadingResult.ValidationError;
         }
 
         LogValidChunkFile(logger, position);
-        
+
         return LoadingResult.Success;
     }
 
@@ -474,7 +474,7 @@ public partial class Chunk : IDisposable, IEntity
         FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
         LogStartedSavingChunk(logger, Position, chunkFile.FullName);
-        
+
         chunkFile.Directory?.Create();
 
         Exception? exception = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
@@ -629,7 +629,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Convert a one-dimensional section index to a three-dimensional section position (in this chunk).
     /// </summary>
-    protected static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
+    public static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
         Int32 z = index & (Size - 1);
         index = (index - z) >> SizeExp;
@@ -1010,7 +1010,7 @@ public partial class Chunk : IDisposable, IEntity
     private static partial void LogFinishedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
 
     #endregion LOGGING
-    
+
     #region IDisposable Support
 
     private Boolean disposed;

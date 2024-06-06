@@ -166,7 +166,7 @@ public partial class World : Core.Logic.World
 
             timer?.Dispose();
             timer = null;
-            
+
             CurrentState = State.Active;
 
             OnActivation();
@@ -209,9 +209,9 @@ public partial class World : Core.Logic.World
 
         foreach (BlockSide side in BlockSide.All.Sides())
             if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
-                neighbor.Cast().BeginMeshing();
+                neighbor.Cast().BeginMeshing(side.Opposite());
 
-        return new Chunk.Meshing();
+        return new Chunk.Meshing(BlockSide.All);
     }
 
     /// <inheritdoc />

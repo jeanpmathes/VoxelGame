@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 
 namespace VoxelGame.Core.Visuals;
@@ -12,9 +13,10 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Mesh data for an entire chunk.
 /// </summary>
-/// <param name="SectionMeshData"></param>
-/// <param name="Sides"></param>
-public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides Sides) : IDisposable
+/// <param name="SectionMeshData">The mesh data included for the sections.</param>
+/// <param name="Sides">The sides to consider to be meshed after applying the mesh data.</param>
+/// <param name="Indices">The indices of the included sections.</param>
+public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, BlockSides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
 {
     #region IDisposable Support
 
@@ -25,8 +27,8 @@ public sealed record ChunkMeshData(SectionMeshData[] SectionMeshData, BlockSides
         if (disposed) return;
 
         if (disposing)
-            foreach (SectionMeshData mesh in SectionMeshData)
-                mesh.Dispose();
+            foreach (SectionMeshData? mesh in SectionMeshData)
+                mesh?.Dispose();
 
         disposed = true;
     }

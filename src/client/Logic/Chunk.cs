@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
@@ -54,7 +53,6 @@ public partial class Chunk : Core.Logic.Chunk
         meshedSides = BlockSides.None;
     }
 
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     private Section GetSection(Int32 index)
     {
         return GetSectionByIndex(index).Cast();
@@ -62,19 +60,22 @@ public partial class Chunk : Core.Logic.Chunk
 
     /// <summary>
     ///     Begin meshing the chunk.
+    ///     If a chunk on meshing requests the neighbors to mesh, the parameter should be set accordingly.
     /// </summary>
-    public void BeginMeshing()
+    /// <param name="side">The side from which the meshing was requested, or <see cref="BlockSide.All"/> if not specified.</param>
+    public void BeginMeshing(BlockSide side)
     {
         Throw.IfDisposed(disposed);
 
-        if (!IsFullyDecorated) return;
+        if (!this.IsViableForMeshing()) return;
 
-        State.RequestNextState<Meshing>(new Core.Logic.ChunkState.RequestDescription
-        {
-            AllowDuplicateStateByType = false,
-            AllowSkipOnDeactivation = true,
-            AllowDiscardOnRepeat = false
-        });
+        State.RequestNextState(new Meshing(side),
+            new Core.Logic.ChunkState.RequestDescription
+            {
+                AllowDuplicateStateByType = false,
+                AllowSkipOnDeactivation = true,
+                AllowDiscardOnRepeat = false
+            });
     }
 
     private static Core.Logic.Section CreateSection()
@@ -113,12 +114,21 @@ public partial class Chunk : Core.Logic.Chunk
         {
             BlockSides current = side.ToFlag();
 
-            if (!sides.HasFlag(current) || meshedSides.HasFlag(current) || !World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunk? chunk)) continue;
+            // If a side is not included, it means the chunk can't be meshed anyways.
+            if (!sides.HasFlag(current)) continue;
 
-            chunk.Cast().BeginMeshing();
+            // While a neighbor could have changed while this chunk was inactive, skipping is safe:
+            // - If some sections have changed, the incomplete section system will fix that.
+            // - If the entire neighbor has changed, that chunk will miss the flag and fix that on its activation.
+            if (meshedSides.HasFlag(current)) continue;
+
+            // A chunk can only mesh if it exists.
+            if (!World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunk? chunk)) continue;
+
+            chunk.Cast().BeginMeshing(side.Opposite());
         }
 
-        return new Meshing();
+        return new Meshing(BlockSide.All);
     }
 
     /// <inheritdoc />
@@ -143,7 +153,7 @@ public partial class Chunk : Core.Logic.Chunk
     {
         ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
-        for (var s = 0; s < SectionCount; s++) GetSection(s).RecreateIncompleteMesh(context);
+        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(context);
     }
 
     /// <summary>
@@ -165,14 +175,15 @@ public partial class Chunk : Core.Logic.Chunk
         if (logger.IsEnabled(LogLevel.Debug))
             LogStartedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
 
-        var sectionMeshes = new SectionMeshData[SectionCount];
+        var sectionMeshes = new SectionMeshData?[SectionCount];
 
-        for (var s = 0; s < SectionCount; s++) sectionMeshes[s] = GetSection(s).CreateMeshData(context);
+        foreach (Int32 index in context.GetSectionIndices())
+            sectionMeshes[index] = GetSection(index).CreateMeshData(context);
 
         if (logger.IsEnabled(LogLevel.Debug))
             LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
 
-        return new ChunkMeshData(sectionMeshes, context.AvailableSides);
+        return context.CreateMeshData(sectionMeshes, meshedSides);
     }
 
     /// <summary>
@@ -186,8 +197,8 @@ public partial class Chunk : Core.Logic.Chunk
         hasMeshData = true;
         meshedSides = meshData.Sides;
 
-        for (var index = 0; index < SectionCount; index++)
-            GetSection(index).SetMeshData(meshData.SectionMeshData[index]);
+        foreach (Int32 index in meshData.Indices)
+            GetSection(index).SetMeshData(meshData.SectionMeshData[index]!);
     }
 
     /// <summary>

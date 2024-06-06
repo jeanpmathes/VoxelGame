@@ -201,7 +201,7 @@ public abstract partial class ChunkState
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <param name="description">The request description.</param>
-    private void RequestNextState(ChunkState state, RequestDescription description = new())
+    public void RequestNextState(ChunkState state, RequestDescription description = new())
     {
         state.Chunk = Chunk;
         state.Context = Context;

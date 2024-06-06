@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic;
@@ -17,16 +18,57 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class ChunkMeshingContext
 {
+    private static readonly IReadOnlyCollection<Int32>[] sideIndices;
+    private static readonly IReadOnlyCollection<Int32> allIndices;
+
     private readonly Chunk mid;
+
+    private readonly BlockSide? exclusiveSide;
     private (Chunk chunk, Guard? guard)?[] neighbors;
 
-    private ChunkMeshingContext(Chunk mid, (Chunk, Guard?)?[] neighbors, BlockSides availableSides, IMeshingFactory meshingFactory)
+    static ChunkMeshingContext()
+    {
+        const Int32 left = (Int32) BlockSide.Left;
+        const Int32 right = (Int32) BlockSide.Right;
+        const Int32 bottom = (Int32) BlockSide.Bottom;
+        const Int32 top = (Int32) BlockSide.Top;
+        const Int32 back = (Int32) BlockSide.Back;
+        const Int32 front = (Int32) BlockSide.Front;
+
+        List<Int32>[] sides = Enumerable.Range(start: 0, count: 6).Select(_ => new List<Int32>()).ToArray();
+        List<Int32> all = [];
+
+        for (var index = 0; index < Chunk.SectionCount; index++)
+        {
+            all.Add(index);
+
+            (Int32 x, Int32 y, Int32 z) = Chunk.IndexToLocalSection(index);
+
+            if (x == 0) sides[left].Add(index);
+            if (x == Chunk.Size - 1) sides[right].Add(index);
+
+            if (y == 0) sides[bottom].Add(index);
+            if (y == Chunk.Size - 1) sides[top].Add(index);
+
+            if (z == 0) sides[back].Add(index);
+            if (z == Chunk.Size - 1) sides[front].Add(index);
+        }
+
+        sideIndices = sides.Cast<IReadOnlyCollection<Int32>>().ToArray();
+        allIndices = all;
+    }
+
+    private ChunkMeshingContext(
+        Chunk mid, (Chunk, Guard?)?[] neighbors,
+        BlockSides availableSides,
+        BlockSide? exclusiveSide,
+        IMeshingFactory meshingFactory)
     {
         this.mid = mid;
         this.neighbors = neighbors;
+        this.exclusiveSide = exclusiveSide;
 
         AvailableSides = availableSides;
-
         MeshingFactory = meshingFactory;
     }
 
@@ -36,7 +78,7 @@ public class ChunkMeshingContext
     public IMeshingFactory MeshingFactory { get; }
 
     /// <summary>
-    ///     Get the sides at which neighbors are considered.
+    ///     Get the sides at which neighbors are available for meshing in this context.
     /// </summary>
     public BlockSides AvailableSides { get; }
 
@@ -46,20 +88,53 @@ public class ChunkMeshingContext
     public IMap Map => mid.World.Map;
 
     /// <summary>
+    ///     Get the indices of all sections that should be meshed.
+    /// </summary>
+    /// <returns>The indices of the sections.</returns>
+    public IReadOnlyCollection<Int32> GetSectionIndices()
+    {
+        return exclusiveSide switch
+        {
+            null => allIndices,
+            {} side => sideIndices[(Int32) side]
+        };
+    }
+
+    /// <summary>
     ///     Acquire the chunks around the given chunk.
     ///     Use this method when meshing on a separate thread, but acquire on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to acquire the neighbors of. Must itself have sufficient access for meshing.</param>
+    /// <param name="meshed">Sides that were used for the last mesh creation.</param>
+    /// <param name="source">Side from which the meshing request came, or <see cref="BlockSide.All"/> if not applicable.</param>
     /// <param name="meshingFactory">The meshing factory to use.</param>
     /// <returns>A context that can be used to mesh the chunk.</returns>
-    public static ChunkMeshingContext Acquire(Chunk chunk, IMeshingFactory meshingFactory)
+    public static ChunkMeshingContext Acquire(Chunk chunk, BlockSides meshed, BlockSide source, IMeshingFactory meshingFactory)
     {
         var foundNeighbors = new (Chunk, Guard?)?[6];
         var availableSides = BlockSides.None;
 
+        var acquirable = BlockSides.All;
+        BlockSide? exclusive = null;
+
+        if (source != BlockSide.All)
+        {
+            DetermineSideAvailability(chunk, out BlockSides considered, out acquirable, abortOnNotAcquirable: false);
+
+            Boolean isImprovement = IsImprovement(meshed, acquirable) && considered == acquirable;
+            if (!isImprovement) exclusive = source;
+        }
+
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor) || !neighbor.IsFullyDecorated) continue;
+            // If we have previously determined that this side is not acquirable, we don't need to check again.
+            if (!acquirable.HasFlag(side.ToFlag())) continue;
+
+            // If we mesh a single side of a chunk, we do not need the neighbor on the opposite side.
+            if (exclusive == side.Opposite()) continue;
+
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!neighbor.IsViableForMeshing()) continue;
 
             Guard? guard = neighbor.AcquireCore(Access.Read);
 
@@ -69,7 +144,7 @@ public class ChunkMeshingContext
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, meshingFactory);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, exclusive, meshingFactory);
     }
 
     /// <summary>
@@ -89,43 +164,63 @@ public class ChunkMeshingContext
         {
             Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
 
-            if (neighbor is not {IsFullyDecorated: true}) continue;
+            if (neighbor == null) continue;
+            if (!neighbor.IsViableForMeshing()) continue;
 
             foundNeighbors[(Int32) side] = (neighbor, null);
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, meshingFactory);
+        return new ChunkMeshingContext(chunk, foundNeighbors, availableSides, exclusiveSide: null, meshingFactory);
     }
 
     /// <summary>
     ///     Get the block sides at which chunk neighbours should be used to improve the mesh completeness.
     ///     Only chunks that are available and requested are considered.
-    ///     Improvement is also only considered if all required and requested chunks are available at the same time.
+    ///     Improvement is also only considered if all required and requested chunks are possible to acquire at the same time.
     /// </summary>
-    /// <param name="chunk">The chunk to get the sides of.</param>
+    /// <param name="chunk">The chunk to get the improvement sides of.</param>
     /// <param name="used">The sides which where used the last time the chunk was meshed.</param>
     /// <returns>
     ///     The sides that should be used. Is empty if no improvements are necessary or possible.
     /// </returns>
     public static BlockSides DetermineImprovementSides(Chunk chunk, BlockSides used)
     {
-        var required = BlockSides.None;
-        var improving = BlockSides.None;
+        // Without this check, chunks would be meshed a lot in a row.
+        const Boolean abortOnNotAcquirable = true;
+
+        DetermineSideAvailability(chunk, out BlockSides considered, out BlockSides acquirable, abortOnNotAcquirable);
+
+        if (acquirable == BlockSides.None) return BlockSides.None;
+        if (acquirable != considered) return BlockSides.None;
+
+        // If all sides of the potentially acquirable set were already used, it is not an improvement.
+        return IsImprovement(used, acquirable) ? acquirable : BlockSides.None;
+    }
+
+    private static Boolean IsImprovement(BlockSides used, BlockSides acquirable)
+    {
+        return !used.HasFlag(acquirable);
+    }
+
+    private static void DetermineSideAvailability(
+        Chunk chunk,
+        out BlockSides considered, out BlockSides acquirable,
+        Boolean abortOnNotAcquirable)
+    {
+        considered = BlockSides.None;
+        acquirable = BlockSides.None;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
             if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
-            if (!chunk.IsRequested || !neighbor.IsFullyDecorated) continue;
+            if (!neighbor.IsViableForMeshing()) continue;
 
-            required |= side.ToFlag();
+            considered |= side.ToFlag();
 
-            if (!neighbor.CanAcquireCore(Access.Read)) return BlockSides.None;
-
-            improving |= side.ToFlag();
+            if (neighbor.CanAcquireCore(Access.Read)) acquirable |= side.ToFlag();
+            else if (abortOnNotAcquirable) return;
         }
-
-        return used.HasFlag(required) ? BlockSides.None : improving;
     }
 
     private Chunk? GetChunk(ChunkPosition position)
@@ -151,6 +246,23 @@ public class ChunkMeshingContext
     }
 
     /// <summary>
+    ///     Create the mesh data as a result of the meshing process.
+    /// </summary>
+    /// <param name="sectionMeshData">The mesh data of the sections.</param>
+    /// <param name="previouslyMeshedSides">The sides that were meshed in the previous meshing process.</param>
+    /// <returns>The mesh data for the chunk.</returns>
+    public ChunkMeshData CreateMeshData(SectionMeshData?[] sectionMeshData, BlockSides previouslyMeshedSides)
+    {
+        BlockSides meshed = exclusiveSide switch
+        {
+            null => AvailableSides,
+            {} side => previouslyMeshedSides | side.ToFlag()
+        };
+
+        return new ChunkMeshData(sectionMeshData, meshed, GetSectionIndices());
+    }
+
+    /// <summary>
     ///     Release all acquired chunks.
     /// </summary>
     public void Release()
@@ -158,5 +270,23 @@ public class ChunkMeshingContext
         foreach ((Chunk chunk, Guard? guard)? neighbor in neighbors) neighbor?.guard?.Dispose();
 
         neighbors = null!;
+    }
+}
+
+/// <summary>
+///     Extension methods for chunk meshing.
+/// </summary>
+public static class ChunkMeshingExtensions
+{
+    /// <summary>
+    ///     Whether the chunk is viable for meshing.
+    ///     This is relevant both for deciding whether the chunks should be meshed themselves
+    ///     and whether they should be used when meshing their neighbors.
+    /// </summary>
+    /// <param name="chunk">The chunk to check.</param>
+    /// <returns>Whether the chunk is viable for meshing.</returns>
+    public static Boolean IsViableForMeshing(this Chunk chunk)
+    {
+        return chunk is {IsFullyDecorated: true, IsRequested: true};
     }
 }
