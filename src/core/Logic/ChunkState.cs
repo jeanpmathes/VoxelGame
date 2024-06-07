@@ -494,9 +494,9 @@ public abstract partial class ChunkState
     public record struct RequestDescription
     {
         /// <summary>
-        ///     Whether to keep the current request even if the same state type of state is already requested.
+        ///     Whether to keep the current request even if a duplicate request already exists.
         /// </summary>
-        public Boolean AllowDuplicateStateByType { get; init; }
+        public Boolean AllowDuplicate { get; init; }
 
         /// <summary>
         ///     Whether to skip this request when deactivating the chunk.
@@ -504,7 +504,7 @@ public abstract partial class ChunkState
         public Boolean AllowSkipOnDeactivation { get; init; }
 
         /// <summary>
-        ///     Whether to allow to discard this request if the next required state is the same as this request.
+        ///     Whether to allow to discard this request if the next required state is a duplicate of the requested state.
         /// </summary>
         public Boolean AllowDiscardOnRepeat { get; init; }
     }
@@ -533,7 +533,7 @@ public abstract partial class ChunkState
                 if (nextIsRepetition || currentIsRepetition) return;
             }
 
-            if (!description.AllowDuplicateStateByType)
+            if (!description.AllowDuplicate)
             {
                 Boolean isDuplicate = requests.Exists(request => IsSameState(request.state, state));
 

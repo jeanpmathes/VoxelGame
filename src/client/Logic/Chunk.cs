@@ -72,7 +72,7 @@ public partial class Chunk : Core.Logic.Chunk
         State.RequestNextState(new Meshing(side),
             new Core.Logic.ChunkState.RequestDescription
             {
-                AllowDuplicateStateByType = false,
+                AllowDuplicate = false,
                 AllowSkipOnDeactivation = true,
                 AllowDiscardOnRepeat = false
             });
@@ -105,6 +105,8 @@ public partial class Chunk : Core.Logic.Chunk
     public Core.Logic.ChunkState? ProcessMeshingOption()
     {
         Throw.IfDisposed(disposed);
+
+        if (!this.IsViableForMeshing()) return null;
 
         BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
 
@@ -177,7 +179,7 @@ public partial class Chunk : Core.Logic.Chunk
 
         var sectionMeshes = new SectionMeshData?[SectionCount];
 
-        foreach (Int32 index in context.GetSectionIndices())
+        foreach (Int32 index in context.SectionIndices)
             sectionMeshes[index] = GetSection(index).CreateMeshData(context);
 
         if (logger.IsEnabled(LogLevel.Debug))

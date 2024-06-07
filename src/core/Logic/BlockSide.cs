@@ -154,6 +154,14 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Get the number of sides set in the flags.
+    /// </summary>
+    public static Int32 Count(this BlockSides side)
+    {
+        return BitHelper.CountSetBits((UInt32) side);
+    }
+
+    /// <summary>
     ///     Get the flag for a side.
     /// </summary>
     public static BlockSides ToFlag(this BlockSide side)

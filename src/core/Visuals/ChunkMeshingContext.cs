@@ -90,15 +90,11 @@ public class ChunkMeshingContext
     /// <summary>
     ///     Get the indices of all sections that should be meshed.
     /// </summary>
-    /// <returns>The indices of the sections.</returns>
-    public IReadOnlyCollection<Int32> GetSectionIndices()
+    public IReadOnlyCollection<Int32> SectionIndices => exclusiveSide switch
     {
-        return exclusiveSide switch
-        {
-            null => allIndices,
-            {} side => sideIndices[(Int32) side]
-        };
-    }
+        null => allIndices,
+        {} side => sideIndices[(Int32) side]
+    };
 
     /// <summary>
     ///     Acquire the chunks around the given chunk.
@@ -119,9 +115,15 @@ public class ChunkMeshingContext
 
         if (source != BlockSide.All)
         {
+            // If a new chunk is loaded, the neighbors are asked to mesh too.
+            // When they do that, it causes them to re-mesh all their sides, even though they might have already meshed them.
+            // Additionally, the neighbors would then also use their neighbors to mesh.
+            // All of this causes chunks not directly connected to the new chunk to disappear because they are used.
+            // As this is unwanted and unnecessary, this special case here prevents it.
+
             DetermineSideAvailability(chunk, out BlockSides considered, out acquirable, abortOnNotAcquirable: false);
 
-            Boolean isImprovement = IsImprovement(meshed, acquirable) && considered == acquirable;
+            Boolean isImprovement = IsImprovement(meshed | source.ToFlag(), acquirable) && considered == acquirable;
             if (!isImprovement) exclusive = source;
         }
 
@@ -249,17 +251,29 @@ public class ChunkMeshingContext
     ///     Create the mesh data as a result of the meshing process.
     /// </summary>
     /// <param name="sectionMeshData">The mesh data of the sections.</param>
-    /// <param name="previouslyMeshedSides">The sides that were meshed in the previous meshing process.</param>
+    /// <param name="meshed">The sides that were meshed in the previous meshing process.</param>
     /// <returns>The mesh data for the chunk.</returns>
-    public ChunkMeshData CreateMeshData(SectionMeshData?[] sectionMeshData, BlockSides previouslyMeshedSides)
+    public ChunkMeshData CreateMeshData(SectionMeshData?[] sectionMeshData, BlockSides meshed)
     {
-        BlockSides meshed = exclusiveSide switch
-        {
-            null => AvailableSides,
-            {} side => previouslyMeshedSides | side.ToFlag()
-        };
+        BlockSides sides = AvailableSides;
 
-        return new ChunkMeshData(sectionMeshData, meshed, GetSectionIndices());
+        if (exclusiveSide is {} side)
+        {
+            // Because only the exclusive side is meshed fully, the other sides are considered meshed if two conditions are met:
+            //   - They were already meshed, this is required for the part that was not touched now.
+            //   - They were available now, this is required for the part that was touched now.
+            // Additionally, we assume that the exclusive side is meshed as a neighbor requested it to be meshed so that neighbor should have been available.
+
+            sides = (AvailableSides & meshed) | side.ToFlag();
+
+            // Exclusive meshing of one side does not touch the opposite side at all.
+            // If it was meshed before, it remains meshed now.
+
+            BlockSides opposite = side.Opposite().ToFlag();
+            if (meshed.HasFlag(opposite)) sides |= opposite;
+        }
+
+        return new ChunkMeshData(sectionMeshData, sides, SectionIndices);
     }
 
     /// <summary>

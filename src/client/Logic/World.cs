@@ -205,7 +205,7 @@ public partial class World : Core.Logic.World
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
         if (decoration != null) return decoration;
-        if (!activatedChunk.IsFullyDecorated) return new Core.Logic.Chunk.Hidden();
+        if (!activatedChunk.IsViableForMeshing()) return new Core.Logic.Chunk.Hidden();
 
         foreach (BlockSide side in BlockSide.All.Sides())
             if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
