@@ -36,7 +36,7 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean isEntered;
 
-    private ((ChunkState state, Boolean isRequired)? transition, TransitionDescription description, Func<ChunkState?>? activator)? next;
+    private NextStateTarget? next;
 
     private ChunkState? previous;
 
@@ -173,7 +173,7 @@ public abstract partial class ChunkState
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = ((state, isRequired: true), description, null);
+        next = NextStateTarget.CreateDirectTransition(state, isRequired: true, description);
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ public abstract partial class ChunkState
     private void SetNextState(Func<ChunkState?> activator, TransitionDescription description = new())
     {
         Debug.Assert(next == null);
-        next = (null, description, activator);
+        next = NextStateTarget.CreateActivatedTransition(activator, description);
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ public abstract partial class ChunkState
     /// </summary>
     protected void AllowTransition()
     {
-        next = ((this, isRequired: false), new TransitionDescription(), null);
+        next = NextStateTarget.CreateDirectTransition(this, isRequired: false, new TransitionDescription());
     }
 
     /// <summary>
@@ -340,52 +340,62 @@ public abstract partial class ChunkState
     {
         Debug.Assert(next != null);
 
-        if (next.Value.transition != null) return true;
+        if (next.Transition != null) return true;
 
-        Debug.Assert(next.Value.activator != null);
+        Debug.Assert(next.Activator != null);
 
         if (!Chunk.CanAcquireCore(Access.Write) || !Chunk.CanAcquireExtended(Access.Write)) return false;
 
-        ChunkState? activatedNext = next.Value.activator();
+        ChunkState? activatedNext = next.Activator();
         Boolean isRequired = activatedNext != null;
         activatedNext ??= new Chunk.Active();
 
         activatedNext.Chunk = Chunk;
         activatedNext.Context = Context;
 
-        next = ((activatedNext, isRequired), next.Value.description, null);
+        next = NextStateTarget.CreateDirectTransition(activatedNext, isRequired, next.Description);
 
         return true;
     }
 
-    #pragma warning disable S1871 // Readability.
     private ChunkState DetermineNextState()
     {
         if (next == null) return this;
 
-        ChunkState nextState;
-        ChunkState? requestedState;
-
         if (!PerformActivation()) return this;
 
-        Debug.Assert(next.Value.transition != null);
+        Debug.Assert(next.Transition != null);
 
-        if (next.Value.description.PrioritizeDeactivation && !Chunk.IsRequested) nextState = requests.Dequeue(this, isLooping: false, isDeactivating: true) ?? CreateFinalState();
-        else if (next.Value.description.PrioritizeLoop && (requestedState = requests.Dequeue(this, isLooping: true, isDeactivating: false)) != null) nextState = requestedState;
-        else if (next.Value.transition.Value.isRequired) nextState = next.Value.transition.Value.state;
-        else if ((requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false)) != null) nextState = requestedState;
-        else if (!Chunk.IsRequested) nextState = CreateFinalState();
-        else nextState = next.Value.transition.Value.state;
+        ChunkState nextState = DetermineNextState(next.Transition, next.Description);
 
-        if (nextState != next.Value.transition.Value.state)
-            next.Value.description.Cleanup?.Invoke();
+        if (nextState != next.Transition.State)
+            next.Description.Cleanup?.Invoke();
 
         next = null;
 
         return nextState;
     }
 
-    #pragma warning restore S1871
+    private ChunkState DetermineNextState(NextStateTarget.DirectTransition transition, TransitionDescription description)
+    {
+        if (description.PrioritizeDeactivation && !Chunk.IsRequested)
+            return CreateFinalState();
+
+        if (description.PrioritizeLoop)
+        {
+            ChunkState? potentialLoop = requests.Dequeue(this, isLooping: true, isDeactivating: false);
+
+            if (potentialLoop != null) return potentialLoop;
+        }
+
+        if (transition.IsRequired) return transition.State;
+
+        ChunkState? requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false);
+
+        if (requestedState != null) return requestedState;
+
+        return Chunk.IsRequested ? transition.State : CreateFinalState();
+    }
 
     /// <summary>
     ///     Update the state of a chunk. This can change the state.
@@ -525,6 +535,24 @@ public abstract partial class ChunkState
         public Boolean AllowSkipOnDeactivation { get; init; }
     }
 
+    private sealed record NextStateTarget(
+        NextStateTarget.DirectTransition? Transition,
+        TransitionDescription Description,
+        Func<ChunkState?>? Activator)
+    {
+        public static NextStateTarget CreateDirectTransition(ChunkState state, Boolean isRequired, TransitionDescription description)
+        {
+            return new NextStateTarget(new DirectTransition(state, isRequired), description, Activator: null);
+        }
+
+        public static NextStateTarget CreateActivatedTransition(Func<ChunkState?> activator, TransitionDescription description)
+        {
+            return new NextStateTarget(Transition: null, description, activator);
+        }
+
+        public sealed record DirectTransition(ChunkState State, Boolean IsRequired);
+    }
+
     /// <summary>
     ///     Holds all transition requests.
     /// </summary>
@@ -543,7 +571,7 @@ public abstract partial class ChunkState
         {
             ChunkState? keep;
 
-            if (current.next is {transition: {state: {} next, isRequired: true}})
+            if (current.next is {Transition: {State: {} next, IsRequired: true}})
             {
                 keep = ResolveDuplicate(next, state);
 
