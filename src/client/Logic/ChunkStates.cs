@@ -38,10 +38,23 @@ public partial class Chunk
     /// <summary>
     ///     Meshes a chunk.
     /// </summary>
-    /// <param name="side">The side of the chunk that caused the meshing to start, or <see cref="BlockSide.All"/> if not applicable.</param>
-    public class Meshing(BlockSide side) : ChunkState
+    public class Meshing : ChunkState
     {
+        private BlockSide side;
+
         private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
+
+        /// <summary>
+        ///     Meshes a chunk.
+        /// </summary>
+        /// <param name="side">
+        ///     The side of the chunk that caused the meshing to start, or <see cref="BlockSide.All" /> if not
+        ///     applicable.
+        /// </param>
+        public Meshing(BlockSide side)
+        {
+            this.side = side;
+        }
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -84,6 +97,23 @@ public partial class Chunk
                         PrioritizeDeactivation = true
                     });
             }
+        }
+
+        /// <inheritdoc />
+        protected override Core.Logic.ChunkState ResolveDuplicate(Core.Logic.ChunkState other)
+        {
+            if (side == BlockSide.All) return this;
+            if (((Meshing) other).side == BlockSide.All) return other;
+
+            side = BlockSide.All;
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public override String ToString()
+        {
+            return $"Meshing({side})";
         }
     }
 

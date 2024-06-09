@@ -72,9 +72,7 @@ public partial class Chunk : Core.Logic.Chunk
         State.RequestNextState(new Meshing(side),
             new Core.Logic.ChunkState.RequestDescription
             {
-                AllowDuplicate = false,
-                AllowSkipOnDeactivation = true,
-                AllowDiscardOnRepeat = false
+                AllowSkipOnDeactivation = true
             });
     }
 

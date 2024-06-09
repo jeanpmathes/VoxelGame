@@ -113,6 +113,32 @@ public abstract partial class ChunkState
     public Boolean CanStealAccess => AllowStealing && isAccessSufficient;
 
     /// <summary>
+    ///     Check if two states are duplicates, if yes, return the state that should be kept.
+    /// </summary>
+    /// <param name="a">The first state.</param>
+    /// <param name="b">The second state.</param>
+    /// <returns>The state that should be kept, or null if both states should be kept.</returns>
+    private static ChunkState? ResolveDuplicate(ChunkState a, ChunkState b)
+    {
+        return IsSameStateType(a, b) ? a.ResolveDuplicate(b) : null;
+    }
+
+    /// <summary>
+    ///     Resolves a duplicate state.
+    /// </summary>
+    /// <param name="other">The other state.</param>
+    /// <returns>The state that should be kept, or null if both states should be kept.</returns>
+    protected virtual ChunkState ResolveDuplicate(ChunkState other)
+    {
+        return this;
+    }
+
+    private static Boolean IsSameStateType(ChunkState a, ChunkState b)
+    {
+        return a.GetType() == b.GetType();
+    }
+
+    /// <summary>
     ///     Perform updates.
     ///     This is where the state logic, e.g. the work associated with the state as well as transitions, is performed.
     /// </summary>
@@ -477,7 +503,7 @@ public abstract partial class ChunkState
         public Action? Cleanup { get; init; }
 
         /// <summary>
-        ///     Whether to prioritize looping transitions (to this state) before this transition, even if this transition is
+        ///     Whether to prioritize looping transitions (to same type) over this transition, even if this transition is
         ///     required.
         /// </summary>
         public Boolean PrioritizeLoop { get; init; }
@@ -494,19 +520,9 @@ public abstract partial class ChunkState
     public record struct RequestDescription
     {
         /// <summary>
-        ///     Whether to keep the current request even if a duplicate request already exists.
-        /// </summary>
-        public Boolean AllowDuplicate { get; init; }
-
-        /// <summary>
         ///     Whether to skip this request when deactivating the chunk.
         /// </summary>
         public Boolean AllowSkipOnDeactivation { get; init; }
-
-        /// <summary>
-        ///     Whether to allow to discard this request if the next required state is a duplicate of the requested state.
-        /// </summary>
-        public Boolean AllowDiscardOnRepeat { get; init; }
     }
 
     /// <summary>
@@ -525,19 +541,31 @@ public abstract partial class ChunkState
         /// <param name="description">The description of the request.</param>
         public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
         {
-            if (description.AllowDiscardOnRepeat)
-            {
-                Boolean nextIsRepetition = current.next is {transition: {state: {} next, isRequired: true}} && IsSameState(next, state);
-                Boolean currentIsRepetition = !current.isEntered && IsSameState(current, state);
+            ChunkState? keep;
 
-                if (nextIsRepetition || currentIsRepetition) return;
+            if (current.next is {transition: {state: {} next, isRequired: true}})
+            {
+                keep = ResolveDuplicate(next, state);
+
+                if (keep == next) return;
             }
 
-            if (!description.AllowDuplicate)
+            if (!current.isEntered)
             {
-                Boolean isDuplicate = requests.Exists(request => IsSameState(request.state, state));
+                keep = ResolveDuplicate(current, state);
 
-                if (isDuplicate) return;
+                if (keep == current) return;
+            }
+
+            for (var request = 0; request < requests.Count; request++)
+            {
+                keep = ResolveDuplicate(requests[request].state, state);
+
+                if (keep == null) continue;
+
+                if (keep == state) requests[request] = (state, description);
+
+                return;
             }
 
             requests.Add((state, description));
@@ -562,7 +590,7 @@ public abstract partial class ChunkState
                 (ChunkState state, RequestDescription description) = requests[index];
 
                 if (isDeactivating && description.AllowSkipOnDeactivation) continue;
-                if (isLooping && !IsSameState(current, state)) continue;
+                if (isLooping && !IsSameStateType(current, state)) continue;
 
                 target = index;
 
@@ -575,14 +603,6 @@ public abstract partial class ChunkState
             requests.RemoveAt(target);
 
             return request.state;
-        }
-
-        /// <summary>
-        ///     Check if two states are of the same type.
-        /// </summary>
-        private static Boolean IsSameState(ChunkState a, ChunkState b)
-        {
-            return a.GetType() == b.GetType();
         }
     }
 

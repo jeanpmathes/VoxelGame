@@ -124,7 +124,9 @@ public class ChunkMeshingContext
             DetermineSideAvailability(chunk, out BlockSides considered, out acquirable, abortOnNotAcquirable: false);
 
             Boolean isImprovement = IsImprovement(meshed | source.ToFlag(), acquirable) && considered == acquirable;
-            if (!isImprovement) exclusive = source;
+
+            if (!isImprovement)
+                exclusive = source;
         }
 
         foreach (BlockSide side in BlockSide.All.Sides())
