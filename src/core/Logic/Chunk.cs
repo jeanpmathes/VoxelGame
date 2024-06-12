@@ -169,19 +169,6 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Whether this chunk is intending to get ready according to the current state.
-    /// </summary>
-    public Boolean IsIntendingToGetReady
-    {
-        get
-        {
-            Debug.Assert(state != null);
-
-            return state.IsIntendingToGetReady;
-        }
-    }
-
-    /// <summary>
     ///     Get whether the chunk is requested.
     /// </summary>
     public Boolean IsRequested => isRequested;

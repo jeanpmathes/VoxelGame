@@ -63,7 +63,10 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        protected override Boolean WaitOnNeighbors => true;
+        protected override Boolean DelayEnter()
+        {
+            return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk) > 0;
+        }
 
         /// <inheritdoc />
         protected override void OnUpdate()

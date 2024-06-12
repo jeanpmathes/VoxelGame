@@ -179,6 +179,29 @@ public class ChunkMeshingContext
     }
 
     /// <summary>
+    ///     Get the number of neighbors that in the near future might be required for meshing but are not acquirable at the
+    ///     moment.
+    /// </summary>
+    /// <param name="chunk">The chunk to calculate the number for.</param>
+    /// <returns>The number.</returns>
+    public static Int32 GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk chunk)
+    {
+        var count = 0;
+
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+
+            // A requested chunk might become viable in the near future.
+            if (!neighbor.IsRequested) continue;
+
+            if (!neighbor.CanAcquireCore(Access.Read)) count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>
     ///     Get the block sides at which chunk neighbours should be used to improve the mesh completeness.
     ///     Only chunks that are available and requested are considered.
     ///     Improvement is also only considered if all required and requested chunks are possible to acquire at the same time.

@@ -19,12 +19,12 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract partial class ChunkState
 {
-    private const Int32 NeighborWaitingTimeout = 10;
+    private const Int32 DelayTimeout = 600;
 
     private Guard? coreGuard;
     private Guard? extendedGuard;
 
-    private Int32 currentWaitingTime;
+    private Int32 currentDelayTime;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
@@ -59,16 +59,6 @@ public abstract partial class ChunkState
         coreGuard = core;
         extendedGuard = extended;
     }
-
-    /// <summary>
-    ///     Whether this state intends to perform a ready-transition.
-    /// </summary>
-    public virtual Boolean IsIntendingToGetReady => false;
-
-    /// <summary>
-    ///     Whether this state wants to delay entering when neighbors intend to activate.
-    /// </summary>
-    protected virtual Boolean WaitOnNeighbors => false;
 
     /// <summary>
     ///     Get the chunk.
@@ -146,10 +136,23 @@ public abstract partial class ChunkState
 
     private void Enter()
     {
+        requests.RemoveDuplicates(this);
+
         if (previous != null) LogChunkStateChange(logger, Chunk.Position, previous, this);
 
         isEntered = true;
         OnEnter();
+    }
+
+    /// <summary>
+    ///     Allows a state to delay being entered.
+    ///     This can be useful if the short-term future might have more favorable conditions.
+    ///     Maximum delay time is defined by <see cref="DelayTimeout" />.
+    /// </summary>
+    /// <returns><c>true</c> if the state should be delayed, <c>false</c> otherwise.</returns>
+    protected virtual Boolean DelayEnter()
+    {
+        return false;
     }
 
     /// <summary>
@@ -261,7 +264,7 @@ public abstract partial class ChunkState
             Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
         }
 
-        if (IsWaitingOnNeighbors()) return this;
+        if (IsDelaying()) return this;
 
         if (!isEntered) Enter();
 
@@ -277,20 +280,14 @@ public abstract partial class ChunkState
         return nextState;
     }
 
-    private Boolean IsWaitingOnNeighbors()
+    private Boolean IsDelaying()
     {
         if (isEntered) return false;
-        if (!WaitOnNeighbors) return false;
+        if (currentDelayTime >= DelayTimeout) return false;
 
-        currentWaitingTime++;
+        currentDelayTime++;
 
-        if (currentWaitingTime >= NeighborWaitingTimeout) return false;
-
-        foreach (BlockSide side in BlockSide.All.Sides())
-            if (Chunk.World.TryGetChunk(side.Offset(Chunk.Position), out Chunk? neighbor) && neighbor.IsIntendingToGetReady)
-                return true;
-
-        return false;
+        return DelayEnter();
     }
 
     private Boolean EnsureRequiredAccess()
@@ -631,6 +628,27 @@ public abstract partial class ChunkState
             requests.RemoveAt(target);
 
             return request.state;
+        }
+
+        /// <summary>
+        ///     Remove all duplicate requests.
+        ///     This should be called right before entering a new state.
+        ///     Duplicates can happen when the new state was not in the request queue before.
+        /// </summary>
+        public void RemoveDuplicates(ChunkState current)
+        {
+            Debug.Assert(!current.isEntered);
+
+            var index = 0;
+
+            while (index < requests.Count)
+            {
+                ChunkState? keep = ResolveDuplicate(current, requests[index].state);
+
+                if (keep == current)
+                    requests.RemoveAt(index);
+                else index++;
+            }
         }
     }
 

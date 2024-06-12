@@ -48,9 +48,6 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        public override Boolean IsIntendingToGetReady => true;
-
-        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (activity == null)
@@ -124,9 +121,6 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.None;
 
         /// <inheritdoc />
-        public override Boolean IsIntendingToGetReady => true;
-
-        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (activity == null)
@@ -182,9 +176,6 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override Access ExtendedAccess => Access.None;
-
-        /// <inheritdoc />
-        public override Boolean IsIntendingToGetReady => true;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -371,10 +362,14 @@ public partial class Chunk
     [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
     private static partial void LogChunkLoadingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Debug, Message = "The chunk file for {Position} could not be loaded, which is likely because the file does not exist - position will be scheduled for generation")]
+    [LoggerMessage(EventId = Events.ChunkLoadingError,
+        Level = LogLevel.Debug,
+        Message = "The chunk file for {Position} could not be loaded, which is likely because the file does not exist - position will be scheduled for generation")]
     private static partial void LogChunkFileNotFound(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "The chunk for {Position} could not be loaded, which can be caused by a corrupted or manipulated chunk file - position will be scheduled for generation")]
+    [LoggerMessage(EventId = Events.ChunkLoadingError,
+        Level = LogLevel.Error,
+        Message = "The chunk for {Position} could not be loaded, which can be caused by a corrupted or manipulated chunk file - position will be scheduled for generation")]
     private static partial void LogChunkLoadingCorruptedFile(ILogger logger, ChunkPosition position);
 
     [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
