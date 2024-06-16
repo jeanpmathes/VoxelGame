@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic;
 /// </summary>
 public abstract partial class ChunkState
 {
-    private const Int32 DelayTimeout = 600;
+    private const Int32 DelayTimeout = 40;
 
     private Guard? coreGuard;
     private Guard? extendedGuard;
@@ -285,7 +285,7 @@ public abstract partial class ChunkState
         if (isEntered) return false;
         if (currentDelayTime >= DelayTimeout) return false;
 
-        currentDelayTime++;
+        currentDelayTime += 1;
 
         return DelayEnter();
     }

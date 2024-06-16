@@ -40,6 +40,9 @@ public partial class Chunk
     /// </summary>
     public class Meshing : ChunkState
     {
+        private const Int32 EntryDelay = 10;
+        private Int32 entryDelay = EntryDelay;
+
         private BlockSide side;
 
         private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
@@ -65,7 +68,12 @@ public partial class Chunk
         /// <inheritdoc />
         protected override Boolean DelayEnter()
         {
-            return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk) > 0;
+            if (entryDelay <= 0)
+                return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk) > 0;
+
+            entryDelay -= 1;
+
+            return true;
         }
 
         /// <inheritdoc />
