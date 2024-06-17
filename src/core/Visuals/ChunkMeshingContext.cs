@@ -183,13 +183,16 @@ public class ChunkMeshingContext
     ///     moment.
     /// </summary>
     /// <param name="chunk">The chunk to calculate the number for.</param>
+    /// <param name="exclusive">The side that is meshed exclusively, or <see cref="BlockSide.All"/> if not applicable.</param>
     /// <returns>The number.</returns>
-    public static Int32 GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk chunk)
+    public static Int32 GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk chunk, BlockSide exclusive)
     {
         var count = 0;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
+            if (side.Opposite() == exclusive) continue;
+
             if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
 
             // A requested chunk might become viable in the near future.
