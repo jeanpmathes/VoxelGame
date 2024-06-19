@@ -120,11 +120,8 @@ public sealed class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        const Int32 maxUpdates = 3;
-
-        for (var count = 0; count < maxUpdates; count++)
-            foreach (Chunk chunk in chunks.Values)
-                chunk.Update();
+        foreach (Chunk chunk in chunks.Values)
+            chunk.Update();
     }
 
     /// <summary>

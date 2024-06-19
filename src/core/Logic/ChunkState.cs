@@ -401,25 +401,16 @@ public abstract partial class ChunkState
     /// <param name="tracker">A tracker to profile state transitions.</param>
     public static void Update(ref ChunkState state, StateTracker tracker)
     {
-        const Int32 maxTransitions = 3;
+        ChunkState previousState = state;
 
-        var count = 0;
+        state = state.Update();
 
-        while (count < maxTransitions)
-        {
-            ChunkState previousState = state;
+        state.previous ??= previousState;
+        state.requests = previousState.requests;
 
-            state = state.Update();
+        if (ReferenceEquals(previousState, state)) return;
 
-            state.previous ??= previousState;
-            state.requests = previousState.requests;
-
-            if (ReferenceEquals(previousState, state)) break;
-
-            tracker.Transition(previousState, state);
-
-            count++;
-        }
+        tracker.Transition(previousState, state);
     }
 
     /// <summary>

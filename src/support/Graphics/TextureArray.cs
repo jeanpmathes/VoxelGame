@@ -7,6 +7,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Objects;
@@ -34,11 +35,13 @@ public sealed class TextureArray : IEnumerable<Texture>
     public Int32 Count => textures.Length;
 
     /// <inheritdoc />
+    [MustDisposeResource]
     public IEnumerator<Texture> GetEnumerator()
     {
         return textures.AsEnumerable().GetEnumerator();
     }
 
+    [MustDisposeResource]
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();

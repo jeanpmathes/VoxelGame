@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -56,11 +57,13 @@ public class Array3D<T> : IEnumerable<T>
     public IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices => VMath.Range3(Length, Length, Length);
 
     /// <inheritdoc />
+    [MustDisposeResource]
     public IEnumerator<T> GetEnumerator()
     {
         return ((IEnumerable<T>) array).GetEnumerator();
     }
 
+    [MustDisposeResource]
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
