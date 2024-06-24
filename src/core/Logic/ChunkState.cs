@@ -166,6 +166,11 @@ public abstract partial class ChunkState
     protected virtual void OnExit() {}
 
     /// <summary>
+    /// Perform cleanup in the case that the state is not transitioned to.
+    /// </summary>
+    protected virtual void Cleanup() {}
+
+    /// <summary>
     ///     Set the next state. The transition is required, except if certain flags are set in the description.
     /// </summary>
     /// <param name="state">The next state.</param>
@@ -189,7 +194,7 @@ public abstract partial class ChunkState
         SetNextState(new T(), description);
     }
 
-    private void SetNextState(Func<ChunkState?> activator, TransitionDescription description = new())
+    private void SetNextState(Func<ChunkState> activator, TransitionDescription description = new())
     {
         Debug.Assert(next == null);
         next = NextStateTarget.CreateActivatedTransition(activator, description);
@@ -221,6 +226,7 @@ public abstract partial class ChunkState
     /// </summary>
     protected void AllowTransition()
     {
+        Debug.Assert(next == null);
         next = NextStateTarget.CreateDirectTransition(this, isRequired: false, new TransitionDescription());
     }
 
@@ -343,9 +349,8 @@ public abstract partial class ChunkState
 
         if (!Chunk.CanAcquireCore(Access.Write) || !Chunk.CanAcquireExtended(Access.Write)) return false;
 
-        ChunkState? activatedNext = next.Activator();
-        Boolean isRequired = activatedNext != null;
-        activatedNext ??= new Chunk.Active();
+        ChunkState activatedNext = next.Activator();
+        Boolean isRequired = activatedNext is not Chunk.Active and not Chunk.Hidden;
 
         activatedNext.Chunk = Chunk;
         activatedNext.Context = Context;
@@ -366,7 +371,10 @@ public abstract partial class ChunkState
         ChunkState nextState = DetermineNextState(next.Transition, next.Description);
 
         if (nextState != next.Transition.State)
-            next.Description.Cleanup?.Invoke();
+        {
+            next.Transition.State.Cleanup();
+            next.Transition.State.ReleaseResources();
+        }
 
         next = null;
 
@@ -495,12 +503,6 @@ public abstract partial class ChunkState
     protected record struct TransitionDescription
     {
         /// <summary>
-        ///     Cleanup action to perform it the transition is not taken. Only required if the transition itself is not strictly
-        ///     required.
-        /// </summary>
-        public Action? Cleanup { get; init; }
-
-        /// <summary>
         ///     Whether to prioritize looping transitions (to same type) over this transition, even if this transition is
         ///     required.
         /// </summary>
@@ -526,14 +528,14 @@ public abstract partial class ChunkState
     private sealed record NextStateTarget(
         NextStateTarget.DirectTransition? Transition,
         TransitionDescription Description,
-        Func<ChunkState?>? Activator)
+        Func<ChunkState>? Activator)
     {
         public static NextStateTarget CreateDirectTransition(ChunkState state, Boolean isRequired, TransitionDescription description)
         {
             return new NextStateTarget(new DirectTransition(state, isRequired), description, Activator: null);
         }
 
-        public static NextStateTarget CreateActivatedTransition(Func<ChunkState?> activator, TransitionDescription description)
+        public static NextStateTarget CreateActivatedTransition(Func<ChunkState> activator, TransitionDescription description)
         {
             return new NextStateTarget(Transition: null, description, activator);
         }

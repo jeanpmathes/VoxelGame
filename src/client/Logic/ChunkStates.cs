@@ -112,10 +112,6 @@ public partial class Chunk
                 SetNextState(new MeshDataSending(future.Value!),
                     new TransitionDescription
                     {
-                        Cleanup = () =>
-                        {
-                            future.Value!.Dispose();
-                        },
                         PrioritizeLoop = true,
                         PrioritizeDeactivation = true
                     });
@@ -167,9 +163,15 @@ public partial class Chunk
         {
             Chunk.SetMeshData(meshData);
 
-            meshData.Dispose();
+            Cleanup();
 
             SetNextActive();
+        }
+
+        /// <inheritdoc />
+        protected override void Cleanup()
+        {
+            meshData.Dispose();
         }
     }
 }

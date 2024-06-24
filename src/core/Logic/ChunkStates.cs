@@ -192,9 +192,7 @@ public partial class Chunk
             }
             else if (activity.IsCompleted)
             {
-                foreach ((Chunk chunk, Guard guard)? potentialNeighbor in neighbors)
-                    if (potentialNeighbor is {} neighbor)
-                        neighbor.guard.Dispose();
+                Cleanup();
 
                 if (activity.Exception is {} exception)
                 {
@@ -205,6 +203,14 @@ public partial class Chunk
 
                 SetNextReady();
             }
+        }
+
+        /// <inheritdoc />
+        protected override void Cleanup()
+        {
+            foreach ((Chunk chunk, Guard guard)? potentialNeighbor in neighbors)
+                if (potentialNeighbor is {} neighbor)
+                    neighbor.guard.Dispose();
         }
     }
 
@@ -295,9 +301,10 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (Chunk.IsFullyDecorated) SetNextReady();
-
-            AllowTransition();
+            if (Chunk.IsFullyDecorated)
+                SetNextReady();
+            else
+                AllowTransition();
         }
     }
 

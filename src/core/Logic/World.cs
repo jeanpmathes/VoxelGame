@@ -23,7 +23,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
+///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
 public abstract partial class World : IDisposable, IGrid
 {
@@ -40,7 +40,7 @@ public abstract partial class World : IDisposable, IGrid
     ///     The limit of the world extents, in sections.
     /// </summary>
     public const UInt32 SectionLimit = BlockLimit / Section.Size;
-    
+
     private readonly ChunkSet chunks;
 
     private readonly IWorldGenerator generator;
@@ -270,7 +270,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (saving.Exception is {} exception)
             LogFailedToSaveWorldMetaInformation(logger, exception);
-            
+
         return true;
     }
 
@@ -564,10 +564,10 @@ public abstract partial class World : IDisposable, IGrid
     protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
-    ///     Process a chunk that has just switched to the active state trough a weak activation.
+    ///     Process a chunk that has just switched to the active state through a weak activation.
     /// </summary>
-    /// <returns>An optional next state of the chunk.</returns>
-    protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
+    /// <returns>The next state of the chunk.</returns>
+    protected abstract ChunkState ProcessActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.

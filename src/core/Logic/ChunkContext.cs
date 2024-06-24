@@ -15,22 +15,17 @@ namespace VoxelGame.Core.Logic;
 public class ChunkContext
 {
     /// <summary>
-    ///     Manages the state transition for a ready chunk.
+    ///     Manages the state transition for a ready or active chunk.
     /// </summary>
-    public delegate ChunkState ChunkActivatorStrong(Chunk chunk);
-
-    /// <summary>
-    ///     Manages the state transition for a chunk transitioning to the active state.
-    /// </summary>
-    public delegate ChunkState? ChunkActivatorWeak(Chunk chunk);
+    public delegate ChunkState ChunkActivator(Chunk chunk);
 
     /// <summary>
     ///     Deactivates a chunk.
     /// </summary>
     public delegate void ChunkDeactivator(Chunk chunk);
 
-    private readonly ChunkActivatorStrong activateStrongly;
-    private readonly ChunkActivatorWeak activateWeakly;
+    private readonly ChunkActivator activateStrongly;
+    private readonly ChunkActivator activateWeakly;
     private readonly ChunkDeactivator deactivate;
 
     private readonly World world;
@@ -43,7 +38,7 @@ public class ChunkContext
     /// <param name="weakActivator">Activates a chunk after a transition to the active state.</param>
     /// <param name="deactivator">Deactivates a chunk.</param>
     /// <param name="generator">The world generator used.</param>
-    public ChunkContext(World world, IWorldGenerator generator, ChunkActivatorStrong strongActivator, ChunkActivatorWeak weakActivator, ChunkDeactivator deactivator)
+    public ChunkContext(World world, IWorldGenerator generator, ChunkActivator strongActivator, ChunkActivator weakActivator, ChunkDeactivator deactivator)
     {
         this.world = world;
 
@@ -96,7 +91,7 @@ public class ChunkContext
     ///     Activate a chunk after a transition to the active state.
     ///     The chunk has been activated before.
     /// </summary>
-    public ChunkState? ActivateWeakly(Chunk chunk)
+    public ChunkState ActivateWeakly(Chunk chunk)
     {
         return activateWeakly(chunk);
     }

@@ -302,7 +302,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Check if core is held with a specific access by a given guard.
+    ///     Check if core is held with specific access by a given guard.
     /// </summary>
     public Boolean IsCoreHeldBy(Guard guard, Access access)
     {
@@ -351,7 +351,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Check if extended is held with a specific access by a given guard.
+    ///     Check if extended is held with specific access by a given guard.
     /// </summary>
     public Boolean IsExtendedHeldBy(Guard guard, Access access)
     {
@@ -825,7 +825,7 @@ public partial class Chunk : IDisposable, IEntity
             chunk.decoration |= flag;
         }
 
-        // Go trough all sections on the selected corner.
+        // Go through all sections on the selected corner.
         // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
         // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
