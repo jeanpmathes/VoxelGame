@@ -75,38 +75,37 @@ public static partial class Arguments
         enableProfilingOption.AddAlias("-p");
         command.AddOption(enableProfilingOption);
 
+        ILogger? logger = null;
+        GameParameters? gameParameters = null;
+
+        command.SetHandler(context =>
+        {
+            logger = GetLogger(context);
+
+            gameParameters = new GameParameters(
+                context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
+                context.ParseResult.GetValueForOption(enableProfilingOption),
+                context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
+                context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
+        });
+
+        command.Invoke(args);
+
+        Debug.Assert(logger != null);
+        Debug.Assert(gameParameters != null);
+
+        Int32 exitCode = runGame(gameParameters, logger);
+
+        LogExitingWithCode(logger, exitCode);
+
+        return exitCode;
+
         ILogger GetLogger(InvocationContext context)
         {
             Debug.Assert(logDebugOption != null);
 
             return setupLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
         }
-
-        command.SetHandler(context =>
-        {
-            context.ExitCode = RunApplication(GetLogger(context),
-                logger =>
-                {
-                    GameParameters gameParameters = new(
-                        context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
-                        context.ParseResult.GetValueForOption(enableProfilingOption),
-                        context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
-                        context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
-
-                    return runGame(gameParameters, logger);
-                });
-        });
-
-        return command.Invoke(args);
-    }
-
-    private static Int32 RunApplication(ILogger logger, Func<ILogger, Int32> app)
-    {
-        Int32 exitCode = app(logger);
-
-        LogExitingWithCode(logger, exitCode);
-
-        return exitCode;
     }
 
     #region LOGGING
