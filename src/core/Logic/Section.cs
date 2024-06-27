@@ -215,35 +215,36 @@ public class Section : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Send random updates to blocks in this section.
+    ///     Send one random update to a random block and fluid in this section.
     /// </summary>
     /// <param name="world">The world this section is in.</param>
-    public void SendRandomUpdates(World world)
+    public void SendRandomUpdate(World world)
     {
         Throw.IfDisposed(disposed);
 
-        UInt32 val = GetPos(out Vector3i selectedPosition);
-        Decode(val, out Block block, out UInt32 data, out _, out _, out _);
+        UInt32 content = GetRandomPositionContent(out Vector3i localPosition);
 
-        Vector3i blockPosition = selectedPosition + position.FirstBlock;
+        Decode(content,
+            out Block block,
+            out UInt32 data,
+            out Fluid fluid,
+            out FluidLevel level,
+            out Boolean isStatic);
+
+        Vector3i globalPosition = localPosition + position.FirstBlock;
 
         block.RandomUpdate(
             world,
-            blockPosition,
+            globalPosition,
             data);
-
-        val = GetPos(out selectedPosition);
-        Decode(val, out _, out _, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
-
-        Vector3i fluidPosition = selectedPosition + position.FirstBlock;
 
         fluid.RandomUpdate(
             world,
-            fluidPosition,
+            globalPosition,
             level,
             isStatic);
 
-        UInt32 GetPos(out Vector3i randomPosition)
+        UInt32 GetRandomPositionContent(out Vector3i randomPosition)
         {
             Int32 index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
             UInt32 posVal = blocks[index];

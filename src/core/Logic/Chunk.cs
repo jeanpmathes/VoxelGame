@@ -69,8 +69,6 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public const Int32 SectionCount = Size * Size * Size;
 
-    private const Int32 RandomTickBatchSize = SectionCount / 2;
-
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
@@ -551,7 +549,8 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Tick some random blocks.
+    ///     Send all update events.
+    ///     These include requested updates and one random update. 
     /// </summary>
     public void Tick()
     {
@@ -564,13 +563,8 @@ public partial class Chunk : IDisposable, IEntity
 
         localUpdateCounter.Increment();
 
-        Int32 anchor = NumberGenerator.Random.Next(minValue: 0, SectionCount);
-
-        for (var i = 0; i < RandomTickBatchSize; i++)
-        {
-            Int32 index = (anchor + i) % SectionCount;
-            sections[index].SendRandomUpdates(World);
-        }
+        Int32 index = NumberGenerator.Random.Next(minValue: 0, SectionCount);
+        sections[index].SendRandomUpdate(World);
     }
 
     /// <summary>

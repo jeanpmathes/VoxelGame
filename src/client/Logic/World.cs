@@ -146,9 +146,9 @@ public partial class World : Core.Logic.World
 
         void HandleActive()
         {
-            using (logger.BeginTimedSubScoped("World Update Ticks", subTimer))
+            using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", subTimer))
             {
-                DoTicksOnEverything(deltaTime);
+                DoTicksOnEverything(deltaTime, tickTimer);
             }
 
             using (logger.BeginTimedSubScoped("World Update Meshing", subTimer))
@@ -184,11 +184,17 @@ public partial class World : Core.Logic.World
         player?.OnDeactivate();
     }
 
-    private void DoTicksOnEverything(Double deltaTime)
+    private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
     {
-        foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
+        using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
+        {
+            foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
+        }
 
-        player!.Tick(deltaTime);
+        using (logger.BeginTimedSubScoped("World Tick Player", tickTimer))
+        {
+            player!.Tick(deltaTime);
+        }
     }
 
     private void MeshAndClearSectionList()
