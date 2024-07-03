@@ -5,10 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
@@ -17,12 +17,17 @@ namespace VoxelGame.Core.Logic;
 ///     A section, a part of a chunk. Sections are the smallest unit for meshing and rendering.
 ///     Sections are cubes.
 /// </summary>
-public class Section : IDisposable, IEntity
+public class Section : IDisposable
 {
     /// <summary>
     ///     The size of a section, which is the number of blocks in a single axis.
     /// </summary>
     public const Int32 Size = 16;
+
+    /// <summary>
+    /// Number of entries in a section.
+    /// </summary>
+    public const Int32 Count = Size * Size * Size;
 
     /// <summary>
     ///     The shift to get the data.
@@ -82,24 +87,17 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    protected Section()
+    protected Section(ArraySegment<UInt32> blocks)
     {
-        blocks = new UInt32[Size * Size * Size];
+        Debug.Assert(blocks.Count == Count);
+
+        this.blocks = blocks;
     }
 
     /// <summary>
     ///     The extents of a section.
     /// </summary>
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
-
-    /// <inheritdoc />
-    public static Int32 Version => 1;
-
-    /// <inheritdoc />
-    public void Serialize(Serializer serializer, IEntity.Header header)
-    {
-        serializer.Serialize(ref blocks);
-    }
 
     /// <summary>
     ///     Initializes the section.
@@ -263,23 +261,24 @@ public class Section : IDisposable, IEntity
     ///     Decode the section content into block and fluid information.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Decode(UInt32 val, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level,
-        out Boolean isStatic)
+    public static void Decode(UInt32 value,
+        out Block block, out UInt32 data,
+        out Fluid fluid, out FluidLevel level, out Boolean isStatic)
     {
-        block = Blocks.Instance.TranslateID(val & BlockMask);
-        data = (val & DataMask) >> DataShift;
-        fluid = Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift);
-        level = (FluidLevel) ((val & LevelMask) >> LevelShift);
-        isStatic = (val & StaticMask) != 0;
+        block = Blocks.Instance.TranslateID(value & BlockMask);
+        data = (value & DataMask) >> DataShift;
+        fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
+        level = (FluidLevel) ((value & LevelMask) >> LevelShift);
+        isStatic = (value & StaticMask) != 0;
     }
 
     /// <summary>
     ///     Decode the section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Decode(UInt32 val, out Content content)
+    public static void Decode(UInt32 value, out Content content)
     {
-        Decode(val, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
+        Decode(value, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
         content = new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
     }
@@ -353,7 +352,7 @@ public class Section : IDisposable, IEntity
     /// <summary>
     ///     The blocks stored in this section.
     /// </summary>
-    protected UInt32[] blocks;
+    protected ArraySegment<UInt32> blocks;
 
     /// <summary>
     ///     The position of this section.

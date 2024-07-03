@@ -92,7 +92,7 @@ public partial class Chunk : IDisposable, IEntity
     private readonly StateTracker tracker = new(nameof(Chunk));
 
     /// <summary>
-    ///     The sections in this chunk.
+    ///     The sections in this chunk. Provide views into the block data.
     /// </summary>
     private readonly Section[] sections = new Section[SectionCount];
 
@@ -116,6 +116,12 @@ public partial class Chunk : IDisposable, IEntity
 
     private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
     private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
+
+    /// <summary>
+    ///     The block data of this chunk.
+    ///     Storage layout is defined by <see cref="Section"/>.
+    /// </summary>
+    private UInt32[] blocks = new UInt32[BlockSize * BlockSize * BlockSize];
 
     private DecorationLevels decoration = DecorationLevels.None;
 
@@ -141,7 +147,10 @@ public partial class Chunk : IDisposable, IEntity
         this.context = context;
 
         for (var index = 0; index < SectionCount; index++)
-            sections[index] = createSection();
+        {
+            ArraySegment<UInt32> segment = new(blocks, index * Section.Count, Section.Count);
+            sections[index] = createSection(segment);
+        }
 
         blockTickManager = new ScheduledTickManager<Block.BlockTick>(
             Block.MaxBlockTicksPerFrameAndChunk,
@@ -203,7 +212,7 @@ public partial class Chunk : IDisposable, IEntity
     public void Serialize(Serializer serializer, IEntity.Header header)
     {
         serializer.SerializeValue(ref location);
-        serializer.SerializeEntities(sections);
+        serializer.Serialize(ref blocks);
         serializer.Serialize(ref decoration);
         serializer.SerializeEntity(blockTickManager);
         serializer.SerializeEntity(fluidTickManager);
@@ -934,7 +943,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Creates a section.
     /// </summary>
-    protected delegate Section SectionFactory();
+    protected delegate Section SectionFactory(ArraySegment<UInt32> blocks);
 
     [Flags]
     private enum DecorationLevels

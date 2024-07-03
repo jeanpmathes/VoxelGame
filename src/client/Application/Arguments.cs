@@ -91,8 +91,8 @@ public static partial class Arguments
 
         command.Invoke(args);
 
-        Debug.Assert(logger != null);
-        Debug.Assert(gameParameters != null);
+        if (logger == null || gameParameters == null)
+            return 1;
 
         Int32 exitCode = runGame(gameParameters, logger);
 

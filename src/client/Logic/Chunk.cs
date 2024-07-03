@@ -76,9 +76,9 @@ public partial class Chunk : Core.Logic.Chunk
             });
     }
 
-    private static Core.Logic.Section CreateSection()
+    private static Core.Logic.Section CreateSection(ArraySegment<UInt32> blocks)
     {
-        return new Section();
+        return new Section(blocks);
     }
 
     /// <summary>

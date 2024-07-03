@@ -24,9 +24,18 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class Section : Core.Logic.Section
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
+
+    #endregion LOGGING
+
     private Boolean hasMesh;
     private BlockSides missing;
     private SectionVFX? vfx;
+
+    /// <inheritdoc />
+    public Section(ArraySegment<UInt32> blocks) : base(blocks) {}
 
     /// <inheritdoc />
     public override void Initialize(SectionPosition newPosition)
@@ -134,10 +143,10 @@ public class Section : Core.Logic.Section
             for (var y = 0; y < Size; y++)
             for (var z = 0; z < Size; z++)
             {
-                UInt32 val = blocks[(x << SizeExp2) + (y << SizeExp) + z];
+                UInt32 value = blocks[(x << SizeExp2) + (y << SizeExp) + z];
 
                 Decode(
-                    val,
+                    value,
                     out Block currentBlock,
                     out UInt32 data,
                     out Fluid currentFluid,
@@ -205,12 +214,6 @@ public class Section : Core.Logic.Section
 
         vfx.SetData(meshData);
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Section>();
-
-    #endregion LOGGING
 
     #region IDisposable Support
 
