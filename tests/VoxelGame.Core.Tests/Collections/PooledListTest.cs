@@ -12,6 +12,8 @@ namespace VoxelGame.Core.Tests.Collections;
 
 public class PooledListTest
 {
+    private static readonly Int32[] collection = [1, 2, 3];
+
     [Fact]
     public void TestAddAndAccess()
     {
@@ -33,7 +35,7 @@ public class PooledListTest
     {
         using PooledList<Int32> list = new();
 
-        list.AddRange(collection: new[] {1, 2, 3});
+        list.AddRange(collection: collection);
 
         Assert.Equal(expected: 1, list[index: 0]);
         Assert.Equal(expected: 2, list[index: 1]);
@@ -45,7 +47,7 @@ public class PooledListTest
     {
         using PooledList<Int32> list = new();
 
-        list.AddRange(collection: new[] {1, 2, 3});
+        list.AddRange(collection: collection);
         list.Clear();
 
         Assert.Empty(list);
@@ -56,7 +58,7 @@ public class PooledListTest
     {
         using PooledList<Int32> list = new();
 
-        list.AddRange(collection: new[] {1, 2, 3});
+        list.AddRange(collection: collection);
 
         Assert.Contains(expected: 1, list);
         Assert.Contains(expected: 2, list);
@@ -66,7 +68,7 @@ public class PooledListTest
         Int32 index = list.IndexOf(item: 2);
         list.RemoveAt(index);
 
-        Assert.Contains(expected: 2, list);
+        Assert.DoesNotContain(expected: 2, list);
         Assert.Equal(expected: 3, list[index: 1]);
 
         list.Remove(item: 3);
