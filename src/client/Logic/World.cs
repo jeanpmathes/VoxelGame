@@ -32,7 +32,7 @@ public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
-    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
+    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube(Math.Min(Player.LoadDistance - 1, val2: 1) * 2 + 1), val2: 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -206,12 +206,12 @@ public partial class World : Core.Logic.World
     }
 
     /// <inheritdoc />
-    protected override ChunkState ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
+    protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
     {
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
         if (decoration != null) return decoration;
-        if (!activatedChunk.IsViableForMeshing()) return new Core.Logic.Chunk.Hidden();
+        if (!activatedChunk.IsViableForMeshing()) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
             if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
@@ -223,8 +223,9 @@ public partial class World : Core.Logic.World
     /// <inheritdoc />
     protected override ChunkState ProcessActivatedChunk(Core.Logic.Chunk activatedChunk)
     {
-        return activatedChunk.Cast().ProcessDecorationOption() ??
-               activatedChunk.Cast().ProcessMeshingOption() ??
+        Debug.Assert(activatedChunk.IsFullyDecorated);
+
+        return activatedChunk.Cast().ProcessMeshingOption() ??
                new Core.Logic.Chunk.Active();
     }
 

@@ -79,7 +79,7 @@ public partial class Chunk
             switch (future.Value!)
             {
                 case LoadingResult.Success:
-                    SetNextReady();
+                    TrySettingNextReady();
 
                     break;
 
@@ -136,7 +136,7 @@ public partial class Chunk
                     throw exception.GetBaseException();
                 }
 
-                SetNextReady();
+                TrySettingNextReady();
             }
         }
     }
@@ -146,8 +146,8 @@ public partial class Chunk
     /// </summary>
     public class Decorating : ChunkState
     {
-        private readonly Neighborhood<Chunk?> chunks;
-        private readonly Neighborhood<(Chunk, Guard)?> neighbors;
+        private readonly Neighborhood<Chunk> chunks;
+        private readonly PooledList<Guard> guards;
 
         private Future? activity;
 
@@ -155,20 +155,12 @@ public partial class Chunk
         ///     Creates a new decorating state.
         /// </summary>
         /// <param name="self">The guard for the core write access to the chunk itself.</param>
-        /// <param name="neighbors">The neighbors of this chunk, with write access guards.</param>
-        public Decorating(Guard self, Neighborhood<(Chunk, Guard)?> neighbors) : base(self, extended: null)
+        /// <param name="guards">The guards for the core write access to the neighboring chunks.</param>
+        /// <param name="chunks">The neighborhood of chunks.</param>
+        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk> chunks) : base(self, extended: null)
         {
-            this.neighbors = neighbors;
-
-            chunks = new Neighborhood<Chunk?>();
-
-            foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
-            {
-                (Chunk chunk, Guard)? neighbor = neighbors[x, y, z];
-
-                if (neighbor is {chunk: {} chunk})
-                    chunks[x, y, z] = chunk;
-            }
+            this.chunks = chunks;
+            this.guards = guards;
         }
 
         /// <inheritdoc />
@@ -201,16 +193,16 @@ public partial class Chunk
                     throw exception.GetBaseException();
                 }
 
-                SetNextReady();
+                TrySettingNextReady();
             }
         }
 
         /// <inheritdoc />
         protected override void Cleanup()
         {
-            foreach ((Chunk chunk, Guard guard)? potentialNeighbor in neighbors)
-                if (potentialNeighbor is {} neighbor)
-                    neighbor.guard.Dispose();
+            foreach (Guard guard in guards) guard.Dispose();
+
+            guards.Dispose();
         }
     }
 
@@ -239,7 +231,7 @@ public partial class Chunk
                 if (activity.Exception is {} exception)
                     LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
 
-                SetNextReady(new TransitionDescription
+                TrySettingNextReady(new TransitionDescription
                 {
                     PrioritizeDeactivation = true
                 });
@@ -301,9 +293,11 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (Chunk.IsFullyDecorated)
-                SetNextReady();
-            else
+            var activated = false;
+
+            if (Chunk.IsRequestedToActivate) activated = TrySettingNextReady();
+
+            if (!activated)
                 AllowTransition();
         }
     }
@@ -333,8 +327,8 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (wasActive) SetNextActive();
-            else SetNextReady();
+            if (wasActive) TrySettingNextActive();
+            else TrySettingNextReady();
         }
     }
 
@@ -352,7 +346,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnEnter()
         {
-            if (Chunk.IsRequested) return;
+            if (Chunk.IsRequestedToLoad) return;
 
             Deactivate();
         }
@@ -360,7 +354,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            SetNextReady();
+            TrySettingNextReady();
         }
     }
 

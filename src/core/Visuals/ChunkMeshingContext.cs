@@ -196,7 +196,7 @@ public class ChunkMeshingContext
             if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
 
             // A requested chunk might become viable in the near future.
-            if (!neighbor.IsRequested) continue;
+            if (!neighbor.IsRequestedToActivate) continue;
 
             if (!neighbor.CanAcquireCore(Access.Read)) count++;
         }
@@ -329,6 +329,6 @@ public static class ChunkMeshingExtensions
     /// <returns>Whether the chunk is viable for meshing.</returns>
     public static Boolean IsViableForMeshing(this Chunk chunk)
     {
-        return chunk is {IsFullyDecorated: true, IsRequested: true};
+        return chunk is {IsFullyDecorated: true, IsRequestedToActivate: true};
     }
 }

@@ -165,7 +165,7 @@ public partial class Chunk
 
             Cleanup();
 
-            SetNextActive();
+            TrySettingNextActive();
         }
 
         /// <inheritdoc />

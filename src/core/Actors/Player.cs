@@ -39,7 +39,7 @@ public abstract class Player : PhysicsActor
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static Int32 LoadDistance => 2;
+    public static Int32 LoadDistance => 5; // todo: pick something >= 5
 
     /// <summary>
     ///     The position of the current chunk this player is in.

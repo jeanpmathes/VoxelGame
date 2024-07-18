@@ -575,4 +575,12 @@ public static class VMath
     {
         return x * x * x;
     }
+
+    /// <summary>
+    ///     Get the modulo of a value. The result will always be positive.
+    /// </summary>
+    public static Int32 Mod(Int32 value, Int32 m)
+    {
+        return (value % m + m) % m;
+    }
 }

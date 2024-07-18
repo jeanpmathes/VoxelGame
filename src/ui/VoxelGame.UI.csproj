@@ -115,6 +115,7 @@
 
     <ItemGroup>
         <PackageReference Include="Gwen.Net" Version="0.5.7"/>
+        <PackageReference Include="JetBrains.Profiler.Api" Version="1.4.6"/>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

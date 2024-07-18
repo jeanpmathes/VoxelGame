@@ -69,7 +69,7 @@ public static class LoggingHelper
     }
 
     /// <summary>
-    ///     Setup a mock logger. All loggers creating with this helper will be null loggers.
+    ///     Set up a mock logger. All loggers creating with this helper will be null loggers.
     /// </summary>
     /// <returns>A mock logger.</returns>
     public static ILogger SetupMockLogging()

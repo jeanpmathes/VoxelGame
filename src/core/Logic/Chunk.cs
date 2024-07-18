@@ -70,6 +70,12 @@ public partial class Chunk : IDisposable, IEntity
     public const Int32 SectionCount = Size * Size * Size;
 
     /// <summary>
+    ///     The maximum decoration stage.
+    ///     It is <c>6</c> because the cube of 3x3x3 chunks is decorated using just two diagonals.
+    /// </summary>
+    private const Int32 MaxDecorationStage = 6;
+
+    /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
     public static readonly Int32 SizeExp = BitOperations.Log2(Size);
@@ -126,14 +132,9 @@ public partial class Chunk : IDisposable, IEntity
     private DecorationLevels decoration = DecorationLevels.None;
 
     /// <summary>
-    ///     Whether the chunk is currently requested to be active.
-    /// </summary>
-    private Boolean isRequested;
-
-    /// <summary>
     ///     The current chunk state.
     /// </summary>
-    private ChunkState state = null!;
+    public ChunkState state = null!; // todo: make private
 
     private ChunkPosition location;
 
@@ -176,9 +177,21 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Get whether the chunk is requested.
+    /// Get the request level of this chunk.
     /// </summary>
-    public Boolean IsRequested => isRequested;
+    public RequestLevel RequestLevel { get; private set; } = RequestLevel.None;
+
+    /// <summary>
+    ///     Whether this chunk is requested to be loaded or generated.
+    ///     It will rest in the hidden state after loading or generation.
+    /// </summary>
+    public Boolean IsRequestedToLoad => RequestLevel >= RequestLevel.Loaded;
+
+    /// <summary>
+    /// Whether this chunk is requested to be active.
+    /// It will attempt to enter the active state after loading or generation.
+    /// </summary>
+    public Boolean IsRequestedToActivate => RequestLevel >= RequestLevel.Active;
 
     /// <summary>
     ///     Get the position of this chunk.
@@ -204,6 +217,26 @@ public partial class Chunk : IDisposable, IEntity
     ///     The current chunk state.
     /// </summary>
     protected ChunkState State => state;
+
+    /// <summary>
+    ///     Decoration is intended to happen in global steps.
+    ///     A chunk will only decorate if all its neighbors that are in a lower stage are fully decorated.
+    ///     The seven stages are defined for a cube of 3x3x3 chunks in the following way:
+    ///     First the three chunks in the bottom diagonal, then the three chunks in the middle diagonal.
+    ///     All other chunks will then be already decorated.
+    ///     Therefore, all chunks that are not on one of the two diagonals have max stage.
+    /// </summary>
+    private Int32 DecorationStage
+    {
+        get
+        {
+            Int32 x = VMath.Mod(Position.X, m: 3);
+            Int32 y = VMath.Mod(Position.Y, m: 3);
+            Int32 z = VMath.Mod(Position.Z, m: 3);
+
+            return x == z ? Math.Min(x + y * 3, MaxDecorationStage) : MaxDecorationStage;
+        }
+    }
 
     /// <inheritdoc />
     public static Int32 Version => 1;
@@ -238,7 +271,7 @@ public partial class Chunk : IDisposable, IEntity
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
 
         decoration = DecorationLevels.None;
-        isRequested = false;
+        RequestLevel = RequestLevel.None;
     }
 
     /// <summary>
@@ -368,24 +401,47 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Add a request to the chunk to be active.
+    /// Raise the request level of this chunk.
+    /// If the request level is already at the specified level or higher, nothing happens.
     /// </summary>
-    public void AddRequest()
+    /// <param name="level">The level to raise to.</param>
+    public void RaiseRequestLevel(RequestLevel level)
     {
         Throw.IfDisposed(disposed);
 
-        isRequested = true;
+        if (RequestLevel >= level) return;
+
+        SetRequestLevel(level);
     }
 
     /// <summary>
-    ///     Remove a request to the chunk to be active.
+    /// Lower the request level of this chunk.
+    /// If the request level is already at the specified level or lower, nothing happens.
     /// </summary>
-    public void RemoveRequest()
+    /// <param name="level">The level to lower to.</param>
+    public void LowerRequestLevel(RequestLevel level)
     {
         Throw.IfDisposed(disposed);
 
-        isRequested = false;
-        BeginSaving();
+        if (RequestLevel <= level) return;
+
+        SetRequestLevel(level);
+    }
+
+    /// <summary>
+    ///     Set the request level of this chunk directly.
+    /// </summary>
+    /// <param name="level">The level to set.</param>
+    public void SetRequestLevel(RequestLevel level)
+    {
+        Throw.IfDisposed(disposed);
+
+        if (RequestLevel == level) return;
+
+        RequestLevel = level;
+
+        if (RequestLevel == RequestLevel.None) BeginSaving();
+        else if (RequestLevel < RequestLevel.Active) BeginHiding();
     }
 
     /// <summary>
@@ -451,6 +507,14 @@ public partial class Chunk : IDisposable, IEntity
     public void BeginSaving()
     {
         state.RequestNextState<Saving>();
+    }
+
+    /// <summary>
+    ///     Begin to hide the chunk.
+    /// </summary>
+    public void BeginHiding()
+    {
+        state.RequestNextState<Hidden>();
     }
 
     /// <summary>
@@ -652,87 +716,50 @@ public partial class Chunk : IDisposable, IEntity
 
     /// <summary>
     ///     Allow this chunk to begin decoration.
+    ///     The chunk will only try to decorate itself.
+    ///     It will however not start decoration if a neighboring chunk is not fully decorated.
     /// </summary>
     /// <returns>The next state, if the chunk needs decoration.</returns>
     public ChunkState? ProcessDecorationOption()
     {
         Throw.IfDisposed(disposed);
 
+        if (IsFullyDecorated) return null;
         if (!CanAcquireCore(Access.Write)) return null;
 
-        Boolean allAvailableChunksAreFullyDecorated = IsFullyDecorated;
-        Neighborhood<Chunk?> available = FindAvailableNeighbors(ref allAvailableChunksAreFullyDecorated);
+        // A chunk is only decorated if all neighbors are available at once.
+        // As the request level is high enough (otherwise the chunk would not want to decorate),
+        // all neighbors will be at least loaded.
 
-        if (allAvailableChunksAreFullyDecorated) return null;
+        Neighborhood<Chunk>? available = FindAllNeighborsIfAllAvailable(out Int32 smallestUndecoratedStage);
 
-        var isAnyDecorationPossible = false;
-        Neighborhood<Boolean> needed = FindNeededNeighbors(available, ref isAnyDecorationPossible);
-
-        if (!isAnyDecorationPossible) return null;
+        if (available == null) return null;
+        if (DecorationStage > smallestUndecoratedStage) return null;
 
         Guard? access = AcquireCore(Access.Write);
+        Debug.Assert(access != null);
 
-        if (access == null) return null;
-
-        var neighbors = new Neighborhood<(Chunk, Guard)?>();
+        var guards = new PooledList<Guard>(Neighborhood.Count);
 
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
         {
-            if ((x, y, z) == Neighborhood.Center || !needed[x, y, z]) continue;
+            if ((x, y, z) == Neighborhood.Center) continue;
 
-            Chunk? chunk = available[x, y, z];
-            Debug.Assert(chunk != null);
+            Chunk chunk = available[x, y, z];
 
             Guard? guard = chunk.AcquireCore(Access.Write);
             Debug.Assert(guard != null);
 
-            neighbors[x, y, z] = (chunk, guard);
+            guards.Add(guard);
         }
 
-        return new Decorating(access, neighbors);
+        return new Decorating(access, guards, available);
     }
 
-    private static Neighborhood<Boolean> FindNeededNeighbors(Neighborhood<Chunk?> available, ref Boolean isAnyDecorationPossible)
+    private Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable(out Int32 smallestUndecoratedStage)
     {
-        Debug.Assert(available.Center != null);
-
-        Neighborhood<Boolean> needed = new();
-
-        foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
-        {
-            if (IsCornerDecorated(corner, available)) continue;
-
-            var isCornerAvailable = true;
-
-            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
-                isCornerAvailable &= available.GetAt(corner + offset) != null;
-
-            if (!isCornerAvailable) continue;
-
-            isAnyDecorationPossible = true;
-
-            foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
-                needed.SetAt(corner + offset, value: true);
-        }
-
-        return needed;
-    }
-
-    private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk?> chunks)
-    {
-        var decorated = true;
-
-        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
-            // Use true as default because chunks that do not exist are considered decorated for the purpose of this method.
-            // This is because chunks that do not exist could not be used for decoration anyway.
-            decorated &= chunks.GetAt(position)?.decoration.HasFlag(flag) ?? true;
-
-        return decorated;
-    }
-
-    private Neighborhood<Chunk?> FindAvailableNeighbors(ref Boolean isFullyDecorated)
-    {
-        var available = new Neighborhood<Chunk?>();
+        var available = new Neighborhood<Chunk>();
+        smallestUndecoratedStage = MaxDecorationStage;
 
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             if ((x, y, z) == Neighborhood.Center)
@@ -741,36 +768,41 @@ public partial class Chunk : IDisposable, IEntity
             }
             else
             {
-                Boolean neighborExists = World.TryGetChunk(Position.Offset((x, y, z) - Neighborhood.Center), out Chunk? neighbor);
+                ChunkPosition position = Position.Offset((x, y, z) - Neighborhood.Center);
 
-                if (neighborExists)
+                if (World.TryGetChunk(position, out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write))
                 {
-                    Debug.Assert(neighbor != null);
+                    available[x, y, z] = neighbor;
 
-                    isFullyDecorated &= neighbor.IsFullyDecorated;
-                    available[x, y, z] = neighbor.CanAcquireCore(Access.Write) ? neighbor : null;
+                    // If a neighbor is in a lower stage but not requested to activate,
+                    // waiting for that neighbor would be pointless.
+
+                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}) smallestUndecoratedStage = Math.Min(smallestUndecoratedStage, neighbor.DecorationStage);
                 }
                 else
                 {
-                    available[x, y, z] = null;
+                    return null;
                 }
             }
 
         return available;
     }
 
-    private static void Decorate(IWorldGenerator generator, Neighborhood<Chunk?> neighbors)
+    private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk> chunks)
+    {
+        var decorated = true;
+
+        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
+            decorated &= chunks.GetAt(position).decoration.HasFlag(flag);
+
+        return decorated;
+    }
+
+    private static void Decorate(IWorldGenerator generator, Neighborhood<Chunk> neighbors)
     {
         foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
         {
             if (IsCornerDecorated(corner, neighbors)) continue;
-
-            var isCornerAvailable = true;
-
-            foreach ((Vector3i position, _) in GetCornerPositions(corner))
-                isCornerAvailable &= neighbors.GetAt(position) != null;
-
-            if (!isCornerAvailable) continue;
 
             DecorateCorner(generator, neighbors, corner);
         }
@@ -784,6 +816,8 @@ public partial class Chunk : IDisposable, IEntity
 
         var neighbors = new Array3D<Section>(length: 3);
 
+        foreach ((Int32 x, Int32 y, Int32 z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
+
         void SetNeighbors(Int32 x, Int32 y, Int32 z)
         {
             Debug.Assert(neighbors != null);
@@ -795,8 +829,6 @@ public partial class Chunk : IDisposable, IEntity
             SetNeighbors(x, y, z);
             generator.DecorateSection(SectionPosition.From(Position, (x, y, z)), neighbors);
         }
-
-        foreach ((Int32 x, Int32 y, Int32 z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
     }
 
     private static DecorationLevels GetFlagForCorner(Vector3i corner)
@@ -815,65 +847,55 @@ public partial class Chunk : IDisposable, IEntity
         };
     }
 
-    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, Vector3i corner)
+    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk> chunks, Vector3i corner)
     {
         Neighborhood<Boolean> decorated = new();
 
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
         {
-            Chunk? chunk = chunks.GetAt(position);
-            Debug.Assert(chunk != null);
+            Chunk chunk = chunks.GetAt(position);
 
             decorated.SetAt(position, chunk.decoration.HasFlag(flag));
+
             chunk.decoration |= flag;
         }
 
         // Go through all sections on the selected corner.
-        // We want to decorate 56 of them, which is a cube of 4x4x4 without the corners.
-        // The corners of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
+        // We want to decorate 56 of them, which is a cube of 4x4x4 without the tips (corners).
+        // The tips of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
-        ChunkPosition first = chunks.Center!.Position.Offset(xOffset: -1, yOffset: -1, zOffset: -1);
-
-        Section GetSection(SectionPosition sectionPosition)
-        {
-            Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
-
-            return chunks.GetAt(offset)!.GetSection(sectionPosition);
-        }
-
-        Boolean IsDecorated(SectionPosition sectionPosition)
-        {
-            Vector3i offset = first.OffsetTo(sectionPosition.Chunk);
-
-            return decorated.GetAt(offset);
-        }
-
-        Neighborhood<Section> GetNeighbors(SectionPosition sectionPosition)
-        {
-            Neighborhood<Section> neighbors = new();
-
-            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetSection(sectionPosition.Offset(dx - 1, dy - 1, dz - 1));
-
-            return neighbors;
-        }
-
-        void DecorateSection(SectionPosition sectionPosition)
-        {
-            Neighborhood<Section> neighbors = GetNeighbors(sectionPosition);
-            generator.DecorateSection(sectionPosition, neighbors);
-        }
-
-        SectionPosition lowCorner = SectionPosition.From(chunks.GetAt(corner)!.Position, (Size - 2, Size - 2, Size - 2));
+        ChunkPosition firstChunk = chunks.Center.Position.Offset(xOffset: -1, yOffset: -1, zOffset: -1);
+        SectionPosition firstSection = SectionPosition.From(chunks.GetAt(corner).Position, (Size - 2, Size - 2, Size - 2));
 
         foreach ((Int32 dx, Int32 dy, Int32 dz) in VMath.Range3(x: 4, y: 4, z: 4))
         {
-            if (IsCorner(dx, dy, dz)) continue;
-            if (IsDecorated(lowCorner.Offset(dx, dy, dz))) continue;
+            if (IsCubeTip(dx, dy, dz)) continue;
 
-            DecorateSection(lowCorner.Offset(dx, dy, dz));
+            SectionPosition currentSection = firstSection.Offset(dx, dy, dz);
+            Vector3i currentChunk = firstChunk.OffsetTo(currentSection.Chunk);
+
+            if (decorated.GetAt(currentChunk)) continue;
+
+            Neighborhood<Section> neighbors = GetSectionNeighbors(currentSection);
+            generator.DecorateSection(currentSection, neighbors);
         }
 
         Debug.Assert(IsCornerDecorated(corner, chunks));
+
+        Neighborhood<Section> GetSectionNeighbors(SectionPosition centerSection)
+        {
+            Neighborhood<Section> neighbors = new();
+
+            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices)
+            {
+                SectionPosition currentSection = centerSection.Offset(dx - 1, dy - 1, dz - 1);
+                Vector3i currentChunk = firstChunk.OffsetTo(currentSection.Chunk);
+
+                neighbors[dx, dy, dz] = chunks.GetAt(currentChunk).GetSection(currentSection);
+            }
+
+            return neighbors;
+        }
     }
 
     private static IEnumerable<(Vector3i, DecorationLevels)> GetCornerPositions(Vector3i corner)
@@ -882,7 +904,7 @@ public partial class Chunk : IDisposable, IEntity
             yield return (corner + offset, GetFlagForCorner(Neighborhood.Center - offset));
     }
 
-    private static Boolean IsCorner(Int32 dx, Int32 dy, Int32 dz)
+    private static Boolean IsCubeTip(Int32 dx, Int32 dy, Int32 dz)
     {
         return (dx, dy, dz) switch
         {
@@ -961,8 +983,7 @@ public partial class Chunk : IDisposable, IEntity
         Corner110 = 1 << 7,
         Corner111 = 1 << 8,
 
-        AllCorners = Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111,
-        All = Center | AllCorners
+        All = Center | Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111
     }
 
     #region LOGGING

@@ -22,6 +22,11 @@ public static class Neighborhood
     public const Int32 Length = 3;
 
     /// <summary>
+    ///     The total number of elements in the neighborhood.
+    /// </summary>
+    public const Int32 Count = Length * Length * Length;
+
+    /// <summary>
     ///     The index of the center of the array.
     /// </summary>
     public static Vector3i Center => Vector3i.One;

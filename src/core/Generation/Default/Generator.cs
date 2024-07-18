@@ -117,7 +117,7 @@ public partial class Generator : IWorldGenerator
 
         ICollection<Biome> biomes = GetSectionBiomes(position);
 
-        HashSet<Decoration> decorations = new();
+        HashSet<Decoration> decorations = [];
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
 
         foreach (Biome biome in biomes)

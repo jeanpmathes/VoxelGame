@@ -29,6 +29,8 @@ public sealed class ChunkSet : IDisposable
         this.context = context;
     }
 
+    public IEnumerable<Chunk> LeChunks => chunks.Values; // todo: remove
+
     /// <summary>
     ///     Get the number of active chunks.
     /// </summary>
@@ -52,13 +54,30 @@ public sealed class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
+        for (Int32 x = -1; x <= 1; x++)
+        for (Int32 y = -1; y <= 1; y++)
+        for (Int32 z = -1; z <= 1; z++)
+        {
+            ChunkPosition current = position.Offset(x, y, z);
+
+            var level = RequestLevel.Loaded;
+
+            if (current == position)
+                level = RequestLevel.Active;
+
+            RequestDirect(current, level);
+        }
+    }
+
+    private void RequestDirect(ChunkPosition position, RequestLevel level)
+    {
         if (!chunks.TryGetValue(position, out Chunk? chunk))
         {
             chunk = context.GetObject(position);
             chunks.Add(position, chunk);
         }
 
-        chunk.AddRequest();
+        chunk.RaiseRequestLevel(level);
     }
 
     /// <summary>
@@ -67,7 +86,51 @@ public sealed class ChunkSet : IDisposable
     /// <param name="position">The position of the chunk to release.</param>
     public void Release(ChunkPosition position)
     {
-        if (chunks.TryGetValue(position, out Chunk? chunk)) chunk.RemoveRequest();
+        Throw.IfDisposed(disposed);
+
+        // First, we go down to loaded, as we might not need to completely release the chunk.
+
+        if (chunks.TryGetValue(position, out Chunk? chunk))
+            chunk.LowerRequestLevel(RequestLevel.Loaded);
+
+        // Then, we check the level for all neighbors.
+
+        for (Int32 x = -1; x <= 1; x++)
+        for (Int32 y = -1; y <= 1; y++)
+        for (Int32 z = -1; z <= 1; z++)
+        {
+            ChunkPosition current = position.Offset(x, y, z);
+
+            if (!chunks.TryGetValue(current, out chunk)) return;
+
+            UpdateAfterNeighborRelease(chunk);
+        }
+    }
+
+    private void UpdateAfterNeighborRelease(Chunk chunk)
+    {
+        // If the chunk is active, that was explicitly requested, so we don't change it.
+        if (chunk.RequestLevel == RequestLevel.Active) return;
+
+        // A release can only lower the request level, so nothing to do if already at minimum.
+        if (chunk.RequestLevel == RequestLevel.None) return;
+
+        var max = RequestLevel.None;
+
+        for (Int32 x = -1; x <= 1; x++)
+        for (Int32 y = -1; y <= 1; y++)
+        for (Int32 z = -1; z <= 1; z++)
+            SetMax(x, y, z);
+
+        chunk.SetRequestLevel(max);
+
+        void SetMax(Int32 x, Int32 y, Int32 z)
+        {
+            if (x == 0 && y == 0 && z == 0) return;
+
+            if (chunks.TryGetValue(chunk.Position.Offset(x, y, z), out Chunk? neighbor) && neighbor.RequestLevel > max)
+                max = neighbor.RequestLevel - 1;
+        }
     }
 
     /// <summary>
@@ -133,7 +196,7 @@ public sealed class ChunkSet : IDisposable
         Throw.IfDisposed(disposed);
 
         Debug.Assert(!chunk.IsActive);
-        Debug.Assert(!chunk.IsRequested);
+        Debug.Assert(!chunk.IsRequestedToLoad);
 
         chunks.Remove(chunk.Position);
         context.ReturnObject(chunk);
@@ -149,7 +212,7 @@ public sealed class ChunkSet : IDisposable
         foreach (Chunk chunk in chunks.Values)
         {
             chunk.BeginSaving();
-            chunk.RemoveRequest();
+            chunk.LowerRequestLevel(RequestLevel.None);
         }
     }
 

@@ -17,7 +17,7 @@ public class ChunkContext
     /// <summary>
     ///     Manages the state transition for a ready or active chunk.
     /// </summary>
-    public delegate ChunkState ChunkActivator(Chunk chunk);
+    public delegate ChunkState? ChunkActivator(Chunk chunk);
 
     /// <summary>
     ///     Deactivates a chunk.
@@ -80,18 +80,20 @@ public class ChunkContext
 
     /// <summary>
     ///     Activate a chunk after a transition to the ready state.
+    ///     The activator can return null if no transition can be made at this time.
     ///     The chunk was not active before.
     /// </summary>
-    public ChunkState ActivateStrongly(Chunk chunk)
+    public ChunkState? ActivateStrongly(Chunk chunk)
     {
         return activateStrongly(chunk);
     }
 
     /// <summary>
     ///     Activate a chunk after a transition to the active state.
+    ///     The activator can return null if no transition can be made at this time.
     ///     The chunk has been activated before.
     /// </summary>
-    public ChunkState ActivateWeakly(Chunk chunk)
+    public ChunkState? ActivateWeakly(Chunk chunk)
     {
         return activateWeakly(chunk);
     }

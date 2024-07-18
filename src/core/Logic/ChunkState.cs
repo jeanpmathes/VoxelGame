@@ -36,12 +36,13 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean isEntered;
 
-    private NextStateTarget? next;
-
-    private ChunkState? previous;
-
+    /// <summary>
+    ///     Whether this state has exited and released all resources.
+    /// </summary>
     private Boolean released;
 
+    private NextStateTarget? next;
+    private ChunkState? previous;
     private RequestQueue requests = null!;
 
     /// <summary>
@@ -171,17 +172,18 @@ public abstract partial class ChunkState
     protected virtual void Cleanup() {}
 
     /// <summary>
-    ///     Set the next state. The transition is required, except if certain flags are set in the description.
+    ///     Set the next state.
     /// </summary>
     /// <param name="state">The next state.</param>
     /// <param name="description">A description of the transition.</param>
-    protected void SetNextState(ChunkState state, TransitionDescription description = new())
+    /// <param name="isRequired">Whether the transition is required.</param>
+    protected void SetNextState(ChunkState state, TransitionDescription description = new(), Boolean isRequired = true)
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = NextStateTarget.CreateDirectTransition(state, isRequired: true, description);
+        next = NextStateTarget.CreateDirectTransition(state, isRequired, description);
     }
 
     /// <summary>
@@ -194,35 +196,53 @@ public abstract partial class ChunkState
         SetNextState(new T(), description);
     }
 
-    private void SetNextState(Func<ChunkState> activator, TransitionDescription description = new())
+    /// <summary>
+    ///     Try to set the next state according the world chunk activation rules.
+    ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
+    ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
+    ///     The strong activation rule will be used, which is meant for chunks that have not been activated yet.
+    /// </summary>
+    protected Boolean TrySettingNextReady(TransitionDescription description = new())
     {
-        Debug.Assert(next == null);
-        next = NextStateTarget.CreateActivatedTransition(activator, description);
+        ChunkState? state = Context.ActivateStrongly(Chunk);
+
+        Debug.Assert(state is not Chunk.Hidden);
+
+        if (state == null && this is not Chunk.Hidden) state = new Chunk.Hidden();
+
+        if (state == null) return false;
+
+        ReleaseResources();
+        SetNextState(state, description, state is not Chunk.Active);
+
+        return true;
     }
 
     /// <summary>
-    ///     Signal that this chunk is now ready. The transition is required, except if certain flags are set in the
-    ///     description.
-    ///     This is a strong activation.
+    ///     Try to set the next state according the world chunk activation rules.
+    ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
+    ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
+    ///     The weak activation rule will be used, which is meant for chunks that have already been activated before.
     /// </summary>
-    protected void SetNextReady(TransitionDescription description = new())
+    protected Boolean TrySettingNextActive()
     {
-        ReleaseResources();
-        SetNextState(() => Context.ActivateStrongly(Chunk), description);
-    }
+        ChunkState? state = Context.ActivateWeakly(Chunk);
 
-    /// <summary>
-    ///     Set the next state to active. This transition is never required and can be understood as a "don't care"-transition.
-    ///     This is a weak activation.
-    /// </summary>
-    protected void SetNextActive()
-    {
+        Debug.Assert(state is not Chunk.Hidden);
+
+        if (state == null && this is not Chunk.Hidden) state = new Chunk.Hidden();
+
+        if (state == null) return false;
+
         ReleaseResources();
-        SetNextState(() => Context.ActivateWeakly(Chunk));
+        SetNextState(state, isRequired: state is not Chunk.Active);
+
+        return true;
     }
 
     /// <summary>
     ///     Indicate that this state allows to transition if there is a request.
+    ///     The transition is never required and can be understood as a "don't care"-transition.
     /// </summary>
     protected void AllowTransition()
     {
@@ -339,32 +359,9 @@ public abstract partial class ChunkState
         Context.Deactivate(Chunk);
     }
 
-    private Boolean PerformActivation()
-    {
-        Debug.Assert(next != null);
-
-        if (next.Transition != null) return true;
-
-        Debug.Assert(next.Activator != null);
-
-        if (!Chunk.CanAcquireCore(Access.Write) || !Chunk.CanAcquireExtended(Access.Write)) return false;
-
-        ChunkState activatedNext = next.Activator();
-        Boolean isRequired = activatedNext is not Chunk.Active and not Chunk.Hidden;
-
-        activatedNext.Chunk = Chunk;
-        activatedNext.Context = Context;
-
-        next = NextStateTarget.CreateDirectTransition(activatedNext, isRequired, next.Description);
-
-        return true;
-    }
-
     private ChunkState DetermineNextState()
     {
         if (next == null) return this;
-
-        if (!PerformActivation()) return this;
 
         Debug.Assert(next.Transition != null);
 
@@ -383,7 +380,7 @@ public abstract partial class ChunkState
 
     private ChunkState DetermineNextState(NextStateTarget.DirectTransition transition, TransitionDescription description)
     {
-        if (description.PrioritizeDeactivation && !Chunk.IsRequested)
+        if (description.PrioritizeDeactivation && !Chunk.IsRequestedToLoad)
             return CreateFinalState();
 
         if (description.PrioritizeLoop)
@@ -399,7 +396,7 @@ public abstract partial class ChunkState
 
         if (requestedState != null) return requestedState;
 
-        return Chunk.IsRequested ? transition.State : CreateFinalState();
+        return Chunk.IsRequestedToLoad ? transition.State : CreateFinalState();
     }
 
     /// <summary>
@@ -526,18 +523,12 @@ public abstract partial class ChunkState
     }
 
     private sealed record NextStateTarget(
-        NextStateTarget.DirectTransition? Transition,
-        TransitionDescription Description,
-        Func<ChunkState>? Activator)
+        NextStateTarget.DirectTransition Transition,
+        TransitionDescription Description)
     {
         public static NextStateTarget CreateDirectTransition(ChunkState state, Boolean isRequired, TransitionDescription description)
         {
-            return new NextStateTarget(new DirectTransition(state, isRequired), description, Activator: null);
-        }
-
-        public static NextStateTarget CreateActivatedTransition(Func<ChunkState> activator, TransitionDescription description)
-        {
-            return new NextStateTarget(Transition: null, description, activator);
+            return new NextStateTarget(new DirectTransition(state, isRequired), description);
         }
 
         public sealed record DirectTransition(ChunkState State, Boolean IsRequired);

@@ -14,11 +14,12 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Generation.Default;
+using VoxelGame.Core.Generation.Water;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+// todo: switch
 
 namespace VoxelGame.Core.Logic;
 
@@ -106,6 +107,8 @@ public abstract partial class World : IDisposable, IGrid
 
         chunks = new ChunkSet(ChunkContext);
     }
+
+    public IEnumerable<Chunk> LeChunks => chunks.LeChunks; // todo: remove
 
     /// <summary>
     ///     Setup the chunk context.
@@ -286,7 +289,7 @@ public abstract partial class World : IDisposable, IGrid
 
     private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(world, timer);
+        return new Generator();
     }
 
     /// <summary>
@@ -537,7 +540,7 @@ public abstract partial class World : IDisposable, IGrid
 
     /// <summary>
     ///     Get whether a section position is in the maximum allowed world limits.
-    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
     public static Boolean IsInLimits(SectionPosition position)
     {
@@ -561,13 +564,13 @@ public abstract partial class World : IDisposable, IGrid
     ///     Process a chunk that has been just activated.
     /// </summary>
     /// <returns>The next state of the chunk.</returns>
-    protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
+    protected abstract ChunkState? ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Process a chunk that has just switched to the active state through a weak activation.
     /// </summary>
     /// <returns>The next state of the chunk.</returns>
-    protected abstract ChunkState ProcessActivatedChunk(Chunk activatedChunk);
+    protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
