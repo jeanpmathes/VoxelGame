@@ -13,13 +13,15 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     A chunk, a cubic group of sections.
@@ -105,13 +107,13 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     The core resource of a chunk are its sections and their blocks.
     /// </summary>
-    private readonly Resource coreResource = new(nameof(Chunk) + "Core");
+    private readonly Resource coreResource = new($"{nameof(Chunk)}Core");
 
     /// <summary>
     ///     Extended resources are defined by users of core, like a client or a server.
     ///     An example for extended resources are meshes and renderers.
     /// </summary>
-    private readonly Resource extendedResource = new(nameof(Chunk) + "Extended");
+    private readonly Resource extendedResource = new($"{nameof(Chunk)}Extended");
 
     /// <summary>
     ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
@@ -131,10 +133,7 @@ public partial class Chunk : IDisposable, IEntity
 
     private DecorationLevels decoration = DecorationLevels.None;
 
-    /// <summary>
-    ///     The current chunk state.
-    /// </summary>
-    public ChunkState state = null!; // todo: make private
+    private ChunkState state = null!;
 
     private ChunkPosition location;
 
@@ -160,6 +159,14 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager = new ScheduledTickManager<Fluid.FluidTick>(
             Fluid.MaxFluidTicksPerFrameAndChunk,
             localUpdateCounter);
+
+        coreResource.Released += OnResourceReleased;
+        extendedResource.Released += OnResourceReleased;
+
+        void OnResourceReleased(Object? sender, EventArgs e)
+        {
+            State.OnChunkResourceReleased();
+        }
     }
 
     /// <summary>
@@ -214,9 +221,16 @@ public partial class Chunk : IDisposable, IEntity
     public Boolean IsFullyDecorated => decoration == DecorationLevels.All;
 
     /// <summary>
-    ///     The current chunk state.
+    ///     The internal chunk state.
+    ///     If the chunk is transitioning, it might not actually have entered the state yet.
     /// </summary>
-    protected ChunkState State => state;
+    protected internal ChunkState State => state;
+
+    /// <summary>
+    /// Index of this chunk in the state update list.
+    /// The property is used by the <see cref="ChunkUpdateList"/>.
+    /// </summary>
+    internal Int32? UpdateIndex { get; set; }
 
     /// <summary>
     ///     Decoration is intended to happen in global steps.
@@ -506,7 +520,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void BeginSaving()
     {
-        state.RequestNextState<Saving>();
+        State.RequestNextState<Saving>();
     }
 
     /// <summary>
@@ -514,7 +528,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void BeginHiding()
     {
-        state.RequestNextState<Hidden>();
+        State.RequestNextState<Hidden>();
     }
 
     /// <summary>
@@ -614,11 +628,13 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Update the state.
+    ///     Update the state and return the new state.
     /// </summary>
-    public void Update()
+    public ChunkState UpdateState()
     {
         ChunkState.Update(ref state, tracker);
+
+        return state;
     }
 
     /// <summary>
@@ -731,10 +747,9 @@ public partial class Chunk : IDisposable, IEntity
         // As the request level is high enough (otherwise the chunk would not want to decorate),
         // all neighbors will be at least loaded.
 
-        Neighborhood<Chunk>? available = FindAllNeighborsIfAllAvailable(out Int32 smallestUndecoratedStage);
+        Neighborhood<Chunk>? available = FindAllNeighborsIfAllAvailable();
 
         if (available == null) return null;
-        if (DecorationStage > smallestUndecoratedStage) return null;
 
         Guard? access = AcquireCore(Access.Write);
         Debug.Assert(access != null);
@@ -756,10 +771,9 @@ public partial class Chunk : IDisposable, IEntity
         return new Decorating(access, guards, available);
     }
 
-    private Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable(out Int32 smallestUndecoratedStage)
+    private Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable()
     {
         var available = new Neighborhood<Chunk>();
-        smallestUndecoratedStage = MaxDecorationStage;
 
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             if ((x, y, z) == Neighborhood.Center)
@@ -774,10 +788,12 @@ public partial class Chunk : IDisposable, IEntity
                 {
                     available[x, y, z] = neighbor;
 
-                    // If a neighbor is in a lower stage but not requested to activate,
-                    // waiting for that neighbor would be pointless.
+                    // An undecorated neighbor in a lower stage has priority,
+                    // but only if the neighbor will actually decorate.
 
-                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}) smallestUndecoratedStage = Math.Min(smallestUndecoratedStage, neighbor.DecorationStage);
+                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}
+                        && neighbor.DecorationStage < DecorationStage)
+                        return null;
                 }
                 else
                 {
@@ -786,6 +802,29 @@ public partial class Chunk : IDisposable, IEntity
             }
 
         return available;
+    }
+
+    /// <summary>
+    ///     Check whether the chunk can start meshing.
+    ///     Only needs to be checked if the chunk wants to mesh the first time
+    ///     and is not relevant for meshing caused by outside requests.
+    ///     If there are any neighbors that still have to be decorated, meshing should not start.
+    /// </summary>
+    public Boolean CanStartWithMeshing()
+    {
+        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
+        {
+            if ((x, y, z) == Neighborhood.Center) continue;
+
+            ChunkPosition position = Position.Offset((x, y, z) - Neighborhood.Center);
+
+            if (!World.TryGetChunk(position, out Chunk? neighbor)) continue;
+
+            if (neighbor is {IsRequestedToActivate: true, IsFullyDecorated: false})
+                return false;
+        }
+
+        return true;
     }
 
     private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk> chunks)
@@ -921,13 +960,32 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
+    ///     Called after any usable state was entered.
+    ///     A usable state holds write-access to both resources and allows stealing.
+    /// </summary>
+    internal void OnUsableState()
+    {
+        for (Int32 x = -1; x <= 1; x++)
+        for (Int32 y = -1; y <= 1; y++)
+        for (Int32 z = -1; z <= 1; z++)
+            HandleUsableNeighbor(x, y, z);
+
+        void HandleUsableNeighbor(Int32 x, Int32 y, Int32 z)
+        {
+            if ((x, y, z) == (0, 0, 0)) return;
+
+            if (World.TryGetChunk(Position.Offset(x, y, z), out Chunk? neighbor)) neighbor.State.OnNeighborUsable();
+        }
+    }
+
+    /// <summary>
     ///     Called after the active state was entered.
     /// </summary>
     private void OnActiveState()
     {
         OnActivation();
 
-        foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation(this);
+        foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation();
     }
 
     /// <summary>
@@ -952,7 +1010,7 @@ public partial class Chunk : IDisposable, IEntity
     ///     Called when a neighbor chunk was activated.
     ///     Note that this method is called only on the six direct neighbors and not on the diagonal neighbors.
     /// </summary>
-    protected virtual void OnNeighborActivation(Chunk neighbor) {}
+    protected virtual void OnNeighborActivation() {}
 
     /// <summary>
     ///     Get a section by index.

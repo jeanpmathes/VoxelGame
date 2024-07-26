@@ -10,6 +10,10 @@ using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
+using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Generation.Water;
 

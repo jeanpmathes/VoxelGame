@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Stores all chunks currently handled by the game.
@@ -18,6 +18,7 @@ namespace VoxelGame.Core.Logic;
 public sealed class ChunkSet : IDisposable
 {
     private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
+
     private readonly ChunkContext context;
 
     /// <summary>
@@ -29,7 +30,10 @@ public sealed class ChunkSet : IDisposable
         this.context = context;
     }
 
-    public IEnumerable<Chunk> LeChunks => chunks.Values; // todo: remove
+    /// <summary>
+    ///     Get all currently existing chunks.
+    /// </summary>
+    public IEnumerable<Chunk> All => chunks.Values;
 
     /// <summary>
     ///     Get the number of active chunks.
@@ -174,17 +178,6 @@ public sealed class ChunkSet : IDisposable
         Throw.IfDisposed(disposed);
 
         return Get(position);
-    }
-
-    /// <summary>
-    ///     Update all chunks.
-    /// </summary>
-    public void Update()
-    {
-        Throw.IfDisposed(disposed);
-
-        foreach (Chunk chunk in chunks.Values)
-            chunk.Update();
     }
 
     /// <summary>

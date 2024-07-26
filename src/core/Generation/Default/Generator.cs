@@ -14,10 +14,14 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
+using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Generation.Default;
 

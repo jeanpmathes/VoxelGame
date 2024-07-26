@@ -11,7 +11,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     Handles contacts between fluids.

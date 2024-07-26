@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -64,7 +65,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         if (potentialFluid is not {} fluid) return;
 
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
-            world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
+            world.SetBlock(Elements.Blocks.Instance.Mud.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -73,7 +74,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         (BlockInstance block, FluidInstance fluid) = content;
 
         return fluid is {IsAnyWater: true, Level: FluidLevel.Eight}
-            ? new Content(Logic.Blocks.Instance.Mud.AsInstance(), fluid)
+            ? new Content(Elements.Blocks.Instance.Mud.AsInstance(), fluid)
             : new Content(block, fluid);
     }
 }

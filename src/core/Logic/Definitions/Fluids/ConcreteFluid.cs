@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
@@ -41,6 +42,6 @@ public class ConcreteFluid : BasicFluid
         if (!isStatic) return;
 
         world.SetDefaultFluid(position);
-        Logic.Blocks.Instance.Specials.Concrete.Place(world, level, position);
+        Elements.Blocks.Instance.Specials.Concrete.Place(world, level, position);
     }
 }

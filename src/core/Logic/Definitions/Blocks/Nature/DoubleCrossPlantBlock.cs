@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -80,7 +81,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
-               (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is IPlantable;
+               (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is IPlantable;
     }
 
     /// <inheritdoc />
@@ -108,6 +109,6 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     {
         // Check if this block is the lower part and if the ground supports plant growth.
         if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
-            (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
+            (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }

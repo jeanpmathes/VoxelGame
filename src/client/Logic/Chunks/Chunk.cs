@@ -7,19 +7,22 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Data;
+using Section = VoxelGame.Client.Logic.Sections.Section;
 
-namespace VoxelGame.Client.Logic;
+namespace VoxelGame.Client.Logic.Chunks;
 
 /// <summary>
 ///     A chunk of the world, specifically for the client.
 /// </summary>
-public partial class Chunk : Core.Logic.Chunk
+public partial class Chunk : Core.Logic.Chunks.Chunk
 {
     private Boolean hasMeshData;
     private BlockSides meshedSides;
@@ -70,13 +73,13 @@ public partial class Chunk : Core.Logic.Chunk
         if (!this.IsViableForMeshing()) return;
 
         State.RequestNextState(new Meshing(side),
-            new Core.Logic.ChunkState.RequestDescription
+            new Core.Logic.Chunks.ChunkState.RequestDescription
             {
                 AllowSkipOnDeactivation = true
             });
     }
 
-    private static Core.Logic.Section CreateSection(ArraySegment<UInt32> blocks)
+    private static Core.Logic.Sections.Section CreateSection(ArraySegment<UInt32> blocks)
     {
         return new Section(blocks);
     }
@@ -100,7 +103,7 @@ public partial class Chunk : Core.Logic.Chunk
     ///     Process a chance to mesh the entire chunk.
     /// </summary>
     /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
-    public Core.Logic.ChunkState? ProcessMeshingOption()
+    public Core.Logic.Chunks.ChunkState? ProcessMeshingOption()
     {
         Throw.IfDisposed(disposed);
 
@@ -123,7 +126,7 @@ public partial class Chunk : Core.Logic.Chunk
             if (meshedSides.HasFlag(current)) continue;
 
             // A chunk can only mesh if it exists.
-            if (!World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunk? chunk)) continue;
+            if (!World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunks.Chunk? chunk)) continue;
 
             chunk.Cast().BeginMeshing(side.Opposite());
         }
@@ -144,7 +147,7 @@ public partial class Chunk : Core.Logic.Chunk
     }
 
     /// <inheritdoc />
-    protected override void OnNeighborActivation(Core.Logic.Chunk neighbor)
+    protected override void OnNeighborActivation()
     {
         RecreateIncompleteSectionMeshes();
     }
@@ -227,7 +230,7 @@ public partial class Chunk : Core.Logic.Chunk
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
 
-            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Section.Extents, Core.Logic.Section.Extents);
+            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Sections.Section.Extents, Core.Logic.Sections.Section.Extents);
             Boolean visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
             GetSection(LocalSectionToIndex(x, y, z)).SetVfxEnabledState(visible);

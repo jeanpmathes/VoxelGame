@@ -7,9 +7,10 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 public partial class Fluid
 {

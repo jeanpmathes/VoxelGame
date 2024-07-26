@@ -10,19 +10,21 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Logic;
+namespace VoxelGame.Client.Logic.Sections;
 
 /// <summary>
 ///     A section of the world, specifically for the client.
 ///     Sections do not know their exact position in the world.
 /// </summary>
-public class Section : Core.Logic.Section
+public class Section : Core.Logic.Sections.Section
 {
     #region LOGGING
 
@@ -113,13 +115,13 @@ public class Section : Core.Logic.Section
         (Int32 x, Int32 y, Int32 z) = position.Local;
 
         if (x == 0) required |= BlockSides.Left;
-        if (x == Core.Logic.Chunk.Size - 1) required |= BlockSides.Right;
+        if (x == Chunk.Size - 1) required |= BlockSides.Right;
 
         if (y == 0) required |= BlockSides.Bottom;
-        if (y == Core.Logic.Chunk.Size - 1) required |= BlockSides.Top;
+        if (y == Chunk.Size - 1) required |= BlockSides.Top;
 
         if (z == 0) required |= BlockSides.Back;
-        if (z == Core.Logic.Chunk.Size - 1) required |= BlockSides.Front;
+        if (z == Chunk.Size - 1) required |= BlockSides.Front;
 
         return required;
     }

@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -49,7 +50,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     public void CoverWithAsh(World world, Vector3i position)
     {
-        world.SetBlock(Logic.Blocks.Instance.GrassBurned.AsInstance(), position);
+        world.SetBlock(Elements.Blocks.Instance.GrassBurned.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -58,7 +59,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     /// <inheritdoc />
     public void BecomeSolid(World world, Vector3i position)
     {
-        world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
+        world.SetBlock(Elements.Blocks.Instance.Dirt.AsInstance(), position);
     }
 
     /// <inheritdoc />

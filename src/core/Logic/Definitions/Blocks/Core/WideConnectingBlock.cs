@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;

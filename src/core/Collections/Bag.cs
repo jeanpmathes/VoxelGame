@@ -20,10 +20,10 @@ namespace VoxelGame.Core.Collections;
 /// <typeparam name="T">The type of the items in the bag.</typeparam>
 public class Bag<T> : IEnumerable<T>
 {
+    private readonly List<T> items = [];
     private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
-    private readonly List<T> items = [];
 
     /// <summary>
     ///     Create a new gapped bag.
@@ -105,6 +105,26 @@ public class Bag<T> : IEnumerable<T>
 
             if (!function(items[index])) RemoveAt(index);
         }
+    }
+
+    /// <summary>
+    ///     Copy this bag into a list.
+    ///     The list might contain gaps after this operation.
+    /// </summary>
+    #pragma warning disable S3956 // Concrete List type required for AddRange method
+    public void CopyDirectlyTo(List<T?> other)
+    #pragma warning restore S3956
+    {
+        other.AddRange(items);
+    }
+
+    /// <summary>
+    ///     Clear the bag, removing all items.
+    /// </summary>
+    public void Clear()
+    {
+        items.Clear();
+        gaps.Clear();
     }
 
     private Int32 GetNextGap()

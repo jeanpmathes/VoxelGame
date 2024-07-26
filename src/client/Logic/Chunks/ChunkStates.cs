@@ -6,14 +6,15 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Data;
 
-namespace VoxelGame.Client.Logic;
+namespace VoxelGame.Client.Logic.Chunks;
 
 public partial class Chunk
 {
@@ -27,7 +28,7 @@ public partial class Chunk
     /// <summary>
     ///     Utility to allow easier access without casting.
     /// </summary>
-    public abstract class ChunkState : Core.Logic.ChunkState
+    public abstract class ChunkState : Core.Logic.Chunks.ChunkState
     {
         /// <summary>
         ///     Access the client chunk.
@@ -94,7 +95,7 @@ public partial class Chunk
             if (activity is not {future: {} future, context: {} context})
             {
                 context = ChunkMeshingContext.Acquire(Chunk, Chunk.meshedSides, side, SpatialMeshingFactory.Shared);
-                activity = (Future.Create(() => Chunk.CreateMeshData(context)), context);
+                activity = (WaitForCompletion(() => Chunk.CreateMeshData(context)), context);
             }
             else if (future.IsCompleted)
             {
@@ -119,7 +120,7 @@ public partial class Chunk
         }
 
         /// <inheritdoc />
-        protected override Core.Logic.ChunkState ResolveDuplicate(Core.Logic.ChunkState other)
+        protected override Core.Logic.Chunks.ChunkState ResolveDuplicate(Core.Logic.Chunks.ChunkState other)
         {
             if (side == BlockSide.All) return this;
             if (((Meshing) other).side == BlockSide.All) return other;

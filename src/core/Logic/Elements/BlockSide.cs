@@ -10,9 +10,11 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The side of a block.

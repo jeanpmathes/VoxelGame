@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -22,7 +24,7 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 public partial class StaticStructure : Structure
 {
     private const Int32 MaxSize = 1024;
- 
+
     private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
 
     private static LoadingContext? loadingContext;
@@ -159,7 +161,7 @@ public partial class StaticStructure : Structure
     private static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Logic.Blocks.Instance.Error);
+        fallback[0, 0, 0] = new Content(Elements.Blocks.Instance.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }
@@ -176,22 +178,22 @@ public partial class StaticStructure : Structure
 
         var content = Content.Default;
 
-        Block? block = Logic.Blocks.Instance.TranslateNamedID(placement.Block);
+        Block? block = Elements.Blocks.Instance.TranslateNamedID(placement.Block);
 
         if (block == null)
         {
             LogUnknownBlockInStructure(logger, placement.Block, name);
-            block = Logic.Blocks.Instance.Air;
+            block = Elements.Blocks.Instance.Air;
         }
 
         content.Block = new BlockInstance(block, (((UInt32) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
 
-        Fluid? fluid = Logic.Fluids.Instance.TranslateNamedID(placement.Fluid);
+        Fluid? fluid = Elements.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
         if (fluid == null)
         {
             LogUnknownFluidInStructure(logger, placement.Fluid, name);
-            fluid = Logic.Fluids.Instance.None;
+            fluid = Elements.Fluids.Instance.None;
         }
 
         content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((UInt32) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
@@ -259,7 +261,7 @@ public partial class StaticStructure : Structure
         if (exception == null) return false;
 
         LogFailedStructureStore(logger, exception, name);
-        
+
         return false;
     }
 

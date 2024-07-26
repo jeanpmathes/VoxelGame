@@ -12,7 +12,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.

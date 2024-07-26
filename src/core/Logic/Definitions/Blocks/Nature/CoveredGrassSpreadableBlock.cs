@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -29,6 +30,6 @@ public class CoveredGrassSpreadableBlock : CoveredDirtBlock, IGrassSpreadable
     /// <inheritdoc />
     public override void ContentUpdate(World world, Vector3i position, Content content)
     {
-        if (content.Fluid.Fluid.IsFluid) world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
+        if (content.Fluid.Fluid.IsFluid) world.SetBlock(Elements.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }

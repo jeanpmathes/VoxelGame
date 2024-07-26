@@ -9,6 +9,7 @@ using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Logging;
 

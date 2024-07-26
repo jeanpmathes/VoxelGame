@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Visuals;

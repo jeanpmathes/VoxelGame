@@ -7,7 +7,7 @@
 using System.IO;
 using VoxelGame.Core.Generation;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     The context in which chunks exist.
@@ -61,12 +61,21 @@ public class ChunkContext
     public IWorldGenerator Generator { get; }
 
     /// <summary>
+    ///     The update list for chunks that will receive state updates.
+    /// </summary>
+    public ChunkUpdateList UpdateList { get; } = new();
+
+    /// <summary>
     ///     Get a newly initialized chunk.
     ///     The chunks must be returned using <see cref="ReturnObject" />.
     /// </summary>
     public Chunk GetObject(ChunkPosition position)
     {
-        return world.ChunkPool.Get(world, position);
+        Chunk chunk = world.ChunkPool.Get(world, position);
+
+        UpdateList.Add(chunk);
+
+        return chunk;
     }
 
     /// <summary>
@@ -75,6 +84,8 @@ public class ChunkContext
     /// <param name="chunk">The chunk to return.</param>
     public void ReturnObject(Chunk chunk)
     {
+        UpdateList.Remove(chunk);
+
         world.ChunkPool.Return(chunk);
     }
 

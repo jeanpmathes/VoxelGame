@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Client.Actors.Players;

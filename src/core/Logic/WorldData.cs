@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -25,7 +26,7 @@ namespace VoxelGame.Core.Logic;
 public partial class WorldData
 {
     private const String InfoFileName = "info.json";
-    
+
     private readonly List<DirectoryInfo> subdirectories = [];
 
     private readonly FileInfo informationFile;
@@ -349,7 +350,7 @@ public partial class WorldData
                 WorldDirectory.CopyTo(targetDirectory);
 
                 LogCopiedWorld(logger, Information.Name, targetDirectory.FullName);
-                
+
                 return LoadInformation(targetDirectory);
             }
             catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
@@ -368,7 +369,7 @@ public partial class WorldData
     public void Rename(String newName)
     {
         LogRenamingWorld(logger, Information.Name, newName);
-        
+
         Information.Name = newName;
 
         Save();

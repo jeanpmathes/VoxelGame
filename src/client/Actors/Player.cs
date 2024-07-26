@@ -12,6 +12,7 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -106,7 +107,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     public void SetFlyingSpeed(Double speed)
     {
         Throw.IfDisposed(disposed);
-        
+
         movementStrategy.FlyingSpeed = speed;
 
         LogSetFlyingSpeed(logger, speed);
@@ -120,7 +121,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     public void SetFreecam(Boolean freecam)
     {
         Throw.IfDisposed(disposed);
-        
+
         movementStrategy = freecam
             ? new FreecamMovement(this, input, movementStrategy.FlyingSpeed)
             : new DefaultMovement(input, movementStrategy.FlyingSpeed);

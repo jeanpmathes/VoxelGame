@@ -6,8 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Chunks;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Sections;
 
 /// <summary>
 ///     The position of a section in the world.
@@ -84,9 +85,9 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     {
         get
         {
-            Int32 localX = X & (Logic.Chunk.Size - 1);
-            Int32 localY = Y & (Logic.Chunk.Size - 1);
-            Int32 localZ = Z & (Logic.Chunk.Size - 1);
+            Int32 localX = X & (Chunks.Chunk.Size - 1);
+            Int32 localY = Y & (Chunks.Chunk.Size - 1);
+            Int32 localZ = Z & (Chunks.Chunk.Size - 1);
 
             return (localX, localY, localZ);
         }
@@ -100,9 +101,9 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     {
         get
         {
-            Int32 chunkX = X >> Logic.Chunk.SizeExp;
-            Int32 chunkY = Y >> Logic.Chunk.SizeExp;
-            Int32 chunkZ = Z >> Logic.Chunk.SizeExp;
+            Int32 chunkX = X >> Chunks.Chunk.SizeExp;
+            Int32 chunkY = Y >> Chunks.Chunk.SizeExp;
+            Int32 chunkZ = Z >> Chunks.Chunk.SizeExp;
 
             return new ChunkPosition(chunkX, chunkY, chunkZ);
         }

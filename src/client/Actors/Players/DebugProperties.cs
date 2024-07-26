@@ -6,7 +6,7 @@
 
 using System;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 
@@ -31,6 +31,10 @@ public class DebugProperties : Group
         new Message("Target Fluid", FormatFluidTarget(targeting.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),
         player.World.Map.GetPositionDebugData(player.Position),
+        new Group("World",
+        [
+            new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}")
+        ]),
         Profile.Instance?.GenerateReport() ?? new Group(nameof(Profile),
         [
             new Message("Disabled", "Use application arguments to enable integrated profiling.")

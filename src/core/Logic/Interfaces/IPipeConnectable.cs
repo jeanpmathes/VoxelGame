@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Logic.Interfaces;
 

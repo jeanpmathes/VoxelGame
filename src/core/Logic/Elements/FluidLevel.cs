@@ -8,7 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The level or amount of fluid. A position is split into 8 equal parts.

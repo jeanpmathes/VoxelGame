@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -158,7 +159,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
 
         if ((Int32) stage > 2)
         {
-            if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
+            if (world.GetFluid(position.Below())?.Fluid == Elements.Fluids.Instance.SeaWater)
             {
                 world.SetBlock(this.AsInstance(lowered | (UInt32) GrowthStage.Dead), position);
 
@@ -166,7 +167,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
             }
 
             if (!plantable.SupportsFullGrowth) return;
-            if (!plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
+            if (!plantable.TryGrow(world, position.Below(), Elements.Fluids.Instance.FreshWater, FluidLevel.One)) return;
         }
 
         world.SetBlock(this.AsInstance(lowered | (UInt32) (stage + 1)), position);

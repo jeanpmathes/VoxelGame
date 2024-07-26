@@ -19,7 +19,7 @@ public class Map : IMap
     /// <inheritdoc />
     public Property GetPositionDebugData(Vector3d position)
     {
-        return new Message(nameof(Water), "");
+        return new Message(nameof(Water), "No special information.");
     }
 
     /// <inheritdoc />

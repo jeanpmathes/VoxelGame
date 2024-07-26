@@ -6,8 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Sections;
 
 /// <summary>
 ///     Wraps a section and allows to access it as a grid.

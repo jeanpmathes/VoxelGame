@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -27,7 +28,7 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
 
     private const Double AirDrag = 0.18;
     private const Double FluidDrag = 15.0;
-    
+
     private readonly BoundingVolume boundingVolume;
 
     private readonly Int32 physicsIterations = 10;
@@ -302,7 +303,7 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
     private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
 
     #endregion LOGGING
-    
+
     #region IDisposable Support
 
     private Boolean disposed;

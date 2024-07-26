@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Indicates the level at which a chunk is requested.

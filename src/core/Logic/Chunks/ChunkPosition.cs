@@ -6,9 +6,10 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     The position of a chunk in the world.

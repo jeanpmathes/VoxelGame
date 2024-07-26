@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -26,7 +27,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
     private readonly Single diameter;
-    
+
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
     private readonly List<BoundingVolume> volumes = [];
 

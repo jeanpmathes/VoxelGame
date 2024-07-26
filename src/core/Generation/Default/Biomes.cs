@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using VoxelGame.Core.Generation.Default.Deco;
-using VoxelGame.Core.Logic;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
 
 namespace VoxelGame.Core.Generation.Default;
 

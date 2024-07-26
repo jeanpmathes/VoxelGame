@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     A specific instance of a block.

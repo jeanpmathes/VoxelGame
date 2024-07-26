@@ -10,7 +10,7 @@ using System.Globalization;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
@@ -40,7 +40,7 @@ public static partial class ManualBuilder
         DirectoryInfo directory = FileSystem.GetFullPath(path);
 
         LogGeneratingManual(logger);
-        
+
         Documentation documentation = new(typeof(ApplicationInformation).Assembly);
 
         Includable controls = new("controls", directory);

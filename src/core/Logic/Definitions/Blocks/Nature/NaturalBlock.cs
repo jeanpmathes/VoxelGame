@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;

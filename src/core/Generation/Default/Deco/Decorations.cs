@@ -6,9 +6,10 @@
 
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
 

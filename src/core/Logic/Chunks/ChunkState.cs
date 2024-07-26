@@ -9,10 +9,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Abstract base class for chunk states.
@@ -30,11 +31,6 @@ public abstract partial class ChunkState
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
     /// </summary>
     private Boolean isAccessSufficient;
-
-    /// <summary>
-    ///     Whether this state has acquired all required access and is not waiting on anything.
-    /// </summary>
-    private Boolean isEntered;
 
     /// <summary>
     ///     Whether this state has exited and released all resources.
@@ -62,6 +58,11 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
+    ///     The waiting mode of this state.
+    /// </summary>
+    public StateWaitModes WaitMode { get; private set; }
+
+    /// <summary>
     ///     Get the chunk.
     /// </summary>
     protected Chunk Chunk { get; private set; } = null!;
@@ -74,7 +75,13 @@ public abstract partial class ChunkState
     /// <summary>
     ///     Get whether this chunk is active.
     /// </summary>
-    public Boolean IsActive => isEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+    public Boolean IsActive => IsEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+
+    /// <summary>
+    ///     Get whether this state has been entered.
+    ///     An entered state has acquired all required access.
+    /// </summary>
+    public Boolean IsEntered { get; private set; }
 
     /// <summary>
     ///     Whether this state allows sharing its access during one update.
@@ -141,8 +148,12 @@ public abstract partial class ChunkState
 
         if (previous != null) LogChunkStateChange(logger, Chunk.Position, previous, this);
 
-        isEntered = true;
+        Context.UpdateList.Add(Chunk);
+
+        IsEntered = true;
         OnEnter();
+
+        if (CanStealAccess && CoreAccess == Access.Write && ExtendedAccess == Access.Write) Chunk.OnUsableState();
     }
 
     /// <summary>
@@ -204,13 +215,20 @@ public abstract partial class ChunkState
     /// </summary>
     protected Boolean TrySettingNextReady(TransitionDescription description = new())
     {
-        ChunkState? state = Context.ActivateStrongly(Chunk);
+        if (this is not Chunk.Hidden)
+            // If the chunk is not hidden, this method will always result in a transition to a different state.
+            // This is because we transition to hidden if the activation does not provide a next state.
+            // As such, we can already release resources here, which will allow more during activation.
+            ReleaseResources();
 
+        ChunkState? state = Context.ActivateStrongly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
 
-        if (state == null && this is not Chunk.Hidden) state = new Chunk.Hidden();
-
-        if (state == null) return false;
+        if (state == null)
+        {
+            if (this is not Chunk.Hidden) state = new Chunk.Hidden();
+            else return false;
+        }
 
         ReleaseResources();
         SetNextState(state, description, state is not Chunk.Active);
@@ -241,6 +259,121 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
+    ///     Wait until the function is completed before calling update again.
+    /// </summary>
+    /// <param name="func">The function to wait for.</param>
+    protected Future<T> WaitForCompletion<T>(Func<T> func)
+    {
+        Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
+
+        WaitMode |= StateWaitModes.WaitForCompletion;
+
+        return Future.Create(() =>
+        {
+            T result = func();
+
+            Context.UpdateList.AddOnUpdate(Chunk, ClearFlag);
+
+            return result;
+        });
+
+        static void ClearFlag(Chunk chunk)
+        {
+            chunk.State.WaitMode &= ~StateWaitModes.WaitForCompletion;
+        }
+    }
+
+    /// <summary>
+    ///     Wait until the action is completed before calling update again.
+    /// </summary>
+    /// <param name="action">The action to wait for.</param>
+    protected Future WaitForCompletion(Action action)
+    {
+        Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
+
+        WaitMode |= StateWaitModes.WaitForCompletion;
+
+        return Future.Create(() =>
+        {
+            action();
+
+            Context.UpdateList.AddOnUpdate(Chunk, ClearWait);
+        });
+
+        static void ClearWait(Chunk chunk)
+        {
+            chunk.State.WaitMode = StateWaitModes.None;
+        }
+    }
+
+    /// <summary>
+    ///     Wait until certain events occur before calling update again.
+    ///     At least one of the events must be set.
+    ///     If both are set, the state will wait until one of the events occurs.
+    ///     Calling this method will not prevent a transition if the next state was already set.
+    /// </summary>
+    /// <param name="onNeighborUsable">
+    ///     Wait until a neighbor becomes usable.
+    ///     A neighbor is usable if it has write access to all data and allows stealing.
+    /// </param>
+    /// <param name="onTransitionRequest">
+    ///     Wait until a transition request is made.
+    /// </param>
+    protected void WaitForEvents(Boolean onNeighborUsable = false, Boolean onTransitionRequest = false)
+    {
+        Debug.Assert(onNeighborUsable || onTransitionRequest);
+
+        if (onNeighborUsable)
+        {
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForNeighborUsability));
+
+            WaitMode |= StateWaitModes.WaitForNeighborUsability;
+        }
+
+        if (onTransitionRequest)
+        {
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForRequest));
+
+            WaitMode |= StateWaitModes.WaitForRequest;
+        }
+
+        Context.UpdateList.Remove(Chunk);
+    }
+
+    private void WaitForResource()
+    {
+        Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForResource));
+
+        WaitMode |= StateWaitModes.WaitForResource;
+
+        Context.UpdateList.Remove(Chunk);
+    }
+
+    /// <summary>
+    ///     Call this when a neighbor of the chunk owning this state becomes usable.
+    /// </summary>
+    internal void OnNeighborUsable()
+    {
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForNeighborUsability)) return;
+
+        WaitMode = StateWaitModes.None;
+
+        Context.UpdateList.Add(Chunk);
+    }
+
+    /// <summary>
+    ///     Call this when any of the chunk resources have been released.
+    /// </summary>
+    internal void OnChunkResourceReleased()
+    {
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForResource)) return;
+
+        WaitMode = StateWaitModes.None;
+
+        Context.UpdateList.Add(Chunk);
+    }
+
+    /// <summary>
     ///     Indicate that this state allows to transition if there is a request.
     ///     The transition is never required and can be understood as a "don't care"-transition.
     /// </summary>
@@ -262,6 +395,12 @@ public abstract partial class ChunkState
         state.Context = Context;
 
         requests.Enqueue(this, state, description);
+
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForRequest)) return;
+
+        WaitMode = StateWaitModes.None;
+
+        Context.UpdateList.Add(Chunk);
     }
 
     /// <summary>
@@ -284,7 +423,12 @@ public abstract partial class ChunkState
         {
             isAccessSufficient = EnsureRequiredAccess();
 
-            if (!isAccessSufficient) return this;
+            if (!isAccessSufficient)
+            {
+                WaitForResource();
+
+                return this;
+            }
 
             Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
             Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
@@ -292,7 +436,7 @@ public abstract partial class ChunkState
 
         if (IsDelaying()) return this;
 
-        if (!isEntered) Enter();
+        if (!IsEntered) Enter();
 
         if (!released) OnUpdate();
 
@@ -303,12 +447,15 @@ public abstract partial class ChunkState
         OnExit();
         ReleaseResources();
 
+        WaitMode = StateWaitModes.None;
+        Context.UpdateList.Add(Chunk);
+
         return nextState;
     }
 
     private Boolean IsDelaying()
     {
-        if (isEntered) return false;
+        if (IsEntered) return false;
         if (currentDelayTime >= DelayTimeout) return false;
 
         currentDelayTime += 1;
@@ -483,6 +630,8 @@ public abstract partial class ChunkState
         state.previous = previousState;
         state.requests = previousState.requests;
 
+        state.Context.UpdateList.Add(state.Chunk);
+
         tracker.Transition(previousState, state);
 
         return (core, extended);
@@ -559,7 +708,7 @@ public abstract partial class ChunkState
                 if (keep == next) return;
             }
 
-            if (!current.isEntered)
+            if (!current.IsEntered)
             {
                 keep = ResolveDuplicate(current, state);
 
@@ -621,7 +770,7 @@ public abstract partial class ChunkState
         /// </summary>
         public void RemoveDuplicates(ChunkState current)
         {
-            Debug.Assert(!current.isEntered);
+            Debug.Assert(!current.IsEntered);
 
             var index = 0;
 

@@ -14,12 +14,14 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Generation.Water;
+using VoxelGame.Core.Generation.Default;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-// todo: switch
 
 namespace VoxelGame.Core.Logic;
 
@@ -108,10 +110,13 @@ public abstract partial class World : IDisposable, IGrid
         chunks = new ChunkSet(ChunkContext);
     }
 
-    public IEnumerable<Chunk> LeChunks => chunks.LeChunks; // todo: remove
+    /// <summary>
+    ///     Get all currently existing chunks.
+    /// </summary>
+    public IEnumerable<Chunk> Chunks => chunks.All;
 
     /// <summary>
-    ///     Setup the chunk context.
+    ///     Set up the chunk context.
     /// </summary>
     protected ChunkContext ChunkContext { get; }
 
@@ -145,6 +150,12 @@ public abstract partial class World : IDisposable, IGrid
                 StateChanged(this, EventArgs.Empty);
         }
     }
+
+    /// <summary>
+    ///     The number of chunk state updates that have been performed in the last update cycle.
+    ///     Is initialized to <c>-1</c> before the first update cycle.
+    /// </summary>
+    public Int32 ChunkStateUpdateCount { get; private set; } = -1;
 
     /// <summary>
     ///     Get or set the spawn position in this world.
@@ -289,7 +300,7 @@ public abstract partial class World : IDisposable, IGrid
 
     private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator();
+        return new Generator(world, timer);
     }
 
     /// <summary>
@@ -318,13 +329,13 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Update chunks.
+    ///     Let all chunks that need it run their state updates.
     /// </summary>
-    protected void UpdateChunks()
+    protected void UpdateChunkStates()
     {
         Profile.Instance?.UpdateStateDurations(nameof(Chunk));
 
-        chunks.Update();
+        ChunkStateUpdateCount = ChunkContext.UpdateList.Update();
     }
 
     /// <summary>

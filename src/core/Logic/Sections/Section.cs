@@ -9,9 +9,10 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Sections;
 
 /// <summary>
 ///     A section, a part of a chunk. Sections are the smallest unit for meshing and rendering.

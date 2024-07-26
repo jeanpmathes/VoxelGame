@@ -6,7 +6,9 @@
 
 using System;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Utilities;
+using Chunk = VoxelGame.Core.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Core.Collections;
 

@@ -7,7 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The vertical flow direction of a fluid.

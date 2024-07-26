@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     Block flags containing different options for a block.

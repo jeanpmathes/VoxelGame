@@ -14,6 +14,9 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
@@ -22,6 +25,7 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Support.Core;
 using VoxelGame.Support.Data;
+using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;
 
@@ -32,7 +36,7 @@ public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
-    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube(Math.Min(Player.LoadDistance - 1, val2: 1) * 2 + 1), val2: 1);
+    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube(Math.Min(Player.LoadDistance - 1, val2: 0) * 2 + 1), val2: 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -100,7 +104,7 @@ public partial class World : Core.Logic.World
 
         void CullActiveChunks()
         {
-            foreach (Core.Logic.Chunk chunk in ActiveChunks)
+            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks)
             {
                 chunk.Cast().CullSections(frustum);
             }
@@ -118,7 +122,7 @@ public partial class World : Core.Logic.World
 
         using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
         {
-            UpdateChunks();
+            UpdateChunkStates();
         }
 
         switch (CurrentState)
@@ -188,7 +192,7 @@ public partial class World : Core.Logic.World
     {
         using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
         {
-            foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
+            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks) chunk.Tick();
         }
 
         using (logger.BeginTimedSubScoped("World Tick Player", tickTimer))
@@ -206,32 +210,33 @@ public partial class World : Core.Logic.World
     }
 
     /// <inheritdoc />
-    protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
+    protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
         if (decoration != null) return decoration;
+        if (!activatedChunk.CanStartWithMeshing()) return null;
         if (!activatedChunk.IsViableForMeshing()) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
-            if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
+            if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunks.Chunk? neighbor))
                 neighbor.Cast().BeginMeshing(side.Opposite());
 
         return new Chunk.Meshing(BlockSide.All);
     }
 
     /// <inheritdoc />
-    protected override ChunkState ProcessActivatedChunk(Core.Logic.Chunk activatedChunk)
+    protected override ChunkState ProcessActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
         Debug.Assert(activatedChunk.IsFullyDecorated);
 
         return activatedChunk.Cast().ProcessMeshingOption() ??
-               new Core.Logic.Chunk.Active();
+               new Core.Logic.Chunks.Chunk.Active();
     }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ProcessChangedSection(Core.Logic.Chunk chunk, Vector3i position)
+    protected override void ProcessChangedSection(Core.Logic.Chunks.Chunk chunk, Vector3i position)
     {
         EnqueueMeshingForAllAffectedSections(chunk, position);
     }
@@ -243,7 +248,7 @@ public partial class World : Core.Logic.World
     /// <param name="chunk">The chunk in which the block change happened.</param>
     /// <param name="position">The position of the block change, in block coordinates.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunk chunk, Vector3i position)
+    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunks.Chunk chunk, Vector3i position)
     {
         sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
 
@@ -253,7 +258,7 @@ public partial class World : Core.Logic.World
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & (Core.Logic.Section.Size - 1);
+            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
 
             Vector3i direction = new()
             {
@@ -261,14 +266,14 @@ public partial class World : Core.Logic.World
             };
 
             if (axisSectionPosition == 0) CheckNeighbor(direction * -1);
-            else if (axisSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(direction);
+            else if (axisSectionPosition == Section.Size - 1) CheckNeighbor(direction);
         }
 
         void CheckNeighbor(Vector3i direction)
         {
             Vector3i neighborPosition = position + direction;
 
-            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunk? neighbor)) return;
+            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunks.Chunk? neighbor)) return;
 
             if (neighbor.IsActive)
             {

@@ -9,7 +9,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals;

@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals.Meshables;
@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Visuals;
 public sealed partial class BlockModel
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
-    
+
     private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
     private static ITextureIndexProvider blockTextureIndexProvider = null!;
@@ -416,7 +416,7 @@ public sealed partial class BlockModel
         if (loader == null)
         {
             LogLoadingModelsDisabled(logger);
-            
+
             return BlockModels.CreateFallback();
         }
 

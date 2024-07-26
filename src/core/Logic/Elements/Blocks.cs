@@ -14,13 +14,14 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 #pragma warning disable S1192 // Definition class.
 #pragma warning disable S104 // Definition class.
@@ -34,7 +35,7 @@ public partial class Blocks
     ///     The maximum amount of different blocks that can be registered.
     /// </summary>
     private const Int32 BlockLimit = 1 << Section.DataShift;
-    
+
     private readonly List<Block> blockList = [];
     private readonly Dictionary<String, Block> namedBlockDictionary = new();
 
@@ -1551,7 +1552,7 @@ public partial class Blocks
     public Block Marble { get; }
 
     /// <summary>
-    ///     Clay is found beneath the ground and blocks ground water flow.
+    ///     Clay is found beneath the ground and blocks groundwater flow.
     /// </summary>
     public Block Clay { get; }
 

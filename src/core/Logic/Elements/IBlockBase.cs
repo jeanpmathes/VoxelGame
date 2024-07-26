@@ -8,7 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     Defines the basic <see cref="Block" /> methods required for a lot of block functionality.

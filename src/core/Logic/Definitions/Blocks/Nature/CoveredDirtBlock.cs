@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 {
     private readonly Boolean hasNeutralTint;
-    
+
     private readonly TextureLayout wet;
     private Int32[] wetTextureIndices = null!;
 

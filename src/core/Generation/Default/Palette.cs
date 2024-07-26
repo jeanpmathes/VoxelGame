@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
+using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Generation.Default;
 

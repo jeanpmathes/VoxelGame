@@ -6,8 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
 
 namespace VoxelGame.Core.Generation.Default;
 

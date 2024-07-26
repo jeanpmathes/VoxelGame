@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
@@ -21,7 +22,7 @@ public static class DirtBehaviour
     /// </summary>
     public static Boolean CanPlaceCovered(World world, Vector3i position, PhysicsActor? actor)
     {
-        return world.HasOpaqueTop(position) == false || Logic.Blocks.Instance.Dirt.CanPlace(world, position, actor);
+        return world.HasOpaqueTop(position) == false || Elements.Blocks.Instance.Dirt.CanPlace(world, position, actor);
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public static class DirtBehaviour
     public static void DoPlaceCovered(Block self, World world, Vector3i position, PhysicsActor? actor)
     {
         if (world.HasOpaqueTop(position) == false) world.SetBlock(self.AsInstance(), position);
-        else Logic.Blocks.Instance.Dirt.Place(world, position, actor);
+        else Elements.Blocks.Instance.Dirt.Place(world, position, actor);
     }
 
     /// <summary>
@@ -40,6 +41,6 @@ public static class DirtBehaviour
     public static void BlockUpdateCovered(World world, Vector3i position, BlockSide side)
     {
         if (side == BlockSide.Top && world.HasOpaqueTop(position) == true)
-            world.SetBlock(Logic.Blocks.Instance.Dirt.AsInstance(), position);
+            world.SetBlock(Elements.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }

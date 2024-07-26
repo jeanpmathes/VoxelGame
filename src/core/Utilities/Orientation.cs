@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Utilities;
 

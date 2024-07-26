@@ -7,14 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.CodeDom.Compiler;
+using System.Configuration;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using VoxelGame.Core.Visuals;
+
 namespace Properties {
     
     
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    [CompilerGenerated()]
+    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    internal sealed partial class Settings : ApplicationSettingsBase {
         
-        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+        private static Settings defaultInstance = ((Settings)(Synchronized(new Settings())));
         
         public static Settings Default {
             get {
@@ -22,9 +29,9 @@ namespace Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("0.3")]
         public double MouseSensitivity {
             get {
                 return ((double)(this["MouseSensitivity"]));
@@ -34,9 +41,9 @@ namespace Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.0225")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("0.0225")]
         public double CrosshairScale {
             get {
                 return ((double)(this["CrosshairScale"]));
@@ -46,45 +53,45 @@ namespace Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("White")]
-        public global::System.Drawing.Color CrosshairColor {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("White")]
+        public Color CrosshairColor {
             get {
-                return ((global::System.Drawing.Color)(this["CrosshairColor"]));
+                return ((Color)(this["CrosshairColor"]));
             }
             set {
                 this["CrosshairColor"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("480, 270")]
-        public global::System.Drawing.Size WindowSize {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("480, 270")]
+        public Size WindowSize {
             get {
-                return ((global::System.Drawing.Size)(this["WindowSize"]));
+                return ((Size)(this["WindowSize"]));
             }
             set {
                 this["WindowSize"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Medium")]
-        public global::VoxelGame.Core.Visuals.Quality FoliageQuality {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("Medium")]
+        public Quality FoliageQuality {
             get {
-                return ((global::VoxelGame.Core.Visuals.Quality)(this["FoliageQuality"]));
+                return ((Quality)(this["FoliageQuality"]));
             }
             set {
                 this["FoliageQuality"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("1")]
         public double RenderResolutionScale {
             get {
                 return ((double)(this["RenderResolutionScale"]));
@@ -94,33 +101,33 @@ namespace Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("25, 25, 25")]
-        public global::System.Drawing.Color DarkSelectionColor {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("25, 25, 25")]
+        public Color DarkSelectionColor {
             get {
-                return ((global::System.Drawing.Color)(this["DarkSelectionColor"]));
+                return ((Color)(this["DarkSelectionColor"]));
             }
             set {
                 this["DarkSelectionColor"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("150, 150, 150")]
-        public global::System.Drawing.Color BrightSelectionColor {
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("150, 150, 150")]
+        public Color BrightSelectionColor {
             get {
-                return ((global::System.Drawing.Color)(this["BrightSelectionColor"]));
+                return ((Color)(this["BrightSelectionColor"]));
             }
             set {
                 this["BrightSelectionColor"] = value;
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [UserScopedSetting()]
+        [DebuggerNonUserCode()]
+        [DefaultSettingValue("1")]
         public double ScaleOfUI {
             get {
                 return ((double)(this["ScaleOfUI"]));

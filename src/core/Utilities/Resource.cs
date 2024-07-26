@@ -90,12 +90,16 @@ public sealed class Resource
     {
         if (readerCount == 0) Debug.Fail("No reader to release.");
         else readerCount--;
+
+        if (readerCount == 0) Released?.Invoke(this, EventArgs.Empty);
     }
 
     private void ReleaseWriter()
     {
         if (!isWrittenTo) Debug.Fail("No writer to release.");
         else isWrittenTo = false;
+
+        Released?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -157,4 +161,9 @@ public sealed class Resource
             _ => false
         };
     }
+
+    /// <summary>
+    ///     Triggered when either the last reader or only writer releases the resource.
+    /// </summary>
+    public event EventHandler? Released;
 }

@@ -7,7 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822

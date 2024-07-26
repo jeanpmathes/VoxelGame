@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Support.Core;
@@ -19,7 +20,7 @@ namespace VoxelGame.Client.Visuals;
 #pragma warning disable S101 // Naming.
 
 /// <summary>
-///     A VFX for <see cref="VoxelGame.Core.Logic.Section" />.
+///     A VFX for <see cref="Section" />.
 /// </summary>
 public sealed class SectionVFX : VFX
 {

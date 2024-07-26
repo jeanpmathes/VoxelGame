@@ -8,8 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
+using Chunk = VoxelGame.Core.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Core.Visuals;
 

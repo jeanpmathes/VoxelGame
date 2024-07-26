@@ -6,7 +6,7 @@
 
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals;
 

@@ -16,7 +16,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     Contains all fluid definitions of the core game.
@@ -30,7 +30,7 @@ public partial class Fluids
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     private const Int32 mPas = 15;
-    
+
     private readonly List<Fluid> fluidList = [];
     private readonly Dictionary<String, Fluid> namedFluidDictionary = new();
 

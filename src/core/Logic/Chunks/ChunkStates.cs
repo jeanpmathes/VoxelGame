@@ -12,7 +12,7 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Logic;
+namespace VoxelGame.Core.Logic.Chunks;
 
 public partial class Chunk
 {
@@ -39,7 +39,7 @@ public partial class Chunk
     /// </summary>
     public class Loading : ChunkState
     {
-        private Future<LoadingResult>? activity;
+        private Future<LoadingResult>? loading;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -50,21 +50,16 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity == null)
+            if (loading == null)
             {
-                TryStartLoading();
+                FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
+                loading = WaitForCompletion(() => Load(path, Chunk));
             }
-            else if (activity.IsCompleted)
+            else if (loading.IsCompleted)
             {
-                if (activity.Exception != null) HandleFaultedFuture(activity);
-                else HandleSuccessfulFuture(activity);
+                if (loading.Exception != null) HandleFaultedFuture(loading);
+                else HandleSuccessfulFuture(loading);
             }
-        }
-
-        private void TryStartLoading()
-        {
-            FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
-            activity = Future.Create(() => Load(path, Chunk));
         }
 
         private void HandleFaultedFuture(Future future)
@@ -112,7 +107,7 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
-        private Future? activity;
+        private Future? generating;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
@@ -123,13 +118,13 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity == null)
+            if (generating == null)
             {
-                activity = Future.Create(() => Chunk.Generate(Context.Generator));
+                generating = WaitForCompletion(() => Chunk.Generate(Context.Generator));
             }
-            else if (activity.IsCompleted)
+            else if (generating.IsCompleted)
             {
-                if (activity.Exception is {} exception)
+                if (generating.Exception is {} exception)
                 {
                     LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
 
@@ -149,7 +144,7 @@ public partial class Chunk
         private readonly Neighborhood<Chunk> chunks;
         private readonly PooledList<Guard> guards;
 
-        private Future? activity;
+        private Future? decorating;
 
         /// <summary>
         ///     Creates a new decorating state.
@@ -178,15 +173,15 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity == null)
+            if (decorating == null)
             {
-                activity = Future.Create(() => Decorate(Context.Generator, chunks));
+                decorating = WaitForCompletion(() => Decorate(Context.Generator, chunks));
             }
-            else if (activity.IsCompleted)
+            else if (decorating.IsCompleted)
             {
                 Cleanup();
 
-                if (activity.Exception is {} exception)
+                if (decorating.Exception is {} exception)
                 {
                     LogChunkDecorationError(logger, exception.GetBaseException(), Chunk.Position);
 
@@ -211,7 +206,7 @@ public partial class Chunk
     /// </summary>
     public class Saving : ChunkState
     {
-        private Future? activity;
+        private Future? saving;
 
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Read;
@@ -222,13 +217,13 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity == null)
+            if (saving == null)
             {
-                activity = Future.Create(() => Chunk.Save(Context.Directory));
+                saving = WaitForCompletion(() => Chunk.Save(Context.Directory));
             }
-            else if (activity.IsCompleted)
+            else if (saving.IsCompleted)
             {
-                if (activity.Exception is {} exception)
+                if (saving.Exception is {} exception)
                     LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
 
                 TrySettingNextReady(new TransitionDescription
@@ -273,6 +268,9 @@ public partial class Chunk
         protected override void OnUpdate()
         {
             AllowTransition();
+
+            // The wait will only have an effect if no transition happens.
+            WaitForEvents(onTransitionRequest: true);
         }
     }
 
@@ -299,11 +297,14 @@ public partial class Chunk
 
             if (!activated)
                 AllowTransition();
+
+            // The wait will only have an effect if no transition happens.
+            WaitForEvents(onNeighborUsable: true, onTransitionRequest: true);
         }
     }
 
     /// <summary>
-    ///     The chunk is used by a different
+    ///     The chunk is used by a different chunk or operation.
     /// </summary>
     public class Used : ChunkState
     {
