@@ -573,14 +573,16 @@ public abstract partial class World : IDisposable, IGrid
 
     /// <summary>
     ///     Process a chunk that has been just activated.
+    ///     This method is not allowed to return the hidden state.
     /// </summary>
-    /// <returns>The next state of the chunk.</returns>
+    /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
     protected abstract ChunkState? ProcessNewlyActivatedChunk(Chunk activatedChunk);
 
     /// <summary>
     ///     Process a chunk that has just switched to the active state through a weak activation.
+    ///     This method is not allowed to return the hidden state.
     /// </summary>
-    /// <returns>The next state of the chunk.</returns>
+    /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
     protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
     /// <summary>

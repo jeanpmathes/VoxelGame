@@ -179,7 +179,7 @@ public partial class Chunk : IDisposable, IEntity
         {
             Debug.Assert(state != null);
 
-            return state.IsActive;
+            return state.IsChunkActive;
         }
     }
 

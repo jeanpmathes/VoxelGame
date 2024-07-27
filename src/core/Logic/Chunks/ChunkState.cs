@@ -73,18 +73,30 @@ public abstract partial class ChunkState
     protected ChunkContext Context { get; private set; } = null!;
 
     /// <summary>
-    ///     Get whether this chunk is active.
+    ///     Get whether the chunk with this state is active.
+    ///     Is the case when the state is <see cref="IsActive"/> and entered.
     /// </summary>
-    public Boolean IsActive => IsEntered && CoreAccess == Access.Write && ExtendedAccess == Access.Write && AllowSharingAccess;
+    public Boolean IsChunkActive => IsEntered && IsActive;
+
+    /// <summary>
+    ///     Get whether this state will result in the chunk being active.
+    /// </summary>
+    private Boolean IsActive => RequiresFullAccess && AllowSharingAccess;
+
+    /// <summary>
+    /// Whether this state requires full access to all resources of the chunk.
+    /// </summary>
+    private Boolean RequiresFullAccess => CoreAccess == Access.Write && ExtendedAccess == Access.Write;
 
     /// <summary>
     ///     Get whether this state has been entered.
     ///     An entered state has acquired all required access.
     /// </summary>
-    public Boolean IsEntered { get; private set; }
+    private Boolean IsEntered { get; set; }
 
     /// <summary>
     ///     Whether this state allows sharing its access during one update.
+    ///     Required for states to be considered active.
     /// </summary>
     protected virtual Boolean AllowSharingAccess => false;
 
@@ -94,6 +106,12 @@ public abstract partial class ChunkState
     ///     If a state performs work on another thread, it cannot allow stealing.
     /// </summary>
     protected virtual Boolean AllowStealing => false;
+
+    /// <summary>
+    ///     Whether this state is considered to be hiding the chunk.
+    ///     Hidden states are used when activation is not possible at the moment.
+    /// </summary>
+    private Boolean IsHidden => RequiresFullAccess && !AllowSharingAccess;
 
     /// <summary>
     ///     The required access level of this state to core chunk resources.
@@ -215,25 +233,16 @@ public abstract partial class ChunkState
     /// </summary>
     protected Boolean TrySettingNextReady(TransitionDescription description = new())
     {
-        if (this is not Chunk.Hidden)
+        if (!IsHidden)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
-            // As such, we can already release resources here, which will allow more during activation.
+            // As such, we can already release resources here, which will allow more options during activation.
             ReleaseResources();
 
         ChunkState? state = Context.ActivateStrongly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
 
-        if (state == null)
-        {
-            if (this is not Chunk.Hidden) state = new Chunk.Hidden();
-            else return false;
-        }
-
-        ReleaseResources();
-        SetNextState(state, description, state is not Chunk.Active);
-
-        return true;
+        return TrySettingNextState(state, description);
     }
 
     /// <summary>
@@ -244,16 +253,28 @@ public abstract partial class ChunkState
     /// </summary>
     protected Boolean TrySettingNextActive()
     {
-        ChunkState? state = Context.ActivateWeakly(Chunk);
+        if (!IsHidden)
+            // If the chunk is not hidden, this method will always result in a transition to a different state.
+            // This is because we transition to hidden if the activation does not provide a next state.
+            // As such, we can already release resources here, which will allow more option during activation.
+            ReleaseResources();
 
+        ChunkState? state = Context.ActivateWeakly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
 
-        if (state == null && this is not Chunk.Hidden) state = new Chunk.Hidden();
+        return TrySettingNextState(state, new TransitionDescription());
+    }
 
-        if (state == null) return false;
+    private Boolean TrySettingNextState(ChunkState? state, TransitionDescription description)
+    {
+        if (state == null)
+        {
+            if (!IsHidden) state = new Chunk.Hidden();
+            else return false;
+        }
 
         ReleaseResources();
-        SetNextState(state, isRequired: state is not Chunk.Active);
+        SetNextState(state, description, !state.IsActive);
 
         return true;
     }
@@ -621,7 +642,7 @@ public abstract partial class ChunkState
 
         ChunkState previousState = state;
 
-        state = new Chunk.Used(previousState.IsActive)
+        state = new Chunk.Used(previousState.IsChunkActive)
         {
             Chunk = state.Chunk,
             Context = state.Context
