@@ -219,7 +219,7 @@ public partial class World : Core.Logic.World
         ChunkState? decoration = activatedChunk.ProcessDecorationOption();
 
         if (decoration != null) return decoration;
-        if (!activatedChunk.CanStartWithMeshing()) return null;
+        if (!activatedChunk.ShouldMeshAccordingToNeighborState()) return null;
         if (!activatedChunk.IsViableForMeshing()) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())

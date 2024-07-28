@@ -41,17 +41,6 @@ public partial class Chunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        /// <summary>
-        ///     The entry delay servers two purposes:
-        ///     The first is to allow slower chunks to catch up so meshing happens in a more uniform way.
-        ///     The second and more important is to allow all chunks to actually enter the meshing state.
-        ///     If a chunk in meshing state starts acquiring neighbors, they are in the used state.
-        ///     Before they start meshing, they first have to transition through the active state which
-        ///     is only possible after they are no longer acquired.
-        ///     Another solution would have been to allow used to transition to requested states, but
-        ///     that could break other assumptions.
-        ///     It would also require a larger change that would only be beneficial for the meshing state.
-        /// </summary>
         private const Int32 EntryDelay = 15;
 
         private Int32 entryDelay = EntryDelay;

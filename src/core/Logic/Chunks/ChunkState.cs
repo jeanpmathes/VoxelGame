@@ -95,6 +95,12 @@ public abstract partial class ChunkState
     private Boolean IsEntered { get; set; }
 
     /// <summary>
+    ///     Get whether this state has been exited.
+    ///     Is used to ensure that <see cref="OnExit" /> is only called once.
+    /// </summary>
+    private Boolean IsExited { get; set; }
+
+    /// <summary>
     ///     Whether this state allows sharing its access during one update.
     ///     Required for states to be considered active.
     /// </summary>
@@ -172,6 +178,17 @@ public abstract partial class ChunkState
         OnEnter();
 
         if (CanStealAccess && CoreAccess == Access.Write && ExtendedAccess == Access.Write) Chunk.OnUsableState();
+    }
+
+    private void Exit()
+    {
+        if (IsExited) return;
+
+        IsExited = true;
+
+        OnExit();
+
+        ReleaseResources();
     }
 
     /// <summary>
@@ -435,6 +452,15 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
+    ///     Request a transition to a given state, but only if the queue is empty.
+    /// </summary>
+    private void RequestIfQueueEmpty(ChunkState state)
+    {
+        if (requests.Empty) RequestNextState(state);
+        else state.Cleanup();
+    }
+
+    /// <summary>
     ///     Update the state.
     /// </summary>
     /// <returns>The new state.</returns>
@@ -465,8 +491,7 @@ public abstract partial class ChunkState
 
         if (ReferenceEquals(this, nextState)) return nextState;
 
-        OnExit();
-        ReleaseResources();
+        Exit();
 
         WaitMode = StateWaitModes.None;
         Context.UpdateList.Add(Chunk);
@@ -615,12 +640,12 @@ public abstract partial class ChunkState
 
     /// <summary>
     ///     Try to steal access from the current state.
-    ///     If access is stolen, the state is changed to the <see cref="Chunk.Used" /> state.
+    ///     If access is stolen, the current state is exited immediately.
     ///     Access can be stolen if the chunk is in a state that allows stealing and the state holds write-access to all its
     ///     resources.
     ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
-    /// <param name="state">The current state. Will be set to <see cref="Chunk.Used" /> if access is stolen.</param>
+    /// <param name="state">The current state. Will be exited if access is stolen.</param>
     /// <param name="tracker">A tracker to profile state transitions.</param>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state, StateTracker tracker)
@@ -629,31 +654,26 @@ public abstract partial class ChunkState
 
         if (!state.CanStealAccess) return null;
 
-        state.OnExit();
+        (Guard core, Guard extended) access = state.StealAccess();
 
-        Debug.Assert(state is {CoreAccess: Access.Write, coreGuard: not null});
-        Debug.Assert(state is {ExtendedAccess: Access.Write, extendedGuard: not null});
+        state.Exit();
 
-        Guard? core = state.coreGuard;
-        Guard? extended = state.extendedGuard;
+        state.RequestIfQueueEmpty(new Chunk.Used(state.IsChunkActive));
+        state.AllowTransition();
 
-        state.coreGuard = null;
-        state.extendedGuard = null;
+        return access;
+    }
 
-        ChunkState previousState = state;
+    private (Guard core, Guard extended) StealAccess()
+    {
+        Debug.Assert(this is {CoreAccess: Access.Write, coreGuard: not null});
+        Debug.Assert(this is {ExtendedAccess: Access.Write, extendedGuard: not null});
 
-        state = new Chunk.Used(previousState.IsChunkActive)
-        {
-            Chunk = state.Chunk,
-            Context = state.Context
-        };
+        Guard core = coreGuard!;
+        Guard extended = extendedGuard!;
 
-        state.previous = previousState;
-        state.requests = previousState.requests;
-
-        state.Context.UpdateList.Add(state.Chunk);
-
-        tracker.Transition(previousState, state);
+        coreGuard = null;
+        extendedGuard = null;
 
         return (core, extended);
     }
@@ -710,6 +730,11 @@ public abstract partial class ChunkState
     private sealed class RequestQueue
     {
         private readonly List<(ChunkState state, RequestDescription description)> requests = [];
+
+        /// <summary>
+        ///     Get whether the queue is empty.
+        /// </summary>
+        public Boolean Empty => requests.Count == 0;
 
         /// <summary>
         ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct

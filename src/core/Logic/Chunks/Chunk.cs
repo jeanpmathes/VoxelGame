@@ -805,12 +805,13 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Check whether the chunk can start meshing.
+    ///     Check whether the chunk should mesh - depending on the state of its neighbors.
     ///     Only needs to be checked if the chunk wants to mesh the first time
     ///     and is not relevant for meshing caused by outside requests.
     ///     If there are any neighbors that still have to be decorated, meshing should not start.
+    ///     This constraint is meant to reduce the amount of meshing work but is not necessary for correctness.
     /// </summary>
-    public Boolean CanStartWithMeshing()
+    public Boolean ShouldMeshAccordingToNeighborState()
     {
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
         {
