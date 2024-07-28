@@ -69,7 +69,7 @@ public class RunScript : Command
             loc++;
         }
 
-        context.Console.WriteResponse($"Executed {loc} lines of the '{name}' script", followUp);
+        context.Console.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", followUp);
 
         return true;
     }

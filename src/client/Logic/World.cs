@@ -35,8 +35,7 @@ namespace VoxelGame.Client.Logic;
 public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-
-    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube(Math.Min(Player.LoadDistance - 1, val2: 0) * 2 + 1), val2: 1);
+    private static readonly Int32 minLoadedChunksAtStart = VMath.Cube(Player.LoadDistance * 2 + 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -45,6 +44,8 @@ public partial class World : Core.Logic.World
 
     private readonly Space space;
 
+    private Int64 worldUpdateCount;
+    private Int64 chunkUpdateCount;
     private Actors.Player? player;
 
     /// <summary>
@@ -128,12 +129,12 @@ public partial class World : Core.Logic.World
         switch (CurrentState)
         {
             case State.Activating:
-                HandleActivating();
+                ProcessActivating();
 
                 break;
 
             case State.Active:
-                HandleActive();
+                ProcessActive();
 
                 break;
 
@@ -148,7 +149,7 @@ public partial class World : Core.Logic.World
                 break;
         }
 
-        void HandleActive()
+        void ProcessActive()
         {
             using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", subTimer))
             {
@@ -161,12 +162,15 @@ public partial class World : Core.Logic.World
             }
         }
 
-        void HandleActivating()
+        void ProcessActivating()
         {
+            worldUpdateCount += 1;
+            chunkUpdateCount += ChunkStateUpdateCount;
+
             if (ActiveChunkCount < minLoadedChunksAtStart) return;
 
             Duration readyTime = timer?.Elapsed ?? default;
-            LogWorldReady(logger, readyTime);
+            LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
 
             timer?.Dispose();
             timer = null;
@@ -294,8 +298,8 @@ public partial class World : Core.Logic.World
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}")]
-    private static partial void LogWorldReady(ILogger logger, Duration readyTime);
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
+    private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
 
     #endregion LOGGING
 }
