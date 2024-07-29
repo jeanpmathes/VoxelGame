@@ -804,30 +804,6 @@ public partial class Chunk : IDisposable, IEntity
         return available;
     }
 
-    /// <summary>
-    ///     Check whether the chunk should mesh - depending on the state of its neighbors.
-    ///     Only needs to be checked if the chunk wants to mesh the first time
-    ///     and is not relevant for meshing caused by outside requests.
-    ///     If there are any neighbors that still have to be decorated, meshing should not start.
-    ///     This constraint is meant to reduce the amount of meshing work but is not necessary for correctness.
-    /// </summary>
-    public Boolean ShouldMeshAccordingToNeighborState()
-    {
-        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
-        {
-            if ((x, y, z) == Neighborhood.Center) continue;
-
-            ChunkPosition position = Position.Offset((x, y, z) - Neighborhood.Center);
-
-            if (!World.TryGetChunk(position, out Chunk? neighbor)) continue;
-
-            if (neighbor is {IsRequestedToActivate: true, IsFullyDecorated: false})
-                return false;
-        }
-
-        return true;
-    }
-
     private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk> chunks)
     {
         var decorated = true;

@@ -324,6 +324,28 @@ public class ChunkMeshingContext
 public static class ChunkMeshingExtensions
 {
     /// <summary>
+    ///     Check whether the chunk should mesh - depending on the state of its neighbors.
+    ///     Only needs to be checked if the chunk wants to mesh the first time
+    ///     and is not relevant for meshing caused by outside requests.
+    ///     If there are any neighbors that still have to be decorated, meshing should not start.
+    ///     This constraint is meant to reduce the amount of meshing work but is not necessary for correctness.
+    /// </summary>
+    public static Boolean ShouldMeshAccordingToNeighborState(this Chunk chunk)
+    {
+        foreach (BlockSide side in BlockSide.All.Sides())
+        {
+            ChunkPosition neighborPosition = side.Offset(chunk.Position);
+
+            if (!chunk.World.TryGetChunk(neighborPosition, out Chunk? neighbor)) continue;
+
+            if (neighbor is {IsRequestedToActivate: true, IsFullyDecorated: false})
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
     ///     Whether the chunk is viable for meshing.
     ///     This is relevant both for deciding whether the chunks should be meshed themselves
     ///     and whether they should be used when meshing their neighbors.
