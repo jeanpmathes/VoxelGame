@@ -41,16 +41,17 @@ public partial class Chunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        private const Int32 EntryDelay = 15;
-
+        private const Int32 EntryDelay = 5;
         private Int32 entryDelay = EntryDelay;
 
         private BlockSide side;
 
         private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
 
+        private ChunkMeshData? meshData;
+
         /// <summary>
-        ///     Meshes a chunk.
+        ///     Meshes a chunk and sets the data to the GPU.
         /// </summary>
         /// <param name="side">
         ///     The side of the chunk that caused the meshing to start, or <see cref="BlockSide.All" /> if not
@@ -65,7 +66,7 @@ public partial class Chunk
         protected override Access CoreAccess => Access.Read;
 
         /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access ExtendedAccess => Access.Write;
 
         /// <inheritdoc />
         protected override Boolean DelayEnter()
@@ -99,13 +100,20 @@ public partial class Chunk
                     throw e;
                 }
 
-                SetNextState(new MeshDataSending(future.Value!),
-                    new TransitionDescription
-                    {
-                        PrioritizeLoop = true,
-                        PrioritizeDeactivation = true
-                    });
+                meshData = future.Value!;
+
+                Chunk.SetMeshData(meshData);
+
+                Cleanup();
+
+                TrySettingNextActive();
             }
+        }
+
+        /// <inheritdoc />
+        protected override void Cleanup()
+        {
+            meshData?.Dispose();
         }
 
         /// <inheritdoc />
@@ -123,45 +131,6 @@ public partial class Chunk
         public override String ToString()
         {
             return $"Meshing({side})";
-        }
-    }
-
-    /// <summary>
-    ///     Sends mesh data to the GPU.
-    /// </summary>
-    public class MeshDataSending : ChunkState
-    {
-        private readonly ChunkMeshData meshData;
-
-        /// <summary>
-        ///     Create a new mesh data sending state.
-        /// </summary>
-        /// <param name="meshData">The mesh data to send.</param>
-        public MeshDataSending(ChunkMeshData meshData)
-        {
-            this.meshData = meshData;
-        }
-
-        /// <inheritdoc />
-        protected override Access CoreAccess => Access.None;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override void OnUpdate()
-        {
-            Chunk.SetMeshData(meshData);
-
-            Cleanup();
-
-            TrySettingNextActive();
-        }
-
-        /// <inheritdoc />
-        protected override void Cleanup()
-        {
-            meshData.Dispose();
         }
     }
 }

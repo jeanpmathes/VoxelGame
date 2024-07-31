@@ -72,6 +72,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         if (!this.IsViableForMeshing()) return;
 
+        if (meshedSides == BlockSides.None && this.ShouldMeshAccordingToNeighborState())
+            return;
+
         State.RequestNextState(new Meshing(side),
             new Core.Logic.Chunks.ChunkState.RequestDescription
             {

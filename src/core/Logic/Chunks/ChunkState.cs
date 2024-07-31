@@ -576,13 +576,6 @@ public abstract partial class ChunkState
         if (description.PrioritizeDeactivation && !Chunk.IsRequestedToLoad)
             return CreateFinalState();
 
-        if (description.PrioritizeLoop)
-        {
-            ChunkState? potentialLoop = requests.Dequeue(this, isLooping: true, isDeactivating: false);
-
-            if (potentialLoop != null) return potentialLoop;
-        }
-
         if (transition.IsRequired) return transition.State;
 
         ChunkState? requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false);
@@ -689,12 +682,6 @@ public abstract partial class ChunkState
     /// </summary>
     protected record struct TransitionDescription
     {
-        /// <summary>
-        ///     Whether to prioritize looping transitions (to same type) over this transition, even if this transition is
-        ///     required.
-        /// </summary>
-        public Boolean PrioritizeLoop { get; init; }
-
         /// <summary>
         ///     Whether to prioritize chunk deactivation over this transition, even if this transition is required.
         /// </summary>

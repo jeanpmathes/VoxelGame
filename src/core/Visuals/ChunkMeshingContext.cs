@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic.Chunks;
@@ -203,6 +204,9 @@ public class ChunkMeshingContext
 
             if (!neighbor.CanAcquireCore(Access.Read)) count++;
         }
+
+        if (count > 0)
+            Debugger.Break();
 
         return count;
     }
