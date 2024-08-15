@@ -11,7 +11,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Actors;
+using VoxelGame.Client.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -19,7 +19,6 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -35,7 +34,7 @@ namespace VoxelGame.Client.Logic;
 public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-    private static readonly Int32 minLoadedChunksAtStart = VMath.Cube(Player.LoadDistance * 2 + 1);
+    private static readonly Int32 minLoadedChunksAtStart = 1; //VMath.Cube(Player.LoadDistance * 2 + 1); todo: uncomment
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -46,7 +45,7 @@ public partial class World : Core.Logic.World
 
     private Int64 worldUpdateCount;
     private Int64 chunkUpdateCount;
-    private Actors.Player? player;
+    private Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -83,7 +82,7 @@ public partial class World : Core.Logic.World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Actors.Player newPlayer)
+    public void AddPlayer(Player newPlayer)
     {
         player = newPlayer;
 
@@ -208,7 +207,10 @@ public partial class World : Core.Logic.World
     private void MeshAndClearSectionList()
     {
         foreach ((Chunk chunk, (Int32 x, Int32 y, Int32 z)) in sectionsToMesh)
-            chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared));
+        {
+            using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared);
+            chunk.CreateAndSetMesh(x, y, z, context);
+        }
 
         sectionsToMesh.Clear();
     }
@@ -216,26 +218,31 @@ public partial class World : Core.Logic.World
     /// <inheritdoc />
     protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
-        ChunkState? decoration = activatedChunk.ProcessDecorationOption();
+        ChunkState? state = activatedChunk.ProcessDecorationOption();
 
-        if (decoration != null) return decoration;
-        if (!activatedChunk.ShouldMeshAccordingToNeighborState()) return null;
-        if (!activatedChunk.IsViableForMeshing()) return null;
+        if (state != null) return state;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
-            if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunks.Chunk? neighbor))
-                neighbor.Cast().BeginMeshing(side.Opposite());
+        state = activatedChunk.Cast().ProcessStrongActivationMeshingOption(out Boolean allowActivation);
 
-        return new Chunk.Meshing(BlockSide.All);
+        if (state != null) return state;
+
+        return allowActivation
+            ? new Core.Logic.Chunks.Chunk.Active()
+            : null;
     }
 
     /// <inheritdoc />
-    protected override ChunkState ProcessActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
+    protected override ChunkState? ProcessActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
         Debug.Assert(activatedChunk.IsFullyDecorated);
 
-        return activatedChunk.Cast().ProcessMeshingOption() ??
-               new Core.Logic.Chunks.Chunk.Active();
+        ChunkState? state = activatedChunk.Cast().ProcessWeakActivationMeshingOption(out Boolean allowActivation);
+
+        if (state != null) return state;
+
+        return allowActivation
+            ? new Core.Logic.Chunks.Chunk.Active()
+            : null;
     }
 
     /// <inheritdoc />

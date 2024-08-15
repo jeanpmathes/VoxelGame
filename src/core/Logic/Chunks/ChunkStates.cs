@@ -146,6 +146,8 @@ public partial class Chunk
 
         private Future? decorating;
 
+        private Boolean cleaned;
+
         /// <summary>
         ///     Creates a new decorating state.
         /// </summary>
@@ -195,9 +197,12 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void Cleanup()
         {
-            foreach (Guard guard in guards) guard.Dispose();
+            if (cleaned) return;
 
+            foreach (Guard guard in guards) guard.Dispose();
             guards.Dispose();
+
+            cleaned = true;
         }
     }
 
@@ -292,6 +297,10 @@ public partial class Chunk
         protected override void OnUpdate()
         {
             var activated = false;
+
+            // todo: chunk should store if has been active at least once
+            // todo: when returning to pool, that variable should be set to false
+            // todo: the hidden state should use it to decide if TrySettingNextReady or TrySettingNextActive is called
 
             if (Chunk.IsRequestedToActivate) activated = TrySettingNextReady();
 

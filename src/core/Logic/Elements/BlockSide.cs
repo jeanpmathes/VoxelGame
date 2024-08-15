@@ -164,6 +164,27 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Get the block side flags as a single side.
+    /// </summary>
+    /// <param name="side">The block side flags, only one bit should be set.</param>
+    /// <returns>The single side.</returns>
+    public static BlockSide Single(this BlockSides side)
+    {
+        return side switch
+        {
+            BlockSides.Front => BlockSide.Front,
+            BlockSides.Back => BlockSide.Back,
+            BlockSides.Left => BlockSide.Left,
+            BlockSides.Right => BlockSide.Right,
+            BlockSides.Bottom => BlockSide.Bottom,
+            BlockSides.Top => BlockSide.Top,
+            BlockSides.None => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
+            BlockSides.All => BlockSide.All,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
+
+    /// <summary>
     ///     Get the flag for a side.
     /// </summary>
     public static BlockSides ToFlag(this BlockSide side)

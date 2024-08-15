@@ -41,6 +41,9 @@ public abstract partial class ChunkState
     private ChunkState? previous;
     private RequestQueue requests = null!;
 
+    private Boolean inUpdate;
+    private ChunkState? inUpdateUsed;
+
     /// <summary>
     ///     Create a new chunk state.
     /// </summary>
@@ -48,6 +51,7 @@ public abstract partial class ChunkState
 
     /// <summary>
     ///     Create a new chunk state with guards already acquired.
+    ///     The acquired guards must fit the access requirements of the state.
     /// </summary>
     /// <param name="core">The core guard.</param>
     /// <param name="extended">The extended guard.</param>
@@ -76,7 +80,7 @@ public abstract partial class ChunkState
     ///     Get whether the chunk with this state is active.
     ///     Is the case when the state is <see cref="IsActive"/> and entered.
     /// </summary>
-    public Boolean IsChunkActive => IsEntered && IsActive;
+    public Boolean IsChunkActive => IsEntered && IsActive && !IsExited;
 
     /// <summary>
     ///     Get whether this state will result in the chunk being active.
@@ -140,7 +144,7 @@ public abstract partial class ChunkState
     /// <param name="a">The first state.</param>
     /// <param name="b">The second state.</param>
     /// <returns>The state that should be kept, or null if both states should be kept.</returns>
-    private static ChunkState? ResolveDuplicate(ChunkState a, ChunkState b)
+    private static ChunkState? ResolveDuplicate(ChunkState a, ChunkState b) // todo: remove, just use IsSameStateType
     {
         return IsSameStateType(a, b) ? a.ResolveDuplicate(b) : null;
     }
@@ -150,7 +154,7 @@ public abstract partial class ChunkState
     /// </summary>
     /// <param name="other">The other state.</param>
     /// <returns>The state that should be kept, or null if both states should be kept.</returns>
-    protected virtual ChunkState ResolveDuplicate(ChunkState other)
+    protected virtual ChunkState ResolveDuplicate(ChunkState other) // todo: remove
     {
         return this;
     }
@@ -188,7 +192,7 @@ public abstract partial class ChunkState
 
         OnExit();
 
-        ReleaseResources();
+        CleanupAndRelease(this);
     }
 
     /// <summary>
@@ -247,6 +251,7 @@ public abstract partial class ChunkState
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
     ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
     ///     The strong activation rule will be used, which is meant for chunks that have not been activated yet.
+    ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
     protected Boolean TrySettingNextReady(TransitionDescription description = new())
     {
@@ -267,6 +272,7 @@ public abstract partial class ChunkState
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
     ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
     ///     The weak activation rule will be used, which is meant for chunks that have already been activated before.
+    ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
     protected Boolean TrySettingNextActive()
     {
@@ -291,7 +297,7 @@ public abstract partial class ChunkState
         }
 
         ReleaseResources();
-        SetNextState(state, description, !state.IsActive);
+        SetNextState(state, description, !state.IsActive); // todo: this IsActive thing should be replaced fully with the CanDiscard thing
 
         return true;
     }
@@ -457,7 +463,7 @@ public abstract partial class ChunkState
     private void RequestIfQueueEmpty(ChunkState state)
     {
         if (requests.Empty) RequestNextState(state);
-        else state.Cleanup();
+        else CleanupAndRelease(state);
     }
 
     /// <summary>
@@ -466,26 +472,12 @@ public abstract partial class ChunkState
     /// <returns>The new state.</returns>
     private ChunkState Update()
     {
-        if (!released)
-        {
-            isAccessSufficient = EnsureRequiredAccess();
-
-            if (!isAccessSufficient)
-            {
-                WaitForResource();
-
-                return this;
-            }
-
-            Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
-            Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
-        }
-
+        if (IsWaitingForAccess()) return this;
         if (IsDelaying()) return this;
 
         if (!IsEntered) Enter();
 
-        if (!released) OnUpdate();
+        DoUpdateIfNeeded();
 
         ChunkState nextState = DetermineNextState();
 
@@ -509,23 +501,70 @@ public abstract partial class ChunkState
         return DelayEnter();
     }
 
+    private Boolean IsWaitingForAccess()
+    {
+        if (released) return false;
+
+        isAccessSufficient = EnsureRequiredAccess();
+
+        if (!isAccessSufficient)
+        {
+            WaitForResource();
+
+            return true;
+        }
+
+        Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
+        Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
+
+        return false;
+    }
+
+    private void DoUpdateIfNeeded()
+    {
+        if (released) return;
+
+        inUpdate = true;
+        OnUpdate();
+        inUpdate = false;
+
+        if (inUpdateUsed == null) return;
+
+        if (next == null) SetTransitionToUsedState(inUpdateUsed);
+        else CleanupAndRelease(inUpdateUsed);
+
+        inUpdateUsed = null;
+    }
+
     private Boolean EnsureRequiredAccess()
     {
         var isSufficient = true;
+        var canAcquire = true;
 
         if (CoreAccess != Access.None && coreGuard == null)
         {
-            coreGuard = Chunk.AcquireCore(CoreAccess);
-            isSufficient &= coreGuard != null;
+            isSufficient = false;
+            canAcquire &= Chunk.CanAcquireCore(CoreAccess);
         }
 
         if (ExtendedAccess != Access.None && extendedGuard == null)
         {
-            extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
-            isSufficient &= extendedGuard != null;
+            isSufficient = false;
+            canAcquire &= Chunk.CanAcquireExtended(ExtendedAccess);
         }
 
-        return isSufficient;
+        // Acquire all required resources at once to prevent deadlocks.
+
+        if (isSufficient || !canAcquire)
+            return isSufficient;
+
+        if (CoreAccess != Access.None)
+            coreGuard = Chunk.AcquireCore(CoreAccess);
+
+        if (ExtendedAccess != Access.None)
+            extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
+
+        return true;
     }
 
     /// <summary>
@@ -548,7 +587,7 @@ public abstract partial class ChunkState
     /// </summary>
     protected void Deactivate()
     {
-        ReleaseResources();
+        CleanupAndRelease(this);
         Context.Deactivate(Chunk);
     }
 
@@ -561,10 +600,7 @@ public abstract partial class ChunkState
         ChunkState nextState = DetermineNextState(next.Transition, next.Description);
 
         if (nextState != next.Transition.State)
-        {
-            next.Transition.State.Cleanup();
-            next.Transition.State.ReleaseResources();
-        }
+            CleanupAndRelease(next.Transition.State);
 
         next = null;
 
@@ -576,7 +612,18 @@ public abstract partial class ChunkState
         if (description.PrioritizeDeactivation && !Chunk.IsRequestedToLoad)
             return CreateFinalState();
 
-        if (transition.IsRequired) return transition.State;
+        if (transition.IsRequired)
+            return transition.State;
+
+        // todo: remove BeginMeshing(), instead have a ReMesh() method that is essentially just BeginHiding() with some extra checks to not always do it (taken from BeginMeshing)
+        // todo: test how the changes work, especially in regard to flickering
+        // todo: maybe remove isLooping here
+        // todo: think about deactivating, add a second dequeue at the top (and maybe add current next to the queue)
+        // todo: go trough usages of PrioritizeDeactivation - maybe no longer expose it / combine with IsRequired
+        // todo: also take a look at the AllowSkipOnDeactivation thing
+        // todo: maybe simplify have a CanDiscard on state, override in meshing and some others, might even be used to simplify the IsRequired thing
+        // todo: run and test in release mode too, look at time
+        // todo: after having everything completed here, test generating new, loading complete, loading partial, moving (flicker)
 
         ChunkState? requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false);
 
@@ -602,6 +649,7 @@ public abstract partial class ChunkState
         if (ReferenceEquals(previousState, state)) return;
 
         tracker.Transition(previousState, state);
+        previousState.previous = null;
     }
 
     /// <summary>
@@ -649,12 +697,27 @@ public abstract partial class ChunkState
 
         (Guard core, Guard extended) access = state.StealAccess();
 
+        Boolean wasActive = state.IsChunkActive;
+
         state.Exit();
 
-        state.RequestIfQueueEmpty(new Chunk.Used(state.IsChunkActive));
-        state.AllowTransition();
+        ChunkState used = new Chunk.Used(wasActive);
+
+        // If the state is currently in the update method, it could set the transition.
+        // This would conflict with setting the transition to the used state here.
+
+        if (state.inUpdate)
+            state.inUpdateUsed = used;
+        else
+            state.SetTransitionToUsedState(used);
 
         return access;
+    }
+
+    private void SetTransitionToUsedState(ChunkState used)
+    {
+        RequestIfQueueEmpty(used);
+        AllowTransition();
     }
 
     private (Guard core, Guard extended) StealAccess()
@@ -675,6 +738,12 @@ public abstract partial class ChunkState
     public override String ToString()
     {
         return GetType().Name;
+    }
+
+    private static void CleanupAndRelease(ChunkState? state)
+    {
+        state?.Cleanup();
+        state?.ReleaseResources();
     }
 
     /// <summary>
@@ -732,20 +801,37 @@ public abstract partial class ChunkState
         /// <param name="description">The description of the request.</param>
         public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
         {
+            // Requesting a state that already has access to itself is not allowed.
+            // This is because transitions taken before the request is processed might also need that access.
+            // As such, a deadlock could occur.
+
+            Debug.Assert(state.coreGuard == null);
+            Debug.Assert(state.extendedGuard == null);
+
             ChunkState? keep;
 
             if (current.next is {Transition: {State: {} next, IsRequired: true}})
             {
                 keep = ResolveDuplicate(next, state);
 
-                if (keep == next) return;
+                if (keep == next)
+                {
+                    CleanupAndRelease(state);
+
+                    return;
+                }
             }
 
             if (!current.IsEntered)
             {
                 keep = ResolveDuplicate(current, state);
 
-                if (keep == current) return;
+                if (keep == current)
+                {
+                    CleanupAndRelease(state);
+
+                    return;
+                }
             }
 
             for (var request = 0; request < requests.Count; request++)
@@ -754,7 +840,15 @@ public abstract partial class ChunkState
 
                 if (keep == null) continue;
 
-                if (keep == state) requests[request] = (state, description);
+                if (keep == state)
+                {
+                    CleanupAndRelease(requests[request].state);
+                    requests[request] = (state, description);
+                }
+                else
+                {
+                    CleanupAndRelease(state);
+                }
 
                 return;
             }
@@ -774,6 +868,10 @@ public abstract partial class ChunkState
         /// <returns>The first request, or null if no request is available.</returns>
         public ChunkState? Dequeue(ChunkState current, Boolean isLooping, Boolean isDeactivating)
         {
+            // todo: can be simplified because IsSameStateType instead of ResolveDuplicate does not return
+
+            if (Empty) return null;
+
             Int32 target = -1;
 
             for (var index = 0; index < requests.Count; index++)
@@ -812,7 +910,10 @@ public abstract partial class ChunkState
                 ChunkState? keep = ResolveDuplicate(current, requests[index].state);
 
                 if (keep == current)
+                {
+                    CleanupAndRelease(requests[index].state);
                     requests.RemoveAt(index);
+                }
                 else index++;
             }
         }

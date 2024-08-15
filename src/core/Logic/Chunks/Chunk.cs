@@ -454,6 +454,8 @@ public partial class Chunk : IDisposable, IEntity
 
         RequestLevel = level;
 
+        // todo: maybe wake up the chunk?
+
         if (RequestLevel == RequestLevel.None) BeginSaving();
         else if (RequestLevel < RequestLevel.Active) BeginHiding();
     }
@@ -524,10 +526,13 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Begin to hide the chunk.
+    ///     Begin to hide the chunk so it is no longer active.
+    ///     Only has an effect if the chunk is currently active.
     /// </summary>
     public void BeginHiding()
     {
+        if (!IsActive) return; // todo: test that chunks that are no longer request go into hiding
+
         State.RequestNextState<Hidden>();
     }
 

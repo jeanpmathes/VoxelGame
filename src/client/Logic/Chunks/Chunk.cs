@@ -62,24 +62,24 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    ///     Begin meshing the chunk.
-    ///     If a chunk on meshing requests the neighbors to mesh, the parameter should be set accordingly.
+    /// Ask a chunk to consider re-meshing because of a (newly) active neighbor.
     /// </summary>
-    /// <param name="side">The side from which the meshing was requested, or <see cref="BlockSide.All"/> if not specified.</param>
-    public void BeginMeshing(BlockSide side)
+    /// <param name="side">The side where the neighbor is now active.</param>
+    public void ReMesh(BlockSide side)
     {
         Throw.IfDisposed(disposed);
 
-        if (!this.IsViableForMeshing()) return;
+        if (!this.IsUsableForMeshing()) return;
 
-        if (meshedSides == BlockSides.None && this.ShouldMeshAccordingToNeighborState())
-            return;
+        // todo: think about this check again, seems wrong
+        //if (meshedSides == BlockSides.None && this.ShouldMeshAccordingToNeighborState())
+        //return;
 
-        State.RequestNextState(new Meshing(side),
-            new Core.Logic.Chunks.ChunkState.RequestDescription
-            {
-                AllowSkipOnDeactivation = true
-            });
+        // todo: check that there are any sides that are considered but are not yet meshed, if not return
+        // todo: tldr - only consider meshing if improvement would actually be made
+
+        // The hidden state will then try to activate, which then meshes if necessary.
+        State.RequestNextState<Hidden>();
     }
 
     private static Core.Logic.Sections.Section CreateSection(ArraySegment<UInt32> blocks)
@@ -103,38 +103,67 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    ///     Process a chance to mesh the entire chunk.
+    ///     Process a chance to mesh the entire chunk on strong activation.
     /// </summary>
-    /// <returns>A target state if the chunk would like to mesh, null otherwise.</returns>
-    public Core.Logic.Chunks.ChunkState? ProcessMeshingOption()
+    /// <param name="allowActivation">Whether the chunk can be activated in the case that this method returns <c>null</c>.</param>
+    /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
+    public Core.Logic.Chunks.ChunkState? ProcessStrongActivationMeshingOption(out Boolean allowActivation)
     {
         Throw.IfDisposed(disposed);
 
-        if (!this.IsViableForMeshing()) return null;
+        allowActivation = false;
 
-        BlockSides sides = ChunkMeshingContext.DetermineImprovementSides(this, meshedSides);
+        if (!this.ShouldMeshAccordingToNeighborState()) return null;
+        if (!this.IsUsableForMeshing()) return null;
 
-        if (sides == BlockSides.None) return null;
+        ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
+            hasMeshData,
+            meshedSides,
+            SpatialMeshingFactory.Shared,
+            out allowActivation);
+
+        if (context == null) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
+            context.GetChunk(side)?.Cast().ReMesh(side.Opposite());
+
+        return new Meshing(context);
+    }
+
+    /// <summary>
+    ///     Process a chance to mesh the entire chunk on weak activation.
+    /// </summary>
+    /// <param name="allowActivation">Whether the chunk can be activated in the case that this method returns <c>null</c>.</param>
+    /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
+    public Core.Logic.Chunks.ChunkState? ProcessWeakActivationMeshingOption(out Boolean allowActivation)
+    {
+        Throw.IfDisposed(disposed);
+
+        allowActivation = false;
+
+        if (!this.IsUsableForMeshing()) return null;
+
+        ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
+            hasMeshData,
+            meshedSides,
+            SpatialMeshingFactory.Shared,
+            out allowActivation);
+
+        if (context == null) return null;
+
+        foreach (BlockSide side in BlockSide.All.Sides()) // todo: maybe this can be completely removed
         {
             BlockSides current = side.ToFlag();
-
-            // If a side is not included, it means the chunk can't be meshed anyways.
-            if (!sides.HasFlag(current)) continue;
 
             // While a neighbor could have changed while this chunk was inactive, skipping is safe:
             // - If some sections have changed, the incomplete section system will fix that.
             // - If the entire neighbor has changed, that chunk will miss the flag and fix that on its activation.
-            if (meshedSides.HasFlag(current)) continue;
+            if (meshedSides.HasFlag(current)) continue; // todo: maybe this check can now be removed (test start and move)
 
-            // A chunk can only mesh if it exists.
-            if (!World.TryGetChunk(side.Offset(Position), out Core.Logic.Chunks.Chunk? chunk)) continue;
-
-            chunk.Cast().BeginMeshing(side.Opposite());
+            context.GetChunk(side)?.Cast().ReMesh(side.Opposite());
         }
 
-        return new Meshing(BlockSide.All);
+        return new Meshing(context);
     }
 
     /// <inheritdoc />
@@ -157,7 +186,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     private void RecreateIncompleteSectionMeshes()
     {
-        ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
+        using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
         for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(context);
     }

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
@@ -12,7 +13,6 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
-using VoxelGame.Support.Data;
 
 namespace VoxelGame.Client.Logic.Chunks;
 
@@ -30,6 +30,12 @@ public partial class Chunk
     /// </summary>
     public abstract class ChunkState : Core.Logic.Chunks.ChunkState
     {
+        /// <inheritdoc />
+        protected ChunkState((Guard? core, Guard? extended) guards) : base(guards.core, guards.extended) {}
+
+        /// <inheritdoc />
+        protected ChunkState() {}
+
         /// <summary>
         ///     Access the client chunk.
         /// </summary>
@@ -44,22 +50,18 @@ public partial class Chunk
         private const Int32 EntryDelay = 5;
         private Int32 entryDelay = EntryDelay;
 
-        private BlockSide side;
+        private ChunkMeshingContext? context;
 
-        private (Future<ChunkMeshData> future, ChunkMeshingContext context)? activity;
-
+        private Future<ChunkMeshData>? meshing;
         private ChunkMeshData? meshData;
 
         /// <summary>
         ///     Meshes a chunk and sets the data to the GPU.
         /// </summary>
-        /// <param name="side">
-        ///     The side of the chunk that caused the meshing to start, or <see cref="BlockSide.All" /> if not
-        ///     applicable.
-        /// </param>
-        public Meshing(BlockSide side)
+        /// <param name="context">The meshing context.</param>
+        public Meshing(ChunkMeshingContext context) : base(context.TakeAccess())
         {
-            this.side = side;
+            this.context = context;
         }
 
         /// <inheritdoc />
@@ -71,8 +73,10 @@ public partial class Chunk
         /// <inheritdoc />
         protected override Boolean DelayEnter()
         {
+            return true;
+
             if (entryDelay <= 0)
-                return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk, side) > 0;
+                return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk, BlockSide.All) > 0;
 
             entryDelay -= 1;
 
@@ -82,26 +86,29 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (activity is not {future: {} future, context: {} context})
+            if (meshing == null)
             {
-                context = ChunkMeshingContext.Acquire(Chunk, Chunk.meshedSides, side, SpatialMeshingFactory.Shared);
-                activity = (WaitForCompletion(() => Chunk.CreateMeshData(context)), context);
-            }
-            else if (future.IsCompleted)
-            {
-                context.Release();
+                Debug.Assert(context != null);
 
-                if (future.Exception != null)
+                meshing = WaitForCompletion(() => Chunk.CreateMeshData(context));
+            }
+            else if (meshing.IsCompleted)
+            {
+                Debug.Assert(context != null);
+
+                context.Dispose();
+                context = null;
+
+                if (meshing.Exception != null)
                 {
-                    Exception e = future.Exception.GetBaseException();
+                    Exception e = meshing.Exception.GetBaseException();
 
                     LogChunkMeshingError(logger, e, Chunk.Position);
 
                     throw e;
                 }
 
-                meshData = future.Value!;
-
+                meshData = meshing.Value!;
                 Chunk.SetMeshData(meshData);
 
                 Cleanup();
@@ -113,24 +120,8 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void Cleanup()
         {
+            context?.Dispose();
             meshData?.Dispose();
-        }
-
-        /// <inheritdoc />
-        protected override Core.Logic.Chunks.ChunkState ResolveDuplicate(Core.Logic.Chunks.ChunkState other)
-        {
-            if (side == BlockSide.All) return this;
-            if (((Meshing) other).side == BlockSide.All) return other;
-
-            side = BlockSide.All;
-
-            return this;
-        }
-
-        /// <inheritdoc />
-        public override String ToString()
-        {
-            return $"Meshing({side})";
         }
     }
 }

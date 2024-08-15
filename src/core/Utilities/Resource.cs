@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace VoxelGame.Core.Utilities;
@@ -39,6 +40,9 @@ public sealed class Resource
     private readonly String name;
     private Boolean isWrittenTo;
     private Int32 readerCount;
+
+    private WeakReference<Guard>? writer; // todo: remove
+    private readonly List<WeakReference<Guard>> readers = []; // todo: remove
 
     /// <summary>
     ///     Creates a new resource with the given name.
@@ -92,6 +96,8 @@ public sealed class Resource
         else readerCount--;
 
         if (readerCount == 0) Released?.Invoke(this, EventArgs.Empty);
+
+        readers.RemoveAll(wr => !wr.TryGetTarget(out _));
     }
 
     private void ReleaseWriter()
@@ -100,13 +106,15 @@ public sealed class Resource
         else isWrittenTo = false;
 
         Released?.Invoke(this, EventArgs.Empty);
+
+        writer = null;
     }
 
     /// <summary>
     ///     Try to acquire the resource for reading.
     /// </summary>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquireReader()
+    private Guard? TryAcquireReader()
     {
         Throw.IfNotOnMainThread(this);
 
@@ -114,14 +122,17 @@ public sealed class Resource
 
         readerCount++;
 
-        return new Guard(this, ReleaseReader);
+        Guard guard = new(this, ReleaseReader);
+        readers.Add(new WeakReference<Guard>(guard));
+
+        return guard;
     }
 
     /// <summary>
     ///     Try to acquire the resource for writing.
     /// </summary>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquireWriter()
+    private Guard? TryAcquireWriter()
     {
         Throw.IfNotOnMainThread(this);
 
@@ -129,7 +140,10 @@ public sealed class Resource
 
         isWrittenTo = true;
 
-        return new Guard(this, ReleaseWriter);
+        Guard guard = new(this, ReleaseWriter);
+        writer = new WeakReference<Guard>(guard);
+
+        return guard;
     }
 
     /// <summary>

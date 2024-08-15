@@ -34,7 +34,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     public PooledList()
     {
         arrayPool = ArrayPool<T>.Shared;
-        items = Array.Empty<T>();
+        items = [];
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
                 nameof(capacity),
                 $@"Value '{capacity}' is negative, which is not allowed.");
 
-        items = capacity == 0 ? Array.Empty<T>() : arrayPool.Rent(capacity);
+        items = capacity == 0 ? [] : arrayPool.Rent(capacity);
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
                 else
                 {
                     if (items.Length > 0) arrayPool.Return(items);
-                    items = Array.Empty<T>();
+                    items = [];
                 }
             }
         }
