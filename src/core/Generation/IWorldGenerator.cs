@@ -38,7 +38,7 @@ public interface IWorldGenerator
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <param name="sections">The section and all its neighbors.</param>
-    void DecorateSection(SectionPosition position, Array3D<Section> sections);
+    void DecorateSection(SectionPosition position, Neighborhood<Section> sections);
 
     /// <summary>
     ///     Emit views of global generated data for debugging.

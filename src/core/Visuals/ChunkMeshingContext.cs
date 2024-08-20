@@ -137,6 +137,8 @@ public sealed class ChunkMeshingContext : IDisposable
     /// <returns>A context that can be used to mesh the chunk, or null if meshing is either not possible or worthwhile.</returns>
     public static ChunkMeshingContext? TryAcquire(Chunk chunk, Boolean hasMeshed, BlockSides meshed, IMeshingFactory meshingFactory, out Boolean allowActivation)
     {
+        Debug.Assert(chunk.IsUsableForMeshing());
+
         allowActivation = false; // todo: get hasMeshed and meshed from chunk trough properties
 
         if (!chunk.CanAcquireCore(Access.Read)) return null;
@@ -190,6 +192,8 @@ public sealed class ChunkMeshingContext : IDisposable
                 Guard? guard = neighbor.AcquireCore(Access.Read);
                 Debug.Assert(guard != null);
 
+                Debug.Assert(neighbor.IsUsableForMeshing());
+
                 neighbors[side] = (neighbor, guard);
             }
             else
@@ -228,32 +232,6 @@ public sealed class ChunkMeshingContext : IDisposable
         }
 
         return new ChunkMeshingContext(chunk, guards: null, neighbors, availableSides, exclusiveSide: null, meshingFactory);
-    }
-
-    /// <summary>
-    ///     Get the number of neighbors that in the near future might be required for meshing but are not acquirable at the
-    ///     moment.
-    /// </summary>
-    /// <param name="chunk">The chunk to calculate the number for.</param>
-    /// <param name="exclusive">The side that is meshed exclusively, or <see cref="BlockSide.All"/> if not applicable.</param>
-    /// <returns>The number.</returns>
-    public static Int32 GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk chunk, BlockSide exclusive) // todo: probably remove this and delay system and sided meshing state and virtual duplicate removal
-    {
-        var count = 0;
-
-        foreach (BlockSide side in BlockSide.All.Sides())
-        {
-            if (side.Opposite() == exclusive) continue;
-
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
-
-            // A requested chunk might become viable in the near future.
-            if (!neighbor.IsRequestedToActivate) continue;
-
-            if (!neighbor.CanAcquireCore(Access.Read)) count++;
-        }
-
-        return count;
     }
 
     private static void DetermineNeighborAvailability(

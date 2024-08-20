@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Core.Collections;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Collections;
 
+[TestSubject(typeof(PooledList<>))]
 public class PooledListTest
 {
     private static readonly Int32[] collection = [1, 2, 3];

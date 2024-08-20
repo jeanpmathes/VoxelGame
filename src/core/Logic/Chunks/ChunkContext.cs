@@ -42,7 +42,6 @@ public class ChunkContext
     {
         this.world = world;
 
-        Directory = world.Data.ChunkDirectory;
         Generator = generator;
 
         activateStrongly = strongActivator;
@@ -53,7 +52,7 @@ public class ChunkContext
     /// <summary>
     ///     The directory in which chunks are stored.
     /// </summary>
-    public DirectoryInfo Directory { get; }
+    public DirectoryInfo Directory => world.Data.ChunkDirectory;
 
     /// <summary>
     ///     Get the used world generator.

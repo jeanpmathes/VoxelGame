@@ -47,7 +47,7 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Array3D<Section> sections)
+    public void DecorateSection(SectionPosition position, Neighborhood<Section> sections)
     {
         // No decoration.
     }

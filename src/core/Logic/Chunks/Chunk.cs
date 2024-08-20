@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
@@ -28,6 +27,11 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public partial class Chunk : IDisposable, IEntity
 {
+    /// <summary>
+    ///     Creates a section.
+    /// </summary>
+    public delegate Section SectionFactory(ArraySegment<UInt32> blocks);
+
     /// <summary>
     ///     Result status of loading a chunk.
     /// </summary>
@@ -120,8 +124,6 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     private readonly UpdateCounter localUpdateCounter = new();
 
-    private readonly ChunkContext context;
-
     private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
     private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
 
@@ -133,18 +135,18 @@ public partial class Chunk : IDisposable, IEntity
 
     private DecorationLevels decoration = DecorationLevels.None;
 
-    private ChunkState state = null!;
-
     private ChunkPosition location;
+
+    private ChunkState state = null!;
 
     /// <summary>
     ///     Create a new chunk. The chunk is not initialized.
     /// </summary>
     /// <param name="context">The chunk context.</param>
     /// <param name="createSection">The section factory.</param>
-    protected Chunk(ChunkContext context, SectionFactory createSection)
+    public Chunk(ChunkContext context, SectionFactory createSection)
     {
-        this.context = context;
+        Context = context;
 
         for (var index = 0; index < SectionCount; index++)
         {
@@ -168,6 +170,16 @@ public partial class Chunk : IDisposable, IEntity
             State.OnChunkResourceReleased();
         }
     }
+
+    /// <summary>
+    ///     The context in which this chunk is created.
+    /// </summary>
+    public ChunkContext Context { get; }
+
+    /// <summary>
+    ///     Get the decoration flags of this chunk.
+    /// </summary>
+    internal DecorationLevels Decoration => decoration;
 
     /// <summary>
     ///     Whether the chunk is currently active.
@@ -266,6 +278,15 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
+    ///     Add a decoration level to this chunk.
+    /// </summary>
+    /// <param name="level">The level to add.</param>
+    internal void AddDecorationLevel(DecorationLevels level)
+    {
+        decoration |= level;
+    }
+
+    /// <summary>
     ///     Initialize the chunk.
     /// </summary>
     /// <param name="world">The world in which the chunk is placed.</param>
@@ -278,7 +299,7 @@ public partial class Chunk : IDisposable, IEntity
         blockTickManager.SetWorld(world);
         fluidTickManager.SetWorld(world);
 
-        ChunkState.Initialize(out state, this, context);
+        ChunkState.Initialize(out state, this, Context);
         tracker.Transition(from: null, state);
 
         for (var index = 0; index < SectionCount; index++)
@@ -564,22 +585,23 @@ public partial class Chunk : IDisposable, IEntity
 
     /// <summary>
     ///     Generate the chunk content.
+    ///     The generator associated with the <see cref="Context"/> is used.
     /// </summary>
-    /// <param name="generator">The generator to use.</param>
-    public void Generate(IWorldGenerator generator)
+    public void Generate()
     {
         Throw.IfDisposed(disposed);
 
-        LogStartedGeneratingChunk(logger, Position, generator.ToString());
+        LogStartedGeneratingChunk(logger, Position, Context.Generator.ToString());
 
-        GenerateContent(generator);
-        PlaceStructures(generator);
-        DecorateCenter(generator);
+        GenerateContent(Context.Generator);
+        PlaceStructures(Context.Generator);
 
-        LogFinishedGeneratingChunk(logger, Position, generator.ToString());
+        ChunkDecoration.DecorateCenter(this);
+
+        LogFinishedGeneratingChunk(logger, Position, Context.Generator.ToString());
     }
 
-    private void GenerateContent(IWorldGenerator generator)
+    private void GenerateContent(IWorldGenerator generator) // todo: refactor in same way as ChunkDecoration, write tests
     {
         (Int32 begin, Int32 end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
 
@@ -611,7 +633,7 @@ public partial class Chunk : IDisposable, IEntity
         }
     }
 
-    private void PlaceStructures(IWorldGenerator generator)
+    private void PlaceStructures(IWorldGenerator generator) // todo: refactor in same way as ChunkDecoration, write tests
     {
         for (var index = 0; index < SectionCount; index++)
         {
@@ -688,7 +710,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get a section using local coordinates.
     /// </summary>
-    protected Section GetLocalSection(Int32 x, Int32 y, Int32 z)
+    public Section GetLocalSection(Int32 x, Int32 y, Int32 z)
     {
         return sections[LocalSectionToIndex(x, y, z)];
     }
@@ -809,138 +831,6 @@ public partial class Chunk : IDisposable, IEntity
         return available;
     }
 
-    private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk> chunks)
-    {
-        var decorated = true;
-
-        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
-            decorated &= chunks.GetAt(position).decoration.HasFlag(flag);
-
-        return decorated;
-    }
-
-    private static void Decorate(IWorldGenerator generator, Neighborhood<Chunk> neighbors)
-    {
-        foreach (Vector3i corner in VMath.Range3(x: 2, y: 2, z: 2))
-        {
-            if (IsCornerDecorated(corner, neighbors)) continue;
-
-            DecorateCorner(generator, neighbors, corner);
-        }
-    }
-
-    private void DecorateCenter(IWorldGenerator generator)
-    {
-        Debug.Assert(!decoration.HasFlag(DecorationLevels.Center));
-
-        decoration |= DecorationLevels.Center;
-
-        var neighbors = new Array3D<Section>(length: 3);
-
-        foreach ((Int32 x, Int32 y, Int32 z) in VMath.Range3(x: 2, y: 2, z: 2)) DecorateSection(1 + x, 1 + y, 1 + z);
-
-        void SetNeighbors(Int32 x, Int32 y, Int32 z)
-        {
-            Debug.Assert(neighbors != null);
-            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices) neighbors[dx, dy, dz] = GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
-        }
-
-        void DecorateSection(Int32 x, Int32 y, Int32 z)
-        {
-            SetNeighbors(x, y, z);
-            generator.DecorateSection(SectionPosition.From(Position, (x, y, z)), neighbors);
-        }
-    }
-
-    private static DecorationLevels GetFlagForCorner(Vector3i corner)
-    {
-        return (corner.X, corner.Y, corner.Z) switch
-        {
-            (0, 0, 0) => DecorationLevels.Corner000,
-            (0, 0, 1) => DecorationLevels.Corner001,
-            (0, 1, 0) => DecorationLevels.Corner010,
-            (0, 1, 1) => DecorationLevels.Corner011,
-            (1, 0, 0) => DecorationLevels.Corner100,
-            (1, 0, 1) => DecorationLevels.Corner101,
-            (1, 1, 0) => DecorationLevels.Corner110,
-            (1, 1, 1) => DecorationLevels.Corner111,
-            _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, message: null)
-        };
-    }
-
-    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk> chunks, Vector3i corner)
-    {
-        Neighborhood<Boolean> decorated = new();
-
-        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
-        {
-            Chunk chunk = chunks.GetAt(position);
-
-            decorated.SetAt(position, chunk.decoration.HasFlag(flag));
-
-            chunk.decoration |= flag;
-        }
-
-        // Go through all sections on the selected corner.
-        // We want to decorate 56 of them, which is a cube of 4x4x4 without the tips (corners).
-        // The tips of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
-
-        ChunkPosition firstChunk = chunks.Center.Position.Offset(xOffset: -1, yOffset: -1, zOffset: -1);
-        SectionPosition firstSection = SectionPosition.From(chunks.GetAt(corner).Position, (Size - 2, Size - 2, Size - 2));
-
-        foreach ((Int32 dx, Int32 dy, Int32 dz) in VMath.Range3(x: 4, y: 4, z: 4))
-        {
-            if (IsCubeTip(dx, dy, dz)) continue;
-
-            SectionPosition currentSection = firstSection.Offset(dx, dy, dz);
-            Vector3i currentChunk = firstChunk.OffsetTo(currentSection.Chunk);
-
-            if (decorated.GetAt(currentChunk)) continue;
-
-            Neighborhood<Section> neighbors = GetSectionNeighbors(currentSection);
-            generator.DecorateSection(currentSection, neighbors);
-        }
-
-        Debug.Assert(IsCornerDecorated(corner, chunks));
-
-        Neighborhood<Section> GetSectionNeighbors(SectionPosition centerSection)
-        {
-            Neighborhood<Section> neighbors = new();
-
-            foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices)
-            {
-                SectionPosition currentSection = centerSection.Offset(dx - 1, dy - 1, dz - 1);
-                Vector3i currentChunk = firstChunk.OffsetTo(currentSection.Chunk);
-
-                neighbors[dx, dy, dz] = chunks.GetAt(currentChunk).GetSection(currentSection);
-            }
-
-            return neighbors;
-        }
-    }
-
-    private static IEnumerable<(Vector3i, DecorationLevels)> GetCornerPositions(Vector3i corner)
-    {
-        foreach (Vector3i offset in VMath.Range3(x: 2, y: 2, z: 2))
-            yield return (corner + offset, GetFlagForCorner(Neighborhood.Center - offset));
-    }
-
-    private static Boolean IsCubeTip(Int32 dx, Int32 dy, Int32 dz)
-    {
-        return (dx, dy, dz) switch
-        {
-            (0, 0, 0) => true,
-            (0, 0, 3) => true,
-            (0, 3, 0) => true,
-            (0, 3, 3) => true,
-            (3, 0, 0) => true,
-            (3, 0, 3) => true,
-            (3, 3, 0) => true,
-            (3, 3, 3) => true,
-            _ => false
-        };
-    }
-
     /// <summary>
     ///     Called after any usable state was entered.
     ///     A usable state holds write-access to both resources and allows stealing.
@@ -1000,30 +890,6 @@ public partial class Chunk : IDisposable, IEntity
     protected Section GetSectionByIndex(Int32 index)
     {
         return sections[index];
-    }
-
-    /// <summary>
-    ///     Creates a section.
-    /// </summary>
-    protected delegate Section SectionFactory(ArraySegment<UInt32> blocks);
-
-    [Flags]
-    private enum DecorationLevels
-    {
-        None = 0,
-
-        Center = 1 << 0,
-
-        Corner000 = 1 << 1,
-        Corner001 = 1 << 2,
-        Corner010 = 1 << 3,
-        Corner011 = 1 << 4,
-        Corner100 = 1 << 5,
-        Corner101 = 1 << 6,
-        Corner110 = 1 << 7,
-        Corner111 = 1 << 8,
-
-        All = Center | Corner000 | Corner001 | Corner010 | Corner011 | Corner100 | Corner101 | Corner110 | Corner111
     }
 
     #region LOGGING

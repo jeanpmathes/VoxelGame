@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using JetBrains.Annotations;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Serialization;
@@ -14,6 +15,7 @@ using Xunit;
 
 namespace VoxelGame.Core.Tests.Collections;
 
+[TestSubject(typeof(ScheduledTickManager<>))]
 [Collection("Logger")]
 public class ScheduledTickManagerTests
 {

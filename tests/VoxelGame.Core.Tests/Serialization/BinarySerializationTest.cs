@@ -7,11 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using VoxelGame.Core.Serialization;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Serialization;
 
+[TestSubject(typeof(BinaryDeserializer))]
+[TestSubject(typeof(BinaryDeserializer))]
 public class BinarySerializationTest
 {
     [Fact]

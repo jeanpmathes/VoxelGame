@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -48,7 +47,7 @@ public partial class Chunk
     public class Meshing : ChunkState
     {
         private const Int32 EntryDelay = 5;
-        private Int32 entryDelay = EntryDelay;
+        private Int32 entryDelay = EntryDelay; // todo: remove
 
         private ChunkMeshingContext? context;
 
@@ -73,14 +72,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override Boolean DelayEnter()
         {
-            return true;
-
-            if (entryDelay <= 0)
-                return ChunkMeshingContext.GetNumberOfNonAcquirablePossibleFutureMeshingPartners(Chunk, BlockSide.All) > 0;
-
-            entryDelay -= 1;
-
-            return true;
+            return true; // todo: remove the delay system
         }
 
         /// <inheritdoc />

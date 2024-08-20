@@ -44,7 +44,7 @@ public class Section : Core.Logic.Sections.Section
     {
         base.Initialize(newPosition);
 
-        vfx = new SectionVFX(Application.Client.Instance.Space, position.FirstBlock);
+        vfx = new SectionVFX(Application.Client.Instance.Space, Position.FirstBlock);
         vfx.SetUp();
     }
 
@@ -74,7 +74,7 @@ public class Section : Core.Logic.Sections.Section
     {
         Throw.IfDisposed(disposed);
 
-        BlockSides required = GetRequiredSides(position);
+        BlockSides required = GetRequiredSides(Position);
         missing = required & ~context.AvailableSides & BlockSides.All;
 
         using SectionMeshData meshData = CreateMeshData(context);
@@ -91,7 +91,7 @@ public class Section : Core.Logic.Sections.Section
 
         if (missing == BlockSides.None) return;
 
-        BlockSides required = GetRequiredSides(position);
+        BlockSides required = GetRequiredSides(Position);
 
         if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
     }
@@ -137,7 +137,7 @@ public class Section : Core.Logic.Sections.Section
 
         using Timer? timer = logger.BeginTimedScoped("Section Meshing");
 
-        MeshingContext context = new(position, chunkContext);
+        MeshingContext context = new(Position, chunkContext);
 
         using (logger.BeginTimedSubScoped("Section Meshing Loop", timer))
         {

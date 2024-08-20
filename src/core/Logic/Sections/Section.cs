@@ -85,10 +85,22 @@ public class Section : IDisposable
     /// </summary>
     public static readonly Int32 SizeExp2 = SizeExp * 2;
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
+    /// <summary>
+    ///     The blocks stored in this section.
+    /// </summary>
+    protected ArraySegment<UInt32> blocks; // todo: make private and remove suppression
+#pragma warning restore CA1051 // Do not declare visible instance fields
+
+    /// <summary>
+    ///     The position of this section.
+    /// </summary>
+    private SectionPosition position;
+
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    protected Section(ArraySegment<UInt32> blocks)
+    public Section(ArraySegment<UInt32> blocks)
     {
         Debug.Assert(blocks.Count == Count);
 
@@ -99,6 +111,11 @@ public class Section : IDisposable
     ///     The extents of a section.
     /// </summary>
     public static Vector3d Extents => new(Size / 2f, Size / 2f, Size / 2f);
+
+    /// <summary>
+    ///     Get the position of the section.
+    /// </summary>
+    public SectionPosition Position => position;
 
     /// <summary>
     ///     Initializes the section.
@@ -348,18 +365,6 @@ public class Section : IDisposable
 
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    /// <summary>
-    ///     The blocks stored in this section.
-    /// </summary>
-    protected ArraySegment<UInt32> blocks;
-
-    /// <summary>
-    ///     The position of this section.
-    /// </summary>
-    protected SectionPosition position;
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
     #region IDisposable Support
 

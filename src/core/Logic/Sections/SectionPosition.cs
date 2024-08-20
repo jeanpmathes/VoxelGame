@@ -13,7 +13,6 @@ namespace VoxelGame.Core.Logic.Sections;
 /// <summary>
 ///     The position of a section in the world.
 /// </summary>
-[Serializable]
 public readonly struct SectionPosition : IEquatable<SectionPosition>
 {
     /// <summary>
@@ -150,6 +149,12 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     ///     Get the position of the last block in this section.
     /// </summary>
     public Vector3i LastBlock => FirstBlock + new Vector3i(Section.Size - 1);
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return $"S({X}|{Y}|{Z})";
+    }
 
     /// <summary>
     ///     Create a section position that contains a world position.

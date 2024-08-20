@@ -115,10 +115,8 @@ public partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Array3D<Section> sections)
+    public void DecorateSection(SectionPosition position, Neighborhood<Section> sections)
     {
-        Debug.Assert(sections.Length == 3);
-
         ICollection<Biome> biomes = GetSectionBiomes(position);
 
         HashSet<Decoration> decorations = [];

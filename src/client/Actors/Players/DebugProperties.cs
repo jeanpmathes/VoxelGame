@@ -27,6 +27,7 @@ public class DebugProperties : Group
         new Message("Position (Head)", $"{player.Head.Position.Floor()}/"),
         new Message("Position (Target)", $"{player.TargetPosition}"),
         new Message("Position (Chunk)", $"{player.Chunk}"),
+        // todo: add section position
         new Message("Target Block", FormatBlockTarget(targeting.Block ?? BlockInstance.Default)),
         new Message("Target Fluid", FormatFluidTarget(targeting.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),

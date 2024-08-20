@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 
@@ -32,9 +33,14 @@ public static class Neighborhood
     public static Vector3i Center => Vector3i.One;
 
     /// <summary>
+    ///     The index of the first element of the array (lowest index).
+    /// </summary>
+    public static Vector3i First => Vector3i.Zero;
+
+    /// <summary>
     ///     Get all indices of the array.
     /// </summary>
-    public static IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices => VMath.Range3(Length, Length, Length);
+    public static IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices { get; } = VMath.Range3(Length, Length, Length).ToArray();
 }
 
 /// <summary>
@@ -55,5 +61,14 @@ public class Neighborhood<T> : Array3D<T>
     {
         get => GetAt(Neighborhood.Center);
         set => SetAt(Neighborhood.Center, value);
+    }
+
+    /// <summary>
+    ///     Get or set the element at the first index of the neighborhood.
+    /// </summary>
+    public T First
+    {
+        get => GetAt(Neighborhood.First);
+        set => SetAt(Neighborhood.First, value);
     }
 }

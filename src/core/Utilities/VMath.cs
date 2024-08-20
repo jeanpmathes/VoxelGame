@@ -71,6 +71,24 @@ public static class VMath
     }
 
     /// <summary>
+    ///     An advanced three-dimensional range, allowing to set the start and length of each dimension.
+    /// </summary>
+    /// <param name="start">The start (inclusive) values for each dimension.</param>
+    /// <param name="length">The length of each dimension.</param>
+    /// <returns>The coordinates in the range.</returns>
+    public static IEnumerable<(Int32, Int32, Int32)> Range3(
+        (Int32 x, Int32 y, Int32 z) start,
+        (Int32 x, Int32 y, Int32 z) length)
+    {
+        (Int32 x, Int32 y, Int32 z) max = (start.x + length.x, start.y + length.y, start.z + length.z);
+
+        for (Int32 i = start.x; i < max.x; i++)
+        for (Int32 j = start.y; j < max.y; j++)
+        for (Int32 k = start.z; k < max.z; k++)
+            yield return (i, j, k);
+    }
+
+    /// <summary>
     ///     Clamps a vector between a minimum and maximum length.
     /// </summary>
     /// <param name="vector">The vector to clamp.</param>

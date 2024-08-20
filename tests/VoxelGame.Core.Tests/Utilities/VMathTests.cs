@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Utilities;
 
+[TestSubject(typeof(VMath))]
 public class VMathTests
 {
     [Fact]

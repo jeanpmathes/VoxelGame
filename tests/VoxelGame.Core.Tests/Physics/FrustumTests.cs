@@ -5,12 +5,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Physics;
 
+[TestSubject(typeof(Frustum))]
 public class FrustumTests
 {
     [Fact]

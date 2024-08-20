@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Core.Utilities.Units;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Utilities.Units;
 
+[TestSubject(typeof(Prefix))]
 public class PrefixTest
 {
     [Fact]

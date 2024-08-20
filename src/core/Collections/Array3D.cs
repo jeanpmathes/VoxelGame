@@ -52,6 +52,18 @@ public class Array3D<T> : IEnumerable<T>
     }
 
     /// <summary>
+    ///     Access the element at the given position.
+    /// </summary>
+    /// <param name="position">The position. All components must be between 0 and <see cref="Length" /> - 1.</param>
+    #pragma warning disable S3876 // Vector3i is a fitting near-primitive type.
+    public T this[Vector3i position]
+    #pragma warning restore S3876
+    {
+        get => GetRef(position.X, position.Y, position.Z);
+        set => GetRef(position.X, position.Y, position.Z) = value;
+    }
+
+    /// <summary>
     ///     Get all indices of the array.
     /// </summary>
     public IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices => VMath.Range3(Length, Length, Length);
@@ -83,7 +95,7 @@ public class Array3D<T> : IEnumerable<T>
     /// </summary>
     /// <param name="position">The position. All coordinates must be between 0 and <see cref="Length" /> - 1.</param>
     /// <returns>The value at the given position.</returns>
-    public T GetAt(Vector3i position)
+    public T GetAt(Vector3i position) // todo: remove
     {
         return GetRef(position.X, position.Y, position.Z);
     }
@@ -93,7 +105,7 @@ public class Array3D<T> : IEnumerable<T>
     /// </summary>
     /// <param name="position">The position. All coordinates must be between 0 and <see cref="Length" /> - 1.</param>
     /// <param name="value">The value to set.</param>
-    public void SetAt(Vector3i position, T value)
+    public void SetAt(Vector3i position, T value) // todo: remove
     {
         GetRef(position.X, position.Y, position.Z) = value;
     }

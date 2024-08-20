@@ -120,7 +120,7 @@ public partial class Chunk
         {
             if (generating == null)
             {
-                generating = WaitForCompletion(() => Chunk.Generate(Context.Generator));
+                generating = WaitForCompletion(() => Chunk.Generate());
             }
             else if (generating.IsCompleted)
             {
@@ -177,7 +177,7 @@ public partial class Chunk
         {
             if (decorating == null)
             {
-                decorating = WaitForCompletion(() => Decorate(Context.Generator, chunks));
+                decorating = WaitForCompletion(() => ChunkDecoration.Decorate(chunks));
             }
             else if (decorating.IsCompleted)
             {

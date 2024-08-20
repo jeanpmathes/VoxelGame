@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace VoxelGame.Core.Utilities;
@@ -38,11 +37,7 @@ public enum Access
 public sealed class Resource
 {
     private readonly String name;
-    private Boolean isWrittenTo;
     private Int32 readerCount;
-
-    private WeakReference<Guard>? writer; // todo: remove
-    private readonly List<WeakReference<Guard>> readers = []; // todo: remove
 
     /// <summary>
     ///     Creates a new resource with the given name.
@@ -56,17 +51,27 @@ public sealed class Resource
     /// <summary>
     ///     Get whether there is any reader or writer currently using the resource.
     /// </summary>
-    public Boolean IsAcquired => readerCount > 0 || isWrittenTo;
+    public Boolean IsAcquired => readerCount > 0 || IsWrittenTo;
+
+    /// <summary>
+    ///     Get whether the resource is currently written to.
+    /// </summary>
+    public Boolean IsWrittenTo { get; private set; }
+
+    /// <summary>
+    ///     Get whether the resource is currently read from.
+    /// </summary>
+    public Boolean IsReadFrom => readerCount > 0;
 
     /// <summary>
     ///     Get whether it is possible to read from the resource.
     /// </summary>
-    public Boolean CanRead => !isWrittenTo;
+    private Boolean CanRead => !IsWrittenTo;
 
     /// <summary>
     ///     Get whether it is possible to write to the resource.
     /// </summary>
-    public Boolean CanWrite => readerCount == 0 && CanRead;
+    private Boolean CanWrite => readerCount == 0 && CanRead;
 
     /// <summary>
     ///     Check if this resource is currently held by a specific guard.
@@ -78,8 +83,8 @@ public sealed class Resource
     {
         return access switch
         {
-            Access.Read => guard.IsGuarding(this) && !isWrittenTo,
-            Access.Write => guard.IsGuarding(this) && isWrittenTo,
+            Access.Read => guard.IsGuarding(this) && !IsWrittenTo,
+            Access.Write => guard.IsGuarding(this) && IsWrittenTo,
             _ => false
         };
     }
@@ -96,18 +101,14 @@ public sealed class Resource
         else readerCount--;
 
         if (readerCount == 0) Released?.Invoke(this, EventArgs.Empty);
-
-        readers.RemoveAll(wr => !wr.TryGetTarget(out _));
     }
 
     private void ReleaseWriter()
     {
-        if (!isWrittenTo) Debug.Fail("No writer to release.");
-        else isWrittenTo = false;
+        if (!IsWrittenTo) Debug.Fail("No writer to release.");
+        else IsWrittenTo = false;
 
         Released?.Invoke(this, EventArgs.Empty);
-
-        writer = null;
     }
 
     /// <summary>
@@ -122,10 +123,7 @@ public sealed class Resource
 
         readerCount++;
 
-        Guard guard = new(this, ReleaseReader);
-        readers.Add(new WeakReference<Guard>(guard));
-
-        return guard;
+        return new Guard(this, ReleaseReader);
     }
 
     /// <summary>
@@ -138,12 +136,9 @@ public sealed class Resource
 
         if (!CanWrite) return null;
 
-        isWrittenTo = true;
+        IsWrittenTo = true;
 
-        Guard guard = new(this, ReleaseWriter);
-        writer = new WeakReference<Guard>(guard);
-
-        return guard;
+        return new Guard(this, ReleaseWriter);
     }
 
     /// <summary>
