@@ -134,27 +134,6 @@ public abstract partial class ChunkState
     /// </summary>
     public Boolean CanStealAccess => AllowStealing && isAccessSufficient;
 
-    /// <summary>
-    ///     Check if two states are duplicates, if yes, return the state that should be kept.
-    /// </summary>
-    /// <param name="a">The first state.</param>
-    /// <param name="b">The second state.</param>
-    /// <returns>The state that should be kept, or null if both states should be kept.</returns>
-    private static ChunkState? ResolveDuplicate(ChunkState a, ChunkState b) // todo: remove, just use IsSameStateType
-    {
-        return IsSameStateType(a, b) ? a.ResolveDuplicate(b) : null;
-    }
-
-    /// <summary>
-    ///     Resolves a duplicate state.
-    /// </summary>
-    /// <param name="other">The other state.</param>
-    /// <returns>The state that should be kept, or null if both states should be kept.</returns>
-    protected virtual ChunkState ResolveDuplicate(ChunkState other) // todo: remove
-    {
-        return this;
-    }
-
     private static Boolean IsSameStateType(ChunkState a, ChunkState b)
     {
         return a.GetType() == b.GetType();
@@ -589,8 +568,6 @@ public abstract partial class ChunkState
         if (transition.IsRequired)
             return transition.State;
 
-        // todo: remove BeginMeshing(), instead have a ReMesh() method that is essentially just BeginHiding() with some extra checks to not always do it (taken from BeginMeshing)
-        // todo: test how the changes work, especially in regard to flickering
         // todo: maybe remove isLooping here
         // todo: think about deactivating, add a second dequeue at the top (and maybe add current next to the queue)
         // todo: go trough usages of PrioritizeDeactivation - maybe no longer expose it / combine with IsRequired
@@ -782,47 +759,25 @@ public abstract partial class ChunkState
             Debug.Assert(state.coreGuard == null);
             Debug.Assert(state.extendedGuard == null);
 
-            ChunkState? keep;
-
-            if (current.next is {Transition: {State: {} next, IsRequired: true}})
+            if (current.next is {Transition: {State: {} next, IsRequired: true}} && IsSameStateType(next, state))
             {
-                keep = ResolveDuplicate(next, state);
+                CleanupAndRelease(state);
 
-                if (keep == next)
-                {
-                    CleanupAndRelease(state);
-
-                    return;
-                }
+                return;
             }
 
-            if (!current.IsEntered)
+            if (!current.IsEntered && IsSameStateType(current, state))
             {
-                keep = ResolveDuplicate(current, state);
+                CleanupAndRelease(state);
 
-                if (keep == current)
-                {
-                    CleanupAndRelease(state);
-
-                    return;
-                }
+                return;
             }
 
             for (var request = 0; request < requests.Count; request++)
             {
-                keep = ResolveDuplicate(requests[request].state, state);
+                if (!IsSameStateType(requests[request].state, state)) continue;
 
-                if (keep == null) continue;
-
-                if (keep == state)
-                {
-                    CleanupAndRelease(requests[request].state);
-                    requests[request] = (state, description);
-                }
-                else
-                {
-                    CleanupAndRelease(state);
-                }
+                CleanupAndRelease(state);
 
                 return;
             }
@@ -842,8 +797,6 @@ public abstract partial class ChunkState
         /// <returns>The first request, or null if no request is available.</returns>
         public ChunkState? Dequeue(ChunkState current, Boolean isLooping, Boolean isDeactivating)
         {
-            // todo: can be simplified because IsSameStateType instead of ResolveDuplicate does not return
-
             if (Empty) return null;
 
             Int32 target = -1;
@@ -881,9 +834,7 @@ public abstract partial class ChunkState
 
             while (index < requests.Count)
             {
-                ChunkState? keep = ResolveDuplicate(current, requests[index].state);
-
-                if (keep == current)
+                if (IsSameStateType(current, requests[index].state))
                 {
                     CleanupAndRelease(requests[index].state);
                     requests.RemoveAt(index);
