@@ -46,9 +46,6 @@ public partial class Chunk
     /// </summary>
     public class Meshing : ChunkState
     {
-        private const Int32 EntryDelay = 5;
-        private Int32 entryDelay = EntryDelay; // todo: remove
-
         private ChunkMeshingContext? context;
 
         private Future<ChunkMeshData>? meshing;
@@ -68,12 +65,6 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override Access ExtendedAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Boolean DelayEnter()
-        {
-            return true; // todo: remove the delay system
-        }
 
         /// <inheritdoc />
         protected override void OnUpdate()

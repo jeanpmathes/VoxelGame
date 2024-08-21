@@ -20,12 +20,8 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public abstract partial class ChunkState
 {
-    private const Int32 DelayTimeout = 40;
-
     private Guard? coreGuard;
     private Guard? extendedGuard;
-
-    private Int32 currentDelayTime;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
@@ -193,17 +189,6 @@ public abstract partial class ChunkState
         OnExit();
 
         CleanupAndRelease(this);
-    }
-
-    /// <summary>
-    ///     Allows a state to delay being entered.
-    ///     This can be useful if the short-term future might have more favorable conditions.
-    ///     Maximum delay time is defined by <see cref="DelayTimeout" />.
-    /// </summary>
-    /// <returns><c>true</c> if the state should be delayed, <c>false</c> otherwise.</returns>
-    protected virtual Boolean DelayEnter()
-    {
-        return false;
     }
 
     /// <summary>
@@ -473,7 +458,6 @@ public abstract partial class ChunkState
     private ChunkState Update()
     {
         if (IsWaitingForAccess()) return this;
-        if (IsDelaying()) return this;
 
         if (!IsEntered) Enter();
 
@@ -489,16 +473,6 @@ public abstract partial class ChunkState
         Context.UpdateList.Add(Chunk);
 
         return nextState;
-    }
-
-    private Boolean IsDelaying()
-    {
-        if (IsEntered) return false;
-        if (currentDelayTime >= DelayTimeout) return false;
-
-        currentDelayTime += 1;
-
-        return DelayEnter();
     }
 
     private Boolean IsWaitingForAccess()
