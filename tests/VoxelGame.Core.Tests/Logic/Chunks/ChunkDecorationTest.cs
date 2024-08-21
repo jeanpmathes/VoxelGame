@@ -22,6 +22,8 @@ namespace VoxelGame.Core.Tests.Logic.Chunks;
 [Collection("Logger")]
 public class ChunkDecorationTest
 {
+    // todo: try looking for the wrong section access bug
+
     [Fact]
     public void TestDecorationOfChunks()
     {
@@ -29,15 +31,17 @@ public class ChunkDecorationTest
         ChunkContext context = new(null!, generator, _ => null, _ => null, _ => {});
 
         Neighborhood<Chunk> chunks = new();
+        Neighborhood<Chunk?> chunksNullable = new();
 
         foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices)
         {
             chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
+            chunksNullable[index] = chunks[index];
 
             ChunkDecoration.DecorateCenter(chunks[index]);
         }
 
-        ChunkDecoration.Decorate(chunks);
+        ChunkDecoration.Decorate(chunksNullable);
 
         // 27 chunks with 8 sections in the center, and 8 corners with 4x4x4 section without their tips:
         Assert.Equal(27 * 8 + 8 * (4 * 4 * 4 - 8), generator.NumberOfDecoratedSections);

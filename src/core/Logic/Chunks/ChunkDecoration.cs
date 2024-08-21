@@ -68,9 +68,6 @@ public enum DecorationLevels
 /// </summary>
 public static class ChunkDecoration
 {
-    // todo: check if decoration only acquires chunks that are needed (considering both sides) - not the case, as the neighborhood is not nullable
-    // todo: try looking for the wrong section access bug
-
     private static readonly Vector3i[] corners = VMath.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
 
     private static readonly (Int32, Int32, Int32)[] centerSectionOffsets = VMath.Range3((1, 1, 1), (2, 2, 2)).ToArray();
@@ -94,15 +91,17 @@ public static class ChunkDecoration
     ///     Assumes that the chunk has been generated and the center already decorated.
     /// </summary>
     /// <param name="neighbors">The neighborhood of chunks around the chunk to decorate.</param>
-    public static void Decorate(Neighborhood<Chunk> neighbors)
+    public static void Decorate(Neighborhood<Chunk?> neighbors)
     {
+        Debug.Assert(neighbors.Center != null);
         Debug.Assert(neighbors.Center.Decoration.HasFlag(DecorationLevels.Center));
 
         IWorldGenerator generator = neighbors.Center.Context.Generator;
 
         foreach (Vector3i corner in corners)
         {
-            if (IsCornerDecorated(corner, neighbors)) continue;
+            // If not decorated or partially null, skip.
+            if (IsCornerDecoratedNullable(corner, neighbors) != false) continue;
 
             DecorateCorner(generator, neighbors, corner);
         }
@@ -131,19 +130,89 @@ public static class ChunkDecoration
     }
 
     /// <summary>
+    ///     Decide whether a chunk should be decorated.
+    ///     This only considers the neighbors of the chunk, and their decoration stages and progress.
+    /// </summary>
+    /// <param name="chunk">The chunk to decide for.</param>
+    /// <returns>All chunks needed for decoration, or <c>null</c> if the chunk should not decorate now.</returns>
+    public static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
+    {
+        // A chunk is only decorated if all needed neighbors are available at once.
+        // As the request level is high enough (otherwise the chunk would not want to decorate),
+        // all neighbors will be at least loaded.
+
+        Neighborhood<Chunk>? available = FindAllNeighborsIfAllAvailable(chunk);
+
+        if (available == null) return null;
+
+        Neighborhood<Chunk?> needed = new();
+
+        foreach (Vector3i corner in corners)
+        {
+            if (IsCornerDecorated(corner, available))
+                continue;
+
+            foreach ((Vector3i position, _) in GetCornerPositions(corner))
+                needed[position] = available[position];
+        }
+
+        Debug.Assert(ReferenceEquals(needed.Center, chunk));
+
+        return needed;
+    }
+
+    private static Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable(Chunk chunk)
+    {
+        var available = new Neighborhood<Chunk>();
+
+        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
+            if ((x, y, z) == Neighborhood.Center)
+            {
+                available[x, y, z] = chunk;
+            }
+            else
+            {
+                ChunkPosition position = chunk.Position.Offset((x, y, z) - Neighborhood.Center);
+
+                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write))
+                {
+                    available[x, y, z] = neighbor;
+
+                    // An undecorated neighbor in a lower stage has priority,
+                    // but only if the neighbor will actually decorate.
+
+                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}
+                        && neighbor.DecorationStage < chunk.DecorationStage)
+                        return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+        return available;
+    }
+
+    /// <summary>
     ///     Decorate a corner of the given local neighborhood of chunks.
     /// </summary>
     /// <param name="generator">The generator to use for decoration.</param>
     /// <param name="chunks">The local neighborhood of chunks.</param>
     /// <param name="corner">The corner to decorate.</param>
-    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk> chunks, Vector3i corner)
+    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, Vector3i corner)
     {
+        Debug.Assert(chunks.Center != null);
+
         Neighborhood<Boolean> decorated = new();
 
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
         {
-            decorated[position] = chunks[position].Decoration.HasFlag(flag);
-            chunks[position].AddDecorationLevel(flag);
+            Chunk? chunk = chunks[position];
+            Debug.Assert(chunk != null);
+
+            decorated[position] = chunk.Decoration.HasFlag(flag);
+            chunk.AddDecorationLevel(flag);
         }
 
         // Go through all sections on the selected corner.
@@ -151,7 +220,7 @@ public static class ChunkDecoration
         // The tips of this cube are the centers of the chunks - the cube overlaps with multiple chunks.
 
         ChunkPosition firstLocalChunk = chunks.Center.Position.Offset(-Vector3i.One);
-        SectionPosition firstSectionInCorner = SectionPosition.From(chunks.GetAt(corner).Position, (2, 2, 2));
+        SectionPosition firstSectionInCorner = SectionPosition.From(chunks[corner]!.Position, (2, 2, 2));
 
         Neighborhood<Section> sections = new();
 
@@ -167,20 +236,20 @@ public static class ChunkDecoration
             generator.DecorateSection(currentSectionInCorner, sections);
         }
 
-        Debug.Assert(IsCornerDecorated(corner, chunks));
+        Debug.Assert(IsCornerDecoratedNullable(corner, chunks) == true);
     }
 
     private static void FillSectionNeighborhood(
         Array3D<Section> neighborhood,
         ChunkPosition firstLocalChunk, SectionPosition centerSection,
-        Array3D<Chunk> chunks)
+        Array3D<Chunk?> chunks)
     {
         foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices)
         {
             SectionPosition currentSection = centerSection.Offset(dx - 1, dy - 1, dz - 1);
             Vector3i currentChunkOffset = firstLocalChunk.OffsetTo(currentSection.Chunk);
 
-            neighborhood[dx, dy, dz] = chunks[currentChunkOffset].GetSection(currentSection);
+            neighborhood[dx, dy, dz] = chunks[currentChunkOffset]!.GetSection(currentSection);
         }
     }
 
@@ -203,20 +272,31 @@ public static class ChunkDecoration
         };
     }
 
-    /// <summary>
-    ///     Check if a corner is fully decorated, meaning all chunks that are part of the corner have the corresponding flag
-    ///     set.
-    /// </summary>
-    /// <param name="corner">The corner to check.</param>
-    /// <param name="chunks">All local chunks.</param>
-    /// <returns>True if the corner is fully decorated, false otherwise.</returns>
     private static Boolean IsCornerDecorated(Vector3i corner, Array3D<Chunk> chunks)
     {
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
-            if (!chunks.GetAt(position).Decoration.HasFlag(flag))
+            if (!chunks[position].Decoration.HasFlag(flag))
                 return false;
 
         return true;
+    }
+
+    private static Boolean? IsCornerDecoratedNullable(Vector3i corner, Array3D<Chunk?> chunks)
+    {
+        var decorated = true;
+
+        foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
+        {
+            Chunk? chunk = chunks[position];
+
+            if (chunk == null)
+                return null;
+
+            if (!chunk.Decoration.HasFlag(flag))
+                decorated = false;
+        }
+
+        return decorated;
     }
 
     private static Int32 GetCornerIndex(Vector3i corner)

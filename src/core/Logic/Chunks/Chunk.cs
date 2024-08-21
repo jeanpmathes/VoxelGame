@@ -252,7 +252,7 @@ public partial class Chunk : IDisposable, IEntity
     ///     All other chunks will then be already decorated.
     ///     Therefore, all chunks that are not on one of the two diagonals have max stage.
     /// </summary>
-    private Int32 DecorationStage
+    internal Int32 DecorationStage
     {
         get
         {
@@ -770,65 +770,27 @@ public partial class Chunk : IDisposable, IEntity
         if (IsFullyDecorated) return null;
         if (!CanAcquireCore(Access.Write)) return null;
 
-        // A chunk is only decorated if all neighbors are available at once.
-        // As the request level is high enough (otherwise the chunk would not want to decorate),
-        // all neighbors will be at least loaded.
+        Neighborhood<Chunk?>? needed = ChunkDecoration.DecideWhetherToDecorate(this);
 
-        Neighborhood<Chunk>? available = FindAllNeighborsIfAllAvailable();
-
-        if (available == null) return null;
+        if (needed == null) return null;
 
         Guard? access = AcquireCore(Access.Write);
         Debug.Assert(access != null);
 
         var guards = new PooledList<Guard>(Neighborhood.Count);
 
-        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
+        foreach (Chunk? chunk in needed)
         {
-            if ((x, y, z) == Neighborhood.Center) continue;
+            if (chunk == null) continue;
+            if (ReferenceEquals(chunk, this)) continue;
 
-            Chunk chunk = available[x, y, z];
-
-            Guard? guard = chunk.AcquireCore(Access.Write);
+            Guard? guard = chunk.AcquireCore(Access.Read);
             Debug.Assert(guard != null);
 
             guards.Add(guard);
         }
 
-        return new Decorating(access, guards, available);
-    }
-
-    private Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable()
-    {
-        var available = new Neighborhood<Chunk>();
-
-        foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
-            if ((x, y, z) == Neighborhood.Center)
-            {
-                available[x, y, z] = this;
-            }
-            else
-            {
-                ChunkPosition position = Position.Offset((x, y, z) - Neighborhood.Center);
-
-                if (World.TryGetChunk(position, out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write))
-                {
-                    available[x, y, z] = neighbor;
-
-                    // An undecorated neighbor in a lower stage has priority,
-                    // but only if the neighbor will actually decorate.
-
-                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}
-                        && neighbor.DecorationStage < DecorationStage)
-                        return null;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-        return available;
+        return new Decorating(access, guards, needed);
     }
 
     /// <summary>

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
@@ -141,7 +142,7 @@ public partial class Chunk
     /// </summary>
     public class Decorating : ChunkState
     {
-        private readonly Neighborhood<Chunk> chunks;
+        private readonly Neighborhood<Chunk?> chunks;
         private readonly PooledList<Guard> guards;
 
         private Future? decorating;
@@ -154,8 +155,10 @@ public partial class Chunk
         /// <param name="self">The guard for the core write access to the chunk itself.</param>
         /// <param name="guards">The guards for the core write access to the neighboring chunks.</param>
         /// <param name="chunks">The neighborhood of chunks.</param>
-        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk> chunks) : base(self, extended: null)
+        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk?> chunks) : base(self, extended: null)
         {
+            Debug.Assert(chunks.Center != null);
+
             this.chunks = chunks;
             this.guards = guards;
         }
