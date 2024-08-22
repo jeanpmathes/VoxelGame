@@ -33,7 +33,7 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean released;
 
-    private NextStateTarget? next;
+    private ChunkState? next;
     private ChunkState? previous;
     private RequestQueue requests = null!;
 
@@ -114,6 +114,11 @@ public abstract partial class ChunkState
     protected virtual Boolean AllowStealing => false;
 
     /// <summary>
+    ///     Whether it is acceptable to discard this state and deactivate the chunk instead.
+    /// </summary>
+    protected virtual Boolean CanDiscard => false;
+
+    /// <summary>
     ///     Whether this state is considered to be hiding the chunk.
     ///     Hidden states are used when activation is not possible at the moment.
     /// </summary>
@@ -189,25 +194,23 @@ public abstract partial class ChunkState
     ///     Set the next state.
     /// </summary>
     /// <param name="state">The next state.</param>
-    /// <param name="description">A description of the transition.</param>
     /// <param name="isRequired">Whether the transition is required.</param>
-    protected void SetNextState(ChunkState state, TransitionDescription description = new(), Boolean isRequired = true)
+    protected void SetNextState(ChunkState state, Boolean isRequired = true)
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
         Debug.Assert(next == null);
-        next = NextStateTarget.CreateDirectTransition(state, isRequired, description);
+        next = state;
     }
 
     /// <summary>
-    ///     Set the next state. The transition is required, except if certain flags are set in the description.
+    ///     Set the next state.
     /// </summary>
     /// <typeparam name="T">The type of the next state.</typeparam>
-    /// <param name="description">A description of the transition.</param>
-    protected void SetNextState<T>(TransitionDescription description = new()) where T : ChunkState, new()
+    protected void SetNextState<T>() where T : ChunkState, new()
     {
-        SetNextState(new T(), description);
+        SetNextState(new T());
     }
 
     /// <summary>
@@ -217,7 +220,7 @@ public abstract partial class ChunkState
     ///     The strong activation rule will be used, which is meant for chunks that have not been activated yet.
     ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
-    protected Boolean TrySettingNextReady(TransitionDescription description = new())
+    protected Boolean TrySettingNextReady()
     {
         if (!IsHidden)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
@@ -228,7 +231,7 @@ public abstract partial class ChunkState
         ChunkState? state = Context.ActivateStrongly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
 
-        return TrySettingNextState(state, description);
+        return TrySettingNextState(state);
     }
 
     /// <summary>
@@ -249,10 +252,10 @@ public abstract partial class ChunkState
         ChunkState? state = Context.ActivateWeakly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
 
-        return TrySettingNextState(state, new TransitionDescription());
+        return TrySettingNextState(state);
     }
 
-    private Boolean TrySettingNextState(ChunkState? state, TransitionDescription description)
+    private Boolean TrySettingNextState(ChunkState? state)
     {
         if (state == null)
         {
@@ -261,7 +264,7 @@ public abstract partial class ChunkState
         }
 
         ReleaseResources();
-        SetNextState(state, description, !state.IsActive); // todo: this IsActive thing should be replaced fully with the CanDiscard thing
+        SetNextState(state, !state.IsActive);
 
         return true;
     }
@@ -388,21 +391,19 @@ public abstract partial class ChunkState
     protected void AllowTransition()
     {
         Debug.Assert(next == null);
-        next = NextStateTarget.CreateDirectTransition(this, isRequired: false, new TransitionDescription());
+        next = this;
     }
 
     /// <summary>
-    ///     Request an external state transition on a chunk. Internal transitions are prioritized over external ones and
-    ///     deactivation comes last.
+    ///     Request an external state transition on a chunk, which is added to request the queue.
     /// </summary>
     /// <param name="state">The next state.</param>
-    /// <param name="description">The request description.</param>
-    public void RequestNextState(ChunkState state, RequestDescription description = new())
+    public void RequestNextState(ChunkState state)
     {
         state.Chunk = Chunk;
         state.Context = Context;
 
-        requests.Enqueue(this, state, description);
+        requests.Enqueue(this, state);
 
         if (!WaitMode.HasFlag(StateWaitModes.WaitForRequest)) return;
 
@@ -415,10 +416,9 @@ public abstract partial class ChunkState
     ///     Request an external state transition on an active chunk. Internal transitions are prioritized over external ones
     ///     and deactivation comes last.
     /// </summary>
-    /// <typeparam name="T">The type of the next state.</typeparam>
-    public void RequestNextState<T>(RequestDescription description = new()) where T : ChunkState, new()
+    public void RequestNextState<T>() where T : ChunkState, new()
     {
-        RequestNextState(new T(), description);
+        RequestNextState(new T());
     }
 
     /// <summary>
@@ -444,7 +444,7 @@ public abstract partial class ChunkState
 
         ChunkState nextState = DetermineNextState();
 
-        if (ReferenceEquals(this, nextState)) return nextState;
+        if (nextState == this) return nextState;
 
         Exit();
 
@@ -548,41 +548,29 @@ public abstract partial class ChunkState
     {
         if (next == null) return this;
 
-        Debug.Assert(next.Transition != null);
+        Debug.Assert(next != null);
 
-        ChunkState nextState = DetermineNextState(next.Transition, next.Description);
+        ChunkState nextState = DetermineNextState(next);
 
-        if (nextState != next.Transition.State)
-            CleanupAndRelease(next.Transition.State);
+        if (nextState != next && nextState != this)
+            CleanupAndRelease(next);
 
         next = null;
 
         return nextState;
     }
 
-    private ChunkState DetermineNextState(NextStateTarget.DirectTransition transition, TransitionDescription description)
+    private ChunkState DetermineNextState(ChunkState transition)
     {
-        if (description.PrioritizeDeactivation && !Chunk.IsRequestedToLoad)
-            return CreateFinalState();
+        Boolean prioritizeRequests = transition == this;
 
-        if (transition.IsRequired)
-            return transition.State;
+        if (!prioritizeRequests && !transition.CanDiscard)
+            return transition;
 
-        // todo: think about deactivating
-        //          look into previous revisions of this code,
-        //          add a second dequeue call at the top of this where isDeactivating is true
-        //          (and maybe add current next to the queue)
-        // todo: go trough usages of PrioritizeDeactivation - maybe no longer expose it / combine with IsRequired
-        // todo: also take a look at the AllowSkipOnDeactivation thing
-        // todo: maybe simplify have a CanDiscard on state, override in meshing and some others, might even be used to simplify the IsRequired thing
-        // todo: run and test in release mode too, look at time
-        // todo: after having everything completed here, test generating new, loading complete, loading partial, moving (flicker)
+        if (!Chunk.IsRequestedToLoad)
+            return requests.Dequeue(isDeactivating: true) ?? CreateFinalState();
 
-        ChunkState? requestedState = requests.Dequeue(this, isDeactivating: false);
-
-        if (requestedState != null) return requestedState;
-
-        return Chunk.IsRequestedToLoad ? transition.State : CreateFinalState();
+        return requests.Dequeue(isDeactivating: false) ?? transition;
     }
 
     /// <summary>
@@ -599,7 +587,7 @@ public abstract partial class ChunkState
         state.previous ??= previousState;
         state.requests = previousState.requests;
 
-        if (ReferenceEquals(previousState, state)) return;
+        if (state == previousState) return;
 
         tracker.Transition(previousState, state);
         previousState.previous = null;
@@ -700,45 +688,11 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
-    ///     Describes how to take the transition to a state.
-    /// </summary>
-    protected record struct TransitionDescription
-    {
-        /// <summary>
-        ///     Whether to prioritize chunk deactivation over this transition, even if this transition is required.
-        /// </summary>
-        public Boolean PrioritizeDeactivation { get; init; }
-    }
-
-    /// <summary>
-    ///     Describes a transition request.
-    /// </summary>
-    public record struct RequestDescription
-    {
-        /// <summary>
-        ///     Whether to skip this request when deactivating the chunk.
-        /// </summary>
-        public Boolean AllowSkipOnDeactivation { get; init; }
-    }
-
-    private sealed record NextStateTarget(
-        NextStateTarget.DirectTransition Transition,
-        TransitionDescription Description)
-    {
-        public static NextStateTarget CreateDirectTransition(ChunkState state, Boolean isRequired, TransitionDescription description)
-        {
-            return new NextStateTarget(new DirectTransition(state, isRequired), description);
-        }
-
-        public sealed record DirectTransition(ChunkState State, Boolean IsRequired);
-    }
-
-    /// <summary>
     ///     Holds all transition requests.
     /// </summary>
     private sealed class RequestQueue
     {
-        private readonly List<(ChunkState state, RequestDescription description)> requests = [];
+        private readonly List<ChunkState> requests = [];
 
         /// <summary>
         ///     Get whether the queue is empty.
@@ -751,8 +705,7 @@ public abstract partial class ChunkState
         /// </summary>
         /// <param name="current">The current state.</param>
         /// <param name="state">The state to request.</param>
-        /// <param name="description">The description of the request.</param>
-        public void Enqueue(ChunkState current, ChunkState state, RequestDescription description)
+        public void Enqueue(ChunkState current, ChunkState state)
         {
             // Requesting a state that already has access to itself is not allowed.
             // This is because transitions taken before the request is processed might also need that access.
@@ -761,7 +714,7 @@ public abstract partial class ChunkState
             Debug.Assert(state.coreGuard == null);
             Debug.Assert(state.extendedGuard == null);
 
-            if (current.next is {Transition: {State: {} next, IsRequired: true}} && IsSameStateType(next, state))
+            if (current.next is {CanDiscard: false} next && IsSameStateType(next, state))
             {
                 CleanupAndRelease(state);
 
@@ -775,28 +728,27 @@ public abstract partial class ChunkState
                 return;
             }
 
-            for (var request = 0; request < requests.Count; request++)
+            foreach (ChunkState request in requests)
             {
-                if (!IsSameStateType(requests[request].state, state)) continue;
+                if (!IsSameStateType(request, state)) continue;
 
                 CleanupAndRelease(state);
 
                 return;
             }
 
-            requests.Add((state, description));
+            requests.Add(state);
         }
 
         /// <summary>
         ///     Dequeue the first request.
         /// </summary>
-        /// <param name="current">The current state.</param>
         /// <param name="isDeactivating">
         ///     Whether the chunk is deactivating. This will filter out all requests that are not required
         ///     before deactivation.
         /// </param>
         /// <returns>The first request, or null if no request is available.</returns>
-        public ChunkState? Dequeue(ChunkState current, Boolean isDeactivating)
+        public ChunkState? Dequeue(Boolean isDeactivating)
         {
             if (Empty) return null;
 
@@ -804,9 +756,9 @@ public abstract partial class ChunkState
 
             for (var index = 0; index < requests.Count; index++)
             {
-                (_, RequestDescription description) = requests[index];
+                ChunkState state = requests[index];
 
-                if (isDeactivating && description.AllowSkipOnDeactivation) continue;
+                if (isDeactivating && state.CanDiscard) continue;
 
                 target = index;
 
@@ -815,10 +767,10 @@ public abstract partial class ChunkState
 
             if (target == -1) return null;
 
-            (ChunkState state, RequestDescription description) request = requests[target];
+            ChunkState request = requests[target];
             requests.RemoveAt(target);
 
-            return request.state;
+            return request;
         }
 
         /// <summary>
@@ -834,9 +786,9 @@ public abstract partial class ChunkState
 
             while (index < requests.Count)
             {
-                if (IsSameStateType(current, requests[index].state))
+                if (IsSameStateType(current, requests[index]))
                 {
-                    CleanupAndRelease(requests[index].state);
+                    CleanupAndRelease(requests[index]);
                     requests.RemoveAt(index);
                 }
                 else index++;

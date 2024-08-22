@@ -67,6 +67,9 @@ public partial class Chunk
         protected override Access ExtendedAccess => Access.Write;
 
         /// <inheritdoc />
+        protected override Boolean CanDiscard => true;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             if (meshing == null)

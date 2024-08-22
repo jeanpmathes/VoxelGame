@@ -234,10 +234,7 @@ public partial class Chunk
                 if (saving.Exception is {} exception)
                     LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
 
-                TrySettingNextReady(new TransitionDescription
-                {
-                    PrioritizeDeactivation = true
-                });
+                TrySettingNextReady();
             }
         }
     }
@@ -259,6 +256,9 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override Boolean AllowStealing => true;
+
+        /// <inheritdoc />
+        protected override Boolean CanDiscard => true;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -297,6 +297,9 @@ public partial class Chunk
         protected override Boolean AllowStealing => true;
 
         /// <inheritdoc />
+        protected override Boolean CanDiscard => true;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             var activated = false;
@@ -304,6 +307,7 @@ public partial class Chunk
             // todo: chunk should store if has been active at least once
             // todo: when returning to pool, that variable should be set to false
             // todo: the hidden state should use it to decide if TrySettingNextReady or TrySettingNextActive is called
+            // todo: maybe the used state can also use that variable ?
 
             if (Chunk.IsRequestedToActivate) activated = TrySettingNextReady();
 
@@ -336,6 +340,9 @@ public partial class Chunk
 
         /// <inheritdoc />
         protected override Access ExtendedAccess => Access.None;
+
+        /// <inheritdoc />
+        protected override Boolean CanDiscard => true;
 
         /// <inheritdoc />
         protected override void OnUpdate()
