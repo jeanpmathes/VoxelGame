@@ -568,15 +568,17 @@ public abstract partial class ChunkState
         if (transition.IsRequired)
             return transition.State;
 
-        // todo: maybe remove isLooping here
-        // todo: think about deactivating, add a second dequeue at the top (and maybe add current next to the queue)
+        // todo: think about deactivating
+        //          look into previous revisions of this code,
+        //          add a second dequeue call at the top of this where isDeactivating is true
+        //          (and maybe add current next to the queue)
         // todo: go trough usages of PrioritizeDeactivation - maybe no longer expose it / combine with IsRequired
         // todo: also take a look at the AllowSkipOnDeactivation thing
         // todo: maybe simplify have a CanDiscard on state, override in meshing and some others, might even be used to simplify the IsRequired thing
         // todo: run and test in release mode too, look at time
         // todo: after having everything completed here, test generating new, loading complete, loading partial, moving (flicker)
 
-        ChunkState? requestedState = requests.Dequeue(this, isLooping: false, isDeactivating: false);
+        ChunkState? requestedState = requests.Dequeue(this, isDeactivating: false);
 
         if (requestedState != null) return requestedState;
 
@@ -789,13 +791,12 @@ public abstract partial class ChunkState
         ///     Dequeue the first request.
         /// </summary>
         /// <param name="current">The current state.</param>
-        /// <param name="isLooping">Whether the current state prioritizes looping transitions.</param>
         /// <param name="isDeactivating">
         ///     Whether the chunk is deactivating. This will filter out all requests that are not required
         ///     before deactivation.
         /// </param>
         /// <returns>The first request, or null if no request is available.</returns>
-        public ChunkState? Dequeue(ChunkState current, Boolean isLooping, Boolean isDeactivating)
+        public ChunkState? Dequeue(ChunkState current, Boolean isDeactivating)
         {
             if (Empty) return null;
 
@@ -803,10 +804,9 @@ public abstract partial class ChunkState
 
             for (var index = 0; index < requests.Count; index++)
             {
-                (ChunkState state, RequestDescription description) = requests[index];
+                (_, RequestDescription description) = requests[index];
 
                 if (isDeactivating && description.AllowSkipOnDeactivation) continue;
-                if (isLooping && !IsSameStateType(current, state)) continue;
 
                 target = index;
 
