@@ -207,7 +207,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {IsFluidRendered: true} &&
                                                      (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
 
-        MeshFaceHolder[] fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
+        Sides<MeshFaceHolder> fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
         MeshFluidSide(BlockSide.Front);
         MeshFluidSide(BlockSide.Back);
@@ -269,7 +269,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, value: true);
             Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, value: false);
 
-            fluidMeshFaceHolders[(Int32) side].AddFace(
+            fluidMeshFaceHolders[side].AddFace(
                 position,
                 info.Level.GetBlockHeight(),
                 IHeightVariable.GetBlockHeightFromFluidHeight(sideHeight),

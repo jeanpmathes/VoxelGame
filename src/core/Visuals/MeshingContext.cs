@@ -28,14 +28,14 @@ public class MeshingContext
     private readonly IMeshing fluidMeshing;
 
     private readonly Section current;
-    private readonly Section?[] neighbors;
+    private readonly Sides<Section?> neighbors;
 
-    private readonly MeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] transparentFullBlockMeshFaceHolders;
+    private readonly Sides<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
+    private readonly Sides<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
 
-    private readonly MeshFaceHolder[] opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] transparentVaryingHeightBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] fluidMeshFaceHolders;
+    private readonly Sides<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
+    private readonly Sides<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
+    private readonly Sides<MeshFaceHolder> fluidMeshFaceHolders;
 
     private readonly (TintColor block, TintColor fluid)[,] tintColors;
 
@@ -86,13 +86,12 @@ public class MeshingContext
         return tintColors[position.X, position.Z].fluid;
     }
 
-    private static Section?[] GetNeighborSections(SectionPosition position, ChunkMeshingContext context)
+    private static Sides<Section?> GetNeighborSections(SectionPosition position, ChunkMeshingContext context)
     {
-        var neighborSections = new Section?[6];
+        Sides<Section?> neighborSections = new();
 
         foreach (BlockSide side in BlockSide.All.Sides())
-            neighborSections[(Int32) side] =
-                context.GetSection(side.Offset(position));
+            neighborSections[side] = context.GetSection(side.Offset(position));
 
         return neighborSections;
     }
@@ -108,11 +107,11 @@ public class MeshingContext
         return colors;
     }
 
-    private static MeshFaceHolder[] CreateMeshFaceHolders(Single inset = 0.0f)
+    private static Sides<MeshFaceHolder> CreateMeshFaceHolders(Single inset = 0.0f)
     {
-        var holders = new MeshFaceHolder[6];
+        Sides<MeshFaceHolder> holders = new();
 
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(Int32) side] = new MeshFaceHolder(side, inset);
+        foreach (BlockSide side in BlockSide.All.Sides()) holders[side] = new MeshFaceHolder(side, inset);
 
         return holders;
     }
@@ -133,7 +132,7 @@ public class MeshingContext
     /// </summary>
     public MeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueFullBlockMeshFaceHolders[(Int32) side] : transparentFullBlockMeshFaceHolders[(Int32) side];
+        return isOpaque ? opaqueFullBlockMeshFaceHolders[side] : transparentFullBlockMeshFaceHolders[side];
     }
 
     /// <summary>
@@ -142,13 +141,13 @@ public class MeshingContext
     /// </summary>
     public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[(Int32) side] : transparentVaryingHeightBlockMeshFaceHolders[(Int32) side];
+        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[side] : transparentVaryingHeightBlockMeshFaceHolders[side];
     }
 
     /// <summary>
     ///     Get the fluid mesh face holders for varying height faces.
     /// </summary>
-    public MeshFaceHolder[] GetFluidMeshFaceHolders()
+    public Sides<MeshFaceHolder> GetFluidMeshFaceHolders()
     {
         return fluidMeshFaceHolders;
     }
@@ -183,7 +182,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(Int32) side];
+            Section? neighbor = neighbors[side];
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
@@ -212,7 +211,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(Int32) side];
+            Section? neighbor = neighbors[side];
             block = neighbor?.GetBlock(position);
         }
 
@@ -256,12 +255,12 @@ public class MeshingContext
         ReturnToPool(fluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(MeshFaceHolder[] holders, IMeshing meshing)
+    private static void GenerateMesh(Sides<MeshFaceHolder> holders, IMeshing meshing)
     {
         foreach (MeshFaceHolder holder in holders) holder.GenerateMesh(meshing);
     }
 
-    private static void ReturnToPool(MeshFaceHolder[] holders)
+    private static void ReturnToPool(Sides<MeshFaceHolder> holders)
     {
         foreach (MeshFaceHolder holder in holders) holder.ReturnToPool();
     }

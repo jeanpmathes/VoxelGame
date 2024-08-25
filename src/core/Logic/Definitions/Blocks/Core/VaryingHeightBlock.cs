@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -25,7 +26,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     private readonly TextureLayout layout;
 
     private readonly List<BoundingVolume> volumes = [];
-    private Int32[] textureIndices = null!;
+    private Sides<Int32> textureIndices = null!;
 
     /// <inheritdoc />
     protected VaryingHeightBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :
@@ -55,7 +56,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     {
         return new IVaryingHeight.MeshData
         {
-            TextureIndex = textureIndices[(Int32) info.Side],
+            TextureIndex = textureIndices[info.Side],
             Tint = TintColor.None
         };
     }
@@ -92,7 +93,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        textureIndices = layout.GetTextureIndexArray(indexProvider);
+        textureIndices = layout.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />

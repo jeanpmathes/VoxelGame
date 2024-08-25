@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -23,8 +24,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private readonly TextureLayout movingLayout;
     private readonly TextureLayout staticLayout;
 
-    private Int32[] movingTextures = null!;
-    private Int32[] staticTextures = null!;
+    private Sides<Int32> movingTextures = null!;
+    private Sides<Int32> staticTextures = null!;
 
     private Int32 mainTexture;
     private Color4 dominantColor;
@@ -71,8 +72,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
-        movingTextures = movingLayout.GetTextureIndexArray(indexProvider);
-        staticTextures = staticLayout.GetTextureIndexArray(indexProvider);
+        movingTextures = movingLayout.GetTextureIndices(indexProvider);
+        staticTextures = staticLayout.GetTextureIndices(indexProvider);
 
         mainTexture = staticTextures[(Int32) BlockSide.Front];
         dominantColor = dominantColorProvider.GetDominantColor(mainTexture);
@@ -93,7 +94,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     protected override FluidMeshData GetMeshData(FluidMeshInfo info)
     {
         return FluidMeshData.Basic(
-            info.IsStatic ? staticTextures[(Int32) info.Side] : movingTextures[(Int32) info.Side],
+            info.IsStatic ? staticTextures[info.Side] : movingTextures[info.Side],
             hasNeutralTint ? TintColor.Neutral : TintColor.None);
     }
 

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
 {
     private readonly TextureLayout wet;
-    private Int32[] wetTextureIndices = null!;
+    private Sides<Int32> wetTextureIndices = null!;
 
     internal DirtBlock(String name, String namedID, TextureLayout normal, TextureLayout wet) :
         base(
@@ -43,7 +44,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     {
         base.OnSetup(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTextureIndexArray(indexProvider);
+        wetTextureIndices = wet.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />
@@ -52,7 +53,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if (info.Fluid.IsFluid)
-            mesh = mesh with {TextureIndex = wetTextureIndices[(Int32) info.Side]};
+            mesh = mesh with {TextureIndex = wetTextureIndices[info.Side]};
 
         return mesh;
     }

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
@@ -36,27 +37,28 @@ public class OrientedBlock : BasicBlock
             position);
     }
 
-    private static Int32 TranslateIndex(BlockSide side, Orientation orientation)
+    private static BlockSide TranslateSide(BlockSide side, Orientation orientation)
     {
         var index = (Int32) side;
 
-        if (index is < 0 or > 5) throw new ArgumentOutOfRangeException(nameof(side));
+        Debug.Assert(index is >= 0 and <= 5);
 
-        if (side is BlockSide.Bottom or BlockSide.Top) return index;
+        if (side is BlockSide.Bottom or BlockSide.Top) return side;
 
         if (((Int32) orientation & 0b01) == 1)
             index = (3 - index * (1 - (index & 2))) % 5; // Rotates the index one step
 
-        if (((Int32) orientation & 0b10) == 2) index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
+        if (((Int32) orientation & 0b10) == 2)
+            index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
 
-        return index;
+        return (BlockSide) index;
     }
 
     /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
         return ISimple.CreateData(
-            sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))],
+            sideTextureIndices[TranslateSide(info.Side, (Orientation) (info.Data & 0b00_0011))],
             isTextureRotated: false);
     }
 }

@@ -51,7 +51,7 @@ public class RotatedBlock : BasicBlock, ICombustible
 
         Boolean rotated = onXAndRotated || onZAndRotated;
 
-        return ISimple.CreateData(sideTextureIndices[TranslateIndex(info.Side, axis)], rotated);
+        return ISimple.CreateData(sideTextureIndices[TranslateSide(info.Side, axis)], rotated);
     }
 
     /// <inheritdoc />
@@ -65,7 +65,7 @@ public class RotatedBlock : BasicBlock, ICombustible
         return (Axis) (data & 0b00_0011);
     }
 
-    private static Int32 TranslateIndex(BlockSide side, Axis axis)
+    private static BlockSide TranslateSide(BlockSide side, Axis axis)
     {
         var index = (Int32) side;
 
@@ -76,6 +76,6 @@ public class RotatedBlock : BasicBlock, ICombustible
             _ => index
         };
 
-        return index;
+        return (BlockSide) index;
     }
 }

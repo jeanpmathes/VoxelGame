@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
@@ -22,7 +23,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
 {
     private readonly TextureLayout open;
-    private Int32[] openTextureIndices = null!;
+    private Sides<Int32> openTextureIndices = null!;
 
     internal FluidBarrierBlock(String name, String namedID, TextureLayout closed, TextureLayout open) :
         base(
@@ -49,7 +50,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     {
         base.OnSetup(indexProvider, visuals);
 
-        openTextureIndices = open.GetTextureIndexArray(indexProvider);
+        openTextureIndices = open.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />
@@ -64,7 +65,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if ((info.Data & 0b00_0001) == 1)
-            mesh = mesh with {TextureIndex = openTextureIndices[(Int32) info.Side]};
+            mesh = mesh with {TextureIndex = openTextureIndices[info.Side]};
 
         return mesh;
     }
