@@ -85,12 +85,10 @@ public class Section : IDisposable
     /// </summary>
     public static readonly Int32 SizeExp2 = SizeExp * 2;
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
     /// <summary>
     ///     The blocks stored in this section.
     /// </summary>
-    protected ArraySegment<UInt32> blocks; // todo: make private and remove suppression
-#pragma warning restore CA1051 // Do not declare visible instance fields
+    private readonly ArraySegment<UInt32> blocks;
 
     /// <summary>
     ///     The position of this section.
@@ -321,15 +319,6 @@ public class Section : IDisposable
     public static UInt32 Encode(in Content content)
     {
         return Encode(content.Block.Block, content.Block.Data, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
-    }
-
-    /// <summary>
-    ///     Encode block and fluid information into section content, with defaults for all values.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt32 Encode(IBlockBase? block = null, Fluid? fluid = null)
-    {
-        return Encode(block ?? Blocks.Instance.Air, data: 0, fluid ?? Fluids.Instance.None, FluidLevel.Eight, isStatic: true);
     }
 
     /// <summary>

@@ -145,10 +145,10 @@ public class Section : Core.Logic.Sections.Section
             for (var y = 0; y < Size; y++)
             for (var z = 0; z < Size; z++)
             {
-                UInt32 value = blocks[(x << SizeExp2) + (y << SizeExp) + z];
+                UInt32 content = GetContent(x, y, z);
 
                 Decode(
-                    value,
+                    content,
                     out Block currentBlock,
                     out UInt32 data,
                     out Fluid currentFluid,

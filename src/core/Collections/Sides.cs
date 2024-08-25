@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Collections;
 ///     An array to store elements associated with the sides of a cube.
 /// </summary>
 /// <typeparam name="T">The type of the elements.</typeparam>
-public class Sides<T> : IEnumerable<T> // todo: check all arrays with length 6 and replace with this
+public class Sides<T> : IEnumerable<T>
 {
     private readonly T[] sides = new T[6];
 
