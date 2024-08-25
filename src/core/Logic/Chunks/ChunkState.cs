@@ -214,13 +214,23 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
-    ///     Try to set the next state according the world chunk activation rules.
+    ///     Try to set the next state according to the world chunk activation rules.
+    ///     Either <see cref="TryStrongActivation"/> or <see cref="TryWeakActivation"/> will be used.
+    /// </summary>
+    /// <returns><c>true</c> if this results in a transition to a different state, otherwise <c>false</c>.</returns>
+    protected Boolean TryActivation()
+    {
+        return Chunk.HasBeenActive ? TryWeakActivation() : TryStrongActivation();
+    }
+
+    /// <summary>
+    ///     Try to set the next state according to the world chunk activation rules.
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
     ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
     ///     The strong activation rule will be used, which is meant for chunks that have not been activated yet.
     ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
-    protected Boolean TrySettingNextReady()
+    private Boolean TryStrongActivation()
     {
         if (!IsHidden)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
@@ -235,13 +245,13 @@ public abstract partial class ChunkState
     }
 
     /// <summary>
-    ///     Try to set the next state according the world chunk activation rules.
+    ///     Try to set the next state according to the world chunk activation rules.
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
     ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
     ///     The weak activation rule will be used, which is meant for chunks that have already been activated before.
     ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
-    protected Boolean TrySettingNextActive()
+    private Boolean TryWeakActivation()
     {
         if (!IsHidden)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
@@ -638,11 +648,9 @@ public abstract partial class ChunkState
 
         (Guard core, Guard extended) access = state.StealAccess();
 
-        Boolean wasActive = state.IsChunkActive;
-
         state.Exit();
 
-        ChunkState used = new Chunk.Used(wasActive);
+        ChunkState used = new Chunk.Used();
 
         // If the state is currently in the update method, it could set the transition.
         // This would conflict with setting the transition to the used state here.

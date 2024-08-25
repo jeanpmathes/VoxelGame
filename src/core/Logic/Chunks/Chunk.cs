@@ -182,6 +182,11 @@ public partial class Chunk : IDisposable, IEntity
     internal DecorationLevels Decoration => decoration;
 
     /// <summary>
+    ///     Whether this chunk has activated at least once since creation.
+    /// </summary>
+    internal Boolean HasBeenActive { get; private set; }
+
+    /// <summary>
     ///     Whether the chunk is currently active.
     ///     An active can write to all resources and allows sharing its access for the duration of one update.
     /// </summary>
@@ -306,6 +311,7 @@ public partial class Chunk : IDisposable, IEntity
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
 
         decoration = DecorationLevels.None;
+        HasBeenActive = false;
         RequestLevel = RequestLevel.None;
     }
 
@@ -817,6 +823,8 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     private void OnActiveState()
     {
+        HasBeenActive = true;
+
         OnActivation();
 
         foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation();

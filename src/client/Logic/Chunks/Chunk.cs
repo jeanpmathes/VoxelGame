@@ -151,7 +151,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         if (context == null) return null;
 
-        foreach (BlockSide side in BlockSide.All.Sides()) // todo: maybe this can be completely removed
+        foreach (BlockSide side in BlockSide.All.Sides()) // todo: maybe this can be completely removed / be as simple as in strong activation
         {
             BlockSides current = side.ToFlag();
 

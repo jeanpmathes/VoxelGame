@@ -75,7 +75,7 @@ public partial class Chunk
             switch (future.Value!)
             {
                 case LoadingResult.Success:
-                    TrySettingNextReady();
+                    TryActivation();
 
                     break;
 
@@ -132,7 +132,7 @@ public partial class Chunk
                     throw exception.GetBaseException();
                 }
 
-                TrySettingNextReady();
+                TryActivation();
             }
         }
     }
@@ -193,7 +193,7 @@ public partial class Chunk
                     throw exception.GetBaseException();
                 }
 
-                TrySettingNextReady();
+                TryActivation();
             }
         }
 
@@ -234,7 +234,7 @@ public partial class Chunk
                 if (saving.Exception is {} exception)
                     LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
 
-                TrySettingNextReady();
+                TryActivation();
             }
         }
     }
@@ -304,12 +304,7 @@ public partial class Chunk
         {
             var activated = false;
 
-            // todo: chunk should store if has been active at least once
-            // todo: when returning to pool, that variable should be set to false
-            // todo: the hidden state should use it to decide if TrySettingNextReady or TrySettingNextActive is called
-            // todo: maybe the used state can also use that variable ?
-
-            if (Chunk.IsRequestedToActivate) activated = TrySettingNextReady();
+            if (Chunk.IsRequestedToActivate) activated = TryActivation();
 
             if (!activated)
                 AllowTransition();
@@ -324,17 +319,6 @@ public partial class Chunk
     /// </summary>
     public class Used : ChunkState
     {
-        private readonly Boolean wasActive;
-
-        /// <summary>
-        ///     Create the used state.
-        /// </summary>
-        /// <param name="wasActive">Whether the chunk was active before.</param>
-        public Used(Boolean wasActive)
-        {
-            this.wasActive = wasActive;
-        }
-
         /// <inheritdoc />
         protected override Access CoreAccess => Access.None;
 
@@ -347,8 +331,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (wasActive) TrySettingNextActive();
-            else TrySettingNextReady();
+            TryActivation();
         }
     }
 
@@ -374,7 +357,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            TrySettingNextReady();
+            TryActivation();
         }
     }
 

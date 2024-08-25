@@ -99,7 +99,7 @@ public partial class Chunk
 
                 Cleanup();
 
-                TrySettingNextActive();
+                TryActivation();
             }
         }
 

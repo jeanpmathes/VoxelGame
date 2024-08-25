@@ -371,6 +371,7 @@ public static class ChunkMeshingExtensions
     public static Boolean ShouldMeshAccordingToNeighborState(this Chunk chunk)
     {
         // todo: check if this method is still needed as chunks would not mesh anyway
+        // todo: then check if strong-mesh-option and weak-mesh-option have same code, if yes, merge them
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
