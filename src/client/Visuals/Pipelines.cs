@@ -29,7 +29,7 @@ public sealed class Pipelines : IDisposable
     private readonly List<VFX> renderers = [];
     private readonly List<IDisposable> bindings = [];
 
-    private LoadingContext? loadingContext;
+    private ILoadingContext? loadingContext;
     private Boolean loaded;
 
     private RasterPipeline postProcessingPipeline = null!;
@@ -74,7 +74,7 @@ public sealed class Pipelines : IDisposable
         Application.Client client,
         (TextureArray, TextureArray) textureSlots,
         VisualConfiguration visuals,
-        LoadingContext loadingContext)
+        ILoadingContext loadingContext)
     {
         Pipelines pipelines = new(directory);
 

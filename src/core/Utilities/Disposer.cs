@@ -26,11 +26,24 @@ public sealed class Disposer : IDisposable
         this.dispose = dispose;
     }
 
+    /// <summary>
+    ///     Create a new <see cref="Disposer" /> with an empty dispose action.
+    /// </summary>
+    public Disposer()
+    {
+        dispose = DoNothing;
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    private static void DoNothing()
+    {
+        // Intentionally does nothing.
     }
 
     private void Dispose(Boolean disposing)

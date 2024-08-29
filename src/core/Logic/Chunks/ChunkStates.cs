@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -110,6 +111,9 @@ public partial class Chunk
     {
         private Future? generating;
 
+        private IGenerationContext? generationContext;
+        private IDecorationContext? decorationContext;
+
         /// <inheritdoc />
         protected override Access CoreAccess => Access.Write;
 
@@ -121,10 +125,14 @@ public partial class Chunk
         {
             if (generating == null)
             {
-                generating = WaitForCompletion(() => Chunk.Generate());
+                generationContext = Context.Generator.CreateGenerationContext(Chunk.Position);
+                decorationContext = Context.Generator.CreateDecorationContext();
+                generating = WaitForCompletion(() => Chunk.Generate(generationContext, decorationContext));
             }
             else if (generating.IsCompleted)
             {
+                Cleanup();
+
                 if (generating.Exception is {} exception)
                 {
                     LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
@@ -134,6 +142,16 @@ public partial class Chunk
 
                 TryActivation();
             }
+        }
+
+        /// <inheritdoc />
+        protected override void Cleanup()
+        {
+            generationContext?.Dispose();
+            decorationContext?.Dispose();
+
+            generationContext = null;
+            decorationContext = null;
         }
     }
 
@@ -146,6 +164,8 @@ public partial class Chunk
         private readonly PooledList<Guard> guards;
 
         private Future? decorating;
+
+        private IDecorationContext? decorationContext;
 
         private Boolean cleaned;
 
@@ -180,7 +200,8 @@ public partial class Chunk
         {
             if (decorating == null)
             {
-                decorating = WaitForCompletion(() => ChunkDecoration.Decorate(chunks));
+                decorationContext = Context.Generator.CreateDecorationContext();
+                decorating = WaitForCompletion(() => Chunk.Decorate(chunks, decorationContext));
             }
             else if (decorating.IsCompleted)
             {
@@ -204,6 +225,8 @@ public partial class Chunk
 
             foreach (Guard guard in guards) guard.Dispose();
             guards.Dispose();
+
+            decorationContext?.Dispose();
 
             cleaned = true;
         }

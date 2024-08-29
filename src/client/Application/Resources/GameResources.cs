@@ -67,7 +67,7 @@ public sealed partial class GameResources : IDisposable
     /// <summary>
     ///     Load the resources.
     /// </summary>
-    public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
+    public void Load(VisualConfiguration visuals, ILoadingContext loadingContext)
     {
         Throw.IfDisposed(disposed);
 
@@ -84,7 +84,7 @@ public sealed partial class GameResources : IDisposable
         LogLoadingEnd(logger);
     }
 
-    private void PerformLoading(VisualConfiguration visuals, LoadingContext loadingContext)
+    private void PerformLoading(VisualConfiguration visuals, ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("World Textures"))
         {

@@ -94,21 +94,20 @@ public class GeneratedStructure
     ///     Attempt to place the structure for a given section, if the structure is present in the section.
     /// </summary>
     /// <param name="section">The section to place the structure in.</param>
-    /// <param name="position">The position of the section.</param>
     /// <param name="generator">The world generator.</param>
     /// <returns>True if the structure was placed, false otherwise.</returns>
-    public void AttemptPlacement(Section section, SectionPosition position, Generator generator)
+    public void AttemptPlacement(Section section, Generator generator)
     {
         for (Int32 dx = -effectiveSectionExtents.X; dx <= effectiveSectionExtents.X; dx++)
         for (Int32 dy = -effectiveSectionExtents.Y; dy <= effectiveSectionExtents.Y; dy++)
         for (Int32 dz = -effectiveSectionExtents.Z; dz <= effectiveSectionExtents.Z; dz++)
         {
-            SectionPosition current = position.Offset(dx, dy, dz);
+            SectionPosition current = section.Position.Offset(dx, dy, dz);
 
             if (!FilterSection(current, generator)) continue;
             if (!CheckSection(current, out Single random)) continue;
 
-            PlaceIn(section, position, current, random, generator);
+            PlaceIn(section, current, random, generator);
 
             break;
         }
@@ -173,14 +172,16 @@ public class GeneratedStructure
         return true;
     }
 
-    private void PlaceIn(Section section, SectionPosition sectionPosition, SectionPosition anchor, Single random, Generator generator)
+    private void PlaceIn(Section section, SectionPosition anchor, Single random, Generator generator)
     {
+        SectionPosition sectionPosition = section.Position;
+
         (Vector3i positionInSection, Orientation orientation) = DeterminePlacement(anchor, random, generator);
 
         Vector3i position = anchor.FirstBlock + positionInSection + offset;
 
         structure.SetStructureSeed(random.GetHashCode());
-        structure.PlacePartial(new SectionGrid(section, sectionPosition), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
+        structure.PlacePartial(new SectionGrid(section), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
     private static Int32 DetermineSurfacePlacement(SectionPosition section, (Int32 x, Int32 z) position, Generator generator)

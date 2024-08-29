@@ -11,7 +11,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Actors;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -19,6 +19,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -34,7 +35,7 @@ namespace VoxelGame.Client.Logic;
 public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-    private static readonly Int32 minLoadedChunksAtStart = 1; //VMath.Cube(Player.LoadDistance * 2 + 1); todo: uncomment
+    private static readonly Int32 minLoadedChunksAtStart = VMath.Cube(Player.LoadDistance * 2 + 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -45,7 +46,7 @@ public partial class World : Core.Logic.World
 
     private Int64 worldUpdateCount;
     private Int64 chunkUpdateCount;
-    private Player? player;
+    private Actors.Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -82,7 +83,7 @@ public partial class World : Core.Logic.World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Player newPlayer)
+    public void AddPlayer(Actors.Player newPlayer)
     {
         player = newPlayer;
 

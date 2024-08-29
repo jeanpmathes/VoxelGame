@@ -27,7 +27,7 @@ public partial class StaticStructure : Structure
 
     private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
 
-    private static LoadingContext? loadingContext;
+    private static ILoadingContext? loadingContext;
 
     private readonly Content?[,,] contents;
 
@@ -100,7 +100,7 @@ public partial class StaticStructure : Structure
     ///     When a context is used, no other loading operations on any thread should be performed.
     /// </summary>
     /// <param name="newLoadingContext">The new loading context.</param>
-    public static void SetLoadingContext(LoadingContext newLoadingContext)
+    public static void SetLoadingContext(ILoadingContext newLoadingContext)
     {
         Debug.Assert(loadingContext == null);
         loadingContext = newLoadingContext;

@@ -300,7 +300,7 @@ public abstract partial class World : IDisposable, IGrid
 
     private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(world, timer);
+        return new Generator(new WorldGeneratorContext(world, timer));
     }
 
     /// <summary>

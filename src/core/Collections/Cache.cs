@@ -8,20 +8,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace VoxelGame.Core.Utilities;
+namespace VoxelGame.Core.Collections;
 
 /// <summary>
-///     A cache for objects that can be disposed.
+///     A cache for objects.
 ///     Uses the LRU (Least Recently Used) policy.
 /// </summary>
 /// <typeparam name="TK">The type of the key.</typeparam>
 /// <typeparam name="TV">The type of the value.</typeparam>
-public sealed class Cache<TK, TV> : IDisposable
+public class Cache<TK, TV>
     where TK : notnull
-    where TV : IDisposable
+    where TV : notnull
 {
     private readonly LinkedList<Entry> list = [];
     private readonly Dictionary<TK, LinkedListNode<Entry>> map = new();
+
+    private readonly Action<TV>? cleanup;
 
     /// <summary>
     ///     Create a new cache with the given capacity.
@@ -30,6 +32,16 @@ public sealed class Cache<TK, TV> : IDisposable
     public Cache(Int32 capacity)
     {
         Capacity = capacity;
+    }
+
+    /// <summary>
+    ///     Create a new cache with the given capacity and cleanup action.
+    /// </summary>
+    /// <param name="capacity">The capacity of the cache.</param>
+    /// <param name="cleanup">The cleanup action to be called when an entry is removed from the cache.</param>
+    protected Cache(Int32 capacity, Action<TV> cleanup) : this(capacity)
+    {
+        this.cleanup = cleanup;
     }
 
     /// <summary>
@@ -60,8 +72,6 @@ public sealed class Cache<TK, TV> : IDisposable
     /// <returns>true if the cache contains an element with the specified key; otherwise, false.</returns>
     public Boolean TryGet(TK key, [NotNullWhen(returnValue: true)] out TV? value, Boolean remove = false)
     {
-        Throw.IfDisposed(disposed);
-
         if (map.TryGetValue(key, out LinkedListNode<Entry>? node))
         {
             list.Remove(node);
@@ -88,8 +98,6 @@ public sealed class Cache<TK, TV> : IDisposable
     /// <param name="value">The value of the element to add.</param>
     public void Add(TK key, TV value)
     {
-        Throw.IfDisposed(disposed);
-
         if (map.TryGetValue(key, out LinkedListNode<Entry>? existing))
         {
             list.Remove(existing);
@@ -101,7 +109,7 @@ public sealed class Cache<TK, TV> : IDisposable
             list.RemoveFirst();
             map.Remove(node.Value.Key);
 
-            node.Value.Value.Dispose();
+            cleanup?.Invoke(node.Value.Value);
         }
 
         LinkedListNode<Entry> newNode = new(new Entry(key, value));
@@ -115,15 +123,34 @@ public sealed class Cache<TK, TV> : IDisposable
     /// </summary>
     public void Flush()
     {
-        Throw.IfDisposed(disposed);
-
-        foreach (Entry entry in list) entry.Value.Dispose();
+        if (cleanup != null)
+            foreach (Entry entry in list)
+                cleanup(entry.Value);
 
         list.Clear();
         map.Clear();
     }
 
     private sealed record Entry(TK Key, TV Value);
+}
+
+/// <summary>
+///     A cache for objects that can be disposed.
+///     Uses the LRU (Least Recently Used) policy.
+/// </summary>
+/// <typeparam name="TK">The type of the key.</typeparam>
+/// <typeparam name="TV">The type of the value.</typeparam>
+public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
+    where TK : notnull
+    where TV : IDisposable
+{
+    /// <inheritdoc />
+    public DisposableCache(Int32 capacity) : base(capacity, Cleanup) {}
+
+    private static void Cleanup(TV value)
+    {
+        value.Dispose();
+    }
 
     #region IDisposable Support
 
@@ -148,7 +175,7 @@ public sealed class Cache<TK, TV> : IDisposable
     /// <summary>
     ///     Finalizer.
     /// </summary>
-    ~Cache()
+    ~DisposableCache()
     {
         Dispose(disposing: false);
     }

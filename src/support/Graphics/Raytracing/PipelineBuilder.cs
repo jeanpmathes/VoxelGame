@@ -147,7 +147,7 @@ public class PipelineBuilder
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
-    public Boolean Build(Client client, LoadingContext loadingContext)
+    public Boolean Build(Client client, ILoadingContext loadingContext)
     {
         Debug.Assert(customDataBufferSize == 0);
 
@@ -164,7 +164,7 @@ public class PipelineBuilder
     /// <param name="client">The client that will use the pipeline.</param>
     /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
-    public Boolean Build<T>(Client client, LoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    public Boolean Build<T>(Client client, ILoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
         (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
@@ -235,12 +235,12 @@ public class PipelineBuilder
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
-    private static void ReportFailure(LoadingContext loadingContext, String message)
+    private static void ReportFailure(ILoadingContext loadingContext, String message)
     {
         loadingContext.ReportFailure(nameof(SpacePipelineDescription), "RT_Pipeline", message);
     }
 
-    private void ReportSuccess(LoadingContext loadingContext)
+    private void ReportSuccess(ILoadingContext loadingContext)
     {
         foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(nameof(SpacePipelineDescription), shader.File);
     }
@@ -253,7 +253,7 @@ public class PipelineBuilder
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.
     /// </summary>
     /// <param name="ClosestHitSymbol">The name of the closest hit shader.</param>
-    /// <param name="AnyHitSymbol">The name of the any hit shader, or empty if there is none.</param>
+    /// <param name="AnyHitSymbol">The name of the any-hit shader, or empty if there is none.</param>
     /// <param name="IntersectionSymbol">The name of the intersection shader, or empty if there is none.</param>
     public sealed record HitGroup(String ClosestHitSymbol, String AnyHitSymbol = "", String IntersectionSymbol = "");
 

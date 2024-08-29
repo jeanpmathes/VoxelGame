@@ -64,7 +64,7 @@ public sealed class UIResources : IDisposable
         return name;
     }
 
-    private void LoadAttributions(LoadingContext loadingContext)
+    private void LoadAttributions(ILoadingContext loadingContext)
     {
         DirectoryInfo directory = FileSystem.GetResourceDirectory("Attribution");
 
@@ -108,7 +108,7 @@ public sealed class UIResources : IDisposable
         return textures;
     }
 
-    private void LoadGUI(Client window, LoadingContext loadingContext)
+    private void LoadGUI(Client window, ILoadingContext loadingContext)
     {
         FileInfo skin1 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin1.png");
         FileInfo skin2 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin2.png");
@@ -162,7 +162,7 @@ public sealed class UIResources : IDisposable
         Fonts = new FontHolder(GUI.Root.Skin);
     }
 
-    private static void ReportSkinLoading(Exception? skinLoadingError, FileSystemInfo skinFile, LoadingContext loadingContext)
+    private static void ReportSkinLoading(Exception? skinLoadingError, FileSystemInfo skinFile, ILoadingContext loadingContext)
     {
         if (skinLoadingError != null)
             loadingContext.ReportWarning(nameof(GUI), skinFile, skinLoadingError);
@@ -170,7 +170,7 @@ public sealed class UIResources : IDisposable
             loadingContext.ReportSuccess(nameof(GUI), skinFile);
     }
 
-    private static void ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, LoadingContext loadingContext)
+    private static void ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, ILoadingContext loadingContext)
     {
         const String type = "Shader";
 
@@ -180,7 +180,7 @@ public sealed class UIResources : IDisposable
             loadingContext.ReportSuccess(type, shader);
     }
 
-    private static void ReportTextureLoading(Dictionary<String, TexturePreload> textures, IReadOnlyDictionary<String, Exception?> textureLoadingErrors, LoadingContext loadingContext)
+    private static void ReportTextureLoading(Dictionary<String, TexturePreload> textures, IReadOnlyDictionary<String, Exception?> textureLoadingErrors, ILoadingContext loadingContext)
     {
         foreach ((String name, TexturePreload texture) in textures)
         {
@@ -196,7 +196,7 @@ public sealed class UIResources : IDisposable
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(Client window, LoadingContext loadingContext)
+    public void Load(Client window, ILoadingContext loadingContext)
     {
         Throw.IfDisposed(disposed);
 

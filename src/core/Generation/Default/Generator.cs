@@ -11,17 +11,17 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
-using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -31,58 +31,47 @@ namespace VoxelGame.Core.Generation.Default;
 public partial class Generator : IWorldGenerator
 {
     private const Int32 SeaLevel = 0;
-
     private const String MapBlobName = "default_map";
 
-    private readonly FastNoiseLite decorationNoise;
+    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(VMath.Square((Player.LoadDistance + 1) * 2 + 1));
 
     private readonly Palette palette = new();
 
-    /// <summary>
-    ///     Used for map generation and sampling.
-    /// </summary>
-#pragma warning disable S1450 // Used for documentation purposes.
-    private readonly NoiseFactory mapNoiseFactory;
-#pragma warning restore S1450
-
-    /// <summary>
-    ///     Used for details in biomes, structures and decoration.
-    /// </summary>
-#pragma warning disable S1450 // Used for documentation purposes.
-    private readonly NoiseFactory worldNoiseFactory;
-#pragma warning restore S1450
+    private readonly FastNoiseLite decorationNoise;
 
     /// <summary>
     ///     Creates a new default world generator.
     /// </summary>
-    /// <param name="world">The world to generate.</param>
-    /// <param name="timer">A timer to measure initialization behavior.</param>
-    public Generator(World world, Timer? timer)
+    /// <param name="context">The generator creation context.</param>
+    public Generator(IWorldGeneratorContext context)
     {
-        mapNoiseFactory = new NoiseFactory(world.Seed.upper);
-        worldNoiseFactory = new NoiseFactory(world.Seed.lower);
+        // Used for map generation and sampling.
+        NoiseFactory mapNoiseFactory = new(context.Seed.upper);
+
+        // Used for details in biomes, structures and decoration.
+        NoiseFactory worldNoiseFactory = new(context.Seed.lower);
 
         Biomes biomes;
 
-        using (logger.BeginTimedSubScoped("Biomes Setup", timer))
+        using (logger.BeginTimedSubScoped("Biomes Setup", context.Timer))
         {
             biomes = Biomes.Load();
             biomes.Setup(worldNoiseFactory, palette);
         }
 
-        using (logger.BeginTimedSubScoped("Structures Setup", timer))
+        using (logger.BeginTimedSubScoped("Structures Setup", context.Timer))
         {
             Structures.Instance.Setup(worldNoiseFactory);
         }
 
-        using (logger.BeginTimedSubScoped("Map Setup", timer))
+        using (logger.BeginTimedSubScoped("Map Setup", context.Timer))
         {
             Map = new Map(BiomeDistribution.CreateDefault(biomes));
 
-            Map.Initialize(world.Data, MapBlobName, mapNoiseFactory, out Boolean dirty);
+            Map.Initialize(context, MapBlobName, mapNoiseFactory, out Boolean dirty);
 
             if (dirty)
-                Map.Store(world.Data, MapBlobName);
+                Map.Store(context, MapBlobName);
         }
 
         decorationNoise = worldNoiseFactory.GetNextNoise();
@@ -98,9 +87,57 @@ public partial class Generator : IWorldGenerator
     public Map Map { get; }
 
     /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
+    public IGenerationContext CreateGenerationContext(ChunkPosition hint)
     {
-        Map.Sample sample = Map.GetSample((x, z));
+        return new GenerationContext(this, hint);
+    }
+
+    /// <inheritdoc />
+    public IDecorationContext CreateDecorationContext()
+    {
+        return new DecorationContext(this);
+    }
+
+    /// <inheritdoc />
+    public void EmitViews(DirectoryInfo path)
+    {
+        Map.EmitViews(path);
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
+    {
+        return Structures.Instance.Search(start, name, maxDistance, this);
+    }
+
+    /// <inheritdoc />
+    IMap IWorldGenerator.Map => Map;
+
+    /// <summary>
+    ///     Get the samples for a chunk position, if available.
+    /// </summary>
+    internal ColumnSampleStore? GetColumns(ChunkPosition position)
+    {
+        columnCache.TryGet((position.X, position.Z), out ColumnSampleStore? store);
+
+        return store;
+    }
+
+    /// <summary>
+    ///     Add the samples for a chunk position to the storage.
+    /// </summary>
+    internal void AddColumns(ColumnSampleStore store)
+    {
+        columnCache.Add(store.Key, store);
+    }
+
+    /// <inheritdoc cref="IGenerationContext.GenerateColumn" />
+    internal IEnumerable<Content> GenerateColumn(
+        Int32 x, Int32 z,
+        (Int32 start, Int32 end) heightRange,
+        ColumnSampleStore columns)
+    {
+        Map.Sample sample = columns.GetSample((x, z));
 
         Context context = new()
         {
@@ -111,13 +148,14 @@ public partial class Generator : IWorldGenerator
             IceWidth = GetIceWidth(sample)
         };
 
-        for (Int32 y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z), context);
+        for (Int32 y = heightRange.start; y < heightRange.end; y++)
+            yield return GenerateContent((x, y, z), context);
     }
 
-    /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Neighborhood<Section> sections)
+    /// <inheritdoc cref="IDecorationContext.DecorateSection" />
+    public void DecorateSection(Neighborhood<Section> sections)
     {
-        ICollection<Biome> biomes = GetSectionBiomes(position);
+        ICollection<Biome> biomes = GetSectionBiomes(sections.Center.Position);
 
         HashSet<Decoration> decorations = [];
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
@@ -131,47 +169,32 @@ public partial class Generator : IWorldGenerator
 
         Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
 
-        Array3D<Single> noise = GenerateDecorationNoise(position);
+        Array3D<Single> noise = GenerateDecorationNoise(sections.Center.Position);
 
         var index = 0;
 
         foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
         {
-            Decoration.Context context = new(position, sections, decorationToBiomes[decoration], noise, index++, palette, this);
+            Decoration.Context context = new(sections.Center.Position, sections, decorationToBiomes[decoration], noise, index++, palette, this);
 
             decoration.Place(context);
         }
     }
 
-    /// <inheritdoc />
-    public void EmitViews(DirectoryInfo path)
+    /// <inheritdoc cref="IGenerationContext.GenerateStructures" />
+    public void GenerateStructures(Section section)
     {
-        Map.EmitViews(path);
-    }
-
-    /// <inheritdoc />
-    public void GenerateStructures(Section section, SectionPosition position)
-    {
-        ICollection<Biome> biomes = GetSectionBiomes(position);
+        ICollection<Biome> biomes = GetSectionBiomes(section.Position);
 
         if (biomes.Count != 1) return;
 
-        biomes.First().Structure?.AttemptPlacement(section, position, this);
+        biomes.First().Structure?.AttemptPlacement(section, this);
     }
-
-    /// <inheritdoc />
-    public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
-    {
-        return Structures.Instance.Search(start, name, maxDistance, this);
-    }
-
-    /// <inheritdoc />
-    IMap IWorldGenerator.Map => Map;
 
     /// <summary>
     ///     Prepare all required systems to use the generator.
     /// </summary>
-    public static void Prepare(LoadingContext loadingContext)
+    public static void Prepare(ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("Default Generator"))
         {
@@ -233,7 +256,7 @@ public partial class Generator : IWorldGenerator
     /// <returns>A list of the biomes, each biome is only included once.</returns>
     public ICollection<Biome> GetSectionBiomes(SectionPosition position)
     {
-        List<Biome> biomes = new();
+        List<Biome> biomes = [];
 
         Vector2i start = position.FirstBlock.Xz;
 

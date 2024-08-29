@@ -65,7 +65,7 @@ public class RotatedBlock : BasicBlock, ICombustible
         return (Axis) (data & 0b00_0011);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Axis axis)
+    private static BlockSide TranslateSide(BlockSide side, Axis axis) // todo: improve
     {
         var index = (Int32) side;
 

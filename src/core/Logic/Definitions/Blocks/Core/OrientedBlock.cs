@@ -37,7 +37,7 @@ public class OrientedBlock : BasicBlock
             position);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Orientation orientation)
+    private static BlockSide TranslateSide(BlockSide side, Orientation orientation) // todo: improve
     {
         var index = (Int32) side;
 

@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Chunks;
 
 namespace VoxelGame.Core.Generation;
 
@@ -25,33 +23,25 @@ public interface IWorldGenerator
     IMap Map { get; }
 
     /// <summary>
-    ///     Generate a column of the world.
+    /// Create a context in which chunks can be generated.
+    /// Must be called and disposed on the main thread.
     /// </summary>
-    /// <param name="x">The x position of the world.</param>
-    /// <param name="z">The z position of the world.</param>
-    /// <param name="heightRange">The height range (inclusive, exclusive) in which blocks should be generated.</param>
-    /// <returns>The data in the column.</returns>
-    IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange);
+    /// <param name="hint">A hint on which chunks will be generated with the context.</param>
+    /// <returns>The generation context.</returns>
+    IGenerationContext CreateGenerationContext(ChunkPosition hint);
 
     /// <summary>
-    ///     Decorate a section of the world.
+    /// Create a context in which decorations can be generated.
+    /// Must be called and disposed on the main thread.
     /// </summary>
-    /// <param name="position">The position of the section.</param>
-    /// <param name="sections">The section and all its neighbors.</param>
-    void DecorateSection(SectionPosition position, Neighborhood<Section> sections);
+    /// <returns>The decoration context.</returns>
+    IDecorationContext CreateDecorationContext();
 
     /// <summary>
     ///     Emit views of global generated data for debugging.
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>
     void EmitViews(DirectoryInfo path);
-
-    /// <summary>
-    ///     Generate all structures in a section.
-    /// </summary>
-    /// <param name="section">The section to generate structures in.</param>
-    /// <param name="position">The position of the section.</param>
-    void GenerateStructures(Section section, SectionPosition position);
 
     /// <summary>
     ///     Search for named generated elements, such as structures.

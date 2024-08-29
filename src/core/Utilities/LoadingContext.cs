@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Profiling;
@@ -25,7 +24,7 @@ public record ResourceLoadingFailure(Property MissingResources, Boolean IsCritic
 /// <summary>
 ///     A context in which loading operations can be performed.
 /// </summary>
-public partial class LoadingContext
+public partial class LoadingContext : ILoadingContext
 {
     private readonly Timer? timer;
 
@@ -57,24 +56,7 @@ public partial class LoadingContext
 
     private Group CurrentGroup => path.Peek().group;
 
-    private void FinishStep(Step step)
-    {
-        if (step.Group == path.Peek().group)
-        {
-            path.Pop();
-        }
-        else
-        {
-            Debug.Fail("Wrong step finished.");
-        }
-
-        LogFinishedLoadingStep(logger, step.Name);
-    }
-
-    /// <summary>
-    ///     Begin a loading step.
-    /// </summary>
-    /// <param name="name">The name of the step.</param>
+    /// <inheritdoc />
     public IDisposable BeginStep(String name)
     {
         LogStartingLoadingStep(logger, name);
@@ -93,6 +75,56 @@ public partial class LoadingContext
         return step;
     }
 
+    /// <inheritdoc />
+    public void ReportSuccess(String type, String resource)
+    {
+        LogLoadedResource(logger, CurrentPath, type, resource);
+    }
+
+    /// <inheritdoc />
+    public void ReportFailure(String type, String resource, Exception exception, Boolean abort = false)
+    {
+        LogFailedToLoadResource(logger, exception, CurrentPath, type, resource);
+
+        ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
+    }
+
+    /// <inheritdoc />
+    public void ReportFailure(String type, String resource, String message, Boolean abort = false)
+    {
+        LogFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
+
+        ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
+    }
+
+    /// <inheritdoc />
+    public void ReportWarning(String type, String resource, Exception exception)
+    {
+        LogWarningFailedToLoadResource(logger, exception, CurrentPath, type, resource);
+
+        ReportMissing(type, resource, isCritical: false);
+    }
+
+    /// <inheritdoc />
+    public void ReportWarning(String type, String resource, String message)
+    {
+        LogWarningFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
+
+        ReportMissing(type, resource, isCritical: false);
+    }
+
+    private void FinishStep(Step step)
+    {
+        if (step.Group == path.Peek().group) path.Pop();
+        else Debug.Fail("Wrong step finished.");
+
+        LogFinishedLoadingStep(logger, step.Name);
+    }
+
     private void ReportMissing(String type, String resource, Boolean isCritical)
     {
         Error error = new(
@@ -106,98 +138,6 @@ public partial class LoadingContext
 
         isMissingAny = true;
         isMissingCritical |= isCritical;
-    }
-
-    /// <summary>
-    ///     Report a successful loading operation.
-    /// </summary>
-    public void ReportSuccess(String type, FileSystemInfo resource)
-    {
-        ReportSuccess(type, resource.GetResourceRelativePath());
-    }
-
-    /// <summary>
-    ///     Report a successful loading operation.
-    /// </summary>
-    public void ReportSuccess(String type, String resource)
-    {
-        LogLoadedResource(logger, CurrentPath, type, resource);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(String type, FileSystemInfo resource, Exception exception, Boolean abort = false)
-    {
-        ReportFailure(type, resource.GetResourceRelativePath(), exception, abort);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(String type, String resource, Exception exception, Boolean abort = false)
-    {
-        LogFailedToLoadResource(logger, exception, CurrentPath, type, resource);
-        
-        ReportMissing(type, resource, isCritical: true);
-
-        if (abort) Abort();
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(String type, FileSystemInfo resource, String message, Boolean abort = false)
-    {
-        ReportFailure(type, resource.GetResourceRelativePath(), message, abort);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(String type, String resource, String message, Boolean abort = false)
-    {
-        LogFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
-        
-        ReportMissing(type, resource, isCritical: true);
-
-        if (abort) Abort();
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(String type, FileSystemInfo resource, Exception exception)
-    {
-        ReportWarning(type, resource.GetResourceRelativePath(), exception);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(String type, String resource, Exception exception)
-    {
-        LogWarningFailedToLoadResource(logger, exception, CurrentPath, type, resource);
-        
-        ReportMissing(type, resource, isCritical: false);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(String type, FileSystemInfo resource, String message)
-    {
-        ReportWarning(type, resource.GetResourceRelativePath(), message);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(String type, String resource, String message)
-    {
-        LogWarningFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
-        
-        ReportMissing(type, resource, isCritical: false);
     }
 
     private static void Abort()

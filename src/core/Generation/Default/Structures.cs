@@ -58,7 +58,7 @@ public class Structures
     /// <summary>
     ///     Initialize and load all structures.
     /// </summary>
-    public static void Initialize(LoadingContext loadingContext)
+    public static void Initialize(ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("Structures"))
         {

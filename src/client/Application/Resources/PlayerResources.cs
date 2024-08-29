@@ -22,7 +22,7 @@ public class PlayerResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(Support.Core.Client client, LoadingContext loadingContext)
+    public void Load(Support.Core.Client client, ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("Player"))
         {

@@ -263,7 +263,7 @@ public partial class Map : IMap
             noise.SetFrequency(frequency: 0.01f);
 
             noise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            noise.SetFractalOctaves(octaves: 5);
+            noise.SetFractalOctaves(octaves: 4);
             noise.SetFractalLacunarity(lacunarity: 2.0f);
             noise.SetFractalGain(gain: 0.5f);
             noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
@@ -279,21 +279,21 @@ public partial class Map : IMap
     ///     Initialize the map. If available, it will be loaded from a blob.
     ///     If loading is not possible, it will be generated.
     /// </summary>
-    /// <param name="world">The world data from which blobs can be retrieved.</param>
+    /// <param name="context">The generation context to use.</param>
     /// <param name="blob">The name of the blob to load, or null to generate a new map.</param>
     /// <param name="factory">The factory to use for noise generator creation.</param>
     /// <param name="dirty">
     ///     Whether the map is dirty and needs to be saved.
     ///     Will be true if the map is generated, false if it is just loaded.
     /// </param>
-    public void Initialize(WorldData world, String? blob, NoiseFactory factory, out Boolean dirty)
+    public void Initialize(IWorldGeneratorContext context, String? blob, NoiseFactory factory, out Boolean dirty)
     {
         LogInitializingMap(logger);
 
         dirty = false;
 
         if (blob != null)
-            Load(world, blob);
+            Load(context, blob);
 
         SetupGeneratingNoise(factory);
 
@@ -343,9 +343,9 @@ public partial class Map : IMap
         EmitBiomeView(data, biomes, path);
     }
 
-    private void Load(WorldData world, String blob)
+    private void Load(IWorldGeneratorContext context, String blob)
     {
-        var loaded = world.ReadBlob<Data>(blob);
+        var loaded = context.ReadBlob<Data>(blob);
 
         if (loaded == null)
         {
@@ -365,13 +365,13 @@ public partial class Map : IMap
     /// <summary>
     ///     Store the map to a blob.
     /// </summary>
-    /// <param name="world">The world data to store the blob in.</param>
+    /// <param name="context">The generation context to use.</param>
     /// <param name="blob">The name of the blob to store the map in.</param>
-    public void Store(WorldData world, String blob)
+    public void Store(IWorldGeneratorContext context, String blob)
     {
         Debug.Assert(data != null);
 
-        world.WriteBlob(blob, data);
+        context.WriteBlob(blob, data);
     }
 
     /// <summary>
@@ -382,17 +382,6 @@ public partial class Map : IMap
     public Sample GetSample(Vector2i position)
     {
         Debug.Assert(data != null);
-
-        static Int32 GetNearestNeighbor(Int32 number)
-        {
-            const Int32 halfCellSize = CellSize / 2;
-
-            Int32 subject = DivideByCellSize(number);
-            Int32 a = DivideByCellSize(number - halfCellSize);
-            Int32 b = DivideByCellSize(number + halfCellSize);
-
-            return a == subject ? b : a;
-        }
 
         Int32 xP = DivideByCellSize(position.X);
         Int32 yP = DivideByCellSize(position.Y);
@@ -447,11 +436,6 @@ public partial class Map : IMap
             specialStrength = coastlineStrength;
         }
 
-        Biome GetBiome(in Cell cell)
-        {
-            return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.humidity) : biomes.GetOceanBiome(cell.temperature, cell.humidity);
-        }
-
         Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
 
         return new Sample
@@ -468,6 +452,22 @@ public partial class Map : IMap
             SpecialBiome = specialBiome,
             StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
         };
+    }
+
+    private static Int32 GetNearestNeighbor(Int32 number)
+    {
+        const Int32 halfCellSize = CellSize / 2;
+
+        Int32 subject = DivideByCellSize(number);
+        Int32 a = DivideByCellSize(number - halfCellSize);
+        Int32 b = DivideByCellSize(number + halfCellSize);
+
+        return a == subject ? b : a;
+    }
+
+    private Biome GetBiome(in Cell cell)
+    {
+        return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.humidity) : biomes.GetOceanBiome(cell.temperature, cell.humidity);
     }
 
     private static Single GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, Single height, Vector2d blend)

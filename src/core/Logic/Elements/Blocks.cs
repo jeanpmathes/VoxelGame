@@ -39,7 +39,7 @@ public partial class Blocks
     private readonly List<Block> blockList = [];
     private readonly Dictionary<String, Block> namedBlockDictionary = new();
 
-    private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
+    private Blocks(ITextureIndexProvider indexProvider, VisualConfiguration visuals, ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("Block Loading"))
         {
@@ -1144,7 +1144,7 @@ public partial class Blocks
     /// <summary>
     ///     Loads all blocks and sets them up.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, VisualConfiguration visuals, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, VisualConfiguration visuals, ILoadingContext loadingContext)
     {
         Instance = new Blocks(indexProvider, visuals, loadingContext);
     }

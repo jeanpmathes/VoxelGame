@@ -16,23 +16,20 @@ namespace VoxelGame.Core.Logic.Sections;
 public class SectionGrid : IGrid
 {
     private readonly Section section;
-    private readonly SectionPosition sectionPosition;
 
     /// <summary>
     ///     Creates a new grid for the given section.
     /// </summary>
     /// <param name="section">The section to wrap.</param>
-    /// <param name="sectionPosition">The position of the section.</param>
-    public SectionGrid(Section section, SectionPosition sectionPosition)
+    public SectionGrid(Section section)
     {
         this.section = section;
-        this.sectionPosition = sectionPosition;
     }
 
     /// <inheritdoc />
     public Content? GetContent(Vector3i position)
     {
-        if (!sectionPosition.Contains(position)) return null;
+        if (!section.Position.Contains(position)) return null;
 
         (Int32 x, Int32 y, Int32 z) localPosition = Section.ToLocalPosition(position);
 
@@ -47,7 +44,7 @@ public class SectionGrid : IGrid
     /// <inheritdoc />
     public void SetContent(Content content, Vector3i position)
     {
-        if (!sectionPosition.Contains(position)) return;
+        if (!section.Position.Contains(position)) return;
 
         (Int32 x, Int32 y, Int32 z) localPosition = Section.ToLocalPosition(position);
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="ChunkDecoration.cs" company="VoxelGame">
+﻿// <copyright file="IDecorationContext.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -9,11 +9,11 @@ using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic.Chunks;
+namespace VoxelGame.Core.Generation;
 
 /// <summary>
 ///     Indicates what parts of the chunk have been decorated.
@@ -62,11 +62,9 @@ public enum DecorationLevels
 }
 
 /// <summary>
-///     Helpers defining the decoration system for chunks.
-///     Decoration is the step of chunk creation where it is filled with elements like trees.
-///     It follows the step of generation where the terrain is created.
+///     Context in which a unit of decoration work is executed.
 /// </summary>
-public static class ChunkDecoration
+public interface IDecorationContext : IDisposable
 {
     private static readonly Vector3i[] corners = VMath.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
 
@@ -87,23 +85,32 @@ public static class ChunkDecoration
             .ToArray();
 
     /// <summary>
+    ///     The generator that created this context.
+    /// </summary>
+    public IWorldGenerator Generator { get; }
+
+    /// <summary>
+    ///     Decorate a section of the world.
+    /// </summary>
+    /// <param name="sections">The section and all its neighbors.</param>
+    void DecorateSection(Neighborhood<Section> sections);
+
+    /// <summary>
     ///     Decorate a chunk and parts of its neighbors, except the center of the chunk.
     ///     Assumes that the chunk has been generated and the center already decorated.
     /// </summary>
     /// <param name="neighbors">The neighborhood of chunks around the chunk to decorate.</param>
-    public static void Decorate(Neighborhood<Chunk?> neighbors)
+    public void Decorate(Neighborhood<Chunk?> neighbors)
     {
         Debug.Assert(neighbors.Center != null);
         Debug.Assert(neighbors.Center.Decoration.HasFlag(DecorationLevels.Center));
-
-        IWorldGenerator generator = neighbors.Center.Context.Generator;
 
         foreach (Vector3i corner in corners)
         {
             // If not decorated or partially null, skip.
             if (IsCornerDecoratedNullable(corner, neighbors) != false) continue;
 
-            DecorateCorner(generator, neighbors, corner);
+            DecorateCorner(neighbors, corner);
         }
     }
 
@@ -112,7 +119,7 @@ public static class ChunkDecoration
     ///     Assumes that the chunk has been generated but not decorated yet.
     /// </summary>
     /// <param name="chunk">The chunk to decorate.</param>
-    public static void DecorateCenter(Chunk chunk)
+    public void DecorateCenter(Chunk chunk)
     {
         Debug.Assert(chunk.Decoration == DecorationLevels.None);
 
@@ -125,7 +132,7 @@ public static class ChunkDecoration
             foreach ((Int32 dx, Int32 dy, Int32 dz) in Neighborhood.Indices)
                 neighbors[dx, dy, dz] = chunk.GetLocalSection(x + dx - 1, y + dy - 1, z + dz - 1);
 
-            chunk.Context.Generator.DecorateSection(SectionPosition.From(chunk.Position, (x, y, z)), neighbors);
+            DecorateSection(neighbors);
         }
     }
 
@@ -197,10 +204,9 @@ public static class ChunkDecoration
     /// <summary>
     ///     Decorate a corner of the given local neighborhood of chunks.
     /// </summary>
-    /// <param name="generator">The generator to use for decoration.</param>
     /// <param name="chunks">The local neighborhood of chunks.</param>
     /// <param name="corner">The corner to decorate.</param>
-    private static void DecorateCorner(IWorldGenerator generator, Neighborhood<Chunk?> chunks, Vector3i corner)
+    private void DecorateCorner(Neighborhood<Chunk?> chunks, Vector3i corner)
     {
         Debug.Assert(chunks.Center != null);
 
@@ -210,6 +216,8 @@ public static class ChunkDecoration
         {
             Chunk? chunk = chunks[position];
             Debug.Assert(chunk != null);
+
+            Debug.Assert(chunk.Decoration.HasFlag(DecorationLevels.Center));
 
             decorated[position] = chunk.Decoration.HasFlag(flag);
             chunk.AddDecorationLevel(flag);
@@ -233,7 +241,8 @@ public static class ChunkDecoration
                 continue;
 
             FillSectionNeighborhood(sections, firstLocalChunk, currentSectionInCorner, chunks);
-            generator.DecorateSection(currentSectionInCorner, sections);
+
+            DecorateSection(sections);
         }
 
         Debug.Assert(IsCornerDecoratedNullable(corner, chunks) == true);

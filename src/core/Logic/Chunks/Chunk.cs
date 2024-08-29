@@ -288,6 +288,8 @@ public partial class Chunk : IDisposable, IEntity
     /// <param name="level">The level to add.</param>
     internal void AddDecorationLevel(DecorationLevels level)
     {
+        Debug.Assert((level != DecorationLevels.Center).Implies(decoration.HasFlag(DecorationLevels.Center)));
+
         decoration |= level;
     }
 
@@ -569,6 +571,8 @@ public partial class Chunk : IDisposable, IEntity
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     private void Save(DirectoryInfo path)
     {
+        Debug.Assert(decoration.HasFlag(DecorationLevels.Center));
+
         Throw.IfDisposed(disposed);
 
         blockTickManager.Normalize();
@@ -590,64 +594,37 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Generate the chunk content.
-    ///     The generator associated with the <see cref="Context"/> is used.
+    ///     Generate the chunk content and perform initial decoration.
     /// </summary>
-    public void Generate()
+    public void Generate(IGenerationContext generationContext, IDecorationContext decorationContext)
     {
         Throw.IfDisposed(disposed);
 
-        LogStartedGeneratingChunk(logger, Position, Context.Generator.ToString());
+        using Timer? timer = logger.BeginTimedScoped("Chunk Generation");
 
-        GenerateContent(Context.Generator);
-        PlaceStructures(Context.Generator);
+        LogStartedGeneratingChunk(logger, Position, generationContext.Generator.ToString());
 
-        ChunkDecoration.DecorateCenter(this);
+        generationContext.Generate(this);
+        decorationContext.DecorateCenter(this);
 
-        LogFinishedGeneratingChunk(logger, Position, Context.Generator.ToString());
+        LogFinishedGeneratingChunk(logger, Position, generationContext.Generator.ToString());
     }
 
-    private void GenerateContent(IWorldGenerator generator) // todo: refactor in same way as ChunkDecoration, write tests
+    /// <summary>
+    ///     Decorate the chunk, which should be called after generation.
+    /// </summary>
+    public void Decorate(Neighborhood<Chunk?> neighbors, IDecorationContext decorationContext)
     {
-        (Int32 begin, Int32 end) range = (Position.Y * BlockSize, (Position.Y + 1) * BlockSize);
+        Throw.IfDisposed(disposed);
 
-        for (var x = 0; x < BlockSize; x++)
-        for (var z = 0; z < BlockSize; z++)
-        {
-            Int32 y = range.begin;
+        using Timer? timer = logger.BeginTimedScoped("Chunk Decoration");
 
-            foreach (Content content in generator.GenerateColumn(
-                         x + Position.X * BlockSize,
-                         z + Position.Z * BlockSize,
-                         range))
-            {
-                Vector3i position = (x, y, z);
+        LogStartedDecoratingChunk(logger, Position, decorationContext.Generator.ToString());
 
-                Content modifiedContent = content.Block.Block.GenerateUpdate(content);
+        neighbors.Center = this;
+        decorationContext.Decorate(neighbors);
 
-                UInt32 encodedContent = Section.Encode(
-                    modifiedContent.Block.Block,
-                    modifiedContent.Block.Data,
-                    modifiedContent.Fluid.Fluid,
-                    modifiedContent.Fluid.Level,
-                    modifiedContent.Fluid.IsStatic);
-
-                GetSection(position).SetContent(position, encodedContent);
-
-                y++;
-            }
-        }
-    }
-
-    private void PlaceStructures(IWorldGenerator generator) // todo: refactor in same way as ChunkDecoration, write tests
-    {
-        for (var index = 0; index < SectionCount; index++)
-        {
-            Section section = sections[index];
-            SectionPosition position = SectionPosition.From(Position, IndexToLocalSection(index));
-
-            generator.GenerateStructures(section, position);
-        }
+        LogFinishedDecoratingChunk(logger, Position, decorationContext.Generator.ToString());
     }
 
     internal void ScheduleBlockTick(Block.BlockTick tick, UInt32 tickOffset)
@@ -776,7 +753,7 @@ public partial class Chunk : IDisposable, IEntity
         if (IsFullyDecorated) return null;
         if (!CanAcquireCore(Access.Write)) return null;
 
-        Neighborhood<Chunk?>? needed = ChunkDecoration.DecideWhetherToDecorate(this);
+        Neighborhood<Chunk?>? needed = IDecorationContext.DecideWhetherToDecorate(this);
 
         if (needed == null) return null;
 
@@ -895,6 +872,12 @@ public partial class Chunk : IDisposable, IEntity
 
     [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started decorating chunk {Position} using '{Name}' generator")]
+    private static partial void LogStartedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
+    private static partial void LogFinishedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
 
     #endregion LOGGING
 

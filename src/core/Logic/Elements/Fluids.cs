@@ -34,7 +34,7 @@ public partial class Fluids
     private readonly List<Fluid> fluidList = [];
     private readonly Dictionary<String, Fluid> namedFluidDictionary = new();
 
-    private Fluids(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
+    private Fluids(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, ILoadingContext loadingContext)
     {
         List<Fluid> allFluids = [];
 
@@ -289,7 +289,7 @@ public partial class Fluids
     /// <summary>
     ///     Calls the setup method on all blocks.
     /// </summary>
-    public static void Load(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, LoadingContext loadingContext)
+    public static void Load(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider, ILoadingContext loadingContext)
     {
         using (loadingContext.BeginStep("Fluid Loading"))
         {

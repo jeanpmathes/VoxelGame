@@ -31,8 +31,8 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
     private const String MissingTextureName = "missing_texture";
-    
-    private LoadingContext? loadingContext;
+
+    private ILoadingContext? loadingContext;
 
     private TextureBundle(TextureArray textureArray, Dictionary<String, Int32> textureIndices)
     {
@@ -62,7 +62,7 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
         if (loadingContext == null)
         {
             LogLoadingDisabled(logger);
-            
+
             return 0;
         }
 
@@ -94,7 +94,7 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
     /// <param name="maxTextures">The maximum number of textures to load.</param>
     /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
     public static TextureBundle Load(
-        Support.Core.Client client, LoadingContext loadingContext, DirectoryInfo textureDirectory,
+        Support.Core.Client client, ILoadingContext loadingContext, DirectoryInfo textureDirectory,
         Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
@@ -146,7 +146,7 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
     ///     Set the loading context. This will be used for reporting results.
     /// </summary>
     /// <param name="usedLoadingContext">The loading context to use.</param>
-    public void EnableLoading(LoadingContext usedLoadingContext)
+    public void EnableLoading(ILoadingContext usedLoadingContext)
     {
         loadingContext = usedLoadingContext;
     }

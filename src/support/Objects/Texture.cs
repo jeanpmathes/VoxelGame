@@ -46,7 +46,7 @@ public class Texture : NativeObject
     /// <param name="loadingContext">The loading context.</param>
     /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
     /// <returns></returns>
-    public static Texture Load(Client client, FileInfo path, LoadingContext? loadingContext, Int32 fallbackResolution = 16)
+    public static Texture Load(Client client, FileInfo path, ILoadingContext? loadingContext, Int32 fallbackResolution = 16)
     {
         Image image;
 

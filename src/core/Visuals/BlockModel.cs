@@ -385,13 +385,13 @@ public sealed partial class BlockModel
         return name + ".json";
     }
 
-    private static LoadingContext? loader;
+    private static ILoadingContext? loader;
 
     /// <summary>
     ///     Enable loading of models.
     /// </summary>
     /// <param name="context">The context to use for loading.</param>
-    public static void EnableLoading(LoadingContext context)
+    public static void EnableLoading(ILoadingContext context)
     {
         Debug.Assert(loader == null);
         loader = context;

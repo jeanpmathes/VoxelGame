@@ -10,8 +10,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
-using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Physics;
 

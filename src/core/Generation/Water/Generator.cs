@@ -8,12 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Sections;
-using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
-using Fluids = VoxelGame.Core.Logic.Elements.Fluids;
 
 namespace VoxelGame.Core.Generation.Water;
 
@@ -41,15 +38,15 @@ public class Generator : IWorldGenerator
     public IMap Map { get; } = new Map();
 
     /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
+    public IGenerationContext CreateGenerationContext(ChunkPosition hint)
     {
-        for (Int32 y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z));
+        return new GenerationContext(this);
     }
 
     /// <inheritdoc />
-    public void DecorateSection(SectionPosition position, Neighborhood<Section> sections)
+    public IDecorationContext CreateDecorationContext()
     {
-        // No decoration.
+        return new DecorationContext(this);
     }
 
     /// <inheritdoc />
@@ -59,17 +56,17 @@ public class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void GenerateStructures(Section section, SectionPosition position)
-    {
-        // No structures to generate.
-    }
-
-    /// <inheritdoc />
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
         #pragma warning disable S1168 // A null-return indicates that the name is not valid, which is different from not finding anything.
         return null;
         #pragma warning restore S1168
+    }
+
+    /// <inheritdoc cref="IGenerationContext.GenerateColumn" />
+    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
+    {
+        for (Int32 y = heightRange.start; y < heightRange.end; y++) yield return GenerateContent((x, y, z));
     }
 
     private Content GenerateContent(Vector3i position)
