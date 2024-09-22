@@ -11,10 +11,10 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Logging;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Input;
-using VoxelGame.Support.Input.Actions;
-using VoxelGame.Support.Input.Collections;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input;
+using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Graphics.Input.Collections;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 

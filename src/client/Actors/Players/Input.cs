@@ -8,9 +8,9 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Input.Actions;
-using VoxelGame.Support.Input.Composite;
+using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Graphics.Input.Composite;
+using VoxelGame.Toolkit;
 
 namespace VoxelGame.Client.Actors.Players;
 
@@ -20,7 +20,7 @@ namespace VoxelGame.Client.Actors.Players;
 internal sealed class Input
 {
     private const Single InteractionCooldown = 0.25f;
-    
+
     private readonly Button blockInteractButton;
     private readonly Button crouchButton;
     private readonly Button destroyButton;

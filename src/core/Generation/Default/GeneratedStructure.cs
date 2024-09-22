@@ -9,10 +9,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -44,7 +47,7 @@ public class GeneratedStructure
     private readonly Vector3i offset;
     private readonly Structure structure;
 
-    private FastNoiseLite noise = null!;
+    private NoiseGenerator noise = null!;
 
     /// <summary>
     ///     Creates a new generated structure.
@@ -85,9 +88,10 @@ public class GeneratedStructure
     /// <param name="factory">The noise factory to use.</param>
     public void Setup(NoiseFactory factory)
     {
-        noise = factory.GetNextNoise();
-        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        noise.SetFrequency(frequency);
+        noise = factory.CreateNext()
+            .WithType(NoiseType.OpenSimplex2)
+            .WithFrequency(frequency)
+            .Build();
     }
 
     /// <summary>
@@ -152,19 +156,20 @@ public class GeneratedStructure
     {
         // Check if there is a local maxima in the noise at the given position.
 
-        random = noise.GetNoise(position.X, position.Y, position.Z);
+        Vector3i anchor = (position.X, position.Y, position.Z) - Vector3i.One;
+        Array3D<Single> data = noise.GetNoiseGrid(anchor, size: 3);
+
+        random = data[Neighborhood.Center];
 
         var maxima = true;
 
-        for (Int32 dx = -1; dx <= 1; dx++)
-        for (Int32 dy = -1; dy <= 1; dy++)
-        for (Int32 dz = -1; dz <= 1; dz++)
+        for (var x = 0; x < 3; x++)
+        for (var y = 0; y < 3; y++)
+        for (var z = 0; z < 3; z++)
         {
-            if (dx == 0 && dy == 0 && dz == 0) continue;
+            if ((x, y, z) == Neighborhood.Center) continue;
 
-            Single value = noise.GetNoise(position.X + dx, position.Y + dy, position.Z + dz);
-
-            maxima &= random > value;
+            maxima &= random > data[x, y, z];
 
             if (!maxima) return false;
         }

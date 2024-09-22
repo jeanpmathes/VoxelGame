@@ -1,0 +1,3 @@
+[submodule "src/native_toolkit/FastNoise2"]
+	path = src/native_toolkit/FastNoise2
+	url = https://github.com/Auburn/FastNoise2

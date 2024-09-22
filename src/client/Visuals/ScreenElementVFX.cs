@@ -9,9 +9,9 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
@@ -23,7 +23,7 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class ScreenElementVFX : VFX
 {
-    private readonly Support.Core.Client client;
+    private readonly VoxelGame.Graphics.Core.Client client;
     private readonly Vector2d relativeScreenPosition;
     private readonly ShaderBuffer<Data> data;
 
@@ -41,7 +41,7 @@ public sealed class ScreenElementVFX : VFX
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
-    private ScreenElementVFX(Support.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
+    private ScreenElementVFX(VoxelGame.Graphics.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
         this.client = client;
         this.relativeScreenPosition = relativeScreenPosition;
@@ -59,7 +59,7 @@ public sealed class ScreenElementVFX : VFX
     /// <param name="client">The client instance.</param>
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
     /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
-    public static ScreenElementVFX? Create(Support.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
+    public static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));

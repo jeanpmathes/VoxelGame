@@ -17,9 +17,9 @@ using VoxelGame.Core;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics;
 using VoxelGame.Logging;
-using VoxelGame.Support;
-using VoxelGame.Support.Core;
+using VoxelGame.Graphics.Core;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
@@ -86,7 +86,7 @@ internal static partial class Program
                 System.Console.Title = Language.VoxelGame + @" " + Version;
 
                 LogStartingGame(logger, Version);
-                
+
                 return logger;
             },
             (args, logger) => Run(logger,
@@ -139,7 +139,7 @@ internal static partial class Program
         catch (Exception exception)
         {
             LogUnhandledException(logger, exception);
-            
+
             Dialog.ShowError($"Unhandled exception: {exception.Message}\n\n{exception.StackTrace}");
 
             return 1;

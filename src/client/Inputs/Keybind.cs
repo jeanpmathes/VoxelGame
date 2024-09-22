@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Inputs;
 

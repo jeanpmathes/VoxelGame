@@ -8,7 +8,6 @@ using System;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 
@@ -28,7 +27,7 @@ public partial class SceneManager
     public void Load(IScene? scene)
     {
         LogSwitchingScene(logger, current, scene);
-        
+
         Unload();
 
         current = scene;
@@ -39,7 +38,7 @@ public partial class SceneManager
     private void Load()
     {
         LogLoadingScene(logger, current);
-        
+
         current?.Load();
     }
 
@@ -55,7 +54,7 @@ public partial class SceneManager
         current.Unload();
         current.Dispose();
 
-        Graphics.Instance.Reset();
+        Visuals.Graphics.Instance.Reset();
 
         Cleanup();
     }

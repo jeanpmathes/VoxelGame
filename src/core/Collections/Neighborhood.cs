@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Collections;
 
@@ -59,8 +60,8 @@ public class Neighborhood<T> : Array3D<T>
     /// </summary>
     public T Center
     {
-        get => GetAt(Neighborhood.Center);
-        set => SetAt(Neighborhood.Center, value);
+        get => this[Neighborhood.Center];
+        set => this[Neighborhood.Center] = value;
     }
 
     /// <summary>
@@ -68,7 +69,7 @@ public class Neighborhood<T> : Array3D<T>
     /// </summary>
     public T First
     {
-        get => GetAt(Neighborhood.First);
-        set => SetAt(Neighborhood.First, value);
+        get => this[Neighborhood.First];
+        set => this[Neighborhood.First] = value;
     }
 }

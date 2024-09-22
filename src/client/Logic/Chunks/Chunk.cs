@@ -13,8 +13,8 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
-using VoxelGame.Support.Data;
 using Section = VoxelGame.Client.Logic.Sections.Section;
 
 namespace VoxelGame.Client.Logic.Chunks;

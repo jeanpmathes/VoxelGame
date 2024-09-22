@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Label="UserMacros">
+        <FastNoise2Dir>$(ProjectDir)FastNoise2</FastNoise2Dir>
+        <FastNoise2IncludeDir>$(FastNoise2Dir)\include</FastNoise2IncludeDir>
+        <FastNoise2LibDir>$(FastNoise2Dir)\build\src\Release</FastNoise2LibDir>
+    </PropertyGroup>
+    <Target Name="BuildFastNoise2" BeforeTargets="ClCompile">
+        <MakeDir Directories="$(FastNoise2Dir)\build"/>
+        <Exec StandardOutputImportance="low" StandardErrorImportance="low"
+              Command="cmake -S $(FastNoise2Dir) -B $(FastNoise2Dir)\build -D FASTNOISE2_NOISETOOL=OFF -D FASTNOISE2_TESTS=OFF"/>
+        <Exec StandardOutputImportance="low" StandardErrorImportance="low"
+              Command="cmake --build $(FastNoise2Dir)\build --config Release"/>
+        <Message Importance="high" Text="FastNoise2 build complete"/>
+    </Target>
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <AdditionalIncludeDirectories>$(FastNoise2IncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <PreprocessorDefinitions>FASTNOISE_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+        <Link>
+            <AdditionalLibraryDirectories>$(FastNoise2LibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalDependencies>FastNoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        </Link>
+    </ItemDefinitionGroup>
+</Project>

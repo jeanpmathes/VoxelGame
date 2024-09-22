@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using VoxelGame.Toolkit;
 
 namespace VoxelGame.Core.Utilities;
 

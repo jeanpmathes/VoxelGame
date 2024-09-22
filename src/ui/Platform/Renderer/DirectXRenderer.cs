@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
-using VoxelGame.Support.Core;
+using VoxelGame.Graphics.Core;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
 using Image = VoxelGame.Core.Visuals.Image;

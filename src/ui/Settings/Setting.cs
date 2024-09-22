@@ -10,7 +10,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Support.Definition;
+using VoxelGame.Graphics.Definition;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
@@ -26,7 +26,7 @@ public abstract class Setting
     ///     Get the name of the setting, in natural (localized) language.
     /// </summary>
     protected abstract String Name { get; }
-    
+
     /// <summary>
     /// Provides the untyped value of the setting.
     /// Use only for debugging purposes.

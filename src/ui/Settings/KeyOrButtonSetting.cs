@@ -10,7 +10,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Support.Definition;
+using VoxelGame.Graphics.Definition;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
 

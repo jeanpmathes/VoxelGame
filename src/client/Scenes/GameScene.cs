@@ -18,8 +18,8 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -277,7 +277,7 @@ public sealed partial class GameScene : IScene
 
     #endregion LOGGING
 
-    #region IDisposable Support.
+    #region IDisposable Graphics.
 
     private Boolean disposed;
 
@@ -307,5 +307,5 @@ public sealed partial class GameScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support.
+    #endregion IDisposable Graphics.
 }

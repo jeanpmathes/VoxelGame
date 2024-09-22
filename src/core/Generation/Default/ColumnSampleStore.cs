@@ -15,6 +15,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// </summary>
 /// <param name="chunkX">The x position in chunk coordinates.</param>
 /// <param name="chunkZ">The z position in chunk coordinates.</param>
+/// <param name="samples">The samples for the column.</param>
 internal class ColumnSampleStore(Int32 chunkX, Int32 chunkZ, Map.Sample[] samples)
 {
     private readonly Vector2i anchor = new ChunkPosition(chunkX, y: 0, chunkZ).FirstBlock.Xz;

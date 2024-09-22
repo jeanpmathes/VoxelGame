@@ -10,8 +10,8 @@ using OpenTK.Mathematics;
 using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
 
 [assembly: ComVisible(visibility: false)]

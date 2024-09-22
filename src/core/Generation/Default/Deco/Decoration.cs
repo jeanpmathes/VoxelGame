@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Default.Deco;
 

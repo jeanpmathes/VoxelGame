@@ -19,6 +19,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -180,8 +181,8 @@ public partial class Map : IMap
 
     private Data? data;
 
-    private (FastNoiseLite x, FastNoiseLite y) samplingNoise = (null!, null!);
-    private (FastNoiseLite x, FastNoiseLite y) stoneNoise = (null!, null!);
+    private (NoiseGenerator x, NoiseGenerator y) samplingNoise = (null!, null!);
+    private (NoiseGenerator x, NoiseGenerator y) stoneNoise = (null!, null!);
 
     /// <summary>
     ///     Create a new map.
@@ -255,24 +256,34 @@ public partial class Map : IMap
 
     private void SetupSamplingNoise(NoiseFactory factory)
     {
-        FastNoiseLite Create()
+        NoiseGenerator CreateSamplingNoise()
         {
-            FastNoiseLite noise = factory.GetNextNoise();
-
-            noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-            noise.SetFrequency(frequency: 0.01f);
-
-            noise.SetFractalType(FastNoiseLite.FractalType.FBm);
-            noise.SetFractalOctaves(octaves: 4);
-            noise.SetFractalLacunarity(lacunarity: 2.0f);
-            noise.SetFractalGain(gain: 0.5f);
-            noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
-
-            return noise;
+            return factory.CreateNext()
+                .WithType(NoiseType.OpenSimplex2)
+                .WithFrequency(frequency: 0.01f)
+                .WithFractals()
+                .WithOctaves(octaves: 5)
+                .WithLacunarity(lacunarity: 2.0f)
+                .WithGain(gain: 0.5f)
+                .WithWeightedStrength(weightedStrength: 0.0f)
+                .Build();
         }
 
-        samplingNoise = (Create(), Create());
-        stoneNoise = (Create(), Create());
+        NoiseGenerator CreateStoneNoise()
+        {
+            return factory.CreateNext()
+                .WithType(NoiseType.OpenSimplex2)
+                .WithFrequency(frequency: 0.05f)
+                .WithFractals()
+                .WithOctaves(octaves: 2)
+                .WithLacunarity(lacunarity: 2.0f)
+                .WithGain(gain: 0.5f)
+                .WithWeightedStrength(weightedStrength: 0.0f)
+                .Build();
+        }
+
+        samplingNoise = (CreateSamplingNoise(), CreateSamplingNoise());
+        stoneNoise = (CreateStoneNoise(), CreateStoneNoise());
     }
 
     /// <summary>
@@ -308,8 +319,15 @@ public partial class Map : IMap
 
     private void SetupGeneratingNoise(NoiseFactory factory)
     {
-        generatingNoise.Pieces = factory.GetNextNoise();
-        generatingNoise.Stone = factory.GetNextNoise();
+        generatingNoise.Pieces = factory.CreateNext()
+            .WithType(NoiseType.CellularValue)
+            .WithFrequency(frequency: 0.05f)
+            .Build();
+
+        generatingNoise.Stone = factory.CreateNext()
+            .WithType(NoiseType.OpenSimplex2)
+            .WithFrequency(frequency: 0.08f)
+            .Build();
     }
 
     private void Generate()
@@ -405,8 +423,8 @@ public partial class Map : IMap
 
         const Double transitionFactor = 0.015;
 
-        Double blendX = tX + samplingNoise.x.GetNoise(position.X, position.Y) * GetBorderStrength(tX) * transitionFactor;
-        Double blendY = tY + samplingNoise.y.GetNoise(position.X, position.Y) * GetBorderStrength(tY) * transitionFactor;
+        Double blendX = tX + samplingNoise.x.GetNoise(position) * GetBorderStrength(tX) * transitionFactor;
+        Double blendY = tY + samplingNoise.y.GetNoise(position) * GetBorderStrength(tY) * transitionFactor;
 
         const Int32 extents = Width / 2;
 
@@ -599,13 +617,14 @@ public partial class Map : IMap
     {
         Debug.Assert(data != null);
 
+        // todo: if all four stone types are equal (add VMath.AreEqual) then do not sample noise
+        // todo: also annotate the value ranges that are possible (also use debugger to check) and then maybe use that for more early out - stone transition only covers some hundred blocks and not the entire cell
+        // todo: check more usages of SelectByWeight for similar opportunities
+
         const Double transitionFactor = 0.05;
-        const Double scalingFactor = 5.0;
 
-        Vector3d scaledPosition = position.ToVector3d() * scalingFactor;
-
-        Double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        Double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(scaledPosition.X, scaledPosition.Y, scaledPosition.Z) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
+        Double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(position) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        Double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(position) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
         return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
@@ -620,8 +639,8 @@ public partial class Map : IMap
 
     private sealed class GeneratingNoise
     {
-        public FastNoiseLite Pieces { get; set; } = null!;
-        public FastNoiseLite Stone { get; set; } = null!;
+        public NoiseGenerator Pieces { get; set; } = null!;
+        public NoiseGenerator Stone { get; set; } = null!;
     }
 
     /// <summary>

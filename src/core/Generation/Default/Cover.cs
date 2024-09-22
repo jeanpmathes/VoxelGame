@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities.Units;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -19,7 +20,7 @@ public class Cover
     private const Double FlowerFactor = 0.05;
     private readonly Boolean hasPlants;
 
-    private FastNoiseLite noise = null!;
+    private NoiseGenerator noise = null!;
 
     /// <summary>
     ///     Create a new cover generator.
@@ -33,13 +34,12 @@ public class Cover
     /// <summary>
     ///     Setup used noise with the generation seed.
     /// </summary>
-    /// <param name="noiseGenerator">The noise generator to use.</param>
-    public void SetupNoise(FastNoiseLite noiseGenerator)
+    public void SetupNoise(NoiseBuilder builder)
     {
-        noise = noiseGenerator;
-
-        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        noise.SetFrequency(frequency: 0.5f);
+        noise = builder
+            .WithType(NoiseType.OpenSimplex2)
+            .WithFrequency(frequency: 0.5f)
+            .Build();
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class Cover
 
         if (!hasPlants) return Content.Default;
 
-        Single value = noise.GetNoise(position.X, position.Y, position.Z);
+        Single value = noise.GetNoise(position);
         value = value > 0 ? value : value + 1;
 
         if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);

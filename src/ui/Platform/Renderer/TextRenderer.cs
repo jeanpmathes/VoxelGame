@@ -62,7 +62,7 @@ public sealed class TextRenderer : IDisposable
 
         using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
 
-        using Graphics graphics = Graphics.FromImage(bitmap);
+        using System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(bitmap);
         graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
         graphics.Clear(Color.Transparent);
 

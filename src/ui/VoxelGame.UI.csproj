@@ -42,7 +42,7 @@
         <None Update="Resources\Attribution\material-icons.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Attribution\noise-generation.txt">
+        <None Update="Resources\Attribution\fast-noise-2.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Attribution\opentk-tutorials.txt">
@@ -111,6 +111,9 @@
         <None Update="Resources\GUI\Icons\star_empty.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Attribution\fast-noise-lite.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -130,6 +133,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
-        <ProjectReference Include="..\support\VoxelGame.Support.csproj"/>
+        <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj"/>
     </ItemGroup>
 </Project>

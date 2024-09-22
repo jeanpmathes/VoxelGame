@@ -15,9 +15,9 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Actors;

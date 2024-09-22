@@ -11,6 +11,7 @@ using System.Drawing;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -32,7 +33,7 @@ public class Biome
     /// </summary>
     private Int32 minWidth;
 
-    private FastNoiseLite noise = null!;
+    private NoiseGenerator noise = null!;
 
     private (Layer layer, Int32 depth)[] upperHorizon = null!;
 
@@ -108,29 +109,24 @@ public class Biome
     /// <param name="palette">The palette to use for the biome.</param>
     public void SetupBiome(NoiseFactory factory, Palette palette)
     {
-        SetupNoise(factory.GetNextNoise());
+        SetupNoise(factory.CreateNext());
         SetupLayers(palette);
 
-        Cover.SetupNoise(factory.GetNextNoise());
+        Cover.SetupNoise(factory.CreateNext());
     }
 
-    private void SetupNoise(FastNoiseLite noiseGenerator)
+    private void SetupNoise(NoiseBuilder builder)
     {
-        noise = noiseGenerator;
-
-        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        noise.SetFrequency(Frequency);
-
-        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
-        noise.SetFractalOctaves(octaves: 3);
-        noise.SetFractalLacunarity(lacunarity: 2.0f);
-        noise.SetFractalGain(gain: 0.5f);
-        noise.SetFractalWeightedStrength(weightedStrength: 0.0f);
-
-        noise.SetDomainWarpType(FastNoiseLite.DomainWarpType.OpenSimplex2);
-        noise.SetDomainWarpAmp(domainWarpAmp: 30.0f);
+        noise = builder
+            .WithType(NoiseType.OpenSimplex2)
+            .WithFrequency(Frequency)
+            .WithFractals()
+            .WithOctaves(octaves: 3)
+            .WithLacunarity(lacunarity: 2.0f)
+            .WithGain(gain: 0.5f)
+            .WithWeightedStrength(weightedStrength: 0.0f)
+            .Build();
     }
-
 
     private void SetupLayers(Palette palette)
     {
@@ -184,7 +180,7 @@ public class Biome
     /// <returns>The offset value.</returns>
     public Single GetOffset(Vector2i position)
     {
-        return noise.GetNoise(position.X, position.Y) * Amplitude;
+        return noise.GetNoise(position) * Amplitude;
     }
 
     /// <summary>

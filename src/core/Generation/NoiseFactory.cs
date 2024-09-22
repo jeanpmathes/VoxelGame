@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation;
 
@@ -26,10 +27,8 @@ public class NoiseFactory
 
 
     /// <summary>
-    ///     Get the next noise generator.
+    /// Get the next noise builder.
     /// </summary>
-    /// <returns>A new noise generator, using a different seed.</returns>
-    #pragma warning disable S4049 // Changes state, should be a method
-    public FastNoiseLite GetNextNoise() => new(random.Next(Int32.MinValue, Int32.MaxValue));
-    #pragma warning restore S4049 // Changes state, should be a method
+    /// <returns>A new noise builder, using a different seed.</returns>
+    public NoiseBuilder CreateNext() => NoiseBuilder.Create(random.Next(Int32.MinValue, Int32.MaxValue));
 }

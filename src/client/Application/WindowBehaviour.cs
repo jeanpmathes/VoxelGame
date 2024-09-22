@@ -6,7 +6,7 @@
 
 using System;
 using VoxelGame.Core.Collections;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Application;
 

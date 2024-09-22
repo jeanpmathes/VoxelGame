@@ -12,9 +12,9 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Data;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Data;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -26,7 +26,7 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class SelectionBoxVFX : VFX
 {
-    private readonly Support.Core.Client client;
+    private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
     private readonly ShaderBuffer<Data> buffer;
 
@@ -37,7 +37,7 @@ public sealed class SelectionBoxVFX : VFX
     private Color darkColor = Color.Black;
     private Color brightColor = Color.White;
 
-    private SelectionBoxVFX(Support.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
+    private SelectionBoxVFX(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
         this.client = client;
         this.pipeline = pipeline;
@@ -60,7 +60,7 @@ public sealed class SelectionBoxVFX : VFX
     /// <summary>
     ///     Create a new <see cref="SelectionBoxVFX" />.
     /// </summary>
-    public static SelectionBoxVFX? Create(Support.Core.Client client, Pipelines pipelines)
+    public static SelectionBoxVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));

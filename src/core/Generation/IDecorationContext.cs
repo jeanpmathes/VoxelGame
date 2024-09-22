@@ -12,6 +12,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation;
 

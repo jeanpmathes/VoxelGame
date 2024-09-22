@@ -15,10 +15,10 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Platform.Renderer;

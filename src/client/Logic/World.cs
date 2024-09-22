@@ -23,8 +23,8 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Data;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Data;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;

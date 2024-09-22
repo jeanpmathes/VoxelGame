@@ -14,7 +14,7 @@ using System.Threading;
 using Gwen.Net;
 using Gwen.Net.Platform;
 using TextCopy;
-using VoxelGame.Support.Definition;
+using VoxelGame.Graphics.Definition;
 
 namespace VoxelGame.UI.Platform
 {

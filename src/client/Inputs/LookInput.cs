@@ -6,7 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Support.Input.Devices;
+using VoxelGame.Graphics.Input.Devices;
 
 namespace VoxelGame.Client.Inputs;
 

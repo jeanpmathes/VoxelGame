@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
-using VoxelGame.Support.Graphics;
+using VoxelGame.Graphics.Graphics;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
@@ -94,7 +94,7 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
     /// <param name="maxTextures">The maximum number of textures to load.</param>
     /// <param name="mipmap">The algorithm to use for generating mipmaps.</param>
     public static TextureBundle Load(
-        Support.Core.Client client, ILoadingContext loadingContext, DirectoryInfo textureDirectory,
+        VoxelGame.Graphics.Core.Client client, ILoadingContext loadingContext, DirectoryInfo textureDirectory,
         Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);

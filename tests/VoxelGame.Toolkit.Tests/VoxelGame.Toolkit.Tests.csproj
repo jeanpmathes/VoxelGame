@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>12</LangVersion>
+
+        <IsPackable>false</IsPackable>
+
+        <Version>1.3.0</Version>
+        <Authors>jeanpmathes</Authors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <WarningsAsErrors>nullable;NU1605</WarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <WarningsAsErrors>nullable;NU1605</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
+        <PackageReference Include="JetBrains.Profiler.Api" Version="1.4.6"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
+        <PackageReference Include="xunit" Version="2.7.0"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.1">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\core\VoxelGame.Core.csproj"/>
+    </ItemGroup>
+
+</Project>

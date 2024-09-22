@@ -106,6 +106,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
+        <ProjectReference Include="..\toolkit\VoxelGame.Toolkit.csproj"/>
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Update="Resources\Language\Language.resx">

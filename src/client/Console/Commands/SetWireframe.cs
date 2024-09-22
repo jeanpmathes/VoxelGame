@@ -6,10 +6,10 @@
 
 using System;
 using JetBrains.Annotations;
-using VoxelGame.Client.Visuals;
 
 namespace VoxelGame.Client.Console.Commands;
-     #pragma warning disable CA1822
+
+#pragma warning disable CA1822
 
 /// <summary>
 ///     Allows to enable or disable wireframe rendering.
@@ -26,6 +26,6 @@ public class SetWireframe : Command
     /// <exclude />
     public void Invoke(Boolean enable)
     {
-        Graphics.Instance.SetWireframe(enable);
+        Visuals.Graphics.Instance.SetWireframe(enable);
     }
 }

@@ -16,7 +16,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
+using VoxelGame.Graphics.Core;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -24,7 +24,7 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal partial class Client : Support.Core.Client, IPerformanceProvider
+internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 {
     private readonly GameParameters parameters;
 
@@ -185,7 +185,7 @@ internal partial class Client : Support.Core.Client, IPerformanceProvider
     private static partial void LogWindowResized(ILogger logger, Vector2i size);
 
     #endregion
-    
+
     #region IDisposable Support
 
     private Boolean disposed;

@@ -22,6 +22,8 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
 
@@ -37,7 +39,7 @@ public partial class Generator : IWorldGenerator
 
     private readonly Palette palette = new();
 
-    private readonly FastNoiseLite decorationNoise;
+    private readonly NoiseGenerator decorationNoise;
 
     /// <summary>
     ///     Creates a new default world generator.
@@ -74,9 +76,10 @@ public partial class Generator : IWorldGenerator
                 Map.Store(context, MapBlobName);
         }
 
-        decorationNoise = worldNoiseFactory.GetNextNoise();
-        decorationNoise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        decorationNoise.SetFrequency(frequency: 0.5f);
+        decorationNoise = worldNoiseFactory.CreateNext()
+            .WithType(NoiseType.OpenSimplex2)
+            .WithFrequency(frequency: 0.5f)
+            .Build();
 
         LogCreatedWorldGenerator(logger, nameof(Default));
     }
@@ -169,7 +172,7 @@ public partial class Generator : IWorldGenerator
 
         Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
 
-        Array3D<Single> noise = GenerateDecorationNoise(sections.Center.Position);
+        Array3D<Single> noise = decorationNoise.GetNoiseGrid(sections.Center.Position.FirstBlock, Section.Size);
 
         var index = 0;
 
@@ -230,22 +233,6 @@ public partial class Generator : IWorldGenerator
     public Int32 GetWorldHeight(Vector2i column)
     {
         return GetWorldHeight(column, Map.GetSample(column), out _);
-    }
-
-    private Array3D<Single> GenerateDecorationNoise(SectionPosition position)
-    {
-        var noise = new Array3D<Single>(Section.Size);
-
-        for (var x = 0; x < Section.Size; x++)
-        for (var y = 0; y < Section.Size; y++)
-        for (var z = 0; z < Section.Size; z++)
-        {
-            Vector3i blockPosition = position.FirstBlock + (x, y, z);
-
-            noise[x, y, z] = decorationNoise.GetNoise(blockPosition.X, blockPosition.Y, blockPosition.Z);
-        }
-
-        return noise;
     }
 
     /// <summary>

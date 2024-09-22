@@ -16,7 +16,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Actors.Players;
@@ -168,7 +168,7 @@ public sealed class VisualInterface : IDisposable
                 size *= -1.0;
         }
 
-        Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
+        Client.Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
     }
 
     /// <summary>

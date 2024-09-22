@@ -1,4 +1,4 @@
-﻿// <copyright file="TextureSupport.cs" company="VoxelGame">
+﻿// <copyright file="TextureGraphics.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -142,7 +142,7 @@ public sealed class TextureSupport
     {
         textures.DiscardTexture(GetRenderData(texture));
 
-        Support.Objects.Texture? entry = textures.GetEntry(loadedTexture);
+        Graphics.Objects.Texture? entry = textures.GetEntry(loadedTexture);
 
         Debug.Assert(loadedTexture.IsValid);
         Debug.Assert(entry != null);

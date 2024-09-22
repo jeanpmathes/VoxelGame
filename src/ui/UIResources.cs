@@ -12,7 +12,7 @@ using System.Linq;
 using Gwen.Net.RichText;
 using Gwen.Net.Skin;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Core;
+using VoxelGame.Graphics.Core;
 using VoxelGame.UI.Platform;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;

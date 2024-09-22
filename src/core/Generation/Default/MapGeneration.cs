@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Collections;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -35,19 +36,17 @@ public partial class Map
 
     private static (List<List<Int16>>, Dictionary<Int16, Double>) FillWithPieces(Data data, GeneratingNoise noise)
     {
-        noise.Pieces.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-        noise.Pieces.SetCellularReturnType(FastNoiseLite.CellularReturnType.CellValue);
-        noise.Pieces.SetFrequency(frequency: 0.05f);
-
         Int16 currentPiece = 0;
         Dictionary<Double, Int16> valueToPiece = new();
 
         Dictionary<Int16, HashSet<Int16>> adjacencyHashed = new();
 
+        Array2D<Single> noiseGrid = noise.Pieces.GetNoiseGrid((0, 0), Width);
+
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            Double value = noise.Pieces.GetNoise(x, y);
+            Double value = noiseGrid[x, y];
             ref Cell current = ref data.GetCell(x, y);
 
             if (!valueToPiece.ContainsKey(value)) valueToPiece[value] = currentPiece++;
@@ -313,19 +312,18 @@ public partial class Map
 
     private static void GenerateStoneTypes(Data data, GeneratingNoise noise)
     {
-        noise.Stone.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        noise.Stone.SetFrequency(frequency: 0.08f);
+        Array2D<Single> noiseGrid = noise.Stone.GetNoiseGrid((0, 0), Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
-            Single value = noise.Stone.GetNoise(x, y);
+            Single value = noiseGrid[x, y];
             value = Math.Abs(value);
 
             StoneType stoneType = value switch
             {
-                < 0.05f => StoneType.Marble,
-                < 0.45f => StoneType.Limestone,
+                < 0.15f => StoneType.Marble,
+                < 0.75f => StoneType.Limestone,
                 _ => StoneType.Sandstone
             };
 

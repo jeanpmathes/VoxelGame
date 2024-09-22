@@ -10,10 +10,10 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Data;
-using VoxelGame.Support.Graphics.Raytracing;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Data;
+using VoxelGame.Graphics.Graphics.Raytracing;
+using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Client.Visuals;
 
