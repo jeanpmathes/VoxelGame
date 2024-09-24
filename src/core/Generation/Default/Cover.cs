@@ -56,6 +56,8 @@ public class Cover
 
         if (!hasPlants) return Content.Default;
 
+        // No grid noise is used here because this method is only called for a single block per column.
+
         Single value = noise.GetNoise(position);
         value = value > 0 ? value : value + 1;
 

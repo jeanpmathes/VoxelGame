@@ -19,6 +19,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -181,8 +182,8 @@ public partial class Map : IMap
 
     private Data? data;
 
-    private (NoiseGenerator x, NoiseGenerator y) samplingNoise = (null!, null!);
-    private (NoiseGenerator x, NoiseGenerator y) stoneNoise = (null!, null!);
+    private NoiseGenerator2D samplingNoise = null!;
+    private NoiseGenerator2D stoneNoise = null!;
 
     /// <summary>
     ///     Create a new map.
@@ -256,6 +257,9 @@ public partial class Map : IMap
 
     private void SetupSamplingNoise(NoiseFactory factory)
     {
+        samplingNoise = new NoiseGenerator2D(CreateSamplingNoise);
+        stoneNoise = new NoiseGenerator2D(CreateStoneNoise);
+
         NoiseGenerator CreateSamplingNoise()
         {
             return factory.CreateNext()
@@ -281,9 +285,6 @@ public partial class Map : IMap
                 .WithWeightedStrength(weightedStrength: 0.0f)
                 .Build();
         }
-
-        samplingNoise = (CreateSamplingNoise(), CreateSamplingNoise());
-        stoneNoise = (CreateStoneNoise(), CreateStoneNoise());
     }
 
     /// <summary>
@@ -399,6 +400,31 @@ public partial class Map : IMap
     /// <returns>The sample.</returns>
     public Sample GetSample(Vector2i position)
     {
+        return GetSample(position, grid2D: null);
+    }
+
+    /// <summary>
+    ///     Get a noise grid for the given position and size.
+    /// </summary>
+    /// <param name="position">The position of the grid.</param>
+    /// <param name="size">The size of the grid.</param>
+    /// <returns>The noise grid.</returns>
+    internal NoiseGrid2D GetNoiseGrid(Vector2i position, Int32 size)
+    {
+        return samplingNoise.GetNoiseGrid(position, size);
+    }
+
+    /// <summary>
+    ///     Get a sample of the map at the given coordinates.
+    /// </summary>
+    /// <param name="position">The world position (just XZ) of the sample.</param>
+    /// <param name="grid2D">
+    ///     An optional noise grid.
+    ///     Serves to optimize sampling by allowing to batch noise generation.
+    /// </param>
+    /// <returns>The sample.</returns>
+    internal Sample GetSample(Vector2i position, NoiseGrid2D? grid2D)
+    {
         Debug.Assert(data != null);
 
         Int32 xP = DivideByCellSize(position.X);
@@ -423,8 +449,10 @@ public partial class Map : IMap
 
         const Double transitionFactor = 0.015;
 
-        Double blendX = tX + samplingNoise.x.GetNoise(position) * GetBorderStrength(tX) * transitionFactor;
-        Double blendY = tY + samplingNoise.y.GetNoise(position) * GetBorderStrength(tY) * transitionFactor;
+        Vector2 noise = samplingNoise.GetNoise(position, grid2D);
+
+        Double blendX = tX + noise.X * GetBorderStrength(tX) * transitionFactor;
+        Double blendY = tY + noise.Y * GetBorderStrength(tY) * transitionFactor;
 
         const Int32 extents = Width / 2;
 
@@ -618,13 +646,14 @@ public partial class Map : IMap
         Debug.Assert(data != null);
 
         // todo: if all four stone types are equal (add VMath.AreEqual) then do not sample noise
-        // todo: also annotate the value ranges that are possible (also use debugger to check) and then maybe use that for more early out - stone transition only covers some hundred blocks and not the entire cell
+        // todo: also think about the fact that the transition region is quite small
         // todo: check more usages of SelectByWeight for similar opportunities
+        // todo: or maybe don't do that, because it reduces code readability
 
         const Double transitionFactor = 0.05;
 
-        Double stoneX = sample.StoneData.tX + stoneNoise.x.GetNoise(position) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        Double stoneY = sample.StoneData.tY + stoneNoise.y.GetNoise(position) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
+        Double stoneX = sample.StoneData.tX + stoneNoise.X.GetNoise(position) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
+        Double stoneY = sample.StoneData.tY + stoneNoise.Y.GetNoise(position) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
         return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
@@ -635,6 +664,46 @@ public partial class Map : IMap
     private static Double GetBorderStrength(Double t)
     {
         return (t > 0.5 ? 1 - t : t) * 2;
+    }
+
+    private sealed class NoiseGenerator2D(Func<NoiseGenerator> factory)
+    {
+        public NoiseGenerator X { get; } = factory();
+        public NoiseGenerator Y { get; } = factory();
+
+        public Vector2 GetNoise(Vector2i position, NoiseGrid2D? grid2D)
+        {
+            return grid2D?.GetNoise(position) ?? (X.GetNoise(position), Y.GetNoise(position));
+        }
+
+        public NoiseGrid2D GetNoiseGrid(Vector2i position, Int32 size)
+        {
+            Array2D<Single> x = X.GetNoiseGrid(position, size);
+            Array2D<Single> y = Y.GetNoiseGrid(position, size);
+
+            return new NoiseGrid2D(position, x, y);
+        }
+    }
+
+    /// <summary>
+    ///     Contains two 2D noise grids, used during sampling.
+    /// </summary>
+    /// <param name="Base">The base position of the noise grids.</param>
+    /// <param name="X">The first noise grid.</param>
+    /// <param name="Y">The second noise grid.</param>
+    internal sealed record NoiseGrid2D(Vector2i Base, Array2D<Single> X, Array2D<Single> Y)
+    {
+        /// <summary>
+        ///     Get the noise at the given position.
+        /// </summary>
+        /// <param name="position">The position to get the noise at.</param>
+        /// <returns>The noise at the given position.</returns>
+        public Vector2 GetNoise(Vector2i position)
+        {
+            Vector2i relative = position - Base;
+
+            return (X[relative], Y[relative]);
+        }
     }
 
     private sealed class GeneratingNoise
