@@ -194,8 +194,7 @@ public abstract partial class ChunkState
     ///     Set the next state.
     /// </summary>
     /// <param name="state">The next state.</param>
-    /// <param name="isRequired">Whether the transition is required.</param>
-    protected void SetNextState(ChunkState state, Boolean isRequired = true)
+    protected void SetNextState(ChunkState state)
     {
         state.Chunk = Chunk;
         state.Context = Context;
@@ -274,7 +273,7 @@ public abstract partial class ChunkState
         }
 
         ReleaseResources();
-        SetNextState(state, !state.IsActive);
+        SetNextState(state);
 
         return true;
     }

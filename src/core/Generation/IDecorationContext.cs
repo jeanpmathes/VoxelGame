@@ -104,7 +104,7 @@ public interface IDecorationContext : IDisposable
     public void Decorate(Neighborhood<Chunk?> neighbors)
     {
         Debug.Assert(neighbors.Center != null);
-        Debug.Assert(neighbors.Center.Decoration.HasFlag(DecorationLevels.Center));
+        Debug.Assert(neighbors.Center.IsGenerated);
 
         foreach (Vector3i corner in corners)
         {
@@ -182,7 +182,7 @@ public interface IDecorationContext : IDisposable
             {
                 ChunkPosition position = chunk.Position.Offset((x, y, z) - Neighborhood.Center);
 
-                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.CanAcquireCore(Access.Write))
+                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquireCore(Access.Write))
                 {
                     available[x, y, z] = neighbor;
 
@@ -218,7 +218,7 @@ public interface IDecorationContext : IDisposable
             Chunk? chunk = chunks[position];
             Debug.Assert(chunk != null);
 
-            Debug.Assert(chunk.Decoration.HasFlag(DecorationLevels.Center));
+            Debug.Assert(chunk.IsGenerated);
 
             decorated[position] = chunk.Decoration.HasFlag(flag);
             chunk.AddDecorationLevel(flag);

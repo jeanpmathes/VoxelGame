@@ -182,6 +182,11 @@ public partial class Chunk : IDisposable, IEntity
     internal DecorationLevels Decoration => decoration;
 
     /// <summary>
+    ///     Whether this chunk is generated.
+    /// </summary>
+    internal Boolean IsGenerated => decoration.HasFlag(DecorationLevels.Center);
+
+    /// <summary>
     ///     Whether this chunk has activated at least once since creation.
     /// </summary>
     internal Boolean HasBeenActive { get; private set; }
@@ -288,7 +293,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <param name="level">The level to add.</param>
     internal void AddDecorationLevel(DecorationLevels level)
     {
-        Debug.Assert((level != DecorationLevels.Center).Implies(decoration.HasFlag(DecorationLevels.Center)));
+        Debug.Assert((level != DecorationLevels.Center).Implies(IsGenerated));
 
         decoration |= level;
     }
@@ -571,7 +576,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
     private void Save(DirectoryInfo path)
     {
-        Debug.Assert(decoration.HasFlag(DecorationLevels.Center));
+        Debug.Assert(IsGenerated);
 
         Throw.IfDisposed(disposed);
 
@@ -749,6 +754,8 @@ public partial class Chunk : IDisposable, IEntity
     public ChunkState? ProcessDecorationOption()
     {
         Throw.IfDisposed(disposed);
+
+        Debug.Assert(IsGenerated);
 
         if (IsFullyDecorated) return null;
         if (!CanAcquireCore(Access.Write)) return null;
