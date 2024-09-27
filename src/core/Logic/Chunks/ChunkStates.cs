@@ -372,7 +372,8 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnEnter()
         {
-            if (Chunk.IsRequestedToLoad) return;
+            if (Chunk.IsRequestedToLoad)
+                return;
 
             Deactivate();
         }
@@ -380,7 +381,8 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            TryActivation();
+            if (Chunk.IsRequestedToLoad) TryActivation();
+            else Deactivate();
         }
     }
 
