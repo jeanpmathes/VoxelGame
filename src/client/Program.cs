@@ -18,8 +18,8 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Logging;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
@@ -76,7 +76,7 @@ internal static partial class Program
         return Arguments.Handle(commandLineArguments,
             logging =>
             {
-                ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
+                ILogger logger = LoggingHelper.SetUpLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
 
                 if (logging.LogDebug) LogDebugMessages(logger);
                 else LogDebugMessagesNotLogged(logger);

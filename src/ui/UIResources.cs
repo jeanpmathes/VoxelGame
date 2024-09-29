@@ -157,7 +157,7 @@ public sealed class UIResources : IDisposable
         ReportTextureLoading(textures, textureLoadingErrors, loadingContext);
         ReportShaderLoading(shaderLoadingError, shader, loadingContext);
 
-        Modals.SetupLanguage();
+        Modals.SetUpLanguage();
 
         Fonts = new FontHolder(GUI.Root.Skin);
     }

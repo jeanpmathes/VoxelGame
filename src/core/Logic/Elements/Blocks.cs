@@ -1090,7 +1090,7 @@ public partial class Blocks
 
                 var id = (UInt32) (blockList.Count - 1);
 
-                block.Setup(id, indexProvider, visuals);
+                block.SetUp(id, indexProvider, visuals);
 
                 loadingContext.ReportSuccess(nameof(Block), block.NamedID);
             }

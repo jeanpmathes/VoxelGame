@@ -8,7 +8,7 @@ AnimationController::AnimationController(ComPtr<IDxcBlob> const& shader, UINT co
     TryDo(shader->QueryInterface<ID3DBlob>(&m_shader));
 }
 
-void AnimationController::SetupResourceLayout(ShaderResources::Description* description)
+void AnimationController::SetUpResourceLayout(ShaderResources::Description* description)
 {
     std::function<UINT(Mesh* const&)> const getIndexOfMesh = [this](auto* mesh)
     {

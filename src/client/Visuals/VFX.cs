@@ -25,7 +25,7 @@ public abstract class VFX : IDisposable
     private Boolean IsSetUp { get; set; }
 
     /// <summary>
-    ///     Setup the VFX for active use.
+    ///     Set up the VFX for active use.
     ///     Can only be enabled after the VFX has been setup.
     /// </summary>
     public void SetUp()

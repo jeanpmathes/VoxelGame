@@ -17,9 +17,9 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -55,7 +55,7 @@ public sealed partial class GameScene : IScene
                 console.OnWorldReady();
         };
 
-        SetupUI(world, console);
+        SetUpUI(world, console);
 
         uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
@@ -217,7 +217,7 @@ public sealed partial class GameScene : IScene
         return new Game(world, player);
     }
 
-    private void SetupUI(Core.Logic.World world, IConsoleProvider console)
+    private void SetUpUI(Core.Logic.World world, IConsoleProvider console)
     {
         OnOverlayClose();
 

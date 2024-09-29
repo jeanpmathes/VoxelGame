@@ -40,13 +40,13 @@ public static class LoggingHelper
     }
 
     /// <summary>
-    ///     Setup to the logging system.
+    ///     Set up to the logging system.
     /// </summary>
     /// <param name="category">The category of the logging.</param>
     /// <param name="logDebug">Whether to log debug messages.</param>
     /// <param name="appDataDirectory">The application directory, in which a log folder is created.</param>
     /// <returns></returns>
-    public static ILogger SetupLogging(String category, Boolean logDebug, FileSystemInfo appDataDirectory)
+    public static ILogger SetUpLogging(String category, Boolean logDebug, FileSystemInfo appDataDirectory)
     {
         Debug.Assert(LoggerFactory == null);
 
@@ -72,7 +72,7 @@ public static class LoggingHelper
     ///     Set up a mock logger. All loggers creating with this helper will be null loggers.
     /// </summary>
     /// <returns>A mock logger.</returns>
-    public static ILogger SetupMockLogging()
+    public static ILogger SetUpMockLogging()
     {
         Debug.Assert(LoggerFactory == null);
 

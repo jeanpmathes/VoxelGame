@@ -124,7 +124,7 @@ public:
      * \param description The description (builder) of the shader resources.
      * \return The bindings to use for spatial effects.
      */
-    static std::shared_ptr<Bindings> SetupEffectBindings(
+    static std::shared_ptr<Bindings> SetUpEffectBindings(
         NativeClient const&           client,
         ShaderResources::Description& description);
 

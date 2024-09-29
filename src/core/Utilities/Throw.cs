@@ -66,16 +66,16 @@ public partial class Throw
 
 
     /// <summary>
-    ///     Handle a incorrectly disposed object, meaning an object that was disposed by the GC.
+    ///     Handle an incorrectly disposed object, meaning an object that was disposed by the GC.
     /// </summary>
-    /// <param name="type">The type of the object that was not disposed.</param>
+    /// <typeparam name="T">The type of the object that was incorrectly disposed.</typeparam>
     /// <param name="object">The object that was not disposed.</param>
     /// <param name="trace">The stack trace of object creation.</param>
     // Intentionally not conditional.
-    public static void ForMissedDispose(String type, Object? @object = null, StackTrace? trace = null)
+    public static void ForMissedDispose<T>(T? @object = default, StackTrace? trace = null)
     {
-        LogMissedDispose(logger, type, @object, trace);
-        
+        LogMissedDispose(logger, typeof(T).Name, @object, trace);
+
         Debugger.Break();
     }
 

@@ -91,7 +91,7 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Setup of readonly fields and non-optional steps.
+    ///     Set up of readonly fields and non-optional steps.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
@@ -748,6 +748,7 @@ public abstract partial class World : IDisposable, IGrid
         if (disposing)
         {
             chunks.Dispose();
+            generator.Dispose();
             timer?.Dispose();
         }
 

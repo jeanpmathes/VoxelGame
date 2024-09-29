@@ -221,14 +221,14 @@ private:
         NativeClient&                                 nativeClient,
         SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
-    std::unique_ptr<Material> SetupMaterial(
+    std::unique_ptr<Material> SetUpMaterial(
         MaterialDescription const&                    description,
         UINT                                          index,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
     void CreateAnimations(SpacePipelineDescription const& pipeline);
-    void SetupStaticResourceLayout(ShaderResources::Description* description);
-    void SetupDynamicResourceLayout(ShaderResources::Description* description);
-    void SetupAnimationResourceLayout(ShaderResources::Description* description);
+    void SetUpStaticResourceLayout(ShaderResources::Description* description);
+    void SetUpDynamicResourceLayout(ShaderResources::Description* description);
+    void SetUpAnimationResourceLayout(ShaderResources::Description* description);
     void InitializeAnimations();
     void CreateRaytracingOutputBuffer();
 

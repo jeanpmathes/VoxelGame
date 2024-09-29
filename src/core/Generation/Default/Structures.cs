@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Generation.Default;
 ///     Structure placement is used for large per-section structures.
 ///     For smaller structures, the decoration system is used.
 /// </summary>
-public class Structures
+public sealed class Structures
 {
     private readonly Dictionary<String, GeneratedStructure> structuresByName = new();
 
@@ -85,12 +85,22 @@ public class Structures
     }
 
     /// <summary>
-    ///     Setup the structures.
+    ///     Set up the structures.
+    ///     Do not forget to call tear down when done.
     /// </summary>
     /// <param name="factory">The factory to use for noise generation.</param>
-    public void Setup(NoiseFactory factory)
+    public void SetUpNoise(NoiseFactory factory)
     {
-        foreach (GeneratedStructure structure in All) structure.Setup(factory);
+        foreach (GeneratedStructure structure in All) structure.SetUpNoise(factory);
+    }
+
+    /// <summary>
+    ///     Tear down the structures.
+    ///     Requires that set up has been called before.
+    /// </summary>
+    public void TearDownNoise()
+    {
+        foreach (GeneratedStructure structure in All) structure.TearDownNoise();
     }
 
     /// <summary>

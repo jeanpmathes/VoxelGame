@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Generation;
 /// <summary>
 ///     Generates a world.
 /// </summary>
-public interface IWorldGenerator
+public interface IWorldGenerator : IDisposable
 {
     /// <summary>
     ///     Get the map of the world.

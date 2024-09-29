@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Generation.Default;
 ///     Represents a rough overview over the entire world, as a 2D map.
 ///     This class can load, store and generate these maps.
 /// </summary>
-public partial class Map : IMap
+public sealed partial class Map : IMap, IDisposable
 {
     /// <summary>
     ///     Additional cell data that is stored as flags.
@@ -255,7 +255,7 @@ public partial class Map : IMap
         };
     }
 
-    private void SetupSamplingNoise(NoiseFactory factory)
+    private void SetUpSamplingNoise(NoiseFactory factory)
     {
         samplingNoise = new NoiseGenerator2D(CreateSamplingNoise);
         stoneNoise = new NoiseGenerator2D(CreateStoneNoise);
@@ -307,7 +307,7 @@ public partial class Map : IMap
         if (blob != null)
             Load(context, blob);
 
-        SetupGeneratingNoise(factory);
+        SetUpGeneratingNoise(factory);
 
         if (data == null)
         {
@@ -315,10 +315,10 @@ public partial class Map : IMap
             dirty = true;
         }
 
-        SetupSamplingNoise(factory);
+        SetUpSamplingNoise(factory);
     }
 
-    private void SetupGeneratingNoise(NoiseFactory factory)
+    private void SetUpGeneratingNoise(NoiseFactory factory)
     {
         generatingNoise.Pieces = factory.CreateNext()
             .WithType(NoiseType.CellularValue)
@@ -666,10 +666,16 @@ public partial class Map : IMap
         return (t > 0.5 ? 1 - t : t) * 2;
     }
 
-    private sealed class NoiseGenerator2D(Func<NoiseGenerator> factory)
+    private sealed class NoiseGenerator2D(Func<NoiseGenerator> factory) : IDisposable
     {
         public NoiseGenerator X { get; } = factory();
         public NoiseGenerator Y { get; } = factory();
+
+        public void Dispose()
+        {
+            X.Dispose();
+            Y.Dispose();
+        }
 
         public Vector2 GetNoise(Vector2i position, NoiseGrid2D? grid2D)
         {
@@ -938,4 +944,42 @@ public partial class Map : IMap
     private static partial void LogCouldNotLoadMap(ILogger logger);
 
     #endregion LOGGING
+
+    #region IDisposable Support
+
+    private Boolean disposed;
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            samplingNoise.Dispose();
+            stoneNoise.Dispose();
+        }
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Map()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion
 }

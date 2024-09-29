@@ -276,7 +276,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     NAME_D3D12_OBJECT(m_missSignature);
 
     for (UINT index = 0; index < pipelineDescription.materialCount; index++) m_materials.push_back(
-        SetupMaterial(pipelineDescription.materials[index], index, pipeline));
+        SetUpMaterial(pipelineDescription.materials[index], index, pipeline));
 
     CreateAnimations(pipelineDescription);
 
@@ -294,14 +294,14 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
                     m_rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
                 });
 
-            m_effectBindings = RasterPipeline::SetupEffectBindings(*m_nativeClient, graphics);
+            m_effectBindings = RasterPipeline::SetUpEffectBindings(*m_nativeClient, graphics);
         },
         [this](auto& compute)
         {
-            SetupStaticResourceLayout(&compute);
-            SetupDynamicResourceLayout(&compute);
+            SetUpStaticResourceLayout(&compute);
+            SetUpDynamicResourceLayout(&compute);
 
-            for (auto& animation : m_animations) animation.SetupResourceLayout(&compute);
+            for (auto& animation : m_animations) animation.SetUpResourceLayout(&compute);
         },
         GetDevice());
 
@@ -375,7 +375,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
     return {shaderBlobs, ok};
 }
 
-std::unique_ptr<Material> Space::SetupMaterial(
+std::unique_ptr<Material> Space::SetUpMaterial(
     MaterialDescription const&                    description,
     UINT const                                    index,
     nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const
@@ -471,7 +471,7 @@ void Space::CreateAnimations(SpacePipelineDescription const& pipeline)
     }
 }
 
-void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
+void Space::SetUpStaticResourceLayout(ShaderResources::Description* description)
 {
     description->AddConstantBufferView(m_camera.GetCameraBufferAddress(), {.reg = 0});
     if (m_customDataBuffer != nullptr) description->AddConstantBufferView(
@@ -495,7 +495,7 @@ void Space::SetupStaticResourceLayout(ShaderResources::Description* description)
         });
 }
 
-void Space::SetupDynamicResourceLayout(ShaderResources::Description* description)
+void Space::SetUpDynamicResourceLayout(ShaderResources::Description* description)
 {
     std::function<UINT(Mesh* const&)> const getIndexOfMesh = [this](auto* mesh)
     {
@@ -524,9 +524,9 @@ void Space::SetupDynamicResourceLayout(ShaderResources::Description* description
         CreateBagBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 }
 
-void Space::SetupAnimationResourceLayout(ShaderResources::Description* description)
+void Space::SetUpAnimationResourceLayout(ShaderResources::Description* description)
 {
-    for (auto& animation : m_animations) animation.SetupResourceLayout(description);
+    for (auto& animation : m_animations) animation.SetUpResourceLayout(description);
 }
 
 void Space::InitializeAnimations()

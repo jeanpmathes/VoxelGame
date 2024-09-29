@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Generation.Default;
 /// <summary>
 ///     A structure that can be generated in the world.
 /// </summary>
-public class GeneratedStructure
+public sealed class GeneratedStructure
 {
     /// <summary>
     ///     The kind of the structure. Determines placement and generation.
@@ -47,7 +47,7 @@ public class GeneratedStructure
     private readonly Vector3i offset;
     private readonly Structure structure;
 
-    private NoiseGenerator noise = null!;
+    private NoiseGenerator? noise;
 
     /// <summary>
     ///     Creates a new generated structure.
@@ -86,12 +86,21 @@ public class GeneratedStructure
     ///     Initializes the noise generator.
     /// </summary>
     /// <param name="factory">The noise factory to use.</param>
-    public void Setup(NoiseFactory factory)
+    public void SetUpNoise(NoiseFactory factory)
     {
         noise = factory.CreateNext()
             .WithType(NoiseType.OpenSimplex2)
             .WithFrequency(frequency)
             .Build();
+    }
+
+    /// <summary>
+    ///     Tear down the used noise generator.
+    /// </summary>
+    public void TearDownNoise()
+    {
+        noise?.Dispose();
+        noise = null;
     }
 
     /// <summary>
@@ -154,6 +163,8 @@ public class GeneratedStructure
 
     private Boolean CheckSection(SectionPosition position, out Single random)
     {
+        Debug.Assert(noise != null);
+
         // Check if there is a local maxima in the noise at the given position.
 
         Vector3i anchor = (position.X, position.Y, position.Z) - Vector3i.One;

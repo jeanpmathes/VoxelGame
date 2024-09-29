@@ -31,7 +31,7 @@ public:
      */
     AnimationController(ComPtr<IDxcBlob> const& shader, UINT space);
 
-    void SetupResourceLayout(ShaderResources::Description* description);
+    void SetUpResourceLayout(ShaderResources::Description* description);
     void Initialize(NativeClient& client, ComPtr<ID3D12RootSignature> const& rootSignature);
 
     void AddMesh(Mesh& mesh);

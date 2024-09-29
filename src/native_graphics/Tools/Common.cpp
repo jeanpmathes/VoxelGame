@@ -52,7 +52,7 @@ void CommandAllocatorGroup::Initialize(
             IID_PPV_ARGS(&group->commandList)));
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    client.SetupCommandListForAftermath(group->commandList);
+    client.SetUpCommandListForAftermath(group->commandList);
 #endif
 
     TryDo(group->commandList->Close());

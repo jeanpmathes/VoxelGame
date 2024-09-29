@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Setup", "Setup\Setup.wixproj", "{A528B57B-6AE1-49B9-B725-4BA1BA264D71}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetUp", "SetUp\SetUp.wixproj", "{A528B57B-6AE1-49B9-B725-4BA1BA264D71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Client", "src\client\VoxelGame.Client.csproj", "{3BD64392-3092-432F-9922-4B130465C92E}"
 EndProject

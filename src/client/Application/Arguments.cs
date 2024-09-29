@@ -22,7 +22,7 @@ public static partial class Arguments
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static Int32 Handle(String[] args, SetupLogging setupLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, SetUpLogging setUpLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
@@ -104,7 +104,7 @@ public static partial class Arguments
         {
             Debug.Assert(logDebugOption != null);
 
-            return setupLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
+            return setUpLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
         }
     }
 
@@ -119,7 +119,7 @@ public static partial class Arguments
 /// <summary>
 ///     Sets up logging.
 /// </summary>
-public delegate ILogger SetupLogging(LoggingParameters parameters);
+public delegate ILogger SetUpLogging(LoggingParameters parameters);
 
 /// <summary>
 ///     The parameters for setting up logging.

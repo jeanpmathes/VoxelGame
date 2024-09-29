@@ -119,10 +119,10 @@ public abstract partial class ChunkState
     protected virtual Boolean CanDiscard => false;
 
     /// <summary>
-    ///     Whether this state is considered to be hiding the chunk.
+    ///     Whether this state is a hidden state.
     ///     Hidden states are used when activation is not possible at the moment.
     /// </summary>
-    private Boolean IsHidden => RequiresFullAccess && !AllowSharingAccess;
+    protected virtual Boolean IsHidden => false;
 
     /// <summary>
     ///     The required access level of this state to core chunk resources.

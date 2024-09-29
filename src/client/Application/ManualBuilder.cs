@@ -36,7 +36,7 @@ public static partial class ManualBuilder
     [Conditional("MANUAL")]
     private static void GenerateManual()
     {
-        const String path = "./../../../../../../Setup/Resources/Manual";
+        const String path = "./../../../../../../SetUp/Resources/Manual";
         DirectoryInfo directory = FileSystem.GetFullPath(path);
 
         LogGeneratingManual(logger);

@@ -4,21 +4,28 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Default;
 
 /// <summary>
 ///     Defines all biomes.
 /// </summary>
-public class Biomes
+public sealed class Biomes : IDisposable
 {
     private readonly List<Biome> biomes = [];
 
-    private Biomes()
+    /// <summary>
+    ///     Create the biome definitions.
+    /// </summary>
+    /// <param name="factory">The noise factory to use.</param>
+    /// <param name="palette">The block palette to use.</param>
+    public Biomes(NoiseFactory factory, Palette palette)
     {
         biomes.Add(PolarDesert);
         biomes.Add(TropicalRainforest);
@@ -37,6 +44,9 @@ public class Biomes
         biomes.Add(Beach);
         biomes.Add(GrassyCliff);
         biomes.Add(SandyCliff);
+
+        foreach (Biome biome in biomes)
+            biome.SetUpBiome(factory, palette);
     }
 
     /// <summary>
@@ -466,22 +476,36 @@ public class Biomes
         }
     };
 
-    /// <summary>
-    ///     Load all biomes. They must be set up after that.
-    /// </summary>
-    /// <returns>The loaded biomes.</returns>
-    public static Biomes Load()
+    #region IDisposable Support
+
+    private Boolean disposed;
+
+    private void Dispose(Boolean disposing)
     {
-        return new Biomes();
+        if (disposed) return;
+
+        if (disposing)
+            foreach (Biome biome in biomes)
+                biome.Dispose();
+        else Throw.ForMissedDispose(this);
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    ///     Sets up all biomes.
+    ///     Finalizer.
     /// </summary>
-    /// <param name="factory">The noise generator factory.</param>
-    /// <param name="palette">The palette to use for biome generation.</param>
-    public void Setup(NoiseFactory factory, Palette palette)
+    ~Biomes()
     {
-        foreach (Biome biome in biomes) biome.SetupBiome(factory, palette);
+        Dispose(disposing: false);
     }
+
+    #endregion
 }

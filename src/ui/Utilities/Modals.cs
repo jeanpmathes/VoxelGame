@@ -24,7 +24,7 @@ internal static class Modals
     /// <summary>
     ///     Set up the language (text) for the modals.
     /// </summary>
-    internal static void SetupLanguage()
+    internal static void SetUpLanguage()
     {
         MessageBoxButtonTexts.Shared = new MessageBoxButtonTexts
         {

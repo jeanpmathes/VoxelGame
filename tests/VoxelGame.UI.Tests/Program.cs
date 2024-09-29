@@ -47,7 +47,7 @@ internal class Program : Client
     [STAThread]
     internal static void Main()
     {
-        LoggingHelper.SetupMockLogging();
+        LoggingHelper.SetUpMockLogging();
         ApplicationInformation.Initialize("0.0.0.1");
 
         WindowSettings windowSettings = new()

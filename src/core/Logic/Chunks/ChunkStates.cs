@@ -323,6 +323,9 @@ public partial class Chunk
         protected override Boolean CanDiscard => true;
 
         /// <inheritdoc />
+        protected override Boolean IsHidden => true;
+
+        /// <inheritdoc />
         protected override void OnUpdate()
         {
             var activated = false;

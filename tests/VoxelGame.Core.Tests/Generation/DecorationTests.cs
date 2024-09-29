@@ -46,7 +46,7 @@ public class DecorationTests(ITestOutputHelper output)
         Blocks.Load(textures, new VisualConfiguration(), loadingContext);
         Fluids.Load(textures, textures, loadingContext);
 
-        Generator.Prepare(loadingContext);
+        Generator.Initialize(loadingContext);
 
         Stopwatch timer = new();
         timer.Start();

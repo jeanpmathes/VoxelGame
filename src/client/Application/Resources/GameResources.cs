@@ -126,7 +126,7 @@ public sealed partial class GameResources : IDisposable
 
         Player.Load(client, loadingContext);
 
-        Generator.Prepare(loadingContext);
+        Generator.Initialize(loadingContext);
 
         BlockTextures.DisableLoading();
         FluidTextures.DisableLoading();

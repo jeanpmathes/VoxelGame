@@ -70,7 +70,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
         movingTextures = movingLayout.GetTextureIndices(indexProvider);
         staticTextures = staticLayout.GetTextureIndices(indexProvider);

@@ -35,7 +35,7 @@ public sealed class DecorationContext(Generator generator) : IDecorationContext
             return;
 
         if (!disposing)
-            Throw.ForMissedDispose(nameof(GenerationContext), this);
+            Throw.ForMissedDispose(this);
 
         disposed = true;
     }

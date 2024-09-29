@@ -366,7 +366,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(
     return std::make_unique<RasterPipeline>(client, std::move(configuration), std::move(objects));
 }
 
-std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetupEffectBindings(
+std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetUpEffectBindings(
     NativeClient const&           client,
     ShaderResources::Description& description)
 {

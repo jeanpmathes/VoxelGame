@@ -38,8 +38,8 @@ void NativeClient::OnInit()
 
     m_space->PerformInitialSetupStepOne(m_commandQueue);
 
-    SetupSizeDependentResources();
-    SetupSpaceResolutionDependentResources();
+    SetUpSizeDependentResources();
+    SetUpSpaceResolutionDependentResources();
 
     m_uploader = std::make_unique<Uploader>(*this, nullptr);
 
@@ -323,7 +323,7 @@ void NativeClient::EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4
     for (auto const& buffer : m_screenshotBuffers) commandList->DiscardResource(buffer.Get(), nullptr);
 }
 
-void NativeClient::SetupSizeDependentResources()
+void NativeClient::SetUpSizeDependentResources()
 {
     UpdatePostViewAndScissor();
 
@@ -345,7 +345,7 @@ void NativeClient::SetupSizeDependentResources()
     CreateScreenShotBuffers();
 }
 
-void NativeClient::SetupSpaceResolutionDependentResources()
+void NativeClient::SetUpSpaceResolutionDependentResources()
 {
     m_spaceViewport.viewport.Width  = static_cast<float>(m_resolution.width);
     m_spaceViewport.viewport.Height = static_cast<float>(m_resolution.height);
@@ -538,13 +538,13 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
         m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
         UpdateForSizeChange(width, height);
-        SetupSizeDependentResources();
+        SetUpSizeDependentResources();
 
         if (Resolution const newResolution = Resolution{width, height} * GetRenderScale();
             newResolution != m_resolution)
         {
             m_resolution = newResolution;
-            SetupSpaceResolutionDependentResources();
+            SetUpSpaceResolutionDependentResources();
         }
     }
 
@@ -687,7 +687,7 @@ std::wstring NativeClient::GetDRED() const
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
 #if defined(USE_NSIGHT_AFTERMATH)
-void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
+void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
 {
     if (SupportPIX()) return;
 
@@ -695,7 +695,7 @@ void NativeClient::SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
 }
 
-void NativeClient::SetupShaderForAftermath(ComPtr<IDxcResult> const& result)
+void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
     if (SupportPIX()) return;
 

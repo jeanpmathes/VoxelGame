@@ -51,7 +51,7 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
             return;
 
         if (!disposing)
-            Throw.ForMissedDispose(nameof(GenerationContext), this);
+            Throw.ForMissedDispose(this);
 
         if (columns != null)
             generator.AddColumns(columns);

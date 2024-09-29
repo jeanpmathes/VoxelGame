@@ -22,9 +22,9 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
+using VoxelGame.Logging;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;
@@ -55,7 +55,7 @@ public partial class World : Core.Logic.World
     {
         space = Application.Client.Instance.Space;
 
-        Setup();
+        SetUp();
     }
 
     /// <summary>
@@ -65,10 +65,10 @@ public partial class World : Core.Logic.World
     {
         space = Application.Client.Instance.Space;
 
-        Setup();
+        SetUp();
     }
 
-    private void Setup()
+    private void SetUp()
     {
         space.Light.Direction = sunLightDirection;
     }

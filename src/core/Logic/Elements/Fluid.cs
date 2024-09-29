@@ -170,12 +170,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <param name="id">The id of the fluid.</param>
     /// <param name="indexProvider">A provider for texture indices.</param>
     /// <param name="dominantColorProvider">A provider for dominant colors.</param>
-    public void Setup(UInt32 id, ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
+    public void SetUp(UInt32 id, ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
         Debug.Assert(ID == InvalidID);
         ID = id;
 
-        OnSetup(indexProvider, dominantColorProvider);
+        OnSetUp(indexProvider, dominantColorProvider);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// </summary>
     /// <param name="indexProvider">A provider for texture indices.</param>
     /// <param name="dominantColorProvider">A provider for dominant colors.</param>
-    protected virtual void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider) {}
+    protected virtual void OnSetUp(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider) {}
 
     /// <summary>
     ///     Get the main color of this fluid, e.g. for fog.

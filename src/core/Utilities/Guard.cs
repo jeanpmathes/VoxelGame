@@ -56,7 +56,7 @@ public sealed class Guard : IDisposable
         if (disposed) return;
 
         if (disposing) release();
-        else Throw.ForMissedDispose(nameof(Guard), resource, stackTrace);
+        else Throw.ForMissedDispose(resource, stackTrace);
 
         disposed = true;
     }

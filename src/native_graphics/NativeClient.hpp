@@ -182,8 +182,8 @@ private:
     GpuCrashTracker            m_gpuCrashTracker;
 
 public:
-    void SetupCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
-    void SetupShaderForAftermath(ComPtr<IDxcResult> const& result);
+    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
+    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
 
 private:
 #endif
@@ -200,8 +200,8 @@ private:
     void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void CreateScreenShotBuffers();
     void EnsureValidScreenShotBuffer(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    void SetupSizeDependentResources();
-    void SetupSpaceResolutionDependentResources();
+    void SetUpSizeDependentResources();
+    void SetUpSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
     void PopulateCommandLists();
     void UpdatePostViewAndScissor();
@@ -210,7 +210,9 @@ private:
 };
 
 #if defined(USE_NSIGHT_AFTERMATH)
-#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetupShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
+#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetUpShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
+
+
 
 #else
 #define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)

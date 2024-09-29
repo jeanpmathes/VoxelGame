@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Generation.Water;
 /// <summary>
 ///     Generates a world made out of water.
 /// </summary>
-public class Generator : IWorldGenerator
+public sealed class Generator : IWorldGenerator
 {
     private readonly Content core = new(Blocks.Instance.Core);
     private readonly Content empty = Content.Default;
@@ -75,4 +75,41 @@ public class Generator : IWorldGenerator
 
         return position.Y <= waterLevel ? water : empty;
     }
+
+    #region IDisposable Support
+
+    private Boolean disposed;
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            // Nothing to dispose.
+        }
+        else
+        {
+            throw new InvalidOperationException("Tried to dispose a noise generator from the finalizer.");
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Generator()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion
 }

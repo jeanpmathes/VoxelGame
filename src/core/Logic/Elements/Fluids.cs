@@ -172,7 +172,7 @@ public partial class Fluids
 
             var id = (UInt32) (fluidList.Count - 1);
 
-            fluid.Setup(id, indexProvider, dominantColorProvider);
+            fluid.SetUp(id, indexProvider, dominantColorProvider);
 
             loadingContext.ReportSuccess(nameof(Fluid), fluid.NamedID);
         }

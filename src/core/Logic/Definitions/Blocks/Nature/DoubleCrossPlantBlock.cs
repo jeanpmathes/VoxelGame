@@ -61,7 +61,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Int32 bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
         Int32 topTextureIndex = bottomTextureIndex + topTexOffset;

@@ -5,8 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
 
@@ -15,12 +17,12 @@ namespace VoxelGame.Core.Generation.Default;
 /// <summary>
 ///     Cover is generated on top of the terrain. It can be used for one-block sized elements.
 /// </summary>
-public class Cover
+public sealed class Cover : IDisposable
 {
     private const Double FlowerFactor = 0.05;
     private readonly Boolean hasPlants;
 
-    private NoiseGenerator noise = null!;
+    private NoiseGenerator? noise;
 
     /// <summary>
     ///     Create a new cover generator.
@@ -32,9 +34,9 @@ public class Cover
     }
 
     /// <summary>
-    ///     Setup used noise with the generation seed.
+    ///     Set up used noise with the generation seed.
     /// </summary>
-    public void SetupNoise(NoiseBuilder builder)
+    public void SetUpNoise(NoiseBuilder builder)
     {
         noise = builder
             .WithType(NoiseType.OpenSimplex2)
@@ -47,6 +49,8 @@ public class Cover
     /// </summary>
     public Content GetContent(Vector3i position, Boolean isFilled, in Map.Sample sample)
     {
+        Debug.Assert(noise != null);
+
         if (isFilled) return Content.Default;
 
         Temperature temperature = sample.GetRealTemperature(position.Y);
@@ -65,4 +69,35 @@ public class Cover
 
         return Content.Default;
     }
+
+    #region IDisposable Support
+
+    private Boolean disposed;
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing) noise?.Dispose();
+        else Throw.ForMissedDispose(this);
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Cover()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion
 }

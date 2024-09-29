@@ -11,6 +11,7 @@ using System.Drawing;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Default.Deco;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Default;
@@ -18,9 +19,10 @@ namespace VoxelGame.Core.Generation.Default;
 /// <summary>
 ///     A biome is a collection of attributes of an area in the world.
 /// </summary>
-public class Biome
+public sealed class Biome : IDisposable
 {
     private readonly String name;
+
     private (Layer layer, Int32 depth)[] lowerHorizon = null!;
 
     /// <summary>
@@ -33,7 +35,7 @@ public class Biome
     /// </summary>
     private Int32 minWidth;
 
-    private NoiseGenerator noise = null!;
+    private NoiseGenerator? noise;
 
     private (Layer layer, Int32 depth)[] upperHorizon = null!;
 
@@ -103,19 +105,19 @@ public class Biome
     private Layer? Dampen { get; set; }
 
     /// <summary>
-    ///     Setup the biome. This must be called after all init-properties have been set.
+    ///     Set up the biome. This must be called after all init-properties have been set.
     /// </summary>
     /// <param name="factory">The noise generator factory to use.</param>
     /// <param name="palette">The palette to use for the biome.</param>
-    public void SetupBiome(NoiseFactory factory, Palette palette)
+    public void SetUpBiome(NoiseFactory factory, Palette palette)
     {
-        SetupNoise(factory.CreateNext());
-        SetupLayers(palette);
+        SetUpNoise(factory.CreateNext());
+        SetUpLayers(palette);
 
-        Cover.SetupNoise(factory.CreateNext());
+        Cover.SetUpNoise(factory.CreateNext());
     }
 
-    private void SetupNoise(NoiseBuilder builder)
+    private void SetUpNoise(NoiseBuilder builder)
     {
         noise = builder
             .WithType(NoiseType.OpenSimplex2)
@@ -128,7 +130,7 @@ public class Biome
             .Build();
     }
 
-    private void SetupLayers(Palette palette)
+    private void SetUpLayers(Palette palette)
     {
         minWidth = 0;
         minDepthToSolid = 0;
@@ -174,12 +176,14 @@ public class Biome
     }
 
     /// <summary>
-    ///     Get a offset value for the given column, which can be applied to the height.
+    ///     Get an offset value for the given column, which can be applied to the height.
     /// </summary>
     /// <param name="position">The position of the column.</param>
     /// <returns>The offset value.</returns>
     public Single GetOffset(Vector2i position)
     {
+        Debug.Assert(noise != null);
+
         return noise.GetNoise(position) * Amplitude;
     }
 
@@ -265,4 +269,43 @@ public class Biome
     ///     The dampening applied to a column.
     /// </summary>
     public record struct Dampening(Int32 DampenedOffset, Int32 OriginalOffset, Int32 Width);
+
+    #region IDisposable Support
+
+    private Boolean disposed;
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            noise?.Dispose();
+
+            Cover.Dispose();
+        }
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Biome()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion
 }

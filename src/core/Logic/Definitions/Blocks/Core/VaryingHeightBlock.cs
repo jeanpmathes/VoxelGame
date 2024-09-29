@@ -91,7 +91,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         textureIndices = layout.GetTextureIndices(indexProvider);
     }

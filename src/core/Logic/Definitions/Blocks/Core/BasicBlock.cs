@@ -48,7 +48,7 @@ public class BasicBlock : Block, ISimple
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         sideTextureIndices = layout.GetTextureIndices(indexProvider);
     }
