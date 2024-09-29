@@ -34,7 +34,9 @@ public sealed partial class Map : IMap, IDisposable
     ///     Additional cell data that is stored as flags.
     /// </summary>
     [Flags]
-    public enum CellConditions
+    #pragma warning disable S4022 // To reduce size of data.
+    public enum CellConditions : Byte
+    #pragma warning restore S4022
     {
         /// <summary>
         ///     No conditions.
@@ -58,9 +60,11 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
-    ///     The stone type of a cell.
+    ///     The type of stone that a cell is made of.
     /// </summary>
-    public enum StoneType
+    #pragma warning disable S4022 // To reduce size of data.
+    public enum StoneType : Byte
+    #pragma warning restore S4022
     {
         /// <summary>
         ///     Sandstone.
@@ -84,14 +88,14 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
-    ///     Height of the highest mountains and deepest oceans.
+    ///     Height of the highest mountains and deepest oceans, in meters / blocks.
     /// </summary>
     public const Int32 MaxHeight = 10_000;
 
     /// <summary>
-    ///     The size of a map cell.
+    ///     The size of a map cell, in meters / blocks.
     /// </summary>
-    private const Int32 CellSize = 100_000;
+    private const Int32 CellSize = 20_000;
 
     private const Int32 MinimumWidth = (Int32) (World.BlockLimit * 2) / CellSize;
     private const Int32 Width = MinimumWidth + 2;

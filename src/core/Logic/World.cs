@@ -35,7 +35,7 @@ public abstract partial class World : IDisposable, IGrid
     ///     This value also describes the word extents in blocks, thus the world size is two times this value.
     ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
-    public const UInt32 BlockLimit = 50_000_000;
+    public const UInt32 BlockLimit = 10_000_000;
 
     private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
