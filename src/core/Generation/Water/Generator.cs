@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Water;
 
@@ -35,6 +36,18 @@ public sealed class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
+    public static void Initialize(ILoadingContext loadingContext)
+    {
+        // Nothing to initialize.
+    }
+
+    /// <inheritdoc />
+    public static IWorldGenerator Create(IWorldGeneratorContext context)
+    {
+        return new Generator();
+    }
+
+    /// <inheritdoc />
     public IMap Map { get; } = new Map();
 
     /// <inheritdoc />
@@ -44,7 +57,7 @@ public sealed class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents)
+    public IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0)
     {
         return new DecorationContext(this);
     }
@@ -90,7 +103,7 @@ public sealed class Generator : IWorldGenerator
         }
         else
         {
-            throw new InvalidOperationException("Tried to dispose a noise generator from the finalizer.");
+            Throw.ForMissedDispose(this);
         }
 
         disposed = true;

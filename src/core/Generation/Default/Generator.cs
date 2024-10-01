@@ -92,6 +92,12 @@ public sealed partial class Generator : IWorldGenerator
     private Biomes Biomes { get; }
 
     /// <inheritdoc />
+    public static IWorldGenerator Create(IWorldGeneratorContext context)
+    {
+        return new Generator(context);
+    }
+
+    /// <inheritdoc />
     public IGenerationContext CreateGenerationContext(ChunkPosition hint)
     {
         return new GenerationContext(this, hint);
@@ -117,6 +123,19 @@ public sealed partial class Generator : IWorldGenerator
 
     /// <inheritdoc />
     IMap IWorldGenerator.Map => Map;
+
+    /// <summary>
+    ///     Initialize all parts required to use the generator.
+    ///     Has to be called just once.
+    /// </summary>
+    public static void Initialize(ILoadingContext loadingContext)
+    {
+        using (loadingContext.BeginStep("Default Generator"))
+        {
+            Decorations.Initialize(loadingContext);
+            Structures.Initialize(loadingContext);
+        }
+    }
 
     /// <summary>
     ///     Get the samples for a chunk position, if available.
@@ -194,19 +213,6 @@ public sealed partial class Generator : IWorldGenerator
         if (sectionBiomes.Count != 1) return;
 
         sectionBiomes.First().Structure?.AttemptPlacement(section, this);
-    }
-
-    /// <summary>
-    ///     Initialize all parts required to use the generator.
-    ///     Has to be called just once.
-    /// </summary>
-    public static void Initialize(ILoadingContext loadingContext)
-    {
-        using (loadingContext.BeginStep("Default Generator"))
-        {
-            Decorations.Initialize(loadingContext);
-            Structures.Initialize(loadingContext);
-        }
     }
 
     /// <summary>

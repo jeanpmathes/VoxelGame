@@ -6,86 +6,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Serialization;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace VoxelGame.Core.Tests.Generation;
 
 [TestSubject(typeof(IDecorationContext))]
 [Collection("Logger")]
-public class DecorationTests(ITestOutputHelper output)
+public class DecorationTests
 {
-    [Fact]
-    public void Benchmark()
-    {
-        // todo: when performance is done, make this into an actual testcase in separate class, add case for Water gen to and make both the same code using generics and interface, rename test
-
-        ILoadingContext loadingContext = new MockLoadingContext();
-
-        BlockModel.EnableLoading(loadingContext);
-        StaticStructure.SetLoadingContext(loadingContext);
-
-        MockTextureBundle textures = new();
-        BlockModel.SetBlockTextureIndexProvider(textures);
-        Blocks.Load(textures, new VisualConfiguration(), loadingContext);
-        Fluids.Load(textures, textures, loadingContext);
-
-        Generator.Initialize(loadingContext);
-
-        Generator generator;
-        ChunkContext context;
-
-        using (Timer.Start(duration => output.WriteLine($"Creation: {duration}")))
-        {
-            generator = new Generator(new MockWorldGeneratorContext());
-            context = new ChunkContext(null!, generator, _ => null, _ => null, _ => {});
-        }
-
-        Neighborhood<Chunk?> chunks = new();
-
-        using (Timer.Start(duration => output.WriteLine($"Generation: {duration}")))
-        {
-            foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices)
-                chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
-        }
-
-        using (Timer.Start(duration => output.WriteLine($"Decoration: {duration}")))
-        {
-            using IDecorationContext decorationContext = generator.CreateDecorationContext(chunks.Center!.Position, extents: 1);
-
-            chunks.Center!.Decorate(chunks, decorationContext);
-        }
-
-        Chunk CreateChunk(ChunkPosition position)
-        {
-            Chunk chunk = new(context, blocks => new Section(blocks));
-            chunk.Initialize(null!, position);
-
-            using IGenerationContext generationContext = generator.CreateGenerationContext(position);
-            using IDecorationContext decorationContext = generator.CreateDecorationContext(position, extents: 0);
-
-            chunk.Generate(generationContext, decorationContext);
-
-            return chunk;
-        }
-    }
+    // todo: assert flags on all chunks, even the border ones, rename test case and class as it tests the deco context, add similar for gen context
 
     [Fact]
-    public void TestDecorationOfChunks() // todo: assert flags on all chunks, even the border ones, rename test case and class as it tests the deco context, add similar for gen context
+    public void TestDecorationOfChunks()
     {
         ChunkContext context = new(null!, null!, _ => null, _ => null, _ => {}); // todo: fix this ugly mess
         MockDecorationContext mockDecorationContext = new();
@@ -113,55 +51,6 @@ public class DecorationTests(ITestOutputHelper output)
             chunk.Initialize(null!, position);
 
             return chunk;
-        }
-    }
-
-    private class MockLoadingContext : ILoadingContext
-    {
-        public IDisposable BeginStep(String name)
-        {
-            return new Disposer();
-        }
-
-        public void ReportSuccess(String type, String resource) {}
-
-        public void ReportFailure(String type, String resource, Exception exception, Boolean abort = false) {}
-
-        public void ReportFailure(String type, String resource, String message, Boolean abort = false) {}
-
-        public void ReportWarning(String type, String resource, Exception exception) {}
-
-        public void ReportWarning(String type, String resource, String message) {}
-    }
-
-    private class MockTextureBundle : ITextureIndexProvider, IDominantColorProvider
-    {
-        public Color GetDominantColor(Int32 index)
-        {
-            return Color.Black;
-        }
-
-        public Int32 GetTextureIndex(String name)
-        {
-            return 0;
-        }
-    }
-
-    private class MockWorldGeneratorContext : IWorldGeneratorContext
-    {
-        private readonly Dictionary<String, Object> blobs = new();
-
-        public (Int32 upper, Int32 lower) Seed => (0, 0);
-        public Timer? Timer => null;
-
-        public T? ReadBlob<T>(String name) where T : class, IEntity, new()
-        {
-            return blobs.GetValueOrDefault(name) as T;
-        }
-
-        public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
-        {
-            blobs[name] = entity;
         }
     }
 

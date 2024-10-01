@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation;
 
@@ -21,6 +22,21 @@ public interface IWorldGenerator : IDisposable
     ///     Get the map of the world.
     /// </summary>
     IMap Map { get; }
+
+    /// <summary>
+    ///     Initialize the world generator and all systems it depends on.
+    ///     Will be called once on program start.
+    /// </summary>
+    /// <param name="loadingContext">The loading context.</param>
+    static abstract void Initialize(ILoadingContext loadingContext);
+
+    /// <summary>
+    ///     Create an instance of the world generator.
+    ///     Each instance is meant to generate a single world - a generator is stateful.
+    /// </summary>
+    /// <param name="context">The context in which the generator is created.</param>
+    /// <returns>The world generator.</returns>
+    static abstract IWorldGenerator Create(IWorldGeneratorContext context);
 
     /// <summary>
     /// Create a context in which chunks can be generated.
