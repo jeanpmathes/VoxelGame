@@ -560,7 +560,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Begin to hide the chunk so it is no longer active.
+    ///     Begin to hide the chunk, so it is no longer active.
     ///     Only has an effect if the chunk is currently active.
     /// </summary>
     public void BeginHiding()

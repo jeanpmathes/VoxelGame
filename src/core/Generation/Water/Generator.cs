@@ -44,7 +44,7 @@ public sealed class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IDecorationContext CreateDecorationContext()
+    public IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents)
     {
         return new DecorationContext(this);
     }

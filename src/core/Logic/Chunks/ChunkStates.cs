@@ -126,7 +126,7 @@ public partial class Chunk
             if (generating == null)
             {
                 generationContext = Context.Generator.CreateGenerationContext(Chunk.Position);
-                decorationContext = Context.Generator.CreateDecorationContext();
+                decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position);
                 generating = WaitForCompletion(() => Chunk.Generate(generationContext, decorationContext));
             }
             else if (generating.IsCompleted)
@@ -200,7 +200,7 @@ public partial class Chunk
         {
             if (decorating == null)
             {
-                decorationContext = Context.Generator.CreateDecorationContext();
+                decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position, extents: 1);
                 decorating = WaitForCompletion(() => Chunk.Decorate(chunks, decorationContext));
             }
             else if (decorating.IsCompleted)

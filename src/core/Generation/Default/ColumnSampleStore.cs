@@ -71,6 +71,11 @@ internal class ColumnSampleStore(Int32 chunkX, Int32 chunkZ, Map.Sample[] sample
         return samples[offset.X + offset.Y * Chunk.BlockSize];
     }
 
+    internal static Map.Sample GetSample(Vector2i position, ColumnSampleStore? store, Map map)
+    {
+        return store?.GetSample(position) ?? map.GetSample(position);
+    }
+
     private void Store(Int32 x, Int32 z, Map.Sample sample)
     {
         samples[x + z * Chunk.BlockSize] = sample;

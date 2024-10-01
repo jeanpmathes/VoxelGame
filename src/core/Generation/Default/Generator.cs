@@ -98,9 +98,9 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public IDecorationContext CreateDecorationContext()
+    public IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0)
     {
-        return new DecorationContext(this);
+        return new DecorationContext(this, hint, extents);
     }
 
     /// <inheritdoc />
@@ -158,9 +158,9 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc cref="IDecorationContext.DecorateSection" />
-    public void DecorateSection(Neighborhood<Section> sections)
+    internal void DecorateSection(Neighborhood<Section> sections, ColumnSampleStore? columns)
     {
-        ICollection<Biome> sectionBiomes = GetSectionBiomes(sections.Center.Position);
+        ICollection<Biome> sectionBiomes = GetSectionBiomes(sections.Center.Position, columns);
 
         HashSet<Decoration> decorations = [];
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
@@ -187,9 +187,9 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc cref="IGenerationContext.GenerateStructures" />
-    public void GenerateStructures(Section section)
+    internal void GenerateStructures(Section section, ColumnSampleStore? columns)
     {
-        ICollection<Biome> sectionBiomes = GetSectionBiomes(section.Position);
+        ICollection<Biome> sectionBiomes = GetSectionBiomes(section.Position, columns);
 
         if (sectionBiomes.Count != 1) return;
 
@@ -243,17 +243,19 @@ public sealed partial class Generator : IWorldGenerator
     ///     The biomes are determined by sampling each corner of the section.
     /// </summary>
     /// <param name="position">The position of the section.</param>
+    /// <param name="columns">A column sample store to use, if available.</param>
     /// <returns>A list of the biomes, each biome is only included once.</returns>
-    public ICollection<Biome> GetSectionBiomes(SectionPosition position)
+    internal ICollection<Biome> GetSectionBiomes(SectionPosition position, ColumnSampleStore? columns)
     {
         List<Biome> sectionBiomes = [];
 
         Vector2i start = position.FirstBlock.Xz;
+        const Int32 offset = Section.Size - 1;
 
-        sectionBiomes.Add(Map.GetSample(start).ActualBiome);
-        sectionBiomes.Add(Map.GetSample(start + (0, Section.Size)).ActualBiome);
-        sectionBiomes.Add(Map.GetSample(start + (Section.Size, 0)).ActualBiome);
-        sectionBiomes.Add(Map.GetSample(start + (Section.Size, Section.Size)).ActualBiome);
+        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (0, 0), columns, Map).ActualBiome);
+        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (offset, 0), columns, Map).ActualBiome);
+        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (0, offset), columns, Map).ActualBiome);
+        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (offset, offset), columns, Map).ActualBiome);
 
         sectionBiomes = sectionBiomes.Distinct().ToList();
 

@@ -38,7 +38,7 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
     /// <inheritdoc />
     public void GenerateStructures(Section section)
     {
-        generator.GenerateStructures(section);
+        generator.GenerateStructures(section, columns);
     }
 
     #region Disposable Support

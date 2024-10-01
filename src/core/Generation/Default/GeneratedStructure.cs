@@ -322,7 +322,7 @@ public sealed class GeneratedStructure
 
     private Boolean FilterSectionByBiome(SectionPosition section, Generator generator)
     {
-        ICollection<Biome> biomes = generator.GetSectionBiomes(section);
+        ICollection<Biome> biomes = generator.GetSectionBiomes(section, columns: null);
 
         if (biomes.Count != 1) return false;
 

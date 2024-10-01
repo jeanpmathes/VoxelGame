@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Profiling;
@@ -14,16 +15,26 @@ namespace VoxelGame.Core.Profiling;
 /// <summary>
 ///     Measures the time it takes to execute a block of code.
 /// </summary>
-public sealed class Timer(String name, TimingStyle style, Profile? profile, IDisposable? disposable) : IDisposable
+public sealed class Timer : IDisposable
 {
     private readonly Stopwatch stopwatch = new();
 
-    /// <summary>
-    ///     Gets the style of the measurement.
-    /// </summary>
-    public TimingStyle Style => style;
+    private IDisposable? disposable;
 
-    private String Name => name;
+    private Timer(String name, TimingStyle style, Profile? profile, IDisposable? disposable)
+    {
+        Name = name;
+        Style = style;
+        Profile = profile;
+
+        this.disposable = disposable;
+    }
+
+    private String Name { get; }
+
+    private TimingStyle Style { get; }
+
+    private Profile? Profile { get; }
 
     /// <summary>
     ///     Gets the elapsed time.
@@ -33,10 +44,10 @@ public sealed class Timer(String name, TimingStyle style, Profile? profile, IDis
     /// <inheritdoc />
     public void Dispose()
     {
-        if (profile != null)
+        if (Profile != null)
         {
             stopwatch.Stop();
-            profile.FinishTimingMeasurement(name, stopwatch.Elapsed.TotalMilliseconds);
+            Profile.FinishTimingMeasurement(Name, stopwatch.Elapsed.TotalMilliseconds);
         }
 
         disposable?.Dispose();
@@ -55,7 +66,7 @@ public sealed class Timer(String name, TimingStyle style, Profile? profile, IDis
     /// <param name="other">Another disposable object to dispose when the timer is disposed.</param>
     /// <returns>
     ///     An active timer, or null if both the passed profiler and the global benchmark are null.
-    ///     If an disposable object is passed, an (inactive) timer will be returned, even if no profiler is available.
+    ///     If a disposable object is passed, an (inactive) timer will be returned, even if no profiler is available.
     /// </returns>
     public static Timer? Start(String name, TimingStyle style = TimingStyle.Reoccurring, Profile? profiler = null, Timer? containing = null, IDisposable? other = null)
     {
@@ -73,6 +84,21 @@ public sealed class Timer(String name, TimingStyle style, Profile? profile, IDis
     }
 
     /// <summary>
+    ///     Start a timer that is not associated with any profiler.
+    /// </summary>
+    /// <param name="onCompletion">The action to execute when the timer is disposed.</param>
+    /// <returns>The timer.</returns>
+    public static Timer Start(Action<Duration> onCompletion)
+    {
+        Timer timer = new("", TimingStyle.Once, profile: null, disposable: null);
+
+        timer.disposable = new Disposer(() => onCompletion(timer.Elapsed));
+        timer.stopwatch.Start();
+
+        return timer;
+    }
+
+    /// <summary>
     ///     Start a sub-timer and measure the time it takes to execute the sub-block.
     ///     The sub-timer will be associated with the same profiler as the parent timer and use the same style.
     /// </summary>
@@ -81,7 +107,7 @@ public sealed class Timer(String name, TimingStyle style, Profile? profile, IDis
     /// <returns>An active timer, or null if no profiling is running.</returns>
     public Timer? StartSub(String sub, IDisposable? other = null)
     {
-        return Start(sub, style, profile, this, other);
+        return Start(sub, Style, Profile, this, other);
     }
 }
 

@@ -34,8 +34,10 @@ public interface IWorldGenerator : IDisposable
     /// Create a context in which decorations can be generated.
     /// Must be called and disposed on the main thread.
     /// </summary>
+    /// <param name="hint">A hint on which chunks will be decorated with the context.</param>
+    /// <param name="extents">A hint on th size of the neighborhood that is decorated, use 0 for single chunk and 1 for 3x3x3 chunks.</param>
     /// <returns>The decoration context.</returns>
-    IDecorationContext CreateDecorationContext();
+    IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0);
 
     /// <summary>
     ///     Emit views of global generated data for debugging.

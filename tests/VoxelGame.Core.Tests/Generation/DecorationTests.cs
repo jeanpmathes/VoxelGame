@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
@@ -33,8 +32,7 @@ public class DecorationTests(ITestOutputHelper output)
     [Fact]
     public void Benchmark()
     {
-        // todo: when performance is done, make this into an actual testcase in separate class, add case for Water gen to and make both the same code using generics and interface
-        // todo: remove all output writing
+        // todo: when performance is done, make this into an actual testcase in separate class, add case for Water gen to and make both the same code using generics and interface, rename test
 
         ILoadingContext loadingContext = new MockLoadingContext();
 
@@ -48,33 +46,29 @@ public class DecorationTests(ITestOutputHelper output)
 
         Generator.Initialize(loadingContext);
 
-        Stopwatch timer = new();
-        timer.Start();
+        Generator generator;
+        ChunkContext context;
 
-        Generator generator = new(new MockWorldGeneratorContext());
-        ChunkContext context = new(null!, generator, _ => null, _ => null, _ => {});
-
-        timer.Stop();
-        output.WriteLine($"Generator creation took {timer.ElapsedMilliseconds}ms");
-
-        timer.Restart();
+        using (Timer.Start(duration => output.WriteLine($"Creation: {duration}")))
+        {
+            generator = new Generator(new MockWorldGeneratorContext());
+            context = new ChunkContext(null!, generator, _ => null, _ => null, _ => {});
+        }
 
         Neighborhood<Chunk?> chunks = new();
 
-        foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices) chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
-
-        timer.Stop();
-        output.WriteLine($"Chunk generation took {timer.ElapsedMilliseconds}ms");
-
-        timer.Restart();
-
-        using (IDecorationContext decorationContext = generator.CreateDecorationContext())
+        using (Timer.Start(duration => output.WriteLine($"Generation: {duration}")))
         {
-            chunks.Center!.Decorate(chunks, decorationContext);
+            foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices)
+                chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
         }
 
-        timer.Stop();
-        output.WriteLine($"Chunk decoration took {timer.ElapsedMilliseconds}ms");
+        using (Timer.Start(duration => output.WriteLine($"Decoration: {duration}")))
+        {
+            using IDecorationContext decorationContext = generator.CreateDecorationContext(chunks.Center!.Position, extents: 1);
+
+            chunks.Center!.Decorate(chunks, decorationContext);
+        }
 
         Chunk CreateChunk(ChunkPosition position)
         {
@@ -82,7 +76,7 @@ public class DecorationTests(ITestOutputHelper output)
             chunk.Initialize(null!, position);
 
             using IGenerationContext generationContext = generator.CreateGenerationContext(position);
-            using IDecorationContext decorationContext = generator.CreateDecorationContext();
+            using IDecorationContext decorationContext = generator.CreateDecorationContext(position, extents: 0);
 
             chunk.Generate(generationContext, decorationContext);
 
@@ -90,10 +84,8 @@ public class DecorationTests(ITestOutputHelper output)
         }
     }
 
-    // todo: try looking for the wrong section access bug
-
     [Fact]
-    public void TestDecorationOfChunks()
+    public void TestDecorationOfChunks() // todo: assert flags on all chunks, even the border ones, rename test case and class as it tests the deco context, add similar for gen context
     {
         ChunkContext context = new(null!, null!, _ => null, _ => null, _ => {}); // todo: fix this ugly mess
         MockDecorationContext mockDecorationContext = new();
