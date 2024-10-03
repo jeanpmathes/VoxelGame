@@ -31,7 +31,10 @@ public sealed class DecorationContext(Generator generator, ChunkPosition hint, I
         Int32 xOffset = chunk.X - columns.anchor.X;
         Int32 zOffset = chunk.Z - columns.anchor.Z;
 
-        ColumnSampleStore? store = columns.array[xOffset, zOffset]; // todo: do bounds check as soon as bug is fixed
+        ColumnSampleStore? store = null;
+
+        if (xOffset >= 0 && xOffset < columns.array.Length && zOffset >= 0 && zOffset < columns.array.Length)
+            store = columns.array[xOffset, zOffset];
 
         generator.DecorateSection(sections, store);
     }
