@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 
@@ -27,7 +28,7 @@ public class DebugProperties : Group
         new Message("Position (Head)", $"{player.Head.Position.Floor()}/"),
         new Message("Position (Target)", $"{player.TargetPosition}"),
         new Message("Position (Chunk)", $"{player.Chunk}"),
-        // todo: add section position
+        new Message("Position (Section)", $"{SectionPosition.From(player.Position.Floor())}"),
         new Message("Target Block", FormatBlockTarget(targeting.Block ?? BlockInstance.Default)),
         new Message("Target Fluid", FormatFluidTarget(targeting.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),
