@@ -12,7 +12,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Generation.Default;
 using VoxelGame.Core.Logic.Chunks;
@@ -46,15 +45,11 @@ public abstract partial class World : IDisposable, IGrid
 
     private readonly ChunkSet chunks;
 
-    private readonly IWorldGenerator generator;
-
     /// <summary>
     ///     A timer to profile different states and world operations.
     ///     Will be started on world creation, inheritors are free to stop, override or restart it.
     /// </summary>
     protected Timer? timer;
-
-    private ChunkPool? chunkPool;
 
     private State currentState = State.Activating;
 
@@ -103,11 +98,11 @@ public abstract partial class World : IDisposable, IGrid
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        generator = GetAndInitializeGenerator(this, timer);
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
 
-        ChunkContext = new ChunkContext(this, generator, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
+        ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
 
-        chunks = new ChunkSet(ChunkContext);
+        chunks = new ChunkSet(this, ChunkContext);
     }
 
     /// <summary>
@@ -195,7 +190,7 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Get the info map of this world.
     /// </summary>
-    public IMap Map => generator.Map;
+    public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
     ///     Get the active chunk count.
@@ -206,12 +201,6 @@ public abstract partial class World : IDisposable, IGrid
     ///     All active chunks.
     /// </summary>
     protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
-
-    /// <summary>
-    ///     Get the chunk pool for this world.
-    /// </summary>
-    /// <returns>The chunk pool.</returns>
-    public ChunkPool ChunkPool => chunkPool ??= CreateChunkPool();
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -310,7 +299,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        generator.EmitViews(directory);
+        ChunkContext.Generator.EmitViews(directory);
     }
 
     /// <summary>
@@ -325,7 +314,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        return generator.SearchNamedGeneratedElements(start, name, maxDistance);
+        return ChunkContext.Generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
     /// <summary>
@@ -535,14 +524,8 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    /// Create the chunk pool for this world.
-    /// </summary>
-    /// <returns>The chunk pool.</returns>
-    protected abstract ChunkPool CreateChunkPool();
-
-    /// <summary>
     ///     Get whether a chunk position is in the maximum allowed world limits.
-    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
     private static Boolean IsInLimits(ChunkPosition position)
     {
@@ -570,6 +553,13 @@ public abstract partial class World : IDisposable, IGrid
 
         return Math.Abs(position.X) <= BlockLimit && Math.Abs(position.Y) <= BlockLimit && Math.Abs(position.Z) <= BlockLimit;
     }
+
+    /// <summary>
+    ///     Factory method that creates a new chunk.
+    /// </summary>
+    /// <param name="context">The context of the chunk.</param>
+    /// <returns>The new chunk.</returns>
+    protected abstract Chunk CreateChunk(ChunkContext context);
 
     /// <summary>
     ///     Process a chunk that has been just activated.
@@ -748,7 +738,9 @@ public abstract partial class World : IDisposable, IGrid
         if (disposing)
         {
             chunks.Dispose();
-            generator.Dispose();
+
+            ChunkContext.Dispose();
+
             timer?.Dispose();
         }
 

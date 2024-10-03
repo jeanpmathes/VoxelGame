@@ -19,14 +19,17 @@ public sealed class ChunkSet : IDisposable
 {
     private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
 
+    private readonly World world;
     private readonly ChunkContext context;
 
     /// <summary>
     ///     Create a new chunk set.
     /// </summary>
+    /// <param name="world">The world in which the chunks exist.</param>
     /// <param name="context">The context in which to create chunks.</param>
-    public ChunkSet(ChunkContext context)
+    public ChunkSet(World world, ChunkContext context)
     {
+        this.world = world;
         this.context = context;
     }
 
@@ -77,7 +80,7 @@ public sealed class ChunkSet : IDisposable
     {
         if (!chunks.TryGetValue(position, out Chunk? chunk))
         {
-            chunk = context.GetObject(position);
+            chunk = context.GetObject(world, position);
             chunks.Add(position, chunk);
         }
 

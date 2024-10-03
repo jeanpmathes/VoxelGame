@@ -57,7 +57,7 @@ public class GeneratorTest(ITestOutputHelper output)
         using (Timer.Start(duration => output.WriteLine($"Creation: {duration}")))
         {
             generator = TGenerator.Create(new MockWorldGeneratorContext());
-            context = new ChunkContext(null!, generator, _ => null, _ => null, _ => {});
+            context = new ChunkContext(generator, CreateChunk, _ => null, _ => null, _ => {});
         }
 
         Neighborhood<Chunk?> chunks = new();
@@ -65,7 +65,7 @@ public class GeneratorTest(ITestOutputHelper output)
         using (Timer.Start(duration => output.WriteLine($"Generation: {duration}")))
         {
             foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices)
-                chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
+                chunks[index] = GenerateChunk(new ChunkPosition(index.x, index.y, index.z));
         }
 
         using (Timer.Start(duration => output.WriteLine($"Decoration: {duration}")))
@@ -78,10 +78,11 @@ public class GeneratorTest(ITestOutputHelper output)
         Assert.True(chunks.Center!.IsFullyDecorated);
 
         generator.Dispose();
+        context.Dispose();
 
-        Chunk CreateChunk(ChunkPosition position)
+        Chunk GenerateChunk(ChunkPosition position)
         {
-            Chunk chunk = new(context, blocks => new Section(blocks));
+            Chunk chunk = CreateChunk(context);
             chunk.Initialize(null!, position);
 
             using IGenerationContext generationContext = generator.CreateGenerationContext(position);
@@ -90,6 +91,11 @@ public class GeneratorTest(ITestOutputHelper output)
             chunk.Generate(generationContext, decorationContext);
 
             return chunk;
+        }
+
+        Chunk CreateChunk(ChunkContext ctx)
+        {
+            return new Chunk(ctx, blocks => new Section(blocks));
         }
     }
 }

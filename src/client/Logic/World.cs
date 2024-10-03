@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
@@ -74,9 +73,9 @@ public partial class World : Core.Logic.World
     }
 
     /// <inheritdoc />
-    protected override ChunkPool CreateChunkPool()
+    protected override Core.Logic.Chunks.Chunk CreateChunk(ChunkContext context)
     {
-        return new ChunkPool(ChunkContext, context => new Chunk(context));
+        return new Chunk(context);
     }
 
     /// <summary>

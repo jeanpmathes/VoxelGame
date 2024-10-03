@@ -174,7 +174,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     The context in which this chunk is created.
     /// </summary>
-    public ChunkContext Context { get; }
+    private ChunkContext Context { get; }
 
     /// <summary>
     ///     Get the decoration flags of this chunk.
@@ -184,7 +184,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether this chunk is generated.
     /// </summary>
-    internal Boolean IsGenerated => decoration.HasFlag(DecorationLevels.Center);
+    public Boolean IsGenerated => decoration.HasFlag(DecorationLevels.Center);
 
     /// <summary>
     ///     Whether this chunk has activated at least once since creation.

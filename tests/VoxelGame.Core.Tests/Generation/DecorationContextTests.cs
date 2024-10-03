@@ -1,4 +1,4 @@
-﻿// <copyright file="ChunkDecorationTest.cs" company="VoxelGame">
+﻿// <copyright file="DecorationContextTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -18,14 +18,12 @@ namespace VoxelGame.Core.Tests.Generation;
 
 [TestSubject(typeof(IDecorationContext))]
 [Collection("Logger")]
-public class DecorationTests
+public class DecorationContextTests : ContextTestBase
 {
-    // todo: assert flags on all chunks, even the border ones, rename test case and class as it tests the deco context, add similar for gen context
-
     [Fact]
     public void TestDecorationOfChunks()
     {
-        ChunkContext context = new(null!, null!, _ => null, _ => null, _ => {}); // todo: fix this ugly mess
+        ChunkContext context = new(null!, CreateChunk, _ => null, _ => null, _ => {});
         MockDecorationContext mockDecorationContext = new();
         IDecorationContext decorationContext = mockDecorationContext;
 
@@ -33,9 +31,11 @@ public class DecorationTests
 
         foreach ((Int32 x, Int32 y, Int32 z) index in Neighborhood.Indices)
         {
-            chunks[index] = CreateChunk(new ChunkPosition(index.x, index.y, index.z));
+            chunks[index] = CreateInitializedChunk(context, new ChunkPosition(index.x, index.y, index.z));
 
             decorationContext.DecorateCenter(chunks[index]!);
+
+            Assert.True(chunks[index]!.IsGenerated);
         }
 
         decorationContext.Decorate(chunks);
@@ -44,14 +44,6 @@ public class DecorationTests
         Assert.Equal(27 * 8 + 8 * (4 * 4 * 4 - 8), mockDecorationContext.NumberOfDecoratedSections);
 
         Assert.True(chunks.Center!.IsFullyDecorated);
-
-        Chunk CreateChunk(ChunkPosition position)
-        {
-            Chunk chunk = new(context, blocks => new Section(blocks));
-            chunk.Initialize(null!, position);
-
-            return chunk;
-        }
     }
 
     private sealed class MockDecorationContext : IDecorationContext

@@ -22,11 +22,10 @@ public sealed class ChunkPool : IDisposable
     /// <summary>
     ///     Create a new chunk pool.
     /// </summary>
-    /// <param name="context">The context in which to create chunks.</param>
     /// <param name="factory">The factory to use for creating chunks.</param>
-    public ChunkPool(ChunkContext context, Func<ChunkContext, Chunk> factory)
+    public ChunkPool(Func<Chunk> factory)
     {
-        pool = new ObjectPool<Chunk>(() => factory(context));
+        pool = new ObjectPool<Chunk>(factory);
     }
 
     /// <summary>

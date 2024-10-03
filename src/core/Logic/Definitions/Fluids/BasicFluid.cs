@@ -41,7 +41,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
     /// <param name="staticLayout">The texture layout when this fluid is static.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    public BasicFluid(String name, String namedID, Single density, Int32 viscosity, Boolean hasNeutralTint,
+    public BasicFluid(String name, String namedID, Double density, Int32 viscosity, Boolean hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
         base(
             name,

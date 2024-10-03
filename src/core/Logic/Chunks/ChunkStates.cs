@@ -54,7 +54,7 @@ public partial class Chunk
         {
             if (loading == null)
             {
-                FileInfo path = Context.Directory.GetFile(GetChunkFileName(Chunk.Position));
+                FileInfo path = Chunk.World.Data.ChunkDirectory.GetFile(GetChunkFileName(Chunk.Position));
                 loading = WaitForCompletion(() => Load(path, Chunk));
             }
             else if (loading.IsCompleted)
@@ -250,7 +250,7 @@ public partial class Chunk
         {
             if (saving == null)
             {
-                saving = WaitForCompletion(() => Chunk.Save(Context.Directory));
+                saving = WaitForCompletion(() => Chunk.Save(Chunk.World.Data.ChunkDirectory));
             }
             else if (saving.IsCompleted)
             {
