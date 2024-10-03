@@ -52,7 +52,7 @@ public static class Orientations
     public static IEnumerable<Orientation> All => orientations;
 
     /// <summary>
-    ///     Loop trough all orientations, starting depending on a position.
+    ///     Loop through all orientations, starting depending on a position.
     /// </summary>
     /// <param name="position">The position to calculate the first orientation.</param>
     /// <returns>All orientations.</returns>
@@ -187,7 +187,7 @@ public static class OrientationExtensions
     }
 
     /// <summary>
-    ///     Check if this orientation is on the x axis.
+    ///     Check if this orientation is on the x-axis.
     /// </summary>
     public static Boolean IsX(this Orientation orientation)
     {

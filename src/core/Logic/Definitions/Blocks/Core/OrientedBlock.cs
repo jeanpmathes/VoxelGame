@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
@@ -16,7 +15,7 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
-///     A block which can be rotated on the y axis.
+///     A block which can be rotated on the y-axis.
 ///     Data bit usage: <c>----oo</c>
 /// </summary>
 // o: orientation
@@ -37,21 +36,18 @@ public class OrientedBlock : BasicBlock
             position);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Orientation orientation) // todo: improve
+    private static BlockSide TranslateSide(BlockSide side, Orientation orientation)
     {
-        var index = (Int32) side;
+        if (side is BlockSide.Bottom or BlockSide.Top)
+            return side;
 
-        Debug.Assert(index is >= 0 and <= 5);
+        if (orientation is Orientation.West or Orientation.East)
+            side = side.Rotate(Axis.Y);
 
-        if (side is BlockSide.Bottom or BlockSide.Top) return side;
+        if (orientation is Orientation.South or Orientation.West)
+            side = side.Opposite();
 
-        if (((Int32) orientation & 0b01) == 1)
-            index = (3 - index * (1 - (index & 2))) % 5; // Rotates the index one step
-
-        if (((Int32) orientation & 0b10) == 2)
-            index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
-
-        return (BlockSide) index;
+        return side;
     }
 
     /// <inheritdoc />

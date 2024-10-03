@@ -338,6 +338,62 @@ public static class BlockSideExtensions
         };
     }
 
+    /// <summary>
+    ///     Rotate a side around the given axis by one step clockwise (right hand rule).
+    /// </summary>
+    public static BlockSide Rotate(this BlockSide side, Axis axis)
+    {
+        if (side == BlockSide.All)
+            throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
+
+        if (side.Axis() == axis)
+            return side;
+
+        return axis switch
+        {
+            Utilities.Axis.X => RotateAroundX(side),
+            Utilities.Axis.Y => RotateAroundY(side),
+            Utilities.Axis.Z => RotateAroundZ(side),
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
+        };
+    }
+
+    private static BlockSide RotateAroundX(BlockSide side)
+    {
+        return side switch
+        {
+            BlockSide.Front => BlockSide.Bottom,
+            BlockSide.Bottom => BlockSide.Back,
+            BlockSide.Back => BlockSide.Top,
+            BlockSide.Top => BlockSide.Front,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
+
+    private static BlockSide RotateAroundY(BlockSide side)
+    {
+        return side switch
+        {
+            BlockSide.Front => BlockSide.Right,
+            BlockSide.Right => BlockSide.Back,
+            BlockSide.Back => BlockSide.Left,
+            BlockSide.Left => BlockSide.Front,
+            BlockSide.Bottom => BlockSide.Bottom,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
+
+    private static BlockSide RotateAroundZ(BlockSide side)
+    {
+        return side switch
+        {
+            BlockSide.Top => BlockSide.Right,
+            BlockSide.Right => BlockSide.Bottom,
+            BlockSide.Bottom => BlockSide.Left,
+            BlockSide.Left => BlockSide.Top,
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
 
     /// <summary>
     ///     Check if this side is contained in the given side flags.

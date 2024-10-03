@@ -16,7 +16,7 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
-///     A block which can be rotated to be oriented on different axis. The y axis is the default orientation.
+///     A block which can be rotated to be oriented on different axis. The y-axis is the default orientation.
 ///     Data bit usage: <c>----aa</c>
 /// </summary>
 // a: axis
@@ -65,17 +65,18 @@ public class RotatedBlock : BasicBlock, ICombustible
         return (Axis) (data & 0b00_0011);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Axis axis) // todo: improve
+    private static BlockSide TranslateSide(BlockSide side, Axis axis)
     {
-        var index = (Int32) side;
-
-        index = axis switch
+        return axis switch
         {
-            Axis.X when side != BlockSide.Front && side != BlockSide.Back => 7 - index,
-            Axis.Z when side != BlockSide.Left && side != BlockSide.Right => 5 - index,
-            _ => index
+            Axis.Y => side,
+            Axis.X =>
+                // To achieve alignment along the X-axis, rotate around the Z-axis.
+                side.Rotate(Axis.Z),
+            Axis.Z =>
+                // To achieve alignment along the Z-axis, rotate around the X-axis.
+                side.Rotate(Axis.X),
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
         };
-
-        return (BlockSide) index;
     }
 }
