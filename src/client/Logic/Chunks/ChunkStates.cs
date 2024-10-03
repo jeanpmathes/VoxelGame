@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;

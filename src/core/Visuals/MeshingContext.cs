@@ -44,7 +44,7 @@ public class MeshingContext
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <param name="context">The chunk meshing context of the chunk the section is in.</param>
-    public MeshingContext(SectionPosition position, ChunkMeshingContext context)
+    public MeshingContext(SectionPosition position, IChunkMeshingContext context)
     {
         Section? section = context.GetSection(position);
         Debug.Assert(section != null);
@@ -86,7 +86,7 @@ public class MeshingContext
         return tintColors[position.X, position.Z].fluid;
     }
 
-    private static Sides<Section?> GetNeighborSections(SectionPosition position, ChunkMeshingContext context)
+    private static Sides<Section?> GetNeighborSections(SectionPosition position, IChunkMeshingContext context)
     {
         Sides<Section?> neighborSections = new();
 
@@ -96,13 +96,13 @@ public class MeshingContext
         return neighborSections;
     }
 
-    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, ChunkMeshingContext context)
+    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, IChunkMeshingContext context)
     {
         var colors = new (TintColor block, TintColor fluid)[Section.Size, Section.Size];
 
         for (var x = 0; x < Section.Size; x++)
         for (var z = 0; z < Section.Size; z++)
-            colors[x, z] = context.Map.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
+            colors[x, z] = context.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
 
         return colors;
     }

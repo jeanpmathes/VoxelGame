@@ -7,6 +7,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
@@ -24,9 +25,6 @@ namespace VoxelGame.Client.Logic.Chunks;
 /// </summary>
 public partial class Chunk : Core.Logic.Chunks.Chunk
 {
-    private Boolean hasMeshData;
-    private BlockSides meshedSides;
-
     /// <summary>
     ///     Create a new client chunk.
     /// </summary>
@@ -38,13 +36,23 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// </summary>
     public new World World => base.World.Cast();
 
+    /// <summary>
+    ///     Whether this chunk currently has mesh data.
+    /// </summary>
+    public Boolean HasMeshData { get; private set; }
+
+    /// <summary>
+    ///     Get the sides that are currently meshed.
+    /// </summary>
+    public BlockSides MeshedSides { get; private set; }
+
     /// <inheritdoc />
     public override void Initialize(Core.Logic.World world, ChunkPosition position)
     {
         base.Initialize(world, position);
 
-        hasMeshData = false;
-        meshedSides = BlockSides.None;
+        HasMeshData = false;
+        MeshedSides = BlockSides.None;
     }
 
     /// <inheritdoc />
@@ -52,8 +60,8 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         base.Reset();
 
-        hasMeshData = false;
-        meshedSides = BlockSides.None;
+        HasMeshData = false;
+        MeshedSides = BlockSides.None;
     }
 
     private Section GetSection(Int32 index)
@@ -117,8 +125,6 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         if (!this.IsUsableForMeshing()) return null;
 
         ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
-            hasMeshData,
-            meshedSides,
             SpatialMeshingFactory.Shared,
             out allowActivation);
 
@@ -144,8 +150,6 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         if (!this.IsUsableForMeshing()) return null;
 
         ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
-            hasMeshData,
-            meshedSides,
             SpatialMeshingFactory.Shared,
             out allowActivation);
 
@@ -158,7 +162,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
             // While a neighbor could have changed while this chunk was inactive, skipping is safe:
             // - If some sections have changed, the incomplete section system will fix that.
             // - If the entire neighbor has changed, that chunk will miss the flag and fix that on its activation.
-            if (meshedSides.HasFlag(current)) continue; // todo: maybe this check can now be removed (test start and move)
+            if (MeshedSides.HasFlag(current)) continue; // todo: maybe this check can now be removed (test start and move)
 
             context.GetChunk(side)?.Cast().ReMesh(side.Opposite());
         }
@@ -218,7 +222,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         if (logger.IsEnabled(LogLevel.Debug))
             LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
 
-        return context.CreateMeshData(sectionMeshes, meshedSides);
+        return context.CreateMeshData(sectionMeshes, MeshedSides);
     }
 
     /// <summary>
@@ -229,8 +233,8 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         Throw.IfDisposed(disposed);
 
-        hasMeshData = true;
-        meshedSides = meshData.Sides;
+        HasMeshData = true;
+        MeshedSides = meshData.Sides;
 
         foreach (Int32 index in meshData.Indices)
             GetSection(index).SetMeshData(meshData.SectionMeshData[index]!);
@@ -248,7 +252,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         const Double tolerance = 16.0;
 
-        if (!hasMeshData || !frustum.IsBoxVisible(chunkBox, tolerance))
+        if (!HasMeshData || !frustum.IsBoxVisible(chunkBox, tolerance))
         {
             DisableAllVfx();
 

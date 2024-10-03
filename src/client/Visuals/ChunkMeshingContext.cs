@@ -15,14 +15,14 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
-using Chunk = VoxelGame.Core.Logic.Chunks.Chunk;
+using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Visuals;
+namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     Contains all the data needed to mesh the sections of a chunk.
 /// </summary>
-public sealed class ChunkMeshingContext : IDisposable
+public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 {
     private static readonly IReadOnlyCollection<Int32>[] sideIndices;
     private static readonly IReadOnlyCollection<Int32> allIndices;
@@ -83,11 +83,6 @@ public sealed class ChunkMeshingContext : IDisposable
     }
 
     /// <summary>
-    ///     Get the meshing factory which can be used to create meshing instances.
-    /// </summary>
-    public IMeshingFactory MeshingFactory { get; }
-
-    /// <summary>
     ///     Get the sides at which neighbors are available for meshing in this context.
     /// </summary>
     public BlockSides AvailableSides { get; }
@@ -105,6 +100,25 @@ public sealed class ChunkMeshingContext : IDisposable
         null => allIndices,
         {} side => sideIndices[(Int32) side]
     };
+
+    /// <summary>
+    ///     Get the meshing factory which can be used to create meshing instances.
+    /// </summary>
+    public IMeshingFactory MeshingFactory { get; }
+
+    /// <inheritdoc />
+    public Section? GetSection(SectionPosition position)
+    {
+        Chunk? chunk = GetChunk(position.Chunk);
+
+        return chunk?.GetSection(position);
+    }
+
+    /// <inheritdoc />
+    public (TintColor block, TintColor fluid) GetPositionTint(Vector3i position)
+    {
+        return Map.GetPositionTint(position);
+    }
 
     /// <summary>
     ///     Take the access to the chunk from the context.
@@ -130,16 +144,14 @@ public sealed class ChunkMeshingContext : IDisposable
     ///     Use this method when meshing on a separate thread, but acquire on the main thread.
     /// </summary>
     /// <param name="chunk">The chunk to acquire the neighbors of. Must itself have sufficient access for meshing.</param>
-    /// <param name="hasMeshed">Whether the chunk has meshed before.</param>
-    /// <param name="meshed">Sides that were used for the last mesh creation.</param>
     /// <param name="meshingFactory">The meshing factory to use.</param>
     /// <param name="allowActivation">Whether the chunk can be activated in the case that this method returns <c>null</c>.</param>
     /// <returns>A context that can be used to mesh the chunk, or null if meshing is either not possible or worthwhile.</returns>
-    public static ChunkMeshingContext? TryAcquire(Chunk chunk, Boolean hasMeshed, BlockSides meshed, IMeshingFactory meshingFactory, out Boolean allowActivation)
+    public static ChunkMeshingContext? TryAcquire(Logic.Chunks.Chunk chunk, IMeshingFactory meshingFactory, out Boolean allowActivation)
     {
         Debug.Assert(chunk.IsUsableForMeshing());
 
-        allowActivation = false; // todo: get hasMeshed and meshed from chunk trough properties
+        allowActivation = false;
 
         if (!chunk.CanAcquireCore(Access.Read)) return null;
         if (!chunk.CanAcquireExtended(Access.Write)) return null;
@@ -154,14 +166,14 @@ public sealed class ChunkMeshingContext : IDisposable
         DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
 
         // If all wanted (considered) sides were used the last time, there is no need to mesh.
-        if (hasMeshed && meshed.HasFlag(considered))
+        if (chunk.HasMeshData && chunk.MeshedSides.HasFlag(considered))
         {
             allowActivation = true;
 
             return null;
         }
 
-        BlockSides additional = considered & ~meshed;
+        BlockSides additional = considered & ~chunk.MeshedSides;
 
         if (additional.Count() == 1)
         {
@@ -169,7 +181,7 @@ public sealed class ChunkMeshingContext : IDisposable
 
             BlockSides oppositeOfAdded = added.Opposite().ToFlag();
 
-            if (meshed.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
+            if (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
             {
                 exclusive = added;
                 considered &= ~oppositeOfAdded;
@@ -275,18 +287,6 @@ public sealed class ChunkMeshingContext : IDisposable
         Vector3i offset = mid.Position.OffsetTo(position);
 
         return GetChunk(offset.ToBlockSide());
-    }
-
-    /// <summary>
-    ///     Gets the section with the given position, if it part of the context.
-    /// </summary>
-    /// <param name="position">The position of the section.</param>
-    /// <returns>The section, or null if it is not part of the context.</returns>
-    public Section? GetSection(SectionPosition position)
-    {
-        Chunk? chunk = GetChunk(position.Chunk);
-
-        return chunk?.GetSection(position);
     }
 
     /// <summary>
