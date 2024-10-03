@@ -16,7 +16,7 @@ namespace VoxelGame.Toolkit.Collections;
 ///     Internally, the array is stored as an 1D array.
 /// </summary>
 /// <typeparam name="T">The type of the elements.</typeparam>
-public sealed class Array2D<T> : IEnumerable<T> // todo: use array 2d at all fitting places
+public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
 {
     private readonly T[] array;
 
@@ -39,31 +39,34 @@ public sealed class Array2D<T> : IEnumerable<T> // todo: use array 2d at all fit
     }
 
     /// <summary>
-    ///     Get the length of each dimension.
-    /// </summary>
-    public Int32 Length { get; }
-
-    /// <summary>
     ///     Access the element at the given position.
     /// </summary>
     /// <param name="x">The x coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
     /// <param name="y">The y coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
-    public T this[Int32 x, Int32 y]
-    {
-        get => GetRef(x, y);
-        set => GetRef(x, y) = value;
-    }
+    public ref T this[Int32 x, Int32 y] => ref GetRef(x, y);
 
     /// <summary>
     ///     Access the element at the given position.
     /// </summary>
     /// <param name="position">The position. All components must be between 0 and <see cref="Length" /> - 1.</param>
     #pragma warning disable S3876 // Vector3i is a fitting near-primitive type.
-    public T this[Vector2i position]
+    public ref T this[Vector2i position]
     #pragma warning restore S3876
     {
-        get => GetRef(position.X, position.Y);
-        set => GetRef(position.X, position.Y) = value;
+        get => ref GetRef(position.X, position.Y);
+    }
+
+    /// <summary>
+    ///     Get the length of each dimension.
+    /// </summary>
+    public Int32 Length { get; }
+
+    Int32 IArray<T>.Count => array.Length;
+
+    T IArray<T>.this[Int32 index]
+    {
+        get => array[index];
+        set => array[index] = value;
     }
 
     /// <inheritdoc />
@@ -85,11 +88,23 @@ public sealed class Array2D<T> : IEnumerable<T> // todo: use array 2d at all fit
     /// <returns>The array as a span.</returns>
     public Span<T> AsSpan() => array;
 
+    /// <summary>
+    ///     Get a reference to the element at the given position.
+    /// </summary>
     private ref T GetRef(Int32 x, Int32 y)
     {
         Debug.Assert(x >= 0 && x < Length);
         Debug.Assert(y >= 0 && y < Length);
 
         return ref array[x * xFactor + y * yFactor];
+    }
+
+    /// <summary>
+    ///     Fill the array with the given value.
+    /// </summary>
+    /// <param name="value">The value to fill the array with.</param>
+    public void Fill(T value)
+    {
+        Array.Fill(array, value);
     }
 }

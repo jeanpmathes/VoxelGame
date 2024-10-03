@@ -273,7 +273,7 @@ public partial class Map
         Dictionary<Int16, Vector2d> driftDirections = GetDriftDirections(continents.nodes);
         Dictionary<(Int16, Int16), TectonicCollision> collisions = new();
 
-        var offsets = new Single[CellCount];
+        Array2D<Single> offsets = new(Width);
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
@@ -332,13 +332,13 @@ public partial class Map
         }
     }
 
-    private static void AddOffsetsToData(Data data, Single[] offsets)
+    private static void AddOffsetsToData(Data data, Array2D<Single> offsets)
     {
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
-            current.height += Data.Get(offsets, x, y);
+            current.height += offsets[x, y];
         }
     }
 
@@ -347,7 +347,10 @@ public partial class Map
         return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
     }
 
-    private static void HandleTectonicCollision(Data data, IDictionary<(Int16, Int16), TectonicCollision> collisions, Single[] offsets,
+    private static void HandleTectonicCollision(
+        Data data,
+        IDictionary<(Int16, Int16), TectonicCollision> collisions,
+        Array2D<Single> offsets,
         TectonicCell a, TectonicCell b)
     {
         TectonicCollision collision;
@@ -396,7 +399,7 @@ public partial class Map
     ///     If both cells are land, they are pushed upwards.
     ///     If one cell is land and the other is not, the water cell is pushed under the land cell.
     /// </summary>
-    private static void HandleConvergentBoundary(Data data, Single[] offsets, TectonicCell a, TectonicCell b)
+    private static void HandleConvergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
         Double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
         Vector2d direction;
@@ -427,7 +430,7 @@ public partial class Map
             otherCell.conditions |= CellConditions.Vulcanism;
             otherCell.stoneType = StoneType.Granite;
 
-            Data.Get(offsets, water.position) = (Single) (strength * MaxConvergentBoundaryWaterSinking);
+            offsets[water.position] = (Single) (strength * MaxConvergentBoundaryWaterSinking);
         }
 
         foreach (Vector2i cellPosition in Algorithms.TraverseCells(start, direction.Normalized(), strength * 5.0))
@@ -435,7 +438,7 @@ public partial class Map
             if (IsOutOfBounds(cellPosition)) continue;
 
             Double maxLifting = data.GetCell(cellPosition).IsLand ? MaxConvergentBoundaryLandLifting : MaxConvergentBoundaryWaterLifting;
-            Data.Get(offsets, cellPosition) = (Single) (strength * maxLifting);
+            offsets[cellPosition] = (Single) (strength * maxLifting);
         }
     }
 
@@ -460,7 +463,7 @@ public partial class Map
     ///     If both cells are land, a rift is created.
     ///     If both cells are water, a rift and vulcanism is created.
     /// </summary>
-    private static void HandleDivergentBoundary(Data data, Single[] offsets, TectonicCell a, TectonicCell b)
+    private static void HandleDivergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
         Double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
 
@@ -482,8 +485,8 @@ public partial class Map
         cellA.conditions |= conditions;
         cellB.conditions |= conditions;
 
-        Data.Get(offsets, a.position) = (Single) (divergence * (cellA.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
-        Data.Get(offsets, b.position) = (Single) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        offsets[a.position] = (Single) (divergence * (cellA.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
+        offsets[b.position] = (Single) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
     }
 
     private static Dictionary<Int16, Vector2d> GetDriftDirections(List<(Int16, Double)> continentsNodes)
@@ -569,21 +572,23 @@ public partial class Map
         view.Save(path.GetFile("temperature_view.png"));
     }
 
-    private static HumidityData[] CreateInitialHumidityData()
+    private static Array2D<HumidityData> CreateInitialHumidityData()
     {
         const Single initialHumidity = 0.15f;
 
-        var initial = new HumidityData[Width * Width];
+        Array2D<HumidityData> initial = new(Width);
 
-        for (var index = 0; index < initial.Length; index++) initial[index].humidity = initialHumidity;
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+            initial[x, y].humidity = initialHumidity;
 
         return initial;
     }
 
     private static void GenerateHumidity(Data data)
     {
-        HumidityData[] current = CreateInitialHumidityData();
-        HumidityData[] next = CreateInitialHumidityData();
+        Array2D<HumidityData> current = CreateInitialHumidityData();
+        Array2D<HumidityData> next = CreateInitialHumidityData();
 
         const Int32 simulationSteps = 100;
 
@@ -597,18 +602,18 @@ public partial class Map
         for (var y = 0; y < Width; y++)
         {
             ref Cell cell = ref data.GetCell(x, y);
-            cell.humidity = Data.Get(current, (x, y)).humidity;
+            cell.humidity = current[x, y].humidity;
         }
     }
 
-    private static void SimulateClimate(Data data, HumidityData[] current, HumidityData[] next)
+    private static void SimulateClimate(Data data, Array2D<HumidityData> current, Array2D<HumidityData> next)
     {
         Parallel.For(fromInclusive: 0,
-            CellCount,
+            Width * Width,
             index =>
             {
-                Vector2i position = Data.GetPosition(index);
-                Data.Get(next, position) = SimulateCellClimate(data, current, position);
+                Vector2i position = new(index % Width, index / Width);
+                next[position] = SimulateCellClimate(data, current, position);
             });
     }
 
@@ -626,7 +631,7 @@ public partial class Map
     ///     The system is inspired by the following tutorial by Jasper Flick:
     ///     https://catlikecoding.com/unity/tutorials/hex-map/part-25/
     /// </summary>
-    private static HumidityData SimulateCellClimate(in Data data, in HumidityData[] state, Vector2i position)
+    private static HumidityData SimulateCellClimate(in Data data, in Array2D<HumidityData> state, Vector2i position)
     {
         const Single evaporationRate = 0.5f;
         const Single precipitationRate = 0.25f;
@@ -634,7 +639,7 @@ public partial class Map
         const Single windStrength = 5.0f;
 
         Cell cell = data.GetCell(position);
-        HumidityData current = Data.Get(state, position);
+        HumidityData current = state[position];
 
         HumidityData next;
 
@@ -674,7 +679,7 @@ public partial class Map
         foreach ((Vector2i neighborPosition, Boolean isInWind) in GetNeighbors(position))
         {
             Cell neighborCell = data.GetCell(neighborPosition);
-            HumidityData neighborData = Data.Get(state, neighborPosition);
+            HumidityData neighborData = state[neighborPosition];
 
             next.clouds += isInWind ? neighborData.dispersal * windStrength : neighborData.dispersal;
 

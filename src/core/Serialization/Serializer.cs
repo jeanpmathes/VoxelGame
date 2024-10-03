@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -233,6 +234,23 @@ public abstract class Serializer
         }
 
         for (Int32 index = values.Count - 1; index >= count; index--) values.RemoveAt(index);
+    }
+
+    /// <summary>
+    ///     Serialize a custom array.
+    ///     The length of the array is not serialized, so it must be constant.
+    /// </summary>
+    /// <param name="values">The array to serialize.</param>
+    /// <typeparam name="T">The type of the array.</typeparam>
+    public void SerializeValues<T>(IArray<T> values)
+        where T : IValue
+    {
+        for (var index = 0; index < values.Count; index++)
+        {
+            T value = values[index];
+            SerializeValue(ref value);
+            values[index] = value;
+        }
     }
 
     /// <summary>

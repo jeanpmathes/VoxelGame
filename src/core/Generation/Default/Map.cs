@@ -99,7 +99,6 @@ public sealed partial class Map : IMap, IDisposable
 
     private const Int32 MinimumWidth = (Int32) (World.BlockLimit * 2) / CellSize;
     private const Int32 Width = MinimumWidth + 2;
-    private const Int32 CellCount = Width * Width;
 
     private const Double MinTemperature = -5.0;
     private const Double MaxTemperature = 30.0;
@@ -857,7 +856,7 @@ public sealed partial class Map : IMap, IDisposable
 
     private sealed class Data : IEntity
     {
-        private readonly Cell[] cells = new Cell[CellCount];
+        private readonly Array2D<Cell> cells = new(Width);
 
         /// <inheritdoc />
         public static Int32 Version => 1;
@@ -870,30 +869,12 @@ public sealed partial class Map : IMap, IDisposable
 
         public ref Cell GetCell(Int32 x, Int32 y)
         {
-            return ref Get(cells, x, y);
+            return ref cells[x, y];
         }
 
         public ref Cell GetCell(Vector2i position)
         {
-            return ref Get(cells, position);
-        }
-
-        public static ref T Get<T>(in T[] array, Int32 x, Int32 y)
-        {
-            return ref array[x + y * Width];
-        }
-
-        public static ref T Get<T>(in T[] array, Vector2i position)
-        {
-            return ref Get(array, position.X, position.Y);
-        }
-
-        public static Vector2i GetPosition(Int32 index)
-        {
-            Int32 x = index % Width;
-            Int32 y = index / Width;
-
-            return new Vector2i(x, y);
+            return ref cells[position];
         }
     }
 

@@ -16,7 +16,7 @@ namespace VoxelGame.Toolkit.Collections;
 ///     Internally, the array is stored as an 1D array.
 /// </summary>
 /// <typeparam name="T">The type of the elements.</typeparam>
-public class Array3D<T> : IEnumerable<T>
+public class Array3D<T> : IEnumerable<T>, IArray<T>
 {
     private readonly T[] array;
 
@@ -40,9 +40,9 @@ public class Array3D<T> : IEnumerable<T>
     }
 
     /// <summary>
-    ///     Get the length of each dimension.
+    /// Get the total number of elements in the array.
     /// </summary>
-    public Int32 Length { get; }
+    protected Int32 Count => array.Length;
 
     /// <summary>
     ///     Access the element at the given position.
@@ -66,6 +66,19 @@ public class Array3D<T> : IEnumerable<T>
     {
         get => GetRef(position.X, position.Y, position.Z);
         set => GetRef(position.X, position.Y, position.Z) = value;
+    }
+
+    /// <summary>
+    ///     Get the length of each dimension.
+    /// </summary>
+    public Int32 Length { get; }
+
+    Int32 IArray<T>.Count => Count;
+
+    T IArray<T>.this[Int32 index]
+    {
+        get => array[index];
+        set => array[index] = value;
     }
 
     /// <inheritdoc />
@@ -94,5 +107,14 @@ public class Array3D<T> : IEnumerable<T>
         Debug.Assert(z >= 0 && z < Length);
 
         return ref array[x * xFactor + y * yFactor + z * zFactor];
+    }
+
+    /// <summary>
+    ///     Fill the array with the given value.
+    /// </summary>
+    /// <param name="value">The value to fill the array with.</param>
+    public void Fill(T value)
+    {
+        Array.Fill(array, value);
     }
 }
