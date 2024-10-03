@@ -3,12 +3,9 @@
 Noise::Noise(NoiseDefinition const& definition)
     : m_seed(definition.seed)
 {
-    if (definition.type == NoiseType::PERLIN) m_generator = FastNoise::New<FastNoise::Perlin>();
-    else if (definition.type == NoiseType::OPEN_SIMPLEX_2) m_generator = FastNoise::New<FastNoise::OpenSimplex2>();
-    else if (definition.type == NoiseType::CELLULAR_VALUE) m_generator = FastNoise::New<FastNoise::CellularValue>();
-    else if (definition.type == NoiseType::CELLULAR_DISTANCE) m_generator = FastNoise::New<
-        FastNoise::CellularDistance>();
-    else m_generator = FastNoise::New<FastNoise::Constant>();
+    if (definition.type == NoiseType::GRADIENT) m_generator = FastNoise::New<FastNoise::OpenSimplex2>();
+    else if (definition.type == NoiseType::CELLULAR) m_generator = FastNoise::New<FastNoise::CellularValue>();
+    else m_generator                                             = FastNoise::New<FastNoise::Constant>();
 
     if (definition.useFractal)
     {

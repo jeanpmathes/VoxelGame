@@ -266,7 +266,7 @@ public sealed partial class Map : IMap, IDisposable
         NoiseGenerator CreateSamplingNoise()
         {
             return factory.CreateNext()
-                .WithType(NoiseType.OpenSimplex2)
+                .WithType(NoiseType.GradientNoise)
                 .WithFrequency(frequency: 0.01f)
                 .WithFractals()
                 .WithOctaves(octaves: 5)
@@ -279,7 +279,7 @@ public sealed partial class Map : IMap, IDisposable
         NoiseGenerator CreateStoneNoise()
         {
             return factory.CreateNext()
-                .WithType(NoiseType.OpenSimplex2)
+                .WithType(NoiseType.GradientNoise)
                 .WithFrequency(frequency: 0.05f)
                 .WithFractals()
                 .WithOctaves(octaves: 2)
@@ -324,12 +324,12 @@ public sealed partial class Map : IMap, IDisposable
     private void SetUpGeneratingNoise(NoiseFactory factory)
     {
         generatingNoise.Pieces = factory.CreateNext()
-            .WithType(NoiseType.CellularValue)
+            .WithType(NoiseType.CellularNoise)
             .WithFrequency(frequency: 0.05f)
             .Build();
 
         generatingNoise.Stone = factory.CreateNext()
-            .WithType(NoiseType.OpenSimplex2)
+            .WithType(NoiseType.GradientNoise)
             .WithFrequency(frequency: 0.08f)
             .Build();
     }

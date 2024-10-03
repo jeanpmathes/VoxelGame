@@ -120,7 +120,7 @@ public sealed class Biome : IDisposable
     private void SetUpNoise(NoiseBuilder builder)
     {
         noise = builder
-            .WithType(NoiseType.OpenSimplex2)
+            .WithType(NoiseType.GradientNoise)
             .WithFrequency(Frequency)
             .WithFractals()
             .WithOctaves(octaves: 3)

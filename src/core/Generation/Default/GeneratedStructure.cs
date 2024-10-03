@@ -89,7 +89,7 @@ public sealed class GeneratedStructure
     public void SetUpNoise(NoiseFactory factory)
     {
         noise = factory.CreateNext()
-            .WithType(NoiseType.OpenSimplex2)
+            .WithType(NoiseType.GradientNoise)
             .WithFrequency(frequency)
             .Build();
     }

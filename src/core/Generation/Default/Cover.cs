@@ -39,7 +39,7 @@ public sealed class Cover : IDisposable
     public void SetUpNoise(NoiseBuilder builder)
     {
         noise = builder
-            .WithType(NoiseType.OpenSimplex2)
+            .WithType(NoiseType.GradientNoise)
             .WithFrequency(frequency: 0.5f)
             .Build();
     }

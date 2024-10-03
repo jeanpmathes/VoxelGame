@@ -8,10 +8,8 @@
 
 enum class NoiseType : INT8
 {
-    PERLIN            = 0,
-    OPEN_SIMPLEX_2    = 1,
-    CELLULAR_VALUE    = 2,
-    CELLULAR_DISTANCE = 3,
+    GRADIENT = 0,
+    CELLULAR = 1,
 };
 
 struct NoiseDefinition

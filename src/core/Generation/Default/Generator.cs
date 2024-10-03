@@ -74,7 +74,7 @@ public sealed partial class Generator : IWorldGenerator
         }
 
         decorationNoise = worldNoiseFactory.CreateNext()
-            .WithType(NoiseType.OpenSimplex2)
+            .WithType(NoiseType.GradientNoise)
             .WithFrequency(frequency: 0.5f)
             .Build();
 

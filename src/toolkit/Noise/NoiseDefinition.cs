@@ -18,24 +18,14 @@ namespace VoxelGame.Toolkit.Noise;
 public enum NoiseType
 {
     /// <summary>
-    /// Perlin noise.
+    /// Simplex-based gradient noise.
     /// </summary>
-    Perlin = 0, // todo: check all usages of Perlin and try to use OpenSimplex2, rename that to a more generic name
-
-    /// <summary>
-    /// Simplex noise.
-    /// </summary>
-    OpenSimplex2 = 1,
+    GradientNoise = 0,
 
     /// <summary>
     /// Cellular noise, giving the cell value.
     /// </summary>
-    CellularValue = 2,
-
-    /// <summary>
-    /// Cellular noise, giving the distance to the nearest cell center.
-    /// </summary>
-    CellularDistance = 3,
+    CellularNoise = 1
 }
 
 /// <summary>
@@ -57,7 +47,7 @@ public struct NoiseDefinition
     /// <summary>
     /// The type of noise generator.
     /// </summary>
-    public NoiseType Type { get; set; } = NoiseType.OpenSimplex2;
+    public NoiseType Type { get; set; } = NoiseType.GradientNoise;
 
     /// <summary>
     /// The frequency of the generated noise.
