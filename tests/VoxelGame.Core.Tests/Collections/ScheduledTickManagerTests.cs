@@ -112,6 +112,8 @@ public class ScheduledTickManagerTests
 
     private class TestTick(Int32 id) : ITickable
     {
+        private Int32 id = id;
+
         public TestTick() : this(id: -1) {}
 
         public void Tick(World world)

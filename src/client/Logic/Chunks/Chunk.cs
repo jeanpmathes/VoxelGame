@@ -72,19 +72,12 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <summary>
     /// Ask a chunk to consider re-meshing because of a (newly) active neighbor.
     /// </summary>
-    /// <param name="side">The side where the neighbor is now active.</param>
-    public void ReMesh(BlockSide side)
+    public void ReMesh()
     {
         Throw.IfDisposed(disposed);
 
         if (!this.IsUsableForMeshing()) return;
-
-        // todo: think about this check again, seems wrong
-        //if (meshedSides == BlockSides.None && this.ShouldMeshAccordingToNeighborState())
-        //return;
-
-        // todo: check that there are any sides that are considered but are not yet meshed, if not return
-        // todo: tldr - only consider meshing if improvement would actually be made
+        if (!this.IsReMeshingValuable()) return;
 
         // The hidden state will then try to activate, which then meshes if necessary.
         State.RequestNextState<Hidden>();
@@ -121,7 +114,6 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         allowActivation = false;
 
-        if (!this.ShouldMeshAccordingToNeighborState()) return null;
         if (!this.IsUsableForMeshing()) return null;
 
         ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
@@ -131,7 +123,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         if (context == null) return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
-            context.GetChunk(side)?.Cast().ReMesh(side.Opposite());
+            context.GetChunk(side)?.Cast().ReMesh();
 
         return new Meshing(context);
     }
@@ -164,8 +156,10 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
             // - If the entire neighbor has changed, that chunk will miss the flag and fix that on its activation.
             if (MeshedSides.HasFlag(current)) continue; // todo: maybe this check can now be removed (test start and move)
 
-            context.GetChunk(side)?.Cast().ReMesh(side.Opposite());
+            context.GetChunk(side)?.Cast().ReMesh();
         }
+
+        // todo: then check if strong-mesh-option and weak-mesh-option have same code, if yes, merge them
 
         return new Meshing(context);
     }

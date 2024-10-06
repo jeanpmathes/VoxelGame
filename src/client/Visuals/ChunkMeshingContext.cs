@@ -140,6 +140,20 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     }
 
     /// <summary>
+    ///     Whether re-meshing would potentially be valuable, considering the neighbors.
+    ///     If not, the chunk should not be re-meshed.
+    /// </summary>
+    /// <returns>Whether re-meshing would be valuable.</returns>
+    public static Boolean IsReMeshingValuable(Logic.Chunks.Chunk chunk)
+    {
+        Sides<(Chunk chunk, Guard? guard)?> neighbors = new();
+
+        DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
+
+        return !CanActivate(chunk, considered) && CanMeshNow(chunk, considered, acquirable, out _);
+    }
+
+    /// <summary>
     ///     Try to acquire the chunks around the given chunk for meshing.
     ///     Use this method when meshing on a separate thread, but acquire on the main thread.
     /// </summary>
@@ -158,38 +172,21 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         Sides<(Chunk chunk, Guard? guard)?> neighbors = new();
 
-        // Exclusive meshing only meshes a single side of a chunk.
-        // Because a side still has width, all neighbors except the opposite side are needed.
-        // Exclusive meshing serves to reduce the number of chunks that are deactivated on meshing.
-        BlockSide? exclusive = null;
-
         DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
 
-        // If all wanted (considered) sides were used the last time, there is no need to mesh.
-        if (chunk.HasMeshData && chunk.MeshedSides.HasFlag(considered))
+        if (CanActivate(chunk, considered))
         {
             allowActivation = true;
 
             return null;
         }
 
-        BlockSides additional = considered & ~chunk.MeshedSides;
+        // Exclusive meshing only meshes a single side of a chunk.
+        // Because a side still has width, all neighbors except the opposite side are needed.
+        // Exclusive meshing serves to reduce the number of chunks that are deactivated on meshing.
 
-        if (additional.Count() == 1)
-        {
-            BlockSide added = additional.Single();
-
-            BlockSides oppositeOfAdded = added.Opposite().ToFlag();
-
-            if (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
-            {
-                exclusive = added;
-                considered &= ~oppositeOfAdded;
-            }
-        }
-
-        // If not all wanted sides are acquirable, it is preferable to mesh later.
-        if (!acquirable.HasFlag(considered)) return null;
+        if (!CanMeshNow(chunk, considered, acquirable, out BlockSide? exclusive))
+            return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
@@ -217,6 +214,38 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         (Guard core, Guard extended)? guards = (chunk.AcquireCore(Access.Read)!, chunk.AcquireExtended(Access.Write)!);
 
         return new ChunkMeshingContext(chunk, guards, neighbors, considered, exclusive, meshingFactory);
+    }
+
+    /// <summary>
+    ///     If all wanted (considered) sides were used the last time, there is no need to mesh.
+    /// </summary>
+    private static Boolean CanActivate(Logic.Chunks.Chunk chunk, BlockSides considered)
+    {
+        return chunk.HasMeshData && chunk.MeshedSides.HasFlag(considered);
+    }
+
+    /// <summary>
+    ///     If not all wanted (considered) sides are acquirable, it is preferable to mesh later.
+    /// </summary>
+    private static Boolean CanMeshNow(Logic.Chunks.Chunk chunk, BlockSides considered, BlockSides acquirable, out BlockSide? exclusive)
+    {
+        exclusive = null;
+
+        BlockSides additional = considered & ~chunk.MeshedSides;
+
+        if (additional.Count() != 1)
+            return acquirable.HasFlag(considered);
+
+        BlockSide added = additional.Single();
+        BlockSides oppositeOfAdded = added.Opposite().ToFlag();
+
+        if (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
+        {
+            exclusive = added;
+            considered &= ~oppositeOfAdded;
+        }
+
+        return acquirable.HasFlag(considered);
     }
 
     /// <summary>
@@ -362,31 +391,6 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 public static class ChunkMeshingExtensions
 {
     /// <summary>
-    ///     Check whether the chunk should mesh - depending on the state of its neighbors.
-    ///     Only needs to be checked if the chunk wants to mesh the first time
-    ///     and is not relevant for meshing caused by outside requests.
-    ///     If there are any neighbors that still have to be decorated, meshing should not start.
-    ///     This constraint is meant to reduce the amount of meshing work but is not necessary for correctness.
-    /// </summary>
-    public static Boolean ShouldMeshAccordingToNeighborState(this Chunk chunk)
-    {
-        // todo: check if this method is still needed as chunks would not mesh anyway
-        // todo: then check if strong-mesh-option and weak-mesh-option have same code, if yes, merge them
-
-        foreach (BlockSide side in BlockSide.All.Sides())
-        {
-            ChunkPosition neighborPosition = side.Offset(chunk.Position);
-
-            if (!chunk.World.TryGetChunk(neighborPosition, out Chunk? neighbor)) continue;
-
-            if (neighbor is {IsRequestedToActivate: true, IsFullyDecorated: false})
-                return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
     /// Whether the chunk is generally wanted to be included in the meshing process.
     /// A chunk is wanted if it is requested to activate.
     /// </summary>
@@ -402,5 +406,11 @@ public static class ChunkMeshingExtensions
     public static Boolean IsUsableForMeshing(this Chunk chunk)
     {
         return chunk.IsWantedForMeshing() && chunk.IsFullyDecorated;
+    }
+
+    /// <inheritdoc cref="ChunkMeshingContext.IsReMeshingValuable" />
+    public static Boolean IsReMeshingValuable(this Logic.Chunks.Chunk chunk)
+    {
+        return ChunkMeshingContext.IsReMeshingValuable(chunk);
     }
 }
