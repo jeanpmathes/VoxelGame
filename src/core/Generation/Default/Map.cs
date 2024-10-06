@@ -648,10 +648,10 @@ public sealed partial class Map : IMap, IDisposable
     {
         Debug.Assert(data != null);
 
-        // todo: if all four stone types are equal (add VMath.AreEqual) then do not sample noise
-        // todo: also think about the fact that the transition region is quite small
-        // todo: check more usages of SelectByWeight for similar opportunities
-        // todo: or maybe don't do that, because it reduces code readability
+        if (sample.StoneData.stone00 == sample.StoneData.stone10 &&
+            sample.StoneData.stone00 == sample.StoneData.stone01 &&
+            sample.StoneData.stone00 == sample.StoneData.stone11)
+            return sample.StoneData.stone00;
 
         const Double transitionFactor = 0.05;
 
