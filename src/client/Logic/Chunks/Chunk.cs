@@ -104,11 +104,11 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    ///     Process a chance to mesh the entire chunk on strong activation.
+    ///     Process a chance to mesh the entire chunk on activation.
     /// </summary>
     /// <param name="allowActivation">Whether the chunk can be activated in the case that this method returns <c>null</c>.</param>
     /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
-    public Core.Logic.Chunks.ChunkState? ProcessStrongActivationMeshingOption(out Boolean allowActivation)
+    public Core.Logic.Chunks.ChunkState? ProcessMeshingOption(out Boolean allowActivation)
     {
         Throw.IfDisposed(disposed);
 
@@ -124,42 +124,6 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         foreach (BlockSide side in BlockSide.All.Sides())
             context.GetChunk(side)?.Cast().ReMesh();
-
-        return new Meshing(context);
-    }
-
-    /// <summary>
-    ///     Process a chance to mesh the entire chunk on weak activation.
-    /// </summary>
-    /// <param name="allowActivation">Whether the chunk can be activated in the case that this method returns <c>null</c>.</param>
-    /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
-    public Core.Logic.Chunks.ChunkState? ProcessWeakActivationMeshingOption(out Boolean allowActivation)
-    {
-        Throw.IfDisposed(disposed);
-
-        allowActivation = false;
-
-        if (!this.IsUsableForMeshing()) return null;
-
-        ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
-            SpatialMeshingFactory.Shared,
-            out allowActivation);
-
-        if (context == null) return null;
-
-        foreach (BlockSide side in BlockSide.All.Sides()) // todo: maybe this can be completely removed / be as simple as in strong activation
-        {
-            BlockSides current = side.ToFlag();
-
-            // While a neighbor could have changed while this chunk was inactive, skipping is safe:
-            // - If some sections have changed, the incomplete section system will fix that.
-            // - If the entire neighbor has changed, that chunk will miss the flag and fix that on its activation.
-            if (MeshedSides.HasFlag(current)) continue; // todo: maybe this check can now be removed (test start and move)
-
-            context.GetChunk(side)?.Cast().ReMesh();
-        }
-
-        // todo: then check if strong-mesh-option and weak-mesh-option have same code, if yes, merge them
 
         return new Meshing(context);
     }

@@ -218,25 +218,13 @@ public partial class World : Core.Logic.World
     /// <inheritdoc />
     protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
-        ChunkState? state = activatedChunk.ProcessDecorationOption();
-
-        if (state != null) return state;
-
-        state = activatedChunk.Cast().ProcessStrongActivationMeshingOption(out Boolean allowActivation);
-
-        if (state != null) return state;
-
-        return allowActivation
-            ? new Core.Logic.Chunks.Chunk.Active()
-            : null;
+        return activatedChunk.ProcessDecorationOption() ?? ProcessActivatedChunk(activatedChunk);
     }
 
     /// <inheritdoc />
     protected override ChunkState? ProcessActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
-        Debug.Assert(activatedChunk.IsFullyDecorated);
-
-        ChunkState? state = activatedChunk.Cast().ProcessWeakActivationMeshingOption(out Boolean allowActivation);
+        ChunkState? state = activatedChunk.Cast().ProcessMeshingOption(out Boolean allowActivation);
 
         if (state != null) return state;
 
