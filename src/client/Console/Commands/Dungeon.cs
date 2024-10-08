@@ -6,13 +6,15 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Generation.Dungeons;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -35,34 +37,42 @@ public class Dungeon : Command
         Vector3i start = Context.Player.Position.Floor();
         World world = Context.Player.World;
 
+        var concrete = (ConcreteBlock) Blocks.Instance.Concrete; // todo: fix this
+        BlockInstance glass = Blocks.Instance.Glass.AsInstance();
+
         Coroutine.Start(GenerateDungeon);
 
         IEnumerable GenerateDungeon()
         {
             Random random = new();
 
-            var directions = new List<Vector3i>
+            Generator generator = new(new Parameters(Levels: 1, Size: 9));
+            Array2D<Area?> dungeon = generator.Generate(random.Next());
+
+            for (var x = 0; x < dungeon.Length; x++)
+            for (var z = 0; z < dungeon.Length; z++)
             {
-                (1, 0, 0), // Move right
-                (-1, 0, 0), // Move left
-                (0, 1, 0), // Move up
-                (0, -1, 0), // Move down
-                (0, 0, 1), // Move forward
-                (0, 0, -1) // Move backward
-            };
-
-            Vector3i direction = directions[random.Next(directions.Count)];
-            Vector3i position = start;
-
-            while (true)
-            {
-                world.SetBlock(Blocks.Instance.Wood.AsInstance(), position);
-
-                position += direction;
-
-                if (random.Next(minValue: 0, maxValue: 10) < 2) direction = directions[random.Next(directions.Count)];
-
                 yield return null;
+
+                Area? area = dungeon[x, z];
+                Vector3i position = start + new Vector3i(x, y: 0, z) * 3;
+
+                if (area == null)
+                {
+                    world.SetBlock(glass, position);
+                }
+                else
+                {
+                    BlockColor color = area.Category switch
+                    {
+                        AreaCategory.Start => BlockColor.Blue,
+                        AreaCategory.Generic => BlockColor.Default,
+                        AreaCategory.End => BlockColor.Orange,
+                        _ => BlockColor.Red
+                    };
+
+                    concrete.Place(world, FluidLevel.Eight, position, color);
+                }
             }
         }
     }

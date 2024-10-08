@@ -104,10 +104,11 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     /// <param name="world">The world in which the block will be placed.</param>
     /// <param name="level">The height of the block, given in fluid levels.</param>
     /// <param name="position">The position where the block will be placed.</param>
-    public void Place(World world, FluidLevel level, Vector3i position)
+    /// <param name="color">The color of the block.</param>
+    public void Place(World world, FluidLevel level, Vector3i position, BlockColor color = BlockColor.Default)
     {
         if (Place(world, position))
-            world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);
+            world.SetBlock(this.AsInstance(Encode(color, level.GetBlockHeight())), position);
     }
 
     /// <inheritdoc />
