@@ -6,7 +6,7 @@
 
 using System;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation;
+using VoxelGame.Core.Generation.Worlds;
 
 namespace VoxelGame.Core.Logic.Chunks;
 

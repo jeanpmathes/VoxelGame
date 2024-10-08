@@ -8,7 +8,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Generation.Default;
+using VoxelGame.Core.Generation.Worlds.Default;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;

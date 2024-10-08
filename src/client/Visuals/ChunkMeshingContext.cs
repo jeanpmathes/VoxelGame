@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation;
+using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;

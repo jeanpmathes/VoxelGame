@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation;
+using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
