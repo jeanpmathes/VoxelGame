@@ -1,4 +1,4 @@
-﻿// <copyright file="OperationUpdateDispatch.cs" company="VoxelGame">
+﻿// <copyright file="UpdateDispatch.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,17 +11,17 @@ using VoxelGame.Core.Collections;
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
-///     Stores and updates all operations.
+///     Stores and updates all operations and routines implementing <see cref="IUpdate"/>.
 /// </summary>
-public class OperationUpdateDispatch
+public class UpdateDispatch
 {
-    private readonly Bag<Operation> operations = new(null!);
+    private readonly Bag<IUpdate> entries = new(null!);
 
     /// <summary>
     ///     Create a new operation update dispatch instance.
     /// </summary>
     /// <param name="singleton">Whether to make this the singleton instance.</param>
-    public OperationUpdateDispatch(Boolean singleton = false)
+    public UpdateDispatch(Boolean singleton = false)
     {
         if (!singleton) return;
 
@@ -33,29 +33,27 @@ public class OperationUpdateDispatch
     /// <summary>
     ///     The singleton instance of the operation update dispatch.
     /// </summary>
-    public static OperationUpdateDispatch? Instance { get; private set; }
+    public static UpdateDispatch? Instance { get; private set; }
 
     /// <summary>
     ///     Perform an update.
     /// </summary>
     public void Update()
     {
-        operations.Apply(operation =>
+        entries.Apply(entry =>
         {
-            operation.Update();
+            entry.Update();
 
-            return operation.IsRunning;
+            return entry.IsRunning;
         });
     }
 
     /// <summary>
-    ///     Add an operation. This will start the operation.
+    ///     Add an entry to the dispatch.
     /// </summary>
-    /// <param name="operation">The operation to add.</param>
-    public void Add(Operation operation)
+    /// <param name="entry">The entry to add.</param>
+    public void Add(IUpdate entry)
     {
-        operation.Start();
-
-        operations.Add(operation);
+        entries.Add(entry);
     }
 }

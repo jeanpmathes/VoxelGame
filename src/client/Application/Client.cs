@@ -15,8 +15,8 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -31,7 +31,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     private readonly SceneFactory sceneFactory;
     private readonly SceneManager sceneManager;
 
-    private readonly OperationUpdateDispatch operations = new(singleton: true);
+    private readonly UpdateDispatch operations = new(singleton: true);
 
     private WindowBehaviour windowBehaviour = null!;
 

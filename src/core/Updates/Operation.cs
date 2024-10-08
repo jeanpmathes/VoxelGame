@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Updates;
 ///     This means that it is only considered completed after both the actual work has completed and the main thread has
 ///     detected this.
 /// </summary>
-public abstract class Operation
+public abstract class Operation : IUpdate
 {
     private const Int32 Working = (Int32) Status.Running;
 
@@ -43,11 +43,6 @@ public abstract class Operation
     private Boolean IsCompleted => Status != Status.Running;
 
     /// <summary>
-    ///     Whether the operation is currently running.
-    /// </summary>
-    public Boolean IsRunning => Status == Status.Running;
-
-    /// <summary>
     ///     Gets the error that occurred during the operation, if any.
     /// </summary>
     public Exception? Error { get; private set; }
@@ -56,6 +51,28 @@ public abstract class Operation
     ///     Whether the operation was successful.
     /// </summary>
     public Boolean IsOk => Status == Status.Ok;
+
+    /// <summary>
+    ///     Whether the operation is currently running.
+    /// </summary>
+    public Boolean IsRunning => Status == Status.Running;
+
+    /// <inheritdoc />
+    public void Update()
+    {
+        if (IsCompleted)
+            return;
+
+        var next = (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0);
+
+        if (next == Status.Running)
+            return;
+
+        Status = next;
+        Error = Interlocked.CompareExchange(ref workException, value: null, comparand: null);
+
+        Completion(this, EventArgs.Empty);
+    }
 
     /// <summary>
     ///     Invoked when the operation has completed.
@@ -96,25 +113,6 @@ public abstract class Operation
     }
 
     /// <summary>
-    ///     Is called by <see cref="OperationUpdateDispatch" /> to update the operation.
-    /// </summary>
-    internal void Update()
-    {
-        if (IsCompleted)
-            return;
-
-        var next = (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0);
-
-        if (next == Status.Running)
-            return;
-
-        Status = next;
-        Error = Interlocked.CompareExchange(ref workException, value: null, comparand: null);
-
-        Completion(this, EventArgs.Empty);
-    }
-
-    /// <summary>
     ///     Perform an action directly after the operation has successfully completed.
     ///     Might run on a background thread.
     ///     Not all operations support this.
@@ -147,7 +145,7 @@ public abstract class Operation
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
     public void OnCompletion(Action<Operation> action, CancellationToken token = default)
     {
-        if (OperationUpdateDispatch.Instance == null)
+        if (UpdateDispatch.Instance == null)
             throw new InvalidOperationException();
 
         Completion += (_, _) =>

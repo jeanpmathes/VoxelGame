@@ -18,10 +18,12 @@ public static class Operations
 {
     private static void RegisterOperation(Operation operation)
     {
-        if (OperationUpdateDispatch.Instance == null)
+        if (UpdateDispatch.Instance == null)
             throw new InvalidOperationException();
 
-        OperationUpdateDispatch.Instance.Add(operation);
+        operation.Start();
+
+        UpdateDispatch.Instance.Add(operation);
     }
 
     /// <summary>
