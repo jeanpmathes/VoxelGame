@@ -150,7 +150,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
 
-        return !CanActivate(chunk, considered) && CanMeshNow(chunk, considered, acquirable, out _);
+        return !CanActivate(chunk, considered) && CanMeshNow(chunk, acquirable, ref considered, out _);
     }
 
     /// <summary>
@@ -185,7 +185,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         // Because a side still has width, all neighbors except the opposite side are needed.
         // Exclusive meshing serves to reduce the number of chunks that are deactivated on meshing.
 
-        if (!CanMeshNow(chunk, considered, acquirable, out BlockSide? exclusive))
+        if (!CanMeshNow(chunk, acquirable, ref considered, out BlockSide? exclusive))
             return null;
 
         foreach (BlockSide side in BlockSide.All.Sides())
@@ -227,7 +227,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     If not all wanted (considered) sides are acquirable, it is preferable to mesh later.
     /// </summary>
-    private static Boolean CanMeshNow(Logic.Chunks.Chunk chunk, BlockSides considered, BlockSides acquirable, out BlockSide? exclusive)
+    private static Boolean CanMeshNow(Logic.Chunks.Chunk chunk, BlockSides acquirable, ref BlockSides considered, out BlockSide? exclusive)
     {
         exclusive = null;
 
@@ -338,6 +338,17 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         }
 
         return new ChunkMeshData(sectionMeshData, sides, SectionIndices);
+    }
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        var text = $"[{AvailableSides.ToCompactString()}]";
+
+        if (exclusiveSide is {} side)
+            text += $"+({side.ToCompactString()})";
+
+        return text;
     }
 
     #region IDisposable Support

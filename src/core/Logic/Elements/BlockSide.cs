@@ -156,6 +156,26 @@ public static class BlockSideExtensions
     }
 
     /// <summary>
+    ///     Get a compact string representation of a single side.
+    /// </summary>
+    /// <param name="side">The side.</param>
+    /// <returns>The string representation.</returns>
+    public static String ToCompactString(this BlockSide side)
+    {
+        return side switch
+        {
+            BlockSide.All => "A",
+            BlockSide.Front => "F",
+            BlockSide.Back => "B",
+            BlockSide.Left => "L",
+            BlockSide.Right => "R",
+            BlockSide.Bottom => "D",
+            BlockSide.Top => "U",
+            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+        };
+    }
+
+    /// <summary>
     ///     Get the number of sides set in the flags.
     /// </summary>
     public static Int32 Count(this BlockSides side)

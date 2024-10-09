@@ -169,16 +169,14 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     private ChunkMeshData CreateMeshData(ChunkMeshingContext context)
     {
-        if (logger.IsEnabled(LogLevel.Debug))
-            LogStartedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
+        LogStartedCreatingMeshData(logger, Position, context);
 
         var sectionMeshes = new SectionMeshData?[SectionCount];
 
         foreach (Int32 index in context.SectionIndices)
             sectionMeshes[index] = GetSection(index).CreateMeshData(context);
 
-        if (logger.IsEnabled(LogLevel.Debug))
-            LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
+        LogFinishedCreatingMeshData(logger, Position, context);
 
         return context.CreateMeshData(sectionMeshes, MeshedSides);
     }
@@ -190,6 +188,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     public void SetMeshData(ChunkMeshData meshData)
     {
         Throw.IfDisposed(disposed);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+            LogSettingMeshData(logger, Position, MeshedSides.ToCompactString(), meshData.Sides.ToCompactString());
 
         HasMeshData = true;
         MeshedSides = meshData.Sides;
@@ -240,11 +241,18 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
-    private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
-    private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
+
+    [LoggerMessage(
+        EventId = Events.ChunkOperation,
+        Level = LogLevel.Debug,
+        Message = "Setting mesh data of chunk {Position}, changing meshed sides from [{OldSides}] to [{NewSides}]",
+        SkipEnabledCheck = true)]
+    private static partial void LogSettingMeshData(ILogger logger, ChunkPosition position, String oldSides, String newSides);
 
     #endregion LOGGING
 
