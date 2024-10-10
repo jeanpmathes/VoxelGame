@@ -61,6 +61,18 @@ public class Dungeon : Command
                 {
                     world.SetBlock(glass, position);
                 }
+                else if (area.Category == AreaCategory.Corridor)
+                {
+                    concrete.Place(world, FluidLevel.Eight, position);
+
+                    foreach (BlockSide side in BlockSide.All.Sides())
+                    {
+                        if (!area.Connections.HasFlag(side.ToFlag())) continue;
+
+                        Vector3i offset = side.Direction();
+                        concrete.Place(world, FluidLevel.Eight, position + offset);
+                    }
+                }
                 else
                 {
                     BlockColor color = area.Category switch
@@ -71,7 +83,10 @@ public class Dungeon : Command
                         _ => BlockColor.Red
                     };
 
-                    concrete.Place(world, FluidLevel.Eight, position, color);
+                    for (Int32 dx = -1; dx <= 1; dx++)
+                    for (Int32 dy = -1; dy <= 1; dy++)
+                    for (Int32 dz = -1; dz <= 1; dz++)
+                        concrete.Place(world, FluidLevel.Eight, position + (dx, dy, dz), color);
                 }
             }
         }

@@ -17,6 +17,11 @@ public enum AreaCategory
     Start,
 
     /// <summary>
+    ///     An area just with corridors, connecting other areas.
+    /// </summary>
+    Corridor,
+
+    /// <summary>
     ///     A generic area.
     /// </summary>
     Generic,

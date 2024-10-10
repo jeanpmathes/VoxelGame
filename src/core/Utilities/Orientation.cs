@@ -80,6 +80,29 @@ public static class OrientationExtensions
     }
 
     /// <summary>
+    ///     Convert a vector to an orientation.
+    /// </summary>
+    public static Orientation ToOrientation(this Vector3i vector)
+    {
+        return vector.Xz.ToOrientation();
+    }
+
+    /// <summary>
+    ///     Convert a vector to an orientation.
+    /// </summary>
+    public static Orientation ToOrientation(this Vector2i vector)
+    {
+        return vector switch
+        {
+            {X: 0, Y: -1} => Orientation.North,
+            {X: 1, Y: 0} => Orientation.East,
+            {X: 0, Y: 1} => Orientation.South,
+            {X: -1, Y: 0} => Orientation.West,
+            _ => throw new ArgumentOutOfRangeException(nameof(vector), vector, message: null)
+        };
+    }
+
+    /// <summary>
     ///     Convert an orientation to a vector.
     /// </summary>
     public static Vector3d ToVector3(this Orientation orientation)
@@ -99,8 +122,17 @@ public static class OrientationExtensions
             Orientation.East => Vector3i.UnitX,
             Orientation.South => Vector3i.UnitZ,
             Orientation.West => -Vector3i.UnitX,
-            _ => -Vector3i.UnitZ
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
+    }
+
+    /// <summary>
+    ///     Convert an orientation to a 2D vector.
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public static Vector2i ToVector2i(this Orientation orientation)
+    {
+        return orientation.ToVector3i().Xz;
     }
 
     /// <summary>
@@ -114,7 +146,7 @@ public static class OrientationExtensions
             Orientation.East => BlockSide.Right,
             Orientation.South => BlockSide.Front,
             Orientation.West => BlockSide.Left,
-            _ => BlockSide.Back
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
 
@@ -129,7 +161,7 @@ public static class OrientationExtensions
             Orientation.East => Orientation.West,
             Orientation.South => Orientation.North,
             Orientation.West => Orientation.East,
-            _ => Orientation.North
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
 
@@ -144,7 +176,7 @@ public static class OrientationExtensions
             Orientation.East => Orientation.South,
             Orientation.South => Orientation.West,
             Orientation.West => Orientation.North,
-            _ => Orientation.North
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
 
@@ -167,7 +199,7 @@ public static class OrientationExtensions
             Orientation.East => tuple.east,
             Orientation.South => tuple.south,
             Orientation.West => tuple.west,
-            _ => tuple.north
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
 
@@ -182,7 +214,7 @@ public static class OrientationExtensions
             Orientation.East => 0b0100,
             Orientation.South => 0b0010,
             Orientation.West => 0b0001,
-            _ => 0b1000
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
         };
     }
 

@@ -35,9 +35,16 @@ public class ElementDeck<T> where T : class
     ///     Draw an element from the deck.
     /// </summary>
     /// <param name="random">The random number generator to use.</param>
+    /// <param name="chance">The chance to draw any element at all.</param>
     /// <returns>The drawn element.</returns>
-    public T Draw(Random random)
+    public T? Draw(Random random, Double chance = 1.0)
     {
+        if (elements.Count == 0)
+            return null;
+
+        if (chance < 1.0 && random.NextDouble() > chance)
+            return null;
+
         Int32 index = random.Next(elements.Count);
 
         T room = elements[index];
