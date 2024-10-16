@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
@@ -49,7 +50,7 @@ public partial class Profile(ProfilerConfiguration configuration)
 
         return new Profile(full ? ProfilerConfiguration.Full : ProfilerConfiguration.Basic);
     }
-    
+
     /// <summary>
     ///     Create a global instance if none exists.
     /// </summary>
@@ -144,11 +145,7 @@ public partial class Profile(ProfilerConfiguration configuration)
     /// <param name="toName">The new state, or null if the state machine is just stopping.</param>
     public void RecordStateTransition(String name, String? fromName, String? toName)
     {
-        StateMachine stateMachine = stateMachines.GetOrAdd(name, new StateMachine(name));
-
-        if (fromName != null) stateMachine.activeStates[fromName] = stateMachine.activeStates.GetValueOrDefault(fromName) - 1;
-
-        if (toName != null) stateMachine.activeStates[toName] = stateMachine.activeStates.GetValueOrDefault(toName) + 1;
+        stateMachines.GetOrAdd(name, new StateMachine(name)).RecordTransition(fromName, toName);
     }
 
     /// <summary>
@@ -158,13 +155,7 @@ public partial class Profile(ProfilerConfiguration configuration)
     /// <param name="name">The name of the state machine for which to update the state durations.</param>
     public void UpdateStateDurations(String name)
     {
-        StateMachine stateMachine = stateMachines.GetOrAdd(name, new StateMachine(name));
-
-        foreach ((String state, Int32 count) in stateMachine.activeStates)
-        {
-            stateMachine.stateDurations[state] = stateMachine.stateDurations.GetValueOrDefault(state) + count;
-            stateMachine.totalDurations += count;
-        }
+        stateMachines.GetOrAdd(name, new StateMachine(name)).UpdateStateDurations();
     }
 
     /// <summary>
@@ -179,8 +170,7 @@ public partial class Profile(ProfilerConfiguration configuration)
     {
         Debug.Assert(Configuration == ProfilerConfiguration.Full);
 
-        StateMachine stateMachine = stateMachines.GetOrAdd(name, new StateMachine(name));
-        stateMachine.lifetimes.Add(lifetime);
+        stateMachines.GetOrAdd(name, new StateMachine(name)).RecordLifetimes(lifetime);
     }
 
     private sealed class TimingMeasurement(String name, TimingStyle style, Boolean isRoot)
@@ -245,18 +235,42 @@ public partial class Profile(ProfilerConfiguration configuration)
 
     private sealed class StateMachine(String name)
     {
-        public readonly Dictionary<String, Int32> activeStates = new();
-        public readonly Dictionary<String, Int64> stateDurations = new();
+        private readonly Dictionary<String, Int32> activeStates = new();
+        private readonly Dictionary<String, Int64> stateDurations = new();
 
-        public readonly List<IEnumerable<String>> lifetimes = [];
+        private readonly List<IEnumerable<String>> lifetimes = [];
 
-        public Double totalDurations;
+        private UInt64 totalDurations;
+
+        public void RecordTransition(String? fromName, String? toName)
+        {
+            if (fromName != null)
+                activeStates[fromName] = activeStates.GetValueOrDefault(fromName) - 1;
+
+            if (toName != null)
+                activeStates[toName] = activeStates.GetValueOrDefault(toName) + 1;
+        }
+
+        public void UpdateStateDurations()
+        {
+            foreach ((String state, Int32 count) in activeStates)
+            {
+                stateDurations[state] = stateDurations.GetValueOrDefault(state) + count;
+                totalDurations += (UInt64) count;
+            }
+        }
+
+        public void RecordLifetimes(IEnumerable<String> lifetime)
+        {
+            lifetimes.Add(lifetime.ToList());
+        }
 
         private Group GenerateActiveStatesReport()
         {
             List<Property> states = [];
 
-            foreach ((String state, Int32 count) in activeStates) states.Add(new Integer(state, count));
+            foreach ((String state, Int32 count) in activeStates)
+                states.Add(new Integer(state, count));
 
             return new Group("Active", states);
         }
@@ -265,7 +279,8 @@ public partial class Profile(ProfilerConfiguration configuration)
         {
             List<Property> states = [];
 
-            foreach ((String state, Int64 duration) in stateDurations) states.Add(new Message(state, $"{duration / totalDurations:P2}"));
+            foreach ((String state, Int64 duration) in stateDurations)
+                states.Add(new Message(state, $"{duration / (Double) totalDurations:P2}"));
 
             return new Group("Durations", states);
         }

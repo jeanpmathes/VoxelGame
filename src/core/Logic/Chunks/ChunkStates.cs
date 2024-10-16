@@ -341,27 +341,6 @@ public partial class Chunk
     }
 
     /// <summary>
-    ///     The chunk is used by a different chunk or operation.
-    /// </summary>
-    public class Used : ChunkState
-    {
-        /// <inheritdoc />
-        protected override Access CoreAccess => Access.None;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
-
-        /// <inheritdoc />
-        protected override Boolean CanDiscard => true;
-
-        /// <inheritdoc />
-        protected override void OnUpdate()
-        {
-            TryActivation();
-        }
-    }
-
-    /// <summary>
     ///     Final state, the chunk is unloaded.
     /// </summary>
     public class Deactivating : ChunkState

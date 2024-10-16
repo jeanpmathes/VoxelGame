@@ -363,7 +363,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
         if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
 
@@ -412,7 +412,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state, tracker);
+        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
 
         if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
 

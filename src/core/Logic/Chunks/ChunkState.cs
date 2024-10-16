@@ -37,9 +37,6 @@ public abstract partial class ChunkState
     private ChunkState? previous;
     private RequestQueue requests = null!;
 
-    private Boolean inUpdate;
-    private ChunkState? inUpdateUsed;
-
     /// <summary>
     ///     Create a new chunk state.
     /// </summary>
@@ -139,6 +136,8 @@ public abstract partial class ChunkState
     /// </summary>
     public Boolean CanStealAccess => AllowStealing && isAccessSufficient;
 
+    private Boolean IsInHiddenState => IsHidden && IsEntered && !IsExited;
+
     private static Boolean IsSameStateType(ChunkState a, ChunkState b)
     {
         return a.GetType() == b.GetType();
@@ -231,7 +230,7 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean TryStrongActivation()
     {
-        if (!IsHidden)
+        if (!IsInHiddenState)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more options during activation.
@@ -252,7 +251,7 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean TryWeakActivation()
     {
-        if (!IsHidden)
+        if (!IsInHiddenState)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more option during activation.
@@ -268,7 +267,7 @@ public abstract partial class ChunkState
     {
         if (state == null)
         {
-            if (!IsHidden) state = new Chunk.Hidden();
+            if (!IsInHiddenState) state = new Chunk.Hidden();
             else return false;
         }
 
@@ -376,9 +375,7 @@ public abstract partial class ChunkState
     {
         if (!WaitMode.HasFlag(StateWaitModes.WaitForNeighborUsability)) return;
 
-        WaitMode = StateWaitModes.None;
-
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -388,9 +385,7 @@ public abstract partial class ChunkState
     {
         if (!WaitMode.HasFlag(StateWaitModes.WaitForResource)) return;
 
-        WaitMode = StateWaitModes.None;
-
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -416,9 +411,7 @@ public abstract partial class ChunkState
 
         if (!WaitMode.HasFlag(StateWaitModes.WaitForRequest)) return;
 
-        WaitMode = StateWaitModes.None;
-
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -428,15 +421,6 @@ public abstract partial class ChunkState
     public void RequestNextState<T>() where T : ChunkState, new()
     {
         RequestNextState(new T());
-    }
-
-    /// <summary>
-    ///     Request a transition to a given state, but only if the queue is empty.
-    /// </summary>
-    private void RequestIfQueueEmpty(ChunkState state)
-    {
-        if (requests.Empty) RequestNextState(state);
-        else CleanupAndRelease(state);
     }
 
     /// <summary>
@@ -457,10 +441,16 @@ public abstract partial class ChunkState
 
         Exit();
 
-        WaitMode = StateWaitModes.None;
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
 
         return nextState;
+    }
+
+    private void ScheduleUpdate()
+    {
+        WaitMode = StateWaitModes.None;
+
+        Context.UpdateList.Add(Chunk);
     }
 
     private Boolean IsWaitingForAccess()
@@ -486,16 +476,7 @@ public abstract partial class ChunkState
     {
         if (released) return;
 
-        inUpdate = true;
         OnUpdate();
-        inUpdate = false;
-
-        if (inUpdateUsed == null) return;
-
-        if (next == null) SetTransitionToUsedState(inUpdateUsed);
-        else CleanupAndRelease(inUpdateUsed);
-
-        inUpdateUsed = null;
     }
 
     private Boolean EnsureRequiredAccess()
@@ -555,9 +536,22 @@ public abstract partial class ChunkState
 
     private ChunkState DetermineNextState()
     {
-        if (next == null) return this;
+        if (next == null)
+        {
+            if (IsExited)
+            {
+                // Chunk access was stolen, as stealing exits the state but does not set a next state.
+                // The only other way to exit a state is to transition to another state, which would set the next state.
 
-        Debug.Assert(next != null);
+                TryActivation();
+
+                Debug.Assert(next != null);
+            }
+            else
+            {
+                return this;
+            }
+        }
 
         ChunkState nextState = DetermineNextState(next);
 
@@ -637,9 +631,8 @@ public abstract partial class ChunkState
     ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
     /// <param name="state">The current state. Will be exited if access is stolen.</param>
-    /// <param name="tracker">A tracker to profile state transitions.</param>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
-    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state, StateTracker tracker)
+    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
     {
         Throw.IfNotOnMainThread(state.Chunk);
 
@@ -649,23 +642,9 @@ public abstract partial class ChunkState
 
         state.Exit();
 
-        ChunkState used = new Chunk.Used();
-
-        // If the state is currently in the update method, it could set the transition.
-        // This would conflict with setting the transition to the used state here.
-
-        if (state.inUpdate)
-            state.inUpdateUsed = used;
-        else
-            state.SetTransitionToUsedState(used);
+        state.ScheduleUpdate();
 
         return access;
-    }
-
-    private void SetTransitionToUsedState(ChunkState used)
-    {
-        RequestIfQueueEmpty(used);
-        AllowTransition();
     }
 
     private (Guard core, Guard extended) StealAccess()
@@ -700,11 +679,6 @@ public abstract partial class ChunkState
     private sealed class RequestQueue
     {
         private readonly List<ChunkState> requests = [];
-
-        /// <summary>
-        ///     Get whether the queue is empty.
-        /// </summary>
-        public Boolean Empty => requests.Count == 0;
 
         /// <summary>
         ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct
@@ -757,7 +731,7 @@ public abstract partial class ChunkState
         /// <returns>The first request, or null if no request is available.</returns>
         public ChunkState? Dequeue(Boolean isDeactivating)
         {
-            if (Empty) return null;
+            if (requests.Count == 0) return null;
 
             Int32 target = -1;
 
