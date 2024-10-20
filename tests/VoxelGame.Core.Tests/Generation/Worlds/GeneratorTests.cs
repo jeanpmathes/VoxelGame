@@ -23,16 +23,16 @@ using Xunit.Abstractions;
 namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 [Collection("Logger")]
-public class GeneratorTest(ITestOutputHelper output)
+public class GeneratorTests(ITestOutputHelper output)
 {
     [Fact]
-    public void TestDefaultGenerator()
+    public void Default_Generator_ShouldFullyGeneratePassedChunks()
     {
         TestGenerator<Generator>();
     }
 
     [Fact]
-    public void TestWaterGenerator()
+    public void Water_Generator_ShouldFullyGeneratePassedChunks()
     {
         TestGenerator<Core.Generation.Worlds.Water.Generator>();
     }

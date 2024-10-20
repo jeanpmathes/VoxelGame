@@ -1,4 +1,4 @@
-﻿// <copyright file="NoiseGeneratorTest.cs" company="VoxelGame">
+﻿// <copyright file="NoiseGeneratorTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,10 +15,10 @@ using Xunit;
 namespace VoxelGame.Toolkit.Tests.Noise;
 
 [TestSubject(typeof(NoiseGenerator))]
-public class NoiseGeneratorTest
+public class NoiseGeneratorTests
 {
     [Fact]
-    public void TestNoise2D()
+    public void NoiseGenerator_Noise2D_ShouldBeInRangeAndSingleNoiseEqualToGridNoise()
     {
         using NoiseGenerator generator = NoiseBuilder.Create(seed: 0).Build();
 
@@ -38,7 +38,7 @@ public class NoiseGeneratorTest
     }
 
     [Fact]
-    public void TestNoise3D()
+    public void NoiseGenerator_Noise3D_ShouldBeInRangeAndSingleNoiseEqualToGridNoise()
     {
         using NoiseGenerator generator = NoiseBuilder.Create(seed: 0).Build();
 

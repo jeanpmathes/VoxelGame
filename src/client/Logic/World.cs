@@ -98,17 +98,7 @@ public partial class World : Core.Logic.World
 
         Frustum frustum = player!.View.Frustum;
 
-        CullActiveChunks();
-
-        return;
-
-        void CullActiveChunks()
-        {
-            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks)
-            {
-                chunk.Cast().CullSections(frustum);
-            }
-        }
+        Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
     }
 
     /// <summary>
@@ -195,7 +185,7 @@ public partial class World : Core.Logic.World
     {
         using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
         {
-            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks) chunk.Tick();
+            Chunks.ForEachActive(chunk => chunk.Tick());
         }
 
         using (logger.BeginTimedSubScoped("World Tick Player", tickTimer))

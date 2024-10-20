@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Tests.Generation.Worlds;
 public class DecorationContextTests : ContextTestBase
 {
     [Fact]
-    public void TestDecorationOfChunks()
+    public void IDecorationContext_ShouldDecoratePassedChunks()
     {
         ChunkContext context = new(null!, CreateChunk, _ => null, _ => null, _ => {});
         MockDecorationContext mockDecorationContext = new();

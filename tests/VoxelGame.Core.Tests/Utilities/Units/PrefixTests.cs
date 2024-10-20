@@ -1,4 +1,4 @@
-﻿// <copyright file="PrefixTest.cs" company="VoxelGame">
+﻿// <copyright file="PrefixTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -12,16 +12,16 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Utilities.Units;
 
 [TestSubject(typeof(Prefix))]
-public class PrefixTest
+public class PrefixTests
 {
     [Fact]
-    public void TestFindClosestTrivial()
+    public void Prefix_FindBest_ShouldReturnClosestPrefixInTrivialCase()
     {
         foreach (Prefix prefix in Prefix.All) Assert.Equal(prefix, Prefix.FindBest(prefix.Factor));
     }
 
     [Fact]
-    public void TestFindClosestExtremes()
+    public void Prefix_FindBest_ShouldReturnClosestPrefixInExtremeCase()
     {
         Assert.Equal(Prefix.Exa, Prefix.FindBest(Double.MaxValue));
         Assert.Equal(Prefix.Atto, Prefix.FindBest(value: 1e-30));
@@ -29,7 +29,7 @@ public class PrefixTest
     }
 
     [Fact]
-    public void TestFindClosestDetails()
+    public void Prefix_FindBest_ShouldReturnClosestPrefix()
     {
         Assert.Equal(Prefix.Mega, Prefix.FindBest(value: 1e6));
         Assert.Equal(Prefix.Kilo, Prefix.FindBest(value: 1e5));

@@ -1,4 +1,4 @@
-﻿// <copyright file="PooledListTest.cs" company="VoxelGame">
+﻿// <copyright file="PooledListTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -12,12 +12,12 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Collections;
 
 [TestSubject(typeof(PooledList<>))]
-public class PooledListTest
+public class PooledListTests
 {
     private static readonly Int32[] collection = [1, 2, 3];
 
     [Fact]
-    public void TestAddAndAccess()
+    public void PooledList_ShouldInsertItemAndAllowAccess()
     {
         using PooledList<Int32> list = new();
 
@@ -33,7 +33,7 @@ public class PooledListTest
     }
 
     [Fact]
-    public void TestAddRange()
+    public void PooledList_ShouldInsertRangeOfItems()
     {
         using PooledList<Int32> list = new();
 
@@ -45,7 +45,7 @@ public class PooledListTest
     }
 
     [Fact]
-    public void TestClear()
+    public void PooledList_ShouldClearItems()
     {
         using PooledList<Int32> list = new();
 
@@ -56,7 +56,7 @@ public class PooledListTest
     }
 
     [Fact]
-    public void TestContainsAndRemove()
+    public void PooledList_ShouldContainAddedItemsAndNotContainRemovedItems()
     {
         using PooledList<Int32> list = new();
 

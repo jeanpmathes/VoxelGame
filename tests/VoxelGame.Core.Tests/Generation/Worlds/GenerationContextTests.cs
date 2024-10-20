@@ -1,4 +1,4 @@
-﻿// <copyright file="GenerationContextTest.cs" company="VoxelGame">
+﻿// <copyright file="GenerationContextTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -21,10 +21,10 @@ namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 [TestSubject(typeof(IGenerationContext))]
 [Collection("Logger")]
-public class GenerationContextTest : ContextTestBase
+public class GenerationContextTests : ContextTestBase
 {
     [Fact]
-    public void TestGenerationOfChunk()
+    public void IGenerationContext_ShouldDecoratePassedChunks()
     {
         ChunkContext context = new(null!, CreateChunk, _ => null, _ => null, _ => {});
         MockGenerationContext mockGenerationContext = new();

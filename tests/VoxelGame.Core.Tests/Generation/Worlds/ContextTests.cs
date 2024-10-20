@@ -11,6 +11,11 @@ namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 public class ContextTestBase
 {
+    protected ContextTestBase()
+    {
+        // Nothing to do here.
+    }
+
     protected static Chunk CreateInitializedChunk(ChunkContext context, ChunkPosition position)
     {
         Chunk chunk = new(context, blocks => new Section(blocks));

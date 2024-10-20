@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Tests.Physics;
 public class FrustumTests
 {
     [Fact]
-    public void TestNoIntersection()
+    public void Frustum_IsBoxInFrustum_ShouldNotContainDistantBoxes()
     {
         Frustum frustum = new(Math.PI / 2,
             ratio: 1,
@@ -44,7 +44,7 @@ public class FrustumTests
     }
 
     [Fact]
-    public void TestLargeFrustum()
+    public void Frustum_IsBoxInFrustum_ShouldContainSmallBoxEvenIfLarge()
     {
         Frustum frustum = new(Math.PI / 2,
             ratio: 1,
@@ -59,7 +59,7 @@ public class FrustumTests
     }
 
     [Fact]
-    public void TestLargeBox()
+    public void Frustum_IsBoxInFrustum_ShouldContainLargeBoxEvenIfSmall()
     {
         Frustum frustum = new(Math.PI / 2,
             ratio: 1,
@@ -74,7 +74,7 @@ public class FrustumTests
     }
 
     [Fact]
-    public void TestOverlap()
+    public void Frustum_IsBoxInFrustum_ShouldContainOverlappingBox()
     {
         Frustum frustum = new(Math.PI / 2,
             ratio: 1,

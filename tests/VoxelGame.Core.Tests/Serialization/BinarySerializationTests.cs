@@ -1,4 +1,4 @@
-﻿// <copyright file="BinarySerializationTest.cs" company="VoxelGame">
+﻿// <copyright file="BinarySerializationTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,10 +15,10 @@ namespace VoxelGame.Core.Tests.Serialization;
 
 [TestSubject(typeof(BinaryDeserializer))]
 [TestSubject(typeof(BinaryDeserializer))]
-public class BinarySerializationTest
+public class BinarySerializationTests
 {
     [Fact]
-    public void TestSerialization()
+    public void ShouldHaveSameStateBeforeAndAfterSerialization()
     {
         Data data = new()
         {

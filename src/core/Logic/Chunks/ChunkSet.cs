@@ -46,11 +46,6 @@ public sealed class ChunkSet : IDisposable
     public Int32 ActiveCount => active.Count;
 
     /// <summary>
-    ///     All active chunks.
-    /// </summary>
-    public IEnumerable<Chunk> ActiveChunks => active;
-
-    /// <summary>
     ///     Get whether there are no chunks, neither active nor inactive.
     /// </summary>
     public Boolean IsEmpty => chunks.Count == 0;
@@ -212,6 +207,16 @@ public sealed class ChunkSet : IDisposable
             chunk.BeginSaving();
             chunk.LowerRequestLevel(RequestLevel.None);
         }
+    }
+
+    /// <summary>
+    ///     Perform an action on all active chunks.
+    /// </summary>
+    /// <param name="action">The action to perform.</param>
+    public void ForEachActive(Action<Chunk> action)
+    {
+        foreach (Chunk chunk in active)
+            action(chunk);
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ public class ScheduledTickManagerTests
     private static Int32 lastId;
 
     [Fact]
-    public void TestBasicFunctionality()
+    public void ScheduledTickManager_ShouldProcessAddedTicks()
     {
         UpdateCounter counter = new();
         ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 32, counter);
@@ -50,7 +50,7 @@ public class ScheduledTickManagerTests
     }
 
     [Fact]
-    public void TestMaxTicks()
+    public void ScheduledTickManager_ShouldMoveTicksAboveLimitToNextUpdate()
     {
         UpdateCounter counter = new();
         ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 2, counter);
@@ -74,7 +74,7 @@ public class ScheduledTickManagerTests
     }
 
     [Fact]
-    public void TestSerialization()
+    public void ScheduledTickManager_ShouldPreserveStateAfterSerialization()
     {
         UpdateCounter counter = new();
         ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 32, counter);

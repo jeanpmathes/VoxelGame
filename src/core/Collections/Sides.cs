@@ -30,16 +30,6 @@ public class Sides<T> : IEnumerable<T>
         set => Set(side, value);
     }
 
-    IEnumerator<T> IEnumerable<T>.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
     private ref T GetRef(BlockSide side)
     {
         return ref sides[(Int32) side];
@@ -63,6 +53,18 @@ public class Sides<T> : IEnumerable<T>
     public T Get(BlockSide side)
     {
         return GetRef(side);
+    }
+
+    #region IEnumerable
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 
     /// <summary>
@@ -150,4 +152,6 @@ public class Sides<T> : IEnumerable<T>
 
         #endregion Equality Support
     }
+
+    #endregion
 }

@@ -196,11 +196,6 @@ public abstract partial class World : IDisposable, IGrid
     protected Int32 ActiveChunkCount => Chunks.ActiveCount;
 
     /// <summary>
-    ///     All active chunks.
-    /// </summary>
-    protected IEnumerable<Chunk> ActiveChunks => Chunks.ActiveChunks;
-
-    /// <summary>
     ///     Get both the fluid and block instance at a given position.
     ///     The content can only be retrieved from active chunks.
     /// </summary>
