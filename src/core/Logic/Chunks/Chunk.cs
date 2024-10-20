@@ -141,6 +141,7 @@ public partial class Chunk : IDisposable, IEntity
 
     private Int32? updateIndex;
     private Int32? activeIndex;
+    private Int32? completeIndex;
 
     /// <summary>
     ///     Create a new chunk. The chunk is not initialized.
@@ -192,7 +193,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Whether this chunk has activated at least once since creation.
     /// </summary>
-    internal Boolean HasBeenActive { get; private set; }
+    internal Boolean HasBeenActive => completeIndex.HasValue;
 
     /// <summary>
     ///     Whether the chunk is currently active.
@@ -303,6 +304,8 @@ public partial class Chunk : IDisposable, IEntity
     public virtual void Initialize(World world, ChunkPosition position)
     {
         World = world;
+        RequestLevel = RequestLevel.None;
+
         location = position;
 
         blockTickManager.SetWorld(world);
@@ -315,8 +318,9 @@ public partial class Chunk : IDisposable, IEntity
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
 
         decoration = DecorationLevels.None;
-        HasBeenActive = false;
-        RequestLevel = RequestLevel.None;
+
+        activeIndex = null;
+        completeIndex = null;
     }
 
     /// <summary>
@@ -833,9 +837,8 @@ public partial class Chunk : IDisposable, IEntity
     {
         Debug.Assert(activeIndex == null);
 
-        HasBeenActive = true;
-
         activeIndex = World.Chunks.RegisterActive(this);
+        completeIndex ??= World.Chunks.RegisterComplete(this);
 
         OnActivation();
 
@@ -854,6 +857,17 @@ public partial class Chunk : IDisposable, IEntity
         activeIndex = null;
 
         OnDeactivation();
+    }
+
+    /// <summary>
+    ///     Called on the chunk when it is released.
+    /// </summary>
+    public void OnRelease()
+    {
+        if (completeIndex == null) return;
+
+        World.Chunks.UnregisterComplete(completeIndex.Value);
+        completeIndex = null;
     }
 
     /// <summary>

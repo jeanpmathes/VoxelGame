@@ -23,6 +23,7 @@ public sealed class ChunkSet : IDisposable
     private readonly ChunkContext context;
 
     private readonly Bag<Chunk> active = new(null!);
+    private readonly Bag<Chunk> complete = new(null!);
 
     /// <summary>
     ///     Create a new chunk set.
@@ -220,6 +221,18 @@ public sealed class ChunkSet : IDisposable
     }
 
     /// <summary>
+    ///     Perform an action on all complete chunks.
+    ///     A complete chunk is a chunk that has been activated at least once.
+    ///     It may not be active at the moment.
+    /// </summary>
+    /// <param name="action">The action to perform.</param>
+    public void ForEachComplete(Action<Chunk> action)
+    {
+        foreach (Chunk chunk in complete)
+            action(chunk);
+    }
+
+    /// <summary>
     ///     Register a chunk as active.
     ///     This will add it to the active list.
     ///     May only be called once before unregistering.
@@ -240,6 +253,29 @@ public sealed class ChunkSet : IDisposable
     internal void UnregisterActive(Int32 index)
     {
         active.RemoveAt(index);
+    }
+
+    /// <summary>
+    ///     Register a chunk as complete.
+    ///     This will add it to the complete list.
+    ///     May only be called once before unregistering.
+    /// </summary>
+    /// <param name="chunk">The chunk to register as complete.</param>
+    /// <returns>The index of the chunk in the complete list.</returns>
+    internal Int32 RegisterComplete(Chunk chunk)
+    {
+        return complete.Add(chunk);
+    }
+
+    /// <summary>
+    ///     Unregister a chunk as complete.
+    ///     This will remove it from the complete list.
+    ///     Can only be called once per registration.
+    /// </summary>
+    /// <param name="index">The index of the chunk in the complete list.</param>
+    internal void UnregisterComplete(Int32 index)
+    {
+        complete.RemoveAt(index);
     }
 
     #region IDisposable Support

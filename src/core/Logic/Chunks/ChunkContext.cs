@@ -87,6 +87,8 @@ public sealed class ChunkContext : IDisposable
     /// <param name="chunk">The chunk to return.</param>
     public void ReturnObject(Chunk chunk)
     {
+        chunk.OnRelease();
+
         UpdateList.Remove(chunk);
 
         Pool.Return(chunk);

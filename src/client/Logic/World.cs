@@ -98,7 +98,11 @@ public partial class World : Core.Logic.World
 
         Frustum frustum = player!.View.Frustum;
 
-        Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
+        if (Program.IsDebug) Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
+        else
+            // Rendering chunks even if not having access to their extended resource is safe:
+            // The resource can only be modified on the main thread anyway.
+            Chunks.ForEachComplete(chunk => chunk.Cast().CullSections(frustum));
     }
 
     /// <summary>

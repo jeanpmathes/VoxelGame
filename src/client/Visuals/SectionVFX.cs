@@ -171,6 +171,7 @@ public sealed class SectionVFX : VFX
     public void SetData(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
+        Throw.IfNotOnMainThread(this);
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
