@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
@@ -21,6 +21,8 @@ public sealed class ChunkSet : IDisposable
 
     private readonly World world;
     private readonly ChunkContext context;
+
+    private readonly Bag<Chunk> active = new(null!);
 
     /// <summary>
     ///     Create a new chunk set.
@@ -41,12 +43,12 @@ public sealed class ChunkSet : IDisposable
     /// <summary>
     ///     Get the number of active chunks.
     /// </summary>
-    public Int32 ActiveCount => AllActive.Count();
+    public Int32 ActiveCount => active.Count;
 
     /// <summary>
     ///     All active chunks.
     /// </summary>
-    public IEnumerable<Chunk> AllActive => chunks.Values.Where(c => c.IsActive);
+    public IEnumerable<Chunk> ActiveChunks => active;
 
     /// <summary>
     ///     Get whether there are no chunks, neither active nor inactive.
@@ -210,6 +212,29 @@ public sealed class ChunkSet : IDisposable
             chunk.BeginSaving();
             chunk.LowerRequestLevel(RequestLevel.None);
         }
+    }
+
+    /// <summary>
+    ///     Register a chunk as active.
+    ///     This will add it to the active list.
+    ///     May only be called once before unregistering.
+    /// </summary>
+    /// <param name="chunk">The chunk to register as active.</param>
+    /// <returns>The index of the chunk in the active list.</returns>
+    internal Int32 RegisterActive(Chunk chunk)
+    {
+        return active.Add(chunk);
+    }
+
+    /// <summary>
+    ///     Unregister a chunk as active.
+    ///     This will remove it from the active list.
+    ///     Can only be called once per registration.
+    /// </summary>
+    /// <param name="index">The index of the chunk in the active list.</param>
+    internal void UnregisterActive(Int32 index)
+    {
+        active.RemoveAt(index);
     }
 
     #region IDisposable Support

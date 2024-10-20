@@ -65,11 +65,11 @@ public class ChunkUpdateList
     {
         Throw.IfNotOnMainThread(this);
 
-        if (chunk.UpdateIndex.HasValue)
+        if (chunk.HasUpdateIndex())
             return;
 
         Int32 index = write.Add(chunk);
-        chunk.UpdateIndex = index;
+        chunk.SetUpdateIndex(index);
     }
 
     /// <summary>
@@ -82,11 +82,12 @@ public class ChunkUpdateList
     {
         Throw.IfNotOnMainThread(this);
 
-        if (!chunk.UpdateIndex.HasValue)
+        Int32? index = chunk.ClearUpdateIndex();
+
+        if (index == null)
             return;
 
-        write.RemoveAt(chunk.UpdateIndex.Value);
-        chunk.UpdateIndex = null;
+        write.RemoveAt(index.Value);
     }
 
     /// <summary>

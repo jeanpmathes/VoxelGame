@@ -30,7 +30,7 @@ public class FindStaleChunks : Command
     {
         var found = false;
 
-        foreach (Chunk chunk in Context.Player.World.Chunks)
+        foreach (Chunk chunk in Context.Player.World.Chunks.All)
         {
             if (chunk is {IsRequestedToActivate: true, IsActive: false})
             {

@@ -43,8 +43,6 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     public const UInt32 SectionLimit = BlockLimit / Section.Size;
 
-    private readonly ChunkSet chunks;
-
     /// <summary>
     ///     A timer to profile different states and world operations.
     ///     Will be started on world creation, inheritors are free to stop, override or restart it.
@@ -102,13 +100,13 @@ public abstract partial class World : IDisposable, IGrid
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
 
-        chunks = new ChunkSet(this, ChunkContext);
+        Chunks = new ChunkSet(this, ChunkContext);
     }
 
     /// <summary>
-    ///     Get all currently existing chunks.
+    /// Get the chunks of this world.
     /// </summary>
-    public IEnumerable<Chunk> Chunks => chunks.All;
+    public ChunkSet Chunks { get; }
 
     /// <summary>
     ///     Set up the chunk context.
@@ -195,12 +193,12 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Get the active chunk count.
     /// </summary>
-    protected Int32 ActiveChunkCount => chunks.ActiveCount;
+    protected Int32 ActiveChunkCount => Chunks.ActiveCount;
 
     /// <summary>
     ///     All active chunks.
     /// </summary>
-    protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
+    protected IEnumerable<Chunk> ActiveChunks => Chunks.ActiveChunks;
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -244,7 +242,7 @@ public abstract partial class World : IDisposable, IGrid
 
         OnDeactivation();
 
-        chunks.BeginSaving();
+        Chunks.BeginSaving();
 
         Data.Information.Version = ApplicationInformation.Instance.Version;
         var saving = Future.Create(Data.Save);
@@ -264,7 +262,7 @@ public abstract partial class World : IDisposable, IGrid
 
         (Future saving, Action callback) = deactivation.Value;
 
-        Boolean done = saving.IsCompleted && chunks.IsEmpty;
+        Boolean done = saving.IsCompleted && Chunks.IsEmpty;
 
         if (!done) return false;
 
@@ -284,7 +282,7 @@ public abstract partial class World : IDisposable, IGrid
 
     private void UnloadChunk(Chunk chunk)
     {
-        chunks.Unload(chunk);
+        Chunks.Unload(chunk);
     }
 
     private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
@@ -587,7 +585,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (!IsInLimits(position)) return;
 
-        chunks.Request(position);
+        Chunks.Request(position);
 
         LogChunkRequested(logger, position);
     }
@@ -604,7 +602,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (!IsInLimits(position)) return;
 
-        chunks.Release(position);
+        Chunks.Release(position);
 
         LogChunkReleased(logger, position);
     }
@@ -619,7 +617,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        return !IsInLimits(position) ? null : chunks.GetActive(position);
+        return !IsInLimits(position) ? null : Chunks.GetActive(position);
     }
 
     /// <summary>
@@ -659,7 +657,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        chunk = chunks.GetAny(position);
+        chunk = Chunks.GetAny(position);
 
         return chunk != null;
     }
@@ -737,7 +735,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (disposing)
         {
-            chunks.Dispose();
+            Chunks.Dispose();
 
             ChunkContext.Dispose();
 

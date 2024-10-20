@@ -36,8 +36,9 @@ public class Bag<T> : IEnumerable<T>
 
     /// <summary>
     ///     Access this bag by index.
+    ///     Setting an item to the gap value is not allowed.
     /// </summary>
-    /// <param name="index">The index to access. Cannot be larger then the item count.</param>
+    /// <param name="index">The index to access. Cannot be larger than the item count.</param>
     public T this[Int32 index]
     {
         get => items[index];
@@ -48,6 +49,11 @@ public class Bag<T> : IEnumerable<T>
             items[index] = value;
         }
     }
+
+    /// <summary>
+    ///     Get the number of items in the bag.
+    /// </summary>
+    public Int32 Count => items.Count - gaps.Count;
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()

@@ -139,6 +139,9 @@ public partial class Chunk : IDisposable, IEntity
 
     private ChunkState state = null!;
 
+    private Int32? updateIndex;
+    private Int32? activeIndex;
+
     /// <summary>
     ///     Create a new chunk. The chunk is not initialized.
     /// </summary>
@@ -247,12 +250,6 @@ public partial class Chunk : IDisposable, IEntity
     ///     If the chunk is transitioning, it might not actually have entered the state yet.
     /// </summary>
     protected internal ChunkState State => state;
-
-    /// <summary>
-    /// Index of this chunk in the state update list.
-    /// The property is used by the <see cref="ChunkUpdateList"/>.
-    /// </summary>
-    internal Int32? UpdateIndex { get; set; }
 
     /// <summary>
     ///     Decoration is intended to happen in global steps.
@@ -446,6 +443,35 @@ public partial class Chunk : IDisposable, IEntity
         Throw.IfDisposed(disposed);
 
         return extendedResource.IsHeldBy(guard, access);
+    }
+
+    /// <summary>
+    ///     Used by <see cref="ChunkUpdateList" />.
+    /// </summary>
+    internal void SetUpdateIndex(Int32 index)
+    {
+        Debug.Assert(updateIndex == null);
+
+        updateIndex = index;
+    }
+
+    /// <summary>
+    ///     Used by <see cref="ChunkUpdateList" />.
+    /// </summary>
+    internal Boolean HasUpdateIndex()
+    {
+        return updateIndex != null;
+    }
+
+    /// <summary>
+    ///     Used by <see cref="ChunkUpdateList" />.
+    /// </summary>
+    internal Int32? ClearUpdateIndex()
+    {
+        Int32? index = updateIndex;
+        updateIndex = null;
+
+        return index;
     }
 
     /// <summary>
@@ -805,11 +831,16 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     private void OnActiveState()
     {
+        Debug.Assert(activeIndex == null);
+
         HasBeenActive = true;
+
+        activeIndex = World.Chunks.RegisterActive(this);
 
         OnActivation();
 
-        foreach (BlockSide side in BlockSide.All.Sides()) World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation();
+        foreach (BlockSide side in BlockSide.All.Sides())
+            World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation();
     }
 
     /// <summary>
@@ -817,6 +848,11 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     private void OnInactiveState()
     {
+        Debug.Assert(activeIndex != null);
+
+        World.Chunks.UnregisterActive(activeIndex.Value);
+        activeIndex = null;
+
         OnDeactivation();
     }
 
