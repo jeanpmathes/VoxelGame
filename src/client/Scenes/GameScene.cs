@@ -205,7 +205,6 @@ public sealed partial class GameScene : IScene
     private Game CreateGame(Application.Client client, World world)
     {
         Player player = new(
-            world,
             mass: 70f,
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),

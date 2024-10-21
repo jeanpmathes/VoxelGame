@@ -86,7 +86,13 @@ public partial class World : Core.Logic.World
     {
         player = newPlayer;
 
-        space.Light.Direction = sunLightDirection;
+        player.OnAdd(this);
+    }
+
+    private void RemovePlayer()
+    {
+        player?.OnRemove();
+        player = null;
     }
 
     /// <summary>
@@ -183,6 +189,8 @@ public partial class World : Core.Logic.World
     protected override void OnDeactivation()
     {
         player?.OnDeactivate();
+
+        RemovePlayer();
     }
 
     private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)

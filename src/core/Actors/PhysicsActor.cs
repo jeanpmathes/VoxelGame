@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -19,7 +18,7 @@ namespace VoxelGame.Core.Actors;
 /// <summary>
 ///     An actor which is affected by gravity and forces.
 /// </summary>
-public abstract partial class PhysicsActor : IDisposable, IOrientable
+public abstract partial class PhysicsActor : Actor, IOrientable
 {
     /// <summary>
     ///     The gravitational constant which accelerates all physics actors.
@@ -29,28 +28,22 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
     private const Double AirDrag = 0.18;
     private const Double FluidDrag = 15.0;
 
+    private const Int32 PhysicsIterations = 10;
+
     private readonly BoundingVolume boundingVolume;
 
-    private readonly Int32 physicsIterations = 10;
-
     private Vector3d actualPosition;
+    private Vector3d force;
 
     private Boolean doPhysics = true;
 
-    private Vector3d force;
-
     /// <summary>
-    ///     Create a new physics actor.
+    ///     Create a new physics-actor.
     /// </summary>
-    /// <param name="world">The world in which the physics actor is located.</param>
     /// <param name="mass">The mass of the actor.</param>
     /// <param name="boundingVolume">The bounding box of the actor.</param>
-    protected PhysicsActor(World world, Double mass, BoundingVolume boundingVolume)
+    protected PhysicsActor(Double mass, BoundingVolume boundingVolume)
     {
-        World = world;
-
-        Rotation = Quaterniond.Identity;
-
         Mass = mass;
         this.boundingVolume = boundingVolume;
     }
@@ -68,7 +61,7 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
     /// <summary>
     ///     Get the rotation of the physics actor.
     /// </summary>
-    protected Quaterniond Rotation { get; set; }
+    protected Quaterniond Rotation { get; set; } = Quaterniond.Identity;
 
     /// <summary>
     ///     Get whether the physics actor touches the ground.
@@ -79,11 +72,6 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
     ///     Get whether the physics actor is in a fluid.
     /// </summary>
     public Boolean IsSwimming { get; private set; }
-
-    /// <summary>
-    ///     Get the world in which the physics actor is located.
-    /// </summary>
-    public World World { get; }
 
     /// <summary>
     ///     Get the target movement of the physics actor.
@@ -212,12 +200,12 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
         BoxCollider collider = Collider;
 
         Vector3d movement = Velocity * deltaTime;
-        movement *= 1f / physicsIterations;
+        movement *= 1f / PhysicsIterations;
 
         HashSet<(Vector3i position, Block block)> blockIntersections = [];
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = [];
 
-        for (var i = 0; i < physicsIterations; i++)
+        for (var i = 0; i < PhysicsIterations; i++)
             DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
 
         foreach ((Vector3i position, Block block) in blockIntersections)
@@ -308,30 +296,13 @@ public abstract partial class PhysicsActor : IDisposable, IOrientable
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    public void Dispose()
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+        base.Dispose(disposing);
 
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~PhysicsActor()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    /// <param name="disposing">True if called by code.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
+        if (disposed)
+            return;
 
         disposed = true;
     }

@@ -715,10 +715,16 @@ public sealed partial class Map : IMap, IDisposable
         }
     }
 
-    private sealed class GeneratingNoise
+    private sealed class GeneratingNoise : IDisposable
     {
         public NoiseGenerator Pieces { get; set; } = null!;
         public NoiseGenerator Stone { get; set; } = null!;
+
+        public void Dispose()
+        {
+            Pieces.Dispose();
+            Stone.Dispose();
+        }
     }
 
     /// <summary>
@@ -942,6 +948,7 @@ public sealed partial class Map : IMap, IDisposable
         {
             samplingNoise.Dispose();
             stoneNoise.Dispose();
+            generatingNoise.Dispose();
         }
         else
         {

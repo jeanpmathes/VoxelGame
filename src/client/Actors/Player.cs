@@ -11,7 +11,6 @@ using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -44,14 +43,13 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <summary>
     ///     Create a client player.
     /// </summary>
-    /// <param name="world">The world in which the client player will be placed.</param>
     /// <param name="mass">The mass of the player.</param>
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="boundingVolume">The bounding box of the player.</param>
     /// <param name="visualInterface">The visual interface to use for this player.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
-    public Player(World world, Single mass, Camera camera, BoundingVolume boundingVolume,
-        VisualInterface visualInterface, GameScene scene) : base(world, mass, boundingVolume)
+    public Player(Single mass, Camera camera, BoundingVolume boundingVolume,
+        VisualInterface visualInterface, GameScene scene) : base(mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;

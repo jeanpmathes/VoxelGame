@@ -237,8 +237,6 @@ public abstract partial class World : IDisposable, IGrid
 
         OnDeactivation();
 
-        Chunks.BeginSaving();
-
         Data.Information.Version = ApplicationInformation.Instance.Version;
         var saving = Future.Create(Data.Save);
 

@@ -19,6 +19,8 @@ public sealed class NoiseGenerator : IDisposable
 {
     private readonly IntPtr self;
 
+    private NoiseDefinition definition;
+
     /// <summary>
     /// Create a new noise generator.
     /// </summary>
@@ -26,6 +28,8 @@ public sealed class NoiseGenerator : IDisposable
     public NoiseGenerator(NoiseDefinition definition)
     {
         self = Native.CreateNoise(definition);
+
+        this.definition = definition;
     }
 
     /// <summary>

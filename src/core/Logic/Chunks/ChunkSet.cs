@@ -206,7 +206,6 @@ public sealed class ChunkSet : IDisposable
         foreach (Chunk chunk in chunks.Values)
         {
             chunk.BeginSaving();
-            chunk.LowerRequestLevel(RequestLevel.None);
         }
     }
 
