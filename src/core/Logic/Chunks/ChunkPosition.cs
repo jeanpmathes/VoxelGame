@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -137,6 +138,14 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
         Int32 chunkZ = worldZ >> Chunk.BlockSizeExp;
 
         return new ChunkPosition(chunkX, chunkY, chunkZ);
+    }
+
+    /// <summary>
+    ///     Get the manhattan distance between two chunk positions.
+    /// </summary>
+    public static Int32 Manhattan(ChunkPosition a, ChunkPosition b)
+    {
+        return VMath.Manhattan((a.X, a.Y, a.Z), (b.X, b.Y, b.Z));
     }
 
     /// <inheritdoc />

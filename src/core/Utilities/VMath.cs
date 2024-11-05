@@ -297,6 +297,14 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get the manhattan distance between two vectors.
+    /// </summary>
+    public static Int32 Manhattan(Vector3i a, Vector3i b)
+    {
+        return (a - b).ManhattanLength;
+    }
+
+    /// <summary>
     ///     Check if two floating-point values are nearly equal.
     /// </summary>
     /// <param name="a">The first value.</param>

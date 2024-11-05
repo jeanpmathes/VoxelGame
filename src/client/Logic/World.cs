@@ -11,15 +11,14 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Actors;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
@@ -34,7 +33,6 @@ namespace VoxelGame.Client.Logic;
 public partial class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-    private static readonly Int32 minLoadedChunksAtStart = VMath.Cube(Player.LoadDistance * 2 + 1);
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -45,7 +43,7 @@ public partial class World : Core.Logic.World
 
     private Int64 worldUpdateCount;
     private Int64 chunkUpdateCount;
-    private Actors.Player? player;
+    private Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -82,7 +80,7 @@ public partial class World : Core.Logic.World
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Actors.Player newPlayer)
+    public void AddPlayer(Player newPlayer)
     {
         player = newPlayer;
 
@@ -122,7 +120,7 @@ public partial class World : Core.Logic.World
 
         using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
         {
-            UpdateChunkStates();
+            UpdateChunks();
         }
 
         switch (CurrentState)
@@ -166,7 +164,7 @@ public partial class World : Core.Logic.World
             worldUpdateCount += 1;
             chunkUpdateCount += ChunkStateUpdateCount;
 
-            if (ActiveChunkCount < minLoadedChunksAtStart) return;
+            if (!Chunks.IsEveryChunkToSimulateActive()) return;
 
             Duration readyTime = timer?.Elapsed ?? default;
             LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);

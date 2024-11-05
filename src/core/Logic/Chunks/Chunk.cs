@@ -210,21 +210,26 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// Get the request level of this chunk.
+    /// The requests for this chunk.
     /// </summary>
-    public RequestLevel RequestLevel { get; private set; } = RequestLevel.None;
+    public Requests Requests { get; private set; } = null!;
 
     /// <summary>
     ///     Whether this chunk is requested to be loaded or generated.
     ///     It will rest in the hidden state after loading or generation.
     /// </summary>
-    public Boolean IsRequestedToLoad => RequestLevel >= RequestLevel.Loaded;
+    public Boolean IsRequestedToLoad => Requests.Level.IsLoaded;
 
     /// <summary>
     /// Whether this chunk is requested to be active.
     /// It will attempt to enter the active state after loading or generation.
     /// </summary>
-    public Boolean IsRequestedToActivate => RequestLevel >= RequestLevel.Active;
+    public Boolean IsRequestedToActivate => Requests.Level.IsActive;
+
+    /// <summary>
+    ///     Whether this chunk is requested to be simulated.
+    /// </summary>
+    public Boolean IsRequestedToSimulate => Requests.Level.IsSimulated;
 
     /// <summary>
     ///     Get the position of this chunk.
@@ -304,7 +309,7 @@ public partial class Chunk : IDisposable, IEntity
     public virtual void Initialize(World world, ChunkPosition position)
     {
         World = world;
-        RequestLevel = RequestLevel.None;
+        Requests = new Requests(this);
 
         location = position;
 
@@ -479,47 +484,14 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// Raise the request level of this chunk.
-    /// If the request level is already at the specified level or higher, nothing happens.
+    /// Called by <see cref="Requests"/>.
     /// </summary>
-    /// <param name="level">The level to raise to.</param>
-    public void RaiseRequestLevel(RequestLevel level)
+    internal void OnRequestLevelApplied()
     {
         Throw.IfDisposed(disposed);
 
-        if (RequestLevel >= level) return;
-
-        SetRequestLevel(level);
-    }
-
-    /// <summary>
-    /// Lower the request level of this chunk.
-    /// If the request level is already at the specified level or lower, nothing happens.
-    /// </summary>
-    /// <param name="level">The level to lower to.</param>
-    public void LowerRequestLevel(RequestLevel level)
-    {
-        Throw.IfDisposed(disposed);
-
-        if (RequestLevel <= level) return;
-
-        SetRequestLevel(level);
-    }
-
-    /// <summary>
-    ///     Set the request level of this chunk directly.
-    /// </summary>
-    /// <param name="level">The level to set.</param>
-    public void SetRequestLevel(RequestLevel level)
-    {
-        Throw.IfDisposed(disposed);
-
-        if (RequestLevel == level) return;
-
-        RequestLevel = level;
-
-        if (RequestLevel == RequestLevel.None) BeginSaving();
-        else if (RequestLevel < RequestLevel.Active) BeginHiding();
+        if (!IsRequestedToLoad) BeginSaving();
+        else if (!IsRequestedToActivate) BeginHiding();
     }
 
     /// <summary>

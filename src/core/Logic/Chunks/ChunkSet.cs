@@ -7,15 +7,19 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Stores all chunks currently handled by the game.
+///     Handles requesting and releasing of chunks.
 /// </summary>
-public sealed class ChunkSet : IDisposable
+public sealed partial class ChunkSet : IDisposable
 {
     private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
 
@@ -24,6 +28,11 @@ public sealed class ChunkSet : IDisposable
 
     private readonly Bag<Chunk> active = new(null!);
     private readonly Bag<Chunk> complete = new(null!);
+
+    private readonly RequestAlgorithm requests;
+
+    private readonly HashSet<Request> pendingRequests = [];
+    private readonly HashSet<Request> pendingReleases = [];
 
     /// <summary>
     ///     Create a new chunk set.
@@ -34,6 +43,11 @@ public sealed class ChunkSet : IDisposable
     {
         this.world = world;
         this.context = context;
+
+        requests = new RequestAlgorithm(
+            position => Get(position)?.Requests,
+            position => GetOrCreate(position).Requests
+        );
     }
 
     /// <summary>
@@ -53,89 +67,48 @@ public sealed class ChunkSet : IDisposable
 
     /// <summary>
     ///     Request that a position has an active chunk.
+    ///     This will spread out to the neighbors.
     /// </summary>
     /// <param name="position">The position to request.</param>
-    public void Request(ChunkPosition position)
+    /// <param name="requester">The actor requesting the chunk.</param>
+    public Request? Request(ChunkPosition position, Actor requester)
     {
         Throw.IfDisposed(disposed);
 
-        for (Int32 x = -1; x <= 1; x++)
-        for (Int32 y = -1; y <= 1; y++)
-        for (Int32 z = -1; z <= 1; z++)
-        {
-            ChunkPosition current = position.Offset(x, y, z);
+        Request request = new(position, requester);
 
-            var level = RequestLevel.Loaded;
+        if (pendingRequests.Add(request))
+            return request;
 
-            if (current == position)
-                level = RequestLevel.Active;
+        LogDuplicateChunkRequest(logger, position, requester);
 
-            RequestDirect(current, level);
-        }
-    }
-
-    private void RequestDirect(ChunkPosition position, RequestLevel level)
-    {
-        if (!chunks.TryGetValue(position, out Chunk? chunk))
-        {
-            chunk = context.GetObject(world, position);
-            chunks.Add(position, chunk);
-        }
-
-        chunk.RaiseRequestLevel(level);
+        return null;
     }
 
     /// <summary>
-    ///     Release a chunk. If the chunk does not exist, nothing happens.
+    ///     Release a previously made request.
+    ///     All chunks that were requested by this request may be released as well.
     /// </summary>
-    /// <param name="position">The position of the chunk to release.</param>
-    public void Release(ChunkPosition position)
+    /// <param name="request">The request to release.</param>
+    public void Release(Request request)
     {
         Throw.IfDisposed(disposed);
 
-        // First, we go down to loaded, as we might not need to completely release the chunk.
+        if (pendingRequests.Remove(request))
+            return;
 
-        if (chunks.TryGetValue(position, out Chunk? chunk))
-            chunk.LowerRequestLevel(RequestLevel.Loaded);
-
-        // Then, we check the level for all neighbors.
-
-        for (Int32 x = -1; x <= 1; x++)
-        for (Int32 y = -1; y <= 1; y++)
-        for (Int32 z = -1; z <= 1; z++)
-        {
-            ChunkPosition current = position.Offset(x, y, z);
-
-            if (!chunks.TryGetValue(current, out chunk)) return;
-
-            UpdateAfterNeighborRelease(chunk);
-        }
+        pendingReleases.Add(request);
     }
 
-    private void UpdateAfterNeighborRelease(Chunk chunk)
+    /// <summary>
+    ///     Process all requests.
+    /// </summary>
+    public void ProcessRequests()
     {
-        // If the chunk is active, that was explicitly requested, so we don't change it.
-        if (chunk.RequestLevel == RequestLevel.Active) return;
+        requests.Process(pendingRequests, pendingReleases);
 
-        // A release can only lower the request level, so nothing to do if already at minimum.
-        if (chunk.RequestLevel == RequestLevel.None) return;
-
-        var max = RequestLevel.None;
-
-        for (Int32 x = -1; x <= 1; x++)
-        for (Int32 y = -1; y <= 1; y++)
-        for (Int32 z = -1; z <= 1; z++)
-            SetMax(x, y, z);
-
-        chunk.SetRequestLevel(max);
-
-        void SetMax(Int32 x, Int32 y, Int32 z)
-        {
-            if (x == 0 && y == 0 && z == 0) return;
-
-            if (chunks.TryGetValue(chunk.Position.Offset(x, y, z), out Chunk? neighbor) && neighbor.RequestLevel > max)
-                max = neighbor.RequestLevel - 1;
-        }
+        pendingRequests.Clear();
+        pendingReleases.Clear();
     }
 
     /// <summary>
@@ -146,10 +119,23 @@ public sealed class ChunkSet : IDisposable
     private Chunk? Get(ChunkPosition position)
     {
         Throw.IfDisposed(disposed);
-
         Throw.IfNotOnMainThread(this);
 
         return chunks.GetValueOrDefault(position);
+    }
+
+    private Chunk GetOrCreate(ChunkPosition position)
+    {
+        Chunk? chunk = Get(position);
+
+        if (chunk != null)
+            return chunk;
+
+        chunk = context.GetObject(world, position);
+
+        chunks[position] = chunk;
+
+        return chunk;
     }
 
     /// <summary>
@@ -229,6 +215,23 @@ public sealed class ChunkSet : IDisposable
     {
         foreach (Chunk chunk in complete)
             action(chunk);
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <returns></returns>
+    public Boolean IsEveryChunkToSimulateActive()
+    {
+        foreach (Chunk chunk in chunks.Values)
+        {
+            if (!chunk.IsRequestedToSimulate)
+                continue;
+
+            if (!chunk.IsActive)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -316,4 +319,13 @@ public sealed class ChunkSet : IDisposable
     }
 
     #endregion IDisposable Support
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSet>();
+
+    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Warning, Message = "Chunk {Chunk} already requested by {Actor}, ignoring")]
+    private static partial void LogDuplicateChunkRequest(ILogger logger, ChunkPosition chunk, Actor actor);
+
+    #endregion LOGGING
 }

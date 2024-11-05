@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Actors;
 /// </summary>
 public abstract class Player : PhysicsActor
 {
-    private CubicChunkSelection selection = null!;
+    private Request? request;
 
     /// <summary>
     ///     Create a new player.
@@ -32,25 +32,27 @@ public abstract class Player : PhysicsActor
     /// <summary>
     ///     Gets the extents of how many chunks should be around this player.
     /// </summary>
-    public static Int32 LoadDistance => 2;
+    public static Int32 LoadDistance => 5;
 
     /// <summary>
     ///     The position of the current chunk this player is in.
     /// </summary>
-    public ChunkPosition Chunk => selection.Center;
+    public ChunkPosition Chunk => request?.Position ?? throw new InvalidOperationException();
 
     private void OnAddedToWorld(Object? sender, EventArgs e)
     {
         Position = World.SpawnPosition;
 
         ChunkPosition chunk = ChunkPosition.From(Position.Floor());
-        selection = new CubicChunkSelection(chunk, LoadDistance);
-        selection.Request(World);
+
+        request = World.RequestChunk(chunk, this);
     }
 
     private void OnRemovedFromWorld(Object? sender, EventArgs e)
     {
-        selection.Release(World);
+        World.ReleaseChunk(request);
+
+        request = null;
     }
 
     /// <inheritdoc />
@@ -58,7 +60,12 @@ public abstract class Player : PhysicsActor
     {
         OnUpdate(deltaTime);
 
-        selection.Move(ChunkPosition.From(Position.Floor()), World);
+        ChunkPosition newChunk = ChunkPosition.From(Position.Floor());
+
+        if (newChunk == Chunk) return;
+
+        World.ReleaseChunk(request);
+        request = World.RequestChunk(newChunk, this);
     }
 
     /// <summary>

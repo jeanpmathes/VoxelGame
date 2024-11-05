@@ -1,4 +1,4 @@
-﻿// <copyright file="FindStaleChunks.cs" company="VoxelGame">
+﻿// <copyright file="CheckChunks.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,18 +17,28 @@ namespace VoxelGame.Client.Console.Commands;
 ///     Gets the world seed.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class FindStaleChunks : Command
+public class CheckChunks : Command
 {
     /// <inheritdoc />
-    public override String Name => "find-stale-chunks";
+    public override String Name => "check-chunks";
 
     /// <inheritdoc />
-    public override String HelpText => "Finds chunks that seem to be stale.";
+    public override String HelpText => "Finds stale or missing chunks.";
 
     /// <exclude />
     public void Invoke()
     {
         var found = false;
+
+        foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(Context.Player.Chunk, RequestLevel.Range))
+        {
+            Chunk? chunk = Context.Player.World.Chunks.GetAny(position);
+
+            if (chunk is not null) continue;
+
+            Context.Console.WriteError($"Chunk at {position} in range of player is missing.");
+            found = true;
+        }
 
         foreach (Chunk chunk in Context.Player.World.Chunks.All)
         {
@@ -45,7 +55,8 @@ public class FindStaleChunks : Command
             }
         }
 
-        if (!found) Context.Console.WriteResponse("No stale chunks found.");
+        if (!found)
+            Context.Console.WriteResponse("Chunks seem OK.");
 
         void ReportFoundChunk(Chunk chunk, String message)
         {

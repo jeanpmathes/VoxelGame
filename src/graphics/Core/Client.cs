@@ -171,7 +171,18 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Get the current aspect ratio <c>x/y</c>.
     /// </summary>
-    public Double AspectRatio => Size.X / (Double) Size.Y;
+    public Double AspectRatio
+    {
+        get
+        {
+            Double ratio = Size.X / (Double) Size.Y;
+
+            if (Double.IsNaN(ratio) || Double.IsInfinity(ratio))
+                return 1.0;
+
+            return ratio;
+        }
+    }
 
     /// <summary>
     ///     Get whether the window is focused.

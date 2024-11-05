@@ -163,7 +163,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>A context that can be used to mesh the chunk, or null if meshing is either not possible or worthwhile.</returns>
     public static ChunkMeshingContext? TryAcquire(Logic.Chunks.Chunk chunk, IMeshingFactory meshingFactory, out Boolean allowActivation)
     {
-        Debug.Assert(chunk.IsUsableForMeshing());
+        Debug.Assert(chunk.IsAbleToMesh());
 
         allowActivation = false;
 
@@ -201,7 +201,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
                 Guard? guard = neighbor.AcquireCore(Access.Read);
                 Debug.Assert(guard != null);
 
-                Debug.Assert(neighbor.IsUsableForMeshing());
+                Debug.Assert(neighbor.IsAbleToParticipateInMeshing());
 
                 neighbors[side] = (neighbor, guard);
             }
@@ -266,7 +266,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
 
             if (neighbor == null) continue;
-            if (!neighbor.IsUsableForMeshing()) continue;
+            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
 
             neighbors[side] = (neighbor, null);
             availableSides |= side.ToFlag();
@@ -284,15 +284,14 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         foreach (BlockSide side in BlockSide.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor))
+                continue;
 
             neighbors?.Set(side, (neighbor, null));
 
-            if (!neighbor.IsWantedForMeshing()) continue;
-
             considered |= side.ToFlag();
 
-            if (!neighbor.IsUsableForMeshing()) continue;
+            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
             if (!neighbor.CanAcquireCore(Access.Read)) continue;
 
             acquirable |= side.ToFlag();
@@ -402,21 +401,22 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 public static class ChunkMeshingExtensions
 {
     /// <summary>
-    /// Whether the chunk is generally wanted to be included in the meshing process.
-    /// A chunk is wanted if it is requested to activate.
+    ///     Whether the chunk has progressed far enough to be generally able to participate in meshing as a neighbor.
+    ///     This means it should be considered by other meshing chunks when they look at their neighbors.
     /// </summary>
-    public static Boolean IsWantedForMeshing(this Chunk chunk)
+    public static Boolean IsAbleToParticipateInMeshing(this Chunk chunk)
     {
-        return chunk.IsRequestedToActivate;
+        return chunk.IsFullyDecorated;
     }
 
     /// <summary>
-    ///     Whether the chunk has progressed far enough to be generally usable for meshing.
-    ///     A chunk is usable if it is wanted and fully decorated.
+    /// Whether the chunk is generally able to mesh itself.
+    /// A chunk is able if it is requested to activate and would be able to participate as a neighbor.
+    /// This is a stronger condition than <see cref="IsAbleToParticipateInMeshing"/>.
     /// </summary>
-    public static Boolean IsUsableForMeshing(this Chunk chunk)
+    public static Boolean IsAbleToMesh(this Chunk chunk)
     {
-        return chunk.IsWantedForMeshing() && chunk.IsFullyDecorated;
+        return chunk.IsRequestedToActivate && chunk.IsAbleToParticipateInMeshing();
     }
 
     /// <inheritdoc cref="ChunkMeshingContext.IsReMeshingValuable" />

@@ -76,7 +76,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         Throw.IfDisposed(disposed);
 
-        if (!this.IsUsableForMeshing()) return;
+        if (!this.IsAbleToMesh()) return;
         if (!this.IsReMeshingValuable()) return;
 
         // The hidden state will then try to activate, which then meshes if necessary.
@@ -114,7 +114,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         allowActivation = false;
 
-        if (!this.IsUsableForMeshing()) return null;
+        if (!this.IsAbleToMesh()) return null;
 
         ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
             SpatialMeshingFactory.Shared,

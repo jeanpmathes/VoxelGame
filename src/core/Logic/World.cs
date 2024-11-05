@@ -12,6 +12,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
@@ -191,11 +192,6 @@ public abstract partial class World : IDisposable, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
-    ///     Get the active chunk count.
-    /// </summary>
-    protected Int32 ActiveChunkCount => Chunks.ActiveCount;
-
-    /// <summary>
     ///     Get both the fluid and block instance at a given position.
     ///     The content can only be retrieved from active chunks.
     /// </summary>
@@ -309,12 +305,13 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Let all chunks that need it run their state updates.
+    ///     Process chunk requests and chunk state updates.
     /// </summary>
-    protected void UpdateChunkStates()
+    protected void UpdateChunks()
     {
-        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+        Chunks.ProcessRequests();
 
+        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
         ChunkStateUpdateCount = ChunkContext.UpdateList.Update();
     }
 
@@ -566,38 +563,32 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
     protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
-    /// <summary>
-    ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void RequestChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Request" />
+    public Request? RequestChunk(ChunkPosition position, Actor actor)
     {
         Throw.IfDisposed(disposed);
 
         Debug.Assert(CurrentState != State.Deactivating);
 
-        if (!IsInLimits(position)) return;
+        if (!IsInLimits(position)) return null;
 
-        Chunks.Request(position);
+        Request? request = Chunks.Request(position, actor);
 
         LogChunkRequested(logger, position);
+
+        return request;
     }
 
-    /// <summary>
-    ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void ReleaseChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Release" />
+    public void ReleaseChunk(Request? request)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        if (request == null) return;
 
-        if (!IsInLimits(position)) return;
+        Chunks.Release(request);
 
-        Chunks.Release(position);
-
-        LogChunkReleased(logger, position);
+        LogChunkReleased(logger, request.Position);
     }
 
     /// <summary>
