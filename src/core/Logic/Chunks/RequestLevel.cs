@@ -45,14 +45,14 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     ///     All chunks with this level or higher are simulated.
     ///     If an active chunk is not simulated, neither blocks nor entities in it are updated.
     /// </summary>
-    private const Byte SimulatedLevel = ActiveLevel + 1;
+    private const Byte SimulatedLevel = ActiveLevel + 3;
 
     /// <summary>
     ///     This is the highest level a request can have.
     ///     It must be at least <see cref="ActiveLevel" />.
     ///     The value determines to loading distance.
     /// </summary>
-    public const Byte MaxLevel = SimulatedLevel + 1;
+    private const Byte MaxLevel = SimulatedLevel + 3;
 
     /// <summary>
     ///     The range (in manhattan distance) that requests spread.
