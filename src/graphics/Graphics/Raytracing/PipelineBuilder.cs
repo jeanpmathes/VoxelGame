@@ -87,7 +87,7 @@ public class PipelineBuilder
     {
         AddShaderFile(file);
 
-        return new Animation((UInt32) shaderFiles.Count - 1);
+        return new Animation((UInt32) (shaderFiles.Count - 1));
     }
 
     private static String CleanUpName(String name)

@@ -56,11 +56,6 @@ public sealed partial class ChunkSet : IDisposable
     public IEnumerable<Chunk> All => chunks.Values;
 
     /// <summary>
-    ///     Get the number of active chunks.
-    /// </summary>
-    public Int32 ActiveCount => active.Count;
-
-    /// <summary>
     ///     Get whether there are no chunks, neither active nor inactive.
     /// </summary>
     public Boolean IsEmpty => chunks.Count == 0;

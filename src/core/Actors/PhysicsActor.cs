@@ -166,11 +166,8 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
     }
 
-    /// <summary>
-    ///     Tick this physics actor. An actor is ticked every update.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void Tick(Double deltaTime)
+    /// <inheritdoc />
+    public override void Tick(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 

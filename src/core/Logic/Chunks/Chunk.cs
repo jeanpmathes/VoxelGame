@@ -10,6 +10,7 @@ using System.IO;
 using System.Numerics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Elements;
@@ -215,6 +216,11 @@ public partial class Chunk : IDisposable, IEntity
     public Requests Requests { get; private set; } = null!;
 
     /// <summary>
+    ///     Whether this chunk has actors in it that requested it.
+    /// </summary>
+    public Boolean HasActors => Requests.IsRequested;
+
+    /// <summary>
     ///     Whether this chunk is requested to be loaded or generated.
     ///     It will rest in the hidden state after loading or generation.
     /// </summary>
@@ -288,6 +294,16 @@ public partial class Chunk : IDisposable, IEntity
         serializer.Serialize(ref decoration);
         serializer.SerializeEntity(blockTickManager);
         serializer.SerializeEntity(fluidTickManager);
+    }
+
+    /// <summary>
+    ///     Tick all actors in this chunk.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last tick.</param>
+    public void TickActors(Double deltaTime)
+    {
+        foreach (Actor actor in Requests.Requesters)
+            actor.Tick(deltaTime);
     }
 
     /// <summary>

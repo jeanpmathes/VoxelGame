@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
@@ -27,6 +28,11 @@ public class Requests(Chunk? chunk)
     ///     Get the current request level.
     /// </summary>
     public RequestLevel Level { get; private set; } = RequestLevel.Lowest;
+
+    /// <summary>
+    ///     Get all requesters of the chunk.
+    /// </summary>
+    public IEnumerable<Actor> Requesters => requesters;
 
     /// <summary>
     ///     Add a request to the class.

@@ -41,8 +41,11 @@ public partial class World : Core.Logic.World
 
     private readonly Space space;
 
+    private readonly List<Core.Logic.Chunks.Chunk> chunksWithActors = [];
+
     private Int64 worldUpdateCount;
     private Int64 chunkUpdateCount;
+
     private Player? player;
 
     /// <summary>
@@ -193,15 +196,28 @@ public partial class World : Core.Logic.World
 
     private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
     {
+        chunksWithActors.Clear();
+
         using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
         {
-            Chunks.ForEachActive(chunk => chunk.Tick());
+            Chunks.ForEachActive(TickChunk);
         }
 
-        using (logger.BeginTimedSubScoped("World Tick Player", tickTimer))
+        using (logger.BeginTimedSubScoped("World Tick Actors", tickTimer))
         {
-            player!.Tick(deltaTime);
+            foreach (Core.Logic.Chunks.Chunk chunk in chunksWithActors) chunk.TickActors(deltaTime);
         }
+    }
+
+    private void TickChunk(Core.Logic.Chunks.Chunk chunk)
+    {
+        if (!chunk.IsRequestedToSimulate)
+            return;
+
+        chunk.Tick();
+
+        if (chunk.HasActors)
+            chunksWithActors.Add(chunk);
     }
 
     private void MeshAndClearSectionList()

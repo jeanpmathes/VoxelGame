@@ -51,6 +51,12 @@ public abstract class Actor : IDisposable
     /// </summary>
     protected event EventHandler? RemovedFromWorld;
 
+    /// <summary>
+    ///     Tick this actor. An actor is ticked every update.
+    /// </summary>
+    /// <param name="deltaTime">The time since the last update.</param>
+    public virtual void Tick(Double deltaTime) {}
+
     #region IDisposable Support
 
     private Boolean disposed;
