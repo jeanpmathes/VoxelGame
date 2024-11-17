@@ -336,7 +336,7 @@ public partial class Chunk
                 AllowTransition();
 
             // The wait will only have an effect if no transition happens.
-            WaitForEvents(onNeighborUsable: true, onTransitionRequest: true);
+            WaitForEvents(onNeighborUsable: true, onTransitionRequest: true, onRequestLevelChange: true);
         }
     }
 

@@ -100,6 +100,7 @@ public abstract partial class World : IDisposable, IGrid
         IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
+        ChunkContext.UpdateList.EnterHighThroughputMode();
 
         Chunks = new ChunkSet(this, ChunkContext);
     }
@@ -230,6 +231,8 @@ public abstract partial class World : IDisposable, IGrid
         CurrentState = State.Deactivating;
 
         LogUnloadingWorld(logger);
+
+        ChunkContext.UpdateList.EnterHighThroughputMode();
 
         OnDeactivation();
 

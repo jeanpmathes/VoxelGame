@@ -37,6 +37,7 @@ public class CheckChunks : Command
             if (chunk is not null) continue;
 
             Context.Console.WriteError($"Chunk at {position} in range of player is missing.");
+
             found = true;
         }
 
@@ -65,7 +66,7 @@ public class CheckChunks : Command
                     () =>
                     {
                         Debugger.Break();
-                        Debugger.Log(level: 0, "FindStaleChunks", chunk.ToString());
+                        Debugger.Log(level: 0, "CheckChunks", chunk.ToString());
                     }));
         }
     }

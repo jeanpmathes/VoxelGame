@@ -33,12 +33,17 @@ public enum StateWaitModes
     /// <summary>
     ///     The state is waiting for a transition request to be made.
     /// </summary>
-    WaitForRequest = 1 << 2,
+    WaitForTransitionRequest = 1 << 2,
+
+    /// <summary>
+    ///     The state is waiting for the request level of the chunk to change.
+    /// </summary>
+    WaitForRequestLevelChange = 1 << 3,
 
     /// <summary>
     ///     The state is waiting for resources of the chunk to be released
     ///     that is currently being used by another state or operation.
     ///     This mode is used internally to wait for the resources this state needs to acquire.
     /// </summary>
-    WaitForResource = 1 << 3
+    WaitForResource = 1 << 4
 }

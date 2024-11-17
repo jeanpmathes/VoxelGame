@@ -66,7 +66,7 @@ public sealed class ChunkContext : IDisposable
     /// <summary>
     ///     The update list for chunks that will receive state updates.
     /// </summary>
-    public ChunkUpdateList UpdateList { get; } = new();
+    public ChunkStateUpdateList UpdateList { get; } = new();
 
     /// <summary>
     ///     Get a newly initialized chunk.

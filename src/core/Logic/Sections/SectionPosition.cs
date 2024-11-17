@@ -153,7 +153,7 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     /// <inheritdoc />
     public override String ToString()
     {
-        return $"S({X}|{Y}|{Z})";
+        return $"S({X}, {Y}, {Z})";
     }
 
     /// <summary>

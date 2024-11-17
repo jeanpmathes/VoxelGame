@@ -151,7 +151,7 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// <inheritdoc />
     public override String ToString()
     {
-        return $"C({X}|{Y}|{Z})";
+        return $"C({X}, {Y}, {Z})";
     }
 
     /// <inheritdoc />

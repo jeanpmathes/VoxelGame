@@ -1,11 +1,10 @@
-﻿// <copyright file="ChunkUpdateDistributor.cs" company="VoxelGame">
+﻿// <copyright file="ChunkStateUpdateDistributor.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Channels;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
@@ -15,12 +14,40 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// <summary>
 ///     List of chunks that need state updates.
 /// </summary>
-public class ChunkUpdateList
+public class ChunkStateUpdateList
 {
-    private readonly List<Chunk?> read = [];
-    private readonly Bag<Chunk> write = new(null!);
+    private readonly Bag<Chunk> chunks = new(null!);
 
     private readonly Channel<(Chunk chunk, Action<Chunk> action)> completions = Channel.CreateUnbounded<(Chunk chunk, Action<Chunk> action)>();
+
+    private ChunkStateUpdateStrategy strategy;
+
+    /// <summary>
+    ///     Create a new chunk update list.
+    /// </summary>
+    public ChunkStateUpdateList()
+    {
+        strategy = new MaximumThroughputStrategy(this);
+    }
+
+    /// <summary>
+    ///     Use the maximum throughput strategy.
+    ///     This should be used when only chunk operations but no game logic is running.
+    ///     One example is when loading the world.
+    /// </summary>
+    public void EnterHighThroughputMode()
+    {
+        strategy = new MaximumThroughputStrategy(this);
+    }
+
+    /// <summary>
+    ///     Use the low impact strategy.
+    ///     This should be used when the game is running and the player is interacting with the world.
+    /// </summary>
+    public void EnterLowImpactMode()
+    {
+        strategy = new LowImpactStrategy(this);
+    }
 
     /// <summary>
     ///     Run an update cycle, which will perform chunk state updates.
@@ -34,25 +61,7 @@ public class ChunkUpdateList
             Add(completion.chunk);
         }
 
-        read.Clear();
-        write.CopyDirectlyTo(read);
-
-        var updated = 0;
-
-        foreach (Chunk? chunk in read)
-        {
-            if (chunk == null)
-                continue;
-
-            ChunkState state = chunk.UpdateState();
-
-            if (state.WaitMode != StateWaitModes.None)
-                Remove(chunk);
-
-            updated += 1;
-        }
-
-        return updated;
+        return strategy.Update(chunks);
     }
 
     /// <summary>
@@ -68,7 +77,7 @@ public class ChunkUpdateList
         if (chunk.HasUpdateIndex())
             return;
 
-        Int32 index = write.Add(chunk);
+        Int32 index = chunks.Add(chunk);
         chunk.SetUpdateIndex(index);
     }
 
@@ -87,7 +96,7 @@ public class ChunkUpdateList
         if (index == null)
             return;
 
-        write.RemoveAt(index.Value);
+        chunks.RemoveAt(index.Value);
     }
 
     /// <summary>

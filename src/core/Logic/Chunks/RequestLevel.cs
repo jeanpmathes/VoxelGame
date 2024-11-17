@@ -88,12 +88,9 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     public Boolean IsSimulated => level >= SimulatedLevel;
 
     /// <summary>
-    /// Get the higher of two request levels.
+    /// The integer value of the level.
     /// </summary>
-    public static RequestLevel Max(RequestLevel left, RequestLevel right)
-    {
-        return left.level > right.level ? left : right;
-    }
+    public Int32 Value => level;
 
     #region Equality Support
 

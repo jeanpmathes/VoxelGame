@@ -185,13 +185,6 @@ public interface IDecorationContext : IDisposable
                 if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquireCore(Access.Write))
                 {
                     available[x, y, z] = neighbor;
-
-                    // An undecorated neighbor in a lower stage has priority,
-                    // but only if the neighbor will actually decorate.
-
-                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}
-                        && neighbor.DecorationStage < chunk.DecorationStage)
-                        return null;
                 }
                 else
                 {

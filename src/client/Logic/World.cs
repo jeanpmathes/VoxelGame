@@ -177,6 +177,8 @@ public partial class World : Core.Logic.World
 
             CurrentState = State.Active;
 
+            ChunkContext.UpdateList.EnterLowImpactMode();
+
             OnActivation();
         }
     }

@@ -239,7 +239,11 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         BlockSide added = additional.Single();
         BlockSides oppositeOfAdded = added.Opposite().ToFlag();
 
-        if (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
+        // If no sides have been meshed yet, no exclusive meshing can be done as this would miss the center.
+        // Otherwise, do exclusive meshing if the exclusive side is either already meshed or not considered at all.
+
+        if (chunk.MeshedSides != BlockSides.None
+            && (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded)))
         {
             exclusive = added;
             considered &= ~oppositeOfAdded;
@@ -289,9 +293,10 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
             neighbors?.Set(side, (neighbor, null));
 
+            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
+
             considered |= side.ToFlag();
 
-            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
             if (!neighbor.CanAcquireCore(Access.Read)) continue;
 
             acquirable |= side.ToFlag();

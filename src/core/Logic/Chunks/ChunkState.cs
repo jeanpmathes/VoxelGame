@@ -338,7 +338,13 @@ public abstract partial class ChunkState
     /// <param name="onTransitionRequest">
     ///     Wait until a transition request is made.
     /// </param>
-    protected void WaitForEvents(Boolean onNeighborUsable = false, Boolean onTransitionRequest = false)
+    /// <param name="onRequestLevelChange">
+    ///     Wait until the request level of the chunk changes.
+    /// </param>
+    protected void WaitForEvents(
+        Boolean onNeighborUsable = false,
+        Boolean onTransitionRequest = false,
+        Boolean onRequestLevelChange = false)
     {
         Debug.Assert(onNeighborUsable || onTransitionRequest);
 
@@ -351,9 +357,16 @@ public abstract partial class ChunkState
 
         if (onTransitionRequest)
         {
-            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForRequest));
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForTransitionRequest));
 
-            WaitMode |= StateWaitModes.WaitForRequest;
+            WaitMode |= StateWaitModes.WaitForTransitionRequest;
+        }
+
+        if (onRequestLevelChange)
+        {
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForRequestLevelChange));
+
+            WaitMode |= StateWaitModes.WaitForRequestLevelChange;
         }
 
         Context.UpdateList.Remove(Chunk);
@@ -374,6 +387,13 @@ public abstract partial class ChunkState
     internal void OnNeighborUsable()
     {
         if (!WaitMode.HasFlag(StateWaitModes.WaitForNeighborUsability)) return;
+
+        ScheduleUpdate();
+    }
+
+    internal void OnRequestLevelChange()
+    {
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForRequestLevelChange)) return;
 
         ScheduleUpdate();
     }
@@ -409,7 +429,7 @@ public abstract partial class ChunkState
 
         requests.Enqueue(this, state);
 
-        if (!WaitMode.HasFlag(StateWaitModes.WaitForRequest)) return;
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForTransitionRequest)) return;
 
         ScheduleUpdate();
     }

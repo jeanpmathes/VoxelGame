@@ -77,12 +77,6 @@ public partial class Chunk : IDisposable, IEntity
     public const Int32 SectionCount = Size * Size * Size;
 
     /// <summary>
-    ///     The maximum decoration stage.
-    ///     It is <c>6</c> because the cube of 3x3x3 chunks is decorated using just two diagonals.
-    /// </summary>
-    private const Int32 MaxDecorationStage = 6;
-
-    /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
     /// </summary>
     public static readonly Int32 SizeExp = BitOperations.Log2(Size);
@@ -262,26 +256,6 @@ public partial class Chunk : IDisposable, IEntity
     ///     If the chunk is transitioning, it might not actually have entered the state yet.
     /// </summary>
     protected internal ChunkState State => state;
-
-    /// <summary>
-    ///     Decoration is intended to happen in global steps.
-    ///     A chunk will only decorate if all its neighbors that are in a lower stage are fully decorated.
-    ///     The seven stages are defined for a cube of 3x3x3 chunks in the following way:
-    ///     First the three chunks in the bottom diagonal, then the three chunks in the middle diagonal.
-    ///     All other chunks will then be already decorated.
-    ///     Therefore, all chunks that are not on one of the two diagonals have max stage.
-    /// </summary>
-    internal Int32 DecorationStage
-    {
-        get
-        {
-            Int32 x = VMath.Mod(Position.X, m: 3);
-            Int32 y = VMath.Mod(Position.Y, m: 3);
-            Int32 z = VMath.Mod(Position.Z, m: 3);
-
-            return x == z ? Math.Min(x + y * 3, MaxDecorationStage) : MaxDecorationStage;
-        }
-    }
 
     /// <inheritdoc />
     public static Int32 Version => 1;
@@ -471,7 +445,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Used by <see cref="ChunkUpdateList" />.
+    ///     Used by <see cref="ChunkStateUpdateList" />.
     /// </summary>
     internal void SetUpdateIndex(Int32 index)
     {
@@ -481,7 +455,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Used by <see cref="ChunkUpdateList" />.
+    ///     Used by <see cref="ChunkStateUpdateList" />.
     /// </summary>
     internal Boolean HasUpdateIndex()
     {
@@ -489,7 +463,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Used by <see cref="ChunkUpdateList" />.
+    ///     Used by <see cref="ChunkStateUpdateList" />.
     /// </summary>
     internal Int32? ClearUpdateIndex()
     {
@@ -508,6 +482,8 @@ public partial class Chunk : IDisposable, IEntity
 
         if (!IsRequestedToLoad) BeginSaving();
         else if (!IsRequestedToActivate) BeginHiding();
+
+        state.OnRequestLevelChange();
     }
 
     /// <summary>
