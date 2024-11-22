@@ -104,15 +104,10 @@ public partial class Chunk : IDisposable, IEntity
     private readonly Section[] sections = new Section[SectionCount];
 
     /// <summary>
-    ///     The core resource of a chunk are its sections and their blocks.
+    ///     The resource of a chunk represents its core data.
+    ///     It is used to control access in the context of multi-threading.
     /// </summary>
-    private readonly Resource coreResource = new($"{nameof(Chunk)}Core");
-
-    /// <summary>
-    ///     Extended resources are defined by users of core, like a client or a server.
-    ///     An example for extended resources are meshes and renderers.
-    /// </summary>
-    private readonly Resource extendedResource = new($"{nameof(Chunk)}Extended");
+    private readonly Resource resource = new(nameof(Chunk));
 
     /// <summary>
     ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
@@ -161,8 +156,7 @@ public partial class Chunk : IDisposable, IEntity
             Fluid.MaxFluidTicksPerFrameAndChunk,
             localUpdateCounter);
 
-        coreResource.Released += OnResourceReleased;
-        extendedResource.Released += OnResourceReleased;
+        resource.Released += OnResourceReleased;
 
         void OnResourceReleased(Object? sender, EventArgs e)
         {
@@ -325,8 +319,7 @@ public partial class Chunk : IDisposable, IEntity
     public virtual void Reset()
     {
         Debug.Assert(!IsActive);
-        Debug.Assert(!coreResource.IsAcquired);
-        Debug.Assert(!extendedResource.IsAcquired);
+        Debug.Assert(!resource.IsAcquired);
 
         blockTickManager.Clear();
         blockTickManager.SetWorld(newWorld: null);
@@ -348,100 +341,51 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    ///     Acquire the core resource, possibly stealing it.
-    ///     The core resource of a chunk are its sections and their blocks.
+    ///     Acquire access to this chunk, possibly stealing it.
+    ///     This allows using the core resource of a chunk - its sections and their blocks.
     /// </summary>
     /// <param name="access">The access to acquire. Must not be <see cref="Access.None" />.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
-    public Guard? AcquireCore(Access access)
+    public Guard? Acquire(Access access)
     {
         Throw.IfDisposed(disposed);
 
         Debug.Assert(access != Access.None);
 
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
+        Guard? guard = ChunkState.TryStealAccess(ref state);
 
-        if (guards is not {core: {} core, extended: {} extended}) return coreResource.TryAcquire(access);
+        if (guard == null)
+            return resource.TryAcquire(access);
 
-        extended.Dispose();
-
-        if (access == Access.Write) return core;
+        if (access == Access.Write)
+            return guard;
 
         // We downgrade our access to read, as stealing always gives us write access.
-        core.Dispose();
-        core = coreResource.TryAcquire(access);
-        Debug.Assert(core != null);
+        guard.Dispose();
+        guard = resource.TryAcquire(access);
+        Debug.Assert(guard != null);
 
-        return core;
+        return guard;
     }
 
     /// <summary>
     ///     Whether it is possible to acquire the core resource.
     /// </summary>
-    public Boolean CanAcquireCore(Access access)
+    public Boolean CanAcquire(Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return state.CanStealAccess || coreResource.CanAcquire(access);
+        return state.CanStealAccess || resource.CanAcquire(access);
     }
 
     /// <summary>
     ///     Check if core is held with specific access by a given guard.
     /// </summary>
-    public Boolean IsCoreHeldBy(Guard guard, Access access)
+    public Boolean IsHeldBy(Guard guard, Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return coreResource.IsHeldBy(guard, access);
-    }
-
-    /// <summary>
-    ///     Acquire the extended resource, possibly stealing it.
-    ///     Extended resources are defined by users of core, like a client or a server.
-    ///     An example for extended resources are meshes and renderers.
-    /// </summary>
-    /// <param name="access">The access to acquire. Must not be <see cref="Access.None" />.</param>
-    /// <returns>The guard, or null if the resource could not be acquired.</returns>
-    public Guard? AcquireExtended(Access access)
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(access != Access.None);
-
-        (Guard core, Guard extended)? guards = ChunkState.TryStealAccess(ref state);
-
-        if (guards is not {core: {} core, extended: {} extended}) return extendedResource.TryAcquire(access);
-
-        core.Dispose();
-
-        if (access == Access.Write) return extended;
-
-        // We downgrade our access to read, as stealing always gives us write access.
-        extended.Dispose();
-        extended = extendedResource.TryAcquire(access);
-        Debug.Assert(extended != null);
-
-        return extended;
-    }
-
-    /// <summary>
-    ///     Whether it is possible to acquire the extended resource.
-    /// </summary>
-    public Boolean CanAcquireExtended(Access access)
-    {
-        Throw.IfDisposed(disposed);
-
-        return state.CanStealAccess || extendedResource.CanAcquire(access);
-    }
-
-    /// <summary>
-    ///     Check if extended is held with specific access by a given guard.
-    /// </summary>
-    public Boolean IsExtendedHeldBy(Guard guard, Access access)
-    {
-        Throw.IfDisposed(disposed);
-
-        return extendedResource.IsHeldBy(guard, access);
+        return resource.IsHeldBy(guard, access);
     }
 
     /// <summary>
@@ -750,13 +694,13 @@ public partial class Chunk : IDisposable, IEntity
         Debug.Assert(IsGenerated);
 
         if (IsFullyDecorated) return null;
-        if (!CanAcquireCore(Access.Write)) return null;
+        if (!CanAcquire(Access.Write)) return null;
 
         Neighborhood<Chunk?>? needed = IDecorationContext.DecideWhetherToDecorate(this);
 
         if (needed == null) return null;
 
-        Guard? access = AcquireCore(Access.Write);
+        Guard? access = Acquire(Access.Write);
         Debug.Assert(access != null);
 
         var guards = new PooledList<Guard>(Neighborhood.Count);
@@ -766,7 +710,7 @@ public partial class Chunk : IDisposable, IEntity
             if (chunk == null) continue;
             if (ReferenceEquals(chunk, this)) continue;
 
-            Guard? guard = chunk.AcquireCore(Access.Read);
+            Guard? guard = chunk.Acquire(Access.Read);
             Debug.Assert(guard != null);
 
             guards.Add(guard);

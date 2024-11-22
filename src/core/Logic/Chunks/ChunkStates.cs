@@ -24,10 +24,7 @@ public partial class Chunk
     public class Unloaded : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -44,10 +41,7 @@ public partial class Chunk
         private Future<LoadingResult>? loading;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -115,10 +109,7 @@ public partial class Chunk
         private IDecorationContext? decorationContext;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -172,10 +163,10 @@ public partial class Chunk
         /// <summary>
         ///     Creates a new decorating state.
         /// </summary>
-        /// <param name="self">The guard for the core write access to the chunk itself.</param>
-        /// <param name="guards">The guards for the core write access to the neighboring chunks.</param>
+        /// <param name="self">The guard for the write access to the chunk itself.</param>
+        /// <param name="guards">The guards for the write access to the neighboring chunks.</param>
         /// <param name="chunks">The neighborhood of chunks.</param>
-        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk?> chunks) : base(self, extended: null)
+        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk?> chunks) : base(self)
         {
             Debug.Assert(chunks.Center != null);
 
@@ -184,10 +175,7 @@ public partial class Chunk
         }
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -240,10 +228,7 @@ public partial class Chunk
         private Future? saving;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Read;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Read;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -269,10 +254,7 @@ public partial class Chunk
     public class Active : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override Boolean AllowSharingAccess => true;
@@ -311,10 +293,7 @@ public partial class Chunk
     public class Hidden : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override Boolean AllowStealing => true;
@@ -346,10 +325,7 @@ public partial class Chunk
     public class Deactivating : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnEnter()

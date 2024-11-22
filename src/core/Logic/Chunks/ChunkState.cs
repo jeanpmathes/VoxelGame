@@ -20,8 +20,7 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public abstract partial class ChunkState
 {
-    private Guard? coreGuard;
-    private Guard? extendedGuard;
+    private Guard? guard;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
@@ -43,15 +42,13 @@ public abstract partial class ChunkState
     protected ChunkState() {}
 
     /// <summary>
-    ///     Create a new chunk state with guards already acquired.
-    ///     The acquired guards must fit the access requirements of the state.
+    ///     Create a new chunk state with guard already acquired.
+    ///     The acquired guard must fit the access requirements of the state.
     /// </summary>
-    /// <param name="core">The core guard.</param>
-    /// <param name="extended">The extended guard.</param>
-    protected ChunkState(Guard? core, Guard? extended)
+    /// <param name="guard">The guard.</param>
+    protected ChunkState(Guard? guard)
     {
-        coreGuard = core;
-        extendedGuard = extended;
+        this.guard = guard;
     }
 
     /// <summary>
@@ -78,12 +75,7 @@ public abstract partial class ChunkState
     /// <summary>
     ///     Get whether this state will result in the chunk being active.
     /// </summary>
-    private Boolean IsActive => RequiresFullAccess && AllowSharingAccess;
-
-    /// <summary>
-    /// Whether this state requires full access to all resources of the chunk.
-    /// </summary>
-    private Boolean RequiresFullAccess => CoreAccess == Access.Write && ExtendedAccess == Access.Write;
+    private Boolean IsActive => Access == Access.Write && AllowSharingAccess;
 
     /// <summary>
     ///     Get whether this state has been entered.
@@ -122,14 +114,9 @@ public abstract partial class ChunkState
     protected virtual Boolean IsHidden => false;
 
     /// <summary>
-    ///     The required access level of this state to core chunk resources.
+    ///     The required access level of this state to chunk resources.
     /// </summary>
-    protected abstract Access CoreAccess { get; }
-
-    /// <summary>
-    ///     The required access level of this state to extended chunk resources.
-    /// </summary>
-    protected abstract Access ExtendedAccess { get; }
+    protected abstract Access Access { get; }
 
     /// <summary>
     ///     Whether it is currently possible to steal access from this state.
@@ -160,7 +147,7 @@ public abstract partial class ChunkState
         IsEntered = true;
         OnEnter();
 
-        if (CanStealAccess && CoreAccess == Access.Write && ExtendedAccess == Access.Write) Chunk.OnUsableState();
+        if (CanStealAccess && Access == Access.Write) Chunk.OnUsableState();
     }
 
     private void Exit()
@@ -234,7 +221,7 @@ public abstract partial class ChunkState
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more options during activation.
-            ReleaseResources();
+            ReleaseResource();
 
         ChunkState? state = Context.ActivateStrongly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
@@ -255,7 +242,7 @@ public abstract partial class ChunkState
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more option during activation.
-            ReleaseResources();
+            ReleaseResource();
 
         ChunkState? state = Context.ActivateWeakly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
@@ -271,7 +258,7 @@ public abstract partial class ChunkState
             else return false;
         }
 
-        ReleaseResources();
+        ReleaseResource();
         SetNextState(state);
 
         return true;
@@ -486,8 +473,7 @@ public abstract partial class ChunkState
             return true;
         }
 
-        Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
-        Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
+        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
 
         return false;
     }
@@ -504,28 +490,17 @@ public abstract partial class ChunkState
         var isSufficient = true;
         var canAcquire = true;
 
-        if (CoreAccess != Access.None && coreGuard == null)
+        if (Access != Access.None && guard == null)
         {
             isSufficient = false;
-            canAcquire &= Chunk.CanAcquireCore(CoreAccess);
+            canAcquire &= Chunk.CanAcquire(Access);
         }
-
-        if (ExtendedAccess != Access.None && extendedGuard == null)
-        {
-            isSufficient = false;
-            canAcquire &= Chunk.CanAcquireExtended(ExtendedAccess);
-        }
-
-        // Acquire all required resources at once to prevent deadlocks.
 
         if (isSufficient || !canAcquire)
             return isSufficient;
 
-        if (CoreAccess != Access.None)
-            coreGuard = Chunk.AcquireCore(CoreAccess);
-
-        if (ExtendedAccess != Access.None)
-            extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
+        if (Access != Access.None)
+            guard = Chunk.Acquire(Access);
 
         return true;
     }
@@ -533,13 +508,10 @@ public abstract partial class ChunkState
     /// <summary>
     ///     Release all held resources. A state will not be updated when released, and must transition until the next update.
     /// </summary>
-    private void ReleaseResources()
+    private void ReleaseResource()
     {
-        coreGuard?.Dispose();
-        extendedGuard?.Dispose();
-
-        coreGuard = null;
-        extendedGuard = null;
+        guard?.Dispose();
+        guard = null;
 
         released = true;
         isAccessSufficient = false;
@@ -652,33 +624,29 @@ public abstract partial class ChunkState
     /// </summary>
     /// <param name="state">The current state. Will be exited if access is stolen.</param>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
-    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state)
+    public static Guard? TryStealAccess(ref ChunkState state)
     {
         Throw.IfNotOnMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 
-        (Guard core, Guard extended) access = state.StealAccess();
+        Guard access = state.StealAccess();
 
         state.Exit();
-
         state.ScheduleUpdate();
 
         return access;
     }
 
-    private (Guard core, Guard extended) StealAccess()
+    private Guard StealAccess()
     {
-        Debug.Assert(this is {CoreAccess: Access.Write, coreGuard: not null});
-        Debug.Assert(this is {ExtendedAccess: Access.Write, extendedGuard: not null});
+        Debug.Assert(this is {Access: Access.Write, guard: not null});
 
-        Guard core = coreGuard!;
-        Guard extended = extendedGuard!;
+        Guard stolen = guard!;
 
-        coreGuard = null;
-        extendedGuard = null;
+        guard = null;
 
-        return (core, extended);
+        return stolen;
     }
 
     /// <inheritdoc />
@@ -690,7 +658,7 @@ public abstract partial class ChunkState
     private static void CleanupAndRelease(ChunkState? state)
     {
         state?.Cleanup();
-        state?.ReleaseResources();
+        state?.ReleaseResource();
     }
 
     /// <summary>
@@ -712,8 +680,7 @@ public abstract partial class ChunkState
             // This is because transitions taken before the request is processed might also need that access.
             // As such, a deadlock could occur.
 
-            Debug.Assert(state.coreGuard == null);
-            Debug.Assert(state.extendedGuard == null);
+            Debug.Assert(state.guard == null);
 
             if (current.next is {CanDiscard: false} next && IsSameStateType(next, state))
             {

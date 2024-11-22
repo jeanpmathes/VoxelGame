@@ -31,7 +31,7 @@ public partial class Chunk
     public abstract class ChunkState : Core.Logic.Chunks.ChunkState
     {
         /// <inheritdoc />
-        protected ChunkState((Guard? core, Guard? extended) guards) : base(guards.core, guards.extended) {}
+        protected ChunkState(Guard? guard) : base(guard) {}
 
         /// <inheritdoc />
         protected ChunkState() {}
@@ -62,10 +62,7 @@ public partial class Chunk
         }
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Read;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Read;
 
         /// <inheritdoc />
         protected override Boolean CanDiscard => true;

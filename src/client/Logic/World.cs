@@ -107,8 +107,8 @@ public partial class World : Core.Logic.World
 
         if (Program.IsDebug) Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
         else
-            // Rendering chunks even if not having access to their extended resource is safe:
-            // The resource can only be modified on the main thread anyway.
+            // Rendering chunks even if they are used by an off-thread operation is safe.
+            // The rendering resources are only modified on the main thread anyway.
             Chunks.ForEachComplete(chunk => chunk.Cast().CullSections(frustum));
     }
 
@@ -207,7 +207,10 @@ public partial class World : Core.Logic.World
 
         using (logger.BeginTimedSubScoped("World Tick Actors", tickTimer))
         {
-            foreach (Core.Logic.Chunks.Chunk chunk in chunksWithActors) chunk.TickActors(deltaTime);
+            #pragma warning disable S4158 // chunksWithActors is filled by calls to TickChunk
+            foreach (Core.Logic.Chunks.Chunk chunk in chunksWithActors)
+                chunk.TickActors(deltaTime);
+            #pragma warning restore S4158
         }
     }
 

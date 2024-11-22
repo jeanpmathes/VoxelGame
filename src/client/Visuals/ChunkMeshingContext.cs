@@ -30,7 +30,8 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     private readonly Chunk mid;
 
     private readonly BlockSide? exclusiveSide;
-    private (Guard core, Guard extended)? guards;
+
+    private Guard? guard;
     private Sides<(Chunk chunk, Guard? guard)?> neighbors;
 
     static ChunkMeshingContext()
@@ -66,14 +67,14 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     }
 
     private ChunkMeshingContext(
-        Chunk mid, (Guard core, Guard extended)? guards,
+        Chunk mid, Guard? guard,
         Sides<(Chunk, Guard?)?> neighbors,
         BlockSides availableSides,
         BlockSide? exclusiveSide,
         IMeshingFactory meshingFactory)
     {
         this.mid = mid;
-        this.guards = guards;
+        this.guard = guard;
 
         this.neighbors = neighbors;
         this.exclusiveSide = exclusiveSide;
@@ -126,15 +127,15 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     ///     If the chunk was created for meshing on the main thread, this call is not allowed.
     /// </summary>
     /// <returns>The guards for the chunk.</returns>
-    public (Guard core, Guard extended) TakeAccess()
+    public Guard TakeAccess()
     {
         Throw.IfDisposed(disposed);
 
-        if (guards == null)
+        if (guard == null)
             throw new InvalidOperationException();
 
-        (Guard core, Guard extended) result = guards.Value;
-        guards = null;
+        Guard result = guard;
+        guard = null;
 
         return result;
     }
@@ -167,8 +168,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         allowActivation = false;
 
-        if (!chunk.CanAcquireCore(Access.Read)) return null;
-        if (!chunk.CanAcquireExtended(Access.Write)) return null;
+        if (!chunk.CanAcquire(Access.Read)) return null;
 
         Sides<(Chunk chunk, Guard? guard)?> neighbors = new();
 
@@ -198,7 +198,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
                 Chunk? neighbor = neighbors[side]?.chunk;
                 Debug.Assert(neighbor != null);
 
-                Guard? guard = neighbor.AcquireCore(Access.Read);
+                Guard? guard = neighbor.Acquire(Access.Read);
                 Debug.Assert(guard != null);
 
                 Debug.Assert(neighbor.IsAbleToParticipateInMeshing());
@@ -211,9 +211,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             }
         }
 
-        (Guard core, Guard extended)? guards = (chunk.AcquireCore(Access.Read)!, chunk.AcquireExtended(Access.Write)!);
-
-        return new ChunkMeshingContext(chunk, guards, neighbors, considered, exclusive, meshingFactory);
+        return new ChunkMeshingContext(chunk, chunk.Acquire(Access.Read)!, neighbors, considered, exclusive, meshingFactory);
     }
 
     /// <summary>
@@ -276,7 +274,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, guards: null, neighbors, availableSides, exclusiveSide: null, meshingFactory);
+        return new ChunkMeshingContext(chunk, guard: null, neighbors, availableSides, exclusiveSide: null, meshingFactory);
     }
 
     private static void DetermineNeighborAvailability(
@@ -297,7 +295,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
             considered |= side.ToFlag();
 
-            if (!neighbor.CanAcquireCore(Access.Read)) continue;
+            if (!neighbor.CanAcquire(Access.Read)) continue;
 
             acquirable |= side.ToFlag();
         }
@@ -385,9 +383,8 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
             neighbors = null!;
 
-            guards?.core.Dispose();
-            guards?.extended.Dispose();
-            guards = null!;
+            guard?.Dispose();
+            guard = null!;
         }
         else
         {
