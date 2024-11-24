@@ -52,11 +52,11 @@ public sealed class NativeAllocator : IDisposable
     }
 
     /// <summary>
-    ///     Frees a block of memory allocated by this allocator.
+    ///     Deallocates a block of memory allocated by this allocator.
     /// </summary>
-    /// <param name="allocation">The allocation to free.</param>
+    /// <param name="allocation">The allocation to deallocate.</param>
     /// <typeparam name="T">The type of the elements in the allocation.</typeparam>
-    public unsafe void Free<T>(NativeAllocation<T> allocation) where T : unmanaged
+    public unsafe void Deallocate<T>(NativeAllocation<T> allocation) where T : unmanaged
     {
         Throw.IfDisposed(disposed);
 
