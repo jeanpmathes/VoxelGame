@@ -195,6 +195,8 @@ public partial class World : Core.Logic.World
         player?.OnDeactivate();
 
         RemovePlayer();
+
+        foreach (Core.Logic.Chunks.Chunk chunk in Chunks.All) chunk.Cast().HideAllSections();
     }
 
     private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)

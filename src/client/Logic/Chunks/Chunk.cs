@@ -235,9 +235,20 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         }
     }
 
+    /// <summary>
+    ///     Hide all sections.
+    ///     Equivalent to performing frustum culling with a frustum that does not see the chunk.
+    /// </summary>
+    public void HideAllSections()
+    {
+        for (var index = 0; index < SectionCount; index++)
+            GetSection(index).SetVfxEnabledState(enabled: false);
+    }
+
     private void DisableAllVfx()
     {
-        for (var index = 0; index < SectionCount; index++) GetSection(index).SetVfxEnabledState(enabled: false);
+        for (var index = 0; index < SectionCount; index++)
+            GetSection(index).SetVfxEnabledState(enabled: false);
     }
 
     #region LOGGING
