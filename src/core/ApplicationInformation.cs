@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace VoxelGame.Core;
@@ -67,5 +68,17 @@ public class ApplicationInformation
         Instance = new ApplicationInformation(version);
 
         IsInitialized = true;
+    }
+
+    /// <summary>
+    ///     Ensure that the current thread is the main thread.
+    /// </summary>
+    /// <returns>True if the current thread is the main thread.</returns>
+    [Conditional("DEBUG")]
+    public static void ThrowIfNotOnMainThread(Object @object, [CallerMemberName] String operation = "")
+    {
+        if (Instance.IsOnMainThread) return;
+
+        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
     }
 }

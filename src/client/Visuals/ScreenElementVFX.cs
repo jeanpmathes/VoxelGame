@@ -12,6 +12,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
@@ -224,7 +225,7 @@ public sealed class ScreenElementVFX : VFX
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else Throw.ForMissedDispose(nameof(ScreenElementVFX));
+        else Throw.ForMissedDispose(this);
 
         base.Dispose(disposing);
 

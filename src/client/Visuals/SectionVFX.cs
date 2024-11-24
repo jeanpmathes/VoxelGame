@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
+using VoxelGame.Core;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -14,6 +15,7 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Graphics.Raytracing;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -171,7 +173,7 @@ public sealed class SectionVFX : VFX
     public void SetData(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
-        Throw.IfNotOnMainThread(this);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {

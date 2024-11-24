@@ -19,8 +19,9 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
 
 namespace VoxelGame.Core.Logic;
@@ -548,9 +549,10 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Factory method that creates a new chunk.
     /// </summary>
+    /// <param name="blocks">The blocks of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
     /// <returns>The new chunk.</returns>
-    protected abstract Chunk CreateChunk(ChunkContext context);
+    protected abstract Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context);
 
     /// <summary>
     ///     Process a chunk that has been just activated.

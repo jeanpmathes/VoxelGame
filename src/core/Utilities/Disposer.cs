@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -51,7 +52,7 @@ public sealed class Disposer : IDisposable
         if (disposed) return;
 
         if (disposing) dispose();
-        else Throw.ForMissedDispose(nameof(Disposer));
+        else Throw.ForMissedDispose(this);
 
         disposed = true;
     }

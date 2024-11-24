@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 

@@ -119,11 +119,13 @@
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
+        <ClInclude Include="Allocator.hpp"/>
         <ClInclude Include="native.hpp"/>
         <ClInclude Include="Noise.hpp"/>
         <ClInclude Include="stdafx.h"/>
     </ItemGroup>
     <ItemGroup>
+        <ClCompile Include="Allocator.cpp"/>
         <ClCompile Include="Noise.cpp"/>
         <ClCompile Include="native.cpp"/>
         <ClCompile Include="stdafx.cpp">

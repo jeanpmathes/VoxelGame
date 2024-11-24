@@ -11,6 +11,8 @@ using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Sections;
 
@@ -88,7 +90,7 @@ public class Section : IDisposable
     /// <summary>
     ///     The blocks stored in this section.
     /// </summary>
-    private readonly ArraySegment<UInt32> blocks;
+    private readonly NativeSegment<UInt32> blocks;
 
     /// <summary>
     ///     The position of this section.
@@ -98,7 +100,7 @@ public class Section : IDisposable
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    public Section(ArraySegment<UInt32> blocks)
+    public Section(NativeSegment<UInt32> blocks)
     {
         Debug.Assert(blocks.Count == Count);
 

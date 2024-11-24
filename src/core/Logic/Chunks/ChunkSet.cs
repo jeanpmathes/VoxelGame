@@ -10,8 +10,8 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -114,7 +114,7 @@ public sealed partial class ChunkSet : IDisposable
     private Chunk? Get(ChunkPosition position)
     {
         Throw.IfDisposed(disposed);
-        Throw.IfNotOnMainThread(this);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         return chunks.GetValueOrDefault(position);
     }

@@ -4,17 +4,15 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Core.Utilities;
+namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
-///     Utility class for throwing exceptions.
+/// Utility for throwing exceptions.
 /// </summary>
 public partial class Throw
 {
@@ -24,6 +22,20 @@ public partial class Throw
     #pragma warning restore
 
     private Throw() {}
+
+    /// <summary>
+    ///     Handle an incorrectly disposed object, meaning an object that was disposed by the GC.
+    /// </summary>
+    /// <typeparam name="T">The type of the object that was incorrectly disposed.</typeparam>
+    /// <param name="object">The object that was not disposed.</param>
+    /// <param name="trace">The stack trace of object creation.</param>
+    // Intentionally not conditional.
+    public static void ForMissedDispose<T>(T? @object = default, StackTrace? trace = null)
+    {
+        LogMissedDispose(logger, typeof(T).Name, @object, trace);
+
+        Debugger.Break();
+    }
 
     /// <summary>
     ///     Throw an exception if an object is disposed.
@@ -50,33 +62,6 @@ public partial class Throw
     public static void IfNull([NotNull] Object? obj, String message = "")
     {
         if (obj is null) throw new ArgumentNullException(message);
-    }
-
-    /// <summary>
-    ///     Ensure that the current thread is the main thread.
-    /// </summary>
-    /// <returns>True if the current thread is the main thread.</returns>
-    [Conditional("DEBUG")]
-    public static void IfNotOnMainThread(Object @object, [CallerMemberName] String operation = "")
-    {
-        if (ApplicationInformation.Instance.IsOnMainThread) return;
-
-        Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
-    }
-
-
-    /// <summary>
-    ///     Handle an incorrectly disposed object, meaning an object that was disposed by the GC.
-    /// </summary>
-    /// <typeparam name="T">The type of the object that was incorrectly disposed.</typeparam>
-    /// <param name="object">The object that was not disposed.</param>
-    /// <param name="trace">The stack trace of object creation.</param>
-    // Intentionally not conditional.
-    public static void ForMissedDispose<T>(T? @object = default, StackTrace? trace = null)
-    {
-        LogMissedDispose(logger, typeof(T).Name, @object, trace);
-
-        Debugger.Break();
     }
 
     #region LOGGING

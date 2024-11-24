@@ -16,6 +16,8 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 using Section = VoxelGame.Client.Logic.Sections.Section;
 
 namespace VoxelGame.Client.Logic.Chunks;
@@ -28,8 +30,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <summary>
     ///     Create a new client chunk.
     /// </summary>
+    /// <param name="blocks">The block memory of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
-    public Chunk(ChunkContext context) : base(context, CreateSection) {}
+    public Chunk(NativeSegment<UInt32> blocks, ChunkContext context) : base(context, blocks, CreateSection) {}
 
     /// <summary>
     ///     Get the client world this chunk is in.
@@ -83,7 +86,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         State.RequestNextState<Hidden>();
     }
 
-    private static Core.Logic.Sections.Section CreateSection(ArraySegment<UInt32> blocks)
+    private static Core.Logic.Sections.Section CreateSection(NativeSegment<UInt32> blocks)
     {
         return new Section(blocks);
     }

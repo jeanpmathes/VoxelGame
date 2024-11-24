@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Image = VoxelGame.Core.Visuals.Image;

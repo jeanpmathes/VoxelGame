@@ -10,7 +10,7 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Application;
 

@@ -15,6 +15,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -251,7 +252,7 @@ public sealed class SelectionBoxVFX : VFX
 
         if (disposing)
             effect?.Dispose();
-        else Throw.ForMissedDispose(nameof(Effect));
+        else Throw.ForMissedDispose(this);
 
         base.Dispose(disposing);
 

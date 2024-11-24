@@ -6,8 +6,8 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Data;
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Memory;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -141,6 +142,20 @@ public abstract class Serializer
 
         Span<Byte> span = MemoryMarshal.AsBytes(value.AsSpan());
         Serialize(span);
+    }
+
+    /// <summary>
+    ///     Serialize a segment.
+    ///     Will not serialize the number of entries in the segment.
+    /// </summary>
+    /// <param name="segment">The segment to serialize.</param>
+    /// <typeparam name="T">The type of the values in the segment.</typeparam>
+    public void Serialize<T>(NativeSegment<T> segment) where T : unmanaged
+    {
+        Span<T> content = segment.AsSpan();
+        Span<Byte> bytes = MemoryMarshal.AsBytes(content);
+
+        Serialize(bytes);
     }
 
     /// <summary>

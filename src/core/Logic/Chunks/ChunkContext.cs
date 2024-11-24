@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
+using VoxelGame.Toolkit.Memory;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -28,7 +29,7 @@ public sealed class ChunkContext : IDisposable
     /// <summary>
     ///     Creates a new chunk.
     /// </summary>
-    public delegate Chunk ChunkFactory(ChunkContext context);
+    public delegate Chunk ChunkFactory(NativeSegment<UInt32> blocks, ChunkContext context);
 
     private readonly ChunkActivator activateStrongly;
     private readonly ChunkActivator activateWeakly;
@@ -50,7 +51,7 @@ public sealed class ChunkContext : IDisposable
         activateWeakly = weakActivator;
         deactivate = deactivator;
 
-        Pool = new ChunkPool(() => factory(this));
+        Pool = new ChunkPool(segment => factory(segment, this));
     }
 
     /// <summary>

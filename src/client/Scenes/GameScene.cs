@@ -16,10 +16,10 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 

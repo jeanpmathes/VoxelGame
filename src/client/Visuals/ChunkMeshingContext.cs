@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
@@ -16,6 +17,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -258,7 +260,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>A context that can be used to mesh the chunk.</returns>
     public static ChunkMeshingContext UsingActive(Chunk chunk, IMeshingFactory meshingFactory)
     {
-        Throw.IfNotOnMainThread(chunk);
+        ApplicationInformation.ThrowIfNotOnMainThread(chunk);
 
         Sides<(Chunk, Guard?)?> neighbors = new();
         var availableSides = BlockSides.None;

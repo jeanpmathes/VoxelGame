@@ -13,6 +13,7 @@ using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -135,6 +136,7 @@ public sealed partial class StartScene : IScene
         if (exception != null)
         {
             LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
+
             return;
         }
 

@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = System.Drawing.Point;

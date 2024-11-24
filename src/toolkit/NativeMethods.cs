@@ -13,6 +13,18 @@ internal static partial class NativeMethods
 {
     private const String DllFilePath = @".\NativeToolkit.dll";
 
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateAllocator")]
+    internal static partial IntPtr CreateAllocator();
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeAllocate")]
+    internal static partial IntPtr Allocate(IntPtr allocator, UInt64 size);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeDeallocate")]
+    internal static partial Int32 Deallocate(IntPtr allocator, IntPtr ptr);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeDeleteAllocator")]
+    internal static partial void DeleteAllocator(IntPtr allocator);
+
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateNoise")]
     internal static partial IntPtr CreateNoise(NoiseDefinition definition);
 

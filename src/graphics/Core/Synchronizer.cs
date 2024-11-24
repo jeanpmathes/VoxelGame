@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System.Diagnostics;
+using VoxelGame.Core;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Graphics.Core;
@@ -53,7 +53,7 @@ public class Synchronizer
     /// </summary>
     internal Handle RegisterObject(NativeObject nativeObject)
     {
-        Throw.IfNotOnMainThread(objects);
+        ApplicationInformation.ThrowIfNotOnMainThread(objects);
 
         Int32 preSyncIndex = preSyncBag.Add(nativeObject);
         Int32 syncIndex = syncBag.Add(nativeObject);
@@ -66,7 +66,7 @@ public class Synchronizer
     /// </summary>
     internal void DisablePreSync(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        ApplicationInformation.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -82,7 +82,7 @@ public class Synchronizer
     /// </summary>
     internal void DisableSync(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        ApplicationInformation.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -98,7 +98,7 @@ public class Synchronizer
     /// </summary>
     internal void DeRegisterObject(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        ApplicationInformation.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);

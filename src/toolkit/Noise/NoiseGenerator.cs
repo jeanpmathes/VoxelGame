@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Toolkit.Noise;
 
@@ -99,7 +100,7 @@ public sealed class NoiseGenerator : IDisposable
         if (disposed) return;
 
         if (disposing) Native.DeleteNoise(self);
-        else throw new InvalidOperationException("Tried to dispose a noise generator from the finalizer.");
+        else Throw.ForMissedDispose(this);
 
         disposed = true;
     }

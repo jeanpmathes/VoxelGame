@@ -23,6 +23,7 @@ using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;
@@ -74,9 +75,9 @@ public partial class World : Core.Logic.World
     }
 
     /// <inheritdoc />
-    protected override Core.Logic.Chunks.Chunk CreateChunk(ChunkContext context)
+    protected override Core.Logic.Chunks.Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context)
     {
-        return new Chunk(context);
+        return new Chunk(blocks, context);
     }
 
     /// <summary>

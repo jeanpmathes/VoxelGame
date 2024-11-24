@@ -6,6 +6,17 @@
 
 #include "stdafx.h"
 
+NATIVE Allocator* NativeCreateAllocator() { return new Allocator(); }
+
+NATIVE std::byte* NativeAllocate(Allocator const* allocator, UINT64 const size) { return allocator->Allocate(size); }
+
+NATIVE HRESULT NativeDeallocate(Allocator const* allocator, std::byte* const pointer)
+{
+    return allocator->Deallocate(pointer);
+}
+
+NATIVE void NativeDeleteAllocator(Allocator const* allocator) { delete allocator; }
+
 NATIVE Noise* NativeCreateNoise(NoiseDefinition const definition) { return new Noise(definition); }
 
 NATIVE FLOAT NativeGetNoise2D(Noise const* noise, FLOAT const x, FLOAT const y) { return noise->GetNoise(x, y); }

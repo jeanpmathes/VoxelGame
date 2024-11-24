@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Water;
 

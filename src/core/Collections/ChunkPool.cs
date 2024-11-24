@@ -5,9 +5,11 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 using Chunk = VoxelGame.Core.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Core.Collections;
@@ -17,15 +19,30 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public sealed class ChunkPool : IDisposable
 {
-    private readonly ObjectPool<Chunk> pool;
+    private readonly NativeAllocator allocator = new();
+    private readonly Stack<Allocation> allocations = new();
+
+    private readonly Func<NativeSegment<UInt32>, Chunk> factory;
+    private readonly ObjectPool<Chunk> chunks;
 
     /// <summary>
     ///     Create a new chunk pool.
     /// </summary>
     /// <param name="factory">The factory to use for creating chunks.</param>
-    public ChunkPool(Func<Chunk> factory)
+    public ChunkPool(Func<NativeSegment<UInt32>, Chunk> factory)
     {
-        pool = new ObjectPool<Chunk>(factory);
+        this.factory = factory;
+
+        chunks = new ObjectPool<Chunk>(CreateChunk);
+
+        allocations.Push(new Allocation(allocator));
+    }
+
+    private Chunk CreateChunk()
+    {
+        if (allocations.Peek().IsExhausted) allocations.Push(new Allocation(allocator));
+
+        return factory(allocations.Peek().GetNextSegment());
     }
 
     /// <summary>
@@ -39,7 +56,7 @@ public sealed class ChunkPool : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        Chunk chunk = pool.Get();
+        Chunk chunk = chunks.Get();
 
         chunk.Initialize(world, position);
 
@@ -56,7 +73,29 @@ public sealed class ChunkPool : IDisposable
 
         chunk.Reset();
 
-        pool.Return(chunk);
+        chunks.Return(chunk);
+    }
+
+    private sealed class Allocation(NativeAllocator allocator)
+    {
+        private const Int32 ChunksPerAllocation = 64;
+        private const Int32 BlocksPerChunk = Chunk.BlockSize * Chunk.BlockSize * Chunk.BlockSize;
+        private const Int32 AllocationCount = ChunksPerAllocation * BlocksPerChunk;
+
+        private readonly NativeAllocation<UInt32> allocation = allocator.Allocate<UInt32>(AllocationCount);
+
+        private Int32 nextChunkIndex;
+
+        public Boolean IsExhausted => nextChunkIndex >= ChunksPerAllocation;
+
+        public NativeSegment<UInt32> GetNextSegment()
+        {
+            Int32 offset = nextChunkIndex * BlocksPerChunk;
+
+            nextChunkIndex += 1;
+
+            return allocation.Segment.Slice(offset, BlocksPerChunk);
+        }
     }
 
     #region IDisposable Support
@@ -66,9 +105,12 @@ public sealed class ChunkPool : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        Chunk[] chunks = pool.Clear();
+        Chunk[] cleared = chunks.Clear();
 
-        foreach (Chunk chunk in chunks) chunk.Dispose();
+        foreach (Chunk chunk in cleared)
+            chunk.Dispose();
+
+        allocator.Dispose();
 
         disposed = true;
     }

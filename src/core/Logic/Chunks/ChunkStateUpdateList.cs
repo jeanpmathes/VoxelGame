@@ -7,7 +7,6 @@
 using System;
 using System.Threading.Channels;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -72,7 +71,7 @@ public class ChunkStateUpdateList
     /// <param name="chunk">The chunk to add.</param>
     public void Add(Chunk chunk)
     {
-        Throw.IfNotOnMainThread(this);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         if (chunk.HasUpdateIndex())
             return;
@@ -89,7 +88,7 @@ public class ChunkStateUpdateList
     /// <param name="chunk">The chunk to remove.</param>
     public void Remove(Chunk chunk)
     {
-        Throw.IfNotOnMainThread(this);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         Int32? index = chunk.ClearUpdateIndex();
 

@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System.Runtime.InteropServices.Marshalling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Objects;
 
@@ -60,7 +60,7 @@ public class Drawable : Spatial, IDisposable
         }
         else
         {
-            Throw.ForMissedDispose(nameof(Drawable));
+            Throw.ForMissedDispose(this);
         }
 
         disposed = true;

@@ -11,8 +11,8 @@ using System.Drawing;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Deco;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Noise;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

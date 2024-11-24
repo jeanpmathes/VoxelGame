@@ -8,8 +8,8 @@ using System;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

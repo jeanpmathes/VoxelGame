@@ -20,6 +20,8 @@ using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -31,7 +33,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Creates a section.
     /// </summary>
-    public delegate Section SectionFactory(ArraySegment<UInt32> blocks);
+    public delegate Section SectionFactory(NativeSegment<UInt32> blocks);
 
     /// <summary>
     ///     Result status of loading a chunk.
@@ -75,6 +77,11 @@ public partial class Chunk : IDisposable, IEntity
     ///     The number of sections per chunk.
     /// </summary>
     public const Int32 SectionCount = Size * Size * Size;
+
+    /// <summary>
+    ///     The number of blocks in a chunk.
+    /// </summary>
+    public const Int32 BlockCount = BlockSize * BlockSize * BlockSize;
 
     /// <summary>
     ///     Result of <c>lb(Size)</c> as int.
@@ -121,7 +128,7 @@ public partial class Chunk : IDisposable, IEntity
     ///     The block data of this chunk.
     ///     Storage layout is defined by <see cref="Section"/>.
     /// </summary>
-    private UInt32[] blocks = new UInt32[BlockSize * BlockSize * BlockSize];
+    private readonly NativeSegment<UInt32> blocks;
 
     private DecorationLevels decoration = DecorationLevels.None;
 
@@ -137,14 +144,19 @@ public partial class Chunk : IDisposable, IEntity
     ///     Create a new chunk. The chunk is not initialized.
     /// </summary>
     /// <param name="context">The chunk context.</param>
+    /// <param name="blocks">The block memory of the chunk.</param>
     /// <param name="createSection">The section factory.</param>
-    public Chunk(ChunkContext context, SectionFactory createSection)
+    public Chunk(ChunkContext context, NativeSegment<UInt32> blocks, SectionFactory createSection)
     {
+        Debug.Assert(blocks.Count == BlockCount);
+
         Context = context;
+
+        this.blocks = blocks;
 
         for (var index = 0; index < SectionCount; index++)
         {
-            ArraySegment<UInt32> segment = new(blocks, index * Section.Count, Section.Count);
+            NativeSegment<UInt32> segment = blocks.Slice(index * Section.Count, Section.Count);
             sections[index] = createSection(segment);
         }
 
@@ -258,7 +270,7 @@ public partial class Chunk : IDisposable, IEntity
     public void Serialize(Serializer serializer, IEntity.Header header)
     {
         serializer.SerializeValue(ref location);
-        serializer.Serialize(ref blocks);
+        serializer.Serialize(blocks);
         serializer.Serialize(ref decoration);
         serializer.SerializeEntity(blockTickManager);
         serializer.SerializeEntity(fluidTickManager);

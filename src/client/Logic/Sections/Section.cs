@@ -14,9 +14,10 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Logic.Sections;
 
@@ -37,7 +38,7 @@ public class Section : Core.Logic.Sections.Section
     private SectionVFX? vfx;
 
     /// <inheritdoc />
-    public Section(ArraySegment<UInt32> blocks) : base(blocks) {}
+    public Section(NativeSegment<UInt32> blocks) : base(blocks) {}
 
     /// <inheritdoc />
     public override void Initialize(SectionPosition newPosition)

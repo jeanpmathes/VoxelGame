@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Updates;
 
@@ -67,7 +66,7 @@ public abstract class Operation
         Debug.Assert(Status == Status.Running);
         Debug.Assert(!started);
 
-        Throw.IfNotOnMainThread(this);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         started = true;
 

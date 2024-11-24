@@ -17,14 +17,22 @@ using VoxelGame.Core.Tests.Utilities;
 using VoxelGame.Core.Tests.Visuals;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Memory;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 [Collection("Logger")]
-public class GeneratorTests(ITestOutputHelper output)
+public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
 {
+    private readonly NativeAllocator allocator = new();
+
+    public void Dispose()
+    {
+        allocator.Dispose();
+    }
+
     [Fact]
     public void Default_Generator_ShouldFullyGeneratePassedChunks()
     {
@@ -50,6 +58,9 @@ public class GeneratorTests(ITestOutputHelper output)
         Fluids.Load(textures, textures, loadingContext);
 
         TGenerator.Initialize(loadingContext);
+
+        StaticStructure.ClearLoadingContext();
+        BlockModel.DisableLoading();
 
         IWorldGenerator generator;
         ChunkContext context;
@@ -82,7 +93,7 @@ public class GeneratorTests(ITestOutputHelper output)
 
         Chunk GenerateChunk(ChunkPosition position)
         {
-            Chunk chunk = CreateChunk(context);
+            Chunk chunk = CreateChunk(allocator.Allocate<UInt32>(Chunk.BlockCount).Segment, context);
             chunk.Initialize(null!, position);
 
             using IGenerationContext generationContext = generator.CreateGenerationContext(position);
@@ -93,9 +104,9 @@ public class GeneratorTests(ITestOutputHelper output)
             return chunk;
         }
 
-        Chunk CreateChunk(ChunkContext ctx)
+        Chunk CreateChunk(NativeSegment<UInt32> segment, ChunkContext ctx)
         {
-            return new Chunk(ctx, blocks => new Section(blocks));
+            return new Chunk(ctx, segment, blocks => new Section(blocks));
         }
     }
 }

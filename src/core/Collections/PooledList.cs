@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -417,7 +417,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         if (disposed) return;
 
         if (disposing) ReturnToPool();
-        else Throw.ForMissedDispose(nameof(PooledList<T>));
+        else Throw.ForMissedDispose(this);
 
         disposed = true;
     }
