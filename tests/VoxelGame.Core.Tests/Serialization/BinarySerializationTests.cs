@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Tests.Serialization;
 public class BinarySerializationTests
 {
     [Fact]
-    public void ShouldHaveSameStateBeforeAndAfterSerialization()
+    public void IEntity_ShouldHaveSameStateBeforeAndAfterSerialization()
     {
         Data data = new()
         {

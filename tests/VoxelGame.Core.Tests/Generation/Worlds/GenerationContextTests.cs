@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Tests.Logic.Chunks;
 using VoxelGame.Core.Visuals;
 using Xunit;
 
@@ -26,7 +27,7 @@ public class GenerationContextTests : ContextTestBase
     [Fact]
     public void IGenerationContext_ShouldDecoratePassedChunks()
     {
-        ChunkContext context = new(null!, CreateChunk, _ => null, _ => null, _ => {});
+        using ChunkContext context = MockChunkContext.Create(CreateChunk);
         MockGenerationContext mockGenerationContext = new();
         IGenerationContext generationContext = mockGenerationContext;
 

@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Tests.Logic.Chunks;
 using VoxelGame.Core.Tests.Utilities;
 using VoxelGame.Core.Tests.Visuals;
 using VoxelGame.Core.Utilities;
@@ -68,7 +69,7 @@ public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
         using (Timer.Start(duration => output.WriteLine($"Creation: {duration}")))
         {
             generator = TGenerator.Create(new MockWorldGeneratorContext());
-            context = new ChunkContext(generator, CreateChunk, _ => null, _ => null, _ => {});
+            context = MockChunkContext.Create(CreateChunk);
         }
 
         Neighborhood<Chunk?> chunks = new();

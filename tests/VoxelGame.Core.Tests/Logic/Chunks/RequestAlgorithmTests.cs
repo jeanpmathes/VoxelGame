@@ -35,7 +35,7 @@ public class RequestAlgorithmTests
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    public void PositionsInManhattanRangeShouldBeEqualToNaive(Int32 range)
+    public void RequestAlgorithm_ShouldCalculateCorrectPositionsInManhattanRange(Int32 range)
     {
         ChunkPosition center = new(x: 0, y: 0, z: 0);
 
@@ -52,7 +52,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void AddingSingleRequestShouldLoadChunksAroundIt()
+    public void RequestAlgorithm_ShouldLoadAllChunksAroundSingleRequest()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);
@@ -70,7 +70,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void RemovingRequestShouldUnloadChunks()
+    public void RequestAlgorithm_ShouldUnloadAllChunksWhenSingleRequestIsRemoved()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);
@@ -96,7 +96,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void RemovingOneOfTwoRequestsAtAPositionShouldHaveNoEffect()
+    public void RequestAlgorithm_ShouldNotChangeChunkStateWhenOneOfTwoRequestsAtPositionIsRemoved()
     {
         MockActor actor1 = new();
         MockActor actor2 = new();
@@ -123,7 +123,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void RemovingAllRequestsAtAPositionShouldUnloadChunks()
+    public void RequestAlgorithm_ShouldUnloadChunksWhenAllRequestsAreRemoved()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);
@@ -149,7 +149,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void RemovingRequestAndAddingAnotherShouldLoadChunks()
+    public void RequestAlgorithm_ShouldKeepChunksLoadedWhenReplacingRequest()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);
@@ -175,7 +175,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void AddingMultipleRequestsShouldLoadChunksAroundThem()
+    public void RequestAlgorithm_ShouldLoadAllChunksAroundMultipleRequests()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);
@@ -204,7 +204,7 @@ public class RequestAlgorithmTests
     }
 
     [Fact]
-    public void RemovingOneOfMultipleSpreadOutRequestsShouldNotUnloadAllChunks()
+    public void RequestAlgorithm_ShouldNotUnloadAllChunksWhenOneOfManyRequestsIsRemoved()
     {
         MockActor actor = new();
         ChunkPosition center = new(x: 0, y: 0, z: 0);

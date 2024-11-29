@@ -36,6 +36,48 @@ public static class VMath
     }
 
     /// <summary>
+    ///     Get a sequence of random integers.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of integers to generate.</param>
+    /// <param name="min">The inclusive lower bound of the integers.</param>
+    /// <param name="max">The exclusive upper bound of the integers.</param>
+    /// <returns>The sequence of random integers.</returns>
+    public static IEnumerable<Int32> Random(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return generator.Next(min, max);
+    }
+
+    /// <summary>
+    ///     Get a sequence of random vectors.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of vectors to generate.</param>
+    /// <param name="min">The inclusive lower bound of the components.</param>
+    /// <param name="max">The exclusive upper bound of the components.</param>
+    /// <returns>The sequence of random vectors.</returns>
+    public static IEnumerable<Vector2i> Random2(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return new Vector2i(generator.Next(min, max), generator.Next(min, max));
+    }
+
+    /// <summary>
+    ///     Get a sequence of random vectors.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of vectors to generate.</param>
+    /// <param name="min">The inclusive lower bound of the components.</param>
+    /// <param name="max">The exclusive upper bound of the components.</param>
+    /// <returns>The sequence of random vectors.</returns>
+    public static IEnumerable<Vector3i> Random3(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return new Vector3i(generator.Next(min, max), generator.Next(min, max), generator.Next(min, max));
+    }
+
+    /// <summary>
     ///     A simple one-dimensional range.
     /// </summary>
     /// <param name="x">The exclusive upper bound.</param>

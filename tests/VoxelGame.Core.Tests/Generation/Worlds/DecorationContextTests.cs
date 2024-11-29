@@ -12,6 +12,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Tests.Logic.Chunks;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Generation.Worlds;
@@ -23,7 +24,7 @@ public class DecorationContextTests : ContextTestBase
     [Fact]
     public void IDecorationContext_ShouldDecoratePassedChunks()
     {
-        ChunkContext context = new(null!, CreateChunk, _ => null, _ => null, _ => {});
+        using ChunkContext context = MockChunkContext.Create(CreateChunk);
         MockDecorationContext mockDecorationContext = new();
         IDecorationContext decorationContext = mockDecorationContext;
 

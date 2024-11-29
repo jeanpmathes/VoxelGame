@@ -20,12 +20,6 @@ public class ContextTestBase : IDisposable
         allocator = new NativeAllocator();
     }
 
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
     protected Chunk CreateInitializedChunk(ChunkContext context, ChunkPosition position)
     {
         Chunk chunk = new(context, allocator.Allocate<UInt32>(Chunk.BlockCount).Segment, blocks => new Section(blocks));
@@ -40,8 +34,18 @@ public class ContextTestBase : IDisposable
         return new Chunk(ctx, segment, blocks => new Section(blocks));
     }
 
+    #region IDisposable Support
+
     protected virtual void Dispose(Boolean disposing)
     {
         if (disposing) allocator.Dispose();
     }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion IDisposable Support
 }
