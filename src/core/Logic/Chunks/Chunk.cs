@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -357,24 +358,28 @@ public partial class Chunk : IDisposable, IEntity
     ///     This allows using the core resource of a chunk - its sections and their blocks.
     /// </summary>
     /// <param name="access">The access to acquire. Must not be <see cref="Access.None" />.</param>
+    /// <param name="caller">The name of the caller.</param>
+    /// <param name="line">The line number of the caller.</param>
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
-    public Guard? Acquire(Access access)
+    public Guard? Acquire(Access access, [CallerMemberName] String caller = "", [CallerLineNumber] Int32 line = 0)
     {
         Throw.IfDisposed(disposed);
 
         Debug.Assert(access != Access.None);
 
+        var source = $"{caller} (line {line})";
+
         Guard? guard = ChunkState.TryStealAccess(ref state);
 
         if (guard == null)
-            return resource.TryAcquire(access);
+            return resource.TryAcquire(access, source);
 
         if (access == Access.Write)
             return guard;
 
         // We downgrade our access to read, as stealing always gives us write access.
         guard.Dispose();
-        guard = resource.TryAcquire(access);
+        guard = resource.TryAcquire(access, source);
         Debug.Assert(guard != null);
 
         return guard;

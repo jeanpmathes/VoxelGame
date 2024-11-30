@@ -114,8 +114,9 @@ public sealed class Resource
     /// <summary>
     ///     Try to acquire the resource for reading.
     /// </summary>
+    /// <param name="source">The source of the request.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    private Guard? TryAcquireReader()
+    private Guard? TryAcquireReader(String source)
     {
         ApplicationInformation.ThrowIfNotOnMainThread(this);
 
@@ -123,14 +124,15 @@ public sealed class Resource
 
         readerCount++;
 
-        return new Guard(this, ReleaseReader);
+        return new Guard(this, source, ReleaseReader);
     }
 
     /// <summary>
     ///     Try to acquire the resource for writing.
     /// </summary>
+    /// <param name="source">The source of the request.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    private Guard? TryAcquireWriter()
+    private Guard? TryAcquireWriter(String source)
     {
         ApplicationInformation.ThrowIfNotOnMainThread(this);
 
@@ -138,20 +140,21 @@ public sealed class Resource
 
         IsWrittenTo = true;
 
-        return new Guard(this, ReleaseWriter);
+        return new Guard(this, source, ReleaseWriter);
     }
 
     /// <summary>
     ///     Try to acquire the resource for reading or writing.
     /// </summary>
     /// <param name="access">The access type to acquire.</param>
+    /// <param name="source">The source of the request.</param>
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
-    public Guard? TryAcquire(Access access)
+    public Guard? TryAcquire(Access access, String source)
     {
         return access switch
         {
-            Access.Read => TryAcquireReader(),
-            Access.Write => TryAcquireWriter(),
+            Access.Read => TryAcquireReader(source),
+            Access.Write => TryAcquireWriter(source),
             _ => null
         };
     }

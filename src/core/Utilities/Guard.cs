@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
@@ -16,21 +15,20 @@ namespace VoxelGame.Core.Utilities;
 public sealed class Guard : IDisposable
 {
     private readonly Action release;
+    private readonly String? source;
     private readonly Object resource;
-
-    private readonly StackTrace? stackTrace;
 
     /// <summary>
     ///     Create a new guard.
     /// </summary>
     /// <param name="resource">The resource to guard.</param>
+    /// <param name="source">Where the guard was created.</param>
     /// <param name="release">The method to call when the guard is disposed.</param>
-    public Guard(Object resource, Action release)
+    public Guard(Object resource, String source, Action release)
     {
         this.resource = resource;
+        this.source = source;
         this.release = release;
-
-        if (ApplicationInformation.Instance.IsDebug) stackTrace = new StackTrace(skipFrames: 1, fNeedFileInfo: false);
     }
 
     /// <summary>
@@ -57,7 +55,7 @@ public sealed class Guard : IDisposable
         if (disposed) return;
 
         if (disposing) release();
-        else Throw.ForMissedDispose(resource, stackTrace);
+        else Throw.ForMissedDispose(resource, source);
 
         disposed = true;
     }

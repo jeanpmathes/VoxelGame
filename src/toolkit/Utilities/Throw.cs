@@ -28,11 +28,11 @@ public partial class Throw
     /// </summary>
     /// <typeparam name="T">The type of the object that was incorrectly disposed.</typeparam>
     /// <param name="object">The object that was not disposed.</param>
-    /// <param name="trace">The stack trace of object creation.</param>
+    /// <param name="source">Where the object was created.</param>
     // Intentionally not conditional.
-    public static void ForMissedDispose<T>(T? @object = default, StackTrace? trace = null)
+    public static void ForMissedDispose<T>(T? @object = default, String? source = null)
     {
-        LogMissedDispose(logger, typeof(T).Name, @object, trace);
+        LogMissedDispose(logger, typeof(T).Name, @object, source ?? "unknown");
 
         Debugger.Break();
     }
@@ -68,8 +68,8 @@ public partial class Throw
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
 
-    [LoggerMessage(EventId = Events.Dispose, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at:\n{Trace}")]
-    private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, StackTrace? trace);
+    [LoggerMessage(EventId = Events.Dispose, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
+    private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, String source);
 
     #endregion LOGGING
 }
