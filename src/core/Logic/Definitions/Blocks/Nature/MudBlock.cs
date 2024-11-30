@@ -32,7 +32,7 @@ public class MudBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.Viscosity < 200;
     }

@@ -36,9 +36,9 @@ public class OrientedBlock : BasicBlock
             position);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Orientation orientation)
+    private static Side TranslateSide(Side side, Orientation orientation)
     {
-        if (side is BlockSide.Bottom or BlockSide.Top)
+        if (side is Side.Bottom or Side.Top)
             return side;
 
         if (orientation is Orientation.West or Orientation.East)

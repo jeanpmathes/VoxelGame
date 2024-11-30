@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
 {
     private readonly TextureLayout wet;
-    private Sides<Int32> wetTextureIndices = null!;
+    private SideArray<Int32> wetTextureIndices = null!;
 
     internal DirtBlock(String name, String namedID, TextureLayout normal, TextureLayout wet) :
         base(
@@ -34,7 +34,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }

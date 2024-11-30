@@ -20,7 +20,7 @@ public class SaltBlock : GroundedModifiableHeightBlock, IFillable
     internal SaltBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.IsFluid;
     }

@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Visuals;
 /// <param name="SectionMeshData">The mesh data included for the sections.</param>
 /// <param name="Sides">The sides to consider to be meshed after applying the mesh data.</param>
 /// <param name="Indices">The indices of the included sections.</param>
-public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, BlockSides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
+public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, Sides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
 {
     #region IDisposable Support
 

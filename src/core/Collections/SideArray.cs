@@ -17,20 +17,20 @@ namespace VoxelGame.Core.Collections;
 ///     An array to store elements associated with the sides of a cube.
 /// </summary>
 /// <typeparam name="T">The type of the elements.</typeparam>
-public class Sides<T> : IEnumerable<T>
+public class SideArray<T> : IEnumerable<T>
 {
     private readonly T[] sides = new T[6];
 
     /// <summary>
     ///     Get or set the element for the given side.
     /// </summary>
-    public T this[BlockSide side]
+    public T this[Side side]
     {
         get => Get(side);
         set => Set(side, value);
     }
 
-    private ref T GetRef(BlockSide side)
+    private ref T GetRef(Side side)
     {
         return ref sides[(Int32) side];
     }
@@ -40,7 +40,7 @@ public class Sides<T> : IEnumerable<T>
     /// </summary>
     /// <param name="side">The side.</param>
     /// <param name="value">The value.</param>
-    public void Set(BlockSide side, T value)
+    public void Set(Side side, T value)
     {
         GetRef(side) = value;
     }
@@ -50,7 +50,7 @@ public class Sides<T> : IEnumerable<T>
     /// </summary>
     /// <param name="side">The side.</param>
     /// <returns>The value.</returns>
-    public T Get(BlockSide side)
+    public T Get(Side side)
     {
         return GetRef(side);
     }

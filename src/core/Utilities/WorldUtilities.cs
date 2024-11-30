@@ -73,7 +73,7 @@ public static class WorldExtensions
 
         if (top is null) return null;
 
-        return top.Value.Block is {IsSolid: true, IsOpaque: true} && top.Value.IsSideFull(BlockSide.Bottom);
+        return top.Value.Block is {IsSolid: true, IsOpaque: true} && top.Value.IsSideFull(Side.Bottom);
     }
 
     /// <summary>

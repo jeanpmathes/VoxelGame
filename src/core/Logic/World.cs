@@ -429,7 +429,7 @@ public abstract partial class World : IDisposable, IGrid
         content.Block.Block.ContentUpdate(this, position, content);
         if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
             Vector3i neighborPosition = side.Offset(position);
 

@@ -26,7 +26,7 @@ public class MeshFaceHolder
     /// </summary>
     public const Boolean DefaultDirection = true;
 
-    private readonly BlockSide side;
+    private readonly Side side;
 
     private readonly MeshFace?[][] lastFaces;
     private readonly Vector3 inset;
@@ -38,7 +38,7 @@ public class MeshFaceHolder
     /// </summary>
     /// <param name="side">The side the faces held belong too.</param>
     /// <param name="insetScale">How much to move the faces inwards.</param>
-    public MeshFaceHolder(BlockSide side, Single insetScale)
+    public MeshFaceHolder(Side side, Single insetScale)
     {
         this.side = side;
 
@@ -80,12 +80,12 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (0, 1, 0),
-            BlockSide.Back => (0, 1, 0),
-            BlockSide.Left => (0, 0, 1),
-            BlockSide.Right => (0, 0, 1),
-            BlockSide.Bottom => (0, 0, 1),
-            BlockSide.Top => (0, 0, 1),
+            Side.Front => (0, 1, 0),
+            Side.Back => (0, 1, 0),
+            Side.Left => (0, 0, 1),
+            Side.Right => (0, 0, 1),
+            Side.Bottom => (0, 0, 1),
+            Side.Top => (0, 0, 1),
             _ => throw new InvalidOperationException()
         };
     }
@@ -94,12 +94,12 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (-1, 0, 0),
-            BlockSide.Back => (-1, 0, 0),
-            BlockSide.Left => (0, -1, 0),
-            BlockSide.Right => (0, -1, 0),
-            BlockSide.Bottom => (-1, 0, 0),
-            BlockSide.Top => (-1, 0, 0),
+            Side.Front => (-1, 0, 0),
+            Side.Back => (-1, 0, 0),
+            Side.Left => (0, -1, 0),
+            Side.Right => (0, -1, 0),
+            Side.Bottom => (-1, 0, 0),
+            Side.Top => (-1, 0, 0),
             _ => throw new InvalidOperationException()
         };
     }
@@ -108,12 +108,12 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (1, 0, 1),
-            BlockSide.Back => (1, 0, 0),
-            BlockSide.Left => (0, 1, 0),
-            BlockSide.Right => (1, 1, 0),
-            BlockSide.Bottom => (1, 0, 0),
-            BlockSide.Top => (1, 1, 0),
+            Side.Front => (1, 0, 1),
+            Side.Back => (1, 0, 0),
+            Side.Left => (0, 1, 0),
+            Side.Right => (1, 1, 0),
+            Side.Bottom => (1, 0, 0),
+            Side.Top => (1, 1, 0),
             _ => throw new InvalidOperationException()
         };
     }
@@ -129,24 +129,24 @@ public class MeshFaceHolder
     {
         switch (side)
         {
-            case BlockSide.Front:
-            case BlockSide.Back:
+            case Side.Front:
+            case Side.Back:
                 layer = pos.Z;
                 row = pos.X;
                 position = pos.Y;
 
                 break;
 
-            case BlockSide.Left:
-            case BlockSide.Right:
+            case Side.Left:
+            case Side.Right:
                 layer = pos.X;
                 row = pos.Y;
                 position = pos.Z;
 
                 break;
 
-            case BlockSide.Bottom:
-            case BlockSide.Top:
+            case Side.Bottom:
+            case Side.Top:
                 layer = pos.Y;
                 row = pos.X;
                 position = pos.Z;
@@ -165,12 +165,12 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => new Vector3i(row, position, layer),
-            BlockSide.Back => new Vector3i(row, position, layer),
-            BlockSide.Left => new Vector3i(layer, row, position),
-            BlockSide.Right => new Vector3i(layer, row, position),
-            BlockSide.Bottom => new Vector3i(row, layer, position),
-            BlockSide.Top => new Vector3i(row, layer, position),
+            Side.Front => new Vector3i(row, position, layer),
+            Side.Back => new Vector3i(row, position, layer),
+            Side.Left => new Vector3i(layer, row, position),
+            Side.Right => new Vector3i(layer, row, position),
+            Side.Bottom => new Vector3i(row, layer, position),
+            Side.Top => new Vector3i(row, layer, position),
             _ => throw new InvalidOperationException()
         };
     }
@@ -225,7 +225,7 @@ public class MeshFaceHolder
             isRotated);
 
         // Front and Back faces cannot be extended (along the y axis) when the face is not all full level.
-        Boolean levelPermitsExtending = side is not (BlockSide.Front or BlockSide.Back) || isFull;
+        Boolean levelPermitsExtending = side is not (Side.Front or Side.Back) || isFull;
 
         // Check if an already existing face can be extended.
         if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
@@ -249,7 +249,7 @@ public class MeshFaceHolder
         MeshFace? lastCombinationRowFace = null;
 
         // Left and right faces cannot be combined (along the y axis) when the face is not all full level.
-        if (side is BlockSide.Left or BlockSide.Right && !isFull) return;
+        if (side is Side.Left or Side.Right && !isFull) return;
 
         // Check if the current face can be combined with a face in the previous row.
         while (combinationRowFace != null)
@@ -304,7 +304,7 @@ public class MeshFaceHolder
 
             while (currentFace != null)
             {
-                if (side is not BlockSide.Left and not BlockSide.Right)
+                if (side is not Side.Left and not Side.Right)
                     currentFace.isRotated = !currentFace.isRotated;
 
                 Meshing.SetTextureRepetition(ref currentFace.data,
@@ -347,19 +347,19 @@ public class MeshFaceHolder
 
         return side switch
         {
-            BlockSide.Front => (v01, v11, v10, v00),
-            BlockSide.Back => (v00, v10, v11, v01),
-            BlockSide.Left => (v01, v00, v10, v11),
-            BlockSide.Right => (v11, v10, v00, v01),
-            BlockSide.Bottom => (v01, v11, v10, v00),
-            BlockSide.Top => (v11, v01, v00, v10),
+            Side.Front => (v01, v11, v10, v00),
+            Side.Back => (v00, v10, v11, v01),
+            Side.Left => (v01, v00, v10, v11),
+            Side.Right => (v11, v10, v00, v01),
+            Side.Bottom => (v01, v11, v10, v00),
+            Side.Top => (v11, v01, v00, v10),
             _ => throw new InvalidOperationException()
         };
     }
 
     private void ApplyVaryingHeight(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        if (side is BlockSide.Top or BlockSide.Bottom) ApplyVaryingHeightToVerticalSide(ref positions, face);
+        if (side is Side.Top or Side.Bottom) ApplyVaryingHeightToVerticalSide(ref positions, face);
         else ApplyVaryingHeightToLateralSide(ref positions, face);
     }
 
@@ -393,8 +393,8 @@ public class MeshFaceHolder
         Single gap = IHeightVariable.GetGap(face.size);
         Vector3 offset = inset;
 
-        if (face.direction && side == BlockSide.Top) offset += (0, -gap, 0);
-        if (!face.direction && side == BlockSide.Bottom) offset += (0, gap, 0);
+        if (face.direction && side == Side.Top) offset += (0, -gap, 0);
+        if (!face.direction && side == Side.Bottom) offset += (0, gap, 0);
 
         positions.a += offset;
         positions.b += offset;

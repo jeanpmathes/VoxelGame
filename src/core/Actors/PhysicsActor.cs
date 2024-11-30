@@ -88,7 +88,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     /// <summary>
     ///     Get the block side targeted by the physics actor.
     /// </summary>
-    public abstract BlockSide TargetSide { get; }
+    public abstract Side TargetSide { get; }
 
     /// <summary>
     ///     Get the block position targeted by the physics actor.

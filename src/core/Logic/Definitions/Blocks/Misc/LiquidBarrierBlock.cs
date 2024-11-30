@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
 {
     private readonly TextureLayout open;
-    private Sides<Int32> openTextureIndices = null!;
+    private SideArray<Int32> openTextureIndices = null!;
 
     internal FluidBarrierBlock(String name, String namedID, TextureLayout closed, TextureLayout open) :
         base(
@@ -36,7 +36,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         if (fluid.IsGas) return true;
 

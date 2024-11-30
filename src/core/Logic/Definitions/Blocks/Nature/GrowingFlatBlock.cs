@@ -44,7 +44,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         var orientation = (Orientation) (data & 0b00_0011);
 
@@ -54,7 +54,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
         if (block == this &&
             orientation == (Orientation) (dataAbove & 0b00_0011)) return;
 
-        if (side == BlockSide.Top) side = orientation.Opposite().ToBlockSide();
+        if (side == Side.Top) side = orientation.Opposite().ToSide();
 
         CheckBack(world, position, side, orientation, schedule: true);
     }

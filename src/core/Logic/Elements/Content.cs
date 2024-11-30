@@ -27,7 +27,7 @@ public readonly record struct BlockInstance(Block Block, UInt32 Data)
     public Boolean IsOpaqueAndFull => Block.Base.IsOpaqueAndFull(Data);
 
     /// <inheritdoc cref="IBlockBase.IsSideFull" />
-    public Boolean IsSideFull(BlockSide side)
+    public Boolean IsSideFull(Side side)
     {
         return Block.Base.IsSideFull(side, Data);
     }

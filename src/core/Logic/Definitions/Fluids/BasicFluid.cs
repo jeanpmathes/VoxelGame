@@ -24,8 +24,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private readonly TextureLayout movingLayout;
     private readonly TextureLayout staticLayout;
 
-    private Sides<Int32> movingTextures = null!;
-    private Sides<Int32> staticTextures = null!;
+    private SideArray<Int32> movingTextures = null!;
+    private SideArray<Int32> staticTextures = null!;
 
     private Int32 mainTexture;
     private Color4 dominantColor;
@@ -75,7 +75,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         movingTextures = movingLayout.GetTextureIndices(indexProvider);
         staticTextures = staticLayout.GetTextureIndices(indexProvider);
 
-        mainTexture = staticTextures[(Int32) BlockSide.Front];
+        mainTexture = staticTextures[(Int32) Side.Front];
         dominantColor = dominantColorProvider.GetDominantColor(mainTexture);
     }
 
@@ -243,7 +243,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         foreach (Orientation orientation in Orientations.All)
         {
-            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide())) continue;
+            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToSide())) continue;
 
             Vector3i neighborPosition = orientation.Offset(position);
 
@@ -254,7 +254,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                     neighborFillable,
                     world,
                     neighborPosition,
-                    orientation.Opposite().ToBlockSide(),
+                    orientation.Opposite().ToSide(),
                     Direction.ExitSide())
                 || neighborFluid.Fluid != Elements.Fluids.Instance.None
                 || !CheckLowerPosition(neighborPosition + FlowDirection)) continue;
@@ -295,9 +295,9 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         if (Orientations.ShuffledStart(position)
             .Any(
                 orientation => CheckNeighbor(
-                    currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide()),
+                    currentFillable.IsOutflowAllowed(world, position, orientation.ToSide()),
                     orientation.Offset(position),
-                    orientation.Opposite().ToBlockSide()))) return true;
+                    orientation.Opposite().ToSide()))) return true;
 
         if (horizontalPosition == position) return false;
 
@@ -315,7 +315,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         return true;
 
-        Boolean CheckNeighbor(Boolean outflowAllowed, Vector3i neighborPosition, BlockSide side)
+        Boolean CheckNeighbor(Boolean outflowAllowed, Vector3i neighborPosition, Side side)
         {
             Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -428,7 +428,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         foreach (Orientation orientation in Orientations.All)
         {
-            FillNeighbor(world, orientation.Offset(position), orientation.ToBlockSide(), ref remaining);
+            FillNeighbor(world, orientation.Offset(position), orientation.ToSide(), ref remaining);
 
             if (remaining == -1) break;
         }
@@ -436,7 +436,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         world.SetDefaultFluid(position);
     }
 
-    private void FillNeighbor(World world, Vector3i neighborPosition, BlockSide side, ref Int32 remaining)
+    private void FillNeighbor(World world, Vector3i neighborPosition, Side side, ref Int32 remaining)
     {
         Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -474,8 +474,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         }
     }
 
-    private Boolean AllowsFlowTrough(IFillable fillable, World world, Vector3i position, BlockSide incomingSide,
-        BlockSide outgoingSide)
+    private Boolean AllowsFlowTrough(IFillable fillable, World world, Vector3i position, Side incomingSide,
+        Side outgoingSide)
     {
         return fillable.IsInflowAllowed(
                    world,

@@ -38,9 +38,9 @@ public static class DirtBehaviour
     ///     Perform an update for a covered block. This will check if the placement conditions still hold.
     ///     If not, the block will be replaced with dirt.
     /// </summary>
-    public static void BlockUpdateCovered(World world, Vector3i position, BlockSide side)
+    public static void BlockUpdateCovered(World world, Vector3i position, Side side)
     {
-        if (side == BlockSide.Top && world.HasOpaqueTop(position) == true)
+        if (side == Side.Top && world.HasOpaqueTop(position) == true)
             world.SetBlock(Elements.Blocks.Instance.Dirt.AsInstance(), position);
     }
 }

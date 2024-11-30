@@ -86,16 +86,16 @@ public class TextureLayout(String front, String back, String left, String right,
     /// <returns>
     ///     The texture indices for the front, back, left, right, bottom, and top sides of a block.
     /// </returns>
-    public Sides<Int32> GetTextureIndices(ITextureIndexProvider indexProvider)
+    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider indexProvider)
     {
-        return new Sides<Int32>
+        return new SideArray<Int32>
         {
-            [BlockSide.Front] = indexProvider.GetTextureIndex(front),
-            [BlockSide.Back] = indexProvider.GetTextureIndex(back),
-            [BlockSide.Left] = indexProvider.GetTextureIndex(left),
-            [BlockSide.Right] = indexProvider.GetTextureIndex(right),
-            [BlockSide.Bottom] = indexProvider.GetTextureIndex(bottom),
-            [BlockSide.Top] = indexProvider.GetTextureIndex(top)
+            [Side.Front] = indexProvider.GetTextureIndex(front),
+            [Side.Back] = indexProvider.GetTextureIndex(back),
+            [Side.Left] = indexProvider.GetTextureIndex(left),
+            [Side.Right] = indexProvider.GetTextureIndex(right),
+            [Side.Bottom] = indexProvider.GetTextureIndex(bottom),
+            [Side.Top] = indexProvider.GetTextureIndex(top)
         };
     }
 }

@@ -79,23 +79,23 @@ public static class VerticalFlowExtensions
     }
 
     /// <summary>
-    ///     Get the <see cref="BlockSide" /> trough which the flows exists a block.
+    ///     Get the <see cref="Side" /> trough which the flows exists a block.
     /// </summary>
-    public static BlockSide ExitSide(this VerticalFlow flow)
+    public static Side ExitSide(this VerticalFlow flow)
     {
         return flow switch
         {
-            VerticalFlow.Upwards => BlockSide.Top,
-            VerticalFlow.Static => BlockSide.All,
-            VerticalFlow.Downwards => BlockSide.Bottom,
-            _ => BlockSide.All
+            VerticalFlow.Upwards => Side.Top,
+            VerticalFlow.Static => Side.All,
+            VerticalFlow.Downwards => Side.Bottom,
+            _ => Side.All
         };
     }
 
     /// <summary>
-    ///     Get the <see cref="BlockSide" /> trough which the flows enters a block.
+    ///     Get the <see cref="Side" /> trough which the flows enters a block.
     /// </summary>
-    public static BlockSide EntrySide(this VerticalFlow flow)
+    public static Side EntrySide(this VerticalFlow flow)
     {
         return flow.ExitSide().Opposite();
     }

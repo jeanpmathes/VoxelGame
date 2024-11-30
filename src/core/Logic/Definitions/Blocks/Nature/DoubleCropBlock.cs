@@ -165,10 +165,10 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
-        if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
+        if (side == Side.Bottom && (data & 0b00_1000) == 0 &&
             (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 

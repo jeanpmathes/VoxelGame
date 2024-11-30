@@ -31,9 +31,9 @@ public class Targeting
     public Vector3i? Position => target?.position;
 
     /// <summary>
-    ///     The targeted side, or <see cref="BlockSide.All" /> if no side is targeted.
+    ///     The targeted side, or <see cref="Core.Logic.Elements.Side.All" /> if no side is targeted.
     /// </summary>
-    public BlockSide Side => target?.side ?? BlockSide.All;
+    public Side Side => target?.side ?? Side.All;
 
     /// <summary>
     ///     The targeted block, or null if no block is targeted.
@@ -53,7 +53,7 @@ public class Targeting
     public void Update(IOrientable start, World world)
     {
         var ray = new Ray(start.Position, start.Forward, length: 6f);
-        (Vector3i, BlockSide)? hit = Raycast.CastBlockRay(world, ray);
+        (Vector3i, Side)? hit = Raycast.CastBlockRay(world, ray);
 
         if (hit is var (hitPosition, hitSide) && world.GetContent(hitPosition) is var (block, fluid))
         {
@@ -73,7 +73,7 @@ public class Targeting
     private sealed class Target
     {
         public Vector3i position;
-        public BlockSide side;
+        public Side side;
         public BlockInstance block;
         public FluidInstance fluid;
     }

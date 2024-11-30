@@ -29,8 +29,8 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     private readonly BoundingVolume volume;
     private readonly TextureLayout wetLayout;
 
-    private Sides<Int32> dryTextureIndices = null!;
-    private Sides<Int32> wetTextureIndices = null!;
+    private SideArray<Int32> dryTextureIndices = null!;
+    private SideArray<Int32> wetTextureIndices = null!;
 
     internal InsetDirtBlock(String name, String namedID, TextureLayout dry, TextureLayout wet,
         Boolean supportsFullGrowth) :
@@ -108,7 +108,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }

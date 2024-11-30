@@ -86,7 +86,7 @@ public static class BlockMeshes
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static BlockMesh CreateFlatModel(BlockSide side, Single offset, Int32 textureIndex)
+    public static BlockMesh CreateFlatModel(Side side, Single offset, Int32 textureIndex)
     {
         side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 

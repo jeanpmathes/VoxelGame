@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockSide.cs" company="VoxelGame">
+﻿// <copyright file="Side.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,9 +17,9 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-///     The side of a block.
+///     The side of a block or other cube-like object.
 /// </summary>
-public enum BlockSide
+public enum Side
 {
     /// <summary>
     ///     All sides. Only allowed for special cases.
@@ -61,7 +61,7 @@ public enum BlockSide
 ///     Flags to select multiple sides.
 /// </summary>
 [Flags]
-public enum BlockSides
+public enum Sides
 {
     /// <summary>
     ///     No sides.
@@ -105,9 +105,9 @@ public enum BlockSides
 }
 
 /// <summary>
-///     Extension methods for <see cref="BlockSide" />.
+///     Extension methods for <see cref="Side" />.
 /// </summary>
-public static class BlockSideExtensions
+public static class SideExtensions
 {
     // Corners of a block.
 
@@ -131,8 +131,8 @@ public static class BlockSideExtensions
         (0, 1, 0)
     ];
 
-    private static readonly IReadOnlyCollection<BlockSide> sides = new List<BlockSide>
-            {BlockSide.Front, BlockSide.Back, BlockSide.Left, BlockSide.Right, BlockSide.Bottom, BlockSide.Top}
+    private static readonly IReadOnlyCollection<Side> sides = new List<Side>
+            {Side.Front, Side.Back, Side.Left, Side.Right, Side.Bottom, Side.Top}
         .AsReadOnly();
 
     /// <summary>
@@ -140,17 +140,17 @@ public static class BlockSideExtensions
     /// </summary>
     /// <param name="side">The side flags.</param>
     /// <returns>A string representation.</returns>
-    public static String ToCompactString(this BlockSides side)
+    public static String ToCompactString(this Sides side)
     {
         StringBuilder builder = new(capacity: 6);
         builder.Append(value: '-', repeatCount: 6);
 
-        if (side.HasFlag(BlockSides.Front)) builder[index: 0] = 'F';
-        if (side.HasFlag(BlockSides.Back)) builder[index: 1] = 'B';
-        if (side.HasFlag(BlockSides.Left)) builder[index: 2] = 'L';
-        if (side.HasFlag(BlockSides.Right)) builder[index: 3] = 'R';
-        if (side.HasFlag(BlockSides.Bottom)) builder[index: 4] = 'D';
-        if (side.HasFlag(BlockSides.Top)) builder[index: 5] = 'U';
+        if (side.HasFlag(Elements.Sides.Front)) builder[index: 0] = 'F';
+        if (side.HasFlag(Elements.Sides.Back)) builder[index: 1] = 'B';
+        if (side.HasFlag(Elements.Sides.Left)) builder[index: 2] = 'L';
+        if (side.HasFlag(Elements.Sides.Right)) builder[index: 3] = 'R';
+        if (side.HasFlag(Elements.Sides.Bottom)) builder[index: 4] = 'D';
+        if (side.HasFlag(Elements.Sides.Top)) builder[index: 5] = 'U';
 
         return builder.ToString();
     }
@@ -160,17 +160,17 @@ public static class BlockSideExtensions
     /// </summary>
     /// <param name="side">The side.</param>
     /// <returns>The string representation.</returns>
-    public static String ToCompactString(this BlockSide side)
+    public static String ToCompactString(this Side side)
     {
         return side switch
         {
-            BlockSide.All => "A",
-            BlockSide.Front => "F",
-            BlockSide.Back => "B",
-            BlockSide.Left => "L",
-            BlockSide.Right => "R",
-            BlockSide.Bottom => "D",
-            BlockSide.Top => "U",
+            Side.All => "A",
+            Side.Front => "F",
+            Side.Back => "B",
+            Side.Left => "L",
+            Side.Right => "R",
+            Side.Bottom => "D",
+            Side.Top => "U",
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -178,7 +178,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Get the number of sides set in the flags.
     /// </summary>
-    public static Int32 Count(this BlockSides side)
+    public static Int32 Count(this Sides side)
     {
         return BitHelper.CountSetBits((UInt32) side);
     }
@@ -188,18 +188,18 @@ public static class BlockSideExtensions
     /// </summary>
     /// <param name="side">The block side flags, only one bit should be set.</param>
     /// <returns>The single side.</returns>
-    public static BlockSide Single(this BlockSides side)
+    public static Side Single(this Sides side)
     {
         return side switch
         {
-            BlockSides.Front => BlockSide.Front,
-            BlockSides.Back => BlockSide.Back,
-            BlockSides.Left => BlockSide.Left,
-            BlockSides.Right => BlockSide.Right,
-            BlockSides.Bottom => BlockSide.Bottom,
-            BlockSides.Top => BlockSide.Top,
-            BlockSides.None => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
-            BlockSides.All => BlockSide.All,
+            Elements.Sides.Front => Side.Front,
+            Elements.Sides.Back => Side.Back,
+            Elements.Sides.Left => Side.Left,
+            Elements.Sides.Right => Side.Right,
+            Elements.Sides.Bottom => Side.Bottom,
+            Elements.Sides.Top => Side.Top,
+            Elements.Sides.None => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
+            Elements.Sides.All => Side.All,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -207,17 +207,17 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Get the flag for a side.
     /// </summary>
-    public static BlockSides ToFlag(this BlockSide side)
+    public static Sides ToFlag(this Side side)
     {
         return side switch
         {
-            BlockSide.All => BlockSides.All,
-            BlockSide.Front => BlockSides.Front,
-            BlockSide.Back => BlockSides.Back,
-            BlockSide.Left => BlockSides.Left,
-            BlockSide.Right => BlockSides.Right,
-            BlockSide.Bottom => BlockSides.Bottom,
-            BlockSide.Top => BlockSides.Top,
+            Side.All => Elements.Sides.All,
+            Side.Front => Elements.Sides.Front,
+            Side.Back => Elements.Sides.Back,
+            Side.Left => Elements.Sides.Left,
+            Side.Right => Elements.Sides.Right,
+            Side.Bottom => Elements.Sides.Bottom,
+            Side.Top => Elements.Sides.Top,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -227,9 +227,9 @@ public static class BlockSideExtensions
     /// </summary>
     /// <param name="side">Must be the block side <c>All</c>.</param>
     /// <returns>The block side enumerable.</returns>
-    public static IEnumerable<BlockSide> Sides(this BlockSide side)
+    public static IEnumerable<Side> Sides(this Side side)
     {
-        Debug.Assert(side == BlockSide.All);
+        Debug.Assert(side == Side.All);
 
         return sides;
     }
@@ -237,17 +237,17 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Get the opposite side of a block.
     /// </summary>
-    public static BlockSide Opposite(this BlockSide side)
+    public static Side Opposite(this Side side)
     {
         return side switch
         {
-            BlockSide.All => BlockSide.All,
-            BlockSide.Front => BlockSide.Back,
-            BlockSide.Back => BlockSide.Front,
-            BlockSide.Left => BlockSide.Right,
-            BlockSide.Right => BlockSide.Left,
-            BlockSide.Bottom => BlockSide.Top,
-            BlockSide.Top => BlockSide.Bottom,
+            Side.All => Side.All,
+            Side.Front => Side.Back,
+            Side.Back => Side.Front,
+            Side.Left => Side.Right,
+            Side.Right => Side.Left,
+            Side.Bottom => Side.Top,
+            Side.Top => Side.Bottom,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -255,14 +255,14 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Get the side as <see cref="Orientation" />.
     /// </summary>
-    public static Orientation ToOrientation(this BlockSide side)
+    public static Orientation ToOrientation(this Side side)
     {
         return side switch
         {
-            BlockSide.Front => Orientation.South,
-            BlockSide.Back => Orientation.North,
-            BlockSide.Left => Orientation.West,
-            BlockSide.Right => Orientation.East,
+            Side.Front => Orientation.South,
+            Side.Back => Orientation.North,
+            Side.Left => Orientation.West,
+            Side.Right => Orientation.East,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -270,17 +270,17 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Check whether this side is a lateral side, meaning not at the top or bottom.
     /// </summary>
-    public static Boolean IsLateral(this BlockSide side)
+    public static Boolean IsLateral(this Side side)
     {
         return side switch
         {
-            BlockSide.All => false,
-            BlockSide.Front => true,
-            BlockSide.Back => true,
-            BlockSide.Left => true,
-            BlockSide.Right => true,
-            BlockSide.Bottom => false,
-            BlockSide.Top => false,
+            Side.All => false,
+            Side.Front => true,
+            Side.Back => true,
+            Side.Left => true,
+            Side.Right => true,
+            Side.Bottom => false,
+            Side.Top => false,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -289,7 +289,7 @@ public static class BlockSideExtensions
     ///     Get the side as a direction vector.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector3i Direction(this BlockSide side)
+    public static Vector3i Direction(this Side side)
     {
         Int32 index = (Int32) side + 1;
 
@@ -302,20 +302,20 @@ public static class BlockSideExtensions
     ///     Get the side corresponding to the given direction.
     /// </summary>
     /// <param name="direction">The direction.</param>
-    /// <returns>The side, or <c>BlockSide.All</c> if the direction is not a valid side direction.</returns>
-    public static BlockSide ToBlockSide(this Vector3i direction)
+    /// <returns>The side, or <c>Side.All</c> if the direction is not a valid side direction.</returns>
+    public static Side ToSide(this Vector3i direction)
     {
         for (var i = 0; i < directions.Length; i++)
             if (directions[i] == direction)
-                return (BlockSide) (i - 1);
+                return (Side) (i - 1);
 
-        return BlockSide.All;
+        return Side.All;
     }
 
     /// <summary>
     ///     Offset a vector by the direction of this side.
     /// </summary>
-    public static Vector3i Offset(this BlockSide side, Vector3i v)
+    public static Vector3i Offset(this Side side, Vector3i v)
     {
         return v + side.Direction();
     }
@@ -323,7 +323,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Offset a section position by the direction of this side.
     /// </summary>
-    public static SectionPosition Offset(this BlockSide side, SectionPosition pos)
+    public static SectionPosition Offset(this Side side, SectionPosition pos)
     {
         (Int32 x, Int32 y, Int32 z) = side.Direction();
 
@@ -333,7 +333,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Offset a chunk position by the direction of this side.
     /// </summary>
-    public static ChunkPosition Offset(this BlockSide side, ChunkPosition pos)
+    public static ChunkPosition Offset(this Side side, ChunkPosition pos)
     {
         (Int32 x, Int32 y, Int32 z) = side.Direction();
 
@@ -343,17 +343,17 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Convert this side to the axis it is on.
     /// </summary>
-    public static Axis Axis(this BlockSide side)
+    public static Axis Axis(this Side side)
     {
         return side switch
         {
-            BlockSide.All => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
-            BlockSide.Front => Utilities.Axis.Z,
-            BlockSide.Back => Utilities.Axis.Z,
-            BlockSide.Left => Utilities.Axis.X,
-            BlockSide.Right => Utilities.Axis.X,
-            BlockSide.Bottom => Utilities.Axis.Y,
-            BlockSide.Top => Utilities.Axis.Y,
+            Side.All => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
+            Side.Front => Utilities.Axis.Z,
+            Side.Back => Utilities.Axis.Z,
+            Side.Left => Utilities.Axis.X,
+            Side.Right => Utilities.Axis.X,
+            Side.Bottom => Utilities.Axis.Y,
+            Side.Top => Utilities.Axis.Y,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -361,9 +361,9 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Rotate a side around the given axis by one step clockwise (right hand rule).
     /// </summary>
-    public static BlockSide Rotate(this BlockSide side, Axis axis)
+    public static Side Rotate(this Side side, Axis axis)
     {
-        if (side == BlockSide.All)
+        if (side == Side.All)
             throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
 
         if (side.Axis() == axis)
@@ -378,39 +378,39 @@ public static class BlockSideExtensions
         };
     }
 
-    private static BlockSide RotateAroundX(BlockSide side)
+    private static Side RotateAroundX(Side side)
     {
         return side switch
         {
-            BlockSide.Front => BlockSide.Bottom,
-            BlockSide.Bottom => BlockSide.Back,
-            BlockSide.Back => BlockSide.Top,
-            BlockSide.Top => BlockSide.Front,
+            Side.Front => Side.Bottom,
+            Side.Bottom => Side.Back,
+            Side.Back => Side.Top,
+            Side.Top => Side.Front,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
 
-    private static BlockSide RotateAroundY(BlockSide side)
+    private static Side RotateAroundY(Side side)
     {
         return side switch
         {
-            BlockSide.Front => BlockSide.Right,
-            BlockSide.Right => BlockSide.Back,
-            BlockSide.Back => BlockSide.Left,
-            BlockSide.Left => BlockSide.Front,
-            BlockSide.Bottom => BlockSide.Bottom,
+            Side.Front => Side.Right,
+            Side.Right => Side.Back,
+            Side.Back => Side.Left,
+            Side.Left => Side.Front,
+            Side.Bottom => Side.Bottom,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
 
-    private static BlockSide RotateAroundZ(BlockSide side)
+    private static Side RotateAroundZ(Side side)
     {
         return side switch
         {
-            BlockSide.Top => BlockSide.Right,
-            BlockSide.Right => BlockSide.Bottom,
-            BlockSide.Bottom => BlockSide.Left,
-            BlockSide.Left => BlockSide.Top,
+            Side.Top => Side.Right,
+            Side.Right => Side.Bottom,
+            Side.Bottom => Side.Left,
+            Side.Left => Side.Top,
             _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
         };
     }
@@ -418,7 +418,7 @@ public static class BlockSideExtensions
     /// <summary>
     ///     Check if this side is contained in the given side flags.
     /// </summary>
-    public static Boolean IsSet(this BlockSide side, BlockSides flags)
+    public static Boolean IsSet(this Side side, Sides flags)
     {
         return flags.HasFlag(side.ToFlag());
     }
@@ -427,11 +427,11 @@ public static class BlockSideExtensions
     ///     Get the corners of this side of a block.
     ///     Every of the four corners is represented by an integer array with three elements.
     /// </summary>
-    public static void Corners(this BlockSide side, out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d)
+    public static void Corners(this Side side, out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d)
     {
         switch (side)
         {
-            case BlockSide.Front:
+            case Side.Front:
                 a = c001;
                 b = c011;
                 c = c111;
@@ -439,7 +439,7 @@ public static class BlockSideExtensions
 
                 break;
 
-            case BlockSide.Back:
+            case Side.Back:
                 a = c100;
                 b = c110;
                 c = c010;
@@ -447,7 +447,7 @@ public static class BlockSideExtensions
 
                 break;
 
-            case BlockSide.Left:
+            case Side.Left:
                 a = c000;
                 b = c010;
                 c = c011;
@@ -455,7 +455,7 @@ public static class BlockSideExtensions
 
                 break;
 
-            case BlockSide.Right:
+            case Side.Right:
                 a = c101;
                 b = c111;
                 c = c110;
@@ -463,7 +463,7 @@ public static class BlockSideExtensions
 
                 break;
 
-            case BlockSide.Bottom:
+            case Side.Bottom:
                 a = c000;
                 b = c001;
                 c = c101;
@@ -471,7 +471,7 @@ public static class BlockSideExtensions
 
                 break;
 
-            case BlockSide.Top:
+            case Side.Top:
                 a = c011;
                 b = c010;
                 c = c110;

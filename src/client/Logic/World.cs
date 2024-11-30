@@ -307,7 +307,7 @@ public partial class World : Core.Logic.World
                 // We set the section as incomplete.
                 // The next time the neighbor chunk is activated (if it is), the section will be meshed.
 
-                BlockSides missing = direction.ToBlockSide().ToFlag();
+                Sides missing = direction.ToSide().ToFlag();
                 neighbor.Cast().SetSectionAsIncomplete(SectionPosition.From(neighborPosition).Local, missing);
             }
         }

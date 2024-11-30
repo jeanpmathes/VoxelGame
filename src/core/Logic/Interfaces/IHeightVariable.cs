@@ -35,9 +35,9 @@ public interface IHeightVariable : IBlockBase
     public static Int32 HalfHeight => MaximumHeight / 2;
 
     /// <inheritdoc />
-    Boolean IBlockBase.IsSideFull(BlockSide side, UInt32 data)
+    Boolean IBlockBase.IsSideFull(Side side, UInt32 data)
     {
-        if (side == BlockSide.Bottom) return true;
+        if (side == Side.Bottom) return true;
 
         Int32 height = GetHeight(data);
 

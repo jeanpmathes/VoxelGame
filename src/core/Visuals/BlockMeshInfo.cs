@@ -17,7 +17,7 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     /// <summary>
     ///     Create a new block mesh info.
     /// </summary>
-    public BlockMeshInfo(BlockSide side, UInt32 data, Fluid fluid)
+    public BlockMeshInfo(Side side, UInt32 data, Fluid fluid)
     {
         Side = side;
         Data = data;
@@ -27,7 +27,7 @@ public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
     /// <summary>
     ///     The side that is meshed.
     /// </summary>
-    public BlockSide Side { get; init; }
+    public Side Side { get; init; }
 
     /// <summary>
     ///     The data of the block.

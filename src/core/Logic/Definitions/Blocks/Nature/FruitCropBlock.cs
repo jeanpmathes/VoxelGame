@@ -123,7 +123,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         PlantBehaviour.NeighborUpdate(world, this, position, side);
     }

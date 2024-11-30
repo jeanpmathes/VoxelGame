@@ -104,7 +104,7 @@ public class FlatBlock : Block, IFillable, IComplex
         foreach (Orientation orientation in Orientations.All)
         {
             BlockMesh mesh = BlockMeshes.CreateFlatModel(
-                orientation.ToBlockSide().Opposite(),
+                orientation.ToSide().Opposite(),
                 offset: 0.01f,
                 textureIndex);
 
@@ -121,9 +121,9 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        BlockSide side = actor?.TargetSide ?? BlockSide.Front;
+        Side side = actor?.TargetSide ?? Side.Front;
 
-        if (!side.IsLateral()) side = BlockSide.Back;
+        if (!side.IsLateral()) side = Side.Back;
         var orientation = side.ToOrientation();
 
         return world.GetBlock(orientation.Opposite().Offset(position))?.IsSolidAndFull ?? false;
@@ -132,8 +132,8 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        BlockSide side = actor?.TargetSide ?? BlockSide.Front;
-        if (!side.IsLateral()) side = BlockSide.Back;
+        Side side = actor?.TargetSide ?? Side.Front;
+        if (!side.IsLateral()) side = Side.Back;
         world.SetBlock(this.AsInstance((UInt32) side.ToOrientation()), position);
     }
 
@@ -164,13 +164,13 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         CheckBack(world, position, side, (Orientation) (data & 0b00_0011), schedule: false);
     }
 
 
-    private protected void CheckBack(World world, Vector3i position, BlockSide side, Orientation blockOrientation,
+    private protected void CheckBack(World world, Vector3i position, Side side, Orientation blockOrientation,
         Boolean schedule)
     {
         if (!side.IsLateral()) return;

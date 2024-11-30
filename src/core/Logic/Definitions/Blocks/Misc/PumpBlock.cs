@@ -31,14 +31,14 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         this.pumpDistance = pumpDistance;
     }
 
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
-        return side != BlockSide.Top;
+        return side != Side.Top;
     }
 
-    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, Side side)
     {
-        return side == BlockSide.Top;
+        return side == Side.Top;
     }
 
     protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)

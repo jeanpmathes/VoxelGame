@@ -79,7 +79,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     public Vector3d PreviousPosition { get; private set; }
 
     /// <inheritdoc />
-    public override BlockSide TargetSide => targeting.Side;
+    public override Side TargetSide => targeting.Side;
 
     /// <inheritdoc cref="PhysicsActor" />
     public override Vector3i? TargetPosition => targeting.Position;

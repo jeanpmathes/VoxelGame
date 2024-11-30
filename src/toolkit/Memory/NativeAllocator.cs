@@ -88,6 +88,9 @@ public sealed class NativeAllocator : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~NativeAllocator()
     {
         Dispose(disposing: false);

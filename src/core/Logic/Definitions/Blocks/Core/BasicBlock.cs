@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class BasicBlock : Block, ISimple
 {
     private readonly TextureLayout layout;
-    private protected Sides<Int32> sideTextureIndices = null!;
+    private protected SideArray<Int32> sideTextureIndices = null!;
 
     /// <summary>
     ///     Create a new <see cref="BasicBlock" />.

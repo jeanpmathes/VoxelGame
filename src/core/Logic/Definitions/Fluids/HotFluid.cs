@@ -51,7 +51,7 @@ public class HotFluid : BasicFluid
 
     private static void BurnAround(World world, Vector3i position)
     {
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
             Vector3i offsetPosition = side.Offset(position);
 

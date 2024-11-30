@@ -29,7 +29,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     private readonly TextureLayout layout;
 
     private readonly List<BoundingVolume> volumes = [];
-    private Sides<Int32> textures = null!;
+    private SideArray<Int32> textures = null!;
 
     internal ConcreteBlock(String name, String namedID, TextureLayout layout) :
         base(
@@ -70,7 +70,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 

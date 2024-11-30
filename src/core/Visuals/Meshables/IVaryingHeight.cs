@@ -22,7 +22,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void MeshVaryingHeightSide(BlockSide side)
+        void MeshVaryingHeightSide(Side side)
         {
             Vector3i checkPosition = side.Offset(position);
             BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
@@ -31,22 +31,22 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
             Boolean isFullHeight = GetHeight(info.Data) == MaximumHeight;
 
-            if ((side != BlockSide.Top || isFullHeight) && ISimple.IsHiddenFace(this, blockToCheck.Value, side)) return;
+            if ((side != Side.Top || isFullHeight) && ISimple.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
             MeshData mesh = GetMeshData(info with {Side = side});
 
-            Boolean isModified = side != BlockSide.Bottom && !isFullHeight;
+            Boolean isModified = side != Side.Bottom && !isFullHeight;
 
             if (isModified) MeshLikeFluid(position, side, blockToCheck, info, mesh, context);
             else MeshLikeSimple(position, side, mesh, IsOpaque, IsUnshaded, context);
         }
 
-        MeshVaryingHeightSide(BlockSide.Front);
-        MeshVaryingHeightSide(BlockSide.Back);
-        MeshVaryingHeightSide(BlockSide.Left);
-        MeshVaryingHeightSide(BlockSide.Right);
-        MeshVaryingHeightSide(BlockSide.Bottom);
-        MeshVaryingHeightSide(BlockSide.Top);
+        MeshVaryingHeightSide(Side.Front);
+        MeshVaryingHeightSide(Side.Back);
+        MeshVaryingHeightSide(Side.Left);
+        MeshVaryingHeightSide(Side.Right);
+        MeshVaryingHeightSide(Side.Bottom);
+        MeshVaryingHeightSide(Side.Top);
     }
 
     OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
@@ -55,7 +55,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         {
             Data = content.Block.Data,
             Fluid = content.Fluid.Fluid,
-            Side = BlockSide.Front
+            Side = Side.Front
         });
 
         return new OverlayTexture
@@ -68,7 +68,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void MeshLikeSimple(
-        Vector3i position, BlockSide side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
+        Vector3i position, Side side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
         ISimple.AddSimpleMesh(position,
             side,
@@ -85,11 +85,11 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MeshLikeFluid(Vector3i position, BlockSide side, [DisallowNull] BlockInstance? blockToCheck, BlockMeshInfo info, MeshData mesh, MeshingContext context)
+    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] BlockInstance? blockToCheck, BlockMeshInfo info, MeshData mesh, MeshingContext context)
     {
         Int32 height = GetHeight(info.Data);
 
-        if (side != BlockSide.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
+        if (side != Side.Top && blockToCheck.Value.Block is IHeightVariable toCheck &&
             toCheck.GetHeight(blockToCheck.Value.Data) == height) return;
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
@@ -97,7 +97,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
 
-        if (side is not (BlockSide.Top or BlockSide.Bottom))
+        if (side is not (Side.Top or Side.Bottom))
         {
             (Vector2 min, Vector2 max) bounds = GetBounds(height);
             Meshing.SetUVs(ref data, bounds.min, (bounds.min.X, bounds.max.Y), bounds.max, (bounds.max.X, bounds.min.Y));

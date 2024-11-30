@@ -26,7 +26,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
     private readonly TextureLayout layout;
 
     private readonly List<BoundingVolume> volumes = [];
-    private Sides<Int32> textureIndices = null!;
+    private SideArray<Int32> textureIndices = null!;
 
     /// <inheritdoc />
     protected VaryingHeightBlock(String name, String namedID, BlockFlags flags, TextureLayout layout) :

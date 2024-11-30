@@ -45,7 +45,7 @@ public class RotatedBlock : BasicBlock, ICombustible
         Axis axis = ToAxis(info.Data);
 
         // Check if the texture has to be rotated.
-        Boolean isLeftOrRightSide = info.Side is BlockSide.Left or BlockSide.Right;
+        Boolean isLeftOrRightSide = info.Side is Side.Left or Side.Right;
         Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
         Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
 
@@ -57,7 +57,7 @@ public class RotatedBlock : BasicBlock, ICombustible
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? Side.Front).Axis()), position);
     }
 
     private static Axis ToAxis(UInt32 data)
@@ -65,7 +65,7 @@ public class RotatedBlock : BasicBlock, ICombustible
         return (Axis) (data & 0b00_0011);
     }
 
-    private static BlockSide TranslateSide(BlockSide side, Axis axis)
+    private static Side TranslateSide(Side side, Axis axis)
     {
         return axis switch
         {

@@ -181,11 +181,11 @@ public sealed partial class BlockModel
 
         result.front = this;
 
-        result.back = CreateSideModel(BlockSide.Back);
-        result.left = CreateSideModel(BlockSide.Left);
-        result.right = CreateSideModel(BlockSide.Right);
-        result.bottom = CreateSideModel(BlockSide.Bottom);
-        result.top = CreateSideModel(BlockSide.Top);
+        result.back = CreateSideModel(Side.Back);
+        result.left = CreateSideModel(Side.Left);
+        result.right = CreateSideModel(Side.Right);
+        result.bottom = CreateSideModel(Side.Bottom);
+        result.top = CreateSideModel(Side.Top);
 
         return result;
     }
@@ -200,8 +200,8 @@ public sealed partial class BlockModel
 
         result.z = this;
 
-        result.x = CreateSideModel(BlockSide.Left);
-        result.y = CreateSideModel(BlockSide.Bottom);
+        result.x = CreateSideModel(Side.Left);
+        result.y = CreateSideModel(Side.Bottom);
 
         return result;
     }
@@ -228,7 +228,7 @@ public sealed partial class BlockModel
         return (north, east, south, west);
     }
 
-    private BlockModel CreateSideModel(BlockSide side)
+    private BlockModel CreateSideModel(Side side)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -240,38 +240,38 @@ public sealed partial class BlockModel
 
         switch (side)
         {
-            case BlockSide.Front:
+            case Side.Front:
                 return copy;
 
-            case BlockSide.Back:
+            case Side.Back:
                 rotation = Matrix4.CreateRotationY(MathHelper.Pi);
                 axis = Vector3d.UnitY;
                 rotations = 2;
 
                 break;
 
-            case BlockSide.Left:
+            case Side.Left:
                 rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
                 axis = Vector3d.UnitY;
                 rotations = 1;
 
                 break;
 
-            case BlockSide.Right:
+            case Side.Right:
                 rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
                 axis = Vector3d.UnitY;
                 rotations = 3;
 
                 break;
 
-            case BlockSide.Bottom:
+            case Side.Bottom:
                 rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
                 axis = Vector3d.UnitX;
                 rotations = 1;
 
                 break;
 
-            case BlockSide.Top:
+            case Side.Top:
                 rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
                 axis = Vector3d.UnitX;
                 rotations = 1;

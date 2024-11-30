@@ -27,7 +27,7 @@ public static class BlockModels
 
         Int32[][] uvs = BlockMeshes.GetBlockUVs(isRotated: false);
 
-        Quad BuildQuad(BlockSide side)
+        Quad BuildQuad(Side side)
         {
             Vertex BuildVertex(IReadOnlyList<Int32> corner, IReadOnlyList<Int32> uv)
             {
@@ -58,12 +58,12 @@ public static class BlockModels
             TextureNames = ["missing_texture"],
             Quads =
             [
-                BuildQuad(BlockSide.Front),
-                BuildQuad(BlockSide.Back),
-                BuildQuad(BlockSide.Left),
-                BuildQuad(BlockSide.Right),
-                BuildQuad(BlockSide.Bottom),
-                BuildQuad(BlockSide.Top)
+                BuildQuad(Side.Front),
+                BuildQuad(Side.Back),
+                BuildQuad(Side.Left),
+                BuildQuad(Side.Right),
+                BuildQuad(Side.Bottom),
+                BuildQuad(Side.Top)
             ]
         };
     }

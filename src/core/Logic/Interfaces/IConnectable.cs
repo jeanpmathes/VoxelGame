@@ -23,7 +23,7 @@ public interface IConnectable : IBlockBase
     /// <param name="side">The side to check for connect-ability. Only front, back, left and right are valid.</param>
     /// <param name="position">The block position.</param>
     /// <returns>True if connection is supported; false if not.</returns>
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         return true;
     }
@@ -44,7 +44,7 @@ public interface IConnectable : IBlockBase
             Vector3i neighborPosition = orientation.Offset(position);
 
             if (world.GetBlock(neighborPosition)?.Block is TConnectable connectable &&
-                connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), neighborPosition))
+                connectable.IsConnectable(world, orientation.ToSide().Opposite(), neighborPosition))
                 data |= orientation.ToFlag();
         }
 

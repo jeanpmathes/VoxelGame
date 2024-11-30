@@ -214,7 +214,7 @@ public class FluidContactManager
         if (fromContent is not {Block.Block: IFillable source, Fluid.Fluid: {} fluid}) return false;
         if (toContent is not {Block.Block: IFillable target}) return false;
 
-        var side = (to - from).ToBlockSide();
+        var side = (to - from).ToSide();
 
         return source.IsOutflowAllowed(world, from, side) && target.IsInflowAllowed(world, to, side.Opposite(), fluid);
     }

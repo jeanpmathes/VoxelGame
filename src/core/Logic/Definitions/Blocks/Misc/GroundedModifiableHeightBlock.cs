@@ -29,9 +29,9 @@ public class GroundedModifiableHeightBlock : ModifiableHeightBlock
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side != BlockSide.Bottom || world.HasFullAndSolidGround(position)) return;
+        if (side != Side.Bottom || world.HasFullAndSolidGround(position)) return;
 
         if (GetHeight(data) == IHeightVariable.MaximumHeight)
             ScheduleDestroy(world, position);

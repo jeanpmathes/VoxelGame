@@ -46,7 +46,7 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         UInt32 newData = data;
 
@@ -55,7 +55,7 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
 
         if (newData != data) world.SetBlock(this.AsInstance(newData), position);
 
-        UInt32 CheckNeighbor(Vector3i neighborPosition, BlockSide neighborSide, UInt32 mask, UInt32 oldData)
+        UInt32 CheckNeighbor(Vector3i neighborPosition, Side neighborSide, UInt32 mask, UInt32 oldData)
         {
             if (world.GetBlock(neighborPosition)?.Block is TConnectable neighbor &&
                 neighbor.IsConnectable(world, neighborSide, neighborPosition)) oldData |= mask;

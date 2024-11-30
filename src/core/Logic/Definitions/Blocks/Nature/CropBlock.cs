@@ -142,9 +142,9 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
+        if (side == Side.Bottom && world.GetBlock(position.Below())?.Block is not IPlantable)
             Destroy(world, position);
     }
 

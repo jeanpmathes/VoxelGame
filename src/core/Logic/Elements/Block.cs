@@ -290,7 +290,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="position">The block position.</param>
     /// <param name="data">The data of the block next to the changed position.</param>
     /// <param name="side">The side of the block where the change happened.</param>
-    public virtual void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side) {}
+    public virtual void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side) {}
 
     /// <summary>
     ///     This method is called randomly on some blocks every update.

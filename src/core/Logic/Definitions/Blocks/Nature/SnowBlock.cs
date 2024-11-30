@@ -24,7 +24,7 @@ public class SnowBlock : GroundedModifiableHeightBlock, IFillable
     internal SnowBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         BlockInstance? block = world.GetBlock(position);
 

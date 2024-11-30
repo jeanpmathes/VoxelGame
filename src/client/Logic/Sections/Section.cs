@@ -34,7 +34,7 @@ public class Section : Core.Logic.Sections.Section
     #endregion LOGGING
 
     private Boolean hasMesh;
-    private BlockSides missing;
+    private Sides missing;
     private SectionVFX? vfx;
 
     /// <inheritdoc />
@@ -55,7 +55,7 @@ public class Section : Core.Logic.Sections.Section
         base.Reset();
 
         hasMesh = false;
-        missing = BlockSides.All;
+        missing = Sides.All;
 
         Debug.Assert(vfx != null);
 
@@ -75,8 +75,8 @@ public class Section : Core.Logic.Sections.Section
     {
         Throw.IfDisposed(disposed);
 
-        BlockSides required = GetRequiredSides(Position);
-        missing = required & ~context.AvailableSides & BlockSides.All;
+        Sides required = GetRequiredSides(Position);
+        missing = required & ~context.AvailableSides & Sides.All;
 
         using SectionMeshData meshData = CreateMeshData(context);
         SetMeshDataInternal(meshData);
@@ -90,9 +90,9 @@ public class Section : Core.Logic.Sections.Section
     {
         Throw.IfDisposed(disposed);
 
-        if (missing == BlockSides.None) return;
+        if (missing == Sides.None) return;
 
-        BlockSides required = GetRequiredSides(Position);
+        Sides required = GetRequiredSides(Position);
 
         if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
     }
@@ -103,26 +103,26 @@ public class Section : Core.Logic.Sections.Section
     ///     No resource access is needed, as all written variables are only accessed from the main thread.
     /// </summary>
     /// <param name="sides">The sides that are missing for the section.</param>
-    public void SetAsIncomplete(BlockSides sides)
+    public void SetAsIncomplete(Sides sides)
     {
         Throw.IfDisposed(disposed);
 
         missing |= sides;
     }
 
-    private static BlockSides GetRequiredSides(SectionPosition position)
+    private static Sides GetRequiredSides(SectionPosition position)
     {
-        var required = BlockSides.None;
+        var required = Sides.None;
         (Int32 x, Int32 y, Int32 z) = position.Local;
 
-        if (x == 0) required |= BlockSides.Left;
-        if (x == Chunk.Size - 1) required |= BlockSides.Right;
+        if (x == 0) required |= Sides.Left;
+        if (x == Chunk.Size - 1) required |= Sides.Right;
 
-        if (y == 0) required |= BlockSides.Bottom;
-        if (y == Chunk.Size - 1) required |= BlockSides.Top;
+        if (y == 0) required |= Sides.Bottom;
+        if (y == Chunk.Size - 1) required |= Sides.Top;
 
-        if (z == 0) required |= BlockSides.Back;
-        if (z == Chunk.Size - 1) required |= BlockSides.Front;
+        if (z == 0) required |= Sides.Back;
+        if (z == Chunk.Size - 1) required |= Sides.Front;
 
         return required;
     }
@@ -157,11 +157,11 @@ public class Section : Core.Logic.Sections.Section
                     out Boolean isStatic);
 
                 IBlockMeshable meshable = currentBlock;
-                meshable.CreateMesh((x, y, z), new BlockMeshInfo(BlockSide.All, data, currentFluid), context);
+                meshable.CreateMesh((x, y, z), new BlockMeshInfo(Side.All, data, currentFluid), context);
 
                 currentFluid.CreateMesh(
                     (x, y, z),
-                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, BlockSide.All, isStatic),
+                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, Side.All, isStatic),
                     context);
             }
         }
@@ -191,7 +191,7 @@ public class Section : Core.Logic.Sections.Section
 
         // While the mesh is not necessarily complete,
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
-        missing = BlockSides.None;
+        missing = Sides.None;
 
         SetMeshDataInternal(meshData);
     }

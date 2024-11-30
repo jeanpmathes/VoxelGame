@@ -45,7 +45,7 @@ internal class Interaction(PhysicsActor actor, Input input, Targeting targeting,
                     selector.ActiveBlock.GetCollider(actor.World, placePosition))) return;
 
             if (selector.IsBlockMode) selector.ActiveBlock.Place(actor.World, placePosition, actor);
-            else selector.ActiveFluid.Fill(actor.World, placePosition, FluidLevel.One, BlockSide.Top, out _);
+            else selector.ActiveFluid.Fill(actor.World, placePosition, FluidLevel.One, Side.Top, out _);
 
             input.RegisterInteraction();
         }

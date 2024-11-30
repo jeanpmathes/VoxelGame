@@ -44,9 +44,9 @@ public class GrowingBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom)
+        if (side == Side.Bottom)
         {
             Block below = world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air;
 

@@ -47,7 +47,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <summary>
     ///     Get the sides that are currently meshed.
     /// </summary>
-    public BlockSides MeshedSides { get; private set; }
+    public Sides MeshedSides { get; private set; }
 
     /// <inheritdoc />
     public override void Initialize(Core.Logic.World world, ChunkPosition position)
@@ -55,7 +55,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         base.Initialize(world, position);
 
         HasMeshData = false;
-        MeshedSides = BlockSides.None;
+        MeshedSides = Sides.None;
     }
 
     /// <inheritdoc />
@@ -64,7 +64,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         base.Reset();
 
         HasMeshData = false;
-        MeshedSides = BlockSides.None;
+        MeshedSides = Sides.None;
     }
 
     private Section GetSection(Int32 index)
@@ -125,7 +125,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         if (context == null) return null;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
             context.GetChunk(side)?.Cast().ReMesh();
 
         return new Meshing(context);
@@ -163,7 +163,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// </summary>
     /// <param name="local">The local position of the section.</param>
     /// <param name="sides">The sides that are missing for the section.</param>
-    public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, BlockSides sides)
+    public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, Sides sides)
     {
         Throw.IfDisposed(disposed);
 

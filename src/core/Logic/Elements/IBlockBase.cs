@@ -100,10 +100,10 @@ public interface IBlockBase
     /// <summary>
     ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.
     /// </summary>
-    /// <param name="side">The side to check. This can also be <see cref="BlockSide.All" /> to check for the entire block.</param>
+    /// <param name="side">The side to check. This can also be <see cref="Side.All" /> to check for the entire block.</param>
     /// <param name="data">The block data.</param>
     /// <returns>True if the side is completely full.</returns>
-    public Boolean IsSideFull(BlockSide side, UInt32 data)
+    public Boolean IsSideFull(Side side, UInt32 data)
     {
         return IsFull;
     }
@@ -121,7 +121,7 @@ public interface IBlockBase
     /// </summary>
     public Boolean IsSolidAndFull(UInt32 data)
     {
-        return IsSolid && IsSideFull(BlockSide.All, data);
+        return IsSolid && IsSideFull(Side.All, data);
     }
 
     /// <summary>
@@ -137,6 +137,6 @@ public interface IBlockBase
     /// </summary>
     public Boolean IsOpaqueAndFull(UInt32 data)
     {
-        return IsOpaque && IsSideFull(BlockSide.All, data);
+        return IsOpaque && IsSideFull(Side.All, data);
     }
 }

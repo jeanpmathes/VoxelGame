@@ -35,8 +35,8 @@ public class GroundedBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom && !world.HasFullAndSolidGround(position)) ScheduleDestroy(world, position);
+        if (side == Side.Bottom && !world.HasFullAndSolidGround(position)) ScheduleDestroy(world, position);
     }
 }

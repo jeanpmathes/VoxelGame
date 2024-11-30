@@ -104,17 +104,17 @@ public static class OrientationExtensions
     }
 
     /// <summary>
-    ///     Convert an orientation to a <see cref="BlockSide" />.
+    ///     Convert an orientation to a <see cref="Side" />.
     /// </summary>
-    public static BlockSide ToBlockSide(this Orientation orientation)
+    public static Side ToSide(this Orientation orientation)
     {
         return orientation switch
         {
-            Orientation.North => BlockSide.Back,
-            Orientation.East => BlockSide.Right,
-            Orientation.South => BlockSide.Front,
-            Orientation.West => BlockSide.Left,
-            _ => BlockSide.Back
+            Orientation.North => Side.Back,
+            Orientation.East => Side.Right,
+            Orientation.South => Side.Front,
+            Orientation.West => Side.Left,
+            _ => Side.Back
         };
     }
 
