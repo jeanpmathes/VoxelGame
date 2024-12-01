@@ -44,6 +44,9 @@ void Space::PerformResolutionDependentSetup(Resolution const& resolution)
 
 bool Space::PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline)
 {
+    m_meshSpoolCount   = pipeline.meshSpoolCount;
+    m_effectSpoolCount = pipeline.effectSpoolCount;
+
     CreateGlobalConstBuffer();
 
     if (!CreateRaytracingPipeline(pipeline)) return false;
@@ -118,6 +121,12 @@ void Space::Reset(UINT const frameIndex) { m_commandGroup.Reset(frameIndex); }
 std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(
     UINT const                           vertexCount,
     std::vector<D3D12_RESOURCE_BARRIER>* barriers) { return m_indexBuffer.GetIndexBuffer(vertexCount, barriers); }
+
+void Space::SpoolUp()
+{
+    m_meshes.Spool(m_meshSpoolCount);
+    m_effects.Spool(m_effectSpoolCount);
+}
 
 void Space::Update(double)
 {

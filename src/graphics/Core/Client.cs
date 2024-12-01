@@ -396,7 +396,7 @@ public partial class Client : IDisposable
     }
 
     /// <summary>
-    ///     Run the client. This methods returns when the client is closed.
+    ///     Run the client. This method returns when the client is closed.
     /// </summary>
     /// <returns>The exit code of the client.</returns>
     public Int32 Run()

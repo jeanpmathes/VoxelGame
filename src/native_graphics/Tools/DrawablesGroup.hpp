@@ -64,6 +64,15 @@ public:
     ~DrawablesGroup() override = default;
 
     /**
+     * \brief Spool a number of drawables. This fills the internal pool with new drawables.
+     * @param count The number of drawables to spool.
+     */
+    void Spool(UINT const count)
+    {
+        for (UINT i = 0; i < count; i++) m_pool.push_back(std::make_unique<D>(*m_nativeClient));
+    }
+
+    /**
      * \brief Creates and stores a new drawable.
      * \param initializer The initializer function.
      * \return A reference to the created drawable.
@@ -166,7 +175,7 @@ public:
             });
     }
 
-    size_t GetModifiedCount() const { return m_modified.Count(); }
+    [[nodiscard]] size_t GetModifiedCount() const { return m_modified.Count(); }
 
     /**
      * \brief Get all changed drawables. A drawable is changed if it is active and either newly activated or modified.

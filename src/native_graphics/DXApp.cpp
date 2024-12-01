@@ -107,7 +107,7 @@ void DXApp::Init()
 {
     m_mouseCursors = LoadAllCursors();
 
-    OnInit();
+    OnPreInit();
 
     m_configuration.onInit();
 
@@ -117,6 +117,8 @@ void DXApp::Init()
     m_updateTimer.SetTargetElapsedSeconds(1.0 / 60.0);
 
     m_renderTimer.SetFixedTimeStep(false);
+
+    OnInitComplete();
 }
 
 void DXApp::Update(StepTimer const& timer)

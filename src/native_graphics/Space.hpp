@@ -62,6 +62,9 @@ struct SpacePipelineDescription
 
     UINT customDataBufferSize;
 
+    UINT meshSpoolCount;
+    UINT effectSpoolCount;
+
     NativeErrorFunc onShaderLoadingError;
 };
 
@@ -171,6 +174,8 @@ public:
         RasterInfo const*                  viewport;
     };
 
+    void SpoolUp();
+
     void Update(double delta);
     void Render(
         Allocation<ID3D12Resource> const& color,
@@ -257,6 +262,9 @@ private:
 
     Camera m_camera;
     Light  m_light;
+
+    UINT m_meshSpoolCount   = 0;
+    UINT m_effectSpoolCount = 0;
 
     Allocation<ID3D12Resource>            m_globalConstantBuffer        = {};
     UINT64                                m_globalConstantBufferSize    = 0;

@@ -33,8 +33,9 @@ public:
     [[nodiscard]] ComPtr<ID3D12Device5>      GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
 
-    void OnInit() override;
+    void OnPreInit() override;
     void OnPostInit() override;
+    void OnInitComplete() override;
     void OnUpdate(double delta) override;
     void OnPreRender() override;
     void OnRender(double delta) override;

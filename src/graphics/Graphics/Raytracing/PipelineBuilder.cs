@@ -53,6 +53,9 @@ public class PipelineBuilder
 
     private UInt32 customDataBufferSize;
 
+    private UInt32 meshSpoolCount;
+    private UInt32 effectSpoolCount;
+
     /// <summary>
     ///     Add a shader file to the pipeline.
     /// </summary>
@@ -143,6 +146,17 @@ public class PipelineBuilder
     }
 
     /// <summary>
+    ///     Set the number of instances to be spooled up for meshes and effects initially.
+    /// </summary>
+    /// <param name="mesh">The number of mesh instances to spool up.</param>
+    /// <param name="effect">The number of effect instances to spool up.</param>
+    public void SetSpoolCounts(UInt32 mesh, UInt32 effect)
+    {
+        meshSpoolCount = mesh;
+        effectSpoolCount = effect;
+    }
+
+    /// <summary>
     ///     Build the pipeline, without a custom data buffer.
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
@@ -181,6 +195,8 @@ public class PipelineBuilder
             textureCountFirstSlot = (UInt32) (firstTextureSlot?.Count ?? 0),
             textureCountSecondSlot = (UInt32) (secondTextureSlot?.Count ?? 0),
             customDataBufferSize = customDataBufferSize,
+            meshSpoolCount = meshSpoolCount,
+            effectSpoolCount = effectSpoolCount,
             onShaderLoadingError = (_, message) =>
             {
                 ReportFailure(loadingContext, message);

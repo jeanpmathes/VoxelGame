@@ -33,6 +33,9 @@ internal struct SpacePipelineDescription
 
     internal UInt32 customDataBufferSize;
 
+    internal UInt32 meshSpoolCount;
+    internal UInt32 effectSpoolCount;
+
     internal Native.NativeErrorFunc onShaderLoadingError;
 }
 
@@ -55,6 +58,10 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
         internal UInt32 textureCountSecondSlot;
 
         internal UInt32 customDataBufferSize;
+
+        internal UInt32 meshSpoolCount;
+        internal UInt32 effectSpoolCount;
+
         internal IntPtr onShaderLoadingError;
     }
 
@@ -82,7 +89,9 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
                 textureCountFirstSlot = managed.textureCountFirstSlot,
                 textureCountSecondSlot = managed.textureCountSecondSlot,
                 customDataBufferSize = managed.customDataBufferSize,
-                onShaderLoadingError = Marshal.GetFunctionPointerForDelegate(managed.onShaderLoadingError)
+                onShaderLoadingError = Marshal.GetFunctionPointerForDelegate(managed.onShaderLoadingError),
+                meshSpoolCount = managed.meshSpoolCount,
+                effectSpoolCount = managed.effectSpoolCount
             };
         }
 

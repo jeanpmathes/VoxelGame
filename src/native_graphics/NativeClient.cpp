@@ -31,7 +31,7 @@ ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return m_device; }
 
 ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return m_allocator; }
 
-void NativeClient::OnInit()
+void NativeClient::OnPreInit()
 {
     LoadDevice();
     InitializeFences();
@@ -55,6 +55,8 @@ void NativeClient::OnPostInit()
     WaitForGPU();
     m_uploader = nullptr;
 }
+
+void NativeClient::OnInitComplete() { m_space->SpoolUp(); }
 
 void NativeClient::LoadDevice()
 {

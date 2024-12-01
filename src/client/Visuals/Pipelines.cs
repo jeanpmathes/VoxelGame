@@ -217,6 +217,8 @@ public sealed class Pipelines : IDisposable
 
         builder.SetCustomDataBufferType<RaytracingData>();
 
+        builder.SetSpoolCounts(mesh: 8192, effect: 4);
+
         loaded &= builder.Build(client, loadingContext!, out raytracingDataBuffer);
     }
 

@@ -170,10 +170,11 @@ public sealed partial class GameScene : IScene
             }
         }
 
-        if (escapeButton.Pushed) ui.HandleEscape();
+        if (escapeButton.Pushed)
+            ui.HandleEscape();
 
-        if (consoleToggle.Changed) ui.ToggleConsole();
-
+        if (consoleToggle.Changed)
+            ui.ToggleConsole();
     }
 
     /// <inheritdoc />
