@@ -121,7 +121,7 @@ public class Section : IDisposable
     ///     Initializes the section.
     /// </summary>
     /// <param name="newPosition">The position of the section.</param>
-    public virtual void Initialize(SectionPosition newPosition)
+    public void Initialize(SectionPosition newPosition)
     {
         position = newPosition;
     }

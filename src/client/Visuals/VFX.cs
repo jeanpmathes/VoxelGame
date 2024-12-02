@@ -40,7 +40,7 @@ public abstract class VFX : IDisposable
     }
 
     /// <summary>
-    ///     Use this to setup the VFX.
+    ///     Use this to set up the VFX.
     /// </summary>
     protected abstract void OnSetUp();
 

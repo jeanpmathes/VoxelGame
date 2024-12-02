@@ -35,19 +35,12 @@ public class Section : Core.Logic.Sections.Section
 
     private Boolean hasMesh;
     private Sides missing;
+
     private SectionVFX? vfx;
+    private Boolean vfxEnabled;
 
     /// <inheritdoc />
     public Section(NativeSegment<UInt32> blocks) : base(blocks) {}
-
-    /// <inheritdoc />
-    public override void Initialize(SectionPosition newPosition)
-    {
-        base.Initialize(newPosition);
-
-        vfx = new SectionVFX(Application.Client.Instance.Space, Position.FirstBlock);
-        vfx.SetUp();
-    }
 
     /// <inheritdoc />
     public override void Reset()
@@ -57,7 +50,10 @@ public class Section : Core.Logic.Sections.Section
         hasMesh = false;
         missing = Sides.All;
 
-        Debug.Assert(vfx != null);
+        vfxEnabled = false;
+
+        if (vfx == null)
+            return;
 
 #pragma warning disable S2952 // Object is diposed in Dispose() too, but is overridden here and thus must be disposed here.
         vfx.TearDown();
@@ -203,17 +199,24 @@ public class Section : Core.Logic.Sections.Section
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(vfx != null);
+        vfxEnabled = enabled;
 
-        vfx.IsEnabled = enabled;
+        if (vfx != null) vfx.IsEnabled = enabled;
     }
 
     private void SetMeshDataInternal(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(vfx != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
+
+        if (vfx == null)
+        {
+            vfx = new SectionVFX(Application.Client.Instance.Space, Position.FirstBlock);
+            vfx.SetUp();
+
+            vfx.IsEnabled = vfxEnabled;
+        }
 
         vfx.SetData(meshData);
     }
