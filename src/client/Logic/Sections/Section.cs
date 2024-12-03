@@ -55,7 +55,7 @@ public class Section : Core.Logic.Sections.Section
         if (vfx == null)
             return;
 
-#pragma warning disable S2952 // Object is diposed in Dispose() too, but is overridden here and thus must be disposed here.
+#pragma warning disable S2952 // Object is diposed in Dispose() too, but is set to null here and thus must be disposed here.
         vfx.TearDown();
         vfx.Dispose();
 #pragma warning restore S2952
