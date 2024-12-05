@@ -49,10 +49,9 @@ public sealed partial class GameScene : IScene
 
         GameConsole console = new(Game, client.Resources.Commands);
 
-        world.StateChanged += (_, _) =>
+        world.State.Activated += (_, _) =>
         {
-            if (world.IsActive)
-                console.OnWorldReady();
+            console.OnWorldReady();
         };
 
         SetUpUI(world, console);
@@ -233,8 +232,8 @@ public sealed partial class GameScene : IScene
 
         ui.WorldExit += (_, args) =>
         {
-            if (world.IsActive)
-                world.BeginDeactivating(() => Client.ExitGame(args.ExitToOS));
+            if (world.State.IsActive)
+                world.State.BeginTerminating(() => Client.ExitGame(args.ExitToOS));
         };
 
         ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();

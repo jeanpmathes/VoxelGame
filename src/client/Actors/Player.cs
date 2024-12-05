@@ -168,7 +168,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
     /// <summary>
     ///     Called when the world deactivates.
-    ///     After this no more updates will be called.
     /// </summary>
     public void OnDeactivate()
     {

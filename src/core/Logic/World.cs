@@ -18,7 +18,6 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
@@ -45,15 +44,7 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     public const UInt32 SectionLimit = BlockLimit / Section.Size;
 
-    /// <summary>
-    ///     A timer to profile different states and world operations.
-    ///     Will be started on world creation, inheritors are free to stop, override or restart it.
-    /// </summary>
-    protected Timer? timer;
-
-    private State currentState = State.Activating;
-
-    private (Future saving, Action callback)? deactivation;
+    private readonly WorldStateMachine state;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -91,7 +82,9 @@ public abstract partial class World : IDisposable, IGrid
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+        Timer? timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+
+        state = new WorldStateMachine(this, timer);
 
         Data = data;
 
@@ -101,10 +94,15 @@ public abstract partial class World : IDisposable, IGrid
         IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
-        ChunkContext.UpdateList.EnterHighThroughputMode();
-
         Chunks = new ChunkSet(this, ChunkContext);
+
+        state.Initialize();
     }
+
+    /// <summary>
+    ///     Access to the world state.
+    /// </summary>
+    public IWorldStates State => state;
 
     /// <summary>
     /// Get the chunks of this world.
@@ -112,9 +110,9 @@ public abstract partial class World : IDisposable, IGrid
     public ChunkSet Chunks { get; }
 
     /// <summary>
-    ///     Set up the chunk context.
+    ///     Get the chunk context of this world.
     /// </summary>
-    protected ChunkContext ChunkContext { get; }
+    public ChunkContext ChunkContext { get; }
 
     /// <summary>
     ///     Get the stored world data.
@@ -125,27 +123,6 @@ public abstract partial class World : IDisposable, IGrid
     ///     Get the world creation seed.
     /// </summary>
     public (Int32 upper, Int32 lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
-
-    /// <summary>
-    ///     Get whether the world is active.
-    /// </summary>
-    public Boolean IsActive => CurrentState == State.Active;
-
-    /// <summary>
-    ///     Get the world state.
-    /// </summary>
-    protected State CurrentState
-    {
-        get => currentState;
-        set
-        {
-            State oldState = currentState;
-            currentState = value;
-
-            if (oldState != currentState)
-                StateChanged(this, EventArgs.Empty);
-        }
-    }
 
     /// <summary>
     ///     The number of chunk state updates that have been performed in the last update cycle.
@@ -219,59 +196,6 @@ public abstract partial class World : IDisposable, IGrid
 
         SetContent(content, position, tickFluid: true);
     }
-
-    /// <summary>
-    ///     Begin deactivating the world, saving all chunks and the meta information.
-    /// </summary>
-    /// <param name="onFinished">The action to be called when the world is deactivated.</param>
-    public void BeginDeactivating(Action onFinished)
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(CurrentState == State.Active);
-        CurrentState = State.Deactivating;
-
-        LogUnloadingWorld(logger);
-
-        ChunkContext.UpdateList.EnterHighThroughputMode();
-
-        OnDeactivation();
-
-        Data.Information.Version = ApplicationInformation.Instance.Version;
-        var saving = Future.Create(Data.Save);
-
-        deactivation = (saving, onFinished);
-    }
-
-    /// <summary>
-    ///     Process the deactivation, assuming it has been started.
-    /// </summary>
-    /// <returns>Whether the deactivation is finished.</returns>
-    protected Boolean ProcessDeactivation()
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(deactivation != null);
-
-        (Future saving, Action callback) = deactivation.Value;
-
-        Boolean done = saving.IsCompleted && Chunks.IsEmpty;
-
-        if (!done) return false;
-
-        LogUnloadedWorld(logger);
-        callback();
-
-        if (saving.Exception is {} exception)
-            LogFailedToSaveWorldMetaInformation(logger, exception);
-
-        return true;
-    }
-
-    /// <summary>
-    ///     Called when the world deactivates.
-    /// </summary>
-    protected virtual void OnDeactivation() {}
 
     private void UnloadChunk(Chunk chunk)
     {
@@ -573,7 +497,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        Debug.Assert(!State.IsTerminating);
 
         if (!IsInLimits(position)) return null;
 
@@ -652,30 +576,28 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Fired anytime the world switches to the ready-state.
+    ///     Process an update step for this world.
     /// </summary>
-    public event EventHandler<EventArgs> StateChanged = delegate {};
+    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public void Update(Double deltaTime, Timer? updateTimer)
+    {
+        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
+
+        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        {
+            UpdateChunks();
+        }
+
+        state.Update(deltaTime, updateTimer);
+    }
 
     /// <summary>
-    ///     The world state.
+    /// Called by the active state during <see cref="Update"/> when the world is active.
     /// </summary>
-    protected enum State
-    {
-        /// <summary>
-        ///     The initial state.
-        /// </summary>
-        Activating,
-
-        /// <summary>
-        ///     In the active state, normal operations like physics are performed.
-        /// </summary>
-        Active,
-
-        /// <summary>
-        ///     The final state, the world is being deactivated.
-        /// </summary>
-        Deactivating
-    }
+    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public virtual void ActiveUpdate(Double deltaTime, Timer? updateTimer) {}
 
     #region LOGGING
 
@@ -689,12 +611,6 @@ public abstract partial class World : IDisposable, IGrid
 
     [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
     private static partial void LogUnloadingWorld(ILogger logger);
-
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
-    private static partial void LogUnloadedWorld(ILogger logger);
-
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
-    private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);
 
     [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
     private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
@@ -725,10 +641,7 @@ public abstract partial class World : IDisposable, IGrid
         if (disposing)
         {
             Chunks.Dispose();
-
             ChunkContext.Dispose();
-
-            timer?.Dispose();
         }
 
         disposed = true;

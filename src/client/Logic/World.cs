@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,6 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
@@ -31,9 +29,15 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     The game world, specifically for the client.
 /// </summary>
-public partial class World : Core.Logic.World
+public class World : Core.Logic.World
 {
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+
+    #endregion LOGGING
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -43,9 +47,6 @@ public partial class World : Core.Logic.World
     private readonly Space space;
 
     private readonly List<Core.Logic.Chunks.Chunk> chunksWithActors = [];
-
-    private Int64 worldUpdateCount;
-    private Int64 chunkUpdateCount;
 
     private Player? player;
 
@@ -72,6 +73,10 @@ public partial class World : Core.Logic.World
     private void SetUp()
     {
         space.Light.Direction = sunLightDirection;
+
+        State.Activated += OnActivation;
+        State.Deactivated += OnDeactivation;
+        State.Terminated += OnTermination;
     }
 
     /// <inheritdoc />
@@ -102,7 +107,7 @@ public partial class World : Core.Logic.World
     /// </summary>
     public void Render()
     {
-        if (!IsActive) return;
+        if (!State.IsActive) return;
 
         Frustum frustum = player!.View.Frustum;
 
@@ -113,90 +118,36 @@ public partial class World : Core.Logic.World
             Chunks.ForEachComplete(chunk => chunk.Cast().CullSections(frustum));
     }
 
-    /// <summary>
-    ///     Process an update step for this world.
-    /// </summary>
-    /// <param name="deltaTime">Time since the last update.</param>
-    /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? updateTimer)
+    /// <inheritdoc />
+    public override void ActiveUpdate(Double deltaTime, Timer? updateTimer)
     {
-        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
-
-        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", updateTimer))
         {
-            UpdateChunks();
+            DoTicksOnEverything(deltaTime, tickTimer);
         }
 
-        switch (CurrentState)
+        using (logger.BeginTimedSubScoped("World Update Meshing", updateTimer))
         {
-            case State.Activating:
-                ProcessActivating();
-
-                break;
-
-            case State.Active:
-                ProcessActive();
-
-                break;
-
-            case State.Deactivating:
-                ProcessDeactivation();
-
-                break;
-
-            default:
-                Debug.Fail("Invalid world state.");
-
-                break;
-        }
-
-        void ProcessActive()
-        {
-            using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", subTimer))
-            {
-                DoTicksOnEverything(deltaTime, tickTimer);
-            }
-
-            using (logger.BeginTimedSubScoped("World Update Meshing", subTimer))
-            {
-                MeshAndClearSectionList();
-            }
-        }
-
-        void ProcessActivating()
-        {
-            worldUpdateCount += 1;
-            chunkUpdateCount += ChunkStateUpdateCount;
-
-            if (!Chunks.IsEveryChunkToSimulateActive()) return;
-
-            Duration readyTime = timer?.Elapsed ?? default;
-            LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
-
-            timer?.Dispose();
-            timer = null;
-
-            CurrentState = State.Active;
-
-            ChunkContext.UpdateList.EnterLowImpactMode();
-
-            OnActivation();
+            MeshAndClearSectionList();
         }
     }
 
-    private void OnActivation()
+    private void OnActivation(Object? sender, EventArgs e)
     {
         player?.OnActivate();
     }
 
-    /// <inheritdoc />
-    protected override void OnDeactivation()
+    private void OnDeactivation(Object? sender, EventArgs e)
     {
         player?.OnDeactivate();
+    }
 
+    private void OnTermination(Object? sender, EventArgs e)
+    {
         RemovePlayer();
 
-        foreach (Core.Logic.Chunks.Chunk chunk in Chunks.All) chunk.Cast().HideAllSections();
+        foreach (Core.Logic.Chunks.Chunk chunk in Chunks.All)
+            chunk.Cast().HideAllSections();
     }
 
     private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
@@ -312,13 +263,4 @@ public partial class World : Core.Logic.World
             }
         }
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
-    private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
-
-    #endregion LOGGING
 }
