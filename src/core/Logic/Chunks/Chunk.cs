@@ -314,7 +314,6 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, Context);
-        tracker.Transition(from: null, state);
 
         for (var index = 0; index < SectionCount; index++)
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
@@ -340,7 +339,7 @@ public partial class Chunk : IDisposable, IEntity
         fluidTickManager.Clear();
         fluidTickManager.SetWorld(newWorld: null);
 
-        tracker.Transition(state, to: null);
+        OnStateTransition(state, to: null);
 
         localUpdateCounter.Reset();
 
@@ -524,6 +523,26 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
+    ///     Invoked when there is a state transition.
+    /// </summary>
+    public event EventHandler<StateTransitionEventArgs>? StateTransition;
+
+    internal void OnStateTransition(ChunkState? from, ChunkState? to)
+    {
+        tracker.Transition(from, to);
+
+        if (from != null && to != null)
+            LogChunkStateChange(logger, Position, from, to);
+
+        StateTransition?.Invoke(this,
+            new StateTransitionEventArgs
+            {
+                OldState = from,
+                NewState = to
+            });
+    }
+
+    /// <summary>
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
@@ -600,7 +619,10 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public ChunkState UpdateState()
     {
-        ChunkState.Update(ref state, tracker);
+        ChunkState? previous = ChunkState.Update(ref state);
+
+        if (previous != null)
+            OnStateTransition(previous, state);
 
         return state;
     }
@@ -858,6 +880,9 @@ public partial class Chunk : IDisposable, IEntity
 
     [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
+
+    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
+    private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
 
     #endregion LOGGING
 

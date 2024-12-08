@@ -28,6 +28,7 @@ internal class GameUI : ControlBase
 {
     private readonly InGameDisplay hud;
     private readonly GameUserInterface parent;
+
     private readonly IPerformanceProvider performanceProvider;
     private readonly IPlayerDataProvider playerDataProvider;
     private readonly ICollection<SettingsProvider> settingsProviders;
@@ -135,6 +136,17 @@ internal class GameUI : ControlBase
         };
 
         resume.Released += (_, _) => CloseInGameMenu();
+
+        Button save = new(layout)
+        {
+            Text = Language.Save
+        };
+
+        save.Released += (_, _) =>
+        {
+            CloseInGameMenu();
+            parent.DoWorldSave();
+        };
 
         Button settings = new(layout)
         {

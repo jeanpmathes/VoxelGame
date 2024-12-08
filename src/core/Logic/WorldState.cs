@@ -50,6 +50,12 @@ public abstract partial class WorldState
         return false;
     }
 
+    /// <inheritdoc cref="IWorldStates.BeginSaving" />
+    public virtual Boolean BeginSaving(Action onComplete)
+    {
+        return false;
+    }
+
     /// <summary>
     ///     The state in which the world is working to become active.
     /// </summary>
@@ -120,6 +126,17 @@ public abstract partial class WorldState
 
             return true;
         }
+
+        /// <inheritdoc />
+        public override Boolean BeginSaving(Action onComplete)
+        {
+            if (next != null)
+                return false;
+
+            next = new Saving(onComplete);
+
+            return true;
+        }
     }
 
     /// <summary>
@@ -129,6 +146,7 @@ public abstract partial class WorldState
     public class Terminating(Action onComplete) : WorldState
     {
         private Future? saving;
+        private Boolean completed;
 
         /// <inheritdoc />
         public override Boolean IsTerminating => true;
@@ -136,6 +154,9 @@ public abstract partial class WorldState
         /// <inheritdoc />
         public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
         {
+            if (completed)
+                throw new InvalidOperationException("The world has already been terminated.");
+
             if (saving == null)
             {
                 world.Data.Information.Version = ApplicationInformation.Instance.Version;
@@ -145,14 +166,78 @@ public abstract partial class WorldState
             if (!saving.IsCompleted || !world.Chunks.IsEmpty)
                 return null;
 
+            if (saving.Exception is {} exception)
+                LogFailedToSaveWorldMetaInformation(logger, exception);
+
             LogUnloadedWorld(logger);
 
             onComplete();
+            completed = true;
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        public override void ApplyChunkUpdateMode(ChunkStateUpdateList list)
+        {
+            list.EnterHighThroughputMode();
+        }
+    }
+
+    /// <summary>
+    ///     The state in which the world is saving.
+    /// </summary>
+    /// <param name="onComplete">Called when the world has successfully saving.</param>
+    public class Saving(Action onComplete) : WorldState
+    {
+        private Future? saving;
+
+        private Int32 progress;
+        private Int32 total;
+
+        /// <inheritdoc />
+        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        {
+            if (saving == null)
+            {
+                LogSavingWorld(logger);
+
+                world.Data.Information.Version = ApplicationInformation.Instance.Version;
+                saving = Future.Create(world.Data.Save);
+
+                foreach (Chunk chunk in world.Chunks.All)
+                {
+                    chunk.BeginSaving();
+
+                    chunk.StateTransition += OnStateTransition;
+
+                    total += 1;
+                }
+            }
+
+            if (!saving.IsCompleted || progress < total)
+                return null;
 
             if (saving.Exception is {} exception)
                 LogFailedToSaveWorldMetaInformation(logger, exception);
 
-            return null;
+            LogSavedWorld(logger);
+
+            onComplete();
+
+            return new Active();
+        }
+
+        private void OnStateTransition(Object? sender, StateTransitionEventArgs e)
+        {
+            var chunk = (Chunk) sender!;
+
+            if (e.OldState is not Chunk.Saving)
+                return;
+
+            progress += 1;
+
+            chunk.StateTransition -= OnStateTransition;
         }
 
         /// <inheritdoc />
@@ -171,6 +256,12 @@ public abstract partial class WorldState
 
     [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
     private static partial void LogUnloadedWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saving world")]
+    private static partial void LogSavingWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saved world")]
+    private static partial void LogSavedWorld(ILogger logger);
 
     [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
     private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);

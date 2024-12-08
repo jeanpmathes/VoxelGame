@@ -230,13 +230,27 @@ public sealed partial class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(Client);
 
-        ui.WorldExit += (_, args) =>
+        ui.WorldSave += (_, _) =>
         {
-            if (world.State.IsActive)
-                world.State.BeginTerminating(() => Client.ExitGame(args.ExitToOS));
+            if (!world.State.IsActive) return;
+
+            world.State.BeginSaving(() =>
+            {
+                // Nothing to do.
+            });
         };
 
-        ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
+        ui.WorldExit += (_, args) =>
+        {
+            if (!world.State.IsActive) return;
+
+            world.State.BeginTerminating(() =>
+            {
+                Client.ExitGame(args.ExitToOS);
+            });
+        };
+
+        ui.AnyOverlayOpened += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
     }
 

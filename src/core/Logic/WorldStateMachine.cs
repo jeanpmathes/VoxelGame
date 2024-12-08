@@ -28,6 +28,12 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
     }
 
     /// <inheritdoc />
+    public Boolean BeginSaving(Action onComplete)
+    {
+        return state.BeginSaving(onComplete);
+    }
+
+    /// <inheritdoc />
     public Boolean IsActive => state.IsActive;
 
     /// <inheritdoc />

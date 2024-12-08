@@ -48,7 +48,7 @@ public class GameUserInterface : UserInterface
 
     /// <summary>
     ///     Toggle whether the UI is hidden.
-    ///     An active UI will not drawn when hidden.
+    ///     An active UI will not be drawn when hidden.
     /// </summary>
     public void ToggleHidden()
     {
@@ -128,9 +128,14 @@ public class GameUserInterface : UserInterface
     public event EventHandler<ExitEventArgs> WorldExit = delegate {};
 
     /// <summary>
+    ///     Invoked when the world should save.
+    /// </summary>
+    public event EventHandler<EventArgs> WorldSave = delegate {};
+
+    /// <summary>
     ///     Invoked when any overlay is opened.
     /// </summary>
-    public event EventHandler AnyOverlayOpen = delegate {};
+    public event EventHandler AnyOverlayOpened = delegate {};
 
     /// <summary>
     ///     Invoked when any overlay is closed.
@@ -198,9 +203,14 @@ public class GameUserInterface : UserInterface
         WorldExit(this, new ExitEventArgs {ExitToOS = exitToOS});
     }
 
+    internal void DoWorldSave()
+    {
+        WorldSave(this, EventArgs.Empty);
+    }
+
     internal void DoOverlayOpen()
     {
-        AnyOverlayOpen(this, EventArgs.Empty);
+        AnyOverlayOpened(this, EventArgs.Empty);
     }
 
     internal void DoOverlayClose()

@@ -31,6 +31,13 @@ public interface IWorldStates
     public Boolean BeginTerminating(Action onComplete);
 
     /// <summary>
+    ///     Begin saving the world.
+    /// </summary>
+    /// <param name="onComplete">Called when the world has successfully saved.</param>
+    /// <returns>True if the world has begun saving, false if it cannot save in the current state.</returns>
+    public Boolean BeginSaving(Action onComplete);
+
+    /// <summary>
     ///     Fired when the world enters an active state.
     /// </summary>
     public event EventHandler<EventArgs>? Activated;

@@ -7,18 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Abstract base class for chunk states.
 /// </summary>
-public abstract partial class ChunkState
+public abstract class ChunkState
 {
     private Guard? guard;
 
@@ -140,7 +137,7 @@ public abstract partial class ChunkState
     {
         requests.RemoveDuplicates(this);
 
-        if (previous != null) LogChunkStateChange(logger, Chunk.Position, previous, this);
+        Chunk.OnStateTransition(previous, this);
 
         Context.UpdateList.Add(Chunk);
 
@@ -572,8 +569,8 @@ public abstract partial class ChunkState
     ///     Update the state of a chunk. This can change the state.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
-    /// <param name="tracker">A tracker to profile state transitions.</param>
-    public static void Update(ref ChunkState state, StateTracker tracker)
+    /// <returns>If the state has changed, this will be the previous state, otherwise <c>null</c>.</returns>
+    public static ChunkState? Update(ref ChunkState state)
     {
         ChunkState previousState = state;
 
@@ -582,10 +579,13 @@ public abstract partial class ChunkState
         state.previous ??= previousState;
         state.requests = previousState.requests;
 
-        if (state == previousState) return;
+        if (state == previousState)
+            return null;
 
-        tracker.Transition(previousState, state);
+        ChunkState? previous = previousState.previous;
         previousState.previous = null;
+
+        return previous;
     }
 
     /// <summary>
@@ -763,13 +763,4 @@ public abstract partial class ChunkState
             }
         }
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
-
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
-    private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
-
-    #endregion LOGGING
 }
