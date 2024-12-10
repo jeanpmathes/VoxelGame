@@ -62,8 +62,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: |
-        $ErrorActionPreference = "Stop"
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cfamily.build-wrapper-output=".\.sonar\build-wrapper-output" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
-        .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
-        dotnet-coverage collect "dotnet test -c Test --no-restore --no-build --verbosity normal" -f xml -o "coverage.xml" # Use dotnet because msbuild has problems with tests
-        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cfamily.build-wrapper-output=".\.sonar\build-wrapper-output" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml" -ErrorAction Stop
+        .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release -ErrorAction Stop
+        dotnet-coverage collect "dotnet test -c Test --no-restore --no-build --verbosity normal" -f xml -o "coverage.xml" -ErrorAction Stop # Use dotnet because msbuild has problems with tests
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" -ErrorAction Stop
