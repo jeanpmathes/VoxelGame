@@ -17,10 +17,12 @@ class StepTimer
 public:
     StepTimer() noexcept(false)
     {
-        if (!QueryPerformanceFrequency(&m_qpcFrequency)) throw NativeException(
+        if (QueryPerformanceFrequency(&m_qpcFrequency) == FALSE)
+            throw NativeException(
             "Failed to query performance frequency.");
 
-        if (!QueryPerformanceCounter(&m_qpcLastTime)) throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE)
+            throw NativeException("Failed to query performance counter.");
 
         m_qpcMaxDelta = static_cast<uint64_t>(m_qpcFrequency.QuadPart / 10);
     }
@@ -65,7 +67,8 @@ public:
 
     void ResetElapsedTime()
     {
-        if (!QueryPerformanceCounter(&m_qpcLastTime)) throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE)
+            throw NativeException("Failed to query performance counter.");
 
         m_leftOverTicks    = 0;
         m_framesPerSecond  = 0;
@@ -78,7 +81,8 @@ public:
     {
         LARGE_INTEGER currentTime;
 
-        if (!QueryPerformanceCounter(&currentTime)) throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&currentTime) == FALSE)
+            throw NativeException("Failed to query performance counter.");
 
         auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
 

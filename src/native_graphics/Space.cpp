@@ -341,7 +341,8 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
     UINT currentSymbolIndex = 0;
     bool ok                 = true;
 
-    auto compileShaderLibrary = [&](UINT const shader)
+    auto compileShaderLibrary = [&](
+        UINT const shader) -> bool
     {
         shaderBlobs[shader] = CompileShader(
             pipelineDescription.shaderFiles[shader].path,
@@ -365,7 +366,8 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
         return true;
     };
 
-    auto compileComputeShader = [&](UINT const shader)
+    auto compileComputeShader = [&](
+        UINT const shader) -> bool
     {
         shaderBlobs[shader] = CompileShader(
             pipelineDescription.shaderFiles[shader].path,
@@ -378,8 +380,14 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
     };
 
     for (UINT shader = 0; shader < pipelineDescription.shaderCount; shader++)
-        if (pipelineDescription.shaderFiles[shader].symbolCount > 0) ok &= compileShaderLibrary(shader);
-        else ok &= compileComputeShader(shader);
+    {
+        bool shaderOk;
+
+        if (pipelineDescription.shaderFiles[shader].symbolCount > 0) shaderOk = compileShaderLibrary(shader);
+        else shaderOk                                                         = compileComputeShader(shader);
+
+        ok = ok && shaderOk;
+    }
 
     return {shaderBlobs, ok};
 }
