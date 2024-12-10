@@ -11,11 +11,12 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Collections;
 
-[TestSubject(typeof(ScheduledTickManager<>))]
+[TestSubject(typeof(ScheduledTickManager<,>))]
 [Collection("Logger")]
 public class ScheduledTickManagerTests
 {
@@ -25,7 +26,7 @@ public class ScheduledTickManagerTests
     public void ScheduledTickManager_ShouldProcessAddedTicks()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 32, counter);
+        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
 
         TestTick tick1 = new(id: 1);
         manager.Add(tick1, tickOffset: 3);
@@ -53,7 +54,7 @@ public class ScheduledTickManagerTests
     public void ScheduledTickManager_ShouldMoveTicksAboveLimitToNextUpdate()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 2, counter);
+        ScheduledTickManager<TestTick, Constant2> manager = new(counter);
 
         TestTick tick1 = new(id: 1);
         manager.Add(tick1, tickOffset: 1);
@@ -77,7 +78,7 @@ public class ScheduledTickManagerTests
     public void ScheduledTickManager_ShouldPreserveStateAfterSerialization()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick> manager = new(maxTicksPerUpdate: 32, counter);
+        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
 
         TestTick tick1 = new(id: 1);
         manager.Add(tick1, tickOffset: 3);
@@ -94,7 +95,7 @@ public class ScheduledTickManagerTests
 
         data.Position = 0;
         using BinaryDeserializer deserializer = new(data, "");
-        ScheduledTickManager<TestTick> newManager = new(maxTicksPerUpdate: 32, counter);
+        ScheduledTickManager<TestTick, Constant32> newManager = new(counter);
         deserializer.SerializeEntity(newManager);
 
         counter.Increment();
@@ -108,6 +109,40 @@ public class ScheduledTickManagerTests
         counter.Increment();
         newManager.Process();
         Assert.Equal(expected: 1, lastId);
+    }
+
+    [Fact]
+    public void ScheduledTickManager_ShouldSubtractOffsetOnNormalization()
+    {
+        UpdateCounter counter = new();
+        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
+
+        counter.Increment();
+        counter.Increment();
+        counter.Increment();
+
+        TestTick tick1 = new(id: 1);
+        manager.Add(tick1, tickOffset: 1);
+
+        manager.Normalize();
+        counter.Reset();
+
+        counter.Increment();
+        manager.Process();
+
+        Assert.Equal(expected: 1, lastId);
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private record Constant32 : IConstantInt32
+    {
+        public static Int32 Value => 32;
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private record Constant2 : IConstantInt32
+    {
+        public static Int32 Value => 2;
     }
 
     private class TestTick(Int32 id) : ITickable

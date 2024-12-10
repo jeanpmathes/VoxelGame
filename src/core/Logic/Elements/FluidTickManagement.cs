@@ -15,11 +15,6 @@ namespace VoxelGame.Core.Logic.Elements;
 public partial class Fluid
 {
     /// <summary>
-    ///     The maximum amount of fluid ticks per frame.
-    /// </summary>
-    internal const Int32 MaxFluidTicksPerFrameAndChunk = 1024;
-
-    /// <summary>
     ///     Schedules a tick according to the viscosity.
     /// </summary>
     protected void ScheduleTick(World world, Vector3i position)

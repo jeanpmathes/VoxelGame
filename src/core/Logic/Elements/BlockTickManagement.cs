@@ -17,11 +17,6 @@ public partial class Block
     private const Int32 ScheduledDestroyOffset = 5;
 
     /// <summary>
-    ///     The maximum amount of block ticks that should be processed per frame.
-    /// </summary>
-    public static Int32 MaxBlockTicksPerFrameAndChunk => 1024;
-
-    /// <summary>
     ///     Schedules a tick according to the given tick offset.
     ///     Note that the system does not guarantee that the tick will be executed exactly at the given offset, as chunks could
     ///     be inactive.

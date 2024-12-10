@@ -23,6 +23,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -122,8 +123,8 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     private readonly UpdateCounter localUpdateCounter = new();
 
-    private readonly ScheduledTickManager<Block.BlockTick> blockTickManager;
-    private readonly ScheduledTickManager<Fluid.FluidTick> fluidTickManager;
+    private readonly ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk> blockTickManager;
+    private readonly ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk> fluidTickManager;
 
     /// <summary>
     ///     The block data of this chunk.
@@ -161,13 +162,8 @@ public partial class Chunk : IDisposable, IEntity
             sections[index] = createSection(segment);
         }
 
-        blockTickManager = new ScheduledTickManager<Block.BlockTick>(
-            Block.MaxBlockTicksPerFrameAndChunk,
-            localUpdateCounter);
-
-        fluidTickManager = new ScheduledTickManager<Fluid.FluidTick>(
-            Fluid.MaxFluidTicksPerFrameAndChunk,
-            localUpdateCounter);
+        blockTickManager = new ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
+        fluidTickManager = new ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
 
         resource.Released += OnResourceReleased;
 
@@ -839,6 +835,12 @@ public partial class Chunk : IDisposable, IEntity
     protected Section GetSectionByIndex(Int32 index)
     {
         return sections[index];
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private sealed class MaxTicksPerFrameAndChunk : IConstantInt32
+    {
+        public static Int32 Value => 1024;
     }
 
     #region LOGGING

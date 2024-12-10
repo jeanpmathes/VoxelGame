@@ -210,26 +210,6 @@ public abstract class Serializer
     }
 
     /// <summary>
-    ///     Serialize a nullable value.
-    /// </summary>
-    public void SerializeNullableValue<T>(ref T? value)
-        where T : IValue, new()
-    {
-        Boolean hasValue = !Equals(value, default(T));
-        Serialize(ref hasValue);
-
-        if (hasValue)
-        {
-            value ??= new T();
-            SerializeValue(ref value);
-        }
-        else
-        {
-            value = default;
-        }
-    }
-
-    /// <summary>
     ///     Serialize a list of values. This is equivalent to serializing each value individually.
     ///     The passed list will be modified, e.g. resized and some entries might be cleared.
     /// </summary>
