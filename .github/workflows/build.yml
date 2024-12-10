@@ -28,6 +28,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     - uses: actions/checkout@v4
       with:
+        submodules: recursive
         fetch-depth: 0
     - name: Cache SonarCloud packages
       uses: actions/cache@v4
