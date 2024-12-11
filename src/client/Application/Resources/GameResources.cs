@@ -91,22 +91,20 @@ public sealed partial class GameResources : IDisposable
         {
             using (loadingContext.BeginStep("Block Textures"))
             {
-                BlockTextures = TextureBundle.Load(Client.Instance,
-                    loadingContext,
-                    FileSystem.GetResourceDirectory("Textures", "Blocks"),
-                    resolution: 32,
-                    Meshing.MaxTextureCount,
-                    Image.MipmapAlgorithm.AveragingWithoutTransparency);
+                TextureBundleLoader loader = new("Blocks", resolution: 32, Meshing.MaxTextureCount, Image.MipmapAlgorithm.AveragingWithoutTransparency);
+
+                loader.Load(FileSystem.GetResourceDirectory("Textures", "Blocks"), loadingContext);
+
+                BlockTextures = loader.Pack(client, loadingContext);
             }
 
             using (loadingContext.BeginStep("Fluid Textures"))
             {
-                FluidTextures = TextureBundle.Load(Client.Instance,
-                    loadingContext,
-                    FileSystem.GetResourceDirectory("Textures", "Fluids"),
-                    resolution: 32,
-                    Meshing.MaxFluidTextureCount,
-                    Image.MipmapAlgorithm.AveragingWithTransparency);
+                TextureBundleLoader loader = new("Fluids", resolution: 32, Meshing.MaxFluidTextureCount, Image.MipmapAlgorithm.AveragingWithTransparency);
+
+                loader.Load(FileSystem.GetResourceDirectory("Textures", "Fluids"), loadingContext);
+
+                FluidTextures = loader.Pack(client, loadingContext);
             }
         }
 

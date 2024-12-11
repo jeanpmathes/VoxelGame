@@ -128,7 +128,7 @@ public class Section : Core.Logic.Sections.Section
     /// </summary>
     /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
-    public SectionMeshData CreateMeshData(ChunkMeshingContext chunkContext)
+    public SectionMeshData CreateMeshData(IChunkMeshingContext chunkContext)
     {
         Throw.IfDisposed(disposed);
 
