@@ -11,7 +11,6 @@ using VoxelGame.Graphics.Interop;
 namespace VoxelGame.Graphics.Definition;
 
 #pragma warning disable S3898 // No equality comparison used.
-#pragma warning disable S4022 // Enum storage type is explicit as it is passed to native code.
 
 /// <summary>
 ///     Describes a pipeline for raster-based rendering.
@@ -112,10 +111,10 @@ public static class ShaderPresets
     /// <summary>
     ///     All presets, as an enum for the native code.
     /// </summary>
-    public enum ShaderPreset : byte
+    public enum ShaderPreset : Byte
     {
         /// <summary>
-        ///     The post processing preset, see <see cref="ShaderPresets.PostProcessing" />.
+        ///     The post-processing preset, see <see cref="ShaderPresets.PostProcessing" />.
         /// </summary>
         PostProcessing,
 
@@ -179,7 +178,7 @@ public static class ShaderPresets
 /// <summary>
 ///     The topology of the raster pipeline.
 /// </summary>
-public enum Topology : byte
+public enum Topology : Byte
 {
     /// <summary>
     ///     The mesh is a list of triangles.
@@ -195,7 +194,7 @@ public enum Topology : byte
 /// <summary>
 ///     The filter set on the texture sampler.
 /// </summary>
-public enum Filter : byte
+public enum Filter : Byte
 {
     /// <summary>
     ///     A linear filter.

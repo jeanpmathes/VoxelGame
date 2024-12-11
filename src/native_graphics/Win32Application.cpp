@@ -307,12 +307,11 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
         return 0;
 
     case WM_SETCURSOR:
-        if (app)
-            if (LOWORD(lParam) == HTCLIENT)
-            {
-                app->DoCursorSet();
-                return TRUE;
-            }
+        if (app && LOWORD(lParam) == HTCLIENT)
+        {
+            app->DoCursorSet();
+            return TRUE;
+        }
         return def();
 
     case WM_ENTERSIZEMOVE:

@@ -122,23 +122,6 @@ void ShaderResources::Description::AddUnorderedAccessView(
     AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_UAV, RootUnorderedAccessView{gpuAddress});
 }
 
-ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTable(
-    std::function<void(Table&)> const& builder)
-{
-    auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
-    Table      table(handle);
-
-    builder(table);
-
-    m_heapDescriptorTableCount += table.m_offsets.back();
-
-    m_rootSignatureGenerator.AddHeapRangesParameter(table.m_heapRanges);
-    m_rootParameters.push_back(RootHeapDescriptorTable{});
-    m_heapDescriptorTableOffsets.push_back(std::move(table.m_offsets));
-
-    return static_cast<TableHandle>(handle);
-}
-
 void ShaderResources::Description::AddStaticSampler(ShaderLocation const location, D3D12_FILTER const filter)
 {
     D3D12_STATIC_SAMPLER_DESC sampler;

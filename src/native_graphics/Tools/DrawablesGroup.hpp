@@ -51,7 +51,7 @@ public:
      * \param common A common bag of drawables of all subtypes.
      */
     explicit DrawablesGroup(NativeClient& client, Drawable::BaseContainer& common)
-        : m_nativeClient(&client)
+        : m_client(&client)
       , m_common(&common)
     {
     }
@@ -67,10 +67,7 @@ public:
      * \brief Spool a number of drawables. This fills the internal pool with new drawables.
      * @param count The number of drawables to spool.
      */
-    void Spool(UINT const count)
-    {
-        for (UINT i = 0; i < count; i++) m_pool.push_back(std::make_unique<D>(*m_nativeClient));
-    }
+    void Spool(UINT const count) { for (UINT i = 0; i < count; i++) m_pool.push_back(std::make_unique<D>(*m_client)); }
 
     /**
      * \brief Creates and stores a new drawable.
@@ -81,7 +78,7 @@ public:
     {
         std::unique_ptr<D> stored;
 
-        if (m_pool.empty()) stored = std::make_unique<D>(*m_nativeClient);
+        if (m_pool.empty()) stored = std::make_unique<D>(*m_client);
         else
         {
             stored = std::move(m_pool.back());
@@ -222,7 +219,7 @@ public:
     }
 
 private:
-    NativeClient*            m_nativeClient;
+    NativeClient*            m_client;
     Drawable::BaseContainer* m_common;
 
     Bag<std::unique_ptr<D>, Drawable::EntryIndex> m_entries = {};

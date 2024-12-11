@@ -15,7 +15,9 @@ LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
   , m_resolution(Resolution{configuration.width, configuration.height} * configuration.renderScale)
+#if defined(NATIVE_DEBUG)
   , m_debugCallback(configuration.onDebug)
+#endif
   , m_space(std::make_unique<Space>(*this))
 #if defined(USE_NSIGHT_AFTERMATH)
   , m_gpuCrashTracker(

@@ -1,8 +1,8 @@
-﻿//  <copyright file="Client.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="Client.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics;
 using System.Drawing;
@@ -143,7 +143,7 @@ public partial class Client : IDisposable
     internal Boolean IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
 
     /// <summary>
-    ///     Whether the client is currently outside of any cycle but still on the main thread.
+    ///     Whether the client is currently outside any cycle but still on the main thread.
     /// </summary>
     internal Boolean IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
 
@@ -307,7 +307,7 @@ public partial class Client : IDisposable
     }
 
     /// <summary>
-    ///     Set which pipeline is used for post processing.
+    ///     Set which pipeline is used for post-processing.
     /// </summary>
     public void SetPostProcessingPipeline(RasterPipeline pipeline)
     {
@@ -322,7 +322,7 @@ public partial class Client : IDisposable
     /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
     /// <param name="priority">
     ///     The priority of the pipeline, higher priority pipelines are rendered later.
-    ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the the current
+    ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the current
     ///     front and back.
     /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>

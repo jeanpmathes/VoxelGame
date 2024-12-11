@@ -123,8 +123,10 @@ private:
 
     Resolution m_resolution;
 
+#if defined(NATIVE_DEBUG)
     D3D12MessageFunc m_debugCallback;
     DWORD            m_callbackCookie{};
+#endif
 
     std::unique_ptr<Uploader>    m_uploader = nullptr;
     Bag<std::unique_ptr<Object>> m_objects  = {};

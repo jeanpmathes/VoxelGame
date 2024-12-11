@@ -190,12 +190,12 @@ public:
         void AddConstantBufferView(D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, ShaderLocation location);
 
         /**
-         * Add a SRV directly in the root signature.
+         * Add an SRV directly in the root signature.
          */
         void AddShaderResourceView(D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, ShaderLocation location);
 
         /**
-         * Add a UAV directly in the root signature.
+         * Add an UAV directly in the root signature.
          */
         void AddUnorderedAccessView(D3D12_GPU_VIRTUAL_ADDRESS gpuAddress, ShaderLocation location);
 
@@ -203,7 +203,22 @@ public:
          * Add a static heap descriptor table, containing CBVs, SRVs and UAVs.
          * Contains multiple parameters and cannot be resized.
          */
-        TableHandle AddHeapDescriptorTable(std::function<void(Table&)> const& builder);
+        template <class TableBuilder>
+        TableHandle AddHeapDescriptorTable(TableBuilder builder)
+        {
+            auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+            Table      table(handle);
+
+            builder(table);
+
+            m_heapDescriptorTableCount += table.m_offsets.back();
+
+            m_rootSignatureGenerator.AddHeapRangesParameter(table.m_heapRanges);
+            m_rootParameters.emplace_back(RootHeapDescriptorTable{});
+            m_heapDescriptorTableOffsets.emplace_back(std::move(table.m_offsets));
+
+            return static_cast<TableHandle>(handle);
+        }
 
         /**
          * \brief Add a static texture sampler.
@@ -264,7 +279,7 @@ public:
             SizeGetter&&                        count,
             DescriptorGetter<Descriptor> const& descriptor,
             ListBuilder&&                       builder,
-            std::optional<UINT>                 numberOfDescriptorsIfSelectionList)
+            std::optional<UINT> const           numberOfDescriptorsIfSelectionList)
         {
             UINT const number     = numberOfDescriptorsIfSelectionList.value_or(UNBOUNDED);
             auto const listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
@@ -297,7 +312,7 @@ public:
             UINT           window = 1);
 
         /**
-         * \brief Add a SRV selection list.
+         * \brief Add an SRV selection list.
          * \param location The shader location of the SRV.
          * \param window The size of the selection window.
          * \return The selection list.

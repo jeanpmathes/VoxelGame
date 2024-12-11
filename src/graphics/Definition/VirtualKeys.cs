@@ -1,8 +1,8 @@
-﻿//  <copyright file="VirtualKeys.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="VirtualKeys.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
 
 using System.Diagnostics.CodeAnalysis;
 
@@ -17,9 +17,7 @@ namespace VoxelGame.Graphics.Definition;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "IdentifierTypo")]
 #pragma warning disable CS1591
-#pragma warning disable S4022 // Enumeration storage type should match the native type.
-public enum VirtualKeys
-    : byte
+public enum VirtualKeys : Byte
 {
     Undefined = 0x00,
     LeftButton = 0x01,
@@ -32,9 +30,9 @@ public enum VirtualKeys
     Tab = 0x09,
     Clear = 0x0C,
     Return = 0x0D,
-    [Obsolete("Use Left<X> or Right<X>")] Shift = 0x10,
-    [Obsolete("Use Left<X> or Right<X>")] Control = 0x11,
-    [Obsolete("Use Left<X> or Right<X>")] Menu = 0x12,
+    Shift = 0x10, // Use LeftShift or RightShift
+    Control = 0x11, // Use LeftControl or RightControl
+    Menu = 0x12, // Use LeftMenu or RightMenu
     Pause = 0x13,
     CapsLock = 0x14,
     Kana = 0x15,

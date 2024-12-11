@@ -122,11 +122,6 @@ public abstract class ChunkState
 
     private Boolean IsInHiddenState => IsHidden && IsEntered && !IsExited;
 
-    private static Boolean IsSameStateType(ChunkState a, ChunkState b)
-    {
-        return a.GetType() == b.GetType();
-    }
-
     /// <summary>
     ///     Perform updates.
     ///     This is where the state logic, e.g. the work associated with the state as well as transitions, is performed.
@@ -761,6 +756,11 @@ public abstract class ChunkState
                 }
                 else index++;
             }
+        }
+
+        private static Boolean IsSameStateType(ChunkState a, ChunkState b)
+        {
+            return a.GetType() == b.GetType();
         }
     }
 }

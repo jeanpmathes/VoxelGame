@@ -35,9 +35,7 @@ public sealed partial class Map : IMap, IDisposable
     ///     Additional cell data that is stored as flags.
     /// </summary>
     [Flags]
-    #pragma warning disable S4022 // To reduce size of data.
     public enum CellConditions : Byte
-    #pragma warning restore S4022
     {
         /// <summary>
         ///     No conditions.
@@ -63,9 +61,7 @@ public sealed partial class Map : IMap, IDisposable
     /// <summary>
     ///     The type of stone that a cell is made of.
     /// </summary>
-    #pragma warning disable S4022 // To reduce size of data.
     public enum StoneType : Byte
-    #pragma warning restore S4022
     {
         /// <summary>
         ///     Sandstone.
@@ -477,7 +473,7 @@ public sealed partial class Map : IMap, IDisposable
 
         if (mountainStrength > coastlineStrength)
         {
-            specialBiome = biomes.GetMountainBiome();
+            specialBiome = biomes.MountainBiome;
             specialStrength = mountainStrength;
         }
         else

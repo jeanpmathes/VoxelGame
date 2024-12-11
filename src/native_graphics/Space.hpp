@@ -223,7 +223,7 @@ private:
 
     bool CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
-        NativeClient&                                 nativeClient,
+        NativeClient&                                 client,
         SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
     std::unique_ptr<Material> SetUpMaterial(
@@ -254,7 +254,7 @@ private:
     void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
-    NativeClient* m_nativeClient;
+    NativeClient* m_client;
     Resolution    m_resolution = {};
 
     InBufferAllocator m_resultBufferAllocator;
@@ -318,8 +318,8 @@ private:
     ShaderResources::ListHandle   m_meshGeometryBufferList        = ShaderResources::ListHandle::INVALID;
 
     Drawable::BaseContainer m_drawables;
-    DrawablesGroup<Mesh>    m_meshes{*m_nativeClient, m_drawables};
-    DrawablesGroup<Effect>  m_effects{*m_nativeClient, m_drawables};
+    DrawablesGroup<Mesh>    m_meshes{*m_client, m_drawables};
+    DrawablesGroup<Effect>  m_effects{*m_client, m_drawables};
     std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
     nv_helpers_dx12::TopLevelASGenerator m_tlasGenerator;

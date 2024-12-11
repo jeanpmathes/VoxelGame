@@ -6,7 +6,6 @@
 
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
-using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Toolkit.Noise;
 
@@ -42,7 +41,7 @@ public struct NoiseDefinition
     /// <summary>
     /// The seed of the noise generator.
     /// </summary>
-    public Int32 Seed { get; set; } = 1337;
+    public Int32 Seed { get; init; } = 1337;
 
     /// <summary>
     /// The type of noise generator.
@@ -96,21 +95,6 @@ internal static class NoiseDefinitionMarshaller
             fractalGain = managed.FractalGain,
             fractalWeightedStrength = managed.FractalWeightedStrength
         };
-    }
-
-#pragma warning disable S1694
-    internal abstract class Marshaller : IMarshaller<NoiseDefinition, Unmanaged>
-#pragma warning restore S1694
-    {
-        static Unmanaged IMarshaller<NoiseDefinition, Unmanaged>.ConvertToUnmanaged(NoiseDefinition managed)
-        {
-            return ConvertToUnmanaged(managed);
-        }
-
-        static void IMarshaller<NoiseDefinition, Unmanaged>.Free(Unmanaged unmanaged)
-        {
-            // Nothing to free.
-        }
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]

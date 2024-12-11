@@ -38,6 +38,11 @@ public class BiomeDistribution
     }
 
     /// <summary>
+    ///     Get the mountain biome.
+    /// </summary>
+    public Biome MountainBiome => biomes.Mountains;
+
+    /// <summary>
     ///     Get the default biome distribution.
     /// </summary>
     public static BiomeDistribution CreateDefault(Biomes biomes)
@@ -98,13 +103,5 @@ public class BiomeDistribution
         Biome biome = GetBiome(temperature, humidity);
 
         return biome == biomes.PolarDesert ? biomes.PolarOcean : biomes.Ocean;
-    }
-
-    /// <summary>
-    ///     Get the mountain biome.
-    /// </summary>
-    public Biome GetMountainBiome()
-    {
-        return biomes.Mountains;
     }
 }

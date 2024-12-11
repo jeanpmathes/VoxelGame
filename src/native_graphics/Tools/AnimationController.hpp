@@ -48,7 +48,7 @@ public:
      * \param resources The shader resources.
      * \param commandList The command list to use for running.
      */
-    void Run(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
+    void Run(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList);
     /**
      * \brief Create the BLAS for every mesh that uses this animation.
      * \param commandList The command list to use for creating the BLAS.

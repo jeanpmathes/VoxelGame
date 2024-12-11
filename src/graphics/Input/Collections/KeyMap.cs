@@ -1,8 +1,8 @@
 ﻿// <copyright file="KeyMap.cs" company="VoxelGame">
-//    MIT License
-//    For full license see the repository.
+//     MIT License
+//     For full license see the repository.
 // </copyright>
-//<author>jeanpmathes</author>
+// <author>jeanpmathes</author>
 
 using VoxelGame.Graphics.Definition;
 

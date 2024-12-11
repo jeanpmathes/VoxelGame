@@ -1,8 +1,8 @@
-﻿//  <copyright file="NativeConfiguration.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="NativeConfiguration.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
 
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
