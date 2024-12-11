@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Core.Collections;
 
@@ -19,12 +20,16 @@ namespace VoxelGame.Core.Collections;
 ///     Manages scheduled ticks.
 /// </summary>
 /// <typeparam name="T">The type of tickables to manage.</typeparam>
-public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
+/// <typeparam name="TMaxTicksPerUpdate">The maximum amount of ticks per update.</typeparam>
+public partial class ScheduledTickManager<T, TMaxTicksPerUpdate> : IEntity
+    where T : ITickable, new()
+    where TMaxTicksPerUpdate : IConstantInt32
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T>>();
+    #pragma warning disable S2743 // Intentional and known.
+    private static readonly ObjectPool<TicksHolder> holderPool = new(CreateTicksHolder);
+    #pragma warning restore S2743
 
     private readonly UpdateCounter updateCounter;
-    private readonly Int32 maxTicksPerUpdate;
 
     private World? world;
 
@@ -33,11 +38,9 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
     /// <summary>
     ///     Create a new scheduled tick manager.
     /// </summary>
-    /// <param name="maxTicksPerUpdate">The maximum amount of ticks per update.</param>
     /// <param name="updateCounter">The current update counter.</param>
-    public ScheduledTickManager(Int32 maxTicksPerUpdate, UpdateCounter updateCounter)
+    public ScheduledTickManager(UpdateCounter updateCounter)
     {
-        this.maxTicksPerUpdate = maxTicksPerUpdate;
         this.updateCounter = updateCounter;
     }
 
@@ -52,7 +55,7 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
         TicksHolder? current = first;
 
         TicksHolder? next = current?.next;
-        serializer.SerializeNullableValue(ref current);
+        SerializeHolder(serializer, ref current);
 
         while (current != null)
         {
@@ -65,10 +68,26 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
             current = next;
 
             next = current?.next;
-            serializer.SerializeNullableValue(ref current);
+            SerializeHolder(serializer, ref current);
         }
 
         nextTicks = first;
+    }
+
+    private static void SerializeHolder(Serializer serializer, ref TicksHolder? holder)
+    {
+        Boolean hasValue = holder != null;
+        serializer.Serialize(ref hasValue);
+
+        if (hasValue)
+        {
+            holder ??= GetHolderFromPool(UInt64.MaxValue);
+            serializer.SerializeValue(ref holder);
+        }
+        else
+        {
+            holder = null;
+        }
     }
 
     /// <summary>
@@ -99,61 +118,53 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
         do
         {
             UInt64 targetUpdate = updateCounter.Current + tickOffset;
-            ticks = FindOrCreateTargetTick(targetUpdate);
+            ticks = FindOrCreateTargetHolder(targetUpdate);
 
-            if (ticks.tickables.Count < maxTicksPerUpdate) break;
+            if (ticks.tickables.Count == TMaxTicksPerUpdate.Value - 1)
+                LogTickScheduleLimitReached(logger);
 
-            logger.LogWarning(
-                "Tick for {Update} has been scheduled for following update as limit is reached",
-                targetUpdate);
+            if (ticks.tickables.Count < TMaxTicksPerUpdate.Value) break;
 
             tickOffset += 1;
 
-        } while (ticks.tickables.Count >= maxTicksPerUpdate);
+        } while (ticks.tickables.Count >= TMaxTicksPerUpdate.Value);
 
         ticks.tickables.Add(tick);
     }
 
-    private TicksHolder FindOrCreateTargetTick(UInt64 targetTick)
+    private TicksHolder FindOrCreateTargetHolder(UInt64 targetTick)
     {
         TicksHolder? last = null;
         TicksHolder? current = nextTicks;
 
         if (current == null)
-        {
-            nextTicks = new TicksHolder(targetTick);
-
-            return nextTicks;
-        }
+            return GetInsertedHolder(previous: null, targetTick, next: null);
 
         while (current != null)
         {
-            if (current.targetUpdate == targetTick) return current;
+            if (current.targetUpdate == targetTick)
+                return current;
 
             if (current.targetUpdate > targetTick)
-            {
-                if (last == null)
-                {
-                    nextTicks = new TicksHolder(targetTick) {next = current};
-
-                    return nextTicks;
-                }
-
-                var newTicks = new TicksHolder(targetTick);
-                last.next = newTicks;
-                newTicks.next = current;
-
-                return newTicks;
-            }
+                return GetInsertedHolder(last, targetTick, current);
 
             last = current;
             current = current.next;
         }
 
-        var newLastTicks = new TicksHolder(targetTick);
-        last!.next = newLastTicks;
+        return GetInsertedHolder(last, targetTick, next: null);
+    }
 
-        return newLastTicks;
+    private TicksHolder GetInsertedHolder(TicksHolder? previous, UInt64 targetTick, TicksHolder? next)
+    {
+        TicksHolder newTicks = GetHolderFromPool(targetTick);
+
+        if (previous == null) nextTicks = newTicks;
+        else previous.next = newTicks;
+
+        newTicks.next = next;
+
+        return newTicks;
     }
 
     /// <summary>
@@ -167,9 +178,14 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
         {
             Debug.Assert(nextTicks.targetUpdate == updateCounter.Current);
 
-            foreach (T scheduledTick in nextTicks.tickables) scheduledTick.Tick(world!);
+            foreach (T scheduledTick in nextTicks.tickables)
+                scheduledTick.Tick(world!);
 
-            nextTicks = nextTicks.next;
+            TicksHolder? next = nextTicks.next;
+
+            ReturnHolderToPool(nextTicks);
+
+            nextTicks = next;
         }
     }
 
@@ -193,7 +209,35 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
     /// </summary>
     public void Clear()
     {
-        nextTicks = null;
+        while (nextTicks != null)
+        {
+            TicksHolder? next = nextTicks.next;
+
+            ReturnHolderToPool(nextTicks);
+
+            nextTicks = next;
+        }
+    }
+
+    private static TicksHolder CreateTicksHolder()
+    {
+        return new TicksHolder(UInt64.MaxValue);
+    }
+
+    private static TicksHolder GetHolderFromPool(UInt64 targetUpdate)
+    {
+        TicksHolder holder = holderPool.Get();
+
+        holder.targetUpdate = targetUpdate;
+
+        return holder;
+    }
+
+    private static void ReturnHolderToPool(TicksHolder holder)
+    {
+        holder.tickables.Clear();
+
+        holderPool.Return(holder);
     }
 
     private sealed class TicksHolder(UInt64 targetUpdate) : IValue
@@ -203,12 +247,19 @@ public class ScheduledTickManager<T> : IEntity where T : ITickable, new()
 
         public UInt64 targetUpdate = targetUpdate;
 
-        public TicksHolder() : this(UInt64.MaxValue) {}
-
         public void Serialize(Serializer serializer)
         {
             serializer.SerializeSmall(ref targetUpdate);
             serializer.SerializeValues(tickables);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T, TMaxTicksPerUpdate>>();
+
+    [LoggerMessage(EventId = Events.Simulation, Level = LogLevel.Warning, Message = "The maximum number of ticks for a single update have been reached, further ticks we be scheduled later")]
+    private static partial void LogTickScheduleLimitReached(ILogger logger);
+
+    #endregion LOGGING
 }

@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public readonly record struct FluidMeshInfo
 {
-    private FluidMeshInfo(BlockInstance block, FluidLevel level, BlockSide side, Boolean isStatic)
+    private FluidMeshInfo(BlockInstance block, FluidLevel level, Side side, Boolean isStatic)
     {
         Block = block;
         Level = level;
@@ -35,7 +35,7 @@ public readonly record struct FluidMeshInfo
     /// <summary>
     ///     The side of the fluid that is being meshed.
     /// </summary>
-    public BlockSide Side { get; init; }
+    public Side Side { get; init; }
 
     /// <summary>
     ///     Whether the fluid is static.
@@ -45,7 +45,7 @@ public readonly record struct FluidMeshInfo
     /// <summary>
     ///     Create fluid meshing information.
     /// </summary>
-    public static FluidMeshInfo Fluid(BlockInstance block, FluidLevel level, BlockSide side, Boolean isStatic)
+    public static FluidMeshInfo Fluid(BlockInstance block, FluidLevel level, Side side, Boolean isStatic)
     {
         return new FluidMeshInfo(block, level, side, isStatic);
     }

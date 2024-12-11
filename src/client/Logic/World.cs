@@ -6,23 +6,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using Properties;
-using VoxelGame.Core.Actors;
-using VoxelGame.Core.Collections;
+using VoxelGame.Client.Actors;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Data;
+using VoxelGame.Toolkit.Memory;
+using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;
 
@@ -31,11 +31,13 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class World : Core.Logic.World
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
     private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
 
-    private static readonly Int32 minLoadedChunksAtStart = Math.Max(VMath.Cube((Player.LoadDistance - 1) * 2 + 1), val2: 1);
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+
+    #endregion LOGGING
 
     /// <summary>
     ///     A set of chunks with information on which sections of them are to mesh.
@@ -44,7 +46,9 @@ public class World : Core.Logic.World
 
     private readonly Space space;
 
-    private Actors.Player? player;
+    private readonly List<Core.Logic.Chunks.Chunk> chunksWithActors = [];
+
+    private Player? player;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -53,7 +57,7 @@ public class World : Core.Logic.World
     {
         space = Application.Client.Instance.Space;
 
-        Setup();
+        SetUp();
     }
 
     /// <summary>
@@ -63,42 +67,39 @@ public class World : Core.Logic.World
     {
         space = Application.Client.Instance.Space;
 
-        Setup();
+        SetUp();
     }
 
-    /// <summary>
-    ///     Get the max meshing task limit.
-    /// </summary>
-    public Limit MaxMeshingTasks { get; private set; } = null!;
-
-    /// <summary>
-    ///     Get the max mesh data send limit.
-    /// </summary>
-    public Limit MaxMeshDataSends { get; private set; } = null!;
-
-    private void Setup()
+    private void SetUp()
     {
-        MaxMeshingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxMeshingTasks);
-        MaxMeshDataSends = ChunkContext.DeclareBudget(Settings.Default.MaxMeshDataSends);
-
         space.Light.Direction = sunLightDirection;
+
+        State.Activated += OnActivation;
+        State.Deactivated += OnDeactivation;
+        State.Terminated += OnTermination;
     }
 
     /// <inheritdoc />
-    protected override ChunkPool CreateChunkPool()
+    protected override Core.Logic.Chunks.Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context)
     {
-        return new ChunkPool(ChunkContext, context => new Chunk(context));
+        return new Chunk(blocks, context);
     }
 
     /// <summary>
     ///     Add a client player to the world.
     /// </summary>
     /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Actors.Player newPlayer)
+    public void AddPlayer(Player newPlayer)
     {
         player = newPlayer;
 
-        space.Light.Direction = sunLightDirection;
+        player.OnAdd(this);
+    }
+
+    private void RemovePlayer()
+    {
+        player?.OnRemove();
+        player = null;
     }
 
     /// <summary>
@@ -106,143 +107,110 @@ public class World : Core.Logic.World
     /// </summary>
     public void Render()
     {
-        if (!IsActive) return;
+        if (!State.IsActive) return;
 
         Frustum frustum = player!.View.Frustum;
 
-        CullActiveChunks();
-
-        return;
-
-        void CullActiveChunks()
-        {
-            for (Int32 x = -Player.LoadDistance; x <= Player.LoadDistance; x++)
-            for (Int32 y = -Player.LoadDistance; y <= Player.LoadDistance; y++)
-            for (Int32 z = -Player.LoadDistance; z <= Player.LoadDistance; z++)
-            {
-                Core.Logic.Chunk? chunk = GetActiveChunk(player!.Chunk.Offset(x, y, z));
-                chunk?.Cast().CullSections(frustum);
-            }
-        }
+        if (Program.IsDebug) Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
+        else
+            // Rendering chunks even if they are used by an off-thread operation is safe.
+            // The rendering resources are only modified on the main thread anyway.
+            Chunks.ForEachComplete(chunk => chunk.Cast().CullSections(frustum));
     }
 
-    /// <summary>
-    ///     Process an update step for this world.
-    /// </summary>
-    /// <param name="deltaTime">Time since the last update.</param>
-    /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? updateTimer)
+    /// <inheritdoc />
+    public override void ActiveUpdate(Double deltaTime, Timer? updateTimer)
     {
-        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
-
-        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", updateTimer))
         {
-            UpdateChunks();
+            DoTicksOnEverything(deltaTime, tickTimer);
         }
 
-        switch (CurrentState)
+        using (logger.BeginTimedSubScoped("World Update Meshing", updateTimer))
         {
-            case State.Activating:
-                HandleActivating();
-
-                break;
-
-            case State.Active:
-                HandleActive();
-
-                break;
-
-            case State.Deactivating:
-                ProcessDeactivation();
-
-                break;
-
-            default:
-                Debug.Fail("Invalid world state.");
-
-                break;
-        }
-
-        void HandleActive()
-        {
-            using (logger.BeginTimedSubScoped("World Update Ticks", subTimer))
-            {
-                DoTicksOnEverything(deltaTime);
-            }
-
-            using (logger.BeginTimedSubScoped("World Update Meshing", subTimer))
-            {
-                MeshAndClearSectionList();
-            }
-        }
-
-        void HandleActivating()
-        {
-            if (ActiveChunkCount < minLoadedChunksAtStart) return;
-
-            updateTimer?.Dispose();
-
-            Duration readyTime = updateTimer?.Elapsed ?? default;
-            logger.LogInformation(Events.WorldState, "World ready after {ReadyTime}", readyTime);
-
-            updateTimer = null;
-            CurrentState = State.Active;
-
-            OnActivation();
+            MeshAndClearSectionList();
         }
     }
 
-    private void OnActivation()
+    private void OnActivation(Object? sender, EventArgs e)
     {
         player?.OnActivate();
     }
 
-    /// <inheritdoc />
-    protected override void OnDeactivation()
+    private void OnDeactivation(Object? sender, EventArgs e)
     {
         player?.OnDeactivate();
     }
 
-    private void DoTicksOnEverything(Double deltaTime)
+    private void OnTermination(Object? sender, EventArgs e)
     {
-        foreach (Core.Logic.Chunk chunk in ActiveChunks) chunk.Tick();
+        RemovePlayer();
 
-        player!.Tick(deltaTime);
+        foreach (Core.Logic.Chunks.Chunk chunk in Chunks.All)
+            chunk.Cast().HideAllSections();
+    }
+
+    private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
+    {
+        chunksWithActors.Clear();
+
+        using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
+        {
+            Chunks.ForEachActive(TickChunk);
+        }
+
+        using (logger.BeginTimedSubScoped("World Tick Actors", tickTimer))
+        {
+            #pragma warning disable S4158 // chunksWithActors is filled by calls to TickChunk
+            foreach (Core.Logic.Chunks.Chunk chunk in chunksWithActors)
+                chunk.TickActors(deltaTime);
+            #pragma warning restore S4158
+        }
+    }
+
+    private void TickChunk(Core.Logic.Chunks.Chunk chunk)
+    {
+        if (!chunk.IsRequestedToSimulate)
+            return;
+
+        chunk.Tick();
+
+        if (chunk.HasActors)
+            chunksWithActors.Add(chunk);
     }
 
     private void MeshAndClearSectionList()
     {
         foreach ((Chunk chunk, (Int32 x, Int32 y, Int32 z)) in sectionsToMesh)
-            chunk.CreateAndSetMesh(x, y, z, ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared));
+        {
+            using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared);
+            chunk.CreateAndSetMesh(x, y, z, context);
+        }
 
         sectionsToMesh.Clear();
     }
 
     /// <inheritdoc />
-    protected override ChunkState ProcessNewlyActivatedChunk(Core.Logic.Chunk activatedChunk)
+    protected override ChunkState? ProcessNewlyActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
-        ChunkState? decoration = activatedChunk.ProcessDecorationOption();
-
-        if (decoration != null) return decoration;
-        if (!activatedChunk.IsFullyDecorated) return new Core.Logic.Chunk.Hidden();
-
-        foreach (BlockSide side in BlockSide.All.Sides())
-            if (TryGetChunk(side.Offset(activatedChunk.Position), out Core.Logic.Chunk? neighbor))
-                neighbor.Cast().BeginMeshing();
-
-        return new Chunk.Meshing();
+        return activatedChunk.ProcessDecorationOption() ?? ProcessActivatedChunk(activatedChunk);
     }
 
     /// <inheritdoc />
-    protected override ChunkState? ProcessActivatedChunk(Core.Logic.Chunk activatedChunk)
+    protected override ChunkState? ProcessActivatedChunk(Core.Logic.Chunks.Chunk activatedChunk)
     {
-        return activatedChunk.Cast().ProcessDecorationOption() ??
-               activatedChunk.Cast().ProcessMeshingOption();
+        ChunkState? state = activatedChunk.Cast().ProcessMeshingOption(out Boolean allowActivation);
+
+        if (state != null) return state;
+
+        return allowActivation
+            ? new Core.Logic.Chunks.Chunk.Active()
+            : null;
     }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ProcessChangedSection(Core.Logic.Chunk chunk, Vector3i position)
+    protected override void ProcessChangedSection(Core.Logic.Chunks.Chunk chunk, Vector3i position)
     {
         EnqueueMeshingForAllAffectedSections(chunk, position);
     }
@@ -254,7 +222,7 @@ public class World : Core.Logic.World
     /// <param name="chunk">The chunk in which the block change happened.</param>
     /// <param name="position">The position of the block change, in block coordinates.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunk chunk, Vector3i position)
+    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunks.Chunk chunk, Vector3i position)
     {
         sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
 
@@ -264,7 +232,7 @@ public class World : Core.Logic.World
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & (Core.Logic.Section.Size - 1);
+            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
 
             Vector3i direction = new()
             {
@@ -272,14 +240,14 @@ public class World : Core.Logic.World
             };
 
             if (axisSectionPosition == 0) CheckNeighbor(direction * -1);
-            else if (axisSectionPosition == Core.Logic.Section.Size - 1) CheckNeighbor(direction);
+            else if (axisSectionPosition == Section.Size - 1) CheckNeighbor(direction);
         }
 
         void CheckNeighbor(Vector3i direction)
         {
             Vector3i neighborPosition = position + direction;
 
-            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunk? neighbor)) return;
+            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunks.Chunk? neighbor)) return;
 
             if (neighbor.IsActive)
             {
@@ -290,7 +258,7 @@ public class World : Core.Logic.World
                 // We set the section as incomplete.
                 // The next time the neighbor chunk is activated (if it is), the section will be meshed.
 
-                BlockSides missing = direction.ToBlockSide().ToFlag();
+                Sides missing = direction.ToSide().ToFlag();
                 neighbor.Cast().SetSectionAsIncomplete(SectionPosition.From(neighborPosition).Local, missing);
             }
         }

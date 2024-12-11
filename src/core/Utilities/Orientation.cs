@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -52,7 +52,7 @@ public static class Orientations
     public static IEnumerable<Orientation> All => orientations;
 
     /// <summary>
-    ///     Loop trough all orientations, starting depending on a position.
+    ///     Loop through all orientations, starting depending on a position.
     /// </summary>
     /// <param name="position">The position to calculate the first orientation.</param>
     /// <returns>All orientations.</returns>
@@ -104,17 +104,17 @@ public static class OrientationExtensions
     }
 
     /// <summary>
-    ///     Convert an orientation to a <see cref="BlockSide" />.
+    ///     Convert an orientation to a <see cref="Side" />.
     /// </summary>
-    public static BlockSide ToBlockSide(this Orientation orientation)
+    public static Side ToSide(this Orientation orientation)
     {
         return orientation switch
         {
-            Orientation.North => BlockSide.Back,
-            Orientation.East => BlockSide.Right,
-            Orientation.South => BlockSide.Front,
-            Orientation.West => BlockSide.Left,
-            _ => BlockSide.Back
+            Orientation.North => Side.Back,
+            Orientation.East => Side.Right,
+            Orientation.South => Side.Front,
+            Orientation.West => Side.Left,
+            _ => Side.Back
         };
     }
 
@@ -187,7 +187,7 @@ public static class OrientationExtensions
     }
 
     /// <summary>
-    ///     Check if this orientation is on the x axis.
+    ///     Check if this orientation is on the x-axis.
     /// </summary>
     public static Boolean IsX(this Orientation orientation)
     {

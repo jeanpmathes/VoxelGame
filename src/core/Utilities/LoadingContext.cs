@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Profiling;
@@ -25,10 +24,8 @@ public record ResourceLoadingFailure(Property MissingResources, Boolean IsCritic
 /// <summary>
 ///     A context in which loading operations can be performed.
 /// </summary>
-public class LoadingContext
+public partial class LoadingContext : ILoadingContext
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
-
     private readonly Timer? timer;
 
     private readonly Group steps;
@@ -47,7 +44,7 @@ public class LoadingContext
         steps = new Group("Base");
         path = new Stack<Entry>();
 
-        path.Push(new Entry {group = steps, path = "Base", timer = timer});
+        path.Push(new Entry {group = steps, path = "Base"});
     }
 
     /// <summary>
@@ -59,28 +56,10 @@ public class LoadingContext
 
     private Group CurrentGroup => path.Peek().group;
 
-    private void FinishStep(Step step)
+    /// <inheritdoc />
+    public IDisposable BeginStep(String name)
     {
-        if (step.Group == path.Peek().group)
-        {
-            path.Pop();
-        }
-        else
-        {
-            Debug.Fail("Wrong step finished.");
-        }
-
-        logger.LogInformation(step.ID, "Finished loading step '{StepName}'", step.Name);
-    }
-
-    /// <summary>
-    ///     Begin a loading step.
-    /// </summary>
-    /// <param name="id">The event id of general step-related events.</param>
-    /// <param name="name">The name of the step.</param>
-    public IDisposable BeginStep(EventId id, String name)
-    {
-        logger.LogDebug(id, "Starting loading step '{StepName}'", name);
+        LogStartingLoadingStep(logger, name);
 
         Entry previous = path.Peek();
 
@@ -89,11 +68,61 @@ public class LoadingContext
 
         Timer? subTimer = logger.BeginTimedSubScoped(name, timer);
 
-        path.Push(new Entry {group = current, path = $"{previous.path} > {name}", timer = subTimer});
+        path.Push(new Entry {group = current, path = $"{previous.path} > {name}"});
 
-        Step step = new(this, id, name, current, subTimer);
+        Step step = new(this, name, current, subTimer);
 
         return step;
+    }
+
+    /// <inheritdoc />
+    public void ReportSuccess(String type, String resource)
+    {
+        LogLoadedResource(logger, CurrentPath, type, resource);
+    }
+
+    /// <inheritdoc />
+    public void ReportFailure(String type, String resource, Exception exception, Boolean abort = false)
+    {
+        LogFailedToLoadResource(logger, exception, CurrentPath, type, resource);
+
+        ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
+    }
+
+    /// <inheritdoc />
+    public void ReportFailure(String type, String resource, String message, Boolean abort = false)
+    {
+        LogFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
+
+        ReportMissing(type, resource, isCritical: true);
+
+        if (abort) Abort();
+    }
+
+    /// <inheritdoc />
+    public void ReportWarning(String type, String resource, Exception exception)
+    {
+        LogWarningFailedToLoadResource(logger, exception, CurrentPath, type, resource);
+
+        ReportMissing(type, resource, isCritical: false);
+    }
+
+    /// <inheritdoc />
+    public void ReportWarning(String type, String resource, String message)
+    {
+        LogWarningFailedToLoadResourceWithMessage(logger, CurrentPath, type, resource, message);
+
+        ReportMissing(type, resource, isCritical: false);
+    }
+
+    private void FinishStep(Step step)
+    {
+        if (step.Group == path.Peek().group) path.Pop();
+        else Debug.Fail("Wrong step finished.");
+
+        LogFinishedLoadingStep(logger, step.Name);
     }
 
     private void ReportMissing(String type, String resource, Boolean isCritical)
@@ -111,94 +140,6 @@ public class LoadingContext
         isMissingCritical |= isCritical;
     }
 
-    /// <summary>
-    ///     Report a successful loading operation.
-    /// </summary>
-    public void ReportSuccess(EventId id, String type, FileSystemInfo resource)
-    {
-        ReportSuccess(id, type, resource.GetResourceRelativePath());
-    }
-
-    /// <summary>
-    ///     Report a successful loading operation.
-    /// </summary>
-    public void ReportSuccess(EventId id, String type, String resource)
-    {
-        logger.LogDebug(id, "{Step}: Loaded {Type} resource '{Resource}'", CurrentPath, type, resource);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(EventId id, String type, FileSystemInfo resource, Exception exception, Boolean abort = false)
-    {
-        ReportFailure(id, type, resource.GetResourceRelativePath(), exception, abort);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(EventId id, String type, String resource, Exception exception, Boolean abort = false)
-    {
-        logger.LogError(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
-        ReportMissing(type, resource, isCritical: true);
-
-        if (abort) Abort();
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(EventId id, String type, FileSystemInfo resource, String message, Boolean abort = false)
-    {
-        ReportFailure(id, type, resource.GetResourceRelativePath(), message, abort);
-    }
-
-    /// <summary>
-    ///     Report a failed loading operation, which will make it impossible to start the game.
-    /// </summary>
-    public void ReportFailure(EventId id, String type, String resource, String message, Boolean abort = false)
-    {
-        logger.LogError(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
-        ReportMissing(type, resource, isCritical: true);
-
-        if (abort) Abort();
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(EventId id, String type, FileSystemInfo resource, Exception exception)
-    {
-        ReportWarning(id, type, resource.GetResourceRelativePath(), exception);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(EventId id, String type, String resource, Exception exception)
-    {
-        logger.LogWarning(id, exception, "{Step}: Failed to load {Type} resource '{Resource}'", CurrentPath, type, resource);
-        ReportMissing(type, resource, isCritical: false);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(EventId id, String type, FileSystemInfo resource, String message)
-    {
-        ReportWarning(id, type, resource.GetResourceRelativePath(), message);
-    }
-
-    /// <summary>
-    ///     Warn about a failed loading operation. The game is still able to start.
-    /// </summary>
-    public void ReportWarning(EventId id, String type, String resource, String message)
-    {
-        logger.LogWarning(id, "{Step}: Failed to load {Type} resource '{Resource}': {Message}", CurrentPath, type, resource, message);
-        ReportMissing(type, resource, isCritical: false);
-    }
-
     private static void Abort()
     {
         throw new InvalidOperationException("Failed to load an absolute critical resource. See log for details.");
@@ -208,10 +149,9 @@ public class LoadingContext
     {
         public required Group group;
         public required String path;
-        public required Timer? timer;
     }
 
-    private sealed record Step(LoadingContext Context, EventId ID, String Name, Group Group, IDisposable? Scope) : IDisposable
+    private sealed record Step(LoadingContext Context, String Name, Group Group, IDisposable? Scope) : IDisposable
     {
         public void Dispose()
         {
@@ -219,4 +159,31 @@ public class LoadingContext
             Scope?.Dispose();
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "Starting loading step '{StepName}'")]
+    private static partial void LogStartingLoadingStep(ILogger logger, String stepName);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Finished loading step '{StepName}'")]
+    private static partial void LogFinishedLoadingStep(ILogger logger, String stepName);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "{Step}: Loaded {Type} resource '{Resource}'")]
+    private static partial void LogLoadedResource(ILogger logger, String step, String type, String resource);
+
+    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
+    private static partial void LogFailedToLoadResource(ILogger logger, Exception exception, String step, String type, String resource);
+
+    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
+    private static partial void LogFailedToLoadResourceWithMessage(ILogger logger, String step, String type, String resource, String message);
+
+    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
+    private static partial void LogWarningFailedToLoadResource(ILogger logger, Exception exception, String step, String type, String resource);
+
+    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
+    private static partial void LogWarningFailedToLoadResourceWithMessage(ILogger logger, String step, String type, String resource, String message);
+
+    #endregion LOGGING
 }

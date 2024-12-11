@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -60,39 +61,38 @@ public class FireBlock : Block, IFillable, IComplex
         return mesh.GetMeshData(isAnimated: true);
     }
 
-    private void PrepareMeshes(BlockModel complete, BlockModel side, BlockModel top)
+    private void PrepareMeshes(BlockModel completeModel, BlockModel sideModel, BlockModel topModel)
     {
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
-            side.CreateAllOrientations(rotateTopAndBottomTexture: true);
+            sideModel.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
         for (UInt32 data = 0b00_0000; data <= 0b01_1111; data++)
             if (data == 0)
             {
-                meshes.Add(complete.Mesh);
+                meshes.Add(completeModel.Mesh);
             }
             else
             {
                 List<BlockModel> requiredModels = new(capacity: 5);
 
-                requiredModels.AddRange(
-                    from blockSide in BlockSide.All.Sides()
-                    where blockSide != BlockSide.Bottom && IsFlagSet(data, blockSide)
-                    select GetSideModel(blockSide));
+                requiredModels.AddRange(Side.All.Sides()
+                    .Where(side => side != Side.Bottom && IsFlagSet(data, side))
+                    .Select(GetSideModel));
 
                 BlockMesh combinedMesh = BlockModel.GetCombinedMesh(requiredModels.ToArray());
                 meshes.Add(combinedMesh);
             }
 
-        BlockModel GetSideModel(BlockSide blockSide)
+        BlockModel GetSideModel(Side side)
         {
-            return blockSide switch
+            return side switch
             {
-                BlockSide.Front => south,
-                BlockSide.Back => north,
-                BlockSide.Left => west,
-                BlockSide.Right => east,
-                BlockSide.Top => top,
-                _ => throw new ArgumentOutOfRangeException(nameof(blockSide), blockSide, message: null)
+                Side.Front => south,
+                Side.Back => north,
+                Side.Left => west,
+                Side.Right => east,
+                Side.Top => topModel,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
             };
         }
     }
@@ -109,9 +109,9 @@ public class FireBlock : Block, IFillable, IComplex
         var children = new BoundingVolume[count - 1];
         var next = 0;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
-            if (side == BlockSide.Bottom) continue;
+            if (side == Side.Bottom) continue;
             if (!IsFlagSet(data, side)) continue;
 
             Vector3d offset = side.Direction().ToVector3() * 0.4f;
@@ -159,9 +159,9 @@ public class FireBlock : Block, IFillable, IComplex
     {
         UInt32 data = 0;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
-            if (side == BlockSide.Bottom) continue;
+            if (side == Side.Bottom) continue;
 
             if (world.GetBlock(side.Offset(position))?.IsSolidAndFull ?? false) data |= GetFlag(side);
         }
@@ -176,9 +176,9 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom)
+        if (side == Side.Bottom)
         {
             if (data != 0) return;
 
@@ -205,9 +205,9 @@ public class FireBlock : Block, IFillable, IComplex
     {
         UInt32 data = 0;
 
-        foreach (BlockSide sideToCheck in BlockSide.All.Sides())
+        foreach (Side sideToCheck in Side.All.Sides())
         {
-            if (sideToCheck == BlockSide.Bottom) continue;
+            if (sideToCheck == Side.Bottom) continue;
 
             if (world.GetBlock(sideToCheck.Offset(position))?.IsSolidAndFull ?? false) data |= GetFlag(sideToCheck);
         }
@@ -226,8 +226,8 @@ public class FireBlock : Block, IFillable, IComplex
             data = 0b01_1111;
         }
 
-        canBurn = BlockSide.All.Sides()
-            .Where(side => side != BlockSide.Bottom)
+        canBurn = Side.All.Sides()
+            .Where(side => side != Side.Bottom)
             .Where(side => IsFlagSet(data, side))
             .Aggregate(canBurn, (current, side) => current | BurnAt(side.Offset(position)));
 
@@ -260,20 +260,20 @@ public class FireBlock : Block, IFillable, IComplex
                (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);
     }
 
-    private static UInt32 GetFlag(BlockSide side)
+    private static UInt32 GetFlag(Side side)
     {
         return side switch
         {
-            BlockSide.Front => 0b01_0000,
-            BlockSide.Back => 0b00_1000,
-            BlockSide.Left => 0b00_0100,
-            BlockSide.Right => 0b00_0010,
-            BlockSide.Top => 0b00_0001,
+            Side.Front => 0b01_0000,
+            Side.Back => 0b00_1000,
+            Side.Left => 0b00_0100,
+            Side.Right => 0b00_0010,
+            Side.Top => 0b00_0001,
             _ => 0b00_0000
         };
     }
 
-    private static Boolean IsFlagSet(UInt32 data, BlockSide side)
+    private static Boolean IsFlagSet(UInt32 data, Side side)
     {
         return (data & GetFlag(side)) != 0;
     }

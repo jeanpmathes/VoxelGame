@@ -6,6 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
@@ -15,7 +16,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
+using VoxelGame.Graphics.Core;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -23,10 +24,8 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal class Client : Support.Core.Client, IPerformanceProvider
+internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
-
     private readonly GameParameters parameters;
 
     private readonly SceneFactory sceneFactory;
@@ -34,7 +33,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
     private readonly OperationUpdateDispatch operations = new(singleton: true);
 
-    private ScreenBehaviour screenBehaviour = null!;
+    private WindowBehaviour windowBehaviour = null!;
 
     /// <summary>
     ///     Create a new game instance.
@@ -78,8 +77,8 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     /// </summary>
     internal GameResources Resources { get; }
 
-    private Double FPS => screenBehaviour.FPS;
-    private Double UPS => screenBehaviour.UPS;
+    private Double FPS => windowBehaviour.FPS;
+    private Double UPS => windowBehaviour.UPS;
 
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
@@ -88,7 +87,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
     {
         using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
-            screenBehaviour = new ScreenBehaviour(this);
+            windowBehaviour = new WindowBehaviour(this);
 
             LoadingContext loadingContext = new(timer);
 
@@ -97,7 +96,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
             IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
             sceneManager.Load(startScene);
 
-            logger.LogInformation(Events.ApplicationState, "Finished OnLoad");
+            LogFinishedOnLoad(logger);
         }
 
         // Optional generation of manual.
@@ -109,7 +108,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         using Timer? timer = logger.BeginTimedScoped("Client Render");
 
         sceneManager.Render(delta, timer);
-        screenBehaviour.Render(delta);
+        windowBehaviour.Render(delta);
     }
 
     protected override void OnUpdate(Double delta)
@@ -122,7 +121,7 @@ internal class Client : Support.Core.Client, IPerformanceProvider
         }
 
         sceneManager.Update(delta, timer);
-        screenBehaviour.Update(delta);
+        windowBehaviour.Update(delta);
     }
 
     protected override void OnDestroy()
@@ -160,17 +159,32 @@ internal class Client : Support.Core.Client, IPerformanceProvider
 
         if (!exitToOS) return;
 
-        logger.LogInformation(Events.ApplicationState, "Exiting to OS");
+        LogExitingToOS(logger);
 
         Close();
     }
 
     private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
-        logger.LogDebug(Events.WindowState, "Window has been resized to: {Size}", Size);
+        LogWindowResized(logger, Size);
 
         sceneManager.OnResize(Size);
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Finished client loading")]
+    private static partial void LogFinishedOnLoad(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting to OS")]
+    private static partial void LogExitingToOS(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
+    private static partial void LogWindowResized(ILogger logger, Vector2i size);
+
+    #endregion
 
     #region IDisposable Support
 

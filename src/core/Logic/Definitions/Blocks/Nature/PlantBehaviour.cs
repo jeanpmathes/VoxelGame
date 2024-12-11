@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 
@@ -39,9 +40,9 @@ public static class PlantBehaviour
     /// <summary>
     ///     Check if the block below the plant is still valid, if not, destroy the plant.
     /// </summary>
-    public static void NeighborUpdate(World world, IBlockBase block, Vector3i position, BlockSide side)
+    public static void NeighborUpdate(World world, IBlockBase block, Vector3i position, Side side)
     {
-        if (side == BlockSide.Bottom && (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable)
+        if (side == Side.Bottom && (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is not IPlantable)
             block.Destroy(world, position);
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -26,8 +27,8 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
     private readonly Single diameter;
-    private readonly List<BlockMesh?> meshes = new(capacity: 8);
 
+    private readonly List<BlockMesh?> meshes = new(capacity: 8);
     private readonly List<BoundingVolume> volumes = [];
 
     internal SteelPipeValveBlock(String name, String namedID, Single diameter, String openModel,
@@ -71,19 +72,19 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, Side side)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
@@ -106,7 +107,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? Side.Front).Axis()), position);
     }
 
     /// <inheritdoc />
@@ -115,7 +116,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         actor.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
     }
 
-    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, Side side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

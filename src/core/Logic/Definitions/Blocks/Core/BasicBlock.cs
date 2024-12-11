@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -19,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class BasicBlock : Block, ISimple
 {
     private readonly TextureLayout layout;
-    private protected Int32[] sideTextureIndices = null!;
+    private protected SideArray<Int32> sideTextureIndices = null!;
 
     /// <summary>
     ///     Create a new <see cref="BasicBlock" />.
@@ -46,9 +48,9 @@ public class BasicBlock : Block, ISimple
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        sideTextureIndices = layout.GetTextureIndexArray(indexProvider);
+        sideTextureIndices = layout.GetTextureIndices(indexProvider);
     }
 
     /// <summary>
@@ -56,6 +58,6 @@ public class BasicBlock : Block, ISimple
     /// </summary>
     protected virtual ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return ISimple.CreateData(sideTextureIndices[(Int32) info.Side], isTextureRotated: false);
+        return ISimple.CreateData(sideTextureIndices[info.Side], isTextureRotated: false);
     }
 }

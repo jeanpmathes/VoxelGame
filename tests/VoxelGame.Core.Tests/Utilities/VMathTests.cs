@@ -5,15 +5,17 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Utilities;
 
+[TestSubject(typeof(VMath))]
 public class VMathTests
 {
     [Fact]
-    public void TestSelectByWeight()
+    public void VMath_SelectByWeight_ShouldSelectEntryWithHighestWeight()
     {
         const Int32 a = 0;
         const Int32 b = 1;

@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
-using VoxelGame.Support.Input;
+using VoxelGame.Graphics.Input;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Utilities;
 

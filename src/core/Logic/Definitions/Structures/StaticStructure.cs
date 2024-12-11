@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -22,11 +24,10 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 public partial class StaticStructure : Structure
 {
     private const Int32 MaxSize = 1024;
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
     private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
 
-    private static LoadingContext? loadingContext;
+    private static ILoadingContext? loadingContext;
 
     private readonly Content?[,,] contents;
 
@@ -99,7 +100,7 @@ public partial class StaticStructure : Structure
     ///     When a context is used, no other loading operations on any thread should be performed.
     /// </summary>
     /// <param name="newLoadingContext">The new loading context.</param>
-    public static void SetLoadingContext(LoadingContext newLoadingContext)
+    public static void SetLoadingContext(ILoadingContext newLoadingContext)
     {
         Debug.Assert(loadingContext == null);
         loadingContext = newLoadingContext;
@@ -139,19 +140,15 @@ public partial class StaticStructure : Structure
         if (exception != null)
         {
             if (loadingContext != null)
-                loadingContext.ReportFailure(Events.ResourceLoad, nameof(StaticStructure), file, exception);
+                loadingContext.ReportFailure(nameof(StaticStructure), file, exception);
             else
-                logger.LogWarning(
-                    Events.MissingCreation,
-                    exception,
-                    "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead",
-                    name);
+                LogFailedStructureLoad(logger, exception, name);
 
             return CreateFallback();
         }
 
-        if (loadingContext != null) loadingContext.ReportSuccess(Events.ResourceLoad, nameof(StaticStructure), file);
-        else logger.LogDebug(Events.CreationLoad, "Loaded StaticStructure: {Name}", name);
+        if (loadingContext != null) loadingContext.ReportSuccess(nameof(StaticStructure), file);
+        else LogSuccessfulStructureLoad(logger, name);
 
         return new StaticStructure(definition, name);
     }
@@ -164,7 +161,7 @@ public partial class StaticStructure : Structure
     private static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Logic.Blocks.Instance.Error);
+        fallback[0, 0, 0] = new Content(Elements.Blocks.Instance.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }
@@ -181,22 +178,22 @@ public partial class StaticStructure : Structure
 
         var content = Content.Default;
 
-        Block? block = Logic.Blocks.Instance.TranslateNamedID(placement.Block);
+        Block? block = Elements.Blocks.Instance.TranslateNamedID(placement.Block);
 
         if (block == null)
         {
-            logger.LogWarning(Events.ResourceLoad, "Unknown block '{Block}' in structure '{Name}'", placement.Block, name);
-            block = Logic.Blocks.Instance.Air;
+            LogUnknownBlockInStructure(logger, placement.Block, name);
+            block = Elements.Blocks.Instance.Air;
         }
 
         content.Block = new BlockInstance(block, (((UInt32) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
 
-        Fluid? fluid = Logic.Fluids.Instance.TranslateNamedID(placement.Fluid);
+        Fluid? fluid = Elements.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
         if (fluid == null)
         {
-            logger.LogWarning(Events.ResourceLoad, "Unknown fluid '{Fluid}' in structure '{Name}'", placement.Fluid, name);
-            fluid = Logic.Fluids.Instance.None;
+            LogUnknownFluidInStructure(logger, placement.Fluid, name);
+            fluid = Elements.Fluids.Instance.None;
         }
 
         content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((UInt32) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
@@ -263,9 +260,29 @@ public partial class StaticStructure : Structure
 
         if (exception == null) return false;
 
-        logger.LogError(Events.FileIO, exception, "Could not store the structure '{Name}'", name);
+        LogFailedStructureStore(logger, exception, name);
 
         return false;
-
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
+
+    [LoggerMessage(EventId = Events.MissingCreation, Level = LogLevel.Warning, Message = "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead")]
+    private static partial void LogFailedStructureLoad(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Debug, Message = "Loaded StaticStructure: {Name}")]
+    private static partial void LogSuccessfulStructureLoad(ILogger logger, String name);
+
+    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Warning, Message = "Unknown block '{Block}' in structure '{Name}'")]
+    private static partial void LogUnknownBlockInStructure(ILogger logger, String block, String name);
+
+    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Warning, Message = "Unknown fluid '{Fluid}' in structure '{Name}'")]
+    private static partial void LogUnknownFluidInStructure(ILogger logger, String fluid, String name);
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Could not store the structure '{Name}'")]
+    private static partial void LogFailedStructureStore(ILogger logger, Exception exception, String name);
+
+    #endregion LOGGING
 }

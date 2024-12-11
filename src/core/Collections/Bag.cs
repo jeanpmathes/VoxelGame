@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace VoxelGame.Core.Collections;
@@ -20,10 +19,10 @@ namespace VoxelGame.Core.Collections;
 /// <typeparam name="T">The type of the items in the bag.</typeparam>
 public class Bag<T> : IEnumerable<T>
 {
+    private readonly List<T> items = [];
     private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
-    private readonly List<T> items = new();
 
     /// <summary>
     ///     Create a new gapped bag.
@@ -36,8 +35,9 @@ public class Bag<T> : IEnumerable<T>
 
     /// <summary>
     ///     Access this bag by index.
+    ///     Setting an item to the gap value is not allowed.
     /// </summary>
-    /// <param name="index">The index to access. Cannot be larger then the item count.</param>
+    /// <param name="index">The index to access. Cannot be larger than the item count.</param>
     public T this[Int32 index]
     {
         get => items[index];
@@ -49,16 +49,10 @@ public class Bag<T> : IEnumerable<T>
         }
     }
 
-    /// <inheritdoc />
-    public IEnumerator<T> GetEnumerator()
-    {
-        return items.Where(item => !Equals(item, gapValue)).GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    /// <summary>
+    ///     Get the number of items in the bag.
+    /// </summary>
+    public Int32 Count => items.Count - gaps.Count;
 
     /// <summary>
     ///     Gets a span of the bag. This also includes gaps.
@@ -107,6 +101,26 @@ public class Bag<T> : IEnumerable<T>
         }
     }
 
+    /// <summary>
+    ///     Copy this bag into a list.
+    ///     The list might contain gaps after this operation.
+    /// </summary>
+    #pragma warning disable S3956 // Concrete List type required for AddRange method
+    public void CopyDirectlyTo(List<T?> other)
+    #pragma warning restore S3956
+    {
+        other.AddRange(items);
+    }
+
+    /// <summary>
+    ///     Clear the bag, removing all items.
+    /// </summary>
+    public void Clear()
+    {
+        items.Clear();
+        gaps.Clear();
+    }
+
     private Int32 GetNextGap()
     {
         if (gaps.TryDequeue(out Int32 index, out _)) return index;
@@ -116,4 +130,107 @@ public class Bag<T> : IEnumerable<T>
 
         return index;
     }
+
+    #region IEnumerable
+
+    /// <summary>
+    ///     The internally-used enumerator.
+    /// </summary>
+    public struct Enumerator : IEnumerator<T>, IEquatable<Enumerator>
+    {
+        private readonly Bag<T> bag;
+        private Int32 index;
+
+        /// <summary>
+        ///     Create a new enumerator.
+        /// </summary>
+        public Enumerator(Bag<T> bag)
+        {
+            this.bag = bag;
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public T Current => bag.items[index];
+
+        Object? IEnumerator.Current => Current;
+
+        /// <inheritdoc />
+        public Boolean MoveNext()
+        {
+            do
+            {
+                index += 1;
+            } while (index < bag.items.Count && Equals(bag.items[index], bag.gapValue));
+
+            return index < bag.items.Count;
+        }
+
+        /// <inheritdoc />
+        public void Reset()
+        {
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public void Dispose() {}
+
+        #region Equality Support
+
+        /// <inheritdoc />
+        public Boolean Equals(Enumerator other)
+        {
+            return ReferenceEquals(bag, other.bag) && index == other.index;
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Enumerator other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return HashCode.Combine(bag, index);
+        }
+
+        /// <summary>
+        ///     Test for equality.
+        /// </summary>
+        public static Boolean operator ==(Enumerator left, Enumerator right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Test for inequality.
+        /// </summary>
+        public static Boolean operator !=(Enumerator left, Enumerator right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion Equality Support
+    }
+
+    /// <summary>
+    ///     Get an enumerator for the bag.
+    /// </summary>
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(this);
+    }
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    #endregion IEnumerable
 }

@@ -16,7 +16,7 @@ public sealed class LoggerFixture : IDisposable
 {
     public LoggerFixture()
     {
-        LoggingHelper.SetupMockLogging();
+        LoggingHelper.SetUpMockLogging();
     }
 
     public void Dispose()

@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -22,8 +24,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private readonly TextureLayout movingLayout;
     private readonly TextureLayout staticLayout;
 
-    private Int32[] movingTextures = null!;
-    private Int32[] staticTextures = null!;
+    private SideArray<Int32> movingTextures = null!;
+    private SideArray<Int32> staticTextures = null!;
 
     private Int32 mainTexture;
     private Color4 dominantColor;
@@ -39,7 +41,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
     /// <param name="staticLayout">The texture layout when this fluid is static.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    public BasicFluid(String name, String namedID, Single density, Int32 viscosity, Boolean hasNeutralTint,
+    public BasicFluid(String name, String namedID, Double density, Int32 viscosity, Boolean hasNeutralTint,
         TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
         base(
             name,
@@ -68,12 +70,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
-        movingTextures = movingLayout.GetTextureIndexArray(indexProvider);
-        staticTextures = staticLayout.GetTextureIndexArray(indexProvider);
+        movingTextures = movingLayout.GetTextureIndices(indexProvider);
+        staticTextures = staticLayout.GetTextureIndices(indexProvider);
 
-        mainTexture = staticTextures[(Int32) BlockSide.Front];
+        mainTexture = staticTextures[(Int32) Side.Front];
         dominantColor = dominantColorProvider.GetDominantColor(mainTexture);
     }
 
@@ -92,14 +94,14 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     protected override FluidMeshData GetMeshData(FluidMeshInfo info)
     {
         return FluidMeshData.Basic(
-            info.IsStatic ? staticTextures[(Int32) info.Side] : movingTextures[(Int32) info.Side],
+            info.IsStatic ? staticTextures[info.Side] : movingTextures[info.Side],
             hasNeutralTint ? TintColor.Neutral : TintColor.None);
     }
 
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
-        Block block = world.GetBlock(position)?.Block ?? Logic.Blocks.Instance.Air;
+        Block block = world.GetBlock(position)?.Block ?? Elements.Blocks.Instance.Air;
 
         if (block is IFillable fillable) ValidLocationFlow(world, position, instance.Level, fillable);
         else InvalidLocationFlow(world, position, instance.Level);
@@ -166,11 +168,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             return false;
         }
 
-        if (fluidVertical.Fluid == Logic.Fluids.Instance.None)
+        if (fluidVertical.Fluid == Elements.Fluids.Instance.None)
         {
             Vector3i position1 = position + flow.Direction();
             world.SetFluid(this.AsInstance(level, isStatic: false), position1);
-            world.SetFluid(Logic.Fluids.Instance.None.AsInstance(), position);
+            world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
             ScheduleTick(world, position + flow.Direction());
 
@@ -196,7 +198,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                 world.SetFluid(this.AsInstance(fluidVertical.Level + (Int32) level + 1, isStatic: false), position1);
 
-                world.SetFluid(Logic.Fluids.Instance.None.AsInstance(), position);
+                world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
                 remaining = -1;
             }
@@ -222,7 +224,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         {
             remaining = (Int32) level;
 
-            return Logic.Fluids.Instance.ContactManager.HandleContact(
+            return Elements.Fluids.Instance.ContactManager.HandleContact(
                 world,
                 this.AsInstance(level),
                 position,
@@ -237,11 +239,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
     private Boolean TryPuddleFlow(World world, Vector3i position, IFillable currentFillable)
     {
-        Boolean fluidBelowIsNone = world.GetFluid(position + FlowDirection)?.Fluid == Logic.Fluids.Instance.None;
+        Boolean fluidBelowIsNone = world.GetFluid(position + FlowDirection)?.Fluid == Elements.Fluids.Instance.None;
 
         foreach (Orientation orientation in Orientations.All)
         {
-            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide())) continue;
+            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToSide())) continue;
 
             Vector3i neighborPosition = orientation.Offset(position);
 
@@ -252,13 +254,13 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                     neighborFillable,
                     world,
                     neighborPosition,
-                    orientation.Opposite().ToBlockSide(),
+                    orientation.Opposite().ToSide(),
                     Direction.ExitSide())
-                || neighborFluid.Fluid != Logic.Fluids.Instance.None
+                || neighborFluid.Fluid != Elements.Fluids.Instance.None
                 || !CheckLowerPosition(neighborPosition + FlowDirection)) continue;
 
             world.SetFluid(this.AsInstance(FluidLevel.One, isStatic: false), neighborPosition);
-            world.SetFluid(Logic.Fluids.Instance.None.AsInstance(), position);
+            world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
             ScheduleTick(world, neighborPosition);
 
@@ -293,9 +295,9 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         if (Orientations.ShuffledStart(position)
             .Any(
                 orientation => CheckNeighbor(
-                    currentFillable.IsOutflowAllowed(world, position, orientation.ToBlockSide()),
+                    currentFillable.IsOutflowAllowed(world, position, orientation.ToSide()),
                     orientation.Offset(position),
-                    orientation.Opposite().ToBlockSide()))) return true;
+                    orientation.Opposite().ToSide()))) return true;
 
         if (horizontalPosition == position) return false;
 
@@ -307,13 +309,13 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         Boolean isStatic1 = !hasRemaining;
 
-        world.SetFluid((hasRemaining ? this : Logic.Fluids.Instance.None).AsInstance(hasRemaining ? level - 1 : FluidLevel.Eight, isStatic1), position);
+        world.SetFluid((hasRemaining ? this : Elements.Fluids.Instance.None).AsInstance(hasRemaining ? level - 1 : FluidLevel.Eight, isStatic1), position);
 
         if (hasRemaining) ScheduleTick(world, position);
 
         return true;
 
-        Boolean CheckNeighbor(Boolean outflowAllowed, Vector3i neighborPosition, BlockSide side)
+        Boolean CheckNeighbor(Boolean outflowAllowed, Vector3i neighborPosition, Side side)
         {
             Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -323,14 +325,14 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             Boolean isStatic = fluidNeighbor.IsStatic;
 
-            if (fluidNeighbor.Fluid == Logic.Fluids.Instance.None)
+            if (fluidNeighbor.Fluid == Elements.Fluids.Instance.None)
             {
                 Vector3i belowNeighborPosition = neighborPosition + FlowDirection;
 
                 Content? belowNeighborContent = world.GetContent(belowNeighborPosition);
 
                 if (belowNeighborContent is ({Block: IFillable belowNeighborFillable}, var belowNeighborFluid)
-                    && belowNeighborFluid.Fluid == Logic.Fluids.Instance.None
+                    && belowNeighborFluid.Fluid == Elements.Fluids.Instance.None
                     && belowNeighborFillable.IsInflowAllowed(
                         world,
                         belowNeighborPosition,
@@ -345,7 +347,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                     ScheduleTick(world, belowNeighborPosition);
 
-                    world.SetFluid(Logic.Fluids.Instance.None.AsInstance(), position);
+                    world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
                 }
                 else
                 {
@@ -357,7 +359,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                     Boolean isStatic2 = !remaining;
 
-                    world.SetFluid((remaining ? this : Logic.Fluids.Instance.None).AsInstance(remaining ? level - 1 : FluidLevel.Eight, isStatic2), position);
+                    world.SetFluid((remaining ? this : Elements.Fluids.Instance.None).AsInstance(remaining ? level - 1 : FluidLevel.Eight, isStatic2), position);
 
                     if (remaining) ScheduleTick(world, position);
                 }
@@ -367,7 +369,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             if (fluidNeighbor.Fluid != this)
             {
-                if (Logic.Fluids.Instance.ContactManager.HandleContact(
+                if (Elements.Fluids.Instance.ContactManager.HandleContact(
                         world,
                         this.AsInstance(level),
                         position,
@@ -426,7 +428,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         foreach (Orientation orientation in Orientations.All)
         {
-            FillNeighbor(world, orientation.Offset(position), orientation.ToBlockSide(), ref remaining);
+            FillNeighbor(world, orientation.Offset(position), orientation.ToSide(), ref remaining);
 
             if (remaining == -1) break;
         }
@@ -434,7 +436,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         world.SetDefaultFluid(position);
     }
 
-    private void FillNeighbor(World world, Vector3i neighborPosition, BlockSide side, ref Int32 remaining)
+    private void FillNeighbor(World world, Vector3i neighborPosition, Side side, ref Int32 remaining)
     {
         Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -443,7 +445,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         Boolean isStatic = neighborFluid.IsStatic;
 
-        if (neighborFluid.Fluid == Logic.Fluids.Instance.None)
+        if (neighborFluid.Fluid == Elements.Fluids.Instance.None)
         {
             world.SetFluid(this.AsInstance((FluidLevel) remaining, isStatic: false), neighborPosition);
 
@@ -472,8 +474,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         }
     }
 
-    private Boolean AllowsFlowTrough(IFillable fillable, World world, Vector3i position, BlockSide incomingSide,
-        BlockSide outgoingSide)
+    private Boolean AllowsFlowTrough(IFillable fillable, World world, Vector3i position, Side incomingSide,
+        Side outgoingSide)
     {
         return fillable.IsInflowAllowed(
                    world,

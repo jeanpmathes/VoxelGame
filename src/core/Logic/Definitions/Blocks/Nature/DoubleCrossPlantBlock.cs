@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -27,7 +28,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     private readonly String bottomTexture;
     private readonly Int32 topTexOffset;
 
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BlockMesh> meshes = [];
 
     internal DoubleCrossPlantBlock(String name, String namedID, String bottomTexture, Int32 topTexOffset,
         BoundingVolume boundingVolume) :
@@ -60,7 +61,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Int32 bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
         Int32 topTextureIndex = bottomTextureIndex + topTexOffset;
@@ -80,7 +81,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
-               (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is IPlantable;
+               (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is IPlantable;
     }
 
     /// <inheritdoc />
@@ -104,10 +105,10 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
-        if (side == BlockSide.Bottom && (data & 0b1) == 0 &&
-            (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
+        if (side == Side.Bottom && (data & 0b1) == 0 &&
+            (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 }

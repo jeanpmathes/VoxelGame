@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;

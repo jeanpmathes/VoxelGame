@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -43,7 +44,7 @@ public class CrossBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         mesh = BlockMeshes.CreateCrossMesh(indexProvider.GetTextureIndex(texture));
     }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -62,19 +63,19 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, Side side)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         return IsSideOpen(world, position, side);
     }
@@ -95,10 +96,10 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? BlockSide.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? Side.Front).Axis()), position);
     }
 
-    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, Side side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 

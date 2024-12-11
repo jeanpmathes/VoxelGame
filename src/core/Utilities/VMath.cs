@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using Vector2 = OpenTK.Mathematics.Vector2;
+using Vector3 = OpenTK.Mathematics.Vector3;
+using Vector4 = OpenTK.Mathematics.Vector4;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -30,6 +33,48 @@ public static class VMath
     public static void Swap<T>(ref T a, ref T b)
     {
         (a, b) = (b, a);
+    }
+
+    /// <summary>
+    ///     Get a sequence of random integers.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of integers to generate.</param>
+    /// <param name="min">The inclusive lower bound of the integers.</param>
+    /// <param name="max">The exclusive upper bound of the integers.</param>
+    /// <returns>The sequence of random integers.</returns>
+    public static IEnumerable<Int32> Random(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return generator.Next(min, max);
+    }
+
+    /// <summary>
+    ///     Get a sequence of random vectors.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of vectors to generate.</param>
+    /// <param name="min">The inclusive lower bound of the components.</param>
+    /// <param name="max">The exclusive upper bound of the components.</param>
+    /// <returns>The sequence of random vectors.</returns>
+    public static IEnumerable<Vector2i> Random2(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return new Vector2i(generator.Next(min, max), generator.Next(min, max));
+    }
+
+    /// <summary>
+    ///     Get a sequence of random vectors.
+    /// </summary>
+    /// <param name="generator">The random number generator.</param>
+    /// <param name="count">The number of vectors to generate.</param>
+    /// <param name="min">The inclusive lower bound of the components.</param>
+    /// <param name="max">The exclusive upper bound of the components.</param>
+    /// <returns>The sequence of random vectors.</returns>
+    public static IEnumerable<Vector3i> Random3(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
+    {
+        for (var i = 0; i < count; i++)
+            yield return new Vector3i(generator.Next(min, max), generator.Next(min, max), generator.Next(min, max));
     }
 
     /// <summary>
@@ -67,6 +112,24 @@ public static class VMath
         for (var i = 0; i < x; i++)
         for (var j = 0; j < y; j++)
         for (var k = 0; k < z; k++)
+            yield return (i, j, k);
+    }
+
+    /// <summary>
+    ///     An advanced three-dimensional range, allowing to set the start and length of each dimension.
+    /// </summary>
+    /// <param name="start">The start (inclusive) values for each dimension.</param>
+    /// <param name="length">The length of each dimension.</param>
+    /// <returns>The coordinates in the range.</returns>
+    public static IEnumerable<(Int32, Int32, Int32)> Range3(
+        (Int32 x, Int32 y, Int32 z) start,
+        (Int32 x, Int32 y, Int32 z) length)
+    {
+        (Int32 x, Int32 y, Int32 z) max = (start.x + length.x, start.y + length.y, start.z + length.z);
+
+        for (Int32 i = start.x; i < max.x; i++)
+        for (Int32 j = start.y; j < max.y; j++)
+        for (Int32 k = start.z; k < max.z; k++)
             yield return (i, j, k);
     }
 
@@ -273,6 +336,14 @@ public static class VMath
         if (value < min) return max - 1;
 
         return value;
+    }
+
+    /// <summary>
+    ///     Get the manhattan distance between two vectors.
+    /// </summary>
+    public static Int32 Manhattan(Vector3i a, Vector3i b)
+    {
+        return (a - b).ManhattanLength;
     }
 
     /// <summary>
@@ -574,5 +645,13 @@ public static class VMath
     public static Int32 Cube(Int32 x)
     {
         return x * x * x;
+    }
+
+    /// <summary>
+    ///     Get the modulo of a value. The result will always be positive.
+    /// </summary>
+    public static Int32 Mod(Int32 value, Int32 m)
+    {
+        return (value % m + m) % m;
     }
 }

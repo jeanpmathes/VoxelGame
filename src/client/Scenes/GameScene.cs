@@ -16,10 +16,10 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -28,10 +28,8 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene that is active when the game is played.
 /// </summary>
-public sealed class GameScene : IScene
+public sealed partial class GameScene : IScene
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
-
     private readonly ToggleButton consoleToggle;
     private readonly PushButton escapeButton;
     private readonly PushButton unlockMouse;
@@ -51,13 +49,12 @@ public sealed class GameScene : IScene
 
         GameConsole console = new(Game, client.Resources.Commands);
 
-        world.StateChanged += (_, _) =>
+        world.State.Activated += (_, _) =>
         {
-            if (world.IsActive)
-                console.OnWorldReady();
+            console.OnWorldReady();
         };
 
-        SetupUI(world, console);
+        SetUpUI(world, console);
 
         uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
 
@@ -103,7 +100,7 @@ public sealed class GameScene : IScene
 
         Client.OnFocusChange += OnFocusChanged;
 
-        logger.LogInformation(Events.SceneChange, "Loaded GameScene");
+        LogLoadedGameScene(logger);
     }
 
     /// <inheritdoc />
@@ -172,10 +169,11 @@ public sealed class GameScene : IScene
             }
         }
 
-        if (escapeButton.Pushed) ui.HandleEscape();
+        if (escapeButton.Pushed)
+            ui.HandleEscape();
 
-        if (consoleToggle.Changed) ui.ToggleConsole();
-
+        if (consoleToggle.Changed)
+            ui.ToggleConsole();
     }
 
     /// <inheritdoc />
@@ -207,7 +205,6 @@ public sealed class GameScene : IScene
     private Game CreateGame(Application.Client client, World world)
     {
         Player player = new(
-            world,
             mass: 70f,
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
@@ -219,7 +216,7 @@ public sealed class GameScene : IScene
         return new Game(world, player);
     }
 
-    private void SetupUI(Core.Logic.World world, IConsoleProvider console)
+    private void SetUpUI(Core.Logic.World world, IConsoleProvider console)
     {
         OnOverlayClose();
 
@@ -233,13 +230,27 @@ public sealed class GameScene : IScene
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(Client);
 
-        ui.WorldExit += (_, args) =>
+        ui.WorldSave += (_, _) =>
         {
-            if (world.IsActive)
-                world.BeginDeactivating(() => Client.ExitGame(args.ExitToOS));
+            if (!world.State.IsActive) return;
+
+            world.State.BeginSaving(() =>
+            {
+                // Nothing to do.
+            });
         };
 
-        ui.AnyOverlayOpen += (_, _) => OnOverlayOpen();
+        ui.WorldExit += (_, args) =>
+        {
+            if (!world.State.IsActive) return;
+
+            world.State.BeginTerminating(() =>
+            {
+                Client.ExitGame(args.ExitToOS);
+            });
+        };
+
+        ui.AnyOverlayOpened += (_, _) => OnOverlayOpen();
         ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
     }
 
@@ -270,7 +281,16 @@ public sealed class GameScene : IScene
         ui.Render();
     }
 
-    #region IDisposable Support.
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
+
+    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loaded the game scene")]
+    private static partial void LogLoadedGameScene(ILogger logger);
+
+    #endregion LOGGING
+
+    #region IDisposable Graphics.
 
     private Boolean disposed;
 
@@ -300,5 +320,5 @@ public sealed class GameScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support.
+    #endregion IDisposable Graphics.
 }

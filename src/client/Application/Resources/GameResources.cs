@@ -8,13 +8,14 @@ using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Generation.Default;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Generation.Worlds.Default;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI;
 
 namespace VoxelGame.Client.Application.Resources;
@@ -22,10 +23,8 @@ namespace VoxelGame.Client.Application.Resources;
 /// <summary>
 ///     Prepares, loads and offers game resources.
 /// </summary>
-public sealed class GameResources : IDisposable
+public sealed partial class GameResources : IDisposable
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
-
     private readonly Client client;
 
     /// <summary>
@@ -69,9 +68,11 @@ public sealed class GameResources : IDisposable
     /// <summary>
     ///     Load the resources.
     /// </summary>
-    public void Load(VisualConfiguration visuals, LoadingContext loadingContext)
+    public void Load(VisualConfiguration visuals, ILoadingContext loadingContext)
     {
         Throw.IfDisposed(disposed);
+
+        LogLoadingStart(logger);
 
         BlockModel.EnableLoading(loadingContext);
         StaticStructure.SetLoadingContext(loadingContext);
@@ -80,30 +81,30 @@ public sealed class GameResources : IDisposable
 
         StaticStructure.ClearLoadingContext();
         BlockModel.DisableLoading();
+
+        LogLoadingEnd(logger);
     }
 
-    private void PerformLoading(VisualConfiguration visuals, LoadingContext loadingContext)
+    private void PerformLoading(VisualConfiguration visuals, ILoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.ResourceLoad, "World Textures"))
+        using (loadingContext.BeginStep("World Textures"))
         {
-            using (loadingContext.BeginStep(Events.ResourceLoad, "Block Textures"))
+            using (loadingContext.BeginStep("Block Textures"))
             {
-                BlockTextures = TextureBundle.Load(Client.Instance,
-                    loadingContext,
-                    FileSystem.GetResourceDirectory("Textures", "Blocks"),
-                    resolution: 32,
-                    Meshing.MaxTextureCount,
-                    Image.MipmapAlgorithm.AveragingWithoutTransparency);
+                TextureBundleLoader loader = new("Blocks", resolution: 32, Meshing.MaxTextureCount, Image.MipmapAlgorithm.AveragingWithoutTransparency);
+
+                loader.Load(FileSystem.GetResourceDirectory("Textures", "Blocks"), loadingContext);
+
+                BlockTextures = loader.Pack(client, loadingContext);
             }
 
-            using (loadingContext.BeginStep(Events.ResourceLoad, "Fluid Textures"))
+            using (loadingContext.BeginStep("Fluid Textures"))
             {
-                FluidTextures = TextureBundle.Load(Client.Instance,
-                    loadingContext,
-                    FileSystem.GetResourceDirectory("Textures", "Fluids"),
-                    resolution: 32,
-                    Meshing.MaxFluidTextureCount,
-                    Image.MipmapAlgorithm.AveragingWithTransparency);
+                TextureBundleLoader loader = new("Fluids", resolution: 32, Meshing.MaxFluidTextureCount, Image.MipmapAlgorithm.AveragingWithTransparency);
+
+                loader.Load(FileSystem.GetResourceDirectory("Textures", "Fluids"), loadingContext);
+
+                FluidTextures = loader.Pack(client, loadingContext);
             }
         }
 
@@ -118,22 +119,34 @@ public sealed class GameResources : IDisposable
 
         Blocks.Load(BlockTextures, visuals, loadingContext);
 
-        logger.LogDebug(
-            Events.ResourceLoad,
-            "Texture/Block ratio: {Ratio:F02}",
-            BlockTextures.Count / (Double) Blocks.Instance.Count);
+        LogTextureBlockRatio(logger, BlockTextures.Count / (Double) Blocks.Instance.Count);
 
         Fluids.Load(FluidTextures, FluidTextures, loadingContext);
 
         Player.Load(client, loadingContext);
 
-        Generator.Prepare(loadingContext);
+        Generator.Initialize(loadingContext);
 
         BlockTextures.DisableLoading();
         FluidTextures.DisableLoading();
 
         Commands = GameConsole.BuildInvoker();
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Initializing loading of game resources")]
+    private static partial void LogLoadingStart(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Finished loading of game resources")]
+    private static partial void LogLoadingEnd(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "Texture/Block ratio: {Ratio:F02}")]
+    private static partial void LogTextureBlockRatio(ILogger logger, Double ratio);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 

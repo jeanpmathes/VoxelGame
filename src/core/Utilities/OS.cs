@@ -16,17 +16,8 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     Utility functions related to operations that happen outside of the game itself.
 /// </summary>
-public class OS
+public static partial class OS
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<OS>();
-
-    private OS() {}
-
-    /// <summary>
-    ///     Get the OS instance.
-    /// </summary>
-    public static OS Instance { get; } = new();
-
     /// <summary>
     ///     Show a text in a text editor.
     ///     This will save the text to a temporary file and open it in the default text editor.
@@ -44,8 +35,8 @@ public class OS
         }
         catch (IOException e)
         {
-            logger.LogError(e, "Failed to fill {File} with: {Text}", file.FullName, text);
-
+            LogFailedToFillFile(logger, e, file.FullName, text);
+            
             return;
         }
 
@@ -70,11 +61,26 @@ public class OS
         }
         catch (FileNotFoundException)
         {
-            logger.LogDebug(Events.OS, "File to start not found: {File}", path);
+            LogFileToStartNotFound(logger, path.FullName);
         }
         catch (Win32Exception e)
         {
-            logger.LogDebug(Events.OS, e, "Failed to start file: {File}", path);
+            LogFailedToStartFile(logger, e, path.FullName);
         }
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(OS));
+
+    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
+    private static partial void LogFailedToFillFile(ILogger logger, IOException e, String file, String text);
+
+    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "File to start not found: {File}")]
+    private static partial void LogFileToStartNotFound(ILogger logger, String file);
+
+    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "Failed to start file: {File}")]
+    private static partial void LogFailedToStartFile(ILogger logger, Win32Exception e, String file);
+
+    #endregion LOGGING
 }

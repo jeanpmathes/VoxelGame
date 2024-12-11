@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -37,17 +38,17 @@ public class GrowingBlock : BasicBlock, ICombustible
     /// <inheritdoc />
     public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Block down = world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air;
+        Block down = world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air;
 
         return down == requiredGround || down == this;
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom)
+        if (side == Side.Bottom)
         {
-            Block below = world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air;
+            Block below = world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air;
 
             if (below != requiredGround && below != this) ScheduleDestroy(world, position);
         }

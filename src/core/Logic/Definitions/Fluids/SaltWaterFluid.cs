@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -37,6 +38,6 @@ public class SaltWaterFluid : BasicFluid
         if (!world.HasFullAndSolidGround(position)) return;
 
         world.SetDefaultFluid(position);
-        Logic.Blocks.Instance.Specials.Salt.Place(world, level, position);
+        Elements.Blocks.Instance.Specials.Salt.Place(world, level, position);
     }
 }

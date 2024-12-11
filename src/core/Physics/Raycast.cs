@@ -8,12 +8,13 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
 /// <summary>
-///     Utility class for raycasts and similar operations.
+///     Utility class for ray casts and similar operations.
 /// </summary>
 public static class Raycast
 {
@@ -23,7 +24,7 @@ public static class Raycast
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastBlockRay(World world, Ray ray)
+    public static (Vector3i hit, Side side)? CastBlockRay(World world, Ray ray)
     {
         return CastVoxelRay(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
     }
@@ -34,15 +35,15 @@ public static class Raycast
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastFluidRay(World world, Ray ray)
+    public static (Vector3i hit, Side side)? CastFluidRay(World world, Ray ray)
     {
         return CastVoxelRay(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
     }
 
-    private static (Vector3i hit, BlockSide side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, Boolean> rayIntersectionCheck)
+    private static (Vector3i hit, Side side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, Boolean> rayIntersectionCheck)
     {
         Vector3i hit;
-        BlockSide side;
+        Side side;
 
         /*
          * Voxel Traversal Algorithm
@@ -86,7 +87,7 @@ public static class Raycast
             hit = current;
 
             // As the ray starts in this voxel, no side is selected.
-            side = BlockSide.All;
+            side = Side.All;
 
             return (hit, side);
         }
@@ -100,14 +101,14 @@ public static class Raycast
                     current.X += step.X;
                     tMaxX += tDeltaX;
 
-                    side = step.X > 0 ? BlockSide.Left : BlockSide.Right;
+                    side = step.X > 0 ? Side.Left : Side.Right;
                 }
                 else
                 {
                     current.Z += step.Z;
                     tMaxZ += tDeltaZ;
 
-                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                    side = step.Z > 0 ? Side.Back : Side.Front;
                 }
             }
             else
@@ -117,14 +118,14 @@ public static class Raycast
                     current.Y += step.Y;
                     tMaxY += tDeltaY;
 
-                    side = step.Y > 0 ? BlockSide.Bottom : BlockSide.Top;
+                    side = step.Y > 0 ? Side.Bottom : Side.Top;
                 }
                 else
                 {
                     current.Z += step.Z;
                     tMaxZ += tDeltaZ;
 
-                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                    side = step.Z > 0 ? Side.Back : Side.Front;
                 }
             }
 

@@ -5,8 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Client.Application.Resources;
 
@@ -23,9 +22,9 @@ public class PlayerResources
     /// <summary>
     ///     Loads all the resources.
     /// </summary>
-    public void Load(Support.Core.Client client, LoadingContext loadingContext)
+    public void Load(Graphics.Core.Client client, ILoadingContext loadingContext)
     {
-        using (loadingContext.BeginStep(Events.ResourceLoad, "Player"))
+        using (loadingContext.BeginStep("Player"))
         {
             Crosshair = Texture.Load(
                 client,

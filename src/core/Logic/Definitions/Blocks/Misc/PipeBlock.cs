@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -60,16 +61,16 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         for (UInt32 data = 0b00_0000; data <= 0b11_1111; data++)
         {
-            var sides = (BlockSides) data;
+            var sides = (Sides) data;
 
             BlockMesh mesh = BlockModel.GetCombinedMesh(
                 center,
-                BlockSide.Front.IsSet(sides) ? connectors.front : surfaces.front,
-                BlockSide.Back.IsSet(sides) ? connectors.back : surfaces.back,
-                BlockSide.Left.IsSet(sides) ? connectors.left : surfaces.left,
-                BlockSide.Right.IsSet(sides) ? connectors.right : surfaces.right,
-                BlockSide.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
-                BlockSide.Top.IsSet(sides) ? connectors.top : surfaces.top);
+                Side.Front.IsSet(sides) ? connectors.front : surfaces.front,
+                Side.Back.IsSet(sides) ? connectors.back : surfaces.back,
+                Side.Left.IsSet(sides) ? connectors.left : surfaces.left,
+                Side.Right.IsSet(sides) ? connectors.right : surfaces.right,
+                Side.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
+                Side.Top.IsSet(sides) ? connectors.top : surfaces.top);
 
             meshes.Add(mesh);
 
@@ -88,13 +89,13 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     public Boolean IsFluidRendered => false;
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return IsSideOpen(world, position, side);
     }
 
     /// <inheritdoc />
-    public Boolean IsOutflowAllowed(World world, Vector3i position, BlockSide side)
+    public Boolean IsOutflowAllowed(World world, Vector3i position, Side side)
     {
         return IsSideOpen(world, position, side);
     }
@@ -105,9 +106,9 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         Double connectorWidth = (0.5 - diameter) / 2.0;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
-            if (!side.IsSet((BlockSides) data)) continue;
+            if (!side.IsSet((Sides) data)) continue;
 
             var direction = side.Direction().ToVector3d();
 
@@ -140,7 +141,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         UInt32 updatedData = GetConnectionData(world, position);
         OpenOpposingSide(ref updatedData);
@@ -150,9 +151,9 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private UInt32 GetConnectionData(World world, Vector3i position)
     {
-        var sides = BlockSides.None;
+        var sides = Sides.None;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
             Vector3i otherPosition = side.Offset(position);
             BlockInstance? otherBlock = world.GetBlock(otherPosition);
@@ -175,10 +176,10 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         if ((data & 0b00_0011) != 0) data = 0b00_0011;
     }
 
-    private static Boolean IsSideOpen(World world, Vector3i position, BlockSide side)
+    private static Boolean IsSideOpen(World world, Vector3i position, Side side)
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-        return side.IsSet((BlockSides) block.Data);
+        return side.IsSet((Sides) block.Data);
     }
 }

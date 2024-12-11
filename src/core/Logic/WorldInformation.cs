@@ -9,6 +9,7 @@ using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Logging;
 
@@ -18,10 +19,8 @@ namespace VoxelGame.Core.Logic;
 ///     Basic information about a world.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class WorldInformation
+public partial class WorldInformation
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
-
     /// <summary>
     ///     The name of the world.
     /// </summary>
@@ -66,13 +65,8 @@ public class WorldInformation
     {
         Exception? exception = Serialize.SaveJSON(this, path);
 
-        if (exception != null) logger.LogError(Events.WorldSavingError, exception, "The meta file could not be saved: {Path}", path);
-        else
-            logger.LogDebug(
-                Events.WorldIO,
-                "WorldInformation for World '{Name}' was saved to: {Path}",
-                Name,
-                path);
+        if (exception != null) LogInfoSavingError(logger, exception, path.FullName);
+        else LogInfoSaved(logger, Name, path.FullName);
     }
 
     /// <summary>
@@ -84,16 +78,29 @@ public class WorldInformation
     {
         Exception? exception = Serialize.LoadJSON(path, out WorldInformation information);
 
-        if (exception != null) logger.LogError(Events.WorldLoadingError, exception, "The meta file could not be loaded: {Path}", path);
-        else
-            logger.LogDebug(
-                Events.WorldIO,
-                "WorldInformation for World '{Name}' was loaded from: {Path}",
-                information.Name,
-                path);
+        if (exception != null) LogInfoLoadingError(logger, exception, path.FullName);
+        else LogInfoLoaded(logger, information.Name, path.FullName);
 
         return information;
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
+
+    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "The info file could not be saved: {Path}")]
+    private static partial void LogInfoSavingError(ILogger logger, Exception exception, String path);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was saved to: {Path}")]
+    private static partial void LogInfoSaved(ILogger logger, String name, String path);
+
+    [LoggerMessage(EventId = Events.WorldLoadingError, Level = LogLevel.Error, Message = "The info file could not be loaded: {Path}")]
+    private static partial void LogInfoLoadingError(ILogger logger, Exception exception, String path);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was loaded from: {Path}")]
+    private static partial void LogInfoLoaded(ILogger logger, String name, String path);
+
+    #endregion LOGGING
 }
 
 /// <summary>

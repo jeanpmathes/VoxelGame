@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -24,7 +25,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly String texture;
 
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BlockMesh> meshes = [];
 
     /// <summary>
     ///     Initializes a new instance of a cross plant.
@@ -60,7 +61,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Int32 textureIndex = indexProvider.GetTextureIndex(texture);
 
@@ -80,7 +81,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         PlantBehaviour.NeighborUpdate(world, this, position, side);
     }

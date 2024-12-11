@@ -5,7 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -79,24 +80,22 @@ public class TextureLayout(String front, String back, String left, String right,
     }
 
     /// <summary>
-    ///     Get the texture index array for the given texture layout.
+    ///     Get the texture indices that correspond to the textures used by the sides of a block.
     /// </summary>
     /// <param name="indexProvider">The texture index provider to use.</param>
     /// <returns>
-    ///     The texture index array. The array is of length 6, with the indices in the side order defined by
-    ///     <see cref="BlockSide" />.
+    ///     The texture indices for the front, back, left, right, bottom, and top sides of a block.
     /// </returns>
-    public Int32[] GetTextureIndexArray(ITextureIndexProvider indexProvider)
+    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider indexProvider)
     {
-        var array = new Int32[6];
-
-        array[(Int32) BlockSide.Front] = indexProvider.GetTextureIndex(front);
-        array[(Int32) BlockSide.Back] = indexProvider.GetTextureIndex(back);
-        array[(Int32) BlockSide.Left] = indexProvider.GetTextureIndex(left);
-        array[(Int32) BlockSide.Right] = indexProvider.GetTextureIndex(right);
-        array[(Int32) BlockSide.Bottom] = indexProvider.GetTextureIndex(bottom);
-        array[(Int32) BlockSide.Top] = indexProvider.GetTextureIndex(top);
-
-        return array;
+        return new SideArray<Int32>
+        {
+            [Side.Front] = indexProvider.GetTextureIndex(front),
+            [Side.Back] = indexProvider.GetTextureIndex(back),
+            [Side.Left] = indexProvider.GetTextureIndex(left),
+            [Side.Right] = indexProvider.GetTextureIndex(right),
+            [Side.Bottom] = indexProvider.GetTextureIndex(bottom),
+            [Side.Top] = indexProvider.GetTextureIndex(top)
+        };
     }
 }

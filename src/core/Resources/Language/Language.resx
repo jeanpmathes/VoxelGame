@@ -939,4 +939,7 @@
     <data name="Rust" xml:space="preserve">
         <value>Rust</value>
     </data>
+    <data name="Save" xml:space="preserve">
+        <value>Save</value>
+    </data>
 </root>

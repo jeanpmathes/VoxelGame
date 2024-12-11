@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     Abstract base class for VFXs, which are used to display various things.
@@ -25,7 +25,7 @@ public abstract class VFX : IDisposable
     private Boolean IsSetUp { get; set; }
 
     /// <summary>
-    ///     Setup the VFX for active use.
+    ///     Set up the VFX for active use.
     ///     Can only be enabled after the VFX has been setup.
     /// </summary>
     public void SetUp()
@@ -40,7 +40,7 @@ public abstract class VFX : IDisposable
     }
 
     /// <summary>
-    ///     Use this to setup the VFX.
+    ///     Use this to set up the VFX.
     /// </summary>
     protected abstract void OnSetUp();
 

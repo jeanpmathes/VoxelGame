@@ -9,7 +9,8 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals;
@@ -27,14 +28,14 @@ public class MeshingContext
     private readonly IMeshing fluidMeshing;
 
     private readonly Section current;
-    private readonly Section?[] neighbors;
+    private readonly SideArray<Section?> neighbors;
 
-    private readonly MeshFaceHolder[] opaqueFullBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] transparentFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
 
-    private readonly MeshFaceHolder[] opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] transparentVaryingHeightBlockMeshFaceHolders;
-    private readonly MeshFaceHolder[] fluidMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
 
     private readonly (TintColor block, TintColor fluid)[,] tintColors;
 
@@ -43,7 +44,7 @@ public class MeshingContext
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <param name="context">The chunk meshing context of the chunk the section is in.</param>
-    public MeshingContext(SectionPosition position, ChunkMeshingContext context)
+    public MeshingContext(SectionPosition position, IChunkMeshingContext context)
     {
         Section? section = context.GetSection(position);
         Debug.Assert(section != null);
@@ -85,33 +86,32 @@ public class MeshingContext
         return tintColors[position.X, position.Z].fluid;
     }
 
-    private static Section?[] GetNeighborSections(SectionPosition position, ChunkMeshingContext context)
+    private static SideArray<Section?> GetNeighborSections(SectionPosition position, IChunkMeshingContext context)
     {
-        var neighborSections = new Section?[6];
+        SideArray<Section?> neighborSections = new();
 
-        foreach (BlockSide side in BlockSide.All.Sides())
-            neighborSections[(Int32) side] =
-                context.GetSection(side.Offset(position));
+        foreach (Side side in Side.All.Sides())
+            neighborSections[side] = context.GetSection(side.Offset(position));
 
         return neighborSections;
     }
 
-    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, ChunkMeshingContext context)
+    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, IChunkMeshingContext context)
     {
         var colors = new (TintColor block, TintColor fluid)[Section.Size, Section.Size];
 
         for (var x = 0; x < Section.Size; x++)
         for (var z = 0; z < Section.Size; z++)
-            colors[x, z] = context.Map.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
+            colors[x, z] = context.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
 
         return colors;
     }
 
-    private static MeshFaceHolder[] CreateMeshFaceHolders(Single inset = 0.0f)
+    private static SideArray<MeshFaceHolder> CreateMeshFaceHolders(Single inset = 0.0f)
     {
-        var holders = new MeshFaceHolder[6];
+        SideArray<MeshFaceHolder> holders = new();
 
-        foreach (BlockSide side in BlockSide.All.Sides()) holders[(Int32) side] = new MeshFaceHolder(side, inset);
+        foreach (Side side in Side.All.Sides()) holders[side] = new MeshFaceHolder(side, inset);
 
         return holders;
     }
@@ -130,24 +130,24 @@ public class MeshingContext
     ///     Get the block mesh face holder for (full) blocks.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public MeshFaceHolder GetFullBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
+    public MeshFaceHolder GetFullBlockMeshFaceHolder(Side side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueFullBlockMeshFaceHolders[(Int32) side] : transparentFullBlockMeshFaceHolders[(Int32) side];
+        return isOpaque ? opaqueFullBlockMeshFaceHolders[side] : transparentFullBlockMeshFaceHolders[side];
     }
 
     /// <summary>
     ///     Get the block mesh face holder for varying height faces, given a block side.
     ///     This considers the side and whether it is opaque or not.
     /// </summary>
-    public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(BlockSide side, Boolean isOpaque)
+    public MeshFaceHolder GetVaryingHeightBlockMeshFaceHolder(Side side, Boolean isOpaque)
     {
-        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[(Int32) side] : transparentVaryingHeightBlockMeshFaceHolders[(Int32) side];
+        return isOpaque ? opaqueVaryingHeightBlockMeshFaceHolders[side] : transparentVaryingHeightBlockMeshFaceHolders[side];
     }
 
     /// <summary>
     ///     Get the fluid mesh face holders for varying height faces.
     /// </summary>
-    public MeshFaceHolder[] GetFluidMeshFaceHolders()
+    public SideArray<MeshFaceHolder> GetFluidMeshFaceHolders()
     {
         return fluidMeshFaceHolders;
     }
@@ -167,7 +167,7 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (BlockInstance block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, BlockSide side)
+    public (BlockInstance block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, Side side)
     {
         (BlockInstance block, FluidInstance fluid)? result;
 
@@ -182,7 +182,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(Int32) side];
+            Section? neighbor = neighbors[side];
             BlockInstance? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
@@ -199,7 +199,7 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block or null if there is no block.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position, BlockSide side)
+    public BlockInstance? GetBlock(Vector3i position, Side side)
     {
         BlockInstance? block;
 
@@ -211,7 +211,7 @@ public class MeshingContext
         {
             position = Section.ToLocalPosition(position);
 
-            Section? neighbor = neighbors[(Int32) side];
+            Section? neighbor = neighbors[side];
             block = neighbor?.GetBlock(position);
         }
 
@@ -255,12 +255,12 @@ public class MeshingContext
         ReturnToPool(fluidMeshFaceHolders);
     }
 
-    private static void GenerateMesh(MeshFaceHolder[] holders, IMeshing meshing)
+    private static void GenerateMesh(SideArray<MeshFaceHolder> holders, IMeshing meshing)
     {
         foreach (MeshFaceHolder holder in holders) holder.GenerateMesh(meshing);
     }
 
-    private static void ReturnToPool(MeshFaceHolder[] holders)
+    private static void ReturnToPool(SideArray<MeshFaceHolder> holders)
     {
         foreach (MeshFaceHolder holder in holders) holder.ReturnToPool();
     }

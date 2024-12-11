@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
+using System.Drawing;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -19,5 +19,5 @@ public interface IDominantColorProvider
     /// </summary>
     /// <param name="index">The index of the texture.</param>
     /// <returns>The dominant color.</returns>
-    Color4 GetDominantColor(Int32 index);
+    Color GetDominantColor(Int32 index);
 }

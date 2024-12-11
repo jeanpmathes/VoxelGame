@@ -7,6 +7,8 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -23,7 +25,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     private readonly Boolean hasNeutralTint;
     private readonly TextureLayout wet;
 
-    private Int32[] wetTextureIndices = null!;
+    private SideArray<Int32> wetTextureIndices = null!;
 
     /// <summary>
     ///     Create a new <see cref="DirtBlock" />.
@@ -49,7 +51,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public virtual Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public virtual Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
@@ -58,11 +60,11 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     public Boolean SupportsFullGrowth { get; }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider, visuals);
+        base.OnSetUp(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTextureIndexArray(indexProvider);
+        wetTextureIndices = wet.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />
@@ -72,7 +74,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
 
         mesh = mesh with {Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None};
 
-        if (info.Fluid.IsFluid) mesh = mesh with {TextureIndex = wetTextureIndices[(Int32) info.Side]};
+        if (info.Fluid.IsFluid) mesh = mesh with {TextureIndex = wetTextureIndices[info.Side]};
 
         return mesh;
     }
@@ -90,7 +92,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         DirtBehaviour.BlockUpdateCovered(world, position, side);
     }

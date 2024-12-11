@@ -7,6 +7,8 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -21,7 +23,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
 {
     private readonly TextureLayout open;
-    private Int32[] openTextureIndices = null!;
+    private SideArray<Int32> openTextureIndices = null!;
 
     internal FluidBarrierBlock(String name, String namedID, TextureLayout closed, TextureLayout open) :
         base(
@@ -34,7 +36,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         if (fluid.IsGas) return true;
 
@@ -44,11 +46,11 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider, visuals);
+        base.OnSetUp(indexProvider, visuals);
 
-        openTextureIndices = open.GetTextureIndexArray(indexProvider);
+        openTextureIndices = open.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />
@@ -63,7 +65,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if ((info.Data & 0b00_0001) == 1)
-            mesh = mesh with {TextureIndex = openTextureIndices[(Int32) info.Side]};
+            mesh = mesh with {TextureIndex = openTextureIndices[info.Side]};
 
         return mesh;
     }

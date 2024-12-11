@@ -18,14 +18,12 @@ namespace VoxelGame.Client.Console;
 /// <summary>
 ///     The backend of the game console.
 /// </summary>
-public class GameConsole : IConsoleProvider
+public partial class GameConsole : IConsoleProvider
 {
     /// <summary>
     ///     The name of the script to execute when the world is ready.
     /// </summary>
     public const String WorldReadyScript = "world_ready";
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
     private readonly Game game;
     private readonly CommandInvoker commandInvoker;
@@ -40,14 +38,14 @@ public class GameConsole : IConsoleProvider
         this.game = game;
         this.commandInvoker = commandInvoker;
     }
-
+    
     /// <inheritdoc />
     public void ProcessInput(String input)
     {
         if (game.Console == null)
             throw new InvalidOperationException();
 
-        logger.LogDebug(Events.Console, "Processing console input: {Command}", input);
+        LogProcessingConsoleInput(logger, input);
 
         commandInvoker.InvokeCommand(
             input,
@@ -60,12 +58,12 @@ public class GameConsole : IConsoleProvider
         if (game.Console == null)
             throw new InvalidOperationException();
 
-        logger.LogDebug("Trying to execute world ready script");
+        LogTryingToExecuteWorldReadyScript(logger);
 
         Boolean executed = RunScript.Do(new Context(game.Console, commandInvoker, game.Player), WorldReadyScript, ignoreErrors: true);
 
-        if (executed) logger.LogInformation(Events.Console, "Executed world ready script");
-        else logger.LogDebug("No world ready script found");
+        if (executed) LogExecutedWorldReadyScript(logger);
+        else LogNoWorldReadyScriptFound(logger);
     }
 
     /// <summary>
@@ -104,4 +102,22 @@ public class GameConsole : IConsoleProvider
 
         return invoker;
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Processing console input: {Command}")]
+    private static partial void LogProcessingConsoleInput(ILogger logger, String command);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Trying to execute world ready script")]
+    private static partial void LogTryingToExecuteWorldReadyScript(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Executed world ready script")]
+    private static partial void LogExecutedWorldReadyScript(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "No world ready script found")]
+    private static partial void LogNoWorldReadyScriptFound(ILogger logger);
+
+    #endregion LOGGING
 }

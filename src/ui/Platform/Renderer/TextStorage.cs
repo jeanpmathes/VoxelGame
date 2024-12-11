@@ -8,7 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Gwen.Net;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Collections;
+using VoxelGame.Toolkit.Utilities;
 using Font = Gwen.Net.Font;
 using Point = Gwen.Net.Point;
 using Size = Gwen.Net.Size;
@@ -21,7 +22,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class TextStorage : IDisposable
 {
     private readonly DirectXRenderer rendering;
-    private readonly Cache<(String, Font), TextRenderer> cache = new(capacity: 100);
+    private readonly DisposableCache<(String, Font), TextRenderer> cache = new(capacity: 200);
 
     private Dictionary<(String, Font), Entry> used = new();
 

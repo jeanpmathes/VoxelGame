@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -14,7 +15,7 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
-///     A block which can be rotated on the y axis.
+///     A block which can be rotated on the y-axis.
 ///     Data bit usage: <c>----oo</c>
 /// </summary>
 // o: orientation
@@ -31,31 +32,29 @@ public class OrientedBlock : BasicBlock
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(
-            this.AsInstance((UInt32) (actor?.LookingDirection.ToOrientation() ?? Orientation.North)),
+            this.AsInstance((UInt32) (actor?.Head.Forward.ToOrientation() ?? Orientation.North)),
             position);
     }
 
-    private static Int32 TranslateIndex(BlockSide side, Orientation orientation)
+    private static Side TranslateSide(Side side, Orientation orientation)
     {
-        var index = (Int32) side;
+        if (side is Side.Bottom or Side.Top)
+            return side;
 
-        if (index is < 0 or > 5) throw new ArgumentOutOfRangeException(nameof(side));
+        if (orientation is Orientation.West or Orientation.East)
+            side = side.Rotate(Axis.Y);
 
-        if (side is BlockSide.Bottom or BlockSide.Top) return index;
+        if (orientation is Orientation.South or Orientation.West)
+            side = side.Opposite();
 
-        if (((Int32) orientation & 0b01) == 1)
-            index = (3 - index * (1 - (index & 2))) % 5; // Rotates the index one step
-
-        if (((Int32) orientation & 0b10) == 2) index = 3 - (index + 2) + (index & 2) * 2; // Flips the index
-
-        return index;
+        return side;
     }
 
     /// <inheritdoc />
     protected override ISimple.MeshData GetMeshData(BlockMeshInfo info)
     {
         return ISimple.CreateData(
-            sideTextureIndices[TranslateIndex(info.Side, (Orientation) (info.Data & 0b00_0011))],
+            sideTextureIndices[TranslateSide(info.Side, (Orientation) (info.Data & 0b00_0011))],
             isTextureRotated: false);
     }
 }

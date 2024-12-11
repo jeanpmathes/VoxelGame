@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Logic.Interfaces;
 
@@ -15,7 +16,7 @@ public interface IPipeConnectable : IBlockBase
     /// <param name="side">The side to check for connect-ability.</param>
     /// <param name="position">The position of the block to check.</param>
     /// <returns>True if connection is supported; false if not.</returns>
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         return true;
     }

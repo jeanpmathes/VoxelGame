@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -30,7 +31,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
     /// <inheritdoc />
     public Boolean Burn(World world, Vector3i position, Block fire)
     {
-        world.SetBlock(Logic.Blocks.Instance.GrassBurned.AsInstance(), position);
+        world.SetBlock(Elements.Blocks.Instance.GrassBurned.AsInstance(), position);
         fire.Place(world, position.Above());
 
         return false;
@@ -42,7 +43,7 @@ public class GrassBlock : CoveredDirtBlock, ICombustible
         FluidInstance? fluid = world.GetFluid(position);
 
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
-            world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
+            world.SetBlock(Elements.Blocks.Instance.Mud.AsInstance(), position);
 
         for (Int32 yOffset = -1; yOffset <= 1; yOffset++)
             foreach (Orientation orientation in Orientations.All)

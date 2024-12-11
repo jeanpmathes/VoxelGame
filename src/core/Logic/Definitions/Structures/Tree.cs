@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
@@ -194,14 +195,14 @@ public class Tree : DynamicStructure
         (Int32 height, Single factor) = GetConfig();
 
         if (offset.X == center && offset.Y == 0 && offset.Z == center)
-            return (new Content(Logic.Blocks.Instance.Roots), overwrite: true);
+            return (new Content(Elements.Blocks.Instance.Roots), overwrite: true);
 
         if (offset.X == center && offset.Z == center && offset.Y < height)
-            return (new Content(Logic.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+            return (new Content(Elements.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
         if (!GetCrownShape().Contains(offset, out Single closeness)) return null;
         if (closeness < factor * Random.NextSingle()) return null;
 
-        return (new Content(Logic.Blocks.Instance.Leaves), overwrite: false);
+        return (new Content(Elements.Blocks.Instance.Leaves), overwrite: false);
     }
 }

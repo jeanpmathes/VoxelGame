@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -60,7 +61,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -70,10 +71,10 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
         return orientation switch
         {
-            Orientation.North => side is BlockSide.Left or BlockSide.Right,
-            Orientation.East => side is BlockSide.Front or BlockSide.Back,
-            Orientation.South => side is BlockSide.Left or BlockSide.Right,
-            Orientation.West => side is BlockSide.Front or BlockSide.Back,
+            Orientation.North => side is Side.Left or Side.Right,
+            Orientation.East => side is Side.Front or Side.Back,
+            Orientation.South => side is Side.Left or Side.Right,
+            Orientation.West => side is Side.Front or Side.Back,
             _ => false
         };
     }
@@ -225,7 +226,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
 
         Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
                            CheckOrientation(world, position, Orientation.West);
@@ -244,7 +245,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
         Vector3i otherPosition = orientation.Offset(position);
 
         return world.GetBlock(otherPosition)?.Block is IWideConnectable connectable &&
-               connectable.IsConnectable(world, orientation.ToBlockSide().Opposite(), otherPosition);
+               connectable.IsConnectable(world, orientation.ToSide().Opposite(), otherPosition);
     }
 
     /// <inheritdoc />
@@ -280,7 +281,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         var blockOrientation = (Orientation) (data & 0b00_0011);
 

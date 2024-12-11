@@ -12,7 +12,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals.Meshables;
@@ -23,11 +23,9 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-public sealed class BlockModel
+public sealed partial class BlockModel
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
     private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
 
@@ -183,11 +181,11 @@ public sealed class BlockModel
 
         result.front = this;
 
-        result.back = CreateSideModel(BlockSide.Back);
-        result.left = CreateSideModel(BlockSide.Left);
-        result.right = CreateSideModel(BlockSide.Right);
-        result.bottom = CreateSideModel(BlockSide.Bottom);
-        result.top = CreateSideModel(BlockSide.Top);
+        result.back = CreateSideModel(Side.Back);
+        result.left = CreateSideModel(Side.Left);
+        result.right = CreateSideModel(Side.Right);
+        result.bottom = CreateSideModel(Side.Bottom);
+        result.top = CreateSideModel(Side.Top);
 
         return result;
     }
@@ -202,8 +200,8 @@ public sealed class BlockModel
 
         result.z = this;
 
-        result.x = CreateSideModel(BlockSide.Left);
-        result.y = CreateSideModel(BlockSide.Bottom);
+        result.x = CreateSideModel(Side.Left);
+        result.y = CreateSideModel(Side.Bottom);
 
         return result;
     }
@@ -230,7 +228,7 @@ public sealed class BlockModel
         return (north, east, south, west);
     }
 
-    private BlockModel CreateSideModel(BlockSide side)
+    private BlockModel CreateSideModel(Side side)
     {
         if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
 
@@ -242,38 +240,38 @@ public sealed class BlockModel
 
         switch (side)
         {
-            case BlockSide.Front:
+            case Side.Front:
                 return copy;
 
-            case BlockSide.Back:
+            case Side.Back:
                 rotation = Matrix4.CreateRotationY(MathHelper.Pi);
                 axis = Vector3d.UnitY;
                 rotations = 2;
 
                 break;
 
-            case BlockSide.Left:
+            case Side.Left:
                 rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
                 axis = Vector3d.UnitY;
                 rotations = 1;
 
                 break;
 
-            case BlockSide.Right:
+            case Side.Right:
                 rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
                 axis = Vector3d.UnitY;
                 rotations = 3;
 
                 break;
 
-            case BlockSide.Bottom:
+            case Side.Bottom:
                 rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
                 axis = Vector3d.UnitX;
                 rotations = 1;
 
                 break;
 
-            case BlockSide.Top:
+            case Side.Top:
                 rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
                 axis = Vector3d.UnitX;
                 rotations = 1;
@@ -368,7 +366,7 @@ public sealed class BlockModel
 
         Exception? exception = Serialize.SaveJSON(this, directory.GetFile(GetFileName(name)));
 
-        if (exception != null) logger.LogWarning(Events.FileIO, exception, "Failed to save block model");
+        if (exception != null) LogFailedToSaveBlockModel(logger, exception);
     }
 
     /// <summary>
@@ -387,13 +385,13 @@ public sealed class BlockModel
         return name + ".json";
     }
 
-    private static LoadingContext? loader;
+    private static ILoadingContext? loader;
 
     /// <summary>
     ///     Enable loading of models.
     /// </summary>
     /// <param name="context">The context to use for loading.</param>
-    public static void EnableLoading(LoadingContext context)
+    public static void EnableLoading(ILoadingContext context)
     {
         Debug.Assert(loader == null);
         loader = context;
@@ -417,15 +415,15 @@ public sealed class BlockModel
     {
         if (loader == null)
         {
-            logger.LogWarning(Events.ResourceLoad, "Loading of models is currently disabled, fallback will be used instead");
+            LogLoadingModelsDisabled(logger);
 
             return BlockModels.CreateFallback();
         }
 
         Exception? exception = Serialize.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
 
-        if (exception == null) loader.ReportSuccess(Events.ResourceLoad, nameof(BlockModel), name);
-        else loader.ReportWarning(Events.MissingResource, nameof(BlockModel), name, exception);
+        if (exception == null) loader.ReportSuccess(nameof(BlockModel), name);
+        else loader.ReportWarning(nameof(BlockModel), name, exception);
 
         return model;
     }
@@ -476,6 +474,18 @@ public sealed class BlockModel
     }
 
     #endregion STATIC METHODS
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Failed to save block model")]
+    private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
+    private static partial void LogLoadingModelsDisabled(ILogger logger);
+
+    #endregion LOGGING
 }
 
 /// <summary>

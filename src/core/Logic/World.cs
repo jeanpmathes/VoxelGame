@@ -10,30 +10,32 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using Properties;
-using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation;
-using VoxelGame.Core.Generation.Default;
+using VoxelGame.Core.Actors;
+using VoxelGame.Core.Generation.Worlds;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
+using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-///     The world class. Contains everything that is in the world, e.g. chunks, entities, etc.
+///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract class World : IDisposable, IGrid
+public abstract partial class World : IDisposable, IGrid
 {
     /// <summary>
     ///     The highest absolute value of a block position coordinate component.
     ///     This value also describes the word extents in blocks, thus the world size is two times this value.
     ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
-    public const UInt32 BlockLimit = 50_000_000;
+    public const UInt32 BlockLimit = 10_000_000;
 
     private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
@@ -42,22 +44,7 @@ public abstract class World : IDisposable, IGrid
     /// </summary>
     public const UInt32 SectionLimit = BlockLimit / Section.Size;
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
-    private readonly ChunkSet chunks;
-
-    private readonly IWorldGenerator generator;
-    private ChunkPool? chunkPool;
-
-    private State currentState = State.Activating;
-
-    private (Task saving, Action callback)? deactivation;
-
-    /// <summary>
-    ///     A timer to profile different states and world operations.
-    ///     Will be started on world creation, inheritors are free to stop, override or restart it.
-    /// </summary>
-    protected Timer? timer;
+    private readonly WorldStateMachine state;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -77,7 +64,7 @@ public abstract class World : IDisposable, IGrid
     {
         Data.Save();
 
-        logger.LogInformation(Events.WorldIO, "Created new world");
+        LogCreatedNewWorld(logger);
     }
 
     /// <summary>
@@ -86,38 +73,46 @@ public abstract class World : IDisposable, IGrid
     protected World(WorldData data) :
         this(data, isNew: false)
     {
-        logger.LogInformation(Events.WorldIO, "Loaded existing world");
+        LogLoadedExistingWorld(logger);
     }
 
     /// <summary>
-    ///     Setup of readonly fields and non-optional steps.
+    ///     Set up of readonly fields and non-optional steps.
     /// </summary>
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        timer = logger.BeginTimedScoped("World Setup", TimingStyle.Once);
+        Timer? timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+
+        state = new WorldStateMachine(this, timer);
 
         Data = data;
 
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        generator = GetAndInitializeGenerator(this, timer);
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
 
-        ChunkContext = new ChunkContext(this, generator, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
+        ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
+        Chunks = new ChunkSet(this, ChunkContext);
 
-        MaxGenerationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxGenerationTasks);
-        MaxDecorationTasks = ChunkContext.DeclareBudget(Settings.Default.MaxDecorationTasks);
-        MaxLoadingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxLoadingTasks);
-        MaxSavingTasks = ChunkContext.DeclareBudget(Settings.Default.MaxSavingTasks);
-
-        chunks = new ChunkSet(ChunkContext);
+        state.Initialize();
     }
 
     /// <summary>
-    ///     Setup the chunk context.
+    ///     Access to the world state.
     /// </summary>
-    protected ChunkContext ChunkContext { get; }
+    public IWorldStates State => state;
+
+    /// <summary>
+    /// Get the chunks of this world.
+    /// </summary>
+    public ChunkSet Chunks { get; }
+
+    /// <summary>
+    ///     Get the chunk context of this world.
+    /// </summary>
+    public ChunkContext ChunkContext { get; }
 
     /// <summary>
     ///     Get the stored world data.
@@ -130,25 +125,10 @@ public abstract class World : IDisposable, IGrid
     public (Int32 upper, Int32 lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
 
     /// <summary>
-    ///     Get whether the world is active.
+    ///     The number of chunk state updates that have been performed in the last update cycle.
+    ///     Is initialized to <c>-1</c> before the first update cycle.
     /// </summary>
-    public Boolean IsActive => CurrentState == State.Active;
-
-    /// <summary>
-    ///     Get the world state.
-    /// </summary>
-    protected State CurrentState
-    {
-        get => currentState;
-        set
-        {
-            State oldState = currentState;
-            currentState = value;
-
-            if (oldState != currentState)
-                StateChanged(this, EventArgs.Empty);
-        }
-    }
+    public Int32 ChunkStateUpdateCount { get; private set; } = -1;
 
     /// <summary>
     ///     Get or set the spawn position in this world.
@@ -159,7 +139,7 @@ public abstract class World : IDisposable, IGrid
         set
         {
             Data.Information.SpawnInformation = new SpawnInformation(value);
-            logger.LogInformation(Events.WorldState, "World spawn position has been set to: {Position}", value);
+            LogWorldSpawnPositionSet(logger, value);
         }
     }
 
@@ -176,7 +156,7 @@ public abstract class World : IDisposable, IGrid
 
             Data.EnsureValidInformation();
 
-            if (oldSize != Data.Information.Size) logger.LogInformation(Events.WorldState, "World size has been set to: {Size}", Data.Information.Size);
+            if (oldSize != Data.Information.Size) LogWorldSizeSet(logger, Data.Information.Size);
         }
     }
 
@@ -188,43 +168,7 @@ public abstract class World : IDisposable, IGrid
     /// <summary>
     ///     Get the info map of this world.
     /// </summary>
-    public IMap Map => generator.Map;
-
-    /// <summary>
-    ///     Get the active chunk count.
-    /// </summary>
-    protected Int32 ActiveChunkCount => chunks.ActiveCount;
-
-    /// <summary>
-    ///     All active chunks.
-    /// </summary>
-    protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
-
-    /// <summary>
-    ///     The max generation task limit.
-    /// </summary>
-    public Limit MaxGenerationTasks { get; }
-
-    /// <summary>
-    ///     The max decoration task limit.
-    /// </summary>
-    public Limit MaxDecorationTasks { get; }
-
-    /// <summary>
-    ///     The max loading task limit.
-    /// </summary>
-    public Limit MaxLoadingTasks { get; }
-
-    /// <summary>
-    ///     The max saving task limit.
-    /// </summary>
-    public Limit MaxSavingTasks { get; }
-
-    /// <summary>
-    ///     Get the chunk pool for this world.
-    /// </summary>
-    /// <returns>The chunk pool.</returns>
-    public ChunkPool ChunkPool => chunkPool ??= CreateChunkPool();
+    public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -253,66 +197,14 @@ public abstract class World : IDisposable, IGrid
         SetContent(content, position, tickFluid: true);
     }
 
-    /// <summary>
-    ///     Begin deactivating the world, saving all chunks and the meta information.
-    /// </summary>
-    /// <param name="onFinished">The action to be called when the world is deactivated.</param>
-    public void BeginDeactivating(Action onFinished)
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(CurrentState == State.Active);
-        CurrentState = State.Deactivating;
-
-        logger.LogInformation(Events.WorldIO, "Unloading world");
-
-        OnDeactivation();
-
-        chunks.BeginSaving();
-
-        Data.Information.Version = ApplicationInformation.Instance.Version;
-        Task saving = Task.Run(Data.Save);
-
-        deactivation = (saving, onFinished);
-    }
-
-    /// <summary>
-    ///     Process the deactivation, assuming it has been started.
-    /// </summary>
-    /// <returns>Whether the deactivation is finished.</returns>
-    protected Boolean ProcessDeactivation()
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(deactivation != null);
-
-        (Task saving, Action callback) = deactivation.Value;
-
-        Boolean done = saving.IsCompleted && chunks.IsEmpty;
-
-        if (!done) return false;
-
-        logger.LogInformation(Events.WorldIO, "Unloaded world");
-        callback();
-
-        if (saving.IsFaulted) logger.LogError(Events.WorldSavingError, saving.Exception, "Failed to save world meta information");
-
-        return true;
-    }
-
-    /// <summary>
-    ///     Called when the world deactivates.
-    /// </summary>
-    protected virtual void OnDeactivation() {}
-
     private void UnloadChunk(Chunk chunk)
     {
-        chunks.Unload(chunk);
+        Chunks.Unload(chunk);
     }
 
     private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(world, timer);
+        return new Generator(new WorldGeneratorContext(world, timer));
     }
 
     /// <summary>
@@ -322,7 +214,7 @@ public abstract class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        generator.EmitViews(directory);
+        ChunkContext.Generator.EmitViews(directory);
     }
 
     /// <summary>
@@ -337,17 +229,18 @@ public abstract class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        return generator.SearchNamedGeneratedElements(start, name, maxDistance);
+        return ChunkContext.Generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
     /// <summary>
-    ///     Update chunks.
+    ///     Process chunk requests and chunk state updates.
     /// </summary>
     protected void UpdateChunks()
     {
-        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+        Chunks.ProcessRequests();
 
-        chunks.Update();
+        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+        ChunkStateUpdateCount = ChunkContext.UpdateList.Update();
     }
 
     /// <summary>
@@ -460,7 +353,7 @@ public abstract class World : IDisposable, IGrid
         content.Block.Block.ContentUpdate(this, position, content);
         if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
             Vector3i neighborPosition = side.Offset(position);
 
@@ -547,14 +440,8 @@ public abstract class World : IDisposable, IGrid
     }
 
     /// <summary>
-    /// Create the chunk pool for this world.
-    /// </summary>
-    /// <returns>The chunk pool.</returns>
-    protected abstract ChunkPool CreateChunkPool();
-
-    /// <summary>
     ///     Get whether a chunk position is in the maximum allowed world limits.
-    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
     private static Boolean IsInLimits(ChunkPosition position)
     {
@@ -563,7 +450,7 @@ public abstract class World : IDisposable, IGrid
 
     /// <summary>
     ///     Get whether a section position is in the maximum allowed world limits.
-    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
     public static Boolean IsInLimits(SectionPosition position)
     {
@@ -584,49 +471,53 @@ public abstract class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Process a chunk that has been just activated.
+    ///     Factory method that creates a new chunk.
     /// </summary>
-    /// <returns>The next state of the chunk.</returns>
-    protected abstract ChunkState ProcessNewlyActivatedChunk(Chunk activatedChunk);
+    /// <param name="blocks">The blocks of the chunk.</param>
+    /// <param name="context">The context of the chunk.</param>
+    /// <returns>The new chunk.</returns>
+    protected abstract Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context);
 
     /// <summary>
-    ///     Process a chunk that has just switched to the active state trough a weak activation.
+    ///     Process a chunk that has been just activated.
+    ///     This method is not allowed to return the hidden state.
     /// </summary>
-    /// <returns>An optional next state of the chunk.</returns>
+    /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
+    protected abstract ChunkState? ProcessNewlyActivatedChunk(Chunk activatedChunk);
+
+    /// <summary>
+    ///     Process a chunk that has just switched to the active state through a weak activation.
+    ///     This method is not allowed to return the hidden state.
+    /// </summary>
+    /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
     protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
-    /// <summary>
-    ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void RequestChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Request" />
+    public Request? RequestChunk(ChunkPosition position, Actor actor)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        Debug.Assert(!State.IsTerminating);
 
-        if (!IsInLimits(position)) return;
+        if (!IsInLimits(position)) return null;
 
-        chunks.Request(position);
+        Request? request = Chunks.Request(position, actor);
 
-        logger.LogDebug(Events.ChunkRequest, "Chunk {Position} has been requested", position);
+        LogChunkRequested(logger, position);
+
+        return request;
     }
 
-    /// <summary>
-    ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void ReleaseChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Release" />
+    public void ReleaseChunk(Request? request)
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        if (request == null) return;
 
-        if (!IsInLimits(position)) return;
+        Chunks.Release(request);
 
-        chunks.Release(position);
-
-        logger.LogDebug(Events.ChunkRelease, "Released chunk {Position}", position);
+        LogChunkReleased(logger, request.Position);
     }
 
     /// <summary>
@@ -639,7 +530,7 @@ public abstract class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        return !IsInLimits(position) ? null : chunks.GetActive(position);
+        return !IsInLimits(position) ? null : Chunks.GetActive(position);
     }
 
     /// <summary>
@@ -679,36 +570,61 @@ public abstract class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        chunk = chunks.GetAny(position);
+        chunk = Chunks.GetAny(position);
 
         return chunk != null;
     }
 
     /// <summary>
-    ///     Fired anytime the world switches to the ready-state.
+    ///     Process an update step for this world.
     /// </summary>
-    public event EventHandler<EventArgs> StateChanged = delegate {};
+    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public void Update(Double deltaTime, Timer? updateTimer)
+    {
+        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
+
+        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        {
+            UpdateChunks();
+        }
+
+        state.Update(deltaTime, updateTimer);
+    }
 
     /// <summary>
-    ///     The world state.
+    /// Called by the active state during <see cref="Update"/> when the world is active.
     /// </summary>
-    protected enum State
-    {
-        /// <summary>
-        ///     The initial state.
-        /// </summary>
-        Activating,
+    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public virtual void ActiveUpdate(Double deltaTime, Timer? updateTimer) {}
 
-        /// <summary>
-        ///     In the active state, normal operations like physics are performed.
-        /// </summary>
-        Active,
+    #region LOGGING
 
-        /// <summary>
-        ///     The final state, the world is being deactivated.
-        /// </summary>
-        Deactivating
-    }
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Created new world")]
+    private static partial void LogCreatedNewWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Loaded existing world")]
+    private static partial void LogLoadedExistingWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
+    private static partial void LogUnloadingWorld(ILogger logger);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
+    private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
+    private static partial void LogWorldSizeSet(ILogger logger, UInt32 size);
+
+    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
+    private static partial void LogChunkRequested(ILogger logger, ChunkPosition position);
+
+    [LoggerMessage(EventId = Events.ChunkRelease, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
+    private static partial void LogChunkReleased(ILogger logger, ChunkPosition position);
+
+    #endregion LOGGING
 
     #region IDisposable Support
 
@@ -724,8 +640,8 @@ public abstract class World : IDisposable, IGrid
 
         if (disposing)
         {
-            chunks.Dispose();
-            timer?.Dispose();
+            Chunks.Dispose();
+            ChunkContext.Dispose();
         }
 
         disposed = true;

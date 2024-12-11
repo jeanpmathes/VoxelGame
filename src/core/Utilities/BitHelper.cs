@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using VoxelGame.Toolkit;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -41,5 +42,13 @@ public static class BitHelper
     public static UInt32 GetMask(Int32 size)
     {
         return (UInt32) (1 << size) - 1;
+    }
+
+    /// <summary>
+    ///     Signifies an implication. If a is true, b must be true as well.
+    /// </summary>
+    public static Boolean Implies(this Boolean a, Boolean b)
+    {
+        return !a || b;
     }
 }

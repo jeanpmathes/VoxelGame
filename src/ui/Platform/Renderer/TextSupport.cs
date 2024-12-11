@@ -1,4 +1,4 @@
-﻿// <copyright file="TextSupport.cs" company="VoxelGame">
+﻿// <copyright file="TextGraphics.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = System.Drawing.Point;
@@ -21,7 +21,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class TextSupport : IDisposable
 {
-    private readonly Graphics graphics;
+    private readonly System.Drawing.Graphics graphics;
     private readonly RendererBase renderer;
 
     /// <summary>
@@ -30,7 +30,7 @@ public sealed class TextSupport : IDisposable
     public TextSupport(RendererBase renderer)
     {
         this.renderer = renderer;
-        graphics = Graphics.FromImage(new Bitmap(width: 1024, height: 1024));
+        graphics = System.Drawing.Graphics.FromImage(new Bitmap(width: 1024, height: 1024));
     }
 
     /// <summary>

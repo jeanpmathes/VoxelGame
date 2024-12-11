@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -19,7 +20,7 @@ public class SaltBlock : GroundedModifiableHeightBlock, IFillable
     internal SaltBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.IsFluid;
     }
@@ -32,7 +33,7 @@ public class SaltBlock : GroundedModifiableHeightBlock, IFillable
         Destroy(world, position);
 
         if (content.Fluid is {Fluid: var fluid, Level: FluidLevel.One}
-            && fluid == Logic.Fluids.Instance.FreshWater)
-            world.SetFluid(Logic.Fluids.Instance.SeaWater.AsInstance(FluidLevel.One), position);
+            && fluid == Elements.Fluids.Instance.FreshWater)
+            world.SetFluid(Elements.Fluids.Instance.SeaWater.AsInstance(FluidLevel.One), position);
     }
 }

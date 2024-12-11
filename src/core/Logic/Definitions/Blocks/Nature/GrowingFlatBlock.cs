@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -43,7 +44,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         var orientation = (Orientation) (data & 0b00_0011);
 
@@ -53,7 +54,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
         if (block == this &&
             orientation == (Orientation) (dataAbove & 0b00_0011)) return;
 
-        if (side == BlockSide.Top) side = orientation.Opposite().ToBlockSide();
+        if (side == Side.Top) side = orientation.Opposite().ToSide();
 
         CheckBack(world, position, side, orientation, schedule: true);
     }
@@ -65,7 +66,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
         var age = (Int32) ((data & 0b1_1100) >> 2);
 
         if (age < 7) world.SetBlock(this.AsInstance((UInt32) (((age + 1) << 2) | (Int32) orientation)), position);
-        else if (world.GetBlock(position.Below())?.Block == Logic.Blocks.Instance.Air)
+        else if (world.GetBlock(position.Below())?.Block == Elements.Blocks.Instance.Air)
             world.SetBlock(this.AsInstance((UInt32) orientation), position.Below());
     }
 }

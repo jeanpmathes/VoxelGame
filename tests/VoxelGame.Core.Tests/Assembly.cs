@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 [assembly: SupportedOSPlatform("windows11.0")]
+[assembly: ComVisible(visibility: false)]

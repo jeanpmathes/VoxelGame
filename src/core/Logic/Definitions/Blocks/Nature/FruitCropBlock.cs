@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -27,8 +28,8 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     private readonly Block fruit;
     private readonly String texture;
 
-    private readonly List<BoundingVolume> volumes = new();
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BoundingVolume> volumes = [];
+    private readonly List<BlockMesh> meshes = [];
 
     internal FruitCropBlock(String name, String namedID, String texture, Block fruit) :
         base(
@@ -55,7 +56,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Int32 baseTextureIndex = indexProvider.GetTextureIndex(texture);
 
@@ -122,7 +123,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         PlantBehaviour.NeighborUpdate(world, this, position, side);
     }
@@ -142,7 +143,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
 
                 break;
 
-            case GrowthStage.Ready when ground.SupportsFullGrowth && world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater:
+            case GrowthStage.Ready when ground.SupportsFullGrowth && world.GetFluid(position.Below())?.Fluid == Elements.Fluids.Instance.SeaWater:
                 world.SetBlock(this.AsInstance(((UInt32) GrowthStage.Dead << 1) | isLowered), position);
 
                 break;
@@ -150,7 +151,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
             case GrowthStage.Ready when ground.SupportsFullGrowth && ground.TryGrow(
                 world,
                 position.Below(),
-                Logic.Fluids.Instance.FreshWater,
+                Elements.Fluids.Instance.FreshWater,
                 FluidLevel.Two):
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(position))

@@ -9,8 +9,8 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Input;
 using OpenTK.Mathematics;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Input.Events;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input.Events;
 
 namespace VoxelGame.UI.Platform.Input;
 

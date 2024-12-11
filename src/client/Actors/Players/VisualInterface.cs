@@ -13,9 +13,11 @@ using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Input.Actions;
+using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Actors.Players;
@@ -72,12 +74,26 @@ public sealed class VisualInterface : IDisposable
     }
 
     /// <summary>
-    ///     Set the selection box which is drawn in the world.
+    ///     Set the target block of the selection box.
     /// </summary>
-    /// <param name="collider">The collider to draw, or null to not draw anything.</param>
-    public void SetSelectionBox(BoxCollider? collider)
+    /// <param name="world">The world in which the block is, or null to disable the selection box.</param>
+    /// <param name="instance">The block instance to target, or null to disable the selection box.</param>
+    /// <param name="position">The position of the block, or null to disable the selection box.</param>
+    public void SetSelectionBoxTarget(World? world, BlockInstance? instance, Vector3i? position)
     {
         Throw.IfDisposed(disposed);
+
+        BoxCollider? collider = null;
+
+        if (world != null && instance is {Block: {} block} && position != null)
+        {
+            Boolean visualized = !block.IsReplaceable;
+
+            if (Program.IsDebug)
+                visualized |= block != Blocks.Instance.Air;
+
+            collider = visualized ? block.GetCollider(world, position.Value) : null;
+        }
 
         if (collider != null)
             selectionVFX.SetBox(collider.Value);
@@ -94,7 +110,7 @@ public sealed class VisualInterface : IDisposable
 
         foreach (VFX renderer in vfxes) renderer.IsEnabled = true;
 
-        SetSelectionBox(collider: null);
+        SetSelectionBoxTarget(world: null, instance: null, position: null);
 
         ui.SetActive(active: true);
     }
@@ -153,7 +169,7 @@ public sealed class VisualInterface : IDisposable
                 size *= -1.0;
         }
 
-        Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
+        Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
     }
 
     /// <summary>

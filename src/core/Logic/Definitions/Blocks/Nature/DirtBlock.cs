@@ -6,6 +6,8 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -19,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
 {
     private readonly TextureLayout wet;
-    private Int32[] wetTextureIndices = null!;
+    private SideArray<Int32> wetTextureIndices = null!;
 
     internal DirtBlock(String name, String namedID, TextureLayout normal, TextureLayout wet) :
         base(
@@ -32,17 +34,17 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, BlockSide side, Fluid fluid)
+    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
     {
         return fluid.Viscosity < 100;
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        base.OnSetup(indexProvider, visuals);
+        base.OnSetUp(indexProvider, visuals);
 
-        wetTextureIndices = wet.GetTextureIndexArray(indexProvider);
+        wetTextureIndices = wet.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />
@@ -51,7 +53,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         ISimple.MeshData mesh = base.GetMeshData(info);
 
         if (info.Fluid.IsFluid)
-            mesh = mesh with {TextureIndex = wetTextureIndices[(Int32) info.Side]};
+            mesh = mesh with {TextureIndex = wetTextureIndices[info.Side]};
 
         return mesh;
     }
@@ -64,7 +66,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         if (potentialFluid is not {} fluid) return;
 
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
-            world.SetBlock(Logic.Blocks.Instance.Mud.AsInstance(), position);
+            world.SetBlock(Elements.Blocks.Instance.Mud.AsInstance(), position);
     }
 
     /// <inheritdoc />
@@ -73,7 +75,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
         (BlockInstance block, FluidInstance fluid) = content;
 
         return fluid is {IsAnyWater: true, Level: FluidLevel.Eight}
-            ? new Content(Logic.Blocks.Instance.Mud.AsInstance(), fluid)
+            ? new Content(Elements.Blocks.Instance.Mud.AsInstance(), fluid)
             : new Content(block, fluid);
     }
 }

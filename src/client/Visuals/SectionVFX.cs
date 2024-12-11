@@ -7,19 +7,22 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
+using VoxelGame.Core;
+using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Data;
-using VoxelGame.Support.Graphics.Raytracing;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Data;
+using VoxelGame.Graphics.Graphics.Raytracing;
+using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
-///     A VFX for <see cref="VoxelGame.Core.Logic.Section" />.
+///     A VFX for <see cref="Section" />.
 /// </summary>
 public sealed class SectionVFX : VFX
 {
@@ -154,6 +157,15 @@ public sealed class SectionVFX : VFX
         // Intentionally left empty.
     }
 
+    private Mesh CreateMesh(Material material)
+    {
+        Mesh mesh = space.CreateMesh(material, position);
+
+        mesh.IsEnabled = enabled;
+
+        return mesh;
+    }
+
     /// <summary>
     ///     Set the section mesh data to display. Must not be discarded.
     /// </summary>
@@ -161,28 +173,29 @@ public sealed class SectionVFX : VFX
     public void SetData(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
-            basic.opaque ??= space.CreateMesh(basicOpaqueMaterial, position);
+            basic.opaque ??= CreateMesh(basicOpaqueMaterial);
             basic.opaque.SetVertices((meshData.BasicMeshing.opaque as SpatialMeshing)!.Span);
         }
 
         if (meshData.BasicMeshing.transparent.Count > 0 || basic.transparent != null)
         {
-            basic.transparent ??= space.CreateMesh(basicTransparentMaterial, position);
+            basic.transparent ??= CreateMesh(basicTransparentMaterial);
             basic.transparent.SetVertices((meshData.BasicMeshing.transparent as SpatialMeshing)!.Span);
         }
 
         if (meshData.FoliageMeshing.Count > 0 || foliage != null)
         {
-            foliage ??= space.CreateMesh(foliageMaterial, position);
+            foliage ??= CreateMesh(foliageMaterial);
             foliage.SetVertices((meshData.FoliageMeshing as SpatialMeshing)!.Span);
         }
 
         if (meshData.FluidMeshing.Count > 0 || fluid != null)
         {
-            fluid ??= space.CreateMesh(fluidMaterial, position);
+            fluid ??= CreateMesh(fluidMaterial);
             fluid.SetVertices((meshData.FluidMeshing as SpatialMeshing)!.Span);
         }
     }

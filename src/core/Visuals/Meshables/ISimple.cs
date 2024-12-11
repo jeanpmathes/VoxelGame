@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -20,7 +20,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     void IBlockMeshable.CreateMesh(Vector3i position, BlockMeshInfo info, MeshingContext context)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void MeshSimpleSide(BlockSide side)
+        void MeshSimpleSide(Side side)
         {
             Vector3i checkPosition = side.Offset(position);
             BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
@@ -33,12 +33,12 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
             AddSimpleMesh(position, side, mesh, IsOpaque, IsUnshaded, context);
         }
 
-        MeshSimpleSide(BlockSide.Front);
-        MeshSimpleSide(BlockSide.Back);
-        MeshSimpleSide(BlockSide.Left);
-        MeshSimpleSide(BlockSide.Right);
-        MeshSimpleSide(BlockSide.Bottom);
-        MeshSimpleSide(BlockSide.Top);
+        MeshSimpleSide(Side.Front);
+        MeshSimpleSide(Side.Back);
+        MeshSimpleSide(Side.Left);
+        MeshSimpleSide(Side.Right);
+        MeshSimpleSide(Side.Bottom);
+        MeshSimpleSide(Side.Top);
     }
 
 
@@ -54,7 +54,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         {
             Data = content.Block.Data,
             Fluid = content.Fluid.Fluid,
-            Side = BlockSide.Front
+            Side = Side.Front
         });
 
         return new OverlayTexture
@@ -67,7 +67,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void AddSimpleMesh(
-        Vector3i position, BlockSide side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
+        Vector3i position, Side side, MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
@@ -94,7 +94,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <param name="side">The side of the current block that is being checked.</param>
     /// <returns>True if the face is hidden, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Boolean IsHiddenFace(IBlockBase current, BlockInstance neighbor, BlockSide side)
+    public static Boolean IsHiddenFace(IBlockBase current, BlockInstance neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
                                                  || (current is {IsOpaque: false, RenderFaceAtNonOpaques: false} && !neighbor.Block.RenderFaceAtNonOpaques);

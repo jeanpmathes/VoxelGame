@@ -26,10 +26,8 @@ namespace VoxelGame.Client.Application.Worlds;
 ///     Provides worlds that are either loaded from disk or newly created.
 ///     The world provider itself does not active worlds.
 /// </summary>
-public class WorldProvider : IWorldProvider
+public partial class WorldProvider : IWorldProvider
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
-
     private readonly FileInfo metadataFile;
 
     private readonly List<IWorldProvider.IWorldInfo> worlds = [];
@@ -93,16 +91,13 @@ public class WorldProvider : IWorldProvider
             {
                 found = SearchForWorlds();
 
-                logger.LogInformation(
-                    Events.WorldIO,
-                    "Completed world lookup, found {Count} valid directories",
-                    found.Count);
+                LogWorldLookup(logger, found.Count);
             }
             catch (Exception e) when (e is IOException or SecurityException)
             {
-                logger.LogError(Events.WorldIO, e, "Failed to refresh worlds");
+                LogWorldRefreshError(logger, e);
 
-                throw;
+                throw new AggregateException("Failed to refresh worlds", e);
             }
 
             List<String> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
@@ -233,21 +228,18 @@ public class WorldProvider : IWorldProvider
 
     private List<WorldData> SearchForWorlds()
     {
-        List<WorldData> found = new();
+        List<WorldData> found = [];
 
         foreach (DirectoryInfo directory in WorldsDirectory.EnumerateDirectories())
             if (WorldData.IsWorldDirectory(directory))
             {
                 found.Add(WorldData.LoadInformation(directory));
 
-                logger.LogDebug(Events.WorldIO, "Valid world directory found: {Directory}", directory);
+                LogValidWorldDirectory(logger, directory);
             }
             else
             {
-                logger.LogDebug(
-                    Events.WorldIO,
-                    "Directory has no meta file and is ignored: {Directory}",
-                    directory);
+                LogIgnoredDirectory(logger, directory);
             }
 
         return found;
@@ -290,4 +282,22 @@ public class WorldProvider : IWorldProvider
         public DateTime? DateTimeOfLastLoad => Provider.GetDateTimeOfLastLoad(Data);
         public Boolean IsFavorite => Provider.IsFavorite(Data);
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Completed world lookup, found {Count} valid directories")]
+    private static partial void LogWorldLookup(ILogger logger, Int32 count);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to refresh worlds")]
+    private static partial void LogWorldRefreshError(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Valid world directory found: {Directory}")]
+    private static partial void LogValidWorldDirectory(ILogger logger, DirectoryInfo directory);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Directory has no meta file and is ignored: {Directory}")]
+    private static partial void LogIgnoredDirectory(ILogger logger, DirectoryInfo directory);
+
+    #endregion
 }

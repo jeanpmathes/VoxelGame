@@ -17,9 +17,9 @@ using VoxelGame.Core;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics;
+using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
-using VoxelGame.Support;
-using VoxelGame.Support.Core;
 
 [assembly: CLSCompliant(isCompliant: false)]
 [assembly: ComVisible(visibility: false)]
@@ -27,7 +27,7 @@ using VoxelGame.Support.Core;
 
 namespace VoxelGame.Client;
 
-internal static class Program
+internal static partial class Program
 {
     /// <summary>
     ///     Get the version of the program.
@@ -76,19 +76,16 @@ internal static class Program
         return Arguments.Handle(commandLineArguments,
             logging =>
             {
-                ILogger logger = LoggingHelper.SetupLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
+                ILogger logger = LoggingHelper.SetUpLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
 
-                if (logging.LogDebug) logger.LogDebug(Events.Meta, "Logging debug messages");
-                else
-                    logger.LogInformation(
-                        Events.Meta,
-                        "Debug messages will not be logged. Use the respective argument to log debug messages");
+                if (logging.LogDebug) LogDebugMessages(logger);
+                else LogDebugMessagesNotLogged(logger);
 
                 Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
                 ApplicationInformation.Initialize(Version);
                 System.Console.Title = Language.VoxelGame + @" " + Version;
 
-                logger.LogInformation(Events.ApplicationInformation, "Starting game on version: {Version}", Version);
+                LogStartingGame(logger, Version);
 
                 return logger;
             },
@@ -108,7 +105,7 @@ internal static class Program
                         UseGBV = args.UseGBV
                     }.Corrected;
 
-                    logger.LogDebug("Opening window");
+                    LogOpeningWindow(logger);
 
                     Int32 result;
 
@@ -141,7 +138,7 @@ internal static class Program
         }
         catch (Exception exception)
         {
-            logger.LogCritical(Events.ApplicationInformation, exception, "Unhandled exception, likely a bug");
+            LogUnhandledException(logger, exception);
 
             Dialog.ShowError($"Unhandled exception: {exception.Message}\n\n{exception.StackTrace}");
 
@@ -149,4 +146,23 @@ internal static class Program
         }
     }
     #pragma warning restore S2221
+
+    #region LOGGING
+
+    [LoggerMessage(EventId = Events.Meta, Level = LogLevel.Debug, Message = "Logging debug messages")]
+    private static partial void LogDebugMessages(ILogger logger);
+
+    [LoggerMessage(EventId = Events.Meta, Level = LogLevel.Information, Message = "Debug messages will not be logged - use the respective argument to log debug messages")]
+    private static partial void LogDebugMessagesNotLogged(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Starting game on version: {Version}")]
+    private static partial void LogStartingGame(ILogger logger, String version);
+
+    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "Opening window")]
+    private static partial void LogOpeningWindow(ILogger logger);
+
+    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Critical, Message = "Unhandled exception, likely a bug")]
+    private static partial void LogUnhandledException(ILogger logger, Exception exception);
+
+    #endregion LOGGING
 }

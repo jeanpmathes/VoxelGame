@@ -15,17 +15,17 @@ namespace VoxelGame.Core.Utilities;
 public enum Axis
 {
     /// <summary>
-    ///     The x axis.
+    ///     The x-axis.
     /// </summary>
     X = 0b00,
 
     /// <summary>
-    ///     The y axis.
+    ///     The y-axis.
     /// </summary>
     Y = 0b01,
 
     /// <summary>
-    ///     The z axis.
+    ///     The z-axis.
     /// </summary>
     Z = 0b10
 }
@@ -36,7 +36,7 @@ public enum Axis
 public static class AxisExtensions
 {
     /// <summary>
-    ///     Rotate an axis around the y axis.
+    ///     Rotate an axis around the y-axis.
     /// </summary>
     public static Axis Rotate(this Axis axis)
     {

@@ -46,6 +46,8 @@ internal class FloatRangeSetting : Setting
 
     protected override String Name { get; }
 
+    public override Object Value => get();
+
     private protected override void FillControl(ControlBase control, Context context)
     {
         VerticalLayout layout = new(control);

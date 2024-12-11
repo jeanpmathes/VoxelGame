@@ -7,9 +7,10 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Inputs;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Input.Actions;
-using VoxelGame.Support.Input.Composite;
+using VoxelGame.Core.Actors;
+using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Graphics.Input.Composite;
+using VoxelGame.Toolkit;
 
 namespace VoxelGame.Client.Actors.Players;
 
@@ -18,11 +19,11 @@ namespace VoxelGame.Client.Actors.Players;
 /// </summary>
 internal sealed class Input
 {
+    private const Single InteractionCooldown = 0.25f;
+
     private readonly Button blockInteractButton;
     private readonly Button crouchButton;
     private readonly Button destroyButton;
-
-    private readonly Single interactionCooldown = 0.25f;
 
     private readonly Button interactOrPlaceButton;
     private readonly Button jumpButton;
@@ -30,17 +31,14 @@ internal sealed class Input
 
     private readonly ToggleButton placementModeToggle;
 
-    private readonly Player player;
     private readonly InputAxis selectionAxis;
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
     private Double timer;
 
-    internal Input(Player player)
+    internal Input()
     {
-        this.player = player;
-
         KeybindManager keybind = Application.Client.Instance.Keybinds;
 
         Button forwardsButton = keybind.GetButton(keybind.Forwards);
@@ -74,7 +72,7 @@ internal sealed class Input
 
     internal Boolean ShouldCrouch => crouchButton.IsDown;
 
-    private Boolean IsCooldownOver => timer >= interactionCooldown;
+    private Boolean IsCooldownOver => timer >= InteractionCooldown;
 
     internal Boolean ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
 
@@ -86,10 +84,20 @@ internal sealed class Input
 
     internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
 
-    internal Vector3d GetMovement(Single normalSpeed, Single sprintSpeed)
+    /// <summary>
+    ///     Get the movement decided by the user input for an orientable object.
+    /// </summary>
+    /// <param name="orientable">An orientable object.</param>
+    /// <param name="normalSpeed">The factor to use for normal speed.</param>
+    /// <param name="sprintSpeed">The factor to use for sprint speed.</param>
+    /// <param name="allowFlying">Whether flying is allowed.</param>
+    /// <returns>The movement vector.</returns>
+    internal Vector3d GetMovement(IOrientable orientable, Double normalSpeed, Double sprintSpeed, Boolean allowFlying)
     {
         (Single x, Single z) = movementInput.Value;
-        Vector3d movement = x * player.Forward + z * player.Right;
+        Single y = (ShouldJump.ToInt() - ShouldCrouch.ToInt()) * allowFlying.ToInt();
+
+        Vector3d movement = x * orientable.Forward + z * orientable.Right + y * Vector3d.UnitY;
 
         if (movement != Vector3d.Zero)
             movement = sprintButton.IsDown
@@ -112,20 +120,5 @@ internal sealed class Input
     internal Int32 GetSelectionChange()
     {
         return Math.Sign(selectionAxis.Value);
-    }
-
-    internal Vector3d GetFlyingMovement(Double flyingSpeed, Double flyingSprintSpeed)
-    {
-        (Single x, Single z) = movementInput.Value;
-        Single y = ShouldJump.ToInt() - ShouldCrouch.ToInt();
-
-        Vector3d movement = x * player.LookingDirection + y * Vector3d.UnitY + z * player.CameraRight;
-
-        if (movement != Vector3d.Zero)
-            movement = sprintButton.IsDown
-                ? movement.Normalized() * flyingSprintSpeed
-                : movement.Normalized() * flyingSpeed;
-
-        return movement;
     }
 }

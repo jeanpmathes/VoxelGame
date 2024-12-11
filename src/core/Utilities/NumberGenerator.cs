@@ -16,5 +16,5 @@ public static class NumberGenerator
     /// <summary>
     ///     The random number generator.
     /// </summary>
-    public static Random Random { get; } = new();
+    public static Random Random => Random.Shared;
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -72,7 +73,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
         Int32 baseIndex = indexProvider.GetTextureIndex(texture);
 
@@ -164,11 +165,11 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
         // Check if this block is the lower part and if the ground supports plant growth.
-        if (side == BlockSide.Bottom && (data & 0b00_1000) == 0 &&
-            (world.GetBlock(position.Below())?.Block ?? Logic.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
+        if (side == Side.Bottom && (data & 0b00_1000) == 0 &&
+            (world.GetBlock(position.Below())?.Block ?? Elements.Blocks.Instance.Air) is not IPlantable) Destroy(world, position);
     }
 
     /// <inheritdoc />
@@ -191,7 +192,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     private void GrowBothParts(World world, Vector3i position, IPlantable plantable, UInt32 lowered,
         GrowthStage stage)
     {
-        if (world.GetFluid(position.Below())?.Fluid == Logic.Fluids.Instance.SeaWater)
+        if (world.GetFluid(position.Below())?.Fluid == Elements.Fluids.Instance.SeaWater)
         {
             world.SetBlock(this.AsInstance(lowered | (UInt32) GrowthStage.Dead), position);
             if (stage != GrowthStage.Third) world.SetDefaultBlock(position.Above());
@@ -202,7 +203,7 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         BlockInstance? above = world.GetBlock(position.Above());
         Boolean growthPossible = above?.Block.IsReplaceable == true || above?.Block == this;
 
-        if (!growthPossible || !plantable.TryGrow(world, position.Below(), Logic.Fluids.Instance.FreshWater, FluidLevel.One)) return;
+        if (!growthPossible || !plantable.TryGrow(world, position.Below(), Elements.Fluids.Instance.FreshWater, FluidLevel.One)) return;
 
         world.SetBlock(this.AsInstance(lowered | (UInt32) (stage + 1)), position);
 

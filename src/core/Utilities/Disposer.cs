@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -26,6 +27,14 @@ public sealed class Disposer : IDisposable
         this.dispose = dispose;
     }
 
+    /// <summary>
+    ///     Create a new <see cref="Disposer" /> with an empty dispose action.
+    /// </summary>
+    public Disposer()
+    {
+        dispose = DoNothing;
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
@@ -33,12 +42,17 @@ public sealed class Disposer : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    private static void DoNothing()
+    {
+        // Intentionally does nothing.
+    }
+
     private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
         if (disposing) dispose();
-        else Throw.ForMissedDispose(nameof(Disposer));
+        else Throw.ForMissedDispose(this);
 
         disposed = true;
     }

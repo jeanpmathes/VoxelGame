@@ -7,10 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
@@ -68,7 +68,7 @@ public class FindNamed : Command
             return;
         }
 
-        Task.Run(() =>
+        Operations.Launch(() =>
         {
             foreach (Vector3i position in positions.Take(count))
                 Context.Console.EnqueueResponse($"Found {name} at {position}.",

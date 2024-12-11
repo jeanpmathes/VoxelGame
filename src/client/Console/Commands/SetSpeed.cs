@@ -38,7 +38,7 @@ public class SetSpeed : Command
                 return;
 
             default:
-                Context.Player.FlyingSpeed = speed;
+                Context.Player.SetFlyingSpeed(speed);
 
                 break;
         }

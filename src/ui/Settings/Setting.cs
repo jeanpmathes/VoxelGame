@@ -10,7 +10,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Support.Definition;
+using VoxelGame.Graphics.Definition;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
@@ -23,12 +23,18 @@ namespace VoxelGame.UI.Settings;
 public abstract class Setting
 {
     /// <summary>
-    ///     Get the name of the setting.
+    ///     Get the name of the setting, in natural (localized) language.
     /// </summary>
     protected abstract String Name { get; }
 
     /// <summary>
-    ///     The provider which provided this setting.
+    /// Provides the untyped value of the setting.
+    /// Use only for debugging purposes.
+    /// </summary>
+    public abstract Object Value { get; }
+
+    /// <summary>
+    ///     The validator for the setting.
     /// </summary>
     public required ISettingsValidator Validator { get; init; } = null!;
 

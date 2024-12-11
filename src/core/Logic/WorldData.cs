@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -22,11 +23,9 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Represents the data directory of a world and provides utilities to access and modify it.
 /// </summary>
-public class WorldData
+public partial class WorldData
 {
     private const String InfoFileName = "info.json";
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
     private readonly List<DirectoryInfo> subdirectories = [];
 
@@ -109,7 +108,7 @@ public class WorldData
 
         if (!silent && validWorldName != information.Name)
         {
-            logger.LogWarning(Events.WorldState, "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'", information.Name, validWorldName);
+            LogInvalidWorldName(logger, information.Name, validWorldName);
             information.Name = validWorldName;
         }
 
@@ -117,7 +116,7 @@ public class WorldData
 
         if (!silent && validWorldSize != information.Size)
         {
-            logger.LogWarning(Events.WorldState, "Loaded world size {Invalid} was invalid, changed to {Valid}", information.Size, validWorldSize);
+            LogInvalidWorldSize(logger, information.Size, validWorldSize);
             information.Size = validWorldSize;
         }
 
@@ -125,7 +124,7 @@ public class WorldData
 
         if (!silent && !VMath.NearlyEqual(validSpawn, information.SpawnInformation.Position))
         {
-            logger.LogWarning(Events.WorldState, "Loaded spawn position {Invalid} was invalid, changed to {Valid}", information.SpawnInformation.Position, validSpawn);
+            LogInvalidSpawnPosition(logger, information.SpawnInformation.Position, validSpawn);
             information.SpawnInformation = new SpawnInformation(validSpawn);
         }
     }
@@ -192,8 +191,8 @@ public class WorldData
     {
         Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
 
-        if (exception is FileFormatException) logger.LogError(Events.WorldIO, exception, "Failed to read blob '{Name}', format is incorrect", name);
-        else if (exception != null) logger.LogDebug(Events.WorldIO, exception, "Failed to read blob '{Name}'", name);
+        if (exception is FileFormatException) LogFailedToReadBlob(logger, exception, name);
+        else if (exception != null) LogFailedToReadBlobDebug(logger, exception, name);
         else return entity;
 
         return null;
@@ -210,7 +209,7 @@ public class WorldData
         Exception? exception = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
 
         if (exception != null)
-            logger.LogError(Events.WorldIO, exception, "Failed to write blob '{Name}'", name);
+            LogFailedToWriteBlob(logger, exception, name);
     }
 
     private FileInfo GetScriptPath(String name)
@@ -231,7 +230,7 @@ public class WorldData
         }
         catch (IOException e)
         {
-            logger.LogDebug(Events.WorldIO, e, "Failed to read script '{Name}'", name);
+            LogFailedToReadScript(logger, e, name);
 
             return null;
         }
@@ -255,7 +254,7 @@ public class WorldData
         }
         catch (IOException e)
         {
-            logger.LogError(Events.WorldIO, e, "Failed to create script '{Name}'", name);
+            LogFailedToCreateScript(logger, e, name);
 
             return null;
         }
@@ -326,11 +325,11 @@ public class WorldData
             {
                 WorldDirectory.Delete(recursive: true);
 
-                logger.LogInformation(Events.WorldIO, "Deleted world '{Name}'", Information.Name);
+                LogDeletedWorld(logger, Information.Name);
             }
             catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
             {
-                logger.LogError(Events.WorldIO, e, "Failed to delete world");
+                LogFailedToDeleteWorld(logger, e);
 
                 throw;
             }
@@ -350,13 +349,13 @@ public class WorldData
             {
                 WorldDirectory.CopyTo(targetDirectory);
 
-                logger.LogInformation(Events.WorldIO, "Copied world '{Name}' to '{Target}'", Information.Name, targetDirectory.FullName);
+                LogCopiedWorld(logger, Information.Name, targetDirectory.FullName);
 
                 return LoadInformation(targetDirectory);
             }
             catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
             {
-                logger.LogError(Events.WorldIO, e, "Failed to copy world");
+                LogFailedToCopyWorld(logger, e);
 
                 throw;
             }
@@ -369,10 +368,55 @@ public class WorldData
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
     public void Rename(String newName)
     {
-        logger.LogInformation(Events.WorldIO, "Renaming world '{OldName}' to '{NewName}'", Information.Name, newName);
+        LogRenamingWorld(logger, Information.Name, newName);
 
         Information.Name = newName;
 
         Save();
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'")]
+    private static partial void LogInvalidWorldName(ILogger logger, String invalid, String valid);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world size {Invalid} was invalid, changed to {Valid}")]
+    private static partial void LogInvalidWorldSize(ILogger logger, UInt32 invalid, UInt32 valid);
+
+    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded spawn position {Invalid} was invalid, changed to {Valid}")]
+    private static partial void LogInvalidSpawnPosition(ILogger logger, Vector3d invalid, Vector3d valid);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to read blob '{Name}', format is incorrect")]
+    private static partial void LogFailedToReadBlob(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read blob '{Name}'")]
+    private static partial void LogFailedToReadBlobDebug(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to write blob '{Name}'")]
+    private static partial void LogFailedToWriteBlob(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read script '{Name}'")]
+    private static partial void LogFailedToReadScript(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to create script '{Name}'")]
+    private static partial void LogFailedToCreateScript(ILogger logger, Exception exception, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Deleted world '{Name}'")]
+    private static partial void LogDeletedWorld(ILogger logger, String name);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to delete world")]
+    private static partial void LogFailedToDeleteWorld(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Copied world '{Name}' to '{Target}'")]
+    private static partial void LogCopiedWorld(ILogger logger, String name, String target);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to copy world")]
+    private static partial void LogFailedToCopyWorld(ILogger logger, Exception exception);
+
+    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Renaming world '{OldName}' to '{NewName}'")]
+    private static partial void LogRenamingWorld(ILogger logger, String oldName, String newName);
+
+    #endregion LOGGING
 }

@@ -8,17 +8,18 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Actors;
 
 /// <summary>
 ///     An actor which is affected by gravity and forces.
 /// </summary>
-public abstract class PhysicsActor : IDisposable
+public abstract partial class PhysicsActor : Actor, IOrientable
 {
     /// <summary>
     ///     The gravitational constant which accelerates all physics actors.
@@ -28,30 +29,22 @@ public abstract class PhysicsActor : IDisposable
     private const Double AirDrag = 0.18;
     private const Double FluidDrag = 15.0;
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
+    private const Int32 PhysicsIterations = 10;
 
     private readonly BoundingVolume boundingVolume;
 
-    private readonly Int32 physicsIterations = 10;
-
     private Vector3d actualPosition;
+    private Vector3d force;
 
     private Boolean doPhysics = true;
 
-    private Vector3d force;
-
     /// <summary>
-    ///     Create a new physics actor.
+    ///     Create a new physics-actor.
     /// </summary>
-    /// <param name="world">The world in which the physics actor is located.</param>
     /// <param name="mass">The mass of the actor.</param>
     /// <param name="boundingVolume">The bounding box of the actor.</param>
-    protected PhysicsActor(World world, Double mass, BoundingVolume boundingVolume)
+    protected PhysicsActor(Double mass, BoundingVolume boundingVolume)
     {
-        World = world;
-
-        Rotation = Quaterniond.Identity;
-
         Mass = mass;
         this.boundingVolume = boundingVolume;
     }
@@ -67,43 +60,19 @@ public abstract class PhysicsActor : IDisposable
     public Vector3d Velocity { get; set; }
 
     /// <summary>
-    ///     Get the position of the physics actor.
-    /// </summary>
-    public Vector3d Position
-    {
-        get => actualPosition;
-        protected set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
-    }
-
-    /// <summary>
     ///     Get the rotation of the physics actor.
     /// </summary>
-    protected Quaterniond Rotation { get; set; }
+    protected Quaterniond Rotation { get; set; } = Quaterniond.Identity;
 
     /// <summary>
     ///     Get whether the physics actor touches the ground.
     /// </summary>
-    protected Boolean IsGrounded { get; private set; }
+    public Boolean IsGrounded { get; private set; }
 
     /// <summary>
     ///     Get whether the physics actor is in a fluid.
     /// </summary>
-    protected Boolean IsSwimming { get; private set; }
-
-    /// <summary>
-    ///     Get the forward vector of the physics actor.
-    /// </summary>
-    public Vector3d Forward => Rotation * Vector3d.UnitX;
-
-    /// <summary>
-    ///     Get the right vector of the physics actor.
-    /// </summary>
-    public Vector3d Right => Rotation * Vector3d.UnitZ;
-
-    /// <summary>
-    ///     Get the world in which the physics actor is located.
-    /// </summary>
-    public World World { get; }
+    public Boolean IsSwimming { get; private set; }
 
     /// <summary>
     ///     Get the target movement of the physics actor.
@@ -111,14 +80,15 @@ public abstract class PhysicsActor : IDisposable
     public abstract Vector3d Movement { get; }
 
     /// <summary>
-    ///     Get the looking direction of the physics actor, which is also the front vector of the view camera.
+    /// The head of the physics actor, which allows to determine where the actor is looking at.
+    /// If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
     /// </summary>
-    public abstract Vector3d LookingDirection { get; }
+    public virtual IOrientable Head => this;
 
     /// <summary>
     ///     Get the block side targeted by the physics actor.
     /// </summary>
-    public abstract BlockSide TargetSide { get; }
+    public abstract Side TargetSide { get; }
 
     /// <summary>
     ///     Get the block position targeted by the physics actor.
@@ -147,18 +117,34 @@ public abstract class PhysicsActor : IDisposable
 
             if (oldValue == value) return;
 
-            logger.LogInformation(
-                Events.PhysicsSystem,
-                "Set actor physics to {State}",
-                doPhysics ? "enabled" : "disabled");
+            LogSetActorPhysics(logger, doPhysics);
         }
     }
+
+    /// <summary>
+    ///     Get the position of the physics actor.
+    /// </summary>
+    public Vector3d Position
+    {
+        get => actualPosition;
+        set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
+    }
+
+    /// <summary>
+    ///     Get the forward vector of the physics actor.
+    /// </summary>
+    public Vector3d Forward => Rotation * Vector3d.UnitX;
+
+    /// <summary>
+    ///     Get the right vector of the physics actor.
+    /// </summary>
+    public Vector3d Right => Rotation * Vector3d.UnitZ;
 
     /// <summary>
     ///     Applies force to this actor.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
-    protected void AddForce(Vector3d additionalForce)
+    public void AddForce(Vector3d additionalForce)
     {
         Throw.IfDisposed(disposed);
 
@@ -170,7 +156,7 @@ public abstract class PhysicsActor : IDisposable
     /// </summary>
     /// <param name="movement">The target movement, can be zero to try to stop moving.</param>
     /// <param name="maxForce">The maximum allowed force to use.</param>
-    protected void Move(Vector3d movement, Vector3d maxForce)
+    public void Move(Vector3d movement, Vector3d maxForce)
     {
         Throw.IfDisposed(disposed);
 
@@ -181,11 +167,8 @@ public abstract class PhysicsActor : IDisposable
         AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
     }
 
-    /// <summary>
-    ///     Tick this physics actor. An actor is ticked every update.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void Tick(Double deltaTime)
+    /// <inheritdoc />
+    public override void Tick(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -215,12 +198,12 @@ public abstract class PhysicsActor : IDisposable
         BoxCollider collider = Collider;
 
         Vector3d movement = Velocity * deltaTime;
-        movement *= 1f / physicsIterations;
+        movement *= 1f / PhysicsIterations;
 
-        HashSet<(Vector3i position, Block block)> blockIntersections = new();
-        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = new();
+        HashSet<(Vector3i position, Block block)> blockIntersections = [];
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = [];
 
-        for (var i = 0; i < physicsIterations; i++)
+        for (var i = 0; i < PhysicsIterations; i++)
             DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
 
         foreach ((Vector3i position, Block block) in blockIntersections)
@@ -246,7 +229,9 @@ public abstract class PhysicsActor : IDisposable
 
             if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, (maxLevel + 1) / 8.0);
 
+#pragma warning disable S2589 // IsGrounded is set in DoPhysicsStep
             if (!IsGrounded && noGas) IsSwimming = true;
+#pragma warning restore S2589
         }
 
         force = new Vector3d(x: 0, Gravity * Mass, z: 0);
@@ -296,34 +281,26 @@ public abstract class PhysicsActor : IDisposable
     /// <param name="deltaTime"></param>
     protected abstract void Update(Double deltaTime);
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
+
+    [LoggerMessage(EventId = Events.PhysicsSystem, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
+    private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
+
+    #endregion LOGGING
+
     #region IDisposable Support
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    public void Dispose()
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+        base.Dispose(disposing);
 
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~PhysicsActor()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    /// <param name="disposing">True if called by code.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
+        if (disposed)
+            return;
 
         disposed = true;
     }

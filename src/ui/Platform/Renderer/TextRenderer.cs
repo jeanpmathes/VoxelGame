@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -62,7 +62,7 @@ public sealed class TextRenderer : IDisposable
 
         using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
 
-        using Graphics graphics = Graphics.FromImage(bitmap);
+        using System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(bitmap);
         graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
         graphics.Clear(Color.Transparent);
 

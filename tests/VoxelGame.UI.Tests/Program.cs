@@ -4,17 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Runtime.InteropServices;
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
 using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
-using VoxelGame.Support.Core;
 using VoxelGame.UI.Platform;
-
-[assembly: ComVisible(visibility: false)]
 
 namespace VoxelGame.UI.Tests;
 
@@ -47,7 +44,7 @@ internal class Program : Client
     [STAThread]
     internal static void Main()
     {
-        LoggingHelper.SetupMockLogging();
+        LoggingHelper.SetUpMockLogging();
         ApplicationInformation.Initialize("0.0.0.1");
 
         WindowSettings windowSettings = new()

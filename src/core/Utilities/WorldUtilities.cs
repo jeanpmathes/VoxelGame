@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 
 namespace VoxelGame.Core.Utilities;
@@ -72,7 +73,7 @@ public static class WorldExtensions
 
         if (top is null) return null;
 
-        return top.Value.Block is {IsSolid: true, IsOpaque: true} && top.Value.IsSideFull(BlockSide.Bottom);
+        return top.Value.Block is {IsSolid: true, IsOpaque: true} && top.Value.IsSideFull(Side.Bottom);
     }
 
     /// <summary>

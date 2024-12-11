@@ -6,16 +6,17 @@
 
 using System;
 using System.Runtime;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-public class SceneManager
+public partial class SceneManager
 {
     private IScene? current;
 
@@ -25,6 +26,8 @@ public class SceneManager
     /// <param name="scene">The scene to load, or null to just unload the current scene.</param>
     public void Load(IScene? scene)
     {
+        LogSwitchingScene(logger, current, scene);
+
         Unload();
 
         current = scene;
@@ -34,6 +37,8 @@ public class SceneManager
 
     private void Load()
     {
+        LogLoadingScene(logger, current);
+
         current?.Load();
     }
 
@@ -44,10 +49,12 @@ public class SceneManager
     {
         if (current == null) return;
 
+        LogUnloadingScene(logger, current);
+
         current.Unload();
         current.Dispose();
 
-        Graphics.Instance.Reset();
+        Visuals.Graphics.Instance.Reset();
 
         Cleanup();
     }
@@ -96,4 +103,19 @@ public class SceneManager
     {
         return current?.CanCloseWindow() ?? true;
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneManager>();
+
+    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Debug, Message = "Initiating scene change from {OldScene} to {NewScene}")]
+    private static partial void LogSwitchingScene(ILogger logger, IScene? oldScene, IScene? newScene);
+
+    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loading scene {Scene}")]
+    private static partial void LogLoadingScene(ILogger logger, IScene? scene);
+
+    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
+    private static partial void LogUnloadingScene(ILogger logger, IScene? scene);
+
+    #endregion LOGGING
 }

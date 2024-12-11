@@ -17,12 +17,12 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     Supports command line argument handling for this application.
 /// </summary>
-public static class Arguments
+public static partial class Arguments
 {
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static Int32 Handle(String[] args, SetupLogging setupLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, SetUpLogging setUpLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
@@ -75,45 +75,51 @@ public static class Arguments
         enableProfilingOption.AddAlias("-p");
         command.AddOption(enableProfilingOption);
 
+        ILogger? logger = null;
+        GameParameters? gameParameters = null;
+
+        command.SetHandler(context =>
+        {
+            logger = GetLogger(context);
+
+            gameParameters = new GameParameters(
+                context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
+                context.ParseResult.GetValueForOption(enableProfilingOption),
+                context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
+                context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
+        });
+
+        command.Invoke(args);
+
+        if (logger == null || gameParameters == null)
+            return 1;
+
+        Int32 exitCode = runGame(gameParameters, logger);
+
+        LogExitingWithCode(logger, exitCode);
+
+        return exitCode;
+
         ILogger GetLogger(InvocationContext context)
         {
             Debug.Assert(logDebugOption != null);
 
-            return setupLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
+            return setUpLogging(new LoggingParameters(context.ParseResult.GetValueForOption(logDebugOption)));
         }
-
-        command.SetHandler(context =>
-        {
-            context.ExitCode = RunApplication(GetLogger(context),
-                logger =>
-                {
-                    GameParameters gameParameters = new(
-                        context.ParseResult.GetValueForOption(loadWorldDirectlyOption),
-                        context.ParseResult.GetValueForOption(enableProfilingOption),
-                        context.ParseResult.GetValueForOption(supportGraphicalDebuggerOption),
-                        context.ParseResult.GetValueForOption(useGraphicsProcessingUnitBasedValidationOption));
-
-                    return runGame(gameParameters, logger);
-                });
-        });
-
-        return command.Invoke(args);
     }
 
-    private static Int32 RunApplication(ILogger logger, Func<ILogger, Int32> app)
-    {
-        Int32 exitCode = app(logger);
+    #region LOGGING
 
-        logger.LogInformation(Events.ApplicationState, "Exiting with code: {ExitCode}", exitCode);
+    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
+    private static partial void LogExitingWithCode(ILogger logger, Int32 exitCode);
 
-        return exitCode;
-    }
+    #endregion LOGGING
 }
 
 /// <summary>
 ///     Sets up logging.
 /// </summary>
-public delegate ILogger SetupLogging(LoggingParameters parameters);
+public delegate ILogger SetUpLogging(LoggingParameters parameters);
 
 /// <summary>
 ///     The parameters for setting up logging.

@@ -5,13 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -20,11 +20,8 @@ namespace VoxelGame.Client.Application.Settings;
 /// <summary>
 ///     Game settings concerning the game graphics and visuals.
 /// </summary>
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-public sealed class GraphicsSettings : ISettingsProvider
+public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
 {
-    private readonly List<Setting> settings = [];
-
     internal GraphicsSettings(Properties.Settings clientSettings)
     {
         FoliageQuality = new Bindable<Quality>(
@@ -35,7 +32,7 @@ public sealed class GraphicsSettings : ISettingsProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(FoliageQuality),
             Setting.CreateQualitySetting(
                 this,
                 Language.GraphicsFoliageQuality,
@@ -49,7 +46,7 @@ public sealed class GraphicsSettings : ISettingsProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(WindowSize),
             Setting.CreateSizeSetting(
                 this,
                 Language.GraphicsWindowSize,
@@ -64,7 +61,7 @@ public sealed class GraphicsSettings : ISettingsProvider
                 clientSettings.Save();
             });
 
-        settings.Add(
+        AddSetting(nameof(RenderResolutionScale),
             Setting.CreateFloatRangeSetting(
                 this,
                 Language.GraphicsRenderResolutionScale,
@@ -104,6 +101,12 @@ public sealed class GraphicsSettings : ISettingsProvider
     /// <inheritdoc />
     static String ISettingsProvider.Description => Language.GraphicsSettingsDescription;
 
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<GraphicsSettings>();
+
     /// <inheritdoc />
-    public IEnumerable<Setting> Settings => settings;
+    protected override ILogger Logger => logger;
+
+    #endregion LOGGING
 }

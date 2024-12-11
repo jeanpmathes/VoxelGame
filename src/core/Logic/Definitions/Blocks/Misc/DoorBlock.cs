@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -149,8 +150,8 @@ public class DoorBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        Orientation orientation = actor?.LookingDirection.ToOrientation() ?? Orientation.North;
-        BlockSide side = actor?.TargetSide ?? BlockSide.Top;
+        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
+        Side side = actor?.TargetSide ?? Side.Top;
 
         Boolean isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
 
@@ -161,11 +162,11 @@ public class DoorBlock : Block, IFillable, IComplex
             position.Above());
     }
 
-    private Boolean ChooseIfLeftSided(World world, Vector3i position, BlockSide side, Orientation orientation)
+    private Boolean ChooseIfLeftSided(World world, Vector3i position, Side side, Orientation orientation)
     {
         Boolean isLeftSided;
 
-        if (side == BlockSide.Top)
+        if (side == Side.Top)
         {
             // Choose side according to neighboring doors to form a double door.
 
@@ -177,7 +178,7 @@ public class DoorBlock : Block, IFillable, IComplex
         }
         else
         {
-            isLeftSided = orientation.Rotate().Opposite().ToBlockSide() != side;
+            isLeftSided = orientation.Rotate().Opposite().ToSide() != side;
         }
 
         return isLeftSided;
@@ -222,9 +223,9 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, BlockSide side)
+    public override void NeighborUpdate(World world, Vector3i position, UInt32 data, Side side)
     {
-        if (side == BlockSide.Bottom && (data & 0b00_0100) == 0 && !world.HasFullAndSolidGround(position))
+        if (side == Side.Bottom && (data & 0b00_0100) == 0 && !world.HasFullAndSolidGround(position))
             Destroy(world, position);
     }
 }

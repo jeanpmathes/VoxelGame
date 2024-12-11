@@ -1,5 +1,5 @@
 ﻿using System;
-using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals;
 

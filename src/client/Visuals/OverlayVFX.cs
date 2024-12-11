@@ -11,13 +11,14 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Graphics;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     A VFX for overlay textures. Any block or fluid texture can be used as an overlay.
@@ -27,7 +28,7 @@ public sealed class OverlayVFX : VFX
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
 
-    private readonly Support.Core.Client client;
+    private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
 
     private readonly (TextureArray block, TextureArray fluid) textures;
@@ -48,7 +49,7 @@ public sealed class OverlayVFX : VFX
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
-    private OverlayVFX(Support.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
+    private OverlayVFX(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
         this.client = client;
         this.data = data;
@@ -65,7 +66,7 @@ public sealed class OverlayVFX : VFX
     /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
     /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
     /// <returns>The new VFX.</returns>
-    public static OverlayVFX? Create(Support.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
+    public static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Overlay", new ShaderPresets.Draw2D(Filter.Closest));

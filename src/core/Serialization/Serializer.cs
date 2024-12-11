@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Memory;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -143,6 +145,20 @@ public abstract class Serializer
     }
 
     /// <summary>
+    ///     Serialize a segment.
+    ///     Will not serialize the number of entries in the segment.
+    /// </summary>
+    /// <param name="segment">The segment to serialize.</param>
+    /// <typeparam name="T">The type of the values in the segment.</typeparam>
+    public void Serialize<T>(NativeSegment<T> segment) where T : unmanaged
+    {
+        Span<T> content = segment.AsSpan();
+        Span<Byte> bytes = MemoryMarshal.AsBytes(content);
+
+        Serialize(bytes);
+    }
+
+    /// <summary>
     ///     Serialize a span of bytes. Does NOT serialize the length of the span.
     /// </summary>
     protected abstract void Serialize(Span<Byte> value);
@@ -194,26 +210,6 @@ public abstract class Serializer
     }
 
     /// <summary>
-    ///     Serialize a nullable value.
-    /// </summary>
-    public void SerializeNullableValue<T>(ref T? value)
-        where T : IValue, new()
-    {
-        Boolean hasValue = !Equals(value, default(T));
-        Serialize(ref hasValue);
-
-        if (hasValue)
-        {
-            value ??= new T();
-            SerializeValue(ref value);
-        }
-        else
-        {
-            value = default;
-        }
-    }
-
-    /// <summary>
     ///     Serialize a list of values. This is equivalent to serializing each value individually.
     ///     The passed list will be modified, e.g. resized and some entries might be cleared.
     /// </summary>
@@ -233,6 +229,23 @@ public abstract class Serializer
         }
 
         for (Int32 index = values.Count - 1; index >= count; index--) values.RemoveAt(index);
+    }
+
+    /// <summary>
+    ///     Serialize a custom array.
+    ///     The length of the array is not serialized, so it must be constant.
+    /// </summary>
+    /// <param name="values">The array to serialize.</param>
+    /// <typeparam name="T">The type of the array.</typeparam>
+    public void SerializeValues<T>(IArray<T> values)
+        where T : IValue
+    {
+        for (var index = 0; index < values.Count; index++)
+        {
+            T value = values[index];
+            SerializeValue(ref value);
+            values[index] = value;
+        }
     }
 
     /// <summary>

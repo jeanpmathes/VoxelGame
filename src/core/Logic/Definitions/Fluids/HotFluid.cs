@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Visuals;
 
@@ -35,7 +36,7 @@ public class HotFluid : BasicFluid
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
-        if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Logic.Blocks.Instance.Fire);
+        if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Elements.Blocks.Instance.Fire);
 
         BurnAround(world, position);
 
@@ -50,13 +51,13 @@ public class HotFluid : BasicFluid
 
     private static void BurnAround(World world, Vector3i position)
     {
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
             Vector3i offsetPosition = side.Offset(position);
 
             if (world.GetBlock(offsetPosition)?.Block is ICombustible block &&
-                block.Burn(world, offsetPosition, Logic.Blocks.Instance.Fire))
-                Logic.Blocks.Instance.Fire.Place(world, offsetPosition);
+                block.Burn(world, offsetPosition, Elements.Blocks.Instance.Fire))
+                Elements.Blocks.Instance.Fire.Place(world, offsetPosition);
 
         }
     }

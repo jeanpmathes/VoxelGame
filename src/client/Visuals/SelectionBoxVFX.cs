@@ -12,13 +12,14 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Support.Data;
-using VoxelGame.Support.Definition;
-using VoxelGame.Support.Objects;
+using VoxelGame.Graphics.Data;
+using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Naming.
 
 /// <summary>
 ///     A VFX that shows instances of the <see cref="BoxCollider" /> struct.
@@ -26,7 +27,7 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class SelectionBoxVFX : VFX
 {
-    private readonly Support.Core.Client client;
+    private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
     private readonly ShaderBuffer<Data> buffer;
 
@@ -37,7 +38,7 @@ public sealed class SelectionBoxVFX : VFX
     private Color darkColor = Color.Black;
     private Color brightColor = Color.White;
 
-    private SelectionBoxVFX(Support.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
+    private SelectionBoxVFX(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
         this.client = client;
         this.pipeline = pipeline;
@@ -60,7 +61,7 @@ public sealed class SelectionBoxVFX : VFX
     /// <summary>
     ///     Create a new <see cref="SelectionBoxVFX" />.
     /// </summary>
-    public static SelectionBoxVFX? Create(Support.Core.Client client, Pipelines pipelines)
+    public static SelectionBoxVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = pipelines.LoadPipelineWithBuffer<Data>(client, "Selection", new ShaderPresets.SpatialEffect(Topology.Line));
@@ -168,7 +169,9 @@ public sealed class SelectionBoxVFX : VFX
         AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
     }
 
+    #pragma warning disable S3242 // Concrete type used for performance.
     private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
+    #pragma warning restore S3242
     {
         vertices.Add(new EffectVertex {Position = a, Data = 0});
         vertices.Add(new EffectVertex {Position = b, Data = 0});
@@ -249,7 +252,7 @@ public sealed class SelectionBoxVFX : VFX
 
         if (disposing)
             effect?.Dispose();
-        else Throw.ForMissedDispose(nameof(Effect));
+        else Throw.ForMissedDispose(this);
 
         base.Dispose(disposing);
 

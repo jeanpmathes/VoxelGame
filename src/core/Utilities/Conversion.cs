@@ -118,20 +118,4 @@ public static class Conversion
     {
         return new Vector2i((Int32) vector.X, (Int32) vector.Y);
     }
-
-    /// <summary>
-    ///     Convert a bool to an int.
-    /// </summary>
-    public static Int32 ToInt(this Boolean b)
-    {
-        return b ? 1 : 0;
-    }
-
-    /// <summary>
-    ///     Convert a bool to an uint.
-    /// </summary>
-    public static UInt32 ToUInt(this Boolean b)
-    {
-        return b ? 1u : 0u;
-    }
 }

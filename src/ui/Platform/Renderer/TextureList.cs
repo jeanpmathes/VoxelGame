@@ -10,11 +10,11 @@ using System.Diagnostics;
 using System.IO;
 using Gwen.Net;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Support.Core;
-using VoxelGame.Support.Graphics;
-using Texture = VoxelGame.Support.Objects.Texture;
+using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Graphics;
+using VoxelGame.Toolkit.Utilities;
+using Texture = VoxelGame.Graphics.Objects.Texture;
 
 namespace VoxelGame.UI.Platform.Renderer;
 

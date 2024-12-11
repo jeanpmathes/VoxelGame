@@ -38,10 +38,8 @@ public class WorldFileMetadata
 ///     Metadata for all worlds in the worlds directory.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class WorldDirectoryMetadata
+public partial class WorldDirectoryMetadata
 {
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldDirectoryMetadata>();
-
     /// <summary>
     ///     A dictionary from world directory name to the metadata of the world.
     /// </summary>
@@ -56,9 +54,9 @@ public class WorldDirectoryMetadata
         Exception? exception = Serialize.SaveJSON(this, file);
 
         if (exception == null)
-            logger.LogDebug(Events.FileIO, "World directory metadata saved to {File}", file);
+            LogSaveMetadataSuccess(logger, file);
         else
-            logger.LogError(Events.FileIO, exception, "Failed to save world directory metadata to {File}", file);
+            LogSaveMetadataFailure(logger, exception, file);
     }
 
     /// <summary>
@@ -74,18 +72,39 @@ public class WorldDirectoryMetadata
 
         if (!file.Exists)
         {
-            logger.LogDebug(Events.FileIO, "World directory metadata file does not exist: {File}", file);
+            LogMetadataFileDoesNotExist(logger, file);
             exception = null;
         }
         else if (exception == null)
         {
-            logger.LogDebug(Events.FileIO, "World directory metadata loaded from {File}", file);
+            LogLoadMetadataSuccess(logger, file);
         }
         else
         {
-            logger.LogError(Events.FileIO, exception, "Failed to load world directory metadata from {File}", file);
+            LogLoadMetadataFailure(logger, exception, file);
         }
 
         return metadata;
     }
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldDirectoryMetadata>();
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata saved to {File}")]
+    private static partial void LogSaveMetadataSuccess(ILogger logger, FileInfo file);
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to save world directory metadata to {File}")]
+    private static partial void LogSaveMetadataFailure(ILogger logger, Exception exception, FileInfo file);
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata file does not exist: {File}")]
+    private static partial void LogMetadataFileDoesNotExist(ILogger logger, FileInfo file);
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata loaded from {File}")]
+    private static partial void LogLoadMetadataSuccess(ILogger logger, FileInfo file);
+
+    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to load world directory metadata from {File}")]
+    private static partial void LogLoadMetadataFailure(ILogger logger, Exception exception, FileInfo file);
+
+    #endregion LOGGING
 }

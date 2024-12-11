@@ -28,6 +28,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     - uses: actions/checkout@v4
       with:
+        submodules: recursive
         fetch-depth: 0
     - name: Cache SonarCloud packages
       uses: actions/cache@v4
@@ -58,11 +59,12 @@ jobs:
       run: msbuild -t:Restore -p:RestorePackagesConfig=true -p:Configuration=Release
     - name: Build, test and analyze
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"pershingthesecond_VoxelGame" /o:"pershingthesecond" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cfamily.build-wrapper-output=".\.sonar\build-wrapper-output" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
-        .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
+        .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release; $BuildExitCode = $LASTEXITCODE; Set-Content -Path "buildexitcode" -Value $BuildExitCode
+        if ((Get-Content -Path "buildexitcode" -ErrorAction Stop) -ne 0) { throw "build failed with exit code: $(Get-Content -Path "buildexitcode")" }
         dotnet-coverage collect "dotnet test -c Test --no-restore --no-build --verbosity normal" -f xml -o "coverage.xml" # Use dotnet because msbuild has problems with tests
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

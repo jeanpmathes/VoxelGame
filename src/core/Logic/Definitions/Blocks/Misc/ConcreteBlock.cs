@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
@@ -26,8 +28,8 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 {
     private readonly TextureLayout layout;
 
-    private readonly List<BoundingVolume> volumes = new();
-    private Int32[] textures = null!;
+    private readonly List<BoundingVolume> volumes = [];
+    private SideArray<Int32> textures = null!;
 
     internal ConcreteBlock(String name, String namedID, TextureLayout layout) :
         base(
@@ -62,13 +64,13 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 
         return new IVaryingHeight.MeshData
         {
-            TextureIndex = textures[(Int32) info.Side],
+            TextureIndex = textures[info.Side],
             Tint = color.ToTintColor()
         };
     }
 
     /// <inheritdoc />
-    public Boolean IsConnectable(World world, BlockSide side, Vector3i position)
+    public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -78,9 +80,9 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void OnSetup(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
     {
-        textures = layout.GetTextureIndexArray(indexProvider);
+        textures = layout.GetTextureIndices(indexProvider);
     }
 
     /// <inheritdoc />

@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Visuals;
 public interface IMeshing : IDisposable
 {
     /// <summary>
-    ///     All possible primitives. The implementation can decide which ones to support.
+    ///     All possible primitives. The implementation can decide which ones to Graphics.
     ///     Other primitives can either be ignored or converted to supported primitives.
     /// </summary>
     enum Primitive
