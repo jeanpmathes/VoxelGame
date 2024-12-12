@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Collections.Properties;
@@ -177,8 +178,9 @@ public partial class Profile(ProfilerConfiguration configuration)
     {
         private readonly List<TimingMeasurement> children = [];
 
-        private readonly Object timingLock = new();
-        private readonly Object childrenLock = new();
+        private readonly Lock timingLock = new();
+        private readonly Lock childrenLock = new();
+
         private CircularTimeBuffer? reoccurring;
         private Double once;
 
