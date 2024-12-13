@@ -39,5 +39,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
+        <ProjectReference Include="..\native_toolkit\NativeToolkit.vcxproj"/>
     </ItemGroup>
 </Project>

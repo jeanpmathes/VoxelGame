@@ -24,14 +24,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeToolkit", "src\native_toolkit\NativeToolkit.vcxproj", "{2D8C7E02-972D-46F3-AE75-68ABCD026220}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Graphics", "src\graphics\VoxelGame.Graphics.csproj", "{B988D525-9843-49FE-BE42-C598C81122E4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5018F6A3-6533-4744-B1FD-727D199FD2E9} = {5018F6A3-6533-4744-B1FD-727D199FD2E9}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit", "src\toolkit\VoxelGame.Toolkit.csproj", "{E0B911E1-9DB2-4F45-BF83-31174B4C9C2A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2D8C7E02-972D-46F3-AE75-68ABCD026220} = {2D8C7E02-972D-46F3-AE75-68ABCD026220}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit.Tests", "tests\VoxelGame.Toolkit.Tests\VoxelGame.Toolkit.Tests.csproj", "{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}"
 EndProject
