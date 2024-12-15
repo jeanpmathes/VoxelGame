@@ -387,7 +387,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Generator>();
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Created '{Name}' world generator")]
+    [LoggerMessage(EventId = LogID.DefaultGenerator + 0, Level = LogLevel.Information, Message = "Created '{Name}' world generator")]
     private static partial void LogCreatedWorldGenerator(ILogger logger, String name);
 
     #endregion LOGGING

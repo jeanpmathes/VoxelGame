@@ -68,7 +68,7 @@ public partial class Throw
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
 
-    [LoggerMessage(EventId = Events.Dispose, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
+    [LoggerMessage(EventId = LogID.Throw + 0, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
     private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, String source);
 
     #endregion LOGGING

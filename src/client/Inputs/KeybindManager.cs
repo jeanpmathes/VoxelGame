@@ -10,11 +10,11 @@ using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Collections;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -154,28 +154,28 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     internal ToggleButton GetToggle(Keybind bind)
     {
-        Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
+        Debug.Assert(toggleButtons.ContainsKey(bind));
 
         return toggleButtons[bind];
     }
 
     internal Button GetButton(Keybind bind)
     {
-        Debug.Assert(simpleButtons.ContainsKey(bind), "No simple button associated with this keybind.");
+        Debug.Assert(simpleButtons.ContainsKey(bind));
 
         return simpleButtons[bind];
     }
 
     internal PushButton GetPushButton(Keybind bind)
     {
-        Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
+        Debug.Assert(pushButtons.ContainsKey(bind));
 
         return pushButtons[bind];
     }
 
     private void Rebind(Keybind bind, VirtualKeys key, Boolean isDefault)
     {
-        Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+        Debug.Assert(keybinds.ContainsKey(bind));
 
         usageMap.RemoveBinding(keybinds[bind].Key);
         keybinds[bind].SetBinding(key);
@@ -197,7 +197,7 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     private VirtualKeys GetCurrentBind(Keybind bind)
     {
-        Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+        Debug.Assert(keybinds.ContainsKey(bind));
 
         return keybinds[bind].Key;
     }
@@ -283,16 +283,16 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Debug, Message = "Created keybind: {Bind}")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 0, Level = LogLevel.Debug, Message = "Created keybind: {Bind}")]
     private static partial void LogCreatedKeybind(ILogger logger, Keybind bind);
 
-    [LoggerMessage(EventId = Events.InputSystem, Level = LogLevel.Information, Message = "Finished initializing keybind settings")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 1, Level = LogLevel.Information, Message = "Finished initializing keybind settings")]
     private static partial void LogFinishedInitializingKeybindSettings(ILogger logger);
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Warning, Message = "Key '{Key}' is used by multiple bindings")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 2, Level = LogLevel.Warning, Message = "Key '{Key}' is used by multiple bindings")]
     private static partial void LogKeyUsedByMultipleBindings(ILogger logger, VirtualKeys key);
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Information, Message = "Rebind '{Bind}' to: {Key}")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 3, Level = LogLevel.Information, Message = "Rebind '{Bind}' to: {Key}")]
     private static partial void LogRebindKeybind(ILogger logger, Keybind bind, VirtualKeys key);
 
     #endregion LOGGING

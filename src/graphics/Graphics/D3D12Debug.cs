@@ -122,6 +122,6 @@ internal class D3D12Debug
 
     private static (String, Int32) ResolveEvent(Definition.Native.D3D12_MESSAGE_ID id)
     {
-        return (id.ToString(), Events.DirectXDebug);
+        return (id.ToString(), LogID.D3D12);
     }
 }

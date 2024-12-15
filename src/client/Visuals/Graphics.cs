@@ -47,7 +47,7 @@ public partial class Graphics
         Instance = new Graphics(pipelines);
 
         LogGraphicsInitialized(logger);
-        
+
         Instance.Reset();
     }
 
@@ -99,13 +99,13 @@ public partial class Graphics
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Graphics>();
 
-    [LoggerMessage(EventId = Events.Graphics, Level = LogLevel.Debug, Message = "Graphics initialized with pipelines")]
+    [LoggerMessage(EventId = LogID.Graphics + 0, Level = LogLevel.Debug, Message = "Graphics initialized with pipelines")]
     private static partial void LogGraphicsInitialized(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Graphics, Level = LogLevel.Debug, Message = "Graphics reset to default state")]
+    [LoggerMessage(EventId = LogID.Graphics + 1, Level = LogLevel.Debug, Message = "Graphics reset to default state")]
     private static partial void LogGraphicsReset(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Graphics, Level = LogLevel.Debug, Message = "Wireframe mode set to {Mode}")]
+    [LoggerMessage(EventId = LogID.Graphics + 2, Level = LogLevel.Debug, Message = "Wireframe mode set to {Mode}")]
     private static partial void LogSetWireframe(ILogger logger, Boolean mode);
 
     #endregion LOGGING

@@ -137,13 +137,13 @@ public sealed partial class GameResources : IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameResources>();
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Initializing loading of game resources")]
+    [LoggerMessage(EventId = LogID.GameResources + 0, Level = LogLevel.Information, Message = "Initializing loading of game resources")]
     private static partial void LogLoadingStart(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Finished loading of game resources")]
+    [LoggerMessage(EventId = LogID.GameResources + 1, Level = LogLevel.Information, Message = "Finished loading of game resources")]
     private static partial void LogLoadingEnd(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "Texture/Block ratio: {Ratio:F02}")]
+    [LoggerMessage(EventId = LogID.GameResources + 2, Level = LogLevel.Debug, Message = "Texture/Block ratio: {Ratio:F02}")]
     private static partial void LogTextureBlockRatio(ILogger logger, Double ratio);
 
     #endregion LOGGING

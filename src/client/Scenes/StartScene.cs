@@ -158,16 +158,16 @@ public sealed partial class StartScene : IScene
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 0, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
     private static partial void LogResourceLoadingFailurePreventsDirectWorldLoading(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 1, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
     private static partial void LogCouldNotRefreshWorldsToDirectlyLoadWorld(ILogger logger, Exception exception, Int32 index);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
+    [LoggerMessage(EventId = LogID.StartScene + 2, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
     private static partial void LogLoadingWorldDirectly(ILogger logger, Int32 index);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 3, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
     private static partial void LogCouldNotDirectlyLoadWorld(ILogger logger, Int32 index);
 
     #endregion LOGGING

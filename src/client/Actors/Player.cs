@@ -240,19 +240,19 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Player>();
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Created new player")]
+    [LoggerMessage(EventId = LogID.Player + 0, Level = LogLevel.Debug, Message = "Created new player")]
     private static partial void LogCreatedNewPlayer(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set flying speed to {Speed}")]
+    [LoggerMessage(EventId = LogID.Player + 1, Level = LogLevel.Debug, Message = "Set flying speed to {Speed}")]
     private static partial void LogSetFlyingSpeed(ILogger logger, Double speed);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set freecam mode to {Freecam}")]
+    [LoggerMessage(EventId = LogID.Player + 2, Level = LogLevel.Debug, Message = "Set freecam mode to {Freecam}")]
     private static partial void LogSetFreecam(ILogger logger, Boolean freecam);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set overlay rendering to {Allowed}")]
+    [LoggerMessage(EventId = LogID.Player + 3, Level = LogLevel.Debug, Message = "Set overlay rendering to {Allowed}")]
     private static partial void LogSetOverlayAllowed(ILogger logger, Boolean allowed);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Teleported player to {Position}")]
+    [LoggerMessage(EventId = LogID.Player + 4, Level = LogLevel.Debug, Message = "Teleported player to {Position}")]
     private static partial void LogTeleport(ILogger logger, Vector3d position);
 
     #endregion LOGGING

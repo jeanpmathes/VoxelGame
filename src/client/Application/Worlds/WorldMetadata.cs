@@ -91,19 +91,19 @@ public partial class WorldDirectoryMetadata
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldDirectoryMetadata>();
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata saved to {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 0, Level = LogLevel.Debug, Message = "World directory metadata saved to {File}")]
     private static partial void LogSaveMetadataSuccess(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to save world directory metadata to {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 1, Level = LogLevel.Error, Message = "Failed to save world directory metadata to {File}")]
     private static partial void LogSaveMetadataFailure(ILogger logger, Exception exception, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata file does not exist: {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 2, Level = LogLevel.Debug, Message = "World directory metadata file does not exist: {File}")]
     private static partial void LogMetadataFileDoesNotExist(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata loaded from {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 3, Level = LogLevel.Debug, Message = "World directory metadata loaded from {File}")]
     private static partial void LogLoadMetadataSuccess(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to load world directory metadata from {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 4, Level = LogLevel.Error, Message = "Failed to load world directory metadata from {File}")]
     private static partial void LogLoadMetadataFailure(ILogger logger, Exception exception, FileInfo file);
 
     #endregion LOGGING

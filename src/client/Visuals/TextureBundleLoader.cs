@@ -221,13 +221,13 @@ public partial class TextureBundleLoader
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Critical, Message = "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 0, Level = LogLevel.Critical, Message = "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle")]
     private static partial void LogTooManyTextures(ILogger logger, Int32 count, Int32 max);
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 1, Level = LogLevel.Debug, Message = "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}")]
     private static partial void LogImageSizeMismatch(ILogger logger, Int32 resolution, FileInfo path);
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "The image could not be loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 2, Level = LogLevel.Error, Message = "The image could not be loaded: {Path}")]
     private static partial void LogImageLoadFailed(ILogger logger, Exception exception, FileInfo path);
 
     #endregion LOGGING

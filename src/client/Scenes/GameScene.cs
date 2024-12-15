@@ -285,7 +285,7 @@ public sealed partial class GameScene : IScene
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loaded the game scene")]
+    [LoggerMessage(EventId = LogID.GameScene + 0, Level = LogLevel.Information, Message = "Loaded the game scene")]
     private static partial void LogLoadedGameScene(ILogger logger);
 
     #endregion LOGGING

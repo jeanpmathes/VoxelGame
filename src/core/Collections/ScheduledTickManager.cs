@@ -258,7 +258,7 @@ public partial class ScheduledTickManager<T, TMaxTicksPerUpdate> : IEntity
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledTickManager<T, TMaxTicksPerUpdate>>();
 
-    [LoggerMessage(EventId = Events.Simulation, Level = LogLevel.Warning, Message = "The maximum number of ticks for a single update have been reached, further ticks we be scheduled later")]
+    [LoggerMessage(EventId = LogID.ScheduledTickManager + 0, Level = LogLevel.Warning, Message = "The maximum number of ticks for a single update have been reached, further ticks we be scheduled later")]
     private static partial void LogTickScheduleLimitReached(ILogger logger);
 
     #endregion LOGGING

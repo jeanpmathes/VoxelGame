@@ -285,7 +285,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
 
-    [LoggerMessage(EventId = Events.PhysicsSystem, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
+    [LoggerMessage(EventId = LogID.PhysicsActor + 0, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
     private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
 
     #endregion LOGGING

@@ -603,25 +603,25 @@ public abstract partial class World : IDisposable, IGrid
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Created new world")]
+    [LoggerMessage(EventId = LogID.World + 0, Level = LogLevel.Information, Message = "Created new world")]
     private static partial void LogCreatedNewWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Loaded existing world")]
+    [LoggerMessage(EventId = LogID.World + 1, Level = LogLevel.Information, Message = "Loaded existing world")]
     private static partial void LogLoadedExistingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
+    [LoggerMessage(EventId = LogID.World + 2, Level = LogLevel.Information, Message = "Unloading world")]
     private static partial void LogUnloadingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
+    [LoggerMessage(EventId = LogID.World + 3, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
     private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
+    [LoggerMessage(EventId = LogID.World + 4, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
     private static partial void LogWorldSizeSet(ILogger logger, UInt32 size);
 
-    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
+    [LoggerMessage(EventId = LogID.World + 5, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
     private static partial void LogChunkRequested(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkRelease, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
+    [LoggerMessage(EventId = LogID.World + 6, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
     private static partial void LogChunkReleased(ILogger logger, ChunkPosition position);
 
     #endregion LOGGING

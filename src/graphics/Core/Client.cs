@@ -418,22 +418,22 @@ public partial class Client : IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Information, Message = "Closing window")]
+    [LoggerMessage(EventId = LogID.Client + 0, Level = LogLevel.Information, Message = "Closing window")]
     private static partial void LogClosingWindow(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
+    [LoggerMessage(EventId = LogID.Client + 1, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
     private static partial void LogClientStoppedRunning(ILogger logger, Int32 exitCode);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Disposing client")]
+    [LoggerMessage(EventId = LogID.Client + 2, Level = LogLevel.Debug, Message = "Disposing client")]
     private static partial void LogDisposingClient(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 3, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
     private static partial void LogSavedScreenshot(ILogger logger, String path);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
     private static partial void LogFailedToSaveScreenshot(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
+    [LoggerMessage(EventId = LogID.Client + 5, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
     private static partial void LogFatalError(ILogger logger, Exception exception, String hr, String message);
 
     #endregion LOGGING

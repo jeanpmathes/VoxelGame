@@ -2081,7 +2081,7 @@ public partial class Blocks
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Blocks>();
 
-    [LoggerMessage(EventId = Events.UnknownBlock, Level = LogLevel.Warning, Message = "No Block with ID {ID} could be found, returning {Air} instead")]
+    [LoggerMessage(EventId = LogID.Blocks + 0, Level = LogLevel.Warning, Message = "No Block with ID {ID} could be found, returning {Air} instead")]
     private static partial void LogUnknownID(ILogger logger, UInt32 id, String air);
 
     #endregion LOGGING

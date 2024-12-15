@@ -149,19 +149,19 @@ internal static partial class Program
 
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.Meta, Level = LogLevel.Debug, Message = "Logging debug messages")]
+    [LoggerMessage(EventId = LogID.Program + 0, Level = LogLevel.Debug, Message = "Logging debug messages")]
     private static partial void LogDebugMessages(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Meta, Level = LogLevel.Information, Message = "Debug messages will not be logged - use the respective argument to log debug messages")]
+    [LoggerMessage(EventId = LogID.Program + 1, Level = LogLevel.Information, Message = "Debug messages will not be logged - use the respective argument to log debug messages")]
     private static partial void LogDebugMessagesNotLogged(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Starting game on version: {Version}")]
+    [LoggerMessage(EventId = LogID.Program + 2, Level = LogLevel.Information, Message = "Starting game on version: {Version}")]
     private static partial void LogStartingGame(ILogger logger, String version);
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "Opening window")]
+    [LoggerMessage(EventId = LogID.Program + 3, Level = LogLevel.Debug, Message = "Opening window")]
     private static partial void LogOpeningWindow(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Critical, Message = "Unhandled exception, likely a bug")]
+    [LoggerMessage(EventId = LogID.Program + 4, Level = LogLevel.Critical, Message = "Unhandled exception, likely a bug")]
     private static partial void LogUnhandledException(ILogger logger, Exception exception);
 
     #endregion LOGGING

@@ -35,7 +35,7 @@ public partial class SceneFactory
     public IScene CreateGameScene(World world)
     {
         LogCreatingGameScene(logger, world.Data.Information.Name);
-        
+
         return new GameScene(client, world);
     }
 
@@ -48,7 +48,7 @@ public partial class SceneFactory
     public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
     {
         LogCreatingStartScene(logger);
-        
+
         return new StartScene(client, resourceLoadingFailure, loadWorldDirectly);
     }
 
@@ -56,10 +56,10 @@ public partial class SceneFactory
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneFactory>();
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating game scene for world {WorldName}")]
+    [LoggerMessage(EventId = LogID.SceneFactory + 0, Level = LogLevel.Debug, Message = "Creating game scene for world {WorldName}")]
     private static partial void LogCreatingGameScene(ILogger logger, String worldName);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating start scene")]
+    [LoggerMessage(EventId = LogID.SceneFactory + 1, Level = LogLevel.Debug, Message = "Creating start scene")]
     private static partial void LogCreatingStartScene(ILogger logger);
 
     #endregion LOGGING

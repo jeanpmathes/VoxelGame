@@ -12,7 +12,6 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -346,26 +345,26 @@ public partial class Chunk
 
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
     private static partial void LogChunkLoadingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError,
+    [LoggerMessage(EventId = LogID.ChunkStates + 1,
         Level = LogLevel.Debug,
         Message = "The chunk file for {Position} could not be loaded, which is likely because the file does not exist - position will be scheduled for generation")]
     private static partial void LogChunkFileNotFound(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError,
+    [LoggerMessage(EventId = LogID.ChunkStates + 2,
         Level = LogLevel.Error,
         Message = "The chunk for {Position} could not be loaded, which can be caused by a corrupted or manipulated chunk file - position will be scheduled for generation")]
     private static partial void LogChunkLoadingCorruptedFile(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 3, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
     private static partial void LogChunkGenerationError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when decorating the chunk {Position}")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 4, Level = LogLevel.Error, Message = "A critical exception occurred when decorating the chunk {Position}")]
     private static partial void LogChunkDecorationError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkSavingError, Level = LogLevel.Error, Message = "An exception occurred when saving chunk {Position} - chunk loss is possible")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 5, Level = LogLevel.Error, Message = "An exception occurred when saving chunk {Position} - chunk loss is possible")]
     private static partial void LogChunkSavingError(ILogger logger, Exception exception, ChunkPosition position);
 
     #endregion LOGGING

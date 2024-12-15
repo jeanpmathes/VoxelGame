@@ -916,19 +916,19 @@ public sealed partial class Map : IMap, IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Map>();
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Initializing map")]
+    [LoggerMessage(EventId = LogID.DefaultMap + 0, Level = LogLevel.Debug, Message = "Initializing map")]
     private static partial void LogInitializingMap(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Generating map")]
+    [LoggerMessage(EventId = LogID.DefaultMap + 1, Level = LogLevel.Debug, Message = "Generating map")]
     private static partial void LogGeneratingMap(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Generated map in {Duration}")]
+    [LoggerMessage(EventId = LogID.DefaultMap + 2, Level = LogLevel.Information, Message = "Generated map in {Duration}")]
     private static partial void LogGeneratedMap(ILogger logger, Duration duration);
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Debug, Message = "Loaded map")]
+    [LoggerMessage(EventId = LogID.DefaultMap + 3, Level = LogLevel.Debug, Message = "Loaded map")]
     private static partial void LogLoadedMap(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldGeneration, Level = LogLevel.Information, Message = "Could not load map, either it does not yet exist or is corrupted")]
+    [LoggerMessage(EventId = LogID.DefaultMap + 4, Level = LogLevel.Information, Message = "Could not load map, either it does not yet exist or is corrupted")]
     private static partial void LogCouldNotLoadMap(ILogger logger);
 
     #endregion LOGGING

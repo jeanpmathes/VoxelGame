@@ -287,16 +287,16 @@ public partial class WorldProvider : IWorldProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Completed world lookup, found {Count} valid directories")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 0, Level = LogLevel.Information, Message = "Completed world lookup, found {Count} valid directories")]
     private static partial void LogWorldLookup(ILogger logger, Int32 count);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to refresh worlds")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 1, Level = LogLevel.Error, Message = "Failed to refresh worlds")]
     private static partial void LogWorldRefreshError(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Valid world directory found: {Directory}")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 2, Level = LogLevel.Debug, Message = "Valid world directory found: {Directory}")]
     private static partial void LogValidWorldDirectory(ILogger logger, DirectoryInfo directory);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Directory has no meta file and is ignored: {Directory}")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 3, Level = LogLevel.Debug, Message = "Directory has no meta file and is ignored: {Directory}")]
     private static partial void LogIgnoredDirectory(ILogger logger, DirectoryInfo directory);
 
     #endregion

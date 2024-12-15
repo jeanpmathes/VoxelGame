@@ -326,10 +326,10 @@ public partial class Profile(ProfilerConfiguration configuration)
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Profile>();
 
-    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Global profiler configured: {Configuration}")]
+    [LoggerMessage(EventId = LogID.Profile + 0, Level = LogLevel.Information, Message = "Global profiler configured: {Configuration}")]
     private static partial void LogGlobalProfilerConfigured(ILogger logger, ProfilerConfiguration configuration);
 
-    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Creating profiler exit report")]
+    [LoggerMessage(EventId = LogID.Profile + 1, Level = LogLevel.Information, Message = "Creating profiler exit report")]
     private static partial void LogCreatingProfilerExitReport(ILogger logger);
 
     #endregion LOGGING

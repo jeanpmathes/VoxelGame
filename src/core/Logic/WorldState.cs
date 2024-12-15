@@ -251,19 +251,19 @@ public abstract partial class WorldState
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldState>();
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
+    [LoggerMessage(EventId = LogID.WorldState + 0, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
     private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
+    [LoggerMessage(EventId = LogID.WorldState + 1, Level = LogLevel.Information, Message = "Unloaded world")]
     private static partial void LogUnloadedWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saving world")]
+    [LoggerMessage(EventId = LogID.WorldState + 2, Level = LogLevel.Information, Message = "Saving world")]
     private static partial void LogSavingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saved world")]
+    [LoggerMessage(EventId = LogID.WorldState + 3, Level = LogLevel.Information, Message = "Saved world")]
     private static partial void LogSavedWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
+    [LoggerMessage(EventId = LogID.WorldState + 4, Level = LogLevel.Error, Message = "Failed to save world meta information")]
     private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);
 
     #endregion LOGGING

@@ -38,7 +38,7 @@ public partial class GameConsole : IConsoleProvider
         this.game = game;
         this.commandInvoker = commandInvoker;
     }
-    
+
     /// <inheritdoc />
     public void ProcessInput(String input)
     {
@@ -107,16 +107,16 @@ public partial class GameConsole : IConsoleProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Processing console input: {Command}")]
+    [LoggerMessage(EventId = LogID.GameConsole + 0, Level = LogLevel.Debug, Message = "Processing console input: {Command}")]
     private static partial void LogProcessingConsoleInput(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Trying to execute world ready script")]
+    [LoggerMessage(EventId = LogID.GameConsole + 1, Level = LogLevel.Debug, Message = "Trying to execute world ready script")]
     private static partial void LogTryingToExecuteWorldReadyScript(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Executed world ready script")]
+    [LoggerMessage(EventId = LogID.GameConsole + 2, Level = LogLevel.Information, Message = "Executed world ready script")]
     private static partial void LogExecutedWorldReadyScript(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "No world ready script found")]
+    [LoggerMessage(EventId = LogID.GameConsole + 3, Level = LogLevel.Debug, Message = "No world ready script found")]
     private static partial void LogNoWorldReadyScriptFound(ILogger logger);
 
     #endregion LOGGING

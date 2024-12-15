@@ -88,10 +88,10 @@ public static partial class ManualBuilder
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(ManualBuilder));
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Generating game manual")]
+    [LoggerMessage(EventId = LogID.ManualBuilder + 0, Level = LogLevel.Information, Message = "Generating game manual")]
     private static partial void LogGeneratingManual(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Saved game manual to {Path}")]
+    [LoggerMessage(EventId = LogID.ManualBuilder + 1, Level = LogLevel.Information, Message = "Saved game manual to {Path}")]
     private static partial void LogSavedManual(ILogger logger, String path);
 
     #endregion LOGGING

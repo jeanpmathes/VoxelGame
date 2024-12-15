@@ -319,7 +319,7 @@ public sealed partial class ChunkSet : IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSet>();
 
-    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Warning, Message = "Chunk {Chunk} already requested by {Actor}, ignoring")]
+    [LoggerMessage(EventId = LogID.ChunkSet + 0, Level = LogLevel.Warning, Message = "Chunk {Chunk} already requested by {Actor}, ignoring")]
     private static partial void LogDuplicateChunkRequest(ILogger logger, ChunkPosition chunk, Actor actor);
 
     #endregion LOGGING

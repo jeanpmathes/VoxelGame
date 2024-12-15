@@ -12,7 +12,6 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic.Chunks;
 
@@ -20,7 +19,7 @@ public partial class Chunk
 {
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ChunkMeshingError, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
     private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
 
     #endregion

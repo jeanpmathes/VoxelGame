@@ -269,19 +269,19 @@ public partial class StaticStructure : Structure
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StaticStructure>();
 
-    [LoggerMessage(EventId = Events.MissingCreation, Level = LogLevel.Warning, Message = "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead")]
+    [LoggerMessage(EventId = LogID.StaticStructure + 0, Level = LogLevel.Warning, Message = "Could not load the structure '{Name}' because an exception occurred, fallback will be used instead")]
     private static partial void LogFailedStructureLoad(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Debug, Message = "Loaded StaticStructure: {Name}")]
+    [LoggerMessage(EventId = LogID.StaticStructure + 1, Level = LogLevel.Debug, Message = "Loaded StaticStructure: {Name}")]
     private static partial void LogSuccessfulStructureLoad(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Warning, Message = "Unknown block '{Block}' in structure '{Name}'")]
+    [LoggerMessage(EventId = LogID.StaticStructure + 2, Level = LogLevel.Warning, Message = "Unknown block '{Block}' in structure '{Name}'")]
     private static partial void LogUnknownBlockInStructure(ILogger logger, String block, String name);
 
-    [LoggerMessage(EventId = Events.CreationLoad, Level = LogLevel.Warning, Message = "Unknown fluid '{Fluid}' in structure '{Name}'")]
+    [LoggerMessage(EventId = LogID.StaticStructure + 3, Level = LogLevel.Warning, Message = "Unknown fluid '{Fluid}' in structure '{Name}'")]
     private static partial void LogUnknownFluidInStructure(ILogger logger, String fluid, String name);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Could not store the structure '{Name}'")]
+    [LoggerMessage(EventId = LogID.StaticStructure + 4, Level = LogLevel.Error, Message = "Could not store the structure '{Name}'")]
     private static partial void LogFailedStructureStore(ILogger logger, Exception exception, String name);
 
     #endregion LOGGING

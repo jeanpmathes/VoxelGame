@@ -88,16 +88,16 @@ public partial class WorldInformation
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
 
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "The info file could not be saved: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 0, Level = LogLevel.Error, Message = "The info file could not be saved: {Path}")]
     private static partial void LogInfoSavingError(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was saved to: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 1, Level = LogLevel.Debug, Message = "Information for World '{Name}' was saved to: {Path}")]
     private static partial void LogInfoSaved(ILogger logger, String name, String path);
 
-    [LoggerMessage(EventId = Events.WorldLoadingError, Level = LogLevel.Error, Message = "The info file could not be loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 2, Level = LogLevel.Error, Message = "The info file could not be loaded: {Path}")]
     private static partial void LogInfoLoadingError(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was loaded from: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 3, Level = LogLevel.Debug, Message = "Information for World '{Name}' was loaded from: {Path}")]
     private static partial void LogInfoLoaded(ILogger logger, String name, String path);
 
     #endregion LOGGING

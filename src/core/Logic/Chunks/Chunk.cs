@@ -840,50 +840,52 @@ public partial class Chunk : IDisposable, IEntity
     // ReSharper disable once ClassNeverInstantiated.Local
     private sealed class MaxTicksPerFrameAndChunk : IConstantInt32
     {
-        public static Int32 Value => 1024;
+        #pragma warning disable S1144 // Value is not unused.
+        static Int32 IConstantInt32.Value => 1024;
+        #pragma warning restore S1144
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started loading chunk for position: {Position}")]
+    [LoggerMessage(EventId = LogID.Chunk + 0, Level = LogLevel.Debug, Message = "Started loading chunk for position: {Position}")]
     private static partial void LogStartedLoadingChunk(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Error, Message = "File for the chunk at {Position} was invalid: format error")]
+    [LoggerMessage(EventId = LogID.Chunk + 1, Level = LogLevel.Error, Message = "File for the chunk at {Position} was invalid: format error")]
     private static partial void LogInvalidChunkFormatError(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}")]
+    [LoggerMessage(EventId = LogID.Chunk + 2, Level = LogLevel.Debug, Message = "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}")]
     private static partial void LogChunkLoadError(ILogger logger, ChunkPosition position, String message);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished loading chunk for position: {Position}")]
+    [LoggerMessage(EventId = LogID.Chunk + 3, Level = LogLevel.Debug, Message = "Finished loading chunk for position: {Position}")]
     private static partial void LogFinishedLoadingChunk(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Warning, Message = "File for the chunk at {Position} was invalid: position did not match")]
+    [LoggerMessage(EventId = LogID.Chunk + 4, Level = LogLevel.Warning, Message = "File for the chunk at {Position} was invalid: position did not match")]
     private static partial void LogInvalidChunkPosition(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "File for the chunk at {Position} was valid")]
+    [LoggerMessage(EventId = LogID.Chunk + 5, Level = LogLevel.Debug, Message = "File for the chunk at {Position} was valid")]
     private static partial void LogValidChunkFile(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started saving chunk {Position} to: {Path}")]
+    [LoggerMessage(EventId = LogID.Chunk + 6, Level = LogLevel.Debug, Message = "Started saving chunk {Position} to: {Path}")]
     private static partial void LogStartedSavingChunk(ILogger logger, ChunkPosition position, String path);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished saving chunk {Position} to: {Path}")]
+    [LoggerMessage(EventId = LogID.Chunk + 7, Level = LogLevel.Debug, Message = "Finished saving chunk {Position} to: {Path}")]
     private static partial void LogFinishedSavingChunk(ILogger logger, ChunkPosition position, String path);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started generating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 8, Level = LogLevel.Debug, Message = "Started generating chunk {Position} using '{Name}' generator")]
     private static partial void LogStartedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 9, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started decorating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 10, Level = LogLevel.Debug, Message = "Started decorating chunk {Position} using '{Name}' generator")]
     private static partial void LogStartedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 11, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
+    [LoggerMessage(EventId = LogID.Chunk + 12, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
     private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
 
     #endregion LOGGING

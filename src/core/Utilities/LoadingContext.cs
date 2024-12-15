@@ -164,25 +164,25 @@ public partial class LoadingContext : ILoadingContext
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<LoadingContext>();
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "Starting loading step '{StepName}'")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 0, Level = LogLevel.Debug, Message = "Starting loading step '{StepName}'")]
     private static partial void LogStartingLoadingStep(ILogger logger, String stepName);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Information, Message = "Finished loading step '{StepName}'")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 1, Level = LogLevel.Information, Message = "Finished loading step '{StepName}'")]
     private static partial void LogFinishedLoadingStep(ILogger logger, String stepName);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Debug, Message = "{Step}: Loaded {Type} resource '{Resource}'")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 2, Level = LogLevel.Debug, Message = "{Step}: Loaded {Type} resource '{Resource}'")]
     private static partial void LogLoadedResource(ILogger logger, String step, String type, String resource);
 
-    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 3, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
     private static partial void LogFailedToLoadResource(ILogger logger, Exception exception, String step, String type, String resource);
 
-    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 4, Level = LogLevel.Error, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
     private static partial void LogFailedToLoadResourceWithMessage(ILogger logger, String step, String type, String resource, String message);
 
-    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 5, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}'")]
     private static partial void LogWarningFailedToLoadResource(ILogger logger, Exception exception, String step, String type, String resource);
 
-    [LoggerMessage(EventId = Events.MissingResource, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
+    [LoggerMessage(EventId = LogID.LoadingContext + 6, Level = LogLevel.Warning, Message = "{Step}: Failed to load {Type} resource '{Resource}': {Message}")]
     private static partial void LogWarningFailedToLoadResourceWithMessage(ILogger logger, String step, String type, String resource, String message);
 
     #endregion LOGGING

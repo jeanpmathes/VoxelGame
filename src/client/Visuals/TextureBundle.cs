@@ -102,7 +102,7 @@ public sealed partial class TextureBundle : ITextureIndexProvider, IDominantColo
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
+    [LoggerMessage(EventId = LogID.TextureBundle + 0, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingDisabled(ILogger logger);
 
     #endregion LOGGING

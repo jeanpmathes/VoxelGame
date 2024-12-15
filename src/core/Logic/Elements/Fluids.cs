@@ -301,7 +301,7 @@ public partial class Fluids
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Fluids>();
 
-    [LoggerMessage(EventId = Events.UnknownFluid, Level = LogLevel.Warning, Message = "No Fluid with ID '{ID}' could be found, returning {Fallback} instead")]
+    [LoggerMessage(EventId = LogID.Fluids + 0, Level = LogLevel.Warning, Message = "No Fluid with ID '{ID}' could be found, returning {Fallback} instead")]
     private static partial void LogUnknownFluid(ILogger logger, UInt32 id, String fallback);
 
     #endregion LOGGING

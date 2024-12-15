@@ -15,8 +15,8 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
@@ -175,13 +175,13 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Finished client loading")]
+    [LoggerMessage(EventId = LogID.Client + 0, Level = LogLevel.Information, Message = "Finished client loading")]
     private static partial void LogFinishedOnLoad(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting to OS")]
+    [LoggerMessage(EventId = LogID.Client + 1, Level = LogLevel.Information, Message = "Exiting to OS")]
     private static partial void LogExitingToOS(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
+    [LoggerMessage(EventId = LogID.Client + 2, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
     private static partial void LogWindowResized(ILogger logger, Vector2i size);
 
     #endregion

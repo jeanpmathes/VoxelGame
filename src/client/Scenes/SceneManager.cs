@@ -108,13 +108,13 @@ public partial class SceneManager
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneManager>();
 
-    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Debug, Message = "Initiating scene change from {OldScene} to {NewScene}")]
+    [LoggerMessage(EventId = LogID.SceneManager + 0, Level = LogLevel.Debug, Message = "Initiating scene change from {OldScene} to {NewScene}")]
     private static partial void LogSwitchingScene(ILogger logger, IScene? oldScene, IScene? newScene);
 
-    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loading scene {Scene}")]
+    [LoggerMessage(EventId = LogID.SceneManager + 1, Level = LogLevel.Information, Message = "Loading scene {Scene}")]
     private static partial void LogLoadingScene(ILogger logger, IScene? scene);
 
-    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
+    [LoggerMessage(EventId = LogID.SceneManager + 2, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
     private static partial void LogUnloadingScene(ILogger logger, IScene? scene);
 
     #endregion LOGGING

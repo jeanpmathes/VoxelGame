@@ -479,10 +479,10 @@ public sealed partial class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Failed to save block model")]
+    [LoggerMessage(EventId = LogID.BlockModel + 0, Level = LogLevel.Warning, Message = "Failed to save block model")]
     private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
+    [LoggerMessage(EventId = LogID.BlockModel + 1, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingModelsDisabled(ILogger logger);
 
     #endregion LOGGING

@@ -268,7 +268,7 @@ public static partial class FileSystem
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
+    [LoggerMessage(EventId = LogID.FileSystem + 0, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
     private static partial void LogGetSizeFailure(ILogger logger, IOException exception, String path);
 
     #endregion LOGGING

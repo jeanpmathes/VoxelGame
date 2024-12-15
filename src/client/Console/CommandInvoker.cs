@@ -284,28 +284,28 @@ public partial class CommandInvoker
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Searching commands")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 0, Level = LogLevel.Debug, Message = "Searching commands")]
     private static partial void LogSearchingCommands(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Found command '{Name}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 1, Level = LogLevel.Debug, Message = "Found command '{Name}'")]
     private static partial void LogFoundCommand(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Found {Count} commands")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 2, Level = LogLevel.Information, Message = "Found {Count} commands")]
     private static partial void LogFoundCommandsCount(ILogger logger, Int32 count);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Added command '{Name}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 3, Level = LogLevel.Debug, Message = "Added command '{Name}'")]
     private static partial void LogAddedCommand(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "No overload found for command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 4, Level = LogLevel.Information, Message = "No overload found for command '{Command}'")]
     private static partial void LogNoOverloadFound(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Command '{Command}' not found")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 5, Level = LogLevel.Information, Message = "Command '{Command}' not found")]
     private static partial void LogCommandNotFound(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Invoked command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 6, Level = LogLevel.Debug, Message = "Invoked command '{Command}'")]
     private static partial void LogInvokedCommand(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 7, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
     private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
 
     #endregion
