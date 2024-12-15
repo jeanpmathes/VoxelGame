@@ -64,7 +64,7 @@ internal class SettingsMenu : StandardMenu
             Text = Language.Back
         };
 
-        back.Released += (_, _) => Cancel(this, EventArgs.Empty);
+        back.Released += (_, _) => Cancel?.Invoke(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)
@@ -116,5 +116,5 @@ internal class SettingsMenu : StandardMenu
         }
     }
 
-    internal event EventHandler Cancel = delegate {};
+    internal event EventHandler? Cancel;
 }

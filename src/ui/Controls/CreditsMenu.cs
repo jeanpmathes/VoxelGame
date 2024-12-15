@@ -27,7 +27,7 @@ internal class CreditsMenu : StandardMenu
         CreateContent();
     }
 
-    internal event EventHandler Cancel = delegate {};
+    internal event EventHandler? Cancel;
 
     protected override void CreateMenu(ControlBase menu)
     {
@@ -36,7 +36,7 @@ internal class CreditsMenu : StandardMenu
             Text = Language.Back
         };
 
-        exit.Released += (_, _) => Cancel(this, EventArgs.Empty);
+        exit.Released += (_, _) => Cancel?.Invoke(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)

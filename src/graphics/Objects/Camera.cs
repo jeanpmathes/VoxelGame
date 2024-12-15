@@ -35,7 +35,7 @@ public class Camera : NativeObject, IView
     /// </summary>
     public Camera(IntPtr nativePointer, Space space) : base(nativePointer, space.Client)
     {
-        space.Client.OnSizeChange += OnSizeChanged;
+        space.Client.SizeChanged += OnSizeChanged;
 
         RecalculateFovY();
     }

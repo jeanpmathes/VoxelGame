@@ -27,21 +27,16 @@ namespace VoxelGame.UI.UserInterfaces;
 public class ConsoleInterface
 {
     private const Int32 MaxConsoleLogLength = 200;
-
     private const String DefaultMarker = "[ ]";
     private const String FollowUpMarker = "[a]";
     private static readonly Color echoColor = Colors.Secondary;
     private static readonly Color responseColor = Colors.Primary;
     private static readonly Color errorColor = Colors.Error;
     private readonly IConsoleProvider console;
-
     private readonly LinkedList<Entry> consoleLog = new();
     private readonly LinkedList<String> consoleMemory = new();
-
     private readonly Context context;
-
     private readonly ControlBase root;
-
     private MemorizingTextBox? consoleInput;
     private ListBox? consoleOutput;
     private Window? consoleWindow;
@@ -235,7 +230,7 @@ public class ConsoleInterface
         consoleWindow.Close();
     }
 
-    internal event EventHandler WindowClosed = delegate {};
+    internal event EventHandler? WindowClosed;
 
     private void CleanupAfterClose()
     {
@@ -248,7 +243,7 @@ public class ConsoleInterface
         consoleInput = null;
         consoleOutput = null;
 
-        WindowClosed(this, EventArgs.Empty);
+        WindowClosed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

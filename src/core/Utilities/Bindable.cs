@@ -58,7 +58,7 @@ public class Bindable<T>
 
         set(newValue);
 
-        Changed(this, new BindingChangedArgs<T>(oldValue, newValue));
+        Changed?.Invoke(this, new BindingChangedArgs<T>(oldValue, newValue));
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class Bindable<T>
         return new Disposer(() => Changed -= handler);
     }
 
-    private event EventHandler<BindingChangedArgs<T>> Changed = delegate {};
+    private event EventHandler<BindingChangedArgs<T>>? Changed;
 }
 
 /// <summary>

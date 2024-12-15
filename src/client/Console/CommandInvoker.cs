@@ -30,7 +30,7 @@ public partial class CommandInvoker
     /// <summary>
     ///     Invoked when new commands are added or discovered.
     /// </summary>
-    public event EventHandler CommandsUpdated = delegate {};
+    public event EventHandler? CommandsUpdated;
 
     /// <summary>
     ///     Get the help text for a command.
@@ -121,7 +121,7 @@ public partial class CommandInvoker
         }
 
         LogFoundCommandsCount(logger, count);
-        CommandsUpdated.Invoke(this, EventArgs.Empty);
+        CommandsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public partial class CommandInvoker
         commandGroups[command.Name] = new CommandGroup(command, overloads);
 
         LogAddedCommand(logger, command.Name);
-        CommandsUpdated.Invoke(this, EventArgs.Empty);
+        CommandsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

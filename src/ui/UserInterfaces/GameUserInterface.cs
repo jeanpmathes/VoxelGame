@@ -125,22 +125,22 @@ public class GameUserInterface : UserInterface
     /// <summary>
     ///     Invoked when the world should exit.
     /// </summary>
-    public event EventHandler<ExitEventArgs> WorldExit = delegate {};
+    public event EventHandler<ExitEventArgs>? WorldExit;
 
     /// <summary>
     ///     Invoked when the world should save.
     /// </summary>
-    public event EventHandler<EventArgs> WorldSave = delegate {};
+    public event EventHandler<EventArgs>? WorldSave;
 
     /// <summary>
     ///     Invoked when any overlay is opened.
     /// </summary>
-    public event EventHandler AnyOverlayOpened = delegate {};
+    public event EventHandler? AnyOverlayOpened;
 
     /// <summary>
     ///     Invoked when any overlay is closed.
     /// </summary>
-    public event EventHandler AnyOverlayClosed = delegate {};
+    public event EventHandler? AnyOverlayClosed;
 
     /// <summary>
     ///     Update the displayed performance data.
@@ -200,22 +200,22 @@ public class GameUserInterface : UserInterface
 
     internal void DoWorldExit(Boolean exitToOS)
     {
-        WorldExit(this, new ExitEventArgs {ExitToOS = exitToOS});
+        WorldExit?.Invoke(this, new ExitEventArgs {ExitToOS = exitToOS});
     }
 
     internal void DoWorldSave()
     {
-        WorldSave(this, EventArgs.Empty);
+        WorldSave?.Invoke(this, EventArgs.Empty);
     }
 
     internal void DoOverlayOpen()
     {
-        AnyOverlayOpened(this, EventArgs.Empty);
+        AnyOverlayOpened?.Invoke(this, EventArgs.Empty);
     }
 
     internal void DoOverlayClose()
     {
-        AnyOverlayClosed(this, EventArgs.Empty);
+        AnyOverlayClosed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -226,6 +226,6 @@ public class GameUserInterface : UserInterface
         /// <summary>
         ///     Whether the complete application should be exited.
         /// </summary>
-        public Boolean ExitToOS { get; set; }
+        public Boolean ExitToOS { get; init; }
     }
 }

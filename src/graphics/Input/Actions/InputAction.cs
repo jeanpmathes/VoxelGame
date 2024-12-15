@@ -19,7 +19,7 @@ public abstract class InputAction
     {
         Input = input;
 
-        input.OnInputUpdate += Update;
+        input.InputUpdated += OnInputUpdated;
     }
 
     /// <summary>
@@ -32,5 +32,5 @@ public abstract class InputAction
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    protected abstract void Update(Object? sender, EventArgs e);
+    protected abstract void OnInputUpdated(Object? sender, EventArgs e);
 }

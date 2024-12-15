@@ -59,7 +59,7 @@ internal class WorldSelection : StandardMenu
         back.Released += (_, _) =>
         {
             worldCreationWindow?.Close();
-            Cancel(this, EventArgs.Empty);
+            Cancel?.Invoke(this, EventArgs.Empty);
         };
     }
 
@@ -274,7 +274,7 @@ internal class WorldSelection : StandardMenu
         }
     }
 
-    internal event EventHandler Cancel = delegate {};
+    internal event EventHandler? Cancel;
 
     public override void Dispose()
     {

@@ -56,7 +56,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
         Keybinds = new KeybindManager(Input);
 
-        OnSizeChange += OnSizeChanged;
+        SizeChanged += OnSizeChanged;
     }
 
     /// <summary>
@@ -195,7 +195,8 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     {
         if (disposed) return;
 
-        if (disposing) OnSizeChange -= OnSizeChanged;
+        if (disposing)
+            SizeChanged -= OnSizeChanged;
 
         base.Dispose(disposing);
 

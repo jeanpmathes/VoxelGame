@@ -39,7 +39,7 @@ public class PushButton : Button
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <inheritdoc />
-    protected override void Update(Object? sender, EventArgs e)
+    protected override void OnInputUpdated(Object? sender, EventArgs e)
     {
         KeyState state = Input.KeyState;
 

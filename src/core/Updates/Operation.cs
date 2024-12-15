@@ -59,7 +59,7 @@ public abstract class Operation
     /// <summary>
     ///     Invoked when the operation has completed.
     /// </summary>
-    protected event EventHandler Completion = delegate {};
+    protected event EventHandler? Completion;
 
     internal void Start()
     {
@@ -110,7 +110,7 @@ public abstract class Operation
         Status = next;
         Error = Interlocked.CompareExchange(ref workException, value: null, comparand: null);
 
-        Completion(this, EventArgs.Empty);
+        Completion?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

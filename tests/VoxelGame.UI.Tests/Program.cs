@@ -19,6 +19,7 @@ internal class Program : Client
 {
     private const Int32 MaxFrameSamples = 1000;
     private readonly IGwenGui gui;
+
     private readonly CircularTimeBuffer renderFrameTimes = new(MaxFrameSamples);
     private readonly CircularTimeBuffer updateFrameTimes = new(MaxFrameSamples);
 
@@ -29,11 +30,11 @@ internal class Program : Client
         gui = GwenGuiFactory.CreateFromClient(this,
             GwenGuiSettings.Default.From(settings =>
             {
-                settings.SkinFiles = new[] {new FileInfo("DefaultSkin.png")};
+                settings.SkinFiles = [new FileInfo("DefaultSkin.png")];
                 settings.ShaderFile = FileSystem.GetResourceDirectory("Shaders").GetFile("GUI.hlsl");
             }));
 
-        OnSizeChange += OnSizeChanged;
+        SizeChanged += OnSizeChanged;
     }
 
     private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
@@ -83,7 +84,7 @@ internal class Program : Client
     {
         if (disposing)
         {
-            OnSizeChange -= OnSizeChanged;
+            SizeChanged -= OnSizeChanged;
 
             gui.Dispose();
         }

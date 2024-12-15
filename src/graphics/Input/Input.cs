@@ -33,7 +33,7 @@ public class Input
     {
         Mouse = new Mouse(client);
 
-        client.OnFocusChange += (_, _) =>
+        client.FocusChanged += (_, _) =>
         {
             if (!client.IsFocused) KeyState.Wipe();
         };
@@ -75,7 +75,7 @@ public class Input
     {
         Mouse.Update();
 
-        OnInputUpdate(this, EventArgs.Empty);
+        InputUpdated?.Invoke(this, EventArgs.Empty);
 
         HandleAnyKeyCallbacks();
     }
@@ -126,7 +126,7 @@ public class Input
 
     internal void OnChar(Char character)
     {
-        TextInput(this,
+        TextInput?.Invoke(this,
             new TextInputEventArgs
             {
                 Character = character
@@ -137,7 +137,7 @@ public class Input
     {
         Mouse.OnMouseMove((x, y));
 
-        MouseMove(this,
+        MouseMove?.Invoke(this,
             new MouseMoveEventArgs
             {
                 Position = Mouse.Position
@@ -146,7 +146,7 @@ public class Input
 
     internal void OnMouseWheel(Double delta)
     {
-        MouseWheel(this,
+        MouseWheel?.Invoke(this,
             new MouseWheelEventArgs
             {
                 Delta = delta
@@ -157,7 +157,7 @@ public class Input
     {
         if (mouseButtons.Contains(key))
         {
-            MouseButton(this,
+            MouseButton?.Invoke(this,
                 new MouseButtonEventArgs
                 {
                     Button = key,
@@ -171,43 +171,43 @@ public class Input
                 Key = key
             };
 
-            if (down) KeyDown(this, args);
-            else KeyUp(this, args);
+            if (down) KeyDown?.Invoke(this, args);
+            else KeyUp?.Invoke(this, args);
         }
     }
 
     /// <summary>
     ///     Called once per frame, when the input system should update itself.
     /// </summary>
-    internal event EventHandler OnInputUpdate = delegate {};
+    internal event EventHandler? InputUpdated;
 
     /// <summary>
     ///     Called when a mouse button is pressed or released.
     /// </summary>
-    public event EventHandler<MouseButtonEventArgs> MouseButton = delegate {};
+    public event EventHandler<MouseButtonEventArgs>? MouseButton;
 
     /// <summary>
     ///     Called when the mouse moves.
     /// </summary>
-    public event EventHandler<MouseMoveEventArgs> MouseMove = delegate {};
+    public event EventHandler<MouseMoveEventArgs>? MouseMove;
 
     /// <summary>
     ///     Called when the mouse wheel is scrolled.
     /// </summary>
-    public event EventHandler<MouseWheelEventArgs> MouseWheel = delegate {};
+    public event EventHandler<MouseWheelEventArgs>? MouseWheel;
 
     /// <summary>
     ///     Called when a keyboard key is pressed.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyDown = delegate {};
+    public event EventHandler<KeyboardKeyEventArgs>? KeyDown;
 
     /// <summary>
     ///     Called when a keyboard key is released.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyUp = delegate {};
+    public event EventHandler<KeyboardKeyEventArgs>? KeyUp;
 
     /// <summary>
     ///     Called when a text input is received.
     /// </summary>
-    public event EventHandler<TextInputEventArgs> TextInput = delegate {};
+    public event EventHandler<TextInputEventArgs>? TextInput;
 }

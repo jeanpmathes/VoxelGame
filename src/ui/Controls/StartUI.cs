@@ -42,10 +42,8 @@ internal class StartUI : ControlBase
 
         Dock = Dock.Fill;
 
-        Exit = delegate {};
-
         mainMenu = new MainMenu(this, parent.Context);
-        mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
+        mainMenu.SelectExit += (_, _) => Exit?.Invoke(this, EventArgs.Empty);
         mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
         mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
         mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
@@ -96,5 +94,5 @@ internal class StartUI : ControlBase
         tree.ExpandAll();
     }
 
-    internal event EventHandler Exit;
+    internal event EventHandler? Exit;
 }

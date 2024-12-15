@@ -98,7 +98,7 @@ public sealed partial class GameScene : IScene
         if (ui.Console != null)
             Game.Initialize(new ConsoleWrapper(ui.Console));
 
-        Client.OnFocusChange += OnFocusChanged;
+        Client.FocusChanged += OnFocusChanged;
 
         LogLoadedGameScene(logger);
     }
@@ -181,7 +181,7 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        Client.OnFocusChange -= OnFocusChanged;
+        Client.FocusChanged -= OnFocusChanged;
 
         Game.Dispose();
         Game = null!;

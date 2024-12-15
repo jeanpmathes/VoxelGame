@@ -32,7 +32,7 @@ public class Mouse
     {
         this.client = client;
 
-        this.client.OnFocusChange += (_, _) =>
+        this.client.FocusChanged += (_, _) =>
         {
             if (this.client.IsFocused && isCursorLockRequiredOnFocus)
             {
@@ -47,7 +47,7 @@ public class Mouse
             }
         };
 
-        this.client.OnSizeChange += (_, e) =>
+        this.client.SizeChanged += (_, e) =>
         {
             if (!isCursorLocked) return;
 
