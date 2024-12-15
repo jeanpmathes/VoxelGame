@@ -48,9 +48,7 @@ public sealed class SectionVFX : VFX
 
     private readonly Space space;
     private readonly Vector3d position;
-
     private Boolean enabled;
-
     private (Mesh? opaque, Mesh? transparent) basic;
     private Mesh? foliage;
     private Mesh? fluid;
@@ -200,7 +198,7 @@ public sealed class SectionVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -227,5 +225,5 @@ public sealed class SectionVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

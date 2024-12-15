@@ -42,7 +42,7 @@ public class Drawable : Spatial, IDisposable
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -81,7 +81,7 @@ public class Drawable : Spatial, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 #pragma warning disable S3242

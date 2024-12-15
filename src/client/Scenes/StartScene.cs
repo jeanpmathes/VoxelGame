@@ -172,7 +172,7 @@ public sealed partial class StartScene : IScene
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -202,5 +202,5 @@ public sealed partial class StartScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

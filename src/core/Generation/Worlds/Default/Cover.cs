@@ -70,7 +70,7 @@ public sealed class Cover : IDisposable
         return Content.Default;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

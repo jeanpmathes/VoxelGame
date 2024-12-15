@@ -28,7 +28,7 @@ public readonly unsafe struct NativeAllocation<T> : IEquatable<NativeAllocation<
     /// </summary>
     public NativeSegment<T> Segment => new(pointer, count);
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <inheritdoc />
     public Boolean Equals(NativeAllocation<T> other)
@@ -64,5 +64,5 @@ public readonly unsafe struct NativeAllocation<T> : IEquatable<NativeAllocation<
         return !left.Equals(right);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 }

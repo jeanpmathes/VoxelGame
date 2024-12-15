@@ -114,7 +114,7 @@ public class SideArray<T> : IEnumerable<T>
         /// <inheritdoc />
         public void Dispose() {}
 
-        #region Equality Support
+        #region EQUALITY
 
         /// <inheritdoc />
         public Boolean Equals(Enumerator other)
@@ -150,7 +150,7 @@ public class SideArray<T> : IEnumerable<T>
             return !left.Equals(right);
         }
 
-        #endregion Equality Support
+        #endregion EQUALITY
     }
 
     #endregion

@@ -67,7 +67,7 @@ public sealed class NativeAllocator : IDisposable
         Marshal.ThrowExceptionForHR(result);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

@@ -87,7 +87,7 @@ public sealed class NoiseGenerator : IDisposable
         throw new ObjectDisposedException(nameof(NoiseGenerator));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

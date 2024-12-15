@@ -81,7 +81,7 @@ public abstract class VFX : IDisposable
     /// </summary>
     protected virtual void OnUpdate() {}
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -112,5 +112,5 @@ public abstract class VFX : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

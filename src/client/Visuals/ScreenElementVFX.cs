@@ -27,18 +27,12 @@ public sealed class ScreenElementVFX : VFX
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly Vector2d relativeScreenPosition;
     private readonly ShaderBuffer<Data> data;
-
     private readonly Texture placeholder;
-
     private IDisposable? disposable;
-
     private Single scaling = 1.0f;
-
     private Color4 color = Color4.White;
-
     private Texture? texture;
     private Boolean isTextureInitialized;
-
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
@@ -215,7 +209,7 @@ public sealed class ScreenElementVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -232,5 +226,5 @@ public sealed class ScreenElementVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

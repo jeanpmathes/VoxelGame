@@ -246,7 +246,7 @@ public sealed class UIResources : IDisposable
 
     private sealed record Attribution(String Name, String Text);
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -276,5 +276,5 @@ public sealed class UIResources : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -286,7 +286,7 @@ public sealed class Pipelines : IDisposable
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -316,5 +316,5 @@ public sealed class Pipelines : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

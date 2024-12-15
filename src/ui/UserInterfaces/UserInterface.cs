@@ -135,7 +135,7 @@ public abstract class UserInterface : IDisposable
         resources.GUI.Root.Scale = newScale;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -166,5 +166,5 @@ public abstract class UserInterface : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

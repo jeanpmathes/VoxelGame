@@ -110,7 +110,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public Int32 Count => mesh.Count;
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -140,5 +140,5 @@ public sealed class SpatialMeshing : IMeshing
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

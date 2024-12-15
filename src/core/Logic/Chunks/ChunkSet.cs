@@ -275,7 +275,7 @@ public sealed partial class ChunkSet : IDisposable
         complete.RemoveAt(index);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -313,7 +313,7 @@ public sealed partial class ChunkSet : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 
     #region LOGGING
 

@@ -357,7 +357,7 @@ public class Section : IDisposable
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     /// <summary>
     ///     Whether the section is disposed.
@@ -392,5 +392,5 @@ public class Section : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -476,7 +476,7 @@ public sealed class Biomes : IDisposable
         }
     };
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

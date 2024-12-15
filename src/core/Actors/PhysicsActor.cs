@@ -290,7 +290,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -305,5 +305,5 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

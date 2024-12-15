@@ -408,7 +408,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         Count = 0;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -437,5 +437,5 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

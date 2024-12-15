@@ -76,7 +76,7 @@ public sealed class TextRenderer : IDisposable
         renderer.LoadTextureDirectly(Texture, new Image(bitmap));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -106,5 +106,5 @@ public sealed class TextRenderer : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

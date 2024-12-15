@@ -209,7 +209,7 @@ public sealed class VisualInterface : IDisposable
         ui.UpdatePlayerData();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -242,5 +242,5 @@ public sealed class VisualInterface : IDisposable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

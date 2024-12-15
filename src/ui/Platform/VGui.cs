@@ -176,7 +176,7 @@ internal sealed class VGui : IGwenGui
         inputEvents.Add(() => input.ProcessMouseWheel(obj));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -208,5 +208,5 @@ internal sealed class VGui : IGwenGui
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -90,7 +90,7 @@ public sealed class Game : IDisposable
         World.Render();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -120,5 +120,5 @@ public sealed class Game : IDisposable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

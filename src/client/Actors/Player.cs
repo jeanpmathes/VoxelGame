@@ -257,7 +257,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -274,5 +274,5 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

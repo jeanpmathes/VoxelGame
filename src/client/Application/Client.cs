@@ -186,7 +186,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     #endregion
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -202,5 +202,5 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

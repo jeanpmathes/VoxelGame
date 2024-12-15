@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Visuals;
 /// <param name="Indices">The indices of the included sections.</param>
 public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, Sides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
 {
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -48,7 +48,7 @@ public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, Sides Sid
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 /// <summary>
@@ -93,7 +93,7 @@ public sealed class SectionMeshData : IDisposable
         return size;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -128,5 +128,5 @@ public sealed class SectionMeshData : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

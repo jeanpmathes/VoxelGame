@@ -34,7 +34,7 @@ public class ContextTestBase : IDisposable
         return new Chunk(ctx, segment, blocks => new Section(blocks));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     protected virtual void Dispose(Boolean disposing)
     {
@@ -47,5 +47,5 @@ public class ContextTestBase : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

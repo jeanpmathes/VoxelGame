@@ -933,7 +933,7 @@ public sealed partial class Map : IMap, IDisposable
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

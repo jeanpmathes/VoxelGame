@@ -270,7 +270,7 @@ public sealed class Biome : IDisposable
     /// </summary>
     public record struct Dampening(Int32 DampenedOffset, Int32 OriginalOffset, Int32 Width);
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

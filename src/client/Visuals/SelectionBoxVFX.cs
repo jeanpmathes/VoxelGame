@@ -30,11 +30,8 @@ public sealed class SelectionBoxVFX : VFX
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
     private readonly ShaderBuffer<Data> buffer;
-
     private Effect? effect;
-
     private BoxCollider? currentBox;
-
     private Color darkColor = Color.Black;
     private Color brightColor = Color.White;
 
@@ -168,8 +165,7 @@ public sealed class SelectionBoxVFX : VFX
         AddLine(vertices, (minX, minY, maxZ), (minX, maxY, maxZ));
         AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
     }
-
-    #pragma warning disable S3242 // Concrete type used for performance.
+#pragma warning disable S3242 // Concrete type used for performance.
     private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
     #pragma warning restore S3242
     {
@@ -241,7 +237,7 @@ public sealed class SelectionBoxVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -259,5 +255,5 @@ public sealed class SelectionBoxVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

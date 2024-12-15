@@ -297,7 +297,7 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -321,5 +321,5 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

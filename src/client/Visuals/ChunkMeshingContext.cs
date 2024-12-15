@@ -355,7 +355,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         return text;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -396,7 +396,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 /// <summary>

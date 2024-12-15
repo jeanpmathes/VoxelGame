@@ -148,7 +148,7 @@ public sealed partial class GameResources : IDisposable
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -178,5 +178,5 @@ public sealed partial class GameResources : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

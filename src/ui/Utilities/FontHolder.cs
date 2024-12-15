@@ -63,7 +63,7 @@ public sealed class FontHolder : IDisposable
         return headers[Math.Clamp(level - 1, min: 0, headers.Count - 1)];
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -101,5 +101,5 @@ public sealed class FontHolder : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

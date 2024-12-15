@@ -83,5 +83,5 @@ public sealed class DecorationContext(Generator generator, ChunkPosition hint, I
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

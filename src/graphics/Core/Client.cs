@@ -438,7 +438,7 @@ public partial class Client : IDisposable
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

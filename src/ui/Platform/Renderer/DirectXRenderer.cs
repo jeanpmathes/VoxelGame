@@ -251,7 +251,7 @@ public sealed class DirectXRenderer : RendererBase
         renderPipeline.Resize(size);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public override void Dispose()
@@ -264,5 +264,5 @@ public sealed class DirectXRenderer : RendererBase
         base.Dispose();
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -166,7 +166,7 @@ public sealed class TextSupport : IDisposable
         return graphics.MeasureString(text, font, Point.Empty, format);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -194,5 +194,5 @@ public sealed class TextSupport : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

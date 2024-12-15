@@ -626,7 +626,7 @@ public abstract partial class World : IDisposable, IGrid
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -664,5 +664,5 @@ public abstract partial class World : IDisposable, IGrid
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

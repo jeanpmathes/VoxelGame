@@ -270,7 +270,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

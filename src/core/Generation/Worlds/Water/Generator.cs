@@ -90,7 +90,7 @@ public sealed class Generator : IWorldGenerator
         return position.Y <= waterLevel ? water : empty;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

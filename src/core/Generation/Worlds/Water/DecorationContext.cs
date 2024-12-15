@@ -55,5 +55,5 @@ public sealed class DecorationContext(Generator generator) : IDecorationContext
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

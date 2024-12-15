@@ -92,7 +92,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     /// </summary>
     public Int32 Value => level;
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <summary>
     ///     Tests if this request level is equal to another.
@@ -130,7 +130,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
         return !left.Equals(right);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 
     #region Comparable Support
 

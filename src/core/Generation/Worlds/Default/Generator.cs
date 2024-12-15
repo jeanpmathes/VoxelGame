@@ -392,7 +392,7 @@ public sealed partial class Generator : IWorldGenerator
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

@@ -27,25 +27,18 @@ public sealed class OverlayVFX : VFX
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
-
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
-
     private readonly (TextureArray block, TextureArray fluid) textures;
-
     private IDisposable? disposable;
-
     private Int32 mode = BlockMode;
     private TintColor tint = TintColor.None;
     private Boolean isAnimated;
-
     private Single lowerBound;
     private Single upperBound;
-
     private Int32 textureID;
     private Int32 firstFluidTextureID;
     private Boolean isTextureInitialized;
-
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
@@ -277,7 +270,7 @@ public sealed class OverlayVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -294,5 +287,5 @@ public sealed class OverlayVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

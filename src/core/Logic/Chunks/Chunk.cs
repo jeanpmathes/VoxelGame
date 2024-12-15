@@ -890,7 +890,7 @@ public partial class Chunk : IDisposable, IEntity
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -925,5 +925,5 @@ public partial class Chunk : IDisposable, IEntity
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
