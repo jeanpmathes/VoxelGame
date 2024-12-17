@@ -36,9 +36,9 @@ internal static class LogID
 
     internal const UInt16 Profile = Events.Increment + Fluids;
 
-    internal const UInt16 ScheduledTickManager = Events.Increment + Profile;
+    internal const UInt16 ScheduledUpdateManager = Events.Increment + Profile;
 
-    internal const UInt16 PhysicsActor = Events.Increment + ScheduledTickManager;
+    internal const UInt16 PhysicsActor = Events.Increment + ScheduledUpdateManager;
 
     internal const UInt16 DefaultGenerator = Events.Increment + PhysicsActor;
 

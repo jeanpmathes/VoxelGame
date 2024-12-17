@@ -107,7 +107,7 @@ public sealed class SelectionBoxVFX : VFX
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate()
+    protected override void OnLogicUpdate()
     {
         Debug.Assert(effect != null);
 

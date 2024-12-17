@@ -30,8 +30,8 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class FireBlock : Block, IFillable, IComplex
 {
-    private const UInt32 TickOffset = 150;
-    private const UInt32 TickVariation = 25;
+    private const UInt32 UpdateOffset = 150;
+    private const UInt32 UpdateVariation = 25;
 
     private readonly List<BlockMesh> meshes = new(capacity: 32);
 
@@ -152,7 +152,7 @@ public class FireBlock : Block, IFillable, IComplex
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(this.AsInstance(world.HasFullAndSolidGround(position) ? 0 : GetData(world, position)), position);
-        ScheduleTick(world, position, GetDelay(position));
+        ScheduleUpdate(world, position, GetDelay(position));
     }
 
     private static UInt32 GetData(World world, Vector3i position)
@@ -233,7 +233,7 @@ public class FireBlock : Block, IFillable, IComplex
 
         if (!canBurn) Destroy(world, position);
 
-        ScheduleTick(world, position, GetDelay(position));
+        ScheduleUpdate(world, position, GetDelay(position));
 
         Boolean BurnAt(Vector3i burnPosition)
         {
@@ -256,8 +256,8 @@ public class FireBlock : Block, IFillable, IComplex
 
     private static UInt32 GetDelay(Vector3i position)
     {
-        return TickOffset +
-               (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);
+        return UpdateOffset +
+               (BlockUtilities.GetPositionDependentNumber(position, UpdateVariation * 2) - UpdateVariation);
     }
 
     private static UInt32 GetFlag(Side side)

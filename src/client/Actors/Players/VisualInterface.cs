@@ -190,11 +190,12 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Perform normal updates.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
-        foreach (VFX renderer in vfxes) renderer.Update();
+        foreach (VFX renderer in vfxes)
+            renderer.LogicUpdate();
 
         ui.UpdatePlayerDebugData();
     }

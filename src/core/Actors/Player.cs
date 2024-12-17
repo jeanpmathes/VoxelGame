@@ -56,9 +56,9 @@ public abstract class Player : PhysicsActor
     }
 
     /// <inheritdoc />
-    protected sealed override void Update(Double deltaTime)
+    protected sealed override void OnLogicUpdate(Double deltaTime)
     {
-        OnUpdate(deltaTime);
+        OnPlayerUpdate(deltaTime);
 
         ChunkPosition newChunk = ChunkPosition.From(Position.Floor());
 
@@ -72,5 +72,5 @@ public abstract class Player : PhysicsActor
     ///     Called every time the player is updated.
     /// </summary>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    protected abstract void OnUpdate(Double deltaTime);
+    protected abstract void OnPlayerUpdate(Double deltaTime);
 }

@@ -43,12 +43,12 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
     m_app = app;
 
     app->Init();
-    app->Tick(DXApp::CycleFlags::ALLOW_UPDATE);
-    app->Tick(DXApp::CycleFlags::ALLOW_RENDER);
+    app->Update(DXApp::CycleFlags::ALLOW_LOGIC_UPDATE);
+    app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
     ShowWindow(m_hwnd, cmdShow);
 
-    app->Tick(DXApp::CycleFlags::ALLOW_RENDER);
+    app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
@@ -57,7 +57,7 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        else app->Tick(DXApp::CycleFlags::ALLOW_BOTH);
+        else app->Update(DXApp::CycleFlags::ALLOW_BOTH);
 
     app->Destroy();
 
@@ -194,7 +194,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
     {
         if (app)
         {
-            app->Tick(DXApp::CycleFlags::ALLOW_RENDER);
+            app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
             ValidateRect(m_hwnd, nullptr);
         }
 

@@ -36,7 +36,7 @@ public abstract partial class WorldState
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">An optional timer to measure the time it takes to update the world.</param>
     /// <returns>The next state if it has changed or <c>null</c> if it has not.</returns>
-    public abstract WorldState? Update(World world, Double deltaTime, Timer? updateTimer);
+    public abstract WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer);
 
     /// <summary>
     ///     Apply the chunk update mode to the given list.
@@ -69,7 +69,7 @@ public abstract partial class WorldState
         private Int64 chunkUpdateCount;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
             worldUpdateCount += 1;
             chunkUpdateCount += world.ChunkStateUpdateCount;
@@ -103,9 +103,9 @@ public abstract partial class WorldState
         public override Boolean IsActive => true;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
-            world.ActiveUpdate(deltaTime, updateTimer);
+            world.OnLogicUpdateInActiveState(deltaTime, updateTimer);
 
             return next;
         }
@@ -152,7 +152,7 @@ public abstract partial class WorldState
         public override Boolean IsTerminating => true;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
             if (completed)
                 throw new InvalidOperationException("The world has already been terminated.");
@@ -196,7 +196,7 @@ public abstract partial class WorldState
         private Int32 total;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
             if (saving == null)
             {

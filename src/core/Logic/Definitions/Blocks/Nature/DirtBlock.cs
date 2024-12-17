@@ -70,7 +70,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public override Content GenerateUpdate(Content content)
+    public override Content GeneratorUpdate(Content content)
     {
         (BlockInstance block, FluidInstance fluid) = content;
 

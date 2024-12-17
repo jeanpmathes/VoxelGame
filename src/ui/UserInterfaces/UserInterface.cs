@@ -90,7 +90,7 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Update the user interface. This handles the input.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
@@ -100,7 +100,7 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Render the user interface.
     /// </summary>
-    public void Render()
+    public void RenderUpdate()
     {
         Throw.IfDisposed(disposed);
 

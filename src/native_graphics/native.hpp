@@ -32,7 +32,7 @@ DEFINE_ENUM_FLAG_OPERATORS(ConfigurationOptions)
 
 struct Configuration
 {
-    NativeStepFunc onRender;
+    NativeStepFunc onRenderUpdate;
     NativeStepFunc onUpdate;
 
     NativeCallbackFunc onInit;

@@ -168,7 +168,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     }
 
     /// <inheritdoc />
-    public override void Tick(Double deltaTime)
+    public override void LogicUpdate(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -185,7 +185,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
             IsSwimming = false;
         }
 
-        Update(deltaTime);
+        OnLogicUpdate(deltaTime);
     }
 
     private void CalculatePhysics(Double deltaTime)
@@ -276,10 +276,10 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     }
 
     /// <summary>
-    ///     Receives the actor update every tick.
+    ///    Called in each logic update to update the physics actor.
     /// </summary>
-    /// <param name="deltaTime"></param>
-    protected abstract void Update(Double deltaTime);
+    /// <param name="deltaTime">The time since the last update.</param>
+    protected abstract void OnLogicUpdate(Double deltaTime);
 
     #region LOGGING
 

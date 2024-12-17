@@ -59,9 +59,9 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
     /// <summary>
     ///     Update the world state.
     /// </summary>
-    public void Update(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
     {
-        WorldState? next = state.Update(world, deltaTime, updateTimer);
+        WorldState? next = state.LogicUpdate(world, deltaTime, updateTimer);
 
         if (next == null)
             return;

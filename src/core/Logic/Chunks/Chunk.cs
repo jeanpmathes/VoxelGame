@@ -119,12 +119,12 @@ public partial class Chunk : IDisposable, IEntity
     private readonly Resource resource = new(nameof(Chunk));
 
     /// <summary>
-    ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
+    ///     Using a local counter allows to use the update managers after normalization without having to revert that.
     /// </summary>
-    private readonly UpdateCounter localUpdateCounter = new();
+    private readonly UpdateCounter localLogicUpdateCounter = new();
 
-    private readonly ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk> blockTickManager;
-    private readonly ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk> fluidTickManager;
+    private readonly ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> blockUpdateManager;
+    private readonly ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> fluidUpdateManager;
 
     /// <summary>
     ///     The block data of this chunk.
@@ -162,8 +162,8 @@ public partial class Chunk : IDisposable, IEntity
             sections[index] = createSection(segment);
         }
 
-        blockTickManager = new ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
-        fluidTickManager = new ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
+        blockUpdateManager = new ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
+        fluidUpdateManager = new ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
 
         resource.Released += OnResourceReleased;
 
@@ -269,18 +269,18 @@ public partial class Chunk : IDisposable, IEntity
         serializer.SerializeValue(ref location);
         serializer.Serialize(blocks);
         serializer.Serialize(ref decoration);
-        serializer.SerializeEntity(blockTickManager);
-        serializer.SerializeEntity(fluidTickManager);
+        serializer.SerializeEntity(blockUpdateManager);
+        serializer.SerializeEntity(fluidUpdateManager);
     }
 
     /// <summary>
-    ///     Tick all actors in this chunk.
+    ///     Update all actors in this chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last tick.</param>
-    public void TickActors(Double deltaTime)
+    /// <param name="deltaTime">The time since the last update.</param>
+    public void SendLogicUpdatesToActors(Double deltaTime)
     {
         foreach (Actor actor in Requests.Requesters)
-            actor.Tick(deltaTime);
+            actor.LogicUpdate(deltaTime);
     }
 
     /// <summary>
@@ -306,8 +306,8 @@ public partial class Chunk : IDisposable, IEntity
 
         location = position;
 
-        blockTickManager.SetWorld(world);
-        fluidTickManager.SetWorld(world);
+        blockUpdateManager.SetWorld(world);
+        fluidUpdateManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, Context);
 
@@ -329,15 +329,15 @@ public partial class Chunk : IDisposable, IEntity
         Debug.Assert(!IsActive);
         Debug.Assert(!resource.IsAcquired);
 
-        blockTickManager.Clear();
-        blockTickManager.SetWorld(newWorld: null);
+        blockUpdateManager.Clear();
+        blockUpdateManager.SetWorld(newWorld: null);
 
-        fluidTickManager.Clear();
-        fluidTickManager.SetWorld(newWorld: null);
+        fluidUpdateManager.Clear();
+        fluidUpdateManager.SetWorld(newWorld: null);
 
         OnStateTransition(state, to: null);
 
-        localUpdateCounter.Reset();
+        localLogicUpdateCounter.Reset();
 
         World = null!;
         state = null!;
@@ -548,9 +548,9 @@ public partial class Chunk : IDisposable, IEntity
 
         Throw.IfDisposed(disposed);
 
-        blockTickManager.Normalize();
-        fluidTickManager.Normalize();
-        localUpdateCounter.Reset();
+        blockUpdateManager.Normalize();
+        fluidUpdateManager.Normalize();
+        localLogicUpdateCounter.Reset();
 
         FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
@@ -600,14 +600,14 @@ public partial class Chunk : IDisposable, IEntity
         LogFinishedDecoratingChunk(logger, Position, decorationContext.Generator.ToString());
     }
 
-    internal void ScheduleBlockTick(Block.BlockTick tick, UInt32 tickOffset)
+    internal void ScheduleBlockUpdate(Block.BlockUpdate update, UInt32 updateOffset)
     {
-        blockTickManager.Add(tick, tickOffset);
+        blockUpdateManager.Add(update, updateOffset);
     }
 
-    internal void ScheduleFluidTick(Fluid.FluidTick tick, UInt32 tickOffset)
+    internal void ScheduleFluidUpdate(Fluid.FluidUpdate update, UInt32 updateOffset)
     {
-        fluidTickManager.Add(tick, tickOffset);
+        fluidUpdateManager.Add(update, updateOffset);
     }
 
     /// <summary>
@@ -627,16 +627,16 @@ public partial class Chunk : IDisposable, IEntity
     ///     Send all update events.
     ///     These include requested updates and one random update. 
     /// </summary>
-    public void Tick()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
         Debug.Assert(IsActive);
 
-        blockTickManager.Process();
-        fluidTickManager.Process();
+        blockUpdateManager.Process();
+        fluidUpdateManager.Process();
 
-        localUpdateCounter.Increment();
+        localLogicUpdateCounter.Increment();
 
         Int32 index = NumberGenerator.Random.Next(minValue: 0, SectionCount);
         sections[index].SendRandomUpdate(World);
@@ -838,7 +838,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private sealed class MaxTicksPerFrameAndChunk : IConstantInt32
+    private sealed class MaxScheduledUpdatesPerLogicUpdateAndChunk : IConstantInt32
     {
         #pragma warning disable S1144 // Value is not unused.
         static Int32 IConstantInt32.Value => 1024;

@@ -1,4 +1,4 @@
-﻿// <copyright file="ScheduledTickManagerTests.cs" company="VoxelGame">
+﻿// <copyright file="ScheduledUpdateManagerTests.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -16,26 +16,26 @@ using Xunit;
 
 namespace VoxelGame.Core.Tests.Collections;
 
-[TestSubject(typeof(ScheduledTickManager<,>))]
+[TestSubject(typeof(ScheduledUpdateManager<,>))]
 [Collection("Logger")]
-public class ScheduledTickManagerTests
+public class ScheduledUpdateManagerTests
 {
     private static Int32 lastId;
 
     [Fact]
-    public void ScheduledTickManager_ShouldProcessAddedTicks()
+    public void ScheduledUpdateManager_ShouldProcessAddedUpdates()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
+        ScheduledUpdateManager<TestUpdate, Constant32> manager = new(counter);
 
-        TestTick tick1 = new(id: 1);
-        manager.Add(tick1, tickOffset: 3);
+        TestUpdate update1 = new(id: 1);
+        manager.Add(update1, updateOffset: 3);
 
-        TestTick tick2 = new(id: 2);
-        manager.Add(tick2, tickOffset: 2);
+        TestUpdate update2 = new(id: 2);
+        manager.Add(update2, updateOffset: 2);
 
-        TestTick tick3 = new(id: 3);
-        manager.Add(tick3, tickOffset: 1);
+        TestUpdate update3 = new(id: 3);
+        manager.Add(update3, updateOffset: 1);
 
         counter.Increment();
         manager.Process();
@@ -51,19 +51,19 @@ public class ScheduledTickManagerTests
     }
 
     [Fact]
-    public void ScheduledTickManager_ShouldMoveTicksAboveLimitToNextUpdate()
+    public void ScheduledUpdateManager_ShouldMoveUpdatesAboveLimitToNextUpdate()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick, Constant2> manager = new(counter);
+        ScheduledUpdateManager<TestUpdate, Constant2> manager = new(counter);
 
-        TestTick tick1 = new(id: 1);
-        manager.Add(tick1, tickOffset: 1);
+        TestUpdate update1 = new(id: 1);
+        manager.Add(update1, updateOffset: 1);
 
-        TestTick tick2 = new(id: 2);
-        manager.Add(tick2, tickOffset: 1);
+        TestUpdate update2 = new(id: 2);
+        manager.Add(update2, updateOffset: 1);
 
-        TestTick tick3 = new(id: 3);
-        manager.Add(tick3, tickOffset: 1);
+        TestUpdate update3 = new(id: 3);
+        manager.Add(update3, updateOffset: 1);
 
         counter.Increment();
         manager.Process();
@@ -75,19 +75,19 @@ public class ScheduledTickManagerTests
     }
 
     [Fact]
-    public void ScheduledTickManager_ShouldPreserveStateAfterSerialization()
+    public void ScheduledUpdateManager_ShouldPreserveStateAfterSerialization()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
+        ScheduledUpdateManager<TestUpdate, Constant32> manager = new(counter);
 
-        TestTick tick1 = new(id: 1);
-        manager.Add(tick1, tickOffset: 3);
+        TestUpdate update1 = new(id: 1);
+        manager.Add(update1, updateOffset: 3);
 
-        TestTick tick2 = new(id: 2);
-        manager.Add(tick2, tickOffset: 2);
+        TestUpdate update2 = new(id: 2);
+        manager.Add(update2, updateOffset: 2);
 
-        TestTick tick3 = new(id: 3);
-        manager.Add(tick3, tickOffset: 1);
+        TestUpdate update3 = new(id: 3);
+        manager.Add(update3, updateOffset: 1);
 
         using MemoryStream data = new();
         using BinarySerializer serializer = new(data, "");
@@ -95,7 +95,7 @@ public class ScheduledTickManagerTests
 
         data.Position = 0;
         using BinaryDeserializer deserializer = new(data, "");
-        ScheduledTickManager<TestTick, Constant32> newManager = new(counter);
+        ScheduledUpdateManager<TestUpdate, Constant32> newManager = new(counter);
         deserializer.SerializeEntity(newManager);
 
         counter.Increment();
@@ -112,17 +112,17 @@ public class ScheduledTickManagerTests
     }
 
     [Fact]
-    public void ScheduledTickManager_ShouldSubtractOffsetOnNormalization()
+    public void ScheduledUpdateManager_ShouldSubtractOffsetOnNormalization()
     {
         UpdateCounter counter = new();
-        ScheduledTickManager<TestTick, Constant32> manager = new(counter);
+        ScheduledUpdateManager<TestUpdate, Constant32> manager = new(counter);
 
         counter.Increment();
         counter.Increment();
         counter.Increment();
 
-        TestTick tick1 = new(id: 1);
-        manager.Add(tick1, tickOffset: 1);
+        TestUpdate update1 = new(id: 1);
+        manager.Add(update1, updateOffset: 1);
 
         manager.Normalize();
         counter.Reset();
@@ -145,13 +145,13 @@ public class ScheduledTickManagerTests
         public static Int32 Value => 2;
     }
 
-    private class TestTick(Int32 id) : ITickable
+    private class TestUpdate(Int32 id) : IUpdateable
     {
         private Int32 id = id;
 
-        public TestTick() : this(id: -1) {}
+        public TestUpdate() : this(id: -1) {}
 
-        public void Tick(World world)
+        public void Update(World world)
         {
             lastId = id;
         }

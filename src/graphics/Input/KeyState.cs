@@ -76,7 +76,7 @@ public class KeyState
         return builder.ToString();
     }
 
-    internal void Update()
+    internal void LogicUpdate()
     {
         keysPrevious.SetAll(value: false);
         keysPrevious.Or(keys);

@@ -62,7 +62,7 @@ public interface IGenerationContext : IDisposable
             {
                 Vector3i blockPosition = (x, y, z);
 
-                Content modifiedContent = content.Block.Block.GenerateUpdate(content);
+                Content modifiedContent = content.Block.Block.GeneratorUpdate(content);
 
                 UInt32 encodedContent = Section.Encode(
                     modifiedContent.Block.Block,

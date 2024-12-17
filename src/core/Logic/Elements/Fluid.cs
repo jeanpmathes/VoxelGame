@@ -108,7 +108,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     public VerticalFlow Direction { get; }
 
     /// <summary>
-    ///     Gets the viscosity of this fluid, meaning the tick offset between two updates.
+    ///     Gets the viscosity of this fluid, meaning the update offset between two scheduled updates.
     /// </summary>
     public Int32 Viscosity { get; }
 
@@ -332,7 +332,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 filled = filled > 7 ? 7 : filled;
 
                 world.SetFluid(this.AsInstance((FluidLevel) filled, isStatic: false), position);
-                if (target.IsStatic) ScheduleTick(world, position);
+                if (target.IsStatic) ScheduleUpdate(world, position);
 
                 remaining = (Int32) level - (filled - (Int32) target.Level);
 
@@ -342,7 +342,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             if (target.Fluid == Fluids.Instance.None)
             {
                 world.SetFluid(this.AsInstance(level, isStatic: false), position);
-                ScheduleTick(world, position);
+                ScheduleUpdate(world, position);
 
                 remaining = -1;
 
@@ -372,7 +372,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         {
             world.SetFluid(this.AsInstance((FluidLevel) ((Int32) fluid.Level - (Int32) level - 1), isStatic: false), position);
 
-            if (fluid.IsStatic) ScheduleTick(world, position);
+            if (fluid.IsStatic) ScheduleUpdate(world, position);
         }
 
         return true;
@@ -400,7 +400,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         {
             world.SetFluid(this.AsInstance((FluidLevel) ((Int32) fluid.Level - (Int32) level - 1), isStatic: false), position);
 
-            if (fluid.IsStatic) ScheduleTick(world, position);
+            if (fluid.IsStatic) ScheduleUpdate(world, position);
         }
 
         return true;

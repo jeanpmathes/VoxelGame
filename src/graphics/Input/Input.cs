@@ -71,9 +71,9 @@ public class Input
     /// <summary>
     ///     Called before the core game update.
     /// </summary>
-    internal void PreUpdate()
+    internal void PreLogicUpdate()
     {
-        Mouse.Update();
+        Mouse.LogicUpdate();
 
         InputUpdated?.Invoke(this, EventArgs.Empty);
 
@@ -94,9 +94,9 @@ public class Input
     /// <summary>
     ///     Called after the core game update.
     /// </summary>
-    internal void PostUpdate()
+    internal void PostLogicUpdate()
     {
-        KeyState.Update();
+        KeyState.LogicUpdate();
     }
 
     internal void OnKeyDown(Byte key)

@@ -307,7 +307,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// </summary>
     /// <param name="content">The content that is generated, containing this block.</param>
     /// <returns>Potentially modified content.</returns>
-    public virtual Content GenerateUpdate(Content content)
+    public virtual Content GeneratorUpdate(Content content)
     {
         return content;
     }

@@ -112,38 +112,38 @@ public sealed partial class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Render", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene RenderUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene Render Game", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene RenderUpdate Game", subTimer))
         {
-            Game.Render();
+            Game.RenderUpdate();
         }
 
-        using (logger.BeginTimedSubScoped("GameScene Render UI", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene RenderUpdate UI", subTimer))
         {
-            RenderUI();
+            RenderUpdateUI();
         }
     }
 
     /// <inheritdoc />
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Update", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene Update UI", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene LogicUpdate UI", subTimer))
         {
-            ui.Update();
+            ui.LogicUpdate();
         }
 
-        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene Update Game", subTimer))
+        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate Game", subTimer))
         {
-            Game.Update(deltaTime, gameTimer);
+            Game.LogicUpdate(deltaTime, gameTimer);
         }
 
         if (!Client.IsFocused)
@@ -275,10 +275,10 @@ public sealed partial class GameScene : IScene
         if (!Client.IsFocused) ui.HandleLossOfFocus();
     }
 
-    private void RenderUI()
+    private void RenderUpdateUI()
     {
         ui.UpdatePerformanceData();
-        ui.Render();
+        ui.RenderUpdate();
     }
 
     #region LOGGING

@@ -50,7 +50,7 @@ public class Targeting
     /// </summary>
     /// <param name="start">From which orientable the targeting should start.</param>
     /// <param name="world">The world to target in.</param>
-    public void Update(IOrientable start, World world)
+    public void LogicUpdate(IOrientable start, World world)
     {
         var ray = new Ray(start.Position, start.Forward, length: 6f);
         (Vector3i, Side)? hit = Raycast.CastBlockRay(world, ray);

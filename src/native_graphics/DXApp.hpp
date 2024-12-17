@@ -45,25 +45,25 @@ public:
     DXApp(DXApp&& other)                 = delete;
     DXApp& operator=(DXApp&& other)      = delete;
 
-    enum class CycleFlags
+    enum class CycleFlags : uint8_t
     {
-        ALLOW_UPDATE = 1 << 0,
-        ALLOW_RENDER = 1 << 1,
-        ALLOW_BOTH   = ALLOW_UPDATE | ALLOW_RENDER,
+        ALLOW_LOGIC_UPDATE  = 1 << 0,
+        ALLOW_RENDER_UPDATE = 1 << 1,
+        ALLOW_BOTH          = ALLOW_LOGIC_UPDATE | ALLOW_RENDER_UPDATE,
     };
 
     static bool HasFlag(CycleFlags value, CycleFlags flag);
 
     /**
-     * Perform a tick, which can update and render the application.
+     * Perform an update, which can be a logic or render update.
      * \param flags The flags to control which cycles are allowed.
-     * \param timer Whether the tick is being called from a timer.
+     * \param timer Whether the update is being called from a timer.
      */
-    void Tick(CycleFlags flags, bool timer = false);
+    void Update(CycleFlags flags, bool timer = false);
 
     void Init();
     void Update(StepTimer const& timer);
-    void Render(StepTimer const& timer);
+    void RenderUpdate(StepTimer const& timer);
     void Destroy();
 
     [[nodiscard]] bool CanClose() const;
@@ -114,20 +114,20 @@ public:
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
 
-    [[nodiscard]] double GetTotalUpdateTime() const { return m_totalUpdateTime; }
-    [[nodiscard]] double GetTotalRenderTime() const { return m_totalRenderTime; }
+    [[nodiscard]] double GetTotalLogicUpdateTime() const { return m_totalLogicUpdateTime; }
+    [[nodiscard]] double GetTotalRenderUpdateTime() const { return m_totalRenderUpdateTime; }
 
     enum class Cycle
     {
         /**
-         * The thread is in the update cycle.
+         * The thread is in the logic update cycle.
          */
-        UPDATE,
+        LOGIC_UPDATE,
 
         /**
-         * The thread is in the render cycle.
+         * The thread is in the render update cycle.
          */
-        RENDER,
+        RENDER_UPDATE,
 
         /**
          * The thread is a worker thread.
@@ -141,12 +141,12 @@ public:
     [[nodiscard]] std::optional<Cycle> GetCycle() const;
 
 protected:
-    virtual void OnPreInit() = 0;
-    virtual void OnPostInit() = 0;
-    virtual void OnInitComplete() = 0;
-    virtual void OnUpdate(double delta) = 0;
-    virtual void OnPreRender() = 0;
-    virtual void OnRender(double delta) = 0;
+    virtual void OnPreInitialization() = 0;
+    virtual void OnPostInitialization() = 0;
+    virtual void OnInitializationComplete() = 0;
+    virtual void OnLogicUpdate(double delta) = 0;
+    virtual void OnPreRenderUpdate() = 0;
+    virtual void OnRenderUpdate(double delta) = 0;
     virtual void OnDestroy() = 0;
 
     virtual void OnSizeChanged(UINT width, UINT height, bool minimized) = 0;
@@ -168,11 +168,11 @@ private:
 
     Configuration m_configuration;
 
-    StepTimer m_updateTimer{};
+    StepTimer m_logicTimer{};
     StepTimer m_renderTimer{};
 
-    double m_totalUpdateTime = 0.0;
-    double m_totalRenderTime = 0.0;
+    double m_totalLogicUpdateTime  = 0.0;
+    double m_totalRenderUpdateTime = 0.0;
 
     UINT  m_width;
     UINT  m_height;
@@ -191,7 +191,7 @@ private:
     std::optional<Cycle> m_cycle        = std::nullopt;
     std::thread::id      m_mainThreadId = std::this_thread::get_id();
 
-    bool m_inTick = false;
+    bool m_inUpdate = false;
 
     enum TimerID : UINT_PTR
     {
@@ -202,10 +202,10 @@ private:
     bool m_isActive             = false;
 };
 
-#define CALL_IN_UPDATE(client) ((client)->GetCycle() == DXApp::Cycle::UPDATE)
-#define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER)
+#define CALL_IN_LOGIC(client) ((client)->GetCycle() == DXApp::Cycle::LOGIC_UPDATE)
+#define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER_UPDATE)
 #define CALL_IN_WORKER(client) ((client)->GetCycle() == DXApp::Cycle::WORKER)
 #define CALL_OUTSIDE_CYCLE(client) (!(client)->GetCycle().has_value())
-#define CALL_IN_UPDATE_OR_EVENT(client) (CALL_IN_UPDATE(client) || CALL_OUTSIDE_CYCLE(client))
+#define CALL_IN_LOGIC_OR_EVENT(client) (CALL_IN_LOGIC(client) || CALL_OUTSIDE_CYCLE(client))
 #define CALL_INSIDE_CYCLE(client) ((client)->GetCycle().has_value() && (client)->GetCycle().value() != DXApp::Cycle::WORKER)
 #define CALL_ON_MAIN_THREAD(client) (!(client)->GetCycle().has_value() || (client)->GetCycle().value() != DXApp::Cycle::WORKER)

@@ -72,9 +72,9 @@ public partial class SceneManager
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void Render(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Double deltaTime, Timer? timer)
     {
-        current?.Render(deltaTime, timer);
+        current?.RenderUpdate(deltaTime, timer);
     }
 
     /// <summary>
@@ -82,9 +82,9 @@ public partial class SceneManager
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
-        current?.Update(deltaTime, timer);
+        current?.LogicUpdate(deltaTime, timer);
     }
 
     /// <summary>

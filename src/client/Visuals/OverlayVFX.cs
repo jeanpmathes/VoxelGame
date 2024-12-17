@@ -134,7 +134,7 @@ public sealed class OverlayVFX : VFX
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate()
+    protected override void OnLogicUpdate()
     {
         Matrix4d model = Matrix4d.Identity;
         Matrix4d view = Matrix4d.Identity;

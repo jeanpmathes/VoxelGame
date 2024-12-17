@@ -128,7 +128,7 @@ public sealed class ScreenElementVFX : VFX
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate()
+    protected override void OnLogicUpdate()
     {
         var screenSize = client.Size.ToVector2();
 

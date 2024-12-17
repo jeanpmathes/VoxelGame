@@ -83,7 +83,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
 
-    protected override void OnInit()
+    protected override void OnInitialization()
     {
         using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
@@ -103,25 +103,25 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         ManualBuilder.EmitManual();
     }
 
-    protected override void OnRender(Double delta)
+    protected override void OnRenderUpdate(Double delta)
     {
-        using Timer? timer = logger.BeginTimedScoped("Client Render");
+        using Timer? timer = logger.BeginTimedScoped("Client Render Update");
 
-        sceneManager.Render(delta, timer);
-        windowBehaviour.Render(delta);
+        sceneManager.RenderUpdate(delta, timer);
+        windowBehaviour.RenderUpdate(delta);
     }
 
-    protected override void OnUpdate(Double delta)
+    protected override void OnLogicUpdate(Double delta)
     {
         using Timer? timer = logger.BeginTimedScoped("Client Update");
 
         using (logger.BeginTimedSubScoped("Client Operations", timer))
         {
-            operations.Update();
+            operations.LogicUpdate();
         }
 
-        sceneManager.Update(delta, timer);
-        windowBehaviour.Update(delta);
+        sceneManager.LogicUpdate(delta, timer);
+        windowBehaviour.LogicUpdate(delta);
     }
 
     protected override void OnDestroy()

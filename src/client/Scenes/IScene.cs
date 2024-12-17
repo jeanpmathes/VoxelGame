@@ -25,7 +25,7 @@ public interface IScene : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    void Update(Double deltaTime, Timer? timer);
+    void LogicUpdate(Double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Handle a game resize.
@@ -38,7 +38,7 @@ public interface IScene : IDisposable
     /// </summary>
     /// <param name="deltaTime">The time since the last render.</param>
     /// <param name="timer">A timer for profiling.</param>
-    void Render(Double deltaTime, Timer? timer);
+    void RenderUpdate(Double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Unload this scene. After unloading, a scene must not be used anymore.

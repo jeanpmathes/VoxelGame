@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockTickManagement.cs" company="VoxelGame">
+﻿// <copyright file="BlockUpdateScheduling.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,17 +17,17 @@ public partial class Block
     private const Int32 ScheduledDestroyOffset = 5;
 
     /// <summary>
-    ///     Schedules a tick according to the given tick offset.
-    ///     Note that the system does not guarantee that the tick will be executed exactly at the given offset, as chunks could
+    ///     Schedules an update according to the given update offset.
+    ///     Note that the system does not guarantee that the update will be executed exactly at the given offset, as chunks could
     ///     be inactive.
     /// </summary>
     /// <param name="world">The world in which the block is.</param>
-    /// <param name="position">The position of the block a tick should be scheduled for.</param>
-    /// <param name="tickOffset">The offset in frames to when the block should be ticked. Must be greater than 0.</param>
-    protected void ScheduleTick(World world, Vector3i position, UInt32 tickOffset)
+    /// <param name="position">The position of the block an update should be scheduled for.</param>
+    /// <param name="updateOffset">The offset in cycles to when the block should be updated. Must be greater than 0.</param>
+    protected void ScheduleUpdate(World world, Vector3i position, UInt32 updateOffset)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Tick), tickOffset);
+        chunk?.ScheduleBlockUpdate(new BlockUpdate(position, this, UpdateOperation.Update), updateOffset);
     }
 
     /// <summary>
@@ -38,32 +38,25 @@ public partial class Block
     protected void ScheduleDestroy(World world, Vector3i position)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleBlockTick(new BlockTick(position, this, TickOperation.Destroy), ScheduledDestroyOffset);
+        chunk?.ScheduleBlockUpdate(new BlockUpdate(position, this, UpdateOperation.Destroy), ScheduledDestroyOffset);
     }
 
-    internal void TickNow(World world, Vector3i position, UInt32 data)
+    internal enum UpdateOperation
     {
-        if (this == Blocks.Instance.Air) return;
-
-        ScheduledUpdate(world, position, data);
-    }
-
-    internal enum TickOperation
-    {
-        Tick,
+        Update,
         Destroy
     }
 
-    internal struct BlockTick(Vector3i position, IBlockBase target, TickOperation operation) : ITickable, IEquatable<BlockTick>
+    internal struct BlockUpdate(Vector3i position, IBlockBase target, UpdateOperation operation) : IUpdateable, IEquatable<BlockUpdate>
     {
         private Int32 x = position.X;
         private Int32 y = position.Y;
         private Int32 z = position.Z;
 
         private UInt32 target = target.ID;
-        private TickOperation operation = operation;
+        private UpdateOperation operation = operation;
 
-        public void Tick(World world)
+        public void Update(World world)
         {
             BlockInstance? potentialBlock = world.GetBlock((x, y, z));
 
@@ -72,12 +65,12 @@ public partial class Block
 
             switch (operation)
             {
-                case TickOperation.Tick:
+                case UpdateOperation.Update:
                     block.Block.ScheduledUpdate(world, (x, y, z), block.Data);
 
                     break;
 
-                case TickOperation.Destroy:
+                case UpdateOperation.Destroy:
                     block.Block.Destroy(world, (x, y, z));
 
                     break;
@@ -95,14 +88,14 @@ public partial class Block
             serializer.Serialize(ref operation);
         }
 
-        public Boolean Equals(BlockTick other)
+        public Boolean Equals(BlockUpdate other)
         {
             return (x, y, z, target, operation) == (other.x, other.y, other.z, other.target, other.operation);
         }
 
         public override Boolean Equals(Object? obj)
         {
-            return obj is BlockTick other && Equals(other);
+            return obj is BlockUpdate other && Equals(other);
         }
 
 #pragma warning disable S2328
@@ -112,12 +105,12 @@ public partial class Block
         }
 #pragma warning restore S2328
 
-        public static Boolean operator ==(BlockTick left, BlockTick right)
+        public static Boolean operator ==(BlockUpdate left, BlockUpdate right)
         {
             return left.Equals(right);
         }
 
-        public static Boolean operator !=(BlockTick left, BlockTick right)
+        public static Boolean operator !=(BlockUpdate left, BlockUpdate right)
         {
             return !(left == right);
         }

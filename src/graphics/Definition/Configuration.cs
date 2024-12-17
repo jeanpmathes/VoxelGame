@@ -128,17 +128,17 @@ internal static partial class Native
         /// <summary>
         ///     Called for each rendering step.
         /// </summary>
-        internal NativeStepFunc onRender;
+        internal NativeStepFunc onRenderUpdate;
 
         /// <summary>
         ///     Called for each update event.
         /// </summary>
-        internal NativeStepFunc onUpdate;
+        internal NativeStepFunc onLogicUpdate;
 
         /// <summary>
         ///     Called on initialization of the native client.
         /// </summary>
-        internal NativeCallbackFunc onInit;
+        internal NativeCallbackFunc onInitialization;
 
         /// <summary>
         ///     Called on shutdown of the native client.
@@ -238,9 +238,9 @@ internal static partial class Native
         {
             return new Unmanaged
             {
-                onRender = Marshal.GetFunctionPointerForDelegate(managed.onRender),
-                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onUpdate),
-                onInit = Marshal.GetFunctionPointerForDelegate(managed.onInit),
+                onRender = Marshal.GetFunctionPointerForDelegate(managed.onRenderUpdate),
+                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onLogicUpdate),
+                onInit = Marshal.GetFunctionPointerForDelegate(managed.onInitialization),
                 onDestroy = Marshal.GetFunctionPointerForDelegate(managed.onDestroy),
                 canClose = Marshal.GetFunctionPointerForDelegate(managed.canClose),
                 onKeyDown = Marshal.GetFunctionPointerForDelegate(managed.onKeyDown),

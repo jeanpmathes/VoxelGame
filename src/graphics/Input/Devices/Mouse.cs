@@ -85,7 +85,7 @@ public class Mouse
 
     private Vector2i Center => client.Size / 2;
 
-    internal void Update()
+    internal void LogicUpdate()
     {
         NativeMethods.GetMousePosition(client, out Int64 x, out Int64 y);
         position = new Vector2i((Int32) x, (Int32) y);

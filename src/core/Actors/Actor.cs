@@ -52,10 +52,10 @@ public abstract class Actor : IDisposable
     protected event EventHandler? RemovedFromWorld;
 
     /// <summary>
-    ///     Tick this actor. An actor is ticked every update.
+    ///     Update this actor.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public virtual void Tick(Double deltaTime) {}
+    public virtual void LogicUpdate(Double deltaTime) {}
 
     #region DISPOSABLE
 

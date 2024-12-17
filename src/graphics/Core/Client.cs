@@ -51,33 +51,33 @@ public partial class Client : IDisposable
 
         Definition.Native.NativeConfiguration configuration = new()
         {
-            onInit = () =>
+            onInitialization = () =>
             {
                 mainThread = Thread.CurrentThread;
 
-                OnInit();
+                OnInitialization();
             },
-            onUpdate = delta =>
+            onLogicUpdate = delta =>
             {
                 cycle = Cycle.Update;
 
                 Time += delta;
 
-                Input.PreUpdate();
+                Input.PreLogicUpdate();
 
-                OnUpdate(delta);
+                OnLogicUpdate(delta);
 
-                Sync.Update();
+                Sync.LogicUpdate();
 
-                Input.PostUpdate();
+                Input.PostLogicUpdate();
 
                 cycle = null;
             },
-            onRender = delta =>
+            onRenderUpdate = delta =>
             {
                 cycle = Cycle.Render;
 
-                OnRender(delta);
+                OnRenderUpdate(delta);
 
                 cycle = null;
             },
@@ -134,14 +134,14 @@ public partial class Client : IDisposable
     public Input.Input Input { get; }
 
     /// <summary>
-    ///     Whether the client is currently in the update cycle.
+    ///     Whether the client is currently in the logic update cycle.
     /// </summary>
-    internal Boolean IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
 
     /// <summary>
-    ///     Whether the client is currently in the render cycle.
+    ///     Whether the client is currently in the render update cycle.
     /// </summary>
-    internal Boolean IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+    internal Boolean IsInRenderUpdate => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
 
     /// <summary>
     ///     Whether the client is currently outside any cycle but still on the main thread.
@@ -256,19 +256,19 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Called on initialization of the client.
     /// </summary>
-    protected virtual void OnInit() {}
+    protected virtual void OnInitialization() {}
 
     /// <summary>
-    ///     Called for each update step.
+    ///     Called for each fixed update step.
     /// </summary>
     /// <param name="delta">The time since the last update in seconds.</param>
-    protected virtual void OnUpdate(Double delta) {}
+    protected virtual void OnLogicUpdate(Double delta) {}
 
     /// <summary>
-    ///     Called for each render step.
+    ///     Called for each render update step.
     /// </summary>
     /// <param name="delta">The time since the last render in seconds.</param>
-    protected virtual void OnRender(Double delta) {}
+    protected virtual void OnRenderUpdate(Double delta) {}
 
     /// <summary>
     ///     Called when the client is destroyed.

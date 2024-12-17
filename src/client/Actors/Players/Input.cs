@@ -107,7 +107,7 @@ internal sealed class Input
         return movement;
     }
 
-    internal void Update(Double deltaTime)
+    internal void LogicUpdate(Double deltaTime)
     {
         timer += deltaTime;
     }

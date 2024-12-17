@@ -1,4 +1,4 @@
-﻿// <copyright file="FluidTickManagement.cs" company="VoxelGame">
+﻿// <copyright file="FluidUpdateScheduling.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,36 +15,36 @@ namespace VoxelGame.Core.Logic.Elements;
 public partial class Fluid
 {
     /// <summary>
-    ///     Schedules a tick according to the viscosity.
+    ///     Schedules an update according to the viscosity.
     /// </summary>
-    protected void ScheduleTick(World world, Vector3i position)
+    protected void ScheduleUpdate(World world, Vector3i position)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleFluidTick(new FluidTick(position, this), (UInt32) Viscosity);
+        chunk?.ScheduleFluidUpdate(new FluidUpdate(position, this), (UInt32) Viscosity);
     }
 
     /// <summary>
-    ///     Will schedule a tick for a fluid according to the viscosity.
+    ///     Will schedule an update for a fluid according to the viscosity.
     /// </summary>
-    internal void TickSoon(World world, Vector3i position, Boolean isStatic)
+    internal void UpdateSoon(World world, Vector3i position, Boolean isStatic)
     {
         if (!isStatic || this == Fluids.Instance.None) return;
 
         world.ModifyFluid(isStatic: false, position);
-        ScheduleTick(world, position);
+        ScheduleUpdate(world, position);
     }
 
     /// <summary>
-    ///     Will tick a fluid as soon as possible, meaning now.
+    ///     Will update a fluid as soon as possible, meaning now.
     /// </summary>
-    internal void TickNow(World world, Vector3i position, FluidInstance instance)
+    internal void UpdateNow(World world, Vector3i position, FluidInstance instance)
     {
         if (this == Fluids.Instance.None) return;
 
         ScheduledUpdate(world, position, instance);
     }
 
-    internal struct FluidTick(Vector3i position, Fluid target) : ITickable, IEquatable<FluidTick>
+    internal struct FluidUpdate(Vector3i position, Fluid target) : IUpdateable, IEquatable<FluidUpdate>
     {
         private Int32 x = position.X;
         private Int32 y = position.Y;
@@ -52,7 +52,7 @@ public partial class Fluid
 
         private UInt32 target = target.ID;
 
-        public void Tick(World world)
+        public void Update(World world)
         {
             FluidInstance? potentialFluid = world.GetFluid((x, y, z));
 
@@ -70,14 +70,14 @@ public partial class Fluid
             serializer.Serialize(ref target);
         }
 
-        public Boolean Equals(FluidTick other)
+        public Boolean Equals(FluidUpdate other)
         {
             return x == other.x && y == other.y && z == other.z && target == other.target;
         }
 
         public override Boolean Equals(Object? obj)
         {
-            return obj is FluidTick other && Equals(other);
+            return obj is FluidUpdate other && Equals(other);
         }
 
 #pragma warning disable S2328
@@ -87,12 +87,12 @@ public partial class Fluid
         }
 #pragma warning restore S2328
 
-        public static Boolean operator ==(FluidTick left, FluidTick right)
+        public static Boolean operator ==(FluidUpdate left, FluidUpdate right)
         {
             return left.Equals(right);
         }
 
-        public static Boolean operator !=(FluidTick left, FluidTick right)
+        public static Boolean operator !=(FluidUpdate left, FluidUpdate right)
         {
             return !left.Equals(right);
         }

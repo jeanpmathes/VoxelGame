@@ -101,7 +101,7 @@ internal sealed class VGui : IGwenGui
         // While handling an event, code might be executed that passes control to the OS.
         // As such, new events might be invoked, causing problems with the iteration.
 
-        List<Action> events = new();
+        List<Action> events = [];
         VMath.Swap(ref events, ref inputEvents);
 
         foreach (Action inputEvent in events) inputEvent();

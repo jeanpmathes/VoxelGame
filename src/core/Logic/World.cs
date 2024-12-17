@@ -194,7 +194,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        SetContent(content, position, tickFluid: true);
+        SetContent(content, position, updateFluid: true);
     }
 
     private void UnloadChunk(Chunk chunk)
@@ -311,7 +311,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: true);
+        SetContent(new Content(block, fluid), position, updateFluid: true);
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: false);
+        SetContent(new Content(block, fluid), position, updateFluid: false);
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, Boolean tickFluid)
+    private void SetContent(in Content content, Vector3i position, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
@@ -351,7 +351,7 @@ public abstract partial class World : IDisposable, IGrid
         chunk.GetSection(position).SetContent(position, val);
 
         content.Block.Block.ContentUpdate(this, position, content);
-        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
+        if (updateFluid) content.Fluid.Fluid.UpdateNow(this, position, content.Fluid);
 
         foreach (Side side in Side.All.Sides())
         {
@@ -365,7 +365,7 @@ public abstract partial class World : IDisposable, IGrid
 
             // Side is passed out of the perspective of the block receiving the block update.
             blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
-            fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
+            fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
         ProcessChangedSection(chunk, position);
@@ -580,24 +580,24 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     /// <param name="deltaTime">Time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
     {
-        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("World LogicUpdate", updateTimer);
 
-        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        using (logger.BeginTimedSubScoped("World LogicUpdate Chunks", subTimer))
         {
             UpdateChunks();
         }
 
-        state.Update(deltaTime, updateTimer);
+        state.LogicUpdate(deltaTime, updateTimer);
     }
 
     /// <summary>
-    /// Called by the active state during <see cref="Update"/> when the world is active.
+    /// Called by the active state during <see cref="LogicUpdate"/> when the world is active.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public virtual void ActiveUpdate(Double deltaTime, Timer? updateTimer) {}
+    public virtual void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer) {}
 
     #region LOGGING
 

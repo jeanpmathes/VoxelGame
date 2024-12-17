@@ -177,7 +177,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate(Double deltaTime)
+    protected override void OnPlayerUpdate(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -185,7 +185,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
         camera.Position = movementStrategy.GetCameraPosition(Head);
 
-        targeting.Update(Head, World);
+        targeting.LogicUpdate(Head, World);
 
         if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
@@ -203,12 +203,12 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
         // Because interaction can change the target block or the bounding box,
         // we search again for the target and update the selection now.
-        targeting.Update(Head, World);
+        targeting.LogicUpdate(Head, World);
 
         visualInterface.SetSelectionBoxTarget(World, targeting.Block, targeting.Position);
-        visualInterface.Update();
+        visualInterface.LogicUpdate();
 
-        input.Update(deltaTime);
+        input.LogicUpdate(deltaTime);
     }
 
     private void DoBlockFluidSelection()

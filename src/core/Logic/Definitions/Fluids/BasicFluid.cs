@@ -174,7 +174,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             world.SetFluid(this.AsInstance(level, isStatic: false), position1);
             world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
-            ScheduleTick(world, position + flow.Direction());
+            ScheduleUpdate(world, position + flow.Direction());
 
             remaining = -1;
 
@@ -212,10 +212,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                 remaining = (Int32) (level - volume - 1);
 
-                ScheduleTick(world, position);
+                ScheduleUpdate(world, position);
             }
 
-            if (fluidVertical.IsStatic) ScheduleTick(world, position + flow.Direction());
+            if (fluidVertical.IsStatic) ScheduleUpdate(world, position + flow.Direction());
 
             return true;
         }
@@ -262,7 +262,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             world.SetFluid(this.AsInstance(FluidLevel.One, isStatic: false), neighborPosition);
             world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
-            ScheduleTick(world, neighborPosition);
+            ScheduleUpdate(world, neighborPosition);
 
             return true;
         }
@@ -303,7 +303,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         world.SetFluid(this.AsInstance(levelHorizontal + 1, isStatic: false), horizontalPosition);
 
-        if (isHorStatic) ScheduleTick(world, horizontalPosition);
+        if (isHorStatic) ScheduleUpdate(world, horizontalPosition);
 
         Boolean hasRemaining = level != FluidLevel.One;
 
@@ -311,7 +311,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         world.SetFluid((hasRemaining ? this : Elements.Fluids.Instance.None).AsInstance(hasRemaining ? level - 1 : FluidLevel.Eight, isStatic1), position);
 
-        if (hasRemaining) ScheduleTick(world, position);
+        if (hasRemaining) ScheduleUpdate(world, position);
 
         return true;
 
@@ -345,7 +345,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 {
                     world.SetFluid(this.AsInstance(level, isStatic: false), belowNeighborPosition);
 
-                    ScheduleTick(world, belowNeighborPosition);
+                    ScheduleUpdate(world, belowNeighborPosition);
 
                     world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
                 }
@@ -353,7 +353,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 {
                     world.SetFluid(this.AsInstance(FluidLevel.One, isStatic: false), neighborPosition);
 
-                    ScheduleTick(world, neighborPosition);
+                    ScheduleUpdate(world, neighborPosition);
 
                     Boolean remaining = level != FluidLevel.One;
 
@@ -361,7 +361,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                     world.SetFluid((remaining ? this : Elements.Fluids.Instance.None).AsInstance(remaining ? level - 1 : FluidLevel.Eight, isStatic2), position);
 
-                    if (remaining) ScheduleTick(world, position);
+                    if (remaining) ScheduleUpdate(world, position);
                 }
 
                 return true;
@@ -414,10 +414,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         var target = ((Vector3i position, FluidInstance fluid, IFillable fillable)) potentialTarget;
 
         world.SetFluid(this.AsInstance(target.fluid.Level + 1, isStatic: false), target.position);
-        if (target.fluid.IsStatic) ScheduleTick(world, target.position);
+        if (target.fluid.IsStatic) ScheduleUpdate(world, target.position);
 
         world.SetFluid(this.AsInstance(level - 1, isStatic: false), position);
-        ScheduleTick(world, position);
+        ScheduleUpdate(world, position);
 
         return true;
     }
@@ -451,7 +451,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             remaining = -1;
 
-            ScheduleTick(world, neighborPosition);
+            ScheduleUpdate(world, neighborPosition);
         }
         else if (neighborFluid.Fluid == this)
         {
@@ -470,7 +470,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 remaining = remaining - volume - 1;
             }
 
-            if (isStatic) ScheduleTick(world, neighborPosition);
+            if (isStatic) ScheduleUpdate(world, neighborPosition);
         }
     }
 

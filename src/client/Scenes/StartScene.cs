@@ -84,15 +84,15 @@ public sealed partial class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        ui.Render();
+        ui.RenderUpdate();
     }
 
     /// <inheritdoc />
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -102,7 +102,7 @@ public sealed partial class StartScene : IScene
             isFirstUpdate = false;
         }
 
-        ui.Update();
+        ui.LogicUpdate();
     }
 
     /// <inheritdoc />

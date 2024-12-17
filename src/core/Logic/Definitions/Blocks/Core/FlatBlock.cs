@@ -26,11 +26,11 @@ public class FlatBlock : Block, IFillable, IComplex
 {
     private readonly Single climbingVelocity;
 
-    private readonly List<BlockMesh> meshes = new();
+    private readonly List<BlockMesh> meshes = [];
     private readonly Single slidingVelocity;
 
     private readonly String texture;
-    private readonly List<BoundingVolume> volumes = new();
+    private readonly List<BoundingVolume> volumes = [];
 
     /// <summary>
     ///     Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can

@@ -58,13 +58,13 @@ internal class Program : Client
         client.Run();
     }
 
-    protected override void OnInit()
+    protected override void OnInitialization()
     {
         gui.Load();
         unitTestHarnessControls = new UnitTestHarnessControls(gui.Root);
     }
 
-    protected override void OnUpdate(Double delta)
+    protected override void OnLogicUpdate(Double delta)
     {
         updateFrameTimes.Write(delta);
         unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
@@ -72,7 +72,7 @@ internal class Program : Client
         gui.Update();
     }
 
-    protected override void OnRender(Double delta)
+    protected override void OnRenderUpdate(Double delta)
     {
         renderFrameTimes.Write(delta);
         unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;
