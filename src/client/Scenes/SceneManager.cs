@@ -52,12 +52,14 @@ public partial class SceneManager
     /// </summary>
     public void Unload()
     {
-        if (current == null) return;
+        if (current == null)
+            return;
 
         LogUnloadingScene(logger, current);
 
         current.Unload();
         current.Dispose();
+        current = null;
 
         Visuals.Graphics.Instance.Reset();
 

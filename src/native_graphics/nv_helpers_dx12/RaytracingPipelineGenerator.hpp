@@ -45,7 +45,7 @@ namespace nv_helpers_dx12
          * \brief The pipeline helper requires access to the device, as well as the raytracing device prior to Windows 10 RS5.
          * \param device The device used to create the pipeline.
          */
-        explicit RayTracingPipelineGenerator(ComPtr<ID3D12Device5> device);
+        explicit RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device);
 
         /**
          * \brief Add a DXIL library to the pipeline. Note that this library has to be compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the names of the shaders declared in the library, although unused ones can be omitted.
@@ -101,7 +101,8 @@ namespace nv_helpers_dx12
          * \param globalRootSignature The global root signature, which is used when no local root signature is specified.
          * \return The state object.
          */
-        ComPtr<ID3D12StateObject> Generate(ComPtr<ID3D12RootSignature> const& globalRootSignature);
+        Microsoft::WRL::ComPtr<ID3D12StateObject> Generate(
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature);
 
     private:
         /**
@@ -172,12 +173,12 @@ namespace nv_helpers_dx12
 
             ~RootSignatureAssociation() = default;
 
-            ComPtr<ID3D12RootSignature>            rootSignature;
-            ComPtr<ID3D12RootSignature>            rootSignaturePointer;
-            bool                                   local;
-            std::vector<std::wstring>              symbols;
-            std::vector<LPCWSTR>                   symbolPointers;
-            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association = {};
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignaturePointer;
+            bool                                        local;
+            std::vector<std::wstring>                   symbols;
+            std::vector<LPCWSTR>                        symbolPointers;
+            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION      association = {};
         };
 
         /**
@@ -199,7 +200,7 @@ namespace nv_helpers_dx12
         UINT m_maxAttributeSizeInBytes = 2 * sizeof(float);
         UINT m_maxRecursionDepth       = 1;
 
-        ComPtr<ID3D12Device5>       m_device;
-        ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
+        Microsoft::WRL::ComPtr<ID3D12Device5>       m_device;
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
     };
 }
