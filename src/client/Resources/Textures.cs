@@ -13,22 +13,22 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Client.Resources;
 
 /// <summary>
-/// The world texture resources.
+///     The world texture resources.
 /// </summary>
 public class Textures : ResourceCatalog
 {
     /// <summary>
-    /// Resource identifier for the block textures.
+    ///     Resource identifier for the block textures.
     /// </summary>
     public static readonly RID BlockID = RID.Named<TextureBundle>("Blocks");
 
     /// <summary>
-    /// Resource identifier for the fluid textures.
+    ///     Resource identifier for the fluid textures.
     /// </summary>
     public static readonly RID FluidID = RID.Named<TextureBundle>("Fluids");
 
     /// <summary>
-    /// Create an instance of the catalog.
+    ///     Create an instance of the catalog.
     /// </summary>
     public Textures() : base([CreateBlockTextureLoader(), CreateFluidTextureLoader()]) {}
 

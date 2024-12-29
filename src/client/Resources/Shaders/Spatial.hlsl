@@ -32,7 +32,12 @@ namespace vg
          * - The vertex order is CW.
          */
         void ReadMeshData(
-            out int3 indices, out float3 posA, out float3 posB, out float3 posC, out float3 normal, out uint4 data)
+            out int3   indices,
+            out float3 posA,
+            out float3 posB,
+            out float3 posC,
+            out float3 normal,
+            out uint4  data)
         {
             // A quad looks like this:
             // 1 -- 2
@@ -178,7 +183,7 @@ namespace vg
         float3 CalculateShading(in Info info, float3 const baseColor)
         {
             bool const inner = decode::GetNormalInvertedFlag(info.data);
-            
+
             float3 const dirToLight = native::spatial::global.lightDir * -1.0f;
             float3 const normal     = info.normal * (inner ? -1.0f : 1.0f);
 

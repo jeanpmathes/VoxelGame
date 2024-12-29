@@ -184,10 +184,7 @@ public sealed partial class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Chunk chunk in chunks.Values)
-        {
-            chunk.BeginSaving();
-        }
+        foreach (Chunk chunk in chunks.Values) chunk.BeginSaving();
     }
 
     /// <summary>

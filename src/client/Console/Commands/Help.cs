@@ -20,10 +20,8 @@ namespace VoxelGame.Client.Console.Commands;
 public class Help : Command
 {
     private const Int32 PageSize = 5;
-
     private readonly Dictionary<String, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
-
     private readonly List<List<Entry>> commandPages = [];
 
     /// <summary>
@@ -72,7 +70,7 @@ public class Help : Command
 
         foreach (String command in commandInvoker.CommandNames)
         {
-            List<Entry> description = [new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
+            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
 
             description.AddRange(commandInvoker
                 .GetCommandSignatures(command)

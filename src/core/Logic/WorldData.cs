@@ -182,7 +182,7 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Read in a data blob that contains a serialized entity.
+    ///     Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
@@ -199,7 +199,7 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Write an entity to a data blob.
+    ///     Write an entity to a data blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
@@ -261,8 +261,8 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Save all information directly handled by this class.
-    /// This will not save any chunks or open blobs.
+    ///     Save all information directly handled by this class.
+    ///     This will not save any chunks or open blobs.
     /// </summary>
     public void Save()
     {

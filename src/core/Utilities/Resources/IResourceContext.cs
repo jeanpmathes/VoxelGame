@@ -11,29 +11,29 @@ using System.IO;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// The context in which resources are loaded.
+///     The context in which resources are loaded.
 /// </summary>
 public interface IResourceContext : IDisposable
 {
     /// <summary>
-    /// Require any resource, catalog entry or external object to proceed.
+    ///     Require any resource, catalog entry or external object to proceed.
     /// </summary>
     /// <param name="func">The func that requires the object.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
-    /// <returns>The resources loaded by <paramref name="func"/> or an empty enumerable if the requirement is not met.</returns>
+    /// <returns>The resources loaded by <paramref name="func" /> or an empty enumerable if the requirement is not met.</returns>
     public IEnumerable<IResource> Require<T>(Func<T, IEnumerable<IResource>> func) where T : class;
 
     /// <summary>
-    /// Require a resource to proceed.
+    ///     Require a resource to proceed.
     /// </summary>
     /// <param name="identifier">The identifier of the required resource.</param>
     /// <param name="func">The func that requires the resource.</param>
     /// <typeparam name="T">The type of the resource.</typeparam>
-    /// <returns>The resources loaded by <paramref name="func"/> or an empty enumerable if the requirement is not met.</returns>
+    /// <returns>The resources loaded by <paramref name="func" /> or an empty enumerable if the requirement is not met.</returns>
     public IEnumerable<IResource> Require<T>(RID identifier, Func<T, IEnumerable<IResource>> func) where T : class;
 
     /// <summary>
-    /// Get a resource or any other catalog entry if it is loaded.
+    ///     Get a resource or any other catalog entry if it is loaded.
     /// </summary>
     /// <param name="identifier">An optional identifier of the resource.</param>
     /// <typeparam name="T">The type of the resource or catalog entry.</typeparam>
@@ -41,14 +41,14 @@ public interface IResourceContext : IDisposable
     public T? Get<T>(RID? identifier = null) where T : class;
 
     /// <summary>
-    /// Get all objects of a certain type.
+    ///     Get all objects of a certain type.
     /// </summary>
     /// <typeparam name="T">The type of the objects.</typeparam>
     /// <returns>The objects of the specified type.</returns>
     public IEnumerable<T> GetAll<T>() where T : class;
 
     /// <summary>
-    /// Report a warning for the loading of the current resource.
+    ///     Report a warning for the loading of the current resource.
     /// </summary>
     /// <param name="source">The source of the warning.</param>
     /// <param name="message">The warning message.</param>
@@ -57,9 +57,10 @@ public interface IResourceContext : IDisposable
     public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null);
 
     /// <summary>
-    /// Report the discovery (and potential load) of a sub-resource when loading the current resource.
-    /// By providing either <paramref name="error"/> or <paramref name="errorMessage"/>, the sub-resource load is considered failed.
-    /// A sub-resource failure will always be reported as a warning.
+    ///     Report the discovery (and potential load) of a sub-resource when loading the current resource.
+    ///     By providing either <paramref name="error" /> or <paramref name="errorMessage" />, the sub-resource load is
+    ///     considered failed.
+    ///     A sub-resource failure will always be reported as a warning.
     /// </summary>
     /// <param name="type">The type of the sub-resource.</param>
     /// <param name="identifier">The identifier of the sub-resource.</param>
@@ -72,7 +73,7 @@ public interface IResourceContext : IDisposable
     public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null);
 
     /// <summary>
-    /// Invoked when the loading process is completed.
+    ///     Invoked when the loading process is completed.
     /// </summary>
     public event EventHandler Completed;
 }

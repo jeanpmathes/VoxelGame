@@ -177,8 +177,8 @@ public sealed class BiomeDefinition(String name, Palette palette) : IResource
     }
 
     /// <summary>
-    /// Get the layer at the given depth in the upper horizon.
-    /// The upper horizon is the part of the biome above the dampening layer.
+    ///     Get the layer at the given depth in the upper horizon.
+    ///     The upper horizon is the part of the biome above the dampening layer.
     /// </summary>
     /// <param name="depth">The depth in the upper horizon.</param>
     /// <returns>The layer and depth inside the layer.</returns>
@@ -188,8 +188,8 @@ public sealed class BiomeDefinition(String name, Palette palette) : IResource
     }
 
     /// <summary>
-    /// Get the layer at the given depth in the lower horizon.
-    /// The lower horizon is the part of the biome below the dampening layer.
+    ///     Get the layer at the given depth in the lower horizon.
+    ///     The lower horizon is the part of the biome below the dampening layer.
     /// </summary>
     /// <param name="depth">The depth in the lower horizon.</param>
     /// <returns>The layer and depth inside the layer.</returns>

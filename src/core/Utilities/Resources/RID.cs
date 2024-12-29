@@ -12,8 +12,8 @@ namespace VoxelGame.Core.Utilities.Resources;
 #pragma warning disable S101
 
 /// <summary>
-/// Identifies a resource.
-/// <c>RID</c> stands for <c>Resource ID</c>.
+///     Identifies a resource.
+///     <c>RID</c> stands for <c>Resource ID</c>.
 /// </summary>
 public readonly struct RID : IEquatable<RID>
 {
@@ -22,37 +22,43 @@ public readonly struct RID : IEquatable<RID>
     private readonly String? identifier;
 
     /// <summary>
-    /// Get the virtual resource identifier.
-    /// It is used for resources that are not loaded during the loading process.
-    /// Instead, they are created on the fly.
+    ///     Get the virtual resource identifier.
+    ///     It is used for resources that are not loaded during the loading process.
+    ///     Instead, they are created on the fly.
     /// </summary>
     public static RID Virtual => new();
 
     /// <summary>
-    /// Get a resource identifier for a file.
+    ///     Get a resource identifier for a file.
     /// </summary>
     /// <param name="name">The name of the file, without the file extension.</param>
     /// <typeparam name="T">The type of the resource, providing the directory path and file extension.</typeparam>
     /// <returns>The resource identifier.</returns>
     public static RID File<T>(String name) where T : ILocated
-        => Path(FileSystem.GetResourceDirectory(T.Path).GetFile(FileSystem.GetResourceFileName<T>(name)));
+    {
+        return Path(FileSystem.GetResourceDirectory(T.Path).GetFile(FileSystem.GetResourceFileName<T>(name)));
+    }
 
     /// <summary>
-    /// Get a resource identifier for any path.
+    ///     Get a resource identifier for any path.
     /// </summary>
     /// <param name="info">The path to the resource.</param>
     /// <returns>The resource identifier.</returns>
     public static RID Path(FileSystemInfo info)
-        => new($"{pathPrefix}{info.GetResourceRelativePath()}");
+    {
+        return new RID($"{pathPrefix}{info.GetResourceRelativePath()}");
+    }
 
     /// <summary>
-    /// Get a resource identifier for a named resource.
+    ///     Get a resource identifier for a named resource.
     /// </summary>
     /// <param name="name">The name of the resource.</param>
     /// <typeparam name="T">The type of the resource.</typeparam>
     /// <returns>The resource identifier.</returns>
-    public static RID Named<T>(String name) where T : IResource =>
-        new(Reflections.GetDecoratedName<T>("Resource", name));
+    public static RID Named<T>(String name) where T : IResource
+    {
+        return new RID(Reflections.GetDecoratedName<T>("Resource", name));
+    }
 
     private RID(String identifier)
     {
@@ -60,13 +66,16 @@ public readonly struct RID : IEquatable<RID>
     }
 
     /// <summary>
-    /// Get this resource identifier as a string usable as an instance name in <see cref="Reflections.GetDecoratedName"/>.
-    /// Not valid for virtual resource identifiers, will return <c>null</c> in that case.
+    ///     Get this resource identifier as a string usable as an instance name in <see cref="Reflections.GetDecoratedName" />.
+    ///     Not valid for virtual resource identifiers, will return <c>null</c> in that case.
     /// </summary>
     public String? Instance => identifier != null ? $"Of<{identifier}>" : null;
 
     /// <inheritdoc />
-    public override String ToString() => identifier ?? "<virtual>";
+    public override String ToString()
+    {
+        return identifier ?? "<virtual>";
+    }
 
     #region EQUALITY
 
@@ -89,7 +98,7 @@ public readonly struct RID : IEquatable<RID>
     }
 
     /// <summary>
-    /// Equality operator.
+    ///     Equality operator.
     /// </summary>
     public static Boolean operator ==(RID left, RID right)
     {
@@ -97,7 +106,7 @@ public readonly struct RID : IEquatable<RID>
     }
 
     /// <summary>
-    /// Inequality operator.
+    ///     Inequality operator.
     /// </summary>
     public static Boolean operator !=(RID left, RID right)
     {

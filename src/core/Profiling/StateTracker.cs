@@ -42,7 +42,9 @@ public class StateTracker(String name, Profile? profile = null)
             return;
 
         if (toName != null)
+        {
             lifetime.Add(toName);
+        }
         else
         {
             profiler.RecordStateLifetime(name, lifetime);

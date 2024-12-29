@@ -124,21 +124,14 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     {
         Exception? exception = Load(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), out StaticStructure structure);
 
-        if (exception != null)
-        {
-            LogFailedStructureLoad(logger, exception, name);
-
-        }
-        else
-        {
-            LogSuccessfulStructureLoad(logger, name);
-        }
+        if (exception != null) LogFailedStructureLoad(logger, exception, name);
+        else LogSuccessfulStructureLoad(logger, name);
 
         return structure;
     }
 
     /// <summary>
-    /// Load a structure from a file.
+    ///     Load a structure from a file.
     /// </summary>
     /// <param name="file">The file to load from.</param>
     /// <param name="structure">The loaded structure, or a fallback structure if the loading failed.</param>
@@ -160,7 +153,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     }
 
     /// <summary>
-    /// Create a fallback structure.
+    ///     Create a fallback structure.
     /// </summary>
     /// <returns>The fallback structure.</returns>
     public static StaticStructure CreateFallback()

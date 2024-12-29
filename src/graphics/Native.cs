@@ -25,11 +25,8 @@ namespace VoxelGame.Graphics;
 internal static class Native
 {
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
-
     private static readonly Dictionary<IntPtr, Light> lights = new();
-
     private static readonly Dictionary<UInt32, Object> draw2DCallbacks = new();
-
     private static Definition.Native.ScreenshotFunc? screenshotCallback;
 
     /// <summary>
@@ -316,10 +313,7 @@ internal static class Native
 
         IntPtr result = NativeMethods.LoadTexture(client, data, description);
 
-        for (var index = 0; index < texture.Length; index++)
-        {
-            handles[index].Free();
-        }
+        for (var index = 0; index < texture.Length; index++) handles[index].Free();
 
         return new Texture(result, client, new Vector2i((Int32) description.Width, (Int32) description.Height));
     }

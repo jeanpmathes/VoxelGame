@@ -9,13 +9,13 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.UI.Resources;
 
 /// <summary>
-/// The main resources for the user interface.
-/// If these are not loaded, displaying a GUI is not possible.
+///     The main resources for the user interface.
+///     If these are not loaded, displaying a GUI is not possible.
 /// </summary>
 public class UserInterfaceRequirements : ResourceCatalog
 {
     /// <summary>
-    /// Creates a new instance of the UI resource catalog.
+    ///     Creates a new instance of the UI resource catalog.
     /// </summary>
     public UserInterfaceRequirements() : base([
         new VGuiLoader(),

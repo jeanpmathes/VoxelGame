@@ -56,7 +56,13 @@ public class BinarySerializationTests
             C = 300
         }
 
-        public readonly List<TestValue> r = [new TestValue {value = 21}, new TestValue {value = 22}];
+        public readonly List<TestValue> r =
+        [
+            new()
+                {value = 21},
+            new()
+                {value = 22}
+        ];
 
         private Int32 a = 1;
         private Int64 b = 2;

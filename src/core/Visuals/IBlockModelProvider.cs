@@ -9,12 +9,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-/// Provides loaded block models.
+///     Provides loaded block models.
 /// </summary>
 public interface IBlockModelProvider : IResourceProvider
 {
     /// <summary>
-    /// Get the block model for a given identifier.
+    ///     Get the block model for a given identifier.
     /// </summary>
     /// <param name="identifier">The resource identifier.</param>
     /// <returns>The block model, or a fallback model if the model is not found.</returns>

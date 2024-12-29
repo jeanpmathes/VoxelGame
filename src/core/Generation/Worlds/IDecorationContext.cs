@@ -182,14 +182,8 @@ public interface IDecorationContext : IDisposable
             {
                 ChunkPosition position = chunk.Position.Offset((x, y, z) - Neighborhood.Center);
 
-                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquire(Access.Write))
-                {
-                    available[x, y, z] = neighbor;
-                }
-                else
-                {
-                    return null;
-                }
+                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquire(Access.Write)) available[x, y, z] = neighbor;
+                else return null;
             }
 
         return available;

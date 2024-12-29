@@ -11,22 +11,22 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// Defines all icons used in the GUI.
+///     Defines all icons used in the GUI.
 /// </summary>
 public class Icons(Registry<String> icons, Registry<String> images)
 {
     /// <summary>
-    /// The singleton instance of this class.
+    ///     The singleton instance of this class.
     /// </summary>
     public static Icons Instance { get; } = new(new Registry<String>(e => e), new Registry<String>(e => e));
 
     /// <summary>
-    /// Get a sequence of all icon names.
+    ///     Get a sequence of all icon names.
     /// </summary>
     public IEnumerable<String> IconNames => icons.Values;
 
     /// <summary>
-    /// Get a sequence of all image names.
+    ///     Get a sequence of all image names.
     /// </summary>
     public IEnumerable<String> ImageNames => images.Values;
 

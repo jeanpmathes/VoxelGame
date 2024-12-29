@@ -124,7 +124,8 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// </summary>
     /// <param name="world">The world in which to destroy the block.</param>
     /// <param name="position">The position at which to destroy to block.</param>
-    /// <param name="actor">The actor destroying the block.</param>1
+    /// <param name="actor">The actor destroying the block.</param>
+    /// 1
     /// <returns>True if destruction was successful.</returns>
     public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null)
     {
@@ -334,7 +335,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     private Boolean disposed;
 
     /// <summary>
-    /// Override to dispose resources.
+    ///     Override to dispose resources.
     /// </summary>
     /// <param name="disposing">Whether to dispose managed resources.</param>
     protected virtual void Dispose(Boolean disposing)
@@ -345,7 +346,10 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         {
             // Nothing to dispose.
         }
-        else Throw.ForMissedDispose(this);
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
 
         disposed = true;
     }
@@ -358,7 +362,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     }
 
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~Block()
     {

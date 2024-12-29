@@ -13,15 +13,15 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Toolkit.Noise;
 
 /// <summary>
-/// Wraps around the noise generation library linked in the native code.
-/// Use the <see cref="NoiseBuilder"/> to create a new noise generator.
+///     Wraps around the noise generation library linked in the native code.
+///     Use the <see cref="NoiseBuilder" /> to create a new noise generator.
 /// </summary>
 public sealed class NoiseGenerator : IDisposable
 {
     private readonly IntPtr self;
 
     /// <summary>
-    /// Create a new noise generator.
+    ///     Create a new noise generator.
     /// </summary>
     /// <param name="definition">The definition of the noise generator.</param>
     public NoiseGenerator(NoiseDefinition definition)
@@ -30,7 +30,7 @@ public sealed class NoiseGenerator : IDisposable
     }
 
     /// <summary>
-    /// Get the noise value at the given position.
+    ///     Get the noise value at the given position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector2d position)
@@ -41,7 +41,7 @@ public sealed class NoiseGenerator : IDisposable
     }
 
     /// <summary>
-    /// Get the noise value at the given position.
+    ///     Get the noise value at the given position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector3d position)
@@ -52,7 +52,7 @@ public sealed class NoiseGenerator : IDisposable
     }
 
     /// <summary>
-    /// Get the noise value for a grid of points, starting at the given position.
+    ///     Get the noise value for a grid of points, starting at the given position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array2D<Single> GetNoiseGrid(Vector2i position, Int32 size)
@@ -66,7 +66,7 @@ public sealed class NoiseGenerator : IDisposable
     }
 
     /// <summary>
-    /// Get the noise value for a grid of points, starting at the given position.
+    ///     Get the noise value for a grid of points, starting at the given position.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array3D<Single> GetNoiseGrid(Vector3i position, Int32 size)

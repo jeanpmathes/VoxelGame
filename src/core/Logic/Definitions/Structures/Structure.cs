@@ -35,7 +35,7 @@ public abstract class Structure
     protected abstract (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random);
 
     /// <summary>
-    /// Get a random value generator, or <c>null</c> if the structure does not contain randomness.
+    ///     Get a random value generator, or <c>null</c> if the structure does not contain randomness.
     /// </summary>
     /// <param name="seed">The seed to use for the randomness.</param>
     /// <returns>The random number generator, or <c>null</c> if the structure does not contain randomness.</returns>

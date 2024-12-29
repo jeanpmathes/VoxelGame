@@ -631,7 +631,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     private Boolean disposed;
 
     /// <summary>
-    /// Override to dispose resources.
+    ///     Override to dispose resources.
     /// </summary>
     /// <param name="disposing">Whether to dispose managed resources.</param>
     protected virtual void Dispose(Boolean disposing)
@@ -642,7 +642,10 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         {
             // Nothing to dispose.
         }
-        else Throw.ForMissedDispose(this);
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
 
         disposed = true;
     }
@@ -655,7 +658,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     }
 
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~Fluid()
     {

@@ -96,10 +96,7 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         meshes.Add(closedZ.CreateMesh(textureIndexProvider));
         meshes.Add(item: null);
 
-        for (UInt32 data = 0; data <= 0b00_0111; data++)
-        {
-            volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
-        }
+        for (UInt32 data = 0; data <= 0b00_0111; data++) volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
     }
 
     private BoundingVolume CreateVolume(UInt32 data)

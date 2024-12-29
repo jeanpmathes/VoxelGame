@@ -25,7 +25,7 @@ public interface IPlayerDataProvider
     public String Selection { get; }
 
     /// <summary>
-    /// Data for debugging purposes.
+    ///     Data for debugging purposes.
     /// </summary>
     public Property DebugData { get; }
 }

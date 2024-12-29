@@ -47,7 +47,6 @@ public interface IFoliage : IBlockMeshable
     /// </summary>
     public readonly struct MeshData : IEquatable<MeshData>
     {
-        private readonly BlockMesh.Quad[] quads;
         private readonly UInt32 quadCount;
 
         /// <summary>
@@ -55,7 +54,7 @@ public interface IFoliage : IBlockMeshable
         /// </summary>
         public MeshData(BlockMesh mesh)
         {
-            quads = mesh.GetMeshData(out quadCount);
+            Quads = mesh.GetMeshData(out quadCount);
 
             Tint = TintColor.None;
             IsAnimated = false;
@@ -66,7 +65,7 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     Get the quads of the mesh.
         /// </summary>
-        public BlockMesh.Quad[] Quads => quads;
+        public BlockMesh.Quad[] Quads { get; }
 
         /// <summary>
         ///     Get the quad count of the mesh.
@@ -98,7 +97,7 @@ public interface IFoliage : IBlockMeshable
         /// </summary>
         public Boolean Equals(MeshData other)
         {
-            return (quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant) == (other.quads, other.Tint, other.IsAnimated, other.IsUpperPart, other.IsDoublePlant);
+            return (Quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant) == (other.Quads, other.Tint, other.IsAnimated, other.IsUpperPart, other.IsDoublePlant);
         }
 
         /// <inheritdoc />
@@ -110,7 +109,7 @@ public interface IFoliage : IBlockMeshable
         /// <inheritdoc />
         public override Int32 GetHashCode()
         {
-            return HashCode.Combine(quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant);
+            return HashCode.Combine(Quads, Tint, IsAnimated, IsUpperPart, IsDoublePlant);
         }
 
         /// <summary>

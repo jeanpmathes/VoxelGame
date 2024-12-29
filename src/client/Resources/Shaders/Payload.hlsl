@@ -86,7 +86,7 @@ namespace vg
         {
             payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color);
         }
-        
+
         /**
          * \brief Create an initialized hit info / ray payload struct.
          * \param path The total path length.

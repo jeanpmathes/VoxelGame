@@ -28,8 +28,8 @@ public abstract class Setting
     protected abstract String Name { get; }
 
     /// <summary>
-    /// Provides the untyped value of the setting.
-    /// Use only for debugging purposes.
+    ///     Provides the untyped value of the setting.
+    ///     Use only for debugging purposes.
     /// </summary>
     public abstract Object Value { get; }
 

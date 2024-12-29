@@ -127,7 +127,7 @@ public partial class Chunk : IDisposable, IEntity
 
     /// <summary>
     ///     The block data of this chunk.
-    ///     Storage layout is defined by <see cref="Section"/>.
+    ///     Storage layout is defined by <see cref="Section" />.
     /// </summary>
     private readonly NativeSegment<UInt32> blocks;
 
@@ -207,7 +207,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// The requests for this chunk.
+    ///     The requests for this chunk.
     /// </summary>
     public Requests Requests { get; private set; } = null!;
 
@@ -223,8 +223,8 @@ public partial class Chunk : IDisposable, IEntity
     public Boolean IsRequestedToLoad => Requests.Level.IsLoaded;
 
     /// <summary>
-    /// Whether this chunk is requested to be active.
-    /// It will attempt to enter the active state after loading or generation.
+    ///     Whether this chunk is requested to be active.
+    ///     It will attempt to enter the active state after loading or generation.
     /// </summary>
     public Boolean IsRequestedToActivate => Requests.Level.IsActive;
 
@@ -429,7 +429,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// Called by <see cref="Requests"/>.
+    ///     Called by <see cref="Requests" />.
     /// </summary>
     internal void OnRequestLevelApplied()
     {
@@ -624,7 +624,7 @@ public partial class Chunk : IDisposable, IEntity
 
     /// <summary>
     ///     Send all update events.
-    ///     These include requested updates and one random update. 
+    ///     These include requested updates and one random update.
     /// </summary>
     public void LogicUpdate()
     {

@@ -14,12 +14,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
 /// <summary>
-/// The resource catalog of this world generator.
+///     The resource catalog of this world generator.
 /// </summary>
 public class Catalog : ResourceCatalog
 {
     /// <summary>
-    /// Create a new instance of the catalog.
+    ///     Create a new instance of the catalog.
     /// </summary>
     public Catalog() : base([
         new PaletteLoader(),

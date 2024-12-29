@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// Can load resources. Allows to specify resource properties without creating the resource.
+///     Can load resources. Allows to specify resource properties without creating the resource.
 /// </summary>
 public interface IResourceLoader : ICatalogEntry
 {
@@ -23,7 +23,7 @@ public interface IResourceLoader : ICatalogEntry
     String ICatalogEntry.Prefix => "Loader";
 
     /// <summary>
-    /// Loads the resources.
+    ///     Loads the resources.
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
     /// <returns>The loaded resources.</returns>

@@ -193,7 +193,7 @@ public abstract class Decoration : IResource
     private Boolean disposed;
 
     /// <summary>
-    /// Override to dispose of resources.
+    ///     Override to dispose of resources.
     /// </summary>
     /// <param name="disposing">Whether to dispose of managed resources.</param>
     protected virtual void Dispose(Boolean disposing)
@@ -204,7 +204,10 @@ public abstract class Decoration : IResource
         {
             // Nothing to dispose.
         }
-        else Throw.ForMissedDispose(this);
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
 
         disposed = true;
     }

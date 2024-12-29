@@ -18,15 +18,16 @@ using VoxelGame.Toolkit.Collections;
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
 /// <summary>
-/// Loads all biomes for this world generator, as well as the biome distribution.
+///     Loads all biomes for this world generator, as well as the biome distribution.
 /// </summary>
 public sealed class BiomeLoader : IResourceLoader
 {
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<Palette>(palette =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<Palette>(palette =>
             context.Require<IDecorationProvider>(decorations =>
                 context.Require<IStructureGeneratorDefinitionProvider>(structures =>
                 {
@@ -62,6 +63,7 @@ public sealed class BiomeLoader : IResourceLoader
 
                     return [..registry.Values, distribution];
                 })));
+    }
 
     private sealed class Biomes(
         Registry<BiomeDefinition> biomes,
@@ -132,7 +134,7 @@ public sealed class BiomeLoader : IResourceLoader
                 decorations.GetDecoration(normalTree),
                 decorations.GetDecoration(tropicalTree),
                 decorations.GetDecoration(roots),
-                decorations.GetDecoration(vines),
+                decorations.GetDecoration(vines)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
         });
@@ -163,7 +165,7 @@ public sealed class BiomeLoader : IResourceLoader
                 decorations.GetDecoration(tallGrass),
                 decorations.GetDecoration(tallFlower),
                 decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(roots),
+                decorations.GetDecoration(roots)
             }
         });
 
@@ -189,7 +191,7 @@ public sealed class BiomeLoader : IResourceLoader
             Decorations = new List<Decoration>
             {
                 decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(needleTree),
+                decorations.GetDecoration(needleTree)
             }
         });
 
@@ -239,7 +241,7 @@ public sealed class BiomeLoader : IResourceLoader
             Decorations = new List<Decoration>
             {
                 decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(savannaTree),
+                decorations.GetDecoration(savannaTree)
             }
         });
 
@@ -270,7 +272,7 @@ public sealed class BiomeLoader : IResourceLoader
                 decorations.GetDecoration(tallFlower),
                 decorations.GetDecoration(normalTree),
                 decorations.GetDecoration(normalTree2),
-                decorations.GetDecoration(roots),
+                decorations.GetDecoration(roots)
             }
         });
 
@@ -300,7 +302,7 @@ public sealed class BiomeLoader : IResourceLoader
                 decorations.GetDecoration(tallGrass),
                 decorations.GetDecoration(normalTree),
                 decorations.GetDecoration(shrub),
-                decorations.GetDecoration(roots),
+                decorations.GetDecoration(roots)
             }
         });
 
@@ -329,7 +331,7 @@ public sealed class BiomeLoader : IResourceLoader
             {
                 decorations.GetDecoration(tallGrass),
                 decorations.GetDecoration(boulder),
-                decorations.GetDecoration(shrub),
+                decorations.GetDecoration(shrub)
             }
         });
 
@@ -354,7 +356,7 @@ public sealed class BiomeLoader : IResourceLoader
             },
             Decorations = new List<Decoration>
             {
-                decorations.GetDecoration(cactus),
+                decorations.GetDecoration(cactus)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
@@ -383,7 +385,7 @@ public sealed class BiomeLoader : IResourceLoader
             Decorations = new List<Decoration>
             {
                 decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(boulder),
+                decorations.GetDecoration(boulder)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
         });
@@ -470,7 +472,7 @@ public sealed class BiomeLoader : IResourceLoader
             },
             Decorations = new List<Decoration>
             {
-                decorations.GetDecoration(palmTree),
+                decorations.GetDecoration(palmTree)
             }
         });
 

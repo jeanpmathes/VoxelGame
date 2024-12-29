@@ -11,17 +11,17 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Resources;
 
 /// <summary>
-/// All content of the core project.
+///     All content of the core project.
 /// </summary>
 public class CoreContent : ResourceCatalog
 {
     /// <summary>
-    /// Create a new instance of the core content catalog.
+    ///     Create a new instance of the core content catalog.
     /// </summary>
     public CoreContent() : base([
         new StaticStructures(),
         new BlockLoader(),
         new FluidLoader(),
-        new Generators(),
+        new Generators()
     ]) {}
 }

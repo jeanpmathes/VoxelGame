@@ -13,7 +13,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
-/// Loads a single texture.
+///     Loads a single texture.
 /// </summary>
 public sealed class SingleTextureLoader : IResourceLoader
 {
@@ -22,7 +22,7 @@ public sealed class SingleTextureLoader : IResourceLoader
     private readonly Int32 fallbackResolution;
 
     /// <summary>
-    /// Creates a new <see cref="SingleTextureLoader"/> which loads a texture from the given path.
+    ///     Creates a new <see cref="SingleTextureLoader" /> which loads a texture from the given path.
     /// </summary>
     /// <param name="path">The path to the texture.</param>
     /// <param name="fallbackResolution">The resolution to use if the texture could not be loaded.</param>
@@ -37,8 +37,9 @@ public sealed class SingleTextureLoader : IResourceLoader
     String? ICatalogEntry.Instance => identifier.Instance;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<Application.Client>(client =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<Application.Client>(client =>
         {
             Image image;
 
@@ -55,4 +56,5 @@ public sealed class SingleTextureLoader : IResourceLoader
 
             return [new SingleTexture(identifier, client.LoadTexture(image))];
         });
+    }
 }

@@ -19,20 +19,20 @@ using VoxelGame.Toolkit.Noise;
 namespace VoxelGame.Core.Generation.Worlds.Default.Structures;
 
 /// <summary>
-/// An instance of a structure generator, containing a specific noise generator.
+///     An instance of a structure generator, containing a specific noise generator.
 /// </summary>
 public sealed class StructureGenerator : IDisposable
 {
     private readonly NoiseGenerator noise;
 
     /// <summary>
-    /// Creates a new instance of the <see cref="StructureGenerator"/> class.
+    ///     Creates a new instance of the <see cref="StructureGenerator" /> class.
     /// </summary>
     /// <param name="factory">The noise factory to use.</param>
     /// <param name="definition">The definition of the structure generator.</param>
     public StructureGenerator(NoiseFactory factory, StructureGeneratorDefinition definition)
     {
-        this.Definition = definition;
+        Definition = definition;
 
         noise = factory.CreateNext()
             .WithType(NoiseType.GradientNoise)
@@ -41,7 +41,7 @@ public sealed class StructureGenerator : IDisposable
     }
 
     /// <summary>
-    /// The definition of the structure generator.
+    ///     The definition of the structure generator.
     /// </summary>
     public StructureGeneratorDefinition Definition { get; }
 

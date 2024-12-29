@@ -141,7 +141,7 @@ public static partial class FileSystem
     }
 
     /// <summary>
-    /// Get a file pattern searching for all files of a specific resource type in a directory.
+    ///     Get a file pattern searching for all files of a specific resource type in a directory.
     /// </summary>
     /// <typeparam name="T">The type of the resource.</typeparam>
     /// <returns>The file pattern.</returns>
@@ -151,7 +151,7 @@ public static partial class FileSystem
     }
 
     /// <summary>
-    /// Get the name of a resource file.
+    ///     Get the name of a resource file.
     /// </summary>
     /// <param name="name">The name of the resource.</param>
     /// <typeparam name="T">The type of the resource.</typeparam>

@@ -14,19 +14,19 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 
 /// <summary>
-/// Loads all decorations.
+///     Loads all decorations.
 /// </summary>
 public sealed class DecorationLoader : IResourceLoader
 {
     String? ICatalogEntry.Instance => null;
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<IStructureProvider>(structures =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<IStructureProvider>(structures =>
         [
             new StructureDecoration("TallGrass", rarity: 1.0f, structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
             new StructureDecoration("TallFlower", rarity: 4.0f, structures.GetStructure(RID.File<StaticStructure>("tall_flower")), new PlantableDecorator()),
@@ -42,4 +42,5 @@ public sealed class DecorationLoader : IResourceLoader
             new RootDecoration("Roots", rarity: 1000.0f, new DepthDecorator(minDepth: 5, maxDepth: 15)),
             new FlatBlockDecoration("Vines", rarity: 1.0f, Blocks.Instance.Specials.Vines, new HashSet<Block> {Blocks.Instance.Log, Blocks.Instance.Leaves})
         ]);
+    }
 }

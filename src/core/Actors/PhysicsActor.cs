@@ -80,8 +80,8 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     public abstract Vector3d Movement { get; }
 
     /// <summary>
-    /// The head of the physics actor, which allows to determine where the actor is looking at.
-    /// If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
+    ///     The head of the physics actor, which allows to determine where the actor is looking at.
+    ///     If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
     /// </summary>
     public virtual IOrientable Head => this;
 
@@ -276,7 +276,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     }
 
     /// <summary>
-    ///    Called in each logic update to update the physics actor.
+    ///     Called in each logic update to update the physics actor.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     protected abstract void OnLogicUpdate(Double deltaTime);

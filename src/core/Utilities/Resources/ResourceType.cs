@@ -9,52 +9,52 @@ using System;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// The type of resource.
+///     The type of resource.
 /// </summary>
 public class ResourceType
 {
     /// <summary>
-    /// Some resource categories.
+    ///     Some resource categories.
     /// </summary>
     public enum Category
     {
         /// <summary>
-        /// A meta category, e.g. for error resources.
+        ///     A meta category, e.g. for error resources.
         /// </summary>
         Meta,
 
         /// <summary>
-        /// Any texture resource.
+        ///     Any texture resource.
         /// </summary>
         Texture,
 
         /// <summary>
-        /// Any 3D model resource.
+        ///     Any 3D model resource.
         /// </summary>
         Model,
 
         /// <summary>
-        /// Any voxel data resource.
+        ///     Any voxel data resource.
         /// </summary>
         Voxels,
 
         /// <summary>
-        /// Any text resource.
+        ///     Any text resource.
         /// </summary>
         Text,
 
         /// <summary>
-        /// Any font resource.
+        ///     Any font resource.
         /// </summary>
         Font,
 
         /// <summary>
-        /// Any code resource.
+        ///     Any code resource.
         /// </summary>
         Code,
 
         /// <summary>
-        /// Any runtime object resource.
+        ///     Any runtime object resource.
         /// </summary>
         Object
     }
@@ -62,7 +62,7 @@ public class ResourceType
     private readonly String type;
 
     /// <summary>
-    /// Create a new resource type.
+    ///     Create a new resource type.
     /// </summary>
     /// <param name="category">The category of the resource.</param>
     /// <param name="type">The general type of the resource.</param>
@@ -86,7 +86,7 @@ public class ResourceType
     }
 
     /// <summary>
-    /// Create a new resource type.
+    ///     Create a new resource type.
     /// </summary>
     /// <param name="category">The category of the resource.</param>
     /// <param name="type">The general type of the resource.</param>
@@ -96,9 +96,14 @@ public class ResourceType
         this.type = BuildType(category, type, subType);
     }
 
-    private static String BuildType(String category, String type, String? subType) =>
-        subType == null ? $"{category}/{type}" : $"{category}/{type}/{subType}";
+    private static String BuildType(String category, String type, String? subType)
+    {
+        return subType == null ? $"{category}/{type}" : $"{category}/{type}/{subType}";
+    }
 
     /// <inheritdoc />
-    public override String ToString() => type;
+    public override String ToString()
+    {
+        return type;
+    }
 }

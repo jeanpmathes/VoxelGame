@@ -29,7 +29,7 @@ public interface IMeasure
     Prefix? Prefix => null;
 
     /// <summary>
-    /// Get the string representation of the measure.
+    ///     Get the string representation of the measure.
     /// </summary>
     /// <param name="measure">The measure to convert to string.</param>
     /// <typeparam name="T">The type of the measure.</typeparam>

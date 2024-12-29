@@ -9,12 +9,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
 /// <summary>
-/// Provides structures for given resource identifiers.
+///     Provides structures for given resource identifiers.
 /// </summary>
 public interface IStructureProvider : IResourceProvider
 {
     /// <summary>
-    /// Get the structure for the given identifier.
+    ///     Get the structure for the given identifier.
     /// </summary>
     /// <param name="identifier">The identifier of the structure.</param>
     /// <returns>The structure, or a fallback structure if the structure is not found.</returns>

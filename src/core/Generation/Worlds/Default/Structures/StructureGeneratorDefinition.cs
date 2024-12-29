@@ -69,27 +69,27 @@ public sealed class StructureGeneratorDefinition : IResource
     public String Name { get; }
 
     /// <summary>
-    /// The frequency with which the noise generator should be initialized.
+    ///     The frequency with which the noise generator should be initialized.
     /// </summary>
     public Single Frequency { get; }
 
     /// <summary>
-    /// The effective extents of the structure in sections.
+    ///     The effective extents of the structure in sections.
     /// </summary>
     public Vector3i EffectiveSectionExtents { get; }
 
     /// <summary>
-    /// The placement kind of the structure.
+    ///     The placement kind of the structure.
     /// </summary>
     public Kind Placement { get; }
 
     /// <summary>
-    /// The offset of the structure from the placement position.
+    ///     The offset of the structure from the placement position.
     /// </summary>
     public Vector3i Offset { get; }
 
     /// <summary>
-    /// The placed structure.
+    ///     The placed structure.
     /// </summary>
     public Structure Structure { get; }
 

@@ -9,7 +9,4 @@
 #include "Custom.hlsl"
 #include "Payload.hlsl"
 
-[shader("miss")]void Miss(inout native::rt::HitInfo payload)
-{
-    SET_MISS_INFO(payload, RGBA(vg::SKY_COLOR));
-}
+[shader("miss")]void Miss(inout native::rt::HitInfo payload) { SET_MISS_INFO(payload, RGBA(vg::SKY_COLOR)); }

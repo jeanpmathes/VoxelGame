@@ -14,7 +14,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// Loads all attributions.
+///     Loads all attributions.
 /// </summary>
 public sealed class AttributionLoader : IResourceLoader
 {

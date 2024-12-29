@@ -736,7 +736,8 @@ public sealed partial class Map : IMap, IDisposable
         public Single Height { get; init; }
 
         /// <summary>
-        ///     The temperature of the sample, in range [0, 1]. Use <see cref="GetTemperatureAtHeight" /> to retrieve the temperature.
+        ///     The temperature of the sample, in range [0, 1]. Use <see cref="GetTemperatureAtHeight" /> to retrieve the
+        ///     temperature.
         /// </summary>
         public Single Temperature { get; init; }
 

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// A step in the loading process that links together previously loaded resources.
+///     A step in the loading process that links together previously loaded resources.
 /// </summary>
 public interface IResourceLinker : ICatalogEntry
 {
@@ -27,7 +27,7 @@ public interface IResourceLinker : ICatalogEntry
     String? ICatalogEntry.Instance => null;
 
     /// <summary>
-    /// Links previously loaded resources together.
+    ///     Links previously loaded resources together.
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
     public void Link(IResourceContext context);

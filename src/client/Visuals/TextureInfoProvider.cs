@@ -15,7 +15,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
-/// Provides the texture indices of loaded textures for blocks and fluids, as well as their dominant colors.
+///     Provides the texture indices of loaded textures for blocks and fluids, as well as their dominant colors.
 /// </summary>
 public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColorProvider
 {

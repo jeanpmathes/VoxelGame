@@ -18,7 +18,8 @@ public partial class Block
 
     /// <summary>
     ///     Schedules an update according to the given update offset.
-    ///     Note that the system does not guarantee that the update will be executed exactly at the given offset, as chunks could
+    ///     Note that the system does not guarantee that the update will be executed exactly at the given offset, as chunks
+    ///     could
     ///     be inactive.
     /// </summary>
     /// <param name="world">The world in which the block is.</param>

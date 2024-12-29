@@ -13,7 +13,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// Loads all fluids.
+///     Loads all fluids.
 /// </summary>
 public sealed class FluidLoader : IResourceLoader
 {
@@ -25,8 +25,9 @@ public sealed class FluidLoader : IResourceLoader
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<ITextureIndexProvider>(textureIndexProvider =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<ITextureIndexProvider>(textureIndexProvider =>
             context.Require<IDominantColorProvider>(dominantColorProvider =>
             {
                 if (Fluids.Instance.Count > FluidLimit)
@@ -41,4 +42,5 @@ public sealed class FluidLoader : IResourceLoader
 
                 return Fluids.Instance.Content.Take(FluidLimit);
             }));
+    }
 }

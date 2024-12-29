@@ -19,7 +19,7 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// A report detailing all issues that occurred during resource loading.
+///     A report detailing all issues that occurred during resource loading.
 /// </summary>
 /// <param name="Report">The report as properties.</param>
 /// <param name="ErrorCount">The number of errors that occurred.</param>
@@ -27,13 +27,13 @@ namespace VoxelGame.Core.Utilities.Resources;
 public record ResourceLoadingIssueReport(Property Report, Int32 ErrorCount, Int32 WarningCount)
 {
     /// <summary>
-    /// Whether there are any errors in the report.
-    /// If yes, the game is not playable.
+    ///     Whether there are any errors in the report.
+    ///     If yes, the game is not playable.
     /// </summary>
     public Boolean AnyErrors => ErrorCount > 0;
 
     /// <summary>
-    /// Merge multiple reports into one.
+    ///     Merge multiple reports into one.
     /// </summary>
     /// <param name="name">The name of the merged report.</param>
     /// <param name="reports">The reports to merge.</param>
@@ -66,15 +66,15 @@ public record ResourceLoadingIssueReport(Property Report, Int32 ErrorCount, Int3
 }
 
 /// <summary>
-/// Loads resource catalogs.
+///     Loads resource catalogs.
 /// </summary>
 public sealed partial class ResourceCatalogLoader
 {
     private readonly TypeKeyDictionary<RID> environment = new();
 
     /// <summary>
-    /// Add an object to the loading environment.
-    /// It will be available to all resources during the loading process.
+    ///     Add an object to the loading environment.
+    ///     It will be available to all resources during the loading process.
     /// </summary>
     /// <param name="obj">The object to add.</param>
     public void AddToEnvironment(Object obj)
@@ -83,22 +83,19 @@ public sealed partial class ResourceCatalogLoader
     }
 
     /// <summary>
-    /// Add the resources of another resource context to the loading environment.
-    /// Other objects that are not resources will be ignored.
+    ///     Add the resources of another resource context to the loading environment.
+    ///     Other objects that are not resources will be ignored.
     /// </summary>
     /// <param name="context">The context of which to add the resources.</param>
     public void AddToEnvironment(IResourceContext context)
     {
         // Generally, all non-keyed objects have been removed from the context anyway.
 
-        foreach (IResource resource in context.GetAll<IResource>())
-        {
-            environment.Add(resource, resource.Identifier);
-        }
+        foreach (IResource resource in context.GetAll<IResource>()) environment.Add(resource, resource.Identifier);
     }
 
     /// <summary>
-    /// Load the specified catalog.
+    ///     Load the specified catalog.
     /// </summary>
     /// <param name="catalog">The catalog to load.</param>
     /// <param name="timer">A timer to use for profiling the loading operations.</param>
@@ -142,10 +139,7 @@ public sealed partial class ResourceCatalogLoader
     {
         context.SetCurrentState(hierarchy, report);
 
-        foreach (ICatalogEntry entry in entries)
-        {
-            LoadCatalogEntry(entry, hierarchy, report, timer, context);
-        }
+        foreach (ICatalogEntry entry in entries) LoadCatalogEntry(entry, hierarchy, report, timer, context);
     }
 
     private static void LoadResources(IEnumerable<IResource> resources, String hierarchy, Group report, Context context)
@@ -210,14 +204,8 @@ public sealed partial class ResourceCatalogLoader
 
             currentReport!.Add(new Error(Reflections.GetLongName(source.GetType()), message, isCritical: false));
 
-            if (path == null)
-            {
-                LogWarningForResource(logger, exception, currentHierarchy!, message);
-            }
-            else
-            {
-                LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
-            }
+            if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
+            else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
 
             warningCount++;
         }
@@ -329,12 +317,8 @@ public sealed partial class ResourceCatalogLoader
                 return;
 
             if (disposing)
-            {
                 foreach (IResource resource in content.GetAll<IResource>())
-                {
                     resource.Dispose();
-                }
-            }
             else Throw.ForMissedDispose(this);
 
             disposed = true;

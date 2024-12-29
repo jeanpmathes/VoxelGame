@@ -28,7 +28,11 @@ namespace vg
          * \return The animated texture index.
          */
         uint GetAnimatedIndex(
-            uint const index, uint const primitive, float const time, uint const frameCount, float const quadFactor)
+            uint const  index,
+            uint const  primitive,
+            float const time,
+            uint const  frameCount,
+            float const quadFactor)
         {
             if (index == 0) return 0;
 

@@ -8,10 +8,11 @@
 #include "Section.hlsl"
 
 [shader("anyhit")]void BasicTransparentSectionAnyHit(
-    inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
+    inout native::rt::HitInfo    payload,
+    native::rt::Attributes const attributes)
 {
     float const path = vg::ray::GetPathLength(payload);
-    
+
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float4                  color = vg::section::GetBasicBaseColor(path, info);
 
@@ -31,7 +32,8 @@
 }
 
 [shader("closesthit")]void BasicTransparentSectionClosestHit(
-    inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
+    inout native::rt::HitInfo    payload,
+    native::rt::Attributes const attributes)
 {
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float3 const            color = vg::ray::GetColor(payload).rgb;
@@ -40,7 +42,8 @@
 }
 
 [shader("anyhit")]void BasicTransparentShadowAnyHit(
-    inout native::rt::ShadowHitInfo, native::rt::Attributes const attributes)
+    inout native::rt::ShadowHitInfo,
+    native::rt::Attributes const attributes)
 {
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float4                  color = vg::section::GetBasicBaseColor(vg::section::SHADOW_PATH, info);
@@ -52,4 +55,5 @@
 }
 
 [shader("closesthit")]void BasicTransparentShadowClosestHit(
-    inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes) { hitInfo.isHit = true; }
+    inout native::rt::ShadowHitInfo hitInfo,
+    native::rt::Attributes) { hitInfo.isHit = true; }

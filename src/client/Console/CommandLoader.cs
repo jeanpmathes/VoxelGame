@@ -14,7 +14,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Client.Console;
 
 /// <summary>
-/// Loads all commands, creating a <see cref="CommandInvoker"/>.
+///     Loads all commands, creating a <see cref="CommandInvoker" />.
 /// </summary>
 public sealed class CommandLoader : IResourceLoader
 {

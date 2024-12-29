@@ -30,8 +30,8 @@ public abstract class Serializer
     public abstract void SerializeSmall(ref Int32 value);
 
     /// <summary>
-    /// Serialize an unsigned integer that is expected to be small but positive.
-    /// Serializers can use this to optimize for space usage.
+    ///     Serialize an unsigned integer that is expected to be small but positive.
+    ///     Serializers can use this to optimize for space usage.
     /// </summary>
     public void SerializeSmall(ref UInt32 value)
     {

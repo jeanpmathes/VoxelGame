@@ -20,7 +20,7 @@ using VoxelGame.Graphics.Objects;
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
-/// Loads the engine and the required resources defining the engine.
+///     Loads the engine and the required resources defining the engine.
 /// </summary>
 public sealed class EngineLoader : IResourceLoader
 {
@@ -31,8 +31,9 @@ public sealed class EngineLoader : IResourceLoader
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<Application.Client>(client =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<Application.Client>(client =>
             context.Require<TextureBundle>(Textures.BlockID,
                 blocks =>
                     context.Require<TextureBundle>(Textures.FluidID,
@@ -66,6 +67,7 @@ public sealed class EngineLoader : IResourceLoader
 
                                 return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData)];
                             }))));
+    }
 
     private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(Application.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
     {
@@ -93,7 +95,7 @@ public sealed class EngineLoader : IResourceLoader
     }
 
     /// <summary>
-    /// Creates raster pipelines.
+    ///     Creates raster pipelines.
     /// </summary>
     public class PipelineFactory
     {
@@ -101,7 +103,7 @@ public sealed class EngineLoader : IResourceLoader
         private readonly EngineLoader loader;
 
         /// <summary>
-        /// Create a new instance of the pipeline factory.
+        ///     Create a new instance of the pipeline factory.
         /// </summary>
         /// <param name="client">The client which will use the pipelines.</param>
         /// <param name="loader">The loader that created this factory.</param>

@@ -105,7 +105,7 @@ public abstract partial class World : IDisposable, IGrid
     public IWorldStates State => state;
 
     /// <summary>
-    /// Get the chunks of this world.
+    ///     Get the chunks of this world.
     /// </summary>
     public ChunkSet Chunks { get; }
 
@@ -593,7 +593,7 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    /// Called by the active state during <see cref="LogicUpdate"/> when the world is active.
+    ///     Called by the active state during <see cref="LogicUpdate" /> when the world is active.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>

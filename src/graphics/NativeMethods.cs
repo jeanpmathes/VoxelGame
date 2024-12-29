@@ -11,8 +11,8 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Interop;
+using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Graphics;
 

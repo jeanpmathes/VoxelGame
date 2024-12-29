@@ -182,7 +182,7 @@ public static class BlockMeshes
     {
         List<BlockMesh.Quad> list =
         [
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.25f, y: 0f, z: 0.0f),
                 B = new Vector3(x: 0.25f, y: 1f, z: 0.0f),
@@ -190,7 +190,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 0.25f, y: 0f, z: 1.0f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.25f),
                 B = new Vector3(x: 0.0f, y: 1f, z: 0.25f),
@@ -198,7 +198,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 1.0f, y: 0f, z: 0.25f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.75f, y: 0f, z: 0.0f),
                 B = new Vector3(x: 0.75f, y: 1f, z: 0.0f),
@@ -206,7 +206,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 0.75f, y: 0f, z: 1.0f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.75f),
                 B = new Vector3(x: 0.0f, y: 1f, z: 0.75f),

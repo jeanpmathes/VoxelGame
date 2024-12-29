@@ -7,7 +7,7 @@
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// Proxy resource that represents resource that could not be loaded.
+///     Proxy resource that represents resource that could not be loaded.
 /// </summary>
 /// <param name="type">The type of the resource.</param>
 /// <param name="identifier">The identifier of the resource.</param>

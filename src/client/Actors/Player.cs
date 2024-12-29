@@ -100,7 +100,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     String IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
-    /// Set the flying speed of the player.
+    ///     Set the flying speed of the player.
     /// </summary>
     /// <param name="speed">The new flying speed.</param>
     public void SetFlyingSpeed(Double speed)

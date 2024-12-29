@@ -13,7 +13,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
 /// <summary>
-/// Loads all static structures.
+///     Loads all static structures.
 /// </summary>
 public sealed class StaticStructureLoader : IResourceLoader
 {
@@ -41,14 +41,8 @@ public sealed class StaticStructureLoader : IResourceLoader
         {
             Exception? exception = StaticStructure.Load(file, out StaticStructure structure);
 
-            if (exception != null)
-            {
-                loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
-            }
-            else
-            {
-                loaded.Add(structure);
-            }
+            if (exception != null) loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
+            else loaded.Add(structure);
         }
 
         return loaded;

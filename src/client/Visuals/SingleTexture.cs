@@ -12,12 +12,12 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
-/// A texture resource. Wraps a <see cref="Texture"/>.
+///     A texture resource. Wraps a <see cref="Texture" />.
 /// </summary>
 public sealed class SingleTexture(RID identifier, Texture texture) : IResource
 {
     /// <summary>
-    /// Get the wrapped texture.
+    ///     Get the wrapped texture.
     /// </summary>
     public Texture Texture => texture;
 

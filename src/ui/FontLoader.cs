@@ -13,12 +13,15 @@ using VoxelGame.UI.Utilities;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// Loads the font bundle for the GUI.
+///     Loads the font bundle for the GUI.
 /// </summary>
 public sealed class FontLoader : IResourceLoader
 {
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) => context.Require<IGwenGui>(gui => [new FontBundle(gui.Root.Skin)]);
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<IGwenGui>(gui => [new FontBundle(gui.Root.Skin)]);
+    }
 }

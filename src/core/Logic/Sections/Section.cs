@@ -28,7 +28,7 @@ public class Section : IDisposable
     public const Int32 Size = 16;
 
     /// <summary>
-    /// Number of entries in a section.
+    ///     Number of entries in a section.
     /// </summary>
     public const Int32 Count = Size * Size * Size;
 

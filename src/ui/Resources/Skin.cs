@@ -10,12 +10,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.UI.Resources;
 
 /// <summary>
-/// Wraps a skin as a resource.
+///     Wraps a skin as a resource.
 /// </summary>
 public sealed class Skin(RID identifier, SkinBase skin) : IResource
 {
     /// <summary>
-    /// The wrapped skin.
+    ///     The wrapped skin.
     /// </summary>
     public SkinBase Value { get; } = skin;
 

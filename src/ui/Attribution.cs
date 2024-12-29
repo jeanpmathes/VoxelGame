@@ -13,17 +13,17 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// An attribution text.
+///     An attribution text.
 /// </summary>
 public sealed class Attribution : IResource, ILocated
 {
     /// <summary>
-    /// The resource type of all attributions.
+    ///     The resource type of all attributions.
     /// </summary>
     public static readonly ResourceType ResourceType = ResourceTypes.Text;
 
     /// <summary>
-    /// Creates a new attribution.
+    ///     Creates a new attribution.
     /// </summary>
     /// <param name="identifier">The identifier of the attribution.</param>
     /// <param name="name">The name of the attribution.</param>
@@ -37,12 +37,12 @@ public sealed class Attribution : IResource, ILocated
     }
 
     /// <summary>
-    /// The name of the attribution.
+    ///     The name of the attribution.
     /// </summary>
     public String Name { get; }
 
     /// <summary>
-    /// The text of the attribution.
+    ///     The text of the attribution.
     /// </summary>
     public String Text { get; }
 
@@ -69,7 +69,7 @@ public sealed class Attribution : IResource, ILocated
     #endregion
 
     /// <summary>
-    /// Creates a document from the attribution.
+    ///     Creates a document from the attribution.
     /// </summary>
     /// <param name="context">The UI context.</param>
     /// <returns>The document and the name of the attribution.</returns>

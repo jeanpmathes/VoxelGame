@@ -10,7 +10,7 @@
 [shader("anyhit")]void FoliageSectionAnyHit(inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
     float const path = vg::ray::GetPathLength(payload);
-    
+
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float4                  color = vg::section::GetFoliageBaseColor(path, info);
 
@@ -30,7 +30,8 @@
 }
 
 [shader("closesthit")]void FoliageSectionClosestHit(
-    inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
+    inout native::rt::HitInfo    payload,
+    native::rt::Attributes const attributes)
 {
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float3 const            color = vg::ray::GetColor(payload).rgb;

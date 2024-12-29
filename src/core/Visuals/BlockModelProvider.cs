@@ -9,12 +9,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-/// Provides loaded block models.
+///     Provides loaded block models.
 /// </summary>
 public class BlockModelProvider : ResourceProvider<BlockModel>, IBlockModelProvider
 {
     /// <summary>
-    /// Creates a new block model provider.
+    ///     Creates a new block model provider.
     /// </summary>
     public BlockModelProvider() : base(BlockModels.CreateFallback, model => model.Copy()) {}
 

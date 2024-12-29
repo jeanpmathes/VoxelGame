@@ -33,7 +33,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     private SpecialBlocks? special;
 
     /// <summary>
-    /// Get all blocks in this class.
+    ///     Get all blocks in this class.
     /// </summary>
     public IEnumerable<Block> Content => registry.Values;
 
@@ -78,7 +78,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     }
 
     /// <summary>
-    /// Translate a named ID to the block that has that ID. If the ID is not valid, air is returned.
+    ///     Translate a named ID to the block that has that ID. If the ID is not valid, air is returned.
     /// </summary>
     /// <param name="namedID">The named ID of the block to return.</param>
     /// <returns>The block with the ID or air if the ID is not valid.</returns>

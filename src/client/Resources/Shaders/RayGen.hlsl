@@ -103,7 +103,11 @@ struct Fog
  * \return The reflectance factor at the hit.
  */
 float GetReflectance(
-    float3 const normal, float3 const incident, float3 const transmission, float const n1, float const n2)
+    float3 const normal,
+    float3 const incident,
+    float3 const transmission,
+    float const  n1,
+    float const  n2)
 {
     if (!any(transmission)) return 1.0f;
 
@@ -161,9 +165,9 @@ float GetReflectance(
 
         fog.Apply(main);
         fog.Extend(main.distance);
-        
+
         path += main.distance;
-        
+
         float const alpha = main.color.a;
 
         main.color = lerp(main.color, reflection.color, reflectance);
@@ -199,12 +203,7 @@ float GetReflectance(
         // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
 
         reflectance = alpha < 1.0f
-                          ? GetReflectance(
-                              incoming ? main.normal : main.normal * -1.0f,
-                              direction,
-                              refracted,
-                              n1,
-                              n2)
+                          ? GetReflectance(incoming ? main.normal : main.normal * -1.0f, direction, refracted, n1, n2)
                           : 0.0f;
 
         origin    = main.position;
@@ -215,7 +214,7 @@ float GetReflectance(
         iteration++;
 
         bool mainRayIsReflection = false;
-        
+
         if (reflectance > 0.0f)
         {
             // This shader normally has a main ray which can pass trough transparent objects.
@@ -228,7 +227,7 @@ float GetReflectance(
                 reflection = Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, path);
 
                 fog.Apply(reflection);
-                
+
                 // Intentionally not updating the path length.
             }
             else
@@ -249,7 +248,7 @@ float GetReflectance(
             else fog          = Fog::CreateDefault();
         }
     }
-    
+
     native::rt::colorOutput[launchIndex] = RGBA(color);
     native::rt::depthOutput[launchIndex] = depth;
 }

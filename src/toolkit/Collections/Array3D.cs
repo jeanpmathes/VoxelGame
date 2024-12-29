@@ -40,7 +40,7 @@ public class Array3D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the total number of elements in the array.
+    ///     Get the total number of elements in the array.
     /// </summary>
     protected Int32 Count => array.Length;
 
@@ -95,10 +95,13 @@ public class Array3D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the array as a span.
+    ///     Get the array as a span.
     /// </summary>
     /// <returns>The array as a span.</returns>
-    public Span<T> AsSpan() => array;
+    public Span<T> AsSpan()
+    {
+        return array;
+    }
 
     private ref T GetRef(Int32 x, Int32 y, Int32 z)
     {

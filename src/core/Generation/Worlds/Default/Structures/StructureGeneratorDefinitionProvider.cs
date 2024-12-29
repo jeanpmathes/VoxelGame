@@ -12,7 +12,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Structures;
 
 /// <summary>
-/// Implementation of <see cref="IStructureGeneratorDefinitionProvider"/>.
+///     Implementation of <see cref="IStructureGeneratorDefinitionProvider" />.
 /// </summary>
 public class StructureGeneratorDefinitionProvider : ResourceProvider<StructureGeneratorDefinition>, IStructureGeneratorDefinitionProvider
 {
@@ -21,11 +21,11 @@ public class StructureGeneratorDefinitionProvider : ResourceProvider<StructureGe
             "Fallback",
             StructureGeneratorDefinition.Kind.Surface,
             StaticStructure.CreateFallback(),
-            rarity: Single.PositiveInfinity,
-            offset: Vector3i.Zero);
+            Single.PositiveInfinity,
+            Vector3i.Zero);
 
     /// <summary>
-    /// Create a new structure generator definition provider.
+    ///     Create a new structure generator definition provider.
     /// </summary>
     public StructureGeneratorDefinitionProvider() : base(() => fallback, structure => structure) {}
 

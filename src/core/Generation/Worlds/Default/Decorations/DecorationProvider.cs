@@ -12,14 +12,14 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 
 /// <summary>
-/// Implements <see cref="IDecorationProvider"/>.
+///     Implements <see cref="IDecorationProvider" />.
 /// </summary>
 public class DecorationProvider : ResourceProvider<Decoration>, IDecorationProvider
 {
     private static readonly Decoration fallback = new EmptyDecoration();
 
     /// <summary>
-    /// Create a new decoration provider.
+    ///     Create a new decoration provider.
     /// </summary>
     public DecorationProvider() : base(() => fallback, decoration => decoration) {}
 

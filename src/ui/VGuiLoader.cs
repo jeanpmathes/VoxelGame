@@ -18,25 +18,26 @@ using VoxelGame.UI.Utilities;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// Loads the VoxelGame <see cref="VGui"/> object.
+///     Loads the VoxelGame <see cref="VGui" /> object.
 /// </summary>
 public sealed class VGuiLoader : IResourceLoader
 {
     /// <summary>
-    /// The default skin identifier.
+    ///     The default skin identifier.
     /// </summary>
     public static readonly RID DefaultSkin = RID.Named<Skin>("Default");
 
     /// <summary>
-    /// The alternative skin identifier.
+    ///     The alternative skin identifier.
     /// </summary>
     public static readonly RID AlternativeSkin = RID.Named<Skin>("Alternative");
 
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<Client>(client =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<Client>(client =>
         {
             FileInfo skin1 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin1.png");
             FileInfo skin2 = FileSystem.GetResourceDirectory("GUI").GetFile("VoxelSkin2.png");
@@ -93,6 +94,7 @@ public sealed class VGuiLoader : IResourceLoader
 
             return resources;
         });
+    }
 
     private static FileInfo GetImageFile(String name)
     {

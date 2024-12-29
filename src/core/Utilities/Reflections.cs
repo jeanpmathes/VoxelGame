@@ -11,13 +11,13 @@ using System.Text;
 namespace VoxelGame.Core.Utilities;
 
 /// <summary>
-/// Provides reflection utilities.
+///     Provides reflection utilities.
 /// </summary>
 public static class Reflections
 {
     /// <summary>
-    /// Get the long name of a type.
-    /// Different from <see cref="Type.FullName"/> for generic types.
+    ///     Get the long name of a type.
+    ///     Different from <see cref="Type.FullName" /> for generic types.
     /// </summary>
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The full name of the type.</returns>
@@ -27,8 +27,8 @@ public static class Reflections
     }
 
     /// <summary>
-    /// Get the long name of a type.
-    /// Different from <see cref="Type.FullName"/> for generic types.
+    ///     Get the long name of a type.
+    ///     Different from <see cref="Type.FullName" /> for generic types.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>The full name of the type.</returns>
@@ -64,7 +64,7 @@ public static class Reflections
     }
 
     /// <summary>
-    /// Get a decorated name for a type.
+    ///     Get a decorated name for a type.
     /// </summary>
     /// <param name="prefix">A prefix for the name.</param>
     /// <param name="instance">The name of an instance, if applicable.</param>
@@ -76,7 +76,7 @@ public static class Reflections
     }
 
     /// <summary>
-    /// Get a decorated name for a type.
+    ///     Get a decorated name for a type.
     /// </summary>
     /// <param name="prefix">A prefix for the name.</param>
     /// <param name="type">The type.</param>

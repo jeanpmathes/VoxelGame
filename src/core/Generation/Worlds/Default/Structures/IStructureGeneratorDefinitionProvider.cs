@@ -9,12 +9,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Structures;
 
 /// <summary>
-/// Provides structure generator definitions for the world generator.
+///     Provides structure generator definitions for the world generator.
 /// </summary>
 public interface IStructureGeneratorDefinitionProvider
 {
     /// <summary>
-    /// Get the structure definition by its identifier.
+    ///     Get the structure definition by its identifier.
     /// </summary>
     /// <param name="identifier">The identifier of the structure.</param>
     /// <returns>The structure definition, or a fallback if the structure is not found.</returns>

@@ -14,12 +14,12 @@ using VoxelGame.UI.Utilities;
 namespace VoxelGame.UI;
 
 /// <summary>
-/// Combines all resources the user interface declares.
+///     Combines all resources the user interface declares.
 /// </summary>
 public record UserInterfaceResources(IGwenGui GUI, FontBundle Fonts, Skin DefaultSkin, Skin AlternativeSkin, IReadOnlyList<Attribution> Attributions)
 {
     /// <summary>
-    /// Retrieve the resources from a resource context.
+    ///     Retrieve the resources from a resource context.
     /// </summary>
     /// <param name="context">The context to retrieve the resources from.</param>
     /// <returns>The resources or <c>null</c> if they could not be retrieved.</returns>

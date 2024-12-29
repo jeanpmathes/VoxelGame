@@ -14,12 +14,12 @@ using VoxelGame.UI.Resources;
 namespace VoxelGame.Client.Application;
 
 /// <summary>
-/// The content (resources) of the client.
+///     The content (resources) of the client.
 /// </summary>
 public class ClientContent : ResourceCatalog
 {
     /// <summary>
-    /// Create a new instance of the client resources catalog.
+    ///     Create a new instance of the client resources catalog.
     /// </summary>
     public ClientContent() : base([
         new Textures(),
@@ -29,6 +29,6 @@ public class ClientContent : ResourceCatalog
         new CoreContent(),
         new PlayerContent(),
         new CommandLoader(),
-        new UserInterfaceContent(),
+        new UserInterfaceContent()
     ]) {}
 }

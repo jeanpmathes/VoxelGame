@@ -14,7 +14,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// Loads all blocks.
+///     Loads all blocks.
 /// </summary>
 public sealed class BlockLoader : IResourceLoader
 {
@@ -26,8 +26,9 @@ public sealed class BlockLoader : IResourceLoader
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<ITextureIndexProvider>(textureIndexProvider =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<ITextureIndexProvider>(textureIndexProvider =>
             context.Require<IBlockModelProvider>(blockModelProvider =>
                 context.Require<VisualConfiguration>(visualConfiguration =>
                 {
@@ -41,4 +42,5 @@ public sealed class BlockLoader : IResourceLoader
 
                     return Blocks.Instance.Content.Take(BlockLimit);
                 })));
+    }
 }

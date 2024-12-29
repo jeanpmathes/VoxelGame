@@ -191,10 +191,8 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             return null;
 
         foreach (Side side in Side.All.Sides())
-        {
             // If the side is considered, it is also acquirable because we checked that before.
             // If using an exclusive side, that was already removed from the considered sides.
-
             if (considered.HasFlag(side.ToFlag()))
             {
                 Chunk? neighbor = neighbors[side]?.chunk;
@@ -211,7 +209,6 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             {
                 neighbors[side] = null;
             }
-        }
 
         return new ChunkMeshingContext(chunk, chunk.Acquire(Access.Read)!, neighbors, considered, exclusive, meshingFactory);
     }
@@ -414,9 +411,9 @@ public static class ChunkMeshingExtensions
     }
 
     /// <summary>
-    /// Whether the chunk is generally able to mesh itself.
-    /// A chunk is able if it is requested to activate and would be able to participate as a neighbor.
-    /// This is a stronger condition than <see cref="IsAbleToParticipateInMeshing"/>.
+    ///     Whether the chunk is generally able to mesh itself.
+    ///     A chunk is able if it is requested to activate and would be able to participate as a neighbor.
+    ///     This is a stronger condition than <see cref="IsAbleToParticipateInMeshing" />.
     /// </summary>
     public static Boolean IsAbleToMesh(this Chunk chunk)
     {

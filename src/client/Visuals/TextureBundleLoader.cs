@@ -70,8 +70,9 @@ public sealed partial class TextureBundleLoader : IResourceLoader
     String? ICatalogEntry.Instance => identifier.Instance;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<VoxelGame.Graphics.Core.Client>(client =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<VoxelGame.Graphics.Core.Client>(client =>
         {
             LoadSources(context);
 
@@ -95,9 +96,10 @@ public sealed partial class TextureBundleLoader : IResourceLoader
 
             return [new TextureBundle(identifier, array, indices)];
         });
+    }
 
     /// <summary>
-    /// Add a source directory from which to load textures.
+    ///     Add a source directory from which to load textures.
     /// </summary>
     /// <param name="directory">The directory to add as a source.</param>
     public void AddSource(DirectoryInfo directory)
@@ -178,7 +180,6 @@ public sealed partial class TextureBundleLoader : IResourceLoader
         List<FileInfo> files = [];
 
         foreach (DirectoryInfo source in sources)
-        {
             try
             {
                 files.AddRange(source.GetFiles("*.png"));
@@ -187,7 +188,6 @@ public sealed partial class TextureBundleLoader : IResourceLoader
             {
                 context.ReportWarning(this, "Texture directory not found", exception, source);
             }
-        }
 
         LoadFiles(files, context);
     }

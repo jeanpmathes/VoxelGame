@@ -13,7 +13,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-/// Loads all models.
+///     Loads all models.
 /// </summary>
 public class BlockModelLoader : IResourceLoader
 {
@@ -42,14 +42,8 @@ public class BlockModelLoader : IResourceLoader
         {
             Exception? exception = BlockModel.Load(file, out BlockModel model);
 
-            if (exception != null)
-            {
-                loaded.Add(new MissingResource(ResourceTypes.Model, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
-            }
-            else
-            {
-                loaded.Add(model);
-            }
+            if (exception != null) loaded.Add(new MissingResource(ResourceTypes.Model, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
+            else loaded.Add(model);
         }
 
         return loaded;

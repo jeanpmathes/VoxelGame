@@ -11,49 +11,49 @@ namespace VoxelGame.Toolkit.Noise;
 #pragma warning disable CA1033 // Used to create builder.
 
 /// <summary>
-/// Some common methods of all builder parts.
+///     Some common methods of all builder parts.
 /// </summary>
 public interface INoiseBuilder
 {
     /// <summary>
-    /// Get the noise builder.
+    ///     Get the noise builder.
     /// </summary>
     NoiseBuilder And();
 
     /// <summary>
-    /// Builds and returns the configured <see cref="NoiseGenerator"/>.
+    ///     Builds and returns the configured <see cref="NoiseGenerator" />.
     /// </summary>
     NoiseGenerator Build();
 }
 
 /// <summary>
-/// Step to define the fractal noise.
+///     Step to define the fractal noise.
 /// </summary>
 public interface IFractalNoiseBuilder : INoiseBuilder
 {
     /// <summary>
-    /// Set the number of fractal octaves.
+    ///     Set the number of fractal octaves.
     /// </summary>
     IFractalNoiseBuilder WithOctaves(Int32 octaves);
 
     /// <summary>
-    /// Set the lacunarity.
+    ///     Set the lacunarity.
     /// </summary>
     IFractalNoiseBuilder WithLacunarity(Single lacunarity);
 
     /// <summary>
-    /// Set the gain.
+    ///     Set the gain.
     /// </summary>
     IFractalNoiseBuilder WithGain(Single gain);
 
     /// <summary>
-    /// Set the weighted strength.
+    ///     Set the weighted strength.
     /// </summary>
     IFractalNoiseBuilder WithWeightedStrength(Single weightedStrength);
 }
 
 /// <summary>
-/// Use this to build instances of <see cref="NoiseGenerator"/>.
+///     Use this to build instances of <see cref="NoiseGenerator" />.
 /// </summary>
 [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types")]
 public class NoiseBuilder : IFractalNoiseBuilder
@@ -77,7 +77,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Start building a new <see cref="NoiseGenerator"/>.
+    ///     Start building a new <see cref="NoiseGenerator" />.
     /// </summary>
     public static NoiseBuilder Create(Int32 seed)
     {
@@ -85,7 +85,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Sets the type of noise generator.
+    ///     Sets the type of noise generator.
     /// </summary>
     public NoiseBuilder WithType(NoiseType type)
     {
@@ -95,7 +95,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Sets the frequency of the generated noise.
+    ///     Sets the frequency of the generated noise.
     /// </summary>
     public NoiseBuilder WithFrequency(Single frequency)
     {
@@ -105,7 +105,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Enables and returns a fractal noise builder.
+    ///     Enables and returns a fractal noise builder.
     /// </summary>
     public IFractalNoiseBuilder WithFractals()
     {
@@ -115,7 +115,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Disables fractal noise.
+    ///     Disables fractal noise.
     /// </summary>
     public NoiseBuilder WithoutFractals()
     {

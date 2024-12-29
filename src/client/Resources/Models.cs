@@ -10,12 +10,12 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Resources;
 
 /// <summary>
-/// All models of the game.
+///     All models of the game.
 /// </summary>
 public class Models : ResourceCatalog
 {
     /// <summary>
-    /// Create a new instance of the models catalog.
+    ///     Create a new instance of the models catalog.
     /// </summary>
     public Models() : base([
         new BlockModelLoader(),

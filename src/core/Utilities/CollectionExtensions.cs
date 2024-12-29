@@ -60,7 +60,7 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// A simple method to filter out null values from an enumerable.
+    ///     A simple method to filter out null values from an enumerable.
     /// </summary>
     /// <param name="enumerable">The enumerable to filter.</param>
     /// <typeparam name="T">The type of the enumerable.</typeparam>

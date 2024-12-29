@@ -87,7 +87,7 @@ public sealed partial class BlockModel : IResource, ILocated
     #endregion DISPOSING
 
     /// <summary>
-    /// Create a block mesh from this model.
+    ///     Create a block mesh from this model.
     /// </summary>
     /// <param name="textureIndexProvider">A texture index provider.</param>
     /// <returns>The block mesh.</returns>
@@ -393,7 +393,7 @@ public sealed partial class BlockModel : IResource, ILocated
     #region STATIC METHODS
 
     /// <summary>
-    /// Load a block model from a file.
+    ///     Load a block model from a file.
     /// </summary>
     /// <param name="file">The file to load the model from.</param>
     /// <param name="model">The loaded model, or a fallback model if loading failed.</param>

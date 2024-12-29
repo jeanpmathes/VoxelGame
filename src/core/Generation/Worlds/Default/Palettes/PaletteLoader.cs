@@ -11,7 +11,7 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Palettes;
 
 /// <summary>
-/// Loads the block palette.
+///     Loads the block palette.
 /// </summary>
 public sealed class PaletteLoader : IResourceLoader
 {

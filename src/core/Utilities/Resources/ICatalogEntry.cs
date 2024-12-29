@@ -10,30 +10,30 @@ using System.Collections.Generic;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// An entry in a resource catalog.
-/// All entries will be entered in the order they are added to the catalog.
-/// When entered, they can load resources, provide further catalog entries or do other things.
-/// As soon as all resources and entries of a catalog are processed, the catalog is exited.
+///     An entry in a resource catalog.
+///     All entries will be entered in the order they are added to the catalog.
+///     When entered, they can load resources, provide further catalog entries or do other things.
+///     As soon as all resources and entries of a catalog are processed, the catalog is exited.
 /// </summary>
 public interface ICatalogEntry
 {
     /// <summary>
-    /// Get the name of the catalog entry.
+    ///     Get the name of the catalog entry.
     /// </summary>
     public sealed String Name => Reflections.GetDecoratedName(Prefix, GetType(), Instance);
 
     /// <summary>
-    /// The prefix of the catalog entry. Will be used to create the full name of the entry.
+    ///     The prefix of the catalog entry. Will be used to create the full name of the entry.
     /// </summary>
     protected String Prefix { get; }
 
     /// <summary>
-    /// The optional instance name of the catalog entry. Will be used to create the full name of the entry if not null.
+    ///     The optional instance name of the catalog entry. Will be used to create the full name of the entry if not null.
     /// </summary>
     protected String? Instance { get; }
 
     /// <summary>
-    /// Enter this catalog entry. This allows the entry to load resources
+    ///     Enter this catalog entry. This allows the entry to load resources
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
     /// <param name="resources">The resources loaded by this entry.</param>

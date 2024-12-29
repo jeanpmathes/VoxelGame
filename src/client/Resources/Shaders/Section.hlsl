@@ -121,7 +121,10 @@ namespace vg
          * \return The final texture index for the quad.
          */
         int4 GetBaseColorIndex(
-            float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
+            float const            path,
+            in spatial::Info const info,
+            bool const             useTextureRepetition,
+            bool const             isBlock)
         {
             float2 const uv           = GetUV(info, useTextureRepetition);
             uint         textureIndex = animation::GetAnimatedTextureIndex(
@@ -147,7 +150,7 @@ namespace vg
 
             return int4(texel.x, texel.y, mip, textureIndex);
         }
-        
+
         /**
          * \brief Get the base color (no shading) for a basic quad.
          * \param path The length of rays up to the previous hit.

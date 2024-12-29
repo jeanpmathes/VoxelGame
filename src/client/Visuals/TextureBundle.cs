@@ -58,7 +58,7 @@ public sealed class TextureBundle : IResource
     #endregion DISPOSING
 
     /// <summary>
-    /// Try getting the texture index of a texture by its name.
+    ///     Try getting the texture index of a texture by its name.
     /// </summary>
     /// <param name="name">The name of the texture.</param>
     /// <param name="index">The index of the texture.</param>
@@ -69,7 +69,7 @@ public sealed class TextureBundle : IResource
     }
 
     /// <summary>
-    /// Get the dominant color of a texture.
+    ///     Get the dominant color of a texture.
     /// </summary>
     /// <param name="index">The index of the texture.</param>
     /// <returns>The dominant color of the texture.</returns>
@@ -79,7 +79,7 @@ public sealed class TextureBundle : IResource
     }
 
     /// <summary>
-    /// Get the arrays filling the texture slots.
+    ///     Get the arrays filling the texture slots.
     /// </summary>
     public static (TextureArray, TextureArray) GetTextureSlots(TextureBundle first, TextureBundle second)
     {

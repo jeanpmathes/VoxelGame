@@ -91,9 +91,9 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
     }
 
     /// <summary>
-    /// Set the world in which the updates will be scheduled.
-    /// Use null to unset the world.
-    /// Only if the world is set, the updates can be processed.
+    ///     Set the world in which the updates will be scheduled.
+    ///     Use null to unset the world.
+    ///     Only if the world is set, the updates can be processed.
     /// </summary>
     /// <param name="newWorld">The world.</param>
     public void SetWorld(World? newWorld)

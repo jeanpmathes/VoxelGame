@@ -73,7 +73,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    /// Ask a chunk to consider re-meshing because of a (newly) active neighbor.
+    ///     Ask a chunk to consider re-meshing because of a (newly) active neighbor.
     /// </summary>
     public void ReMesh()
     {

@@ -12,15 +12,16 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Generation.Worlds.Default.Structures;
 
 /// <summary>
-/// Loads all structures for this world generator.
+///     Loads all structures for this world generator.
 /// </summary>
 public class StructureGeneratorDefinitionLoader : IResourceLoader
 {
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) =>
-        context.Require<IStructureProvider>(structures =>
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<IStructureProvider>(structures =>
         [
             new StructureGeneratorDefinition("SmallPyramid",
                 StructureGeneratorDefinition.Kind.Surface,
@@ -43,4 +44,5 @@ public class StructureGeneratorDefinitionLoader : IResourceLoader
                 rarity: 10.0f,
                 (0, -2, 0))
         ]);
+    }
 }

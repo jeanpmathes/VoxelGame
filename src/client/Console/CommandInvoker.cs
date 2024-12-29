@@ -26,7 +26,7 @@ public sealed partial class CommandInvoker : IResource
     private readonly Dictionary<Type, Parser> parsers = new();
 
     /// <summary>
-    /// Create a new command invoker.
+    ///     Create a new command invoker.
     /// </summary>
     /// <param name="loadingContext">The context in which commands and parsers are loaded.</param>
     public CommandInvoker(IResourceContext loadingContext)

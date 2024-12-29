@@ -21,7 +21,7 @@ public partial class SceneManager
     private IScene? current;
 
     /// <summary>
-    /// Whether a scene is currently loaded.
+    ///     Whether a scene is currently loaded.
     /// </summary>
     public Boolean IsInScene => current != null;
 

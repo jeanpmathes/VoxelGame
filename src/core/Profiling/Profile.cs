@@ -112,8 +112,8 @@ public partial class Profile(ProfilerConfiguration configuration)
     }
 
     /// <summary>
-    /// Prepare a timing measurement for later completion.
-    /// This can be called multiple times with the same key, but only the first call will have an effect.
+    ///     Prepare a timing measurement for later completion.
+    ///     This can be called multiple times with the same key, but only the first call will have an effect.
     /// </summary>
     /// <param name="key">The unique key of the measurement.</param>
     /// <param name="parent">The unique key of the parent measurement, if any.</param>

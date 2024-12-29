@@ -240,8 +240,8 @@ public class Image
     }
 
     /// <summary>
-    /// Set the color (RGB components) of all transparent pixels to the average color of all non-transparent pixels.
-    /// The transparency of the pixels will be kept.
+    ///     Set the color (RGB components) of all transparent pixels to the average color of all non-transparent pixels.
+    ///     The transparency of the pixels will be kept.
     /// </summary>
     public void RecolorTransparency()
     {

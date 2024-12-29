@@ -12,7 +12,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
-/// Utility for throwing exceptions.
+///     Utility for throwing exceptions.
 /// </summary>
 public partial class Throw
 {

@@ -204,7 +204,7 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Int32 Count => registry.Count;
 
     /// <summary>
-    /// Get all fluids in this instance.
+    ///     Get all fluids in this instance.
     /// </summary>
     public IEnumerable<Fluid> Content => registry.Values;
 

@@ -13,7 +13,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// Collects all loaded resources of a specific type and provides them in an easily accessible way.
+///     Collects all loaded resources of a specific type and provides them in an easily accessible way.
 /// </summary>
 /// <typeparam name="T">The type of the resources to group.</typeparam>
 public partial class ResourceProvider<T> : IResourceProvider where T : class, IResource
@@ -27,7 +27,7 @@ public partial class ResourceProvider<T> : IResourceProvider where T : class, IR
 
 
     /// <summary>
-    /// Creates a new group provider.
+    ///     Creates a new group provider.
     /// </summary>
     /// <param name="createFallback">Function to create a fallback resource.</param>
     /// <param name="copy">Function to copy a retrieved resource, may also return the resource itself.</param>
@@ -49,7 +49,7 @@ public partial class ResourceProvider<T> : IResourceProvider where T : class, IR
     }
 
     /// <summary>
-    /// Gets the resource for the given identifier, or a fallback resource if the resource is not found.
+    ///     Gets the resource for the given identifier, or a fallback resource if the resource is not found.
     /// </summary>
     /// <param name="identifier">The identifier of the resource to get.</param>
     /// <returns>The resource for the given identifier, or a fallback resource if the resource is not found.</returns>

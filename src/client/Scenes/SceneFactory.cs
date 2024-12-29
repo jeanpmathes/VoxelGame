@@ -36,7 +36,7 @@ public partial class SceneFactory
     }
 
     /// <summary>
-    /// Initialize all resources after loading.
+    ///     Initialize all resources after loading.
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
     public void InitializeResources(IResourceContext context)

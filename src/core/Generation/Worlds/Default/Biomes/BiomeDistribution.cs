@@ -12,9 +12,9 @@ using VoxelGame.Toolkit.Collections;
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
 /// <summary>
-/// A biome distribution is a collection of biomes and their distribution in the world.
-/// It combines the defined distribution of a <see cref="BiomeDistributionDefinition"/>
-/// with the actual biome instances.
+///     A biome distribution is a collection of biomes and their distribution in the world.
+///     It combines the defined distribution of a <see cref="BiomeDistributionDefinition" />
+///     with the actual biome instances.
 /// </summary>
 public class BiomeDistribution
 {
@@ -30,7 +30,7 @@ public class BiomeDistribution
     private readonly Biome mountain;
 
     /// <summary>
-    /// Create a new biome distribution.
+    ///     Create a new biome distribution.
     /// </summary>
     /// <param name="definition">The definition of the biome distribution.</param>
     /// <param name="biomeMap">A map from biome definitions to biomes.</param>

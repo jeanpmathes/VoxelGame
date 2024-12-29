@@ -14,7 +14,7 @@ using VoxelGame.Toolkit.Noise;
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
 /// <summary>
-/// Combines a biome definition with a noise generator.
+///     Combines a biome definition with a noise generator.
 /// </summary>
 public sealed class Biome : IDisposable
 {
@@ -22,7 +22,7 @@ public sealed class Biome : IDisposable
     private readonly NoiseGenerator coverNoise;
 
     /// <summary>
-    /// Create a new biome.
+    ///     Create a new biome.
     /// </summary>
     /// <param name="factory">The noise factory to use.</param>
     /// <param name="definition">The definition of the biome.</param>
@@ -31,7 +31,7 @@ public sealed class Biome : IDisposable
         NoiseFactory factory, BiomeDefinition definition,
         IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)
     {
-        this.Definition = definition;
+        Definition = definition;
 
         Structure = definition.Structure != null ? structureMap[definition.Structure] : null;
 
@@ -52,12 +52,12 @@ public sealed class Biome : IDisposable
     }
 
     /// <summary>
-    /// The definition of the biome.
+    ///     The definition of the biome.
     /// </summary>
     public BiomeDefinition Definition { get; }
 
     /// <summary>
-    /// The structure generator of the biome, if any.
+    ///     The structure generator of the biome, if any.
     /// </summary>
     public StructureGenerator? Structure { get; }
 
@@ -147,7 +147,7 @@ public sealed class Biome : IDisposable
     }
 
     /// <summary>
-    /// Get the cover content for a given position.
+    ///     Get the cover content for a given position.
     /// </summary>
     /// <param name="position">The position of the block.</param>
     /// <param name="isFilled">Whether the block is filled with water because it is below sea level.</param>

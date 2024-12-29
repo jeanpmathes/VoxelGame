@@ -11,14 +11,14 @@ using System.Linq;
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
-/// The catalog contains resources to be loaded and defines how they are loaded.
+///     The catalog contains resources to be loaded and defines how they are loaded.
 /// </summary>
 public class ResourceCatalog : ICatalogEntry
 {
     private readonly List<ICatalogEntry> catalogEntries;
 
     /// <summary>
-    /// Create a new resource catalog with the given name and entries.
+    ///     Create a new resource catalog with the given name and entries.
     /// </summary>
     /// <param name="entries">The entries in the catalog.</param>
     protected ResourceCatalog(IEnumerable<ICatalogEntry> entries)
@@ -32,9 +32,9 @@ public class ResourceCatalog : ICatalogEntry
         entries = catalogEntries;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public String Prefix => "Catalog";
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public String? Instance => null;
 }

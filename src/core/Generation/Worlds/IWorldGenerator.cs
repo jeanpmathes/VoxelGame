@@ -29,7 +29,7 @@ public interface IWorldGenerator : IDisposable
     static abstract ICatalogEntry CreateResourceCatalog();
 
     /// <summary>
-    /// Link all loaded resources so the generator can access them later.
+    ///     Link all loaded resources so the generator can access them later.
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
     static abstract void LinkResources(IResourceContext context);
@@ -43,19 +43,22 @@ public interface IWorldGenerator : IDisposable
     static abstract IWorldGenerator? Create(IWorldGeneratorContext context);
 
     /// <summary>
-    /// Create a context in which chunks can be generated.
-    /// Must be called and disposed on the main thread.
+    ///     Create a context in which chunks can be generated.
+    ///     Must be called and disposed on the main thread.
     /// </summary>
     /// <param name="hint">A hint on which chunks will be generated with the context.</param>
     /// <returns>The generation context.</returns>
     IGenerationContext CreateGenerationContext(ChunkPosition hint);
 
     /// <summary>
-    /// Create a context in which decorations can be generated.
-    /// Must be called and disposed on the main thread.
+    ///     Create a context in which decorations can be generated.
+    ///     Must be called and disposed on the main thread.
     /// </summary>
     /// <param name="hint">A hint on which chunks will be decorated with the context.</param>
-    /// <param name="extents">A hint on th size of the neighborhood that is decorated, use 0 for single chunk and 1 for 3x3x3 chunks.</param>
+    /// <param name="extents">
+    ///     A hint on th size of the neighborhood that is decorated, use 0 for single chunk and 1 for 3x3x3
+    ///     chunks.
+    /// </param>
     /// <returns>The decoration context.</returns>
     IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0);
 

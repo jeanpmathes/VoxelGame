@@ -12,14 +12,14 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Client.Resources;
 
 /// <summary>
-/// All player-associated resources.
+///     All player-associated resources.
 /// </summary>
 public sealed class PlayerContent : ResourceCatalog
 {
     private static readonly FileInfo crosshairPath = FileSystem.GetResourceDirectory("Textures", "UI").GetFile("crosshair.png");
 
     /// <summary>
-    /// Creates the resource catalog.
+    ///     Creates the resource catalog.
     /// </summary>
     public PlayerContent() : base([
         new SingleTextureLoader(crosshairPath, fallbackResolution: 32),
@@ -28,7 +28,8 @@ public sealed class PlayerContent : ResourceCatalog
 
     private sealed class Linker : IResourceLinker
     {
-        public void Link(IResourceContext context) =>
+        public void Link(IResourceContext context)
+        {
             context.Require<Engine>(engine =>
                 context.Require<SingleTexture>(RID.Path(crosshairPath),
                     crosshair =>
@@ -37,5 +38,6 @@ public sealed class PlayerContent : ResourceCatalog
 
                         return [];
                     }));
+        }
     }
 }

@@ -20,7 +20,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
     internal NativeSegment(T* pointer, Int32 count)
     {
         this.pointer = pointer;
-        this.Count = count;
+        Count = count;
     }
 
     /// <inheritdoc />

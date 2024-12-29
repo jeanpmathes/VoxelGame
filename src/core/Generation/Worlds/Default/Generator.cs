@@ -117,7 +117,7 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <summary>
-    /// The biomes and their distribution.
+    ///     The biomes and their distribution.
     /// </summary>
     public BiomeDistribution Biomes { get; }
 
@@ -133,7 +133,8 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public static void LinkResources(IResourceContext context) =>
+    public static void LinkResources(IResourceContext context)
+    {
         context.Require<Palette>(palette =>
             context.Require<BiomeDistributionDefinition>(biomeDistribution =>
             {
@@ -145,6 +146,7 @@ public sealed partial class Generator : IWorldGenerator
 
                 return [];
             }));
+    }
 
     /// <inheritdoc />
     public static IWorldGenerator? Create(IWorldGeneratorContext context)
