@@ -27,7 +27,7 @@ public class Search : ControlBase
     {
         DockLayout layout = new(this);
 
-        ImagePanel icon = context.CreateIcon(layout, context.Resources.SearchIcon);
+        ImagePanel icon = context.CreateIcon(layout, Icons.Instance.Search);
         icon.Dock = Dock.Left;
 
         TextBox filter = new(layout)
@@ -38,7 +38,7 @@ public class Search : ControlBase
 
         filter.TextChanged += (_, _) => UpdateFilter(filter.Text);
 
-        Button button = context.CreateIconButton(layout, context.Resources.ClearIcon, Language.ClearInput);
+        Button button = context.CreateIconButton(layout, Icons.Instance.Clear, Language.ClearInput);
         button.Dock = Dock.Right;
 
         button.Released += (_, _) =>

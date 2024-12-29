@@ -30,7 +30,7 @@ public class Name : ControlBase
 
         label = new Label(layout);
 
-        Button rename = context.CreateIconButton(layout, context.Resources.RenameIcon, Language.Rename, isSmall: true);
+        Button rename = context.CreateIconButton(layout, Icons.Instance.Rename, Language.Rename, isSmall: true);
 
         rename.Released += (_, _) =>
         {

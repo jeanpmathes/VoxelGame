@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
@@ -46,7 +47,7 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach ((Document credits, String name) in Context.Resources.CreateAttributions(Context))
+        foreach ((Document credits, String name) in Context.Resources.Attributions.Select(attribution => attribution.CreateDocument(Context)))
         {
             ScrollControl page = new(tabs)
             {

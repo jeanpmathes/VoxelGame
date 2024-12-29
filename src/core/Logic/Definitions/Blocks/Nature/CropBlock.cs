@@ -59,9 +59,9 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 baseIndex = indexProvider.GetTextureIndex(texture);
+        Int32 baseIndex = textureIndexProvider.GetTextureIndex(texture, isBlock: true);
 
         if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
 

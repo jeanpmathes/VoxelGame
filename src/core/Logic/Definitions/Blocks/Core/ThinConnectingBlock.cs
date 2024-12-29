@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -26,6 +27,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConnectable, IComplex
 {
+    private readonly RID postModel;
+    private readonly RID sideModel;
+    private readonly RID extensionModel;
+
     private readonly List<BlockMesh> meshes = new(capacity: 16);
     private readonly List<BoundingVolume> volumes = [];
 
@@ -34,9 +39,9 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
         String name,
         String namedID,
         Boolean isOpaque,
-        String postModel,
-        String sideModel,
-        String extensionModel) :
+        RID postModel,
+        RID sideModel,
+        RID extensionModel) :
         base(
             name,
             namedID,
@@ -49,17 +54,32 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f),
                 new Vector3d(x: 0.0625f, y: 0.5f, z: 0.0625f)))
     {
-        BlockModel post = BlockModel.Load(postModel);
+        this.postModel = postModel;
+        this.sideModel = sideModel;
+        this.extensionModel = extensionModel;
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        BlockMesh mesh = meshes[(Int32) info.Data & 0b00_1111];
+
+        return mesh.GetMeshData();
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel post = modelProvider.GetModel(postModel);
 
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides =
-            BlockModel.Load(sideModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+            modelProvider.GetModel(sideModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
 
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
-            BlockModel.Load(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
+            modelProvider.GetModel(extensionModel).CreateAllOrientations(rotateTopAndBottomTexture: false);
 
         for (UInt32 data = 0b00_0000; data <= 0b00_1111; data++)
         {
-            BlockMesh mesh = BlockModel.GetCombinedMesh(
+            BlockMesh mesh = BlockModel.GetCombinedMesh(textureIndexProvider,
                 post,
                 (data & 0b00_1000) == 0 ? sides.north : extensions.north,
                 (data & 0b00_0100) == 0 ? sides.east : extensions.east,
@@ -70,13 +90,6 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
 
             volumes.Add(CreateVolume(data));
         }
-    }
-
-    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
-    {
-        BlockMesh mesh = meshes[(Int32) info.Data & 0b00_1111];
-
-        return mesh.GetMeshData();
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

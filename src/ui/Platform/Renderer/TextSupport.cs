@@ -59,7 +59,7 @@ public sealed class TextSupport : IDisposable
                 value *= graphics.DpiX / 72;
 
                 break;
-            default: throw new InvalidEnumArgumentException("Unknown unit " + unit);
+            default: throw new InvalidEnumArgumentException($"Unknown unit {unit}.");
         }
 
         return value;

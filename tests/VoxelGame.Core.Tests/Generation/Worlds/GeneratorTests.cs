@@ -9,22 +9,16 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Generation.Worlds.Default;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Tests.Logic.Chunks;
-using VoxelGame.Core.Tests.Utilities;
-using VoxelGame.Core.Tests.Visuals;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Memory;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace VoxelGame.Core.Tests.Generation.Worlds;
 
-[Collection("Logger")]
+[Collection(ResourceCollection.Name)]
 public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
 {
     private readonly NativeAllocator allocator = new();
@@ -48,22 +42,7 @@ public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
 
     private void TestGenerator<TGenerator>() where TGenerator : IWorldGenerator
     {
-        ILoadingContext loadingContext = new MockLoadingContext();
-
-        BlockModel.EnableLoading(loadingContext);
-        StaticStructure.SetLoadingContext(loadingContext);
-
-        MockTextureBundle textures = new();
-        BlockModel.SetBlockTextureIndexProvider(textures);
-        Blocks.Load(textures, new VisualConfiguration(), loadingContext);
-        Fluids.Load(textures, textures, loadingContext);
-
-        TGenerator.Initialize(loadingContext);
-
-        StaticStructure.ClearLoadingContext();
-        BlockModel.DisableLoading();
-
-        IWorldGenerator generator;
+        IWorldGenerator? generator;
         ChunkContext context;
 
         using (Timer.Start(duration => output.WriteLine($"Creation: {duration}")))
@@ -71,6 +50,8 @@ public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
             generator = TGenerator.Create(new MockWorldGeneratorContext());
             context = MockChunkContext.Create(CreateChunk);
         }
+
+        Assert.NotNull(generator);
 
         Neighborhood<Chunk?> chunks = new();
 

@@ -21,10 +21,15 @@ public partial class SceneManager
     private IScene? current;
 
     /// <summary>
+    /// Whether a scene is currently loaded.
+    /// </summary>
+    public Boolean IsInScene => current != null;
+
+    /// <summary>
     ///     Load a scene.
     /// </summary>
-    /// <param name="scene">The scene to load, or null to just unload the current scene.</param>
-    public void Load(IScene? scene)
+    /// <param name="scene">The scene to load.</param>
+    public void Load(IScene scene)
     {
         LogSwitchingScene(logger, current, scene);
 

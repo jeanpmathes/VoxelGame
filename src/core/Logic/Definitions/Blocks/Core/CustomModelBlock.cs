@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -22,7 +23,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CustomModelBlock : Block, IFillable, IComplex
 {
-    private readonly BlockMesh mesh;
+    private readonly RID model;
+
+    private BlockMesh mesh = null!;
 
     /// <summary>
     ///     Create a new <see cref="CustomModelBlock" />.
@@ -30,13 +33,13 @@ public class CustomModelBlock : Block, IFillable, IComplex
     /// <param name="name">The name of the block.</param>
     /// <param name="namedID">The named ID of the block.</param>
     /// <param name="flags">The block flags.</param>
-    /// <param name="modelName">The name of the model to use for this block.</param>
+    /// <param name="model">The resource ID of the model.</param>
     /// <param name="boundingVolume">The bounding box of the block.</param>
     internal CustomModelBlock(
         String name,
         String namedID,
         BlockFlags flags,
-        String modelName,
+        RID model,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -44,12 +47,18 @@ public class CustomModelBlock : Block, IFillable, IComplex
             flags with {IsFull = false},
             boundingVolume)
     {
-        mesh = BlockModel.Load(modelName).Mesh;
+        this.model = model;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
     {
         return GetMeshData(info);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        mesh = modelProvider.GetModel(model).CreateMesh(textureIndexProvider);
     }
 
     /// <inheritdoc />

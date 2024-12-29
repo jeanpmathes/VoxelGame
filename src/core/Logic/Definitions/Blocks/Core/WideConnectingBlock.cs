@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -24,6 +25,10 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable, IComplex
 {
+    private readonly String texture;
+    private readonly RID postModel;
+    private readonly RID extensionModel;
+
     private readonly List<BlockMesh> meshes = new(capacity: 16);
 
     /// <summary>
@@ -41,8 +46,8 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
         String namedID,
         String texture,
         Boolean isOpaque,
-        String postModel,
-        String extensionModel,
+        RID postModel,
+        RID extensionModel,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -54,8 +59,21 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
             },
             boundingVolume)
     {
-        BlockModel post = BlockModel.Load(postModel);
-        BlockModel extension = BlockModel.Load(extensionModel);
+        this.texture = texture;
+        this.postModel = postModel;
+        this.extensionModel = extensionModel;
+    }
+
+    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
+    {
+        return GetMeshData(info);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel post = modelProvider.GetModel(postModel);
+        BlockModel extension = modelProvider.GetModel(extensionModel);
 
         post.OverwriteTexture(texture);
         extension.OverwriteTexture(texture);
@@ -63,8 +81,8 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
             extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-        post.Lock();
-        extensions.Lock();
+        post.Lock(textureIndexProvider);
+        extensions.Lock(textureIndexProvider);
 
         List<BlockModel> requiredModels = new(capacity: 5);
 
@@ -78,13 +96,8 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
             if ((data & 0b00_0010) != 0) requiredModels.Add(extensions.south);
             if ((data & 0b00_0001) != 0) requiredModels.Add(extensions.west);
 
-            meshes.Add(BlockModel.GetCombinedMesh(requiredModels.ToArray()));
+            meshes.Add(BlockModel.GetCombinedMesh(textureIndexProvider, requiredModels.ToArray()));
         }
-    }
-
-    IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
-    {
-        return GetMeshData(info);
     }
 
     /// <summary>

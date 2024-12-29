@@ -44,8 +44,8 @@ public class CrossBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        mesh = BlockMeshes.CreateCrossMesh(indexProvider.GetTextureIndex(texture));
+        mesh = BlockMeshes.CreateCrossMesh(textureIndexProvider.GetTextureIndex(texture, isBlock: true));
     }
 }

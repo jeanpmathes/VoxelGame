@@ -13,7 +13,6 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.Controls;
@@ -33,7 +32,7 @@ internal class InGameDisplay : ControlBase
 
     private Boolean debugMode;
 
-    internal InGameDisplay(ControlBase parent, Context context) : base(parent)
+    internal InGameDisplay(ControlBase parent) : base(parent)
     {
         Dock = Dock.Fill;
 
@@ -87,7 +86,7 @@ internal class InGameDisplay : ControlBase
 
         debugViewRoot.Hide();
 
-        debugViewContent = new PropertyBasedTreeControl(debugViewRoot, new Message("", ""), context)
+        debugViewContent = new PropertyBasedTreeControl(debugViewRoot, new Message("", ""))
         {
             Margin = Margin.Five
         };

@@ -93,11 +93,11 @@ public partial class WorldProvider : IWorldProvider
 
                 LogWorldLookup(logger, found.Count);
             }
-            catch (Exception e) when (e is IOException or SecurityException)
+            catch (Exception searchException) when (searchException is IOException or SecurityException)
             {
-                LogWorldRefreshError(logger, e);
+                LogWorldRefreshError(logger, searchException);
 
-                throw new AggregateException("Failed to refresh worlds", e);
+                throw new AggregateException("Failed to refresh worlds.", searchException);
             }
 
             List<String> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();

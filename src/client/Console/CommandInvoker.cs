@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Console;
@@ -17,15 +18,42 @@ namespace VoxelGame.Client.Console;
 /// <summary>
 ///     Discovers and executes commands using the <see cref="Command" /> class.
 /// </summary>
-public partial class CommandInvoker
+public sealed partial class CommandInvoker : IResource
 {
+    private readonly IResourceContext loadingContext;
+
     private readonly Dictionary<String, CommandGroup> commandGroups = new();
     private readonly Dictionary<Type, Parser> parsers = new();
+
+    /// <summary>
+    /// Create a new command invoker.
+    /// </summary>
+    /// <param name="loadingContext">The context in which commands and parsers are loaded.</param>
+    public CommandInvoker(IResourceContext loadingContext)
+    {
+        this.loadingContext = loadingContext;
+    }
 
     /// <summary>
     ///     Get the names of all registered commands.
     /// </summary>
     public IEnumerable<String> CommandNames => commandGroups.Keys;
+
+    /// <inheritdoc />
+    public RID Identifier { get; } = RID.Named<CommandInvoker>("Default");
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.CommandInvoker;
+
+    #region DISPOSING
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose.
+    }
+
+    #endregion DISPOSING
 
     /// <summary>
     ///     Invoked when new commands are added or discovered.

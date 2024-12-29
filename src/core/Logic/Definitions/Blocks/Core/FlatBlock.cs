@@ -97,9 +97,9 @@ public class FlatBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 textureIndex = indexProvider.GetTextureIndex(texture);
+        Int32 textureIndex = textureIndexProvider.GetTextureIndex(texture, isBlock: true);
 
         foreach (Orientation orientation in Orientations.All)
         {

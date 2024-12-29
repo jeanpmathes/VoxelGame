@@ -5,11 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console.Commands;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
@@ -64,43 +62,6 @@ public partial class GameConsole : IConsoleProvider
 
         if (executed) LogExecutedWorldReadyScript(logger);
         else LogNoWorldReadyScriptFound(logger);
-    }
-
-    /// <summary>
-    ///     Build a default invoker for the game.
-    /// </summary>
-    /// <returns>A invoker, filled with all default commands and parsers.</returns>
-    public static CommandInvoker BuildInvoker()
-    {
-        CommandInvoker invoker = new();
-
-        invoker.AddParser(Parser.BuildParser(_ => true, s => s));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Int32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Int32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => UInt32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => UInt32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(Parser.BuildParser(
-            s => Enum.IsDefined(typeof(Orientation), s),
-            Enum.Parse<Orientation>));
-
-        invoker.AddParser(Parser.BuildParser(s => Boolean.TryParse(s, out _), Boolean.Parse));
-
-        invoker.SearchCommands();
-        invoker.AddCommand(new Help(invoker));
-
-        return invoker;
     }
 
     #region LOGGING

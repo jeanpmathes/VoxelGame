@@ -11,9 +11,10 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -26,7 +27,7 @@ public sealed partial class StartScene : IScene
 {
     private readonly Application.Client client;
 
-    private readonly ResourceLoadingFailure? resourceLoadingFailure;
+    private readonly ResourceLoadingIssueReport? resourceLoadingIssueReport;
     private readonly StartUserInterface ui;
 
     private readonly WorldProvider worldProvider;
@@ -35,10 +36,10 @@ public sealed partial class StartScene : IScene
 
     private Int32? loadWorldDirectly;
 
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
+    internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
     {
         this.client = client;
-        this.resourceLoadingFailure = resourceLoadingFailure;
+        this.resourceLoadingIssueReport = resourceLoadingIssueReport;
         this.loadWorldDirectly = loadWorldDirectly;
 
         worldProvider = new WorldProvider(Program.WorldsDirectory);
@@ -56,7 +57,7 @@ public sealed partial class StartScene : IScene
             client.Settings,
             worldProvider,
             settingsProviders,
-            client.Resources.UI,
+            uiResources,
             drawBackground: true);
     }
 
@@ -73,9 +74,9 @@ public sealed partial class StartScene : IScene
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());
 
-        if (resourceLoadingFailure == null) return;
+        if (resourceLoadingIssueReport == null) return;
 
-        ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+        ui.PresentResourceLoadingFailure(resourceLoadingIssueReport.Report, resourceLoadingIssueReport.AnyErrors);
 
         if (loadWorldDirectly is null) return;
 

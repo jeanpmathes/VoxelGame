@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
@@ -21,24 +22,23 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// <summary>
 ///     A static structure can be stored and loaded from a file.
 /// </summary>
-public partial class StaticStructure : Structure
+public sealed partial class StaticStructure : Structure, IResource, ILocated
 {
     private const Int32 MaxSize = 1024;
-
-    private static readonly DirectoryInfo structureDirectory = FileSystem.GetResourceDirectory("Structures");
-
-    private static ILoadingContext? loadingContext;
 
     private readonly Content?[,,] contents;
 
     private StaticStructure(Content?[,,] contents, Vector3i extents)
     {
         this.contents = contents;
+
+        Identifier = RID.Virtual;
         Extents = extents;
     }
 
-    private StaticStructure(Definition definition, String name)
+    private StaticStructure(Definition definition, String name, RID identifier)
     {
+        Identifier = identifier;
         Extents = new Vector3i(MaxSize);
 
         if (!IsInExtents(GetVector(definition.Extents, name)))
@@ -47,6 +47,7 @@ public partial class StaticStructure : Structure
         Vector3i extents = GetVector(definition.Extents, name);
 
         Extents = extents;
+
         contents = new Content?[extents.X, extents.Y, extents.Z];
 
         foreach (Placement placement in definition.Placements) ApplyPlacement(placement, name);
@@ -56,7 +57,26 @@ public partial class StaticStructure : Structure
     public override Vector3i Extents { get; }
 
     /// <inheritdoc />
-    public override Boolean IsPlaceable => true;
+    public static String[] Path { get; } = ["Structures"];
+
+    /// <inheritdoc />
+    public static String FileExtension => "json";
+
+    /// <inheritdoc />
+    public RID Identifier { get; }
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.Structure;
+
+    #region DISPOSING
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose.
+    }
+
+    #endregion DISPOSING
 
     /// <summary>
     ///     Read a structure from a grid.
@@ -95,37 +115,6 @@ public partial class StaticStructure : Structure
     }
 
     /// <summary>
-    ///     Set the current loading context. All loading operations will then be performed in that context.
-    ///     Loading operations can also be performed without a context.
-    ///     When a context is used, no other loading operations on any thread should be performed.
-    /// </summary>
-    /// <param name="newLoadingContext">The new loading context.</param>
-    public static void SetLoadingContext(ILoadingContext newLoadingContext)
-    {
-        Debug.Assert(loadingContext == null);
-        loadingContext = newLoadingContext;
-    }
-
-    /// <summary>
-    ///     Clear the current loading context.
-    /// </summary>
-    public static void ClearLoadingContext()
-    {
-        Debug.Assert(loadingContext != null);
-        loadingContext = null;
-    }
-
-    /// <summary>
-    ///     Load a structure from the application resources.
-    /// </summary>
-    /// <param name="name">The name of the structure.</param>
-    /// <returns>The loaded structure, or a fallback structure if the loading failed.</returns>
-    public static StaticStructure Load(String name)
-    {
-        return Load(structureDirectory, name);
-    }
-
-    /// <summary>
     ///     Load a structure.
     /// </summary>
     /// <param name="directory">The directory to load from.</param>
@@ -133,32 +122,48 @@ public partial class StaticStructure : Structure
     /// <returns>The loaded structure, or null if the loading failed.</returns>
     public static StaticStructure Load(DirectoryInfo directory, String name)
     {
-        FileInfo file = directory.GetFile(GetFileName(name));
+        Exception? exception = Load(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), out StaticStructure structure);
 
+        if (exception != null)
+        {
+            LogFailedStructureLoad(logger, exception, name);
+
+        }
+        else
+        {
+            LogSuccessfulStructureLoad(logger, name);
+        }
+
+        return structure;
+    }
+
+    /// <summary>
+    /// Load a structure from a file.
+    /// </summary>
+    /// <param name="file">The file to load from.</param>
+    /// <param name="structure">The loaded structure, or a fallback structure if the loading failed.</param>
+    /// <returns>An exception if loading failed, <c>null</c> otherwise.</returns>
+    public static Exception? Load(FileInfo file, out StaticStructure structure)
+    {
         Exception? exception = Serialize.LoadJSON(file, out Definition definition);
 
         if (exception != null)
         {
-            if (loadingContext != null)
-                loadingContext.ReportFailure(nameof(StaticStructure), file, exception);
-            else
-                LogFailedStructureLoad(logger, exception, name);
+            structure = CreateFallback();
 
-            return CreateFallback();
+            return exception;
         }
 
-        if (loadingContext != null) loadingContext.ReportSuccess(nameof(StaticStructure), file);
-        else LogSuccessfulStructureLoad(logger, name);
+        structure = new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file));
 
-        return new StaticStructure(definition, name);
+        return null;
     }
 
-    private static String GetFileName(String name)
-    {
-        return $"{name}.json";
-    }
-
-    private static StaticStructure CreateFallback()
+    /// <summary>
+    /// Create a fallback structure.
+    /// </summary>
+    /// <returns>The fallback structure.</returns>
+    public static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
         fallback[0, 0, 0] = new Content(Elements.Blocks.Instance.Error);
@@ -210,7 +215,7 @@ public partial class StaticStructure : Structure
     }
 
     /// <inheritdoc />
-    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
     {
         Debug.Assert(IsInExtents(offset));
 
@@ -219,6 +224,12 @@ public partial class StaticStructure : Structure
         if (content == null) return null;
 
         return (content.Value, overwrite: true);
+    }
+
+    /// <inheritdoc />
+    protected override Random? GetRandomness(Int32 seed)
+    {
+        return null;
     }
 
     /// <summary>
@@ -256,7 +267,7 @@ public partial class StaticStructure : Structure
             Placements = placements.ToArray()
         };
 
-        Exception? exception = Serialize.SaveJSON(definition, directory.GetFile(GetFileName(name)));
+        Exception? exception = Serialize.SaveJSON(definition, directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)));
 
         if (exception == null) return false;
 

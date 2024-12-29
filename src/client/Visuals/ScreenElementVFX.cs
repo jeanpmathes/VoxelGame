@@ -52,12 +52,12 @@ public sealed class ScreenElementVFX : VFX
     ///     Create a new <see cref="ScreenElementVFX" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
-    /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
+    /// <param name="factory">The factory creating the pipeline.</param>
     /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
-    public static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
+    public static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, EngineLoader.PipelineFactory factory, Vector2d relativeScreenPosition)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
+            = factory.LoadPipelineWithBuffer<Data>("ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 

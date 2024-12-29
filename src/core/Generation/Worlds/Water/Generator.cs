@@ -11,7 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Water;
@@ -37,9 +37,15 @@ public sealed class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public static void Initialize(ILoadingContext loadingContext)
+    public static ICatalogEntry CreateResourceCatalog()
     {
-        // Nothing to initialize.
+        return new Catalog();
+    }
+
+    /// <inheritdoc />
+    public static void LinkResources(IResourceContext context)
+    {
+        // No resources to link.
     }
 
     /// <inheritdoc />

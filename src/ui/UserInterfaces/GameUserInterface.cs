@@ -35,7 +35,7 @@ public class GameUserInterface : UserInterface
     /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw background.</param>
-    public GameUserInterface(Input input, IScaleProvider scale, UIResources resources, Boolean drawBackground) : base(
+    public GameUserInterface(Input input, IScaleProvider scale, UserInterfaceResources resources, Boolean drawBackground) : base(
         input,
         scale,
         resources,

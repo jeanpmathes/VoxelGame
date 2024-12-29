@@ -72,11 +72,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void OnSetUp(ITextureIndexProvider indexProvider, IDominantColorProvider dominantColorProvider)
     {
-        movingTextures = movingLayout.GetTextureIndices(indexProvider);
-        staticTextures = staticLayout.GetTextureIndices(indexProvider);
+        movingTextures = movingLayout.GetTextureIndices(indexProvider, isBlock: false);
+        staticTextures = staticLayout.GetTextureIndices(indexProvider, isBlock: false);
 
         mainTexture = staticTextures[(Int32) Side.Front];
-        dominantColor = dominantColorProvider.GetDominantColor(mainTexture);
+        dominantColor = dominantColorProvider.GetDominantColor(mainTexture, isBlock: false);
     }
 
     /// <inheritdoc />
@@ -224,7 +224,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         {
             remaining = (Int32) level;
 
-            return Elements.Fluids.Instance.ContactManager.HandleContact(
+            return Elements.Fluids.ContactManager.HandleContact(
                 world,
                 this.AsInstance(level),
                 position,
@@ -369,7 +369,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             if (fluidNeighbor.Fluid != this)
             {
-                if (Elements.Fluids.Instance.ContactManager.HandleContact(
+                if (Elements.Fluids.ContactManager.HandleContact(
                         world,
                         this.AsInstance(level),
                         position,

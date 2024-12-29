@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -27,6 +28,9 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class DoorBlock : Block, IFillable, IComplex
 {
+    private readonly RID closedModel;
+    private readonly RID openModel;
+
     private readonly List<BlockMesh> baseClosedMeshes = [];
     private readonly List<BlockMesh> baseOpenMeshes = [];
 
@@ -39,47 +43,15 @@ public class DoorBlock : Block, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal DoorBlock(String name, String namedID, String closedModel, String openModel) :
+    internal DoorBlock(String name, String namedID, RID closedModel, RID openModel) :
         base(
             name,
             namedID,
             BlockFlags.Functional with {IsOpaque = true},
             new BoundingVolume(new Vector3d(x: 0.5f, y: 1f, z: 0.5f), new Vector3d(x: 0.5f, y: 1f, z: 0.5f)))
     {
-        BlockModel.Load(closedModel).PlaneSplit(
-            Vector3d.UnitY,
-            -Vector3d.UnitY,
-            out BlockModel baseClosed,
-            out BlockModel topClosed);
-
-        topClosed.Move(-Vector3d.UnitY);
-
-        BlockModel.Load(openModel).PlaneSplit(
-            Vector3d.UnitY,
-            -Vector3d.UnitY,
-            out BlockModel baseOpen,
-            out BlockModel topOpen);
-
-        topOpen.Move(-Vector3d.UnitY);
-
-        CreateMeshes(baseClosed, baseClosedMeshes);
-        CreateMeshes(baseOpen, baseOpenMeshes);
-
-        CreateMeshes(topClosed, topClosedMeshes);
-        CreateMeshes(topOpen, topOpenMeshes);
-
-        static void CreateMeshes(BlockModel model, ICollection<BlockMesh> meshList)
-        {
-            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
-                model.CreateAllOrientations(rotateTopAndBottomTexture: true);
-
-            meshList.Add(north.Mesh);
-            meshList.Add(east.Mesh);
-            meshList.Add(south.Mesh);
-            meshList.Add(west.Mesh);
-        }
-
-        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+        this.closedModel = closedModel;
+        this.openModel = openModel;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -106,6 +78,45 @@ public class DoorBlock : Block, IFillable, IComplex
 
             return mesh.GetMeshData();
         }
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        modelProvider.GetModel(closedModel).PlaneSplit(
+            Vector3d.UnitY,
+            -Vector3d.UnitY,
+            out BlockModel baseClosed,
+            out BlockModel topClosed);
+
+        topClosed.Move(-Vector3d.UnitY);
+
+        modelProvider.GetModel(openModel).PlaneSplit(
+            Vector3d.UnitY,
+            -Vector3d.UnitY,
+            out BlockModel baseOpen,
+            out BlockModel topOpen);
+
+        topOpen.Move(-Vector3d.UnitY);
+
+        CreateMeshes(baseClosed, baseClosedMeshes);
+        CreateMeshes(baseOpen, baseOpenMeshes);
+
+        CreateMeshes(topClosed, topClosedMeshes);
+        CreateMeshes(topOpen, topOpenMeshes);
+
+        void CreateMeshes(BlockModel model, ICollection<BlockMesh> meshList)
+        {
+            (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
+                model.CreateAllOrientations(rotateTopAndBottomTexture: true);
+
+            meshList.Add(north.CreateMesh(textureIndexProvider));
+            meshList.Add(east.CreateMesh(textureIndexProvider));
+            meshList.Add(south.CreateMesh(textureIndexProvider));
+            meshList.Add(west.CreateMesh(textureIndexProvider));
+        }
+
+        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

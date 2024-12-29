@@ -14,15 +14,17 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The base class of all fluids.
 /// </summary>
-public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<String>
+public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<String>, IResource
 {
     /// <summary>
     ///     The density of air.
@@ -52,6 +54,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         Name = name;
         NamedID = namedID;
+        Identifier = RID.Named<Fluid>(NamedID);
 
         Density = density;
 
@@ -146,6 +149,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
     UInt32 IIdentifiable<UInt32>.ID => ID;
 
+    /// <inheritdoc />
+    public RID Identifier { get; }
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.Block;
+
     private static BoundingVolume[] CreateVolumes()
     {
         BoundingVolume CreateVolume(FluidLevel level)
@@ -165,7 +174,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     }
 
     /// <summary>
-    ///     Called when loading fluids, meant to setup vertex data, indices etc.
+    ///     Called when loading fluids, meant to set up vertex data, indices etc.
     /// </summary>
     /// <param name="id">The id of the fluid.</param>
     /// <param name="indexProvider">A provider for texture indices.</param>
@@ -616,4 +625,42 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     {
         return NamedID;
     }
+
+    #region DISPOSING
+
+    private Boolean disposed;
+
+    /// <summary>
+    /// Override to dispose resources.
+    /// </summary>
+    /// <param name="disposing">Whether to dispose managed resources.</param>
+    protected virtual void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            // Nothing to dispose.
+        }
+        else Throw.ForMissedDispose(this);
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
+    ~Fluid()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion DISPOSING
 }

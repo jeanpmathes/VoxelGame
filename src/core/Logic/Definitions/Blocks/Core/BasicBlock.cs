@@ -48,9 +48,9 @@ public class BasicBlock : Block, ISimple
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        sideTextureIndices = layout.GetTextureIndices(indexProvider);
+        sideTextureIndices = layout.GetTextureIndices(textureIndexProvider, isBlock: true);
     }
 
     /// <summary>

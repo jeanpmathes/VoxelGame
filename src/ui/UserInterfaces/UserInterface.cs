@@ -23,7 +23,7 @@ public abstract class UserInterface : IDisposable
 
     private readonly Input input;
     private readonly IScaleProvider scale;
-    private readonly UIResources resources;
+    private readonly UserInterfaceResources resources;
     private readonly Boolean drawBackground;
 
     private readonly IDisposable scaleSubscription;
@@ -37,7 +37,7 @@ public abstract class UserInterface : IDisposable
     /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, Boolean drawBackground)
+    protected UserInterface(Input input, IScaleProvider scale, UserInterfaceResources resources, Boolean drawBackground)
     {
         this.input = input;
         this.scale = scale;

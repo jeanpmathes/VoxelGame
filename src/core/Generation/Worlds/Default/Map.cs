@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
@@ -202,7 +203,7 @@ public sealed partial class Map : IMap, IDisposable
 
         return new Group(nameof(Default),
         [
-            new Message("Biome", sample.ActualBiome.ToString()),
+            new Message("Biome", sample.ActualBiome.Definition.Name),
             new Measure("Height", sample.GetRealHeight())
         ]);
     }
@@ -473,7 +474,7 @@ public sealed partial class Map : IMap, IDisposable
 
         if (mountainStrength > coastlineStrength)
         {
-            specialBiome = biomes.MountainBiome;
+            specialBiome = biomes.GetMountainBiome();
             specialStrength = mountainStrength;
         }
         else

@@ -15,6 +15,7 @@ using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Events;
 using VoxelGame.Toolkit.Utilities;
@@ -41,6 +42,9 @@ internal sealed class VGui : IGwenGui
     private GwenGuiSettings Settings { get; }
 
     private Client Parent { get; }
+
+    public RID Identifier { get; } = RID.Named<VGui>("Default");
+    public ResourceType Type => ResourceTypes.GUI;
 
     public ControlBase Root => canvas;
 

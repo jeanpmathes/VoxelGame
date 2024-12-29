@@ -14,12 +14,14 @@ using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -40,14 +42,14 @@ public sealed partial class GameScene : IScene
 
     private Boolean isMouseUnlockedByUserRequest;
 
-    internal GameScene(Application.Client client, World world)
+    internal GameScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine)
     {
         Client = client;
 
-        ui = CreateUI(client);
-        Game = CreateGame(client, world);
+        ui = CreateUI(client, uiResources);
+        Game = CreateGame(client, world, engine);
 
-        GameConsole console = new(Game, client.Resources.Commands);
+        GameConsole console = new(Game, commands);
 
         world.State.Activated += (_, _) =>
         {
@@ -86,7 +88,7 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(Game != null, "Scene has been unloaded.");
+        Debug.Assert(Game != null);
 
         ui.SetPlayerDataProvider(Game.Player);
 
@@ -193,22 +195,22 @@ public sealed partial class GameScene : IScene
         return false;
     }
 
-    private static GameUserInterface CreateUI(Application.Client client)
+    private static GameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
     {
         return new GameUserInterface(
             client.Input,
             client.Settings,
-            client.Resources.UI,
+            uiResources,
             drawBackground: false);
     }
 
-    private Game CreateGame(Application.Client client, World world)
+    private Game CreateGame(Application.Client client, World world, Engine engine)
     {
         Player player = new(
             mass: 70f,
             client.Space.Camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            new VisualInterface(ui, client.Resources),
+            new VisualInterface(ui, engine),
             this);
 
         world.AddPlayer(player);

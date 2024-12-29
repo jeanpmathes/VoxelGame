@@ -10,6 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -34,7 +35,7 @@ public class FenceBlock : WideConnectingBlock, ICombustible
     /// <param name="texture">The texture to apply to the model.</param>
     /// <param name="postModel">The name of the post model. All model textures are ignored.</param>
     /// <param name="extensionModel">The name of the extension model. All model textures are ignored.</param>
-    internal FenceBlock(String name, String namedID, String texture, String postModel, String extensionModel) :
+    internal FenceBlock(String name, String namedID, String texture, RID postModel, RID extensionModel) :
         base(
             name,
             namedID,

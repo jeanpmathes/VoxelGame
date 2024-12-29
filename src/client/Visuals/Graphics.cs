@@ -19,17 +19,17 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public partial class Graphics
 {
-    private static readonly Pipelines.RaytracingData defaultData = new()
+    private static readonly Engine.RaytracingData defaultData = new()
     {
         wireframe = false,
         windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized()
     };
 
-    private readonly Pipelines? pipelines;
+    private readonly Engine? engine;
 
-    private Graphics(Pipelines? pipelines)
+    private Graphics(Engine? engine)
     {
-        this.pipelines = pipelines;
+        this.engine = engine;
     }
 
     /// <summary>
@@ -40,11 +40,11 @@ public partial class Graphics
     /// <summary>
     ///     Initializes the graphics.
     /// </summary>
-    /// <param name="pipelines">All pipelines used for rendering.</param>
-    public static void Initialize(Pipelines? pipelines)
+    /// <param name="engine">The engine to use for rendering.</param>
+    public static void Initialize(Engine engine)
     {
         Debug.Assert(Instance == null);
-        Instance = new Graphics(pipelines);
+        Instance = new Graphics(engine);
 
         LogGraphicsInitialized(logger);
 
@@ -56,9 +56,9 @@ public partial class Graphics
     /// </summary>
     public void Reset()
     {
-        if (pipelines == null) return;
+        if (engine == null) return;
 
-        pipelines.RaytracingDataBuffer.Data = defaultData;
+        engine.RaytracingDataBuffer.Data = defaultData;
 
         LogGraphicsReset(logger);
     }
@@ -69,9 +69,9 @@ public partial class Graphics
     /// <param name="enable">Whether to enable wireframe rendering.</param>
     public void SetWireframe(Boolean enable)
     {
-        if (pipelines == null) return;
+        if (engine == null) return;
 
-        pipelines.RaytracingDataBuffer.Modify((ref Pipelines.RaytracingData data) => data.wireframe = enable);
+        engine.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.wireframe = enable);
 
         LogSetWireframe(logger, enable);
     }
@@ -88,7 +88,7 @@ public partial class Graphics
     /// <param name="color">The color of the fog.</param>
     public void SetFogOverlapConfiguration(Double size, Color4 color)
     {
-        pipelines?.RaytracingDataBuffer.Modify((ref Pipelines.RaytracingData data) =>
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
         {
             data.fogOverlapSize = (Single) size;
             data.fogOverlapColor = color.ToVector3();
@@ -99,7 +99,7 @@ public partial class Graphics
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Graphics>();
 
-    [LoggerMessage(EventId = LogID.Graphics + 0, Level = LogLevel.Debug, Message = "Graphics initialized with pipelines")]
+    [LoggerMessage(EventId = LogID.Graphics + 0, Level = LogLevel.Debug, Message = "Graphics initialized with engine")]
     private static partial void LogGraphicsInitialized(ILogger logger);
 
     [LoggerMessage(EventId = LogID.Graphics + 1, Level = LogLevel.Debug, Message = "Graphics reset to default state")]

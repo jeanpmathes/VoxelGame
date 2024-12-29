@@ -80,22 +80,23 @@ public class TextureLayout(String front, String back, String left, String right,
     }
 
     /// <summary>
-    ///     Get the texture indices that correspond to the textures used by the sides of a block.
+    ///     Get the texture indices that correspond to the textures used by the sides of a block or fluid.
     /// </summary>
     /// <param name="indexProvider">The texture index provider to use.</param>
+    /// <param name="isBlock">Whether the texture indices are for a block or a fluid.</param>
     /// <returns>
-    ///     The texture indices for the front, back, left, right, bottom, and top sides of a block.
+    ///     The texture indices for the front, back, left, right, bottom, and top sides of a block or fluid.
     /// </returns>
-    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider indexProvider)
+    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider indexProvider, Boolean isBlock)
     {
         return new SideArray<Int32>
         {
-            [Side.Front] = indexProvider.GetTextureIndex(front),
-            [Side.Back] = indexProvider.GetTextureIndex(back),
-            [Side.Left] = indexProvider.GetTextureIndex(left),
-            [Side.Right] = indexProvider.GetTextureIndex(right),
-            [Side.Bottom] = indexProvider.GetTextureIndex(bottom),
-            [Side.Top] = indexProvider.GetTextureIndex(top)
+            [Side.Front] = indexProvider.GetTextureIndex(front, isBlock),
+            [Side.Back] = indexProvider.GetTextureIndex(back, isBlock),
+            [Side.Left] = indexProvider.GetTextureIndex(left, isBlock),
+            [Side.Right] = indexProvider.GetTextureIndex(right, isBlock),
+            [Side.Bottom] = indexProvider.GetTextureIndex(bottom, isBlock),
+            [Side.Top] = indexProvider.GetTextureIndex(top, isBlock)
         };
     }
 }

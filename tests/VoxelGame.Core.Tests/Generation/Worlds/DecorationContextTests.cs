@@ -18,7 +18,7 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 [TestSubject(typeof(IDecorationContext))]
-[Collection("Logger")]
+[Collection(LoggerCollection.Name)]
 public class DecorationContextTests : ContextTestBase
 {
     [Fact]

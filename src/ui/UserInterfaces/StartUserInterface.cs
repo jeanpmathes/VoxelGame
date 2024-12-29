@@ -34,7 +34,7 @@ public class StartUserInterface : UserInterface
     /// <param name="resources">The resources.</param>
     /// <param name="drawBackground">Whether to draw the ui background.</param>
     public StartUserInterface(Input input, IScaleProvider scale, IWorldProvider worldProvider,
-        ICollection<SettingsProvider> settingsProviders, UIResources resources, Boolean drawBackground) : base(
+        ICollection<SettingsProvider> settingsProviders, UserInterfaceResources resources, Boolean drawBackground) : base(
         input,
         scale,
         resources,

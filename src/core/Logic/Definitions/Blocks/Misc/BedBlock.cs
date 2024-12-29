@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -26,12 +27,14 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // p: position
 public class BedBlock : Block, ICombustible, IFillable, IComplex
 {
+    private readonly RID model;
+
     private readonly List<BlockMesh> footMeshes = new(capacity: 4);
     private readonly List<BlockMesh> headMeshes = new(capacity: 4);
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal BedBlock(String name, String namedID, String model) :
+    internal BedBlock(String name, String namedID, RID model) :
         base(
             name,
             namedID,
@@ -40,33 +43,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5),
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5)))
     {
-        BlockModel blockModel = BlockModel.Load(model);
-
-        blockModel.PlaneSplit(Vector3d.UnitZ, Vector3d.UnitZ, out BlockModel foot, out BlockModel head);
-        foot.Move(-Vector3d.UnitZ);
-
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) headParts =
-            head.CreateAllOrientations(rotateTopAndBottomTexture: true);
-
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) footParts =
-            foot.CreateAllOrientations(rotateTopAndBottomTexture: true);
-
-        headParts.Lock();
-        footParts.Lock();
-
-        headMeshes.Add(headParts.north.Mesh);
-        footMeshes.Add(footParts.north.Mesh);
-
-        headMeshes.Add(headParts.east.Mesh);
-        footMeshes.Add(footParts.east.Mesh);
-
-        headMeshes.Add(headParts.south.Mesh);
-        footMeshes.Add(footParts.south.Mesh);
-
-        headMeshes.Add(headParts.west.Mesh);
-        footMeshes.Add(footParts.west.Mesh);
-
-        for (UInt32 data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
+        this.model = model;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -78,6 +55,38 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
         BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
 
         return mesh.GetMeshData(color.ToTintColor());
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel blockModel = modelProvider.GetModel(model);
+
+        blockModel.PlaneSplit(Vector3d.UnitZ, Vector3d.UnitZ, out BlockModel foot, out BlockModel head);
+        foot.Move(-Vector3d.UnitZ);
+
+        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) headParts =
+            head.CreateAllOrientations(rotateTopAndBottomTexture: true);
+
+        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) footParts =
+            foot.CreateAllOrientations(rotateTopAndBottomTexture: true);
+
+        headParts.Lock(textureIndexProvider);
+        footParts.Lock(textureIndexProvider);
+
+        headMeshes.Add(headParts.north.CreateMesh(textureIndexProvider));
+        footMeshes.Add(footParts.north.CreateMesh(textureIndexProvider));
+
+        headMeshes.Add(headParts.east.CreateMesh(textureIndexProvider));
+        footMeshes.Add(footParts.east.CreateMesh(textureIndexProvider));
+
+        headMeshes.Add(headParts.south.CreateMesh(textureIndexProvider));
+        footMeshes.Add(footParts.south.CreateMesh(textureIndexProvider));
+
+        headMeshes.Add(headParts.west.CreateMesh(textureIndexProvider));
+        footMeshes.Add(footParts.west.CreateMesh(textureIndexProvider));
+
+        for (UInt32 data = 0; data <= 0b11_1111; data++) volumes.Add(CreateVolume(data));
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

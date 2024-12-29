@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
@@ -22,17 +24,28 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class GrowingBlock : BasicBlock, ICombustible
 {
     private readonly Int32 maxHeight;
-    private readonly Block requiredGround;
+    private readonly String requiredGroundID;
 
-    internal GrowingBlock(String name, String namedID, TextureLayout layout, Block ground, Int32 maxHeight) :
+    [SuppressMessage("Usage", "CA2213", Justification = IResource.ResourcesOwnedByContext)]
+    private Block requiredGround = null!;
+
+    internal GrowingBlock(String name, String namedID, TextureLayout layout, String ground, Int32 maxHeight) :
         base(
             name,
             namedID,
             BlockFlags.Basic,
             layout)
     {
-        requiredGround = ground;
+        requiredGroundID = ground;
         this.maxHeight = maxHeight;
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        base.OnSetUp(textureIndexProvider, modelProvider, visuals);
+
+        requiredGround = Elements.Blocks.Instance.SafelyTranslateNamedID(requiredGroundID);
     }
 
     /// <inheritdoc />

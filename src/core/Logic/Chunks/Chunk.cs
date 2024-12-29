@@ -113,10 +113,9 @@ public partial class Chunk : IDisposable, IEntity
     private readonly Section[] sections = new Section[SectionCount];
 
     /// <summary>
-    ///     The resource of a chunk represents its core data.
-    ///     It is used to control access in the context of multi-threading.
+    ///     Used to control access to the chunk in the context of multi-threading.
     /// </summary>
-    private readonly Resource resource = new(nameof(Chunk));
+    private readonly RW rw = new(nameof(Chunk));
 
     /// <summary>
     ///     Using a local counter allows to use the update managers after normalization without having to revert that.
@@ -165,9 +164,9 @@ public partial class Chunk : IDisposable, IEntity
         blockUpdateManager = new ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
         fluidUpdateManager = new ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
 
-        resource.Released += OnResourceReleased;
+        rw.Released += OnReleased;
 
-        void OnResourceReleased(Object? sender, EventArgs e)
+        void OnReleased(Object? sender, EventArgs e)
         {
             State.OnChunkResourceReleased();
         }
@@ -327,7 +326,7 @@ public partial class Chunk : IDisposable, IEntity
     public virtual void Reset()
     {
         Debug.Assert(!IsActive);
-        Debug.Assert(!resource.IsAcquired);
+        Debug.Assert(!rw.IsAcquired);
 
         blockUpdateManager.Clear();
         blockUpdateManager.SetWorld(newWorld: null);
@@ -367,37 +366,37 @@ public partial class Chunk : IDisposable, IEntity
         Guard? guard = ChunkState.TryStealAccess(ref state);
 
         if (guard == null)
-            return resource.TryAcquire(access, source);
+            return rw.TryAcquire(access, source);
 
         if (access == Access.Write)
             return guard;
 
         // We downgrade our access to read, as stealing always gives us write access.
         guard.Dispose();
-        guard = resource.TryAcquire(access, source);
+        guard = rw.TryAcquire(access, source);
         Debug.Assert(guard != null);
 
         return guard;
     }
 
     /// <summary>
-    ///     Whether it is possible to acquire the core resource.
+    ///     Whether it is possible to acquire the chunk.
     /// </summary>
     public Boolean CanAcquire(Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return state.CanStealAccess || resource.CanAcquire(access);
+        return state.CanStealAccess || rw.CanAcquire(access);
     }
 
     /// <summary>
-    ///     Check if core is held with specific access by a given guard.
+    ///     Check if the chunk is held with specific access by a given guard.
     /// </summary>
     public Boolean IsHeldBy(Guard guard, Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return resource.IsHeldBy(guard, access);
+        return rw.IsHeldBy(guard, access);
     }
 
     /// <summary>

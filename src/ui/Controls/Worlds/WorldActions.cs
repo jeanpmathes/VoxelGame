@@ -54,10 +54,10 @@ public class WorldActions : ControlBase
 
         HorizontalLayout buttons = new(this);
 
-        Button info = context.CreateIconButton(buttons, context.Resources.InfoIcon, Language.Info);
+        Button info = context.CreateIconButton(buttons, Icons.Instance.Info, Language.Info);
         info.Released += (_, _) => OpenWorldInfoWindow(info);
 
-        Button duplicate = context.CreateIconButton(buttons, context.Resources.DuplicateIcon, Language.Duplicate);
+        Button duplicate = context.CreateIconButton(buttons, Icons.Instance.Duplicate, Language.Duplicate);
 
         duplicate.Released += (_, _) => Modals.OpenNameModal(menu,
             new NameBox.Parameters(Language.Duplicate, world.Name),
@@ -76,10 +76,10 @@ public class WorldActions : ControlBase
                 worldProvider.IsWorldNameValid),
             context);
 
-        Button load = context.CreateIconButton(buttons, context.Resources.LoadIcon, Language.Load);
+        Button load = context.CreateIconButton(buttons, Icons.Instance.Load, Language.Load);
         load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
 
-        Button delete = context.CreateIconButton(buttons, context.Resources.DeleteIcon, Language.Delete, Colors.Danger);
+        Button delete = context.CreateIconButton(buttons, Icons.Instance.Delete, Language.Delete, Colors.Danger);
 
         delete.Released += (_, _) => Modals.OpenDeletionModal(
             menu,

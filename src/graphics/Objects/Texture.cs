@@ -6,8 +6,6 @@
 
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;
@@ -37,34 +35,6 @@ public class Texture : NativeObject
     ///     Gets the height of the texture.
     /// </summary>
     public Int32 Height => size.Y;
-
-    /// <summary>
-    ///     Load a texture from a file. This is only allowed during the loading phase.
-    /// </summary>
-    /// <param name="client">The client instance, used to determine texture lifetime and to access the graphics API.</param>
-    /// <param name="path">The path to the texture file.</param>
-    /// <param name="loadingContext">The loading context.</param>
-    /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
-    /// <returns></returns>
-    public static Texture Load(Client client, FileInfo path, ILoadingContext? loadingContext, Int32 fallbackResolution = 16)
-    {
-        Image image;
-
-        try
-        {
-            image = Image.LoadFromFile(path);
-            loadingContext?.ReportSuccess(nameof(Texture), path);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
-        {
-            image = Image.CreateFallback(fallbackResolution);
-            loadingContext?.ReportWarning(nameof(Texture), path, exception);
-        }
-
-        Texture texture = client.LoadTexture(image);
-
-        return texture;
-    }
 
     /// <summary>
     ///     Frees the texture. Not allowed in same frame as creation.

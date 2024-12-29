@@ -91,7 +91,7 @@ public abstract partial class World : IDisposable, IGrid
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer) ?? throw new InvalidOperationException("The generator could not be initialized.");
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
         Chunks = new ChunkSet(this, ChunkContext);
@@ -202,9 +202,9 @@ public abstract partial class World : IDisposable, IGrid
         Chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
+    private static IWorldGenerator? GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(new WorldGeneratorContext(world, timer));
+        return Generator.Create(new WorldGeneratorContext(world, timer));
     }
 
     /// <summary>

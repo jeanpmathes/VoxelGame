@@ -12,21 +12,35 @@ using Xunit;
 namespace VoxelGame.Core.Tests;
 
 [UsedImplicitly]
-public sealed class LoggerFixture : IDisposable
+public class LoggerFixture : IDisposable
 {
     public LoggerFixture()
     {
         LoggingHelper.SetUpMockLogging();
     }
 
+    #region DISPOSING
+
+    protected virtual void Dispose(Boolean disposing) {}
+
     public void Dispose()
     {
-        // Nothing to do here.
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
+
+    ~LoggerFixture()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion DISPOSING
 }
 
-[CollectionDefinition("Logger")]
+[CollectionDefinition(Name)]
 public class LoggerCollection : ICollectionFixture<LoggerFixture>
 {
     // Nothing to do here.
+
+    public const String Name = "RequireLogger";
 }

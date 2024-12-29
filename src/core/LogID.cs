@@ -50,5 +50,7 @@ internal static class LogID
 
     internal const UInt16 FileSystem = Events.Increment + OS;
 
-    internal const UInt16 LoadingContext = Events.Increment + FileSystem;
+    internal const UInt16 ResourceLoader = Events.Increment + FileSystem;
+
+    internal const UInt16 GroupProvider = Events.Increment + ResourceLoader;
 }

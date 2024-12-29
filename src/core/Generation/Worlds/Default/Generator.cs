@@ -13,7 +13,10 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation.Worlds.Default.Deco;
+using VoxelGame.Core.Generation.Worlds.Default.Biomes;
+using VoxelGame.Core.Generation.Worlds.Default.Decorations;
+using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
@@ -21,6 +24,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Noise;
@@ -36,37 +40,67 @@ public sealed partial class Generator : IWorldGenerator
     private const Int32 SeaLevel = 0;
     private const String MapBlobName = "default_map";
 
+    private static Palette? loadedPalette;
+    private static BiomeDistributionDefinition? loadedBiomeDistribution;
+    private static List<StructureGeneratorDefinition> loadedStructures = [];
+    private static List<BiomeDefinition> loadedBiomes = [];
+
     private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(VMath.Square((Player.LoadDistance + 1) * 2 + 1));
 
-    private readonly Palette palette = new();
+    private readonly Palette palette;
 
     private readonly NoiseGenerator decorationNoise;
 
-    /// <summary>
-    ///     Creates a new default world generator.
-    /// </summary>
-    /// <param name="context">The generator creation context.</param>
-    public Generator(IWorldGeneratorContext context)
+    private readonly List<StructureGenerator> structures = [];
+    private readonly List<Biome> biomes = [];
+
+    private readonly Dictionary<String, StructureGenerator> structuresByName = [];
+
+    private Generator(IWorldGeneratorContext context, Palette palette,
+        BiomeDistributionDefinition biomeDistributionDefinition,
+        IEnumerable<StructureGeneratorDefinition> structureDefinitions,
+        IEnumerable<BiomeDefinition> biomeDefinitions)
     {
+        this.palette = palette;
+
         // Used for map generation and sampling.
         NoiseFactory mapNoiseFactory = new(context.Seed.upper);
 
         // Used for details in biomes, structures and decoration.
         NoiseFactory worldNoiseFactory = new(context.Seed.lower);
 
-        using (logger.BeginTimedSubScoped("Biomes Setup", context.Timer))
-        {
-            Biomes = new Biomes(worldNoiseFactory, palette);
-        }
+        Dictionary<BiomeDefinition, Biome> biomeMap = new();
+        Dictionary<StructureGeneratorDefinition, StructureGenerator> structureMap = new();
 
         using (logger.BeginTimedSubScoped("Structures Setup", context.Timer))
         {
-            Structures.Instance.SetUpNoise(worldNoiseFactory);
+            foreach (StructureGeneratorDefinition definition in structureDefinitions.OrderBy(e => e.Identifier.ToString()))
+            {
+                StructureGenerator generator = new(worldNoiseFactory, definition);
+
+                structureMap.Add(definition, generator);
+                structures.Add(generator);
+
+                structuresByName.Add(definition.Name, generator);
+            }
+        }
+
+        using (logger.BeginTimedSubScoped("Biomes Setup", context.Timer))
+        {
+            foreach (BiomeDefinition definition in biomeDefinitions.OrderBy(e => e.Identifier.ToString()))
+            {
+                Biome biome = new(worldNoiseFactory, definition, structureMap);
+
+                biomeMap.Add(definition, biome);
+                biomes.Add(biome);
+            }
+
+            Biomes = new BiomeDistribution(biomeDistributionDefinition, biomeMap);
         }
 
         using (logger.BeginTimedSubScoped("Map Setup", context.Timer))
         {
-            Map = new Map(BiomeDistribution.CreateDefault(Biomes));
+            Map = new Map(Biomes);
 
             Map.Initialize(context, MapBlobName, mapNoiseFactory, out Boolean dirty);
 
@@ -83,19 +117,42 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <summary>
+    /// The biomes and their distribution.
+    /// </summary>
+    public BiomeDistribution Biomes { get; }
+
+    /// <summary>
     ///     Get the map used by this generator.
     /// </summary>
     public Map Map { get; }
 
-    /// <summary>
-    ///     The biomes used by this generator.
-    /// </summary>
-    private Biomes Biomes { get; }
+    /// <inheritdoc />
+    public static ICatalogEntry CreateResourceCatalog()
+    {
+        return new Catalog();
+    }
 
     /// <inheritdoc />
-    public static IWorldGenerator Create(IWorldGeneratorContext context)
+    public static void LinkResources(IResourceContext context) =>
+        context.Require<Palette>(palette =>
+            context.Require<BiomeDistributionDefinition>(biomeDistribution =>
+            {
+                loadedPalette = palette;
+                loadedBiomeDistribution = biomeDistribution;
+
+                loadedStructures = context.GetAll<StructureGeneratorDefinition>().ToList();
+                loadedBiomes = context.GetAll<BiomeDefinition>().ToList();
+
+                return [];
+            }));
+
+    /// <inheritdoc />
+    public static IWorldGenerator? Create(IWorldGeneratorContext context)
     {
-        return new Generator(context);
+        if (loadedPalette == null || loadedBiomeDistribution == null)
+            return null;
+
+        return new Generator(context, loadedPalette, loadedBiomeDistribution, loadedStructures, loadedBiomes);
     }
 
     /// <inheritdoc />
@@ -119,24 +176,13 @@ public sealed partial class Generator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
-        return Structures.Instance.Search(start, name, maxDistance, this);
+        StructureGenerator? structure = structuresByName.GetValueOrDefault(name);
+
+        return structure?.Search(start, maxDistance, this);
     }
 
     /// <inheritdoc />
     IMap IWorldGenerator.Map => Map;
-
-    /// <summary>
-    ///     Initialize all parts required to use the generator.
-    ///     Has to be called just once.
-    /// </summary>
-    public static void Initialize(ILoadingContext loadingContext)
-    {
-        using (loadingContext.BeginStep("Default Generator"))
-        {
-            Decorations.Initialize(loadingContext);
-            Structures.Initialize(loadingContext);
-        }
-    }
 
     /// <summary>
     ///     Get the samples for a chunk position, if available.
@@ -186,13 +232,13 @@ public sealed partial class Generator : IWorldGenerator
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
 
         foreach (Biome biome in sectionBiomes)
-        foreach (Decoration decoration in biome.Decorations)
+        foreach (Decoration decoration in biome.Definition.Decorations)
         {
             decorations.Add(decoration);
             decorationToBiomes.GetOrAdd(decoration).Add(biome);
         }
 
-        Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1), "Duplicate decoration names or cloned decorations.");
+        Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1));
 
         Array3D<Single> noise = decorationNoise.GetNoiseGrid(sections.Center.Position.FirstBlock, Section.Size);
 
@@ -310,11 +356,11 @@ public sealed partial class Generator : IWorldGenerator
     private static Int32 GetIceWidth(in Map.Sample sample)
     {
         (Int32 a, Int32 b, Int32 c, Int32 d, Int32 e) widths = (
-            sample.Biome00.IceWidth,
-            sample.Biome10.IceWidth,
-            sample.Biome01.IceWidth,
-            sample.Biome11.IceWidth,
-            sample.SpecialBiome.IceWidth);
+            sample.Biome00.Definition.IceWidth,
+            sample.Biome10.Definition.IceWidth,
+            sample.Biome01.Definition.IceWidth,
+            sample.Biome11.Definition.IceWidth,
+            sample.SpecialBiome.Definition.IceWidth);
 
         return (Int32) Math.Round(VMath.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
     }
@@ -334,7 +380,7 @@ public sealed partial class Generator : IWorldGenerator
 
             var content = Content.Default;
 
-            if (depth == -1) content = context.Biome.Cover.GetContent(position, isFilled, context.Sample);
+            if (depth == -1) content = context.Biome.GetCoverContent(position, isFilled, context.Sample);
 
             if (isFilled) content = FillContent(content);
 
@@ -404,9 +450,12 @@ public sealed partial class Generator : IWorldGenerator
         {
             decorationNoise.Dispose();
 
-            Structures.Instance.TearDownNoise();
+            foreach (StructureGenerator structure in structures)
+                structure.Dispose();
 
-            Biomes.Dispose();
+            foreach (Biome biome in biomes)
+                biome.Dispose();
+
             Map.Dispose();
         }
         else

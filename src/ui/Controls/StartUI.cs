@@ -89,7 +89,7 @@ internal class StartUI : ControlBase
             MinimumSize = new Size(width: 1000, height: 1000)
         };
 
-        PropertyBasedTreeControl tree = new(window, resources, context);
+        PropertyBasedTreeControl tree = new(window, resources);
 
         tree.ExpandAll();
     }

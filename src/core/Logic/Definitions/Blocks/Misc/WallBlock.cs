@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -26,13 +27,16 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class WallBlock : WideConnectingBlock
 {
-    private readonly BlockMesh straightX;
-    private readonly BlockMesh straightZ;
+    private readonly String texture;
+    private readonly RID extensionStraight;
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal WallBlock(String name, String namedID, String texture, String postModel, String extensionModel,
-        String extensionStraight) :
+    private BlockMesh straightX = null!;
+    private BlockMesh straightZ = null!;
+
+    internal WallBlock(String name, String namedID, String texture,
+        RID postModel, RID extensionModel, RID extensionStraight) :
         base(
             name,
             namedID,
@@ -42,14 +46,21 @@ public class WallBlock : WideConnectingBlock
             extensionModel,
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.5f, z: 0.25f)))
     {
-        BlockModel straightZModel = BlockModel.Load(extensionStraight);
+        this.texture = texture;
+        this.extensionStraight = extensionStraight;
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel straightZModel = modelProvider.GetModel(extensionStraight);
         straightZModel.OverwriteTexture(texture);
 
         BlockModel straightXModel = straightZModel.Copy();
         straightXModel.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
 
-        straightX = straightXModel.Mesh;
-        straightZ = straightZModel.Mesh;
+        straightX = straightXModel.CreateMesh(textureIndexProvider);
+        straightZ = straightZModel.CreateMesh(textureIndexProvider);
 
         for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }

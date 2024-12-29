@@ -10,7 +10,7 @@ using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Tests.Generation;
 
@@ -18,7 +18,12 @@ public sealed class MockWorldGenerator : IWorldGenerator
 {
     public IMap Map => throw new NotSupportedException();
 
-    public static void Initialize(ILoadingContext loadingContext)
+    public static ICatalogEntry CreateResourceCatalog()
+    {
+        throw new NotSupportedException();
+    }
+
+    public static void LinkResources(IResourceContext context)
     {
         throw new NotSupportedException();
     }

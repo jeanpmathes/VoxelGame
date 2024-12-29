@@ -80,9 +80,9 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        textures = layout.GetTextureIndices(indexProvider);
+        textures = layout.GetTextureIndices(textureIndexProvider, isBlock: true);
     }
 
     /// <inheritdoc />

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 

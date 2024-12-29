@@ -46,7 +46,7 @@ internal class GameUI : ControlBase
         this.performanceProvider = performanceProvider;
 
         Console = new ConsoleInterface(this, consoleProvider, parent.Context);
-        hud = new InGameDisplay(this, parent.Context);
+        hud = new InGameDisplay(this);
 
         Console.WindowClosed += (_, _) => parent.DoOverlayClose();
     }

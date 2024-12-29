@@ -24,9 +24,7 @@ internal static class LogID
 
     internal const UInt16 Settings = Events.Increment + ManualBuilder;
 
-    internal const UInt16 GameResources = Events.Increment + Settings;
-
-    internal const UInt16 WorldMetadata = Events.Increment + GameResources;
+    internal const UInt16 WorldMetadata = Events.Increment + Settings;
 
     internal const UInt16 WorldProvider = Events.Increment + WorldMetadata;
 
@@ -52,7 +50,7 @@ internal static class LogID
 
     internal const UInt16 Graphics = Events.Increment + SceneManager;
 
-    internal const UInt16 TextureBundle = Events.Increment + Graphics;
+    internal const UInt16 TextureIndexProvider = Events.Increment + Graphics;
 
-    internal const UInt16 TextureBundleLoader = Events.Increment + TextureBundle;
+    internal const UInt16 TextureBundleLoader = Events.Increment + TextureIndexProvider;
 }

@@ -9,7 +9,7 @@ using System;
 namespace VoxelGame.Core.Collections.Properties;
 
 /// <summary>
-///     A property that represents a warning.
+///     A property that represents an error or warning.
 /// </summary>
 public sealed class Error : Property
 {

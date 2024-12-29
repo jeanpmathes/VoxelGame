@@ -17,7 +17,7 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Collections;
 
 [TestSubject(typeof(ScheduledUpdateManager<,>))]
-[Collection("Logger")]
+[Collection(LoggerCollection.Name)]
 public class ScheduledUpdateManagerTests
 {
     private static Int32 lastId;

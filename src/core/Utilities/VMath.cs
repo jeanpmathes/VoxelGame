@@ -461,13 +461,13 @@ public static class VMath
             return weight;
         }
 
-        Span<Double> totalWeights = stackalloc Double[]
-        {
+        Span<Double> totalWeights =
+        [
             GetWeight(e00, e00, e10, e01, e11),
             GetWeight(e10, e00, e10, e01, e11),
             GetWeight(e01, e00, e10, e01, e11),
             GetWeight(e11, e00, e10, e01, e11)
-        };
+        ];
 
         var indexOfMax = 0;
 

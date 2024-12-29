@@ -74,7 +74,7 @@ internal class MainMenu : StandardMenu
     {
         TrueRatioImagePanel image = new(display)
         {
-            ImageName = Context.Resources.StartImage,
+            ImageName = Icons.Instance.StartImage,
             Dock = Dock.Fill
         };
 

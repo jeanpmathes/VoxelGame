@@ -240,6 +240,47 @@ public class Image
     }
 
     /// <summary>
+    /// Set the color (RGB components) of all transparent pixels to the average color of all non-transparent pixels.
+    /// The transparency of the pixels will be kept.
+    /// </summary>
+    public void RecolorTransparency()
+    {
+        Int64 r = 0;
+        Int64 g = 0;
+        Int64 b = 0;
+        Int64 count = 0;
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            Color pixel = GetPixel(x, y);
+
+            if (pixel.A == 0) continue;
+
+            r += pixel.R * pixel.R;
+            g += pixel.G * pixel.G;
+            b += pixel.B * pixel.B;
+
+            count++;
+        }
+
+        Int32 GetAverage(Int64 sum)
+        {
+            return (Int32) Math.Sqrt(sum / (Double) count);
+        }
+
+        Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            if (GetPixel(x, y).A != 0) continue;
+
+            SetPixel(x, y, average);
+        }
+    }
+
+    /// <summary>
     ///     Gets the pixel at given position.
     /// </summary>
     /// <param name="x">The x coordinate of the pixel.</param>
