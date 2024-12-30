@@ -23,7 +23,7 @@ public sealed class CommandLoader : IResourceLoader
     /// <inheritdoc />
     public IEnumerable<IResource> Load(IResourceContext context)
     {
-        CommandInvoker invoker = new(context);
+        CommandInvoker invoker = new();
 
         invoker.AddParser(Parser.BuildParser(_ => true, s => s));
 

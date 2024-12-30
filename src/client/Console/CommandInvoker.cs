@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 
@@ -20,24 +21,13 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 public sealed partial class CommandInvoker : IResource
 {
-    private readonly IResourceContext loadingContext;
-
-    private readonly Dictionary<String, CommandGroup> commandGroups = new();
-    private readonly Dictionary<Type, Parser> parsers = new();
-
-    /// <summary>
-    ///     Create a new command invoker.
-    /// </summary>
-    /// <param name="loadingContext">The context in which commands and parsers are loaded.</param>
-    public CommandInvoker(IResourceContext loadingContext)
-    {
-        this.loadingContext = loadingContext;
-    }
+    private readonly CommandLibrary library = new();
+    private readonly ArgumentResolver resolver = new();
 
     /// <summary>
     ///     Get the names of all registered commands.
     /// </summary>
-    public IEnumerable<String> CommandNames => commandGroups.Keys;
+    public IEnumerable<String> CommandNames => library.Names;
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<CommandInvoker>("Default");
@@ -60,51 +50,16 @@ public sealed partial class CommandInvoker : IResource
     /// </summary>
     public event EventHandler? CommandsUpdated;
 
-    /// <summary>
-    ///     Get the help text for a command.
-    /// </summary>
-    /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
-    /// <returns>The help text.</returns>
+    /// <inheritdoc cref="CommandLibrary.GetHelpText" />
     public String GetCommandHelpText(String commandName)
     {
-        return commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup)
-            ? commandGroup.Command.HelpText
-            : throw new ArgumentException("Command not found.");
+        return library.GetHelpText(commandName);
     }
 
-    /// <summary>
-    ///     Get all signatures for a command.
-    /// </summary>
-    /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
-    /// <returns>All signatures for the command.</returns>
+    /// <inheritdoc cref="CommandLibrary.GetSignatures" />
     public IEnumerable<String> GetCommandSignatures(String commandName)
     {
-        if (!commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
-            throw new ArgumentException("Command not found.");
-
-        return GetCommandSignatures(commandName, commandGroup);
-    }
-
-    private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
-    {
-        foreach (MethodInfo commandOverload in commandGroup.Overloads)
-        {
-            StringBuilder signature = new();
-            signature.Append(commandName);
-
-            foreach (ParameterInfo parameter in commandOverload.GetParameters())
-            {
-                signature.Append(value: ' ');
-
-                signature.Append(value: '<');
-                signature.Append(parameter.Name);
-                signature.Append(" : ");
-                signature.Append(parameter.ParameterType.Name);
-                signature.Append(value: '>');
-            }
-
-            yield return signature.ToString();
-        }
+        return library.GetSignatures(commandName);
     }
 
     /// <summary>
@@ -113,7 +68,7 @@ public sealed partial class CommandInvoker : IResource
     /// <param name="parser">The parser to add. Will replace any existing parser for the same type.</param>
     public void AddParser(Parser parser)
     {
-        parsers[parser.ParsedType] = parser;
+        resolver.AddParser(parser);
     }
 
     /// <summary>
@@ -125,8 +80,7 @@ public sealed partial class CommandInvoker : IResource
 
         var count = 0;
 
-        foreach (Type type in Assembly.GetCallingAssembly().GetTypes()
-                     .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(Command))))
+        foreach (Type type in Reflections.GetSubclasses<Command>())
         {
             ICommand? command = null;
 
@@ -141,9 +95,8 @@ public sealed partial class CommandInvoker : IResource
 
             if (command == null) continue;
 
-            List<MethodInfo> overloads = GetOverloads(type);
+            library.AddCommand(command);
 
-            commandGroups[command.Name] = new CommandGroup(command, overloads);
             LogFoundCommand(logger, command.Name);
             count++;
         }
@@ -158,8 +111,7 @@ public sealed partial class CommandInvoker : IResource
     /// <param name="command">The command to add.</param>
     public void AddCommand(ICommand command)
     {
-        List<MethodInfo> overloads = GetOverloads(command.GetType());
-        commandGroups[command.Name] = new CommandGroup(command, overloads);
+        library.AddCommand(command);
 
         LogAddedCommand(logger, command.Name);
         CommandsUpdated?.Invoke(this, EventArgs.Empty);
@@ -174,13 +126,13 @@ public sealed partial class CommandInvoker : IResource
     {
         (String commandName, String[] args) = ParseInput(input);
 
-        if (commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
+        if (library.GetCommand(commandName) is {command: var command, overloads: var overloads})
         {
-            MethodInfo? method = ResolveOverload(commandGroup.Overloads, args);
+            MethodInfo? method = resolver.ResolveOverload(overloads, args);
 
             if (method != null)
             {
-                Invoke(commandGroup.Command, method, args, context);
+                Invoke(command, method, args, context);
             }
             else
             {
@@ -245,49 +197,11 @@ public sealed partial class CommandInvoker : IResource
         return (commandName.ToString(), args.Select(a => a.ToString()).ToArray());
     }
 
-    private MethodInfo? ResolveOverload(List<MethodInfo> overloads, IReadOnlyList<String> args)
-    {
-        foreach (MethodInfo method in overloads)
-        {
-            ParameterInfo[] parameters = method.GetParameters();
-
-            if (parameters.Length != args.Count) continue;
-
-            var isValid = true;
-
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
-                {
-                    isValid = false;
-
-                    break;
-                }
-
-                if (!parser.CanParse(args[i]))
-                {
-                    isValid = false;
-
-                    break;
-                }
-            }
-
-            if (isValid) return method;
-        }
-
-        return null;
-    }
-
     private void Invoke(ICommand command, MethodBase method, IReadOnlyList<String> args, Context context)
     {
-        ParameterInfo[] parameters = method.GetParameters();
-
         try
         {
-            var parsedArgs = new Object[args.Count];
-
-            for (var i = 0; i < args.Count; i++)
-                parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
+            Object[] parsedArgs = resolver.ParseArguments(method, args);
 
             command.SetContext(context);
             method.Invoke(command, parsedArgs);
@@ -299,14 +213,6 @@ public sealed partial class CommandInvoker : IResource
             LogErrorInvokingCommand(logger, e.InnerException, method.Name);
         }
     }
-
-    private static List<MethodInfo> GetOverloads(Type type)
-    {
-        return type.GetMethods()
-            .Where(m => m.Name.Equals("Invoke", StringComparison.InvariantCulture) && !m.IsStatic).ToList();
-    }
-
-    private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
 
     #region LOGGING
 

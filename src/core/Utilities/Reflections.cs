@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace VoxelGame.Core.Utilities;
@@ -87,5 +89,43 @@ public static class Reflections
         return instance == null
             ? $"{prefix}::{GetLongName(type)}"
             : $"{prefix}::{GetLongName(type)}::{instance}";
+    }
+
+    /// <summary>
+    ///     Get all properties of an object that have a certain type.
+    /// </summary>
+    /// <typeparam name="T">The type of the properties.</typeparam>
+    /// <param name="target">The object to get the properties from.</param>
+    /// <returns>The found properties.</returns>
+    public static IEnumerable<PropertyInfo> GetPropertiesOfType<T>(Object target) where T : class
+    {
+        Type filterType = typeof(T);
+
+        return target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .Where(info => info.PropertyType == filterType);
+    }
+
+    /// <summary>
+    ///     Get all overloads of a method with a certain name.
+    /// </summary>
+    /// <param name="type">The type to get the methods from.</param>
+    /// <param name="name">The name of the method.</param>
+    /// <returns>All overloads of the method.</returns>
+    public static IEnumerable<MethodInfo> GetMethodOverloads(Type type, String name)
+    {
+        return type.GetMethods()
+            .Where(m => m.Name.Equals(name, StringComparison.InvariantCulture) && !m.IsStatic);
+    }
+
+
+    /// <summary>
+    ///     Get all subclasses of a type.
+    /// </summary>
+    /// <typeparam name="T">The type to get the subclasses of.</typeparam>
+    /// <returns>All concrete subclasses of the type.</returns>
+    public static IEnumerable<Object> GetSubclasses<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes())
+            .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(T)));
     }
 }
