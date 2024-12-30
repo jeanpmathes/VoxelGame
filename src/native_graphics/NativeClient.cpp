@@ -58,7 +58,7 @@ void NativeClient::OnPostInitialization()
     m_uploader = nullptr;
 }
 
-void NativeClient::OnInitializationComplete() { m_space->SpoolUp(); }
+void NativeClient::OnInitializationComplete() { if (m_space) m_space->SpoolUp(); }
 
 void NativeClient::LoadDevice()
 {

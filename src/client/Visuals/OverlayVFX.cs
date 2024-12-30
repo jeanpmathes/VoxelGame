@@ -59,7 +59,7 @@ public sealed class OverlayVFX : VFX
     /// <param name="factory">The factory to create the pipeline.</param>
     /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
     /// <returns>The new VFX.</returns>
-    public static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, EngineLoader.PipelineFactory factory, (TextureArray, TextureArray) textures)
+    internal static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, (TextureArray, TextureArray) textures)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = factory.LoadPipelineWithBuffer<Data>("Overlay", new ShaderPresets.Draw2D(Filter.Closest));

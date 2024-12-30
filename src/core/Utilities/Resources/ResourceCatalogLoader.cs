@@ -120,9 +120,11 @@ public sealed partial class ResourceCatalogLoader
         Group currentReport = new(entry.Name);
         Timer? currentTimer = logger.BeginTimedSubScoped(entry.Name, timer);
 
+        context.SetCurrentState(currentHierarchy, currentReport);
+
         entry.Enter(context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries);
 
-        LoadResources(resources, currentHierarchy, currentReport, context);
+        LoadResources(resources, currentHierarchy, context);
         LoadCatalogEntries(entries, currentHierarchy, currentReport, currentTimer, context);
 
         context.AddCatalogEntry(entry);
@@ -137,15 +139,11 @@ public sealed partial class ResourceCatalogLoader
 
     private static void LoadCatalogEntries(IEnumerable<ICatalogEntry> entries, String hierarchy, Group report, Timer? timer, Context context)
     {
-        context.SetCurrentState(hierarchy, report);
-
         foreach (ICatalogEntry entry in entries) LoadCatalogEntry(entry, hierarchy, report, timer, context);
     }
 
-    private static void LoadResources(IEnumerable<IResource> resources, String hierarchy, Group report, Context context)
+    private static void LoadResources(IEnumerable<IResource> resources, String hierarchy, Context context)
     {
-        context.SetCurrentState(hierarchy, report);
-
         foreach (IResource resource in resources)
         {
             ResourceIssue? error = resource.Issue;
@@ -200,8 +198,6 @@ public sealed partial class ResourceCatalogLoader
 
         public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
-            Debug.Assert(message[^1] is not '.' and not '!' and not '?' && message != exception?.Message);
-
             currentReport!.Add(new Error(Reflections.GetLongName(source.GetType()), message, isCritical: false));
 
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
@@ -220,7 +216,7 @@ public sealed partial class ResourceCatalogLoader
             {
                 String message = errorMessage ?? error!.Message;
 
-                currentReport!.Add(new Error($"{identifier}", message, isCritical: false));
+                currentReport!.Add(new Error($"{identifier}", "Discovered sub-resource failed to load, see log for details", isCritical: false));
 
                 LogWarningForSubResource(logger, error, currentHierarchy!, type, identifier, message);
             }
@@ -274,13 +270,11 @@ public sealed partial class ResourceCatalogLoader
 
         public void ReportIssue(IResource resource, ResourceIssue issue)
         {
-            Debug.Assert(issue.Message[^1] is not '.' and not '!' and not '?' || issue.Message == issue.Exception?.Message);
-
             if (issue.Level == Level.Error)
             {
                 currentReport!.Add(new Error(
                     $"{resource.Identifier}",
-                    $"{resource.Type} mandatory resource failed to load: {issue.Message}",
+                    $"{resource.Type} mandatory resource failed to load, see log for details",
                     isCritical: true));
 
                 LogFailedToLoadMandatoryResource(logger, issue.Exception, currentHierarchy!, resource.Type, resource.Identifier, issue.Message);
@@ -291,7 +285,7 @@ public sealed partial class ResourceCatalogLoader
             {
                 currentReport!.Add(new Error(
                     $"{resource.Identifier}",
-                    $"{resource.Type} resource failed to load: {issue.Message}",
+                    $"{resource.Type} resource failed to load, see log for details",
                     isCritical: false));
 
                 LogFailedToLoadResource(logger, issue.Exception, currentHierarchy!, resource.Type, resource.Identifier, issue.Message);

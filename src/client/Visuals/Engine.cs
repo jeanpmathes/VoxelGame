@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
 
@@ -18,6 +20,11 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class Engine : IResource
 {
+    /// <summary>
+    ///     The shader directory.
+    /// </summary>
+    public static readonly DirectoryInfo ShaderDirectory = FileSystem.GetResourceDirectory("Shaders");
+
     private readonly List<IDisposable> bindings = [];
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
 

@@ -86,7 +86,7 @@ internal class StartUI : ControlBase
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            MinimumSize = new Size(width: 1000, height: 1000)
+            MinimumSize = new Size(width: 1200, height: 1000)
         };
 
         PropertyBasedTreeControl tree = new(window, resources);

@@ -211,7 +211,7 @@ public class PipelineBuilder
             }
         });
 
-        if (!anyError)
+        if (anyError)
             return ResourceIssue.FromMessage(Level.Error, errors.ToString());
 
         foreach (ShaderFile shader in shaderFiles)

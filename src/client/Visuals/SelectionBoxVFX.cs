@@ -58,7 +58,7 @@ public sealed class SelectionBoxVFX : VFX
     /// <summary>
     ///     Create a new <see cref="SelectionBoxVFX" />.
     /// </summary>
-    public static SelectionBoxVFX? Create(VoxelGame.Graphics.Core.Client client, EngineLoader.PipelineFactory factory)
+    internal static SelectionBoxVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
             = factory.LoadPipelineWithBuffer<Data>("Selection", new ShaderPresets.SpatialEffect(Topology.Line));

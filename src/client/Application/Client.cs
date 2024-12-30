@@ -97,7 +97,13 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
             (UIResources, ResourceLoadingIssueReport? uiIssues) = loader.Load(new UserInterfaceRequirements(), timer);
 
             if (uiIssues is {AnyErrors: true})
-                throw new InvalidOperationException("UI could not be loaded, aborting.");
+            {
+                LogFailedToLoadUIResources(logger);
+
+                Close();
+
+                return;
+            }
 
             loader.AddToEnvironment(UIResources);
 
@@ -225,6 +231,9 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     [LoggerMessage(EventId = LogID.Client + 3, Level = LogLevel.Debug, Message = "Texture/Block ratio: {Ratio:F02}")]
     private static partial void LogTextureBlockRatio(ILogger logger, Double ratio);
+
+    [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Critical, Message = "Failed to load required UI resources, exiting")]
+    private static partial void LogFailedToLoadUIResources(ILogger logger);
 
     #endregion
 

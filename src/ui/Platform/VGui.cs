@@ -26,12 +26,14 @@ namespace VoxelGame.UI.Platform;
 
 internal sealed class VGui : IGwenGui
 {
-    private readonly List<SkinBase> skins = new();
-    private List<Action> inputEvents = new();
-    private Canvas canvas = null!;
+    private readonly List<SkinBase> skins = [];
+
+    private List<Action> inputEvents = [];
 
     private InputTranslator input = null!;
     private DirectXRenderer renderer = null!;
+
+    private Canvas canvas = null!;
 
     internal VGui(Client parent, GwenGuiSettings settings)
     {

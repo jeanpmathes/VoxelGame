@@ -30,7 +30,7 @@ public class Textures : ResourceCatalog
     /// <summary>
     ///     Create an instance of the catalog.
     /// </summary>
-    public Textures() : base([CreateBlockTextureLoader(), CreateFluidTextureLoader()]) {}
+    public Textures() : base([CreateBlockTextureLoader(), CreateFluidTextureLoader(), new TextureInfoProvider()]) {}
 
     private static TextureBundleLoader CreateBlockTextureLoader()
     {

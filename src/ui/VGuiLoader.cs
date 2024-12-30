@@ -86,11 +86,11 @@ public sealed class VGuiLoader : IResourceLoader
 
             ReportSkinLoading(skinFiles, skinLoadingErrors, context);
             ReportTextureLoading(textures, textureLoadingErrors, context);
-            ReportShaderLoading(shaderLoadingError, shader, context);
+            IResource? missing = ReportShaderLoading(shaderLoadingError, shader, context);
+
+            resources.Add(missing ?? gui);
 
             Modals.SetUpLanguage();
-
-            resources.Add(gui);
 
             return resources;
         });
@@ -117,10 +117,13 @@ public sealed class VGuiLoader : IResourceLoader
         return textures;
     }
 
-    private static void ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, IResourceContext context)
+    private static IResource? ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, IResourceContext context)
     {
-        if (shaderLoadingError != null)
-            context.ReportDiscovery(ResourceTypes.Shader, RID.Path(shader), errorMessage: shaderLoadingError);
+        context.ReportDiscovery(ResourceTypes.Shader, RID.Path(shader), errorMessage: shaderLoadingError);
+
+        return shaderLoadingError != null
+            ? new MissingResource(ResourceTypes.Shader, RID.Path(shader), ResourceIssue.FromMessage(Level.Error, shaderLoadingError))
+            : null;
     }
 
     private static void ReportSkinLoading(List<FileInfo> skinFiles, IReadOnlyDictionary<FileInfo, Exception> skinLoadingErrors, IResourceContext context)
