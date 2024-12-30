@@ -123,7 +123,8 @@ public class TypeKeyDictionary<TKey> where TKey : struct
     /// <param name="source">The source dictionary to add objects from.</param>
     public void AddAll(TypeKeyDictionary<TKey> source)
     {
-        Entry root = source.storage[typeof(Object)];
+        if (!source.storage.TryGetValue(typeof(Object), out Entry? root))
+            return;
 
         foreach (Object obj in root.Unmapped) Add(obj, key: null);
 
