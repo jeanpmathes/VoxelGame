@@ -184,7 +184,7 @@ namespace vg
         {
             bool const inner = decode::GetNormalInvertedFlag(info.data);
 
-            float3 const dirToLight = native::spatial::global.lightDir * -1.0f;
+            float3 const dirToLight = native::spatial::global.lightDir * -1.0f; // Normalized.
             float3 const normal     = info.normal * (inner ? -1.0f : 1.0f);
 
             float3 color = baseColor;
@@ -218,7 +218,7 @@ namespace vg
                     intensity = lerp(
                         native::spatial::global.minShadow,
                         native::spatial::global.minLight,
-                        clamp(energy * -1.0f, 0.0f, 1.0f));
+                        clamp(abs(energy), 0.0f, 1.0f));
             }
             else intensity = 1.0f;
 
