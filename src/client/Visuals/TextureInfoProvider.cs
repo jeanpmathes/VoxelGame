@@ -19,11 +19,6 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColorProvider
 {
-    /// <summary>
-    ///     Use this texture name to get the fallback texture without causing a warning.
-    /// </summary>
-    private const String MissingTextureName = "missing_texture";
-
     private const Int32 MissingTextureIndex = 0;
 
     private static readonly Color fallbackColor = Color.Black;
@@ -70,9 +65,9 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
     }
 
     /// <inheritdoc />
-    public Int32 GetTextureIndex(String name, Boolean isBlock)
+    public Int32 GetTextureIndex(TID identifier)
     {
-        if (name == MissingTextureName)
+        if (identifier.IsMissingTexture)
             return MissingTextureIndex;
 
         if (blockTextures == null || fluidTextures == null)
@@ -85,12 +80,12 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
             return MissingTextureIndex;
         }
 
-        TextureBundle bundle = isBlock ? blockTextures : fluidTextures;
+        TextureBundle bundle = identifier.IsBlock ? blockTextures : fluidTextures;
 
-        if (bundle.TryGetTextureIndex(name, out Int32 value))
+        if (bundle.TryGetTextureIndex(identifier.Key, out Int32 value))
             return value;
 
-        Context.ReportWarning(this, $"Texture '{name}' not found, using fallback instead");
+        Context.ReportWarning(this, $"Texture '{identifier}' not found, using fallback instead");
 
         return MissingTextureIndex;
     }

@@ -28,7 +28,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly String fruitID;
-    private readonly String texture;
+    private readonly TID texture;
 
     private readonly List<BoundingVolume> volumes = [];
     private readonly List<BlockMesh> meshes = [];
@@ -36,7 +36,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     [SuppressMessage("Usage", "CA2213", Justification = IResource.ResourcesOwnedByContext)]
     private Block fruit = null!;
 
-    internal FruitCropBlock(String name, String namedID, String texture, String fruit) :
+    internal FruitCropBlock(String name, String namedID, TID texture, String fruit) :
         base(
             name,
             namedID,
@@ -66,7 +66,7 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     {
         fruit = Elements.Blocks.Instance.SafelyTranslateNamedID(fruitID);
 
-        Int32 baseTextureIndex = textureIndexProvider.GetTextureIndex(texture, isBlock: true);
+        Int32 baseTextureIndex = textureIndexProvider.GetTextureIndex(texture);
 
         (Int32 dead, Int32 initial, Int32 last) textureIndices =
         (

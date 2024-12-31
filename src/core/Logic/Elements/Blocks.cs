@@ -119,8 +119,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Grass { get; } = registry.Register(new GrassBlock(
         Language.Grass,
         nameof(Grass),
-        TextureLayout.UniqueColumn("grass_side", "dirt", "grass"),
-        TextureLayout.UniqueColumn("grass_side_wet", "dirt_wet", "grass_wet")));
+        TextureLayout.UniqueColumn(TID.Block("grass_side"), TID.Block("dirt"), TID.Block("grass")),
+        TextureLayout.UniqueColumn(TID.Block("grass_side_wet"), TID.Block("dirt_wet"), TID.Block("grass_wet"))));
 
     /// <summary>
     ///     Grass that was burned. Water can burn the ash away.
@@ -128,7 +128,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GrassBurned { get; } = registry.Register(new CoveredGrassSpreadableBlock(
         Language.AshCoveredDirt,
         nameof(GrassBurned),
-        TextureLayout.UniqueColumn("ash_side", "dirt", "ash"),
+        TextureLayout.UniqueColumn(TID.Block("ash_side"), TID.Block("dirt"), TID.Block("ash")),
         hasNeutralTint: false));
 
     /// <summary>
@@ -137,8 +137,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Dirt { get; } = registry.Register(new DirtBlock(
         Language.Dirt,
         nameof(Dirt),
-        TextureLayout.Uniform("dirt"),
-        TextureLayout.Uniform("dirt_wet")));
+        TextureLayout.Uniform(TID.Block("dirt")),
+        TextureLayout.Uniform(TID.Block("dirt_wet"))));
 
     /// <summary>
     ///     Tilled dirt that allows many plants to grow.
@@ -147,8 +147,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Farmland { get; } = registry.Register(new InsetDirtBlock(
         Language.Farmland,
         nameof(Farmland),
-        TextureLayout.UniqueTop("dirt", "farmland"),
-        TextureLayout.UniqueTop("dirt_wet", "farmland_wet"),
+        TextureLayout.UniqueTop(TID.Block("dirt"), TID.Block("farmland")),
+        TextureLayout.UniqueTop(TID.Block("dirt_wet"), TID.Block("farmland_wet")),
         supportsFullGrowth: true));
 
     /// <summary>
@@ -157,7 +157,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallGrass { get; } = registry.Register(new CrossPlantBlock(
         Language.TallGrass,
         nameof(TallGrass),
-        "tall_grass",
+        TID.Block("tall_grass"),
         BlockFlags.Replaceable,
         BoundingVolume.CrossBlock));
 
@@ -167,8 +167,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block VeryTallGrass { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.VeryTallGrass,
         nameof(VeryTallGrass),
-        "very_tall_grass",
-        topTexOffset: 1,
+        TID.Block("very_tall_grass", offset: 0),
+        TID.Block("very_tall_grass", offset: 1),
         BoundingVolume.CrossBlock));
 
     /// <summary>
@@ -177,7 +177,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Flower { get; } = registry.Register(new CrossPlantBlock(
         Language.Flower,
         nameof(Flower),
-        "flower",
+        TID.Block("flower"),
         BlockFlags.Replaceable,
         new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f))));
 
@@ -187,8 +187,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.TallFlower,
         nameof(TallFlower),
-        "tall_flower",
-        topTexOffset: 1,
+        TID.Block("tall_flower", offset: 0),
+        TID.Block("tall_flower", offset: 1),
         BoundingVolume.CrossBlock));
 
     /// <summary>
@@ -197,7 +197,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Mud { get; } = registry.Register(new MudBlock(
         Language.Mud,
         nameof(Mud),
-        TextureLayout.Uniform("mud"),
+        TextureLayout.Uniform(TID.Block("mud")),
         maxVelocity: 0.1f));
 
     /// <summary>
@@ -207,7 +207,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Pumice,
         nameof(Pumice),
         BlockFlags.Basic,
-        TextureLayout.Uniform("pumice")));
+        TextureLayout.Uniform(TID.Block("pumice"))));
 
     /// <summary>
     ///     Obsidian is a dark type of stone, that forms from lava.
@@ -216,7 +216,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Obsidian,
         nameof(Obsidian),
         BlockFlags.Basic,
-        TextureLayout.Uniform("obsidian")));
+        TextureLayout.Uniform(TID.Block("obsidian"))));
 
     /// <summary>
     ///     Snow covers the ground, and can have different heights.
@@ -224,7 +224,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Snow { get; } = registry.Register(new SnowBlock(
         Language.Snow,
         nameof(Snow),
-        TextureLayout.Uniform("snow")));
+        TextureLayout.Uniform(TID.Block("snow"))));
 
     /// <summary>
     ///     Leaves are transparent parts of the tree. They are flammable.
@@ -238,7 +238,7 @@ public sealed partial class Blocks(Registry<Block> registry)
             IsSolid = true,
             RenderFaceAtNonOpaques = true
         },
-        TextureLayout.Uniform("leaves")));
+        TextureLayout.Uniform(TID.Block("leaves"))));
 
     /// <summary>
     ///     Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
@@ -247,7 +247,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Log,
         nameof(Log),
         BlockFlags.Basic,
-        TextureLayout.Column("log:0", "log:1")));
+        TextureLayout.Column(TID.Block("log", offset: 0), TID.Block("log", offset: 1))));
 
     /// <summary>
     ///     Processed wood that can be used as construction material. It is flammable.
@@ -255,7 +255,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Wood { get; } = registry.Register(new OrganicConstructionBlock(
         Language.Wood,
         nameof(Wood),
-        TextureLayout.Uniform("wood")));
+        TextureLayout.Uniform(TID.Block("wood"))));
 
     /// <summary>
     ///     Sand naturally forms and allows water to flow through it.
@@ -263,7 +263,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Sand { get; } = registry.Register(new PermeableBlock(
         Language.Sand,
         nameof(Sand),
-        TextureLayout.Uniform("sand")));
+        TextureLayout.Uniform(TID.Block("sand"))));
 
     /// <summary>
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
@@ -271,7 +271,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Gravel { get; } = registry.Register(new PermeableBlock(
         Language.Gravel,
         nameof(Gravel),
-        TextureLayout.Uniform("gravel")));
+        TextureLayout.Uniform(TID.Block("gravel"))));
 
     /// <summary>
     ///     Ahs is the remainder of burning processes.
@@ -280,7 +280,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Ash,
         nameof(Ash),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ash")));
+        TextureLayout.Uniform(TID.Block("ash"))));
 
     #endregion NATURAL BLOCKS
 
@@ -292,7 +292,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Cactus { get; } = registry.Register(new GrowingBlock(
         Language.Cactus,
         nameof(Cactus),
-        TextureLayout.Column("cactus:0", "cactus:1"),
+        TextureLayout.Column(TID.Block("cactus", offset: 0), TID.Block("cactus", offset: 1)),
         nameof(Sand),
         maxHeight: 4));
 
@@ -303,7 +303,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Pumpkin,
         nameof(Pumpkin),
         BlockFlags.Basic,
-        TextureLayout.Column("pumpkin:0", "pumpkin:1")));
+        TextureLayout.Column(TID.Block("pumpkin", offset: 0), TID.Block("pumpkin", offset: 1))));
 
     /// <summary>
     ///     Melons are the fruit of the melon plant. They have to be placed on solid ground.
@@ -312,7 +312,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Melon,
         nameof(Melon),
         BlockFlags.Basic,
-        TextureLayout.Column("melon:0", "melon:1")));
+        TextureLayout.Column(TID.Block("melon", offset: 0), TID.Block("melon", offset: 1))));
 
     /// <summary>
     ///     Spiderwebs slow the movement of entities and can be used to trap enemies.
@@ -320,7 +320,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Spiderweb { get; } = registry.Register(new SpiderWebBlock(
         Language.SpiderWeb,
         nameof(Spiderweb),
-        "spider_web",
+        TID.Block("spider_web"),
         maxVelocity: 0.01f));
 
     /// <summary>
@@ -329,7 +329,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Vines { get; } = registry.Register(new GrowingFlatBlock(
         Language.Vines,
         nameof(Vines),
-        "vines",
+        TID.Block("vines"),
         climbingVelocity: 2f,
         slidingVelocity: 1f));
 
@@ -339,44 +339,43 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Flax { get; } = registry.Register(new CropBlock(
         Language.Flax,
         nameof(Flax),
-        "flax",
-        second: 0,
-        third: 1,
-        fourth: 2,
-        fifth: 3,
-        sixth: 3,
-        final: 4,
-        dead: 5));
+        TID.Block("flax", offset: 5),
+        [
+            (TID.Block("flax", offset: 0), 2),
+            (TID.Block("flax", offset: 1), 1),
+            (TID.Block("flax", offset: 2), 1),
+            (TID.Block("flax", offset: 3), 2),
+            (TID.Block("flax", offset: 4), 1)
+        ]));
 
     /// <summary>
-    ///     Potatoes are a crop plant that grows on farmland. They requires water to fully grow.
+    ///     Potatoes are a crop plant that grows on farmland. They require water to fully grow.
     /// </summary>
     public Block Potatoes { get; } = registry.Register(new CropBlock(
         Language.Potatoes,
         nameof(Potatoes),
-        "potato",
-        second: 1,
-        third: 1,
-        fourth: 2,
-        fifth: 2,
-        sixth: 3,
-        final: 4,
-        dead: 5));
+        TID.Block("potato", offset: 5),
+        [
+            (TID.Block("potato", offset: 0), 1),
+            (TID.Block("potato", offset: 1), 2),
+            (TID.Block("potato", offset: 2), 2),
+            (TID.Block("potato", offset: 3), 1),
+            (TID.Block("potato", offset: 4), 1)
+        ]));
 
     /// <summary>
-    ///     Onions are a crop plant that grows on farmland. They requires water to fully grow.
+    ///     Onions are a crop plant that grows on farmland. They require water to fully grow.
     /// </summary>
     public Block Onions { get; } = registry.Register(new CropBlock(
         Language.Onions,
         nameof(Onions),
-        "onion",
-        second: 0,
-        third: 1,
-        fourth: 1,
-        fifth: 2,
-        sixth: 2,
-        final: 3,
-        dead: 4));
+        TID.Block("onion", offset: 4),
+        [
+            (TID.Block("onion", offset: 0), 2),
+            (TID.Block("onion", offset: 1), 2),
+            (TID.Block("onion", offset: 2), 2),
+            (TID.Block("onion", offset: 3), 1)
+        ]));
 
     /// <summary>
     ///     Wheat is a crop plant that grows on farmland. It requires water to fully grow.
@@ -384,14 +383,13 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Wheat { get; } = registry.Register(new CropBlock(
         Language.Wheat,
         nameof(Wheat),
-        "wheat",
-        second: 0,
-        third: 1,
-        fourth: 1,
-        fifth: 2,
-        sixth: 2,
-        final: 3,
-        dead: 4));
+        TID.Block("wheat", offset: 4),
+        [
+            (TID.Block("wheat", offset: 0), 2),
+            (TID.Block("wheat", offset: 1), 2),
+            (TID.Block("wheat", offset: 2), 2),
+            (TID.Block("wheat", offset: 3), 1)
+        ]));
 
     /// <summary>
     ///     Maize is a crop plant that grows on farmland.
@@ -400,15 +398,16 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Maize { get; } = registry.Register(new DoubleCropBlock(
         Language.Maize,
         nameof(Maize),
-        "maize",
-        dead: 0,
-        first: 1,
-        second: 2,
-        third: 2,
-        (3, 6),
-        (3, 6),
-        (4, 7),
-        (5, 8)));
+        TID.Block("maize", offset: 0),
+        [
+            (TID.Block("maize", offset: 1), 1),
+            (TID.Block("maize", offset: 2), 2)
+        ],
+        [
+            (TID.Block("maize", offset: 3), TID.Block("maize", offset: 6), 2),
+            (TID.Block("maize", offset: 4), TID.Block("maize", offset: 7), 1),
+            (TID.Block("maize", offset: 5), TID.Block("maize", offset: 8), 1)
+        ]));
 
     /// <summary>
     ///     The pumpkin plant grows pumpkin fruits.
@@ -416,7 +415,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumpkinPlant { get; } = registry.Register(new FruitCropBlock(
         Language.PumpkinPlant,
         nameof(PumpkinPlant),
-        "pumpkin_plant",
+        TID.Block("pumpkin_plant"),
         nameof(Pumpkin)));
 
     /// <summary>
@@ -425,7 +424,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MelonPlant { get; } = registry.Register(new FruitCropBlock(
         Language.MelonPlant,
         nameof(MelonPlant),
-        "melon_plant",
+        TID.Block("melon_plant"),
         nameof(Melon)));
 
     #endregion PLANT BLOCKS
@@ -438,7 +437,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Glass { get; } = registry.Register(new GlassBlock(
         Language.Glass,
         nameof(Glass),
-        TextureLayout.Uniform("glass")));
+        TextureLayout.Uniform(TID.Block("glass"))));
 
     /// <summary>
     ///     Tiled glass is like glass, but made out of four tiles.
@@ -446,7 +445,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GlassTiled { get; } = registry.Register(new GlassBlock(
         Language.TiledGlass,
         nameof(GlassTiled),
-        TextureLayout.Uniform("glass_tiled")));
+        TextureLayout.Uniform(TID.Block("glass_tiled"))));
 
     /// <summary>
     ///     The steel block is a metal construction block.
@@ -454,7 +453,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Steel { get; } = registry.Register(new ConstructionBlock(
         Language.Steel,
         nameof(Steel),
-        TextureLayout.Uniform("steel")));
+        TextureLayout.Uniform(TID.Block("steel"))));
 
     /// <summary>
     ///     A ladder allows climbing up and down.
@@ -462,7 +461,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Ladder { get; } = registry.Register(new FlatBlock(
         Language.Ladder,
         nameof(Ladder),
-        "ladder",
+        TID.Block("ladder"),
         climbingVelocity: 3f,
         slidingVelocity: 1f));
 
@@ -472,7 +471,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TilesSmall { get; } = registry.Register(new ConstructionBlock(
         Language.SmallTiles,
         nameof(TilesSmall),
-        TextureLayout.Uniform("small_tiles")));
+        TextureLayout.Uniform(TID.Block("small_tiles"))));
 
     /// <summary>
     ///     Large tiles for construction of floors and walls.
@@ -480,7 +479,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TilesLarge { get; } = registry.Register(new ConstructionBlock(
         Language.LargeTiles,
         nameof(TilesLarge),
-        TextureLayout.Uniform("large_tiles")));
+        TextureLayout.Uniform(TID.Block("large_tiles"))));
 
     /// <summary>
     ///     Black checkerboard tiles come in different colors.
@@ -489,7 +488,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.CheckerboardTilesBlack,
         nameof(TilesCheckerboardBlack),
         BlockFlags.Basic,
-        TextureLayout.Uniform("checkerboard_tiles_black")));
+        TextureLayout.Uniform(TID.Block("checkerboard_tiles_black"))));
 
     /// <summary>
     ///     White checkerboard tiles come in different colors.
@@ -498,7 +497,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.CheckerboardTilesWhite,
         nameof(TilesCheckerboardWhite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("checkerboard_tiles_white")));
+        TextureLayout.Uniform(TID.Block("checkerboard_tiles_white"))));
 
     /// <summary>
     ///     Clay bricks, placed as a block and connected with mortar.
@@ -507,7 +506,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ClayBricks { get; } = registry.Register(new ConstructionBlock(
         Language.ClayBricks,
         nameof(ClayBricks),
-        TextureLayout.Uniform("bricks")));
+        TextureLayout.Uniform(TID.Block("bricks"))));
 
     /// <summary>
     ///     Red plastic is a construction material.
@@ -515,7 +514,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block RedPlastic { get; } = registry.Register(new ConstructionBlock(
         Language.RedPlastic,
         nameof(RedPlastic),
-        TextureLayout.Uniform("red_plastic")));
+        TextureLayout.Uniform(TID.Block("red_plastic"))));
 
     /// <summary>
     ///     Concrete is a flexible construction material that can have different heights and colors.
@@ -524,7 +523,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Concrete { get; } = registry.Register(new ConcreteBlock(
         Language.Concrete,
         nameof(Concrete),
-        TextureLayout.Uniform("concrete")));
+        TextureLayout.Uniform(TID.Block("concrete"))));
 
     #endregion BUILDING BLOCKS
 
@@ -552,7 +551,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Wool { get; } = registry.Register(new OrganicTintedBlock(
         Language.Wool,
         nameof(Wool),
-        TextureLayout.Uniform("wool")));
+        TextureLayout.Uniform(TID.Block("wool"))));
 
     /// <summary>
     ///     Decorated wool is similar to wool, decorated with golden ornaments.
@@ -560,7 +559,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block WoolDecorated { get; } = registry.Register(new OrganicTintedBlock(
         Language.WoolDecorated,
         nameof(WoolDecorated),
-        TextureLayout.Uniform("wool_decorated")));
+        TextureLayout.Uniform(TID.Block("wool_decorated"))));
 
     /// <summary>
     ///     Carpets can be used to cover the floor. Their color can be changed.
@@ -616,7 +615,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block FenceWood { get; } = registry.Register(new FenceBlock(
         Language.WoodenFence,
         nameof(FenceWood),
-        "wood",
+        TID.Block("wood"),
         RID.File<BlockModel>("fence_post"),
         RID.File<BlockModel>("fence_extension")));
 
@@ -627,7 +626,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ClayBrickWall { get; } = registry.Register(new WallBlock(
         Language.ClayBrickWall,
         nameof(ClayBrickWall),
-        "bricks",
+        TID.Block("bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -671,8 +670,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block FluidBarrier { get; } = registry.Register(new FluidBarrierBlock(
         Language.Barrier,
         nameof(FluidBarrier),
-        TextureLayout.Uniform("fluid_barrier_closed"),
-        TextureLayout.Uniform("fluid_barrier_open")));
+        TextureLayout.Uniform(TID.Block("fluid_barrier_closed")),
+        TextureLayout.Uniform(TID.Block("fluid_barrier_open"))));
 
     /// <summary>
     ///     The industrial steel pipe can be used to control fluid flow.
@@ -726,7 +725,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Pump,
         nameof(Pump),
         pumpDistance: 16,
-        TextureLayout.Uniform("pump")));
+        TextureLayout.Uniform(TID.Block("pump"))));
 
     #endregion FLUID FLOW BLOCKS
 
@@ -750,7 +749,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.PulsatingBlock,
         nameof(Pulsating),
         BlockFlags.Basic,
-        TextureLayout.Uniform("pulsating"),
+        TextureLayout.Uniform(TID.Block("pulsating")),
         isAnimated: true));
 
     /// <summary>
@@ -759,7 +758,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block EternalFlame { get; } = registry.Register(new EternalFlame(
         Language.EternalFlame,
         nameof(EternalFlame),
-        TextureLayout.Uniform("eternal_flame")));
+        TextureLayout.Uniform(TID.Block("eternal_flame"))));
 
     /// <summary>
     ///     The path is a dirt block with its top layer trampled.
@@ -767,8 +766,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Path { get; } = registry.Register(new InsetDirtBlock(
         Language.Path,
         nameof(Path),
-        TextureLayout.Uniform("dirt"),
-        TextureLayout.Uniform("dirt_wet"),
+        TextureLayout.Uniform(TID.Block("dirt")),
+        TextureLayout.Uniform(TID.Block("dirt_wet")),
         supportsFullGrowth: false));
 
     #endregion SPECIAL BLOCKS
@@ -782,7 +781,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Granite,
         nameof(Granite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("granite")));
+        TextureLayout.Uniform(TID.Block("granite"))));
 
     /// <summary>
     ///     Sandstone is found all over the world and especially in the desert.
@@ -791,7 +790,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Sandstone,
         nameof(Sandstone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("sandstone")));
+        TextureLayout.Uniform(TID.Block("sandstone"))));
 
     /// <summary>
     ///     Limestone is found all over the world and especially in oceans.
@@ -800,7 +799,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Limestone,
         nameof(Limestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("limestone")));
+        TextureLayout.Uniform(TID.Block("limestone"))));
 
     /// <summary>
     ///     Marble is a rarer stone type.
@@ -809,7 +808,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Marble,
         nameof(Marble),
         BlockFlags.Basic,
-        TextureLayout.Uniform("marble")));
+        TextureLayout.Uniform(TID.Block("marble"))));
 
     /// <summary>
     ///     Clay is found beneath the ground and blocks groundwater flow.
@@ -818,7 +817,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Clay,
         nameof(Clay),
         BlockFlags.Basic,
-        TextureLayout.Uniform("clay")));
+        TextureLayout.Uniform(TID.Block("clay"))));
 
     /// <summary>
     ///     Permafrost is a type of soil that is frozen solid.
@@ -827,7 +826,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Permafrost,
         nameof(Permafrost),
         BlockFlags.Basic,
-        TextureLayout.Uniform("permafrost")));
+        TextureLayout.Uniform(TID.Block("permafrost"))));
 
     /// <summary>
     ///     The core of the world, which is found at the lowest level.
@@ -836,7 +835,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Core,
         nameof(Core),
         BlockFlags.Basic,
-        TextureLayout.Uniform("core")));
+        TextureLayout.Uniform(TID.Block("core"))));
 
     /// <summary>
     ///     A block made out of frozen water.
@@ -844,7 +843,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Ice { get; } = registry.Register(new ModifiableHeightBlock(
         Language.Ice,
         nameof(Ice),
-        TextureLayout.Uniform("ice")));
+        TextureLayout.Uniform(TID.Block("ice"))));
 
     /// <summary>
     ///     An error block, used as fallback when structure operations fail.
@@ -853,7 +852,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Error,
         nameof(Error),
         BlockFlags.Basic,
-        TextureLayout.Uniform("missing_texture")));
+        TextureLayout.Uniform(TID.Block("missing_texture"))));
 
     /// <summary>
     ///     Roots grow at the bottom of trees.
@@ -863,15 +862,15 @@ public sealed partial class Blocks(Registry<Block> registry)
         nameof(Roots),
         hasNeutralTint: false,
         BlockFlags.Basic,
-        TextureLayout.Uniform("roots")));
+        TextureLayout.Uniform(TID.Block("roots"))));
 
     /// <summary>
-    ///     Salt is contained in sea water, it becomes usable after the water evaporates.
+    ///     Salt is contained in seawater, it becomes usable after the water evaporates.
     /// </summary>
     public Block Salt { get; } = registry.Register(new SaltBlock(
         Language.Salt,
         nameof(Salt),
-        TextureLayout.Uniform("salt")));
+        TextureLayout.Uniform(TID.Block("salt"))));
 
     /// <summary>
     ///     Worked granite is a processed granite block.
@@ -881,7 +880,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.GraniteWorked,
         nameof(WorkedGranite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("granite_worked")));
+        TextureLayout.Uniform(TID.Block("granite_worked"))));
 
     /// <summary>
     ///     Worked sandstone is a processed sandstone block.
@@ -891,7 +890,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SandstoneWorked,
         nameof(WorkedSandstone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("sandstone_worked")));
+        TextureLayout.Uniform(TID.Block("sandstone_worked"))));
 
     /// <summary>
     ///     Worked limestone is a processed limestone block.
@@ -901,7 +900,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.LimestoneWorked,
         nameof(WorkedLimestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("limestone_worked")));
+        TextureLayout.Uniform(TID.Block("limestone_worked"))));
 
     /// <summary>
     ///     Worked marble is a processed marble block.
@@ -911,7 +910,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.MarbleWorked,
         nameof(WorkedMarble),
         BlockFlags.Basic,
-        TextureLayout.Uniform("marble_worked")));
+        TextureLayout.Uniform(TID.Block("marble_worked"))));
 
     /// <summary>
     ///     Worked pumice is a processed pumice block.
@@ -921,7 +920,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.PumiceWorked,
         nameof(WorkedPumice),
         BlockFlags.Basic,
-        TextureLayout.Uniform("pumice_worked")));
+        TextureLayout.Uniform(TID.Block("pumice_worked"))));
 
     /// <summary>
     ///     Worked obsidian is a processed obsidian block.
@@ -931,7 +930,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.ObsidianWorked,
         nameof(WorkedObsidian),
         BlockFlags.Basic,
-        TextureLayout.Uniform("obsidian_worked")));
+        TextureLayout.Uniform(TID.Block("obsidian_worked"))));
 
     /// <summary>
     ///     Worked granite with decorations carved into one side.
@@ -941,7 +940,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.GraniteDecorated,
         nameof(DecoratedGranite),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("granite_worked_decorated", "granite_worked")));
+        TextureLayout.UniqueFront(TID.Block("granite_worked_decorated"), TID.Block("granite_worked"))));
 
     /// <summary>
     ///     Worked sandstone with decorations carved into one side.
@@ -951,7 +950,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SandstoneDecorated,
         nameof(DecoratedSandstone),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("sandstone_worked_decorated", "sandstone_worked")));
+        TextureLayout.UniqueFront(TID.Block("sandstone_worked_decorated"), TID.Block("sandstone_worked"))));
 
     /// <summary>
     ///     Worked limestone with decorations carved into one side.
@@ -961,7 +960,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.LimestoneDecorated,
         nameof(DecoratedLimestone),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("limestone_worked_decorated", "limestone_worked")));
+        TextureLayout.UniqueFront(TID.Block("limestone_worked_decorated"), TID.Block("limestone_worked"))));
 
     /// <summary>
     ///     Worked marble with decorations carved into one side.
@@ -971,7 +970,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.MarbleDecorated,
         nameof(DecoratedMarble),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("marble_worked_decorated", "marble_worked")));
+        TextureLayout.UniqueFront(TID.Block("marble_worked_decorated"), TID.Block("marble_worked"))));
 
     /// <summary>
     ///     Worked pumice with decorations carved into one side.
@@ -981,7 +980,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.PumiceDecorated,
         nameof(DecoratedPumice),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("pumice_worked_decorated", "pumice_worked")));
+        TextureLayout.UniqueFront(TID.Block("pumice_worked_decorated"), TID.Block("pumice_worked"))));
 
     /// <summary>
     ///     Worked obsidian with decorations carved into one side.
@@ -991,7 +990,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.ObsidianDecorated,
         nameof(DecoratedObsidian),
         BlockFlags.Basic,
-        TextureLayout.UniqueFront("obsidian_worked_decorated", "obsidian_worked")));
+        TextureLayout.UniqueFront(TID.Block("obsidian_worked_decorated"), TID.Block("obsidian_worked"))));
 
     /// <summary>
     ///     Marble cobbles, connected by mortar, to form basic road paving.
@@ -1001,7 +1000,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.GraniteCobbles,
         nameof(GraniteCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("granite_cobbles")));
+        TextureLayout.Uniform(TID.Block("granite_cobbles"))));
 
     /// <summary>
     ///     Sandstone cobbles, connected by mortar, to form basic road paving.
@@ -1011,7 +1010,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SandstoneCobbles,
         nameof(SandstoneCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("sandstone_cobbles")));
+        TextureLayout.Uniform(TID.Block("sandstone_cobbles"))));
 
     /// <summary>
     ///     Limestone cobbles, connected by mortar, to form basic road paving.
@@ -1021,7 +1020,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.LimestoneCobbles,
         nameof(LimestoneCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("limestone_cobbles")));
+        TextureLayout.Uniform(TID.Block("limestone_cobbles"))));
 
     /// <summary>
     ///     Marble cobbles, connected by mortar, to form basic road paving.
@@ -1031,7 +1030,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.MarbleCobbles,
         nameof(MarbleCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("marble_cobbles")));
+        TextureLayout.Uniform(TID.Block("marble_cobbles"))));
 
     /// <summary>
     ///     Pumice cobbles, connected by mortar, to form basic road paving.
@@ -1041,7 +1040,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.PumiceCobbles,
         nameof(PumiceCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("pumice_cobbles")));
+        TextureLayout.Uniform(TID.Block("pumice_cobbles"))));
 
     /// <summary>
     ///     Obsidian cobbles, connected by mortar, to form basic road paving.
@@ -1051,7 +1050,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.ObsidianCobbles,
         nameof(ObsidianCobblestone),
         BlockFlags.Basic,
-        TextureLayout.Uniform("obsidian_cobbles")));
+        TextureLayout.Uniform(TID.Block("obsidian_cobbles"))));
 
     /// <summary>
     ///     Paving made out of processed granite.
@@ -1061,7 +1060,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.GranitePaving,
         nameof(GranitePaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("granite_paving")));
+        TextureLayout.Uniform(TID.Block("granite_paving"))));
 
     /// <summary>
     ///     Paving made out of processed sandstone.
@@ -1071,7 +1070,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SandstonePaving,
         nameof(SandstonePaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("sandstone_paving")));
+        TextureLayout.Uniform(TID.Block("sandstone_paving"))));
 
     /// <summary>
     ///     Paving made out of processed limestone.
@@ -1081,7 +1080,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.LimestonePaving,
         nameof(LimestonePaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("limestone_paving")));
+        TextureLayout.Uniform(TID.Block("limestone_paving"))));
 
     /// <summary>
     ///     Paving made out of processed marble.
@@ -1091,7 +1090,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.MarblePaving,
         nameof(MarblePaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("marble_paving")));
+        TextureLayout.Uniform(TID.Block("marble_paving"))));
 
     /// <summary>
     ///     Paving made out of processed pumice.
@@ -1101,7 +1100,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.PumicePaving,
         nameof(PumicePaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("pumice_paving")));
+        TextureLayout.Uniform(TID.Block("pumice_paving"))));
 
     /// <summary>
     ///     Paving made out of processed obsidian.
@@ -1111,7 +1110,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.ObsidianPaving,
         nameof(ObsidianPaving),
         BlockFlags.Basic,
-        TextureLayout.Uniform("obsidian_paving")));
+        TextureLayout.Uniform(TID.Block("obsidian_paving"))));
 
     /// <summary>
     ///     When breaking granite, it turns into granite rubble.
@@ -1120,7 +1119,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteRubble { get; } = registry.Register(new PermeableBlock(
         Language.GraniteRubble,
         nameof(GraniteRubble),
-        TextureLayout.Uniform("granite_rubble")));
+        TextureLayout.Uniform(TID.Block("granite_rubble"))));
 
     /// <summary>
     ///     When breaking sandstone, it turns into sandstone rubble.
@@ -1129,7 +1128,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneRubble { get; } = registry.Register(new PermeableBlock(
         Language.SandstoneRubble,
         nameof(SandstoneRubble),
-        TextureLayout.Uniform("sandstone_rubble")));
+        TextureLayout.Uniform(TID.Block("sandstone_rubble"))));
 
     /// <summary>
     ///     When breaking limestone, it turns into limestone rubble.
@@ -1138,7 +1137,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneRubble { get; } = registry.Register(new PermeableBlock(
         Language.LimestoneRubble,
         nameof(LimestoneRubble),
-        TextureLayout.Uniform("limestone_rubble")));
+        TextureLayout.Uniform(TID.Block("limestone_rubble"))));
 
     /// <summary>
     ///     When breaking marble, it turns into marble rubble.
@@ -1147,7 +1146,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleRubble { get; } = registry.Register(new PermeableBlock(
         Language.MarbleRubble,
         nameof(MarbleRubble),
-        TextureLayout.Uniform("marble_rubble")));
+        TextureLayout.Uniform(TID.Block("marble_rubble"))));
 
     /// <summary>
     ///     When breaking pumice, it turns into pumice rubble.
@@ -1156,7 +1155,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceRubble { get; } = registry.Register(new PermeableBlock(
         Language.PumiceRubble,
         nameof(PumiceRubble),
-        TextureLayout.Uniform("pumice_rubble")));
+        TextureLayout.Uniform(TID.Block("pumice_rubble"))));
 
     /// <summary>
     ///     When breaking obsidian, it turns into obsidian rubble.
@@ -1165,7 +1164,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianRubble { get; } = registry.Register(new PermeableBlock(
         Language.ObsidianRubble,
         nameof(ObsidianRubble),
-        TextureLayout.Uniform("obsidian_rubble")));
+        TextureLayout.Uniform(TID.Block("obsidian_rubble"))));
 
     /// <summary>
     ///     A wall made out of granite rubble.
@@ -1174,7 +1173,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteWall { get; } = registry.Register(new WallBlock(
         Language.GraniteWall,
         nameof(GraniteWall),
-        "granite_rubble",
+        TID.Block("granite_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1186,7 +1185,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneWall { get; } = registry.Register(new WallBlock(
         Language.SandstoneWall,
         nameof(SandstoneWall),
-        "sandstone_rubble",
+        TID.Block("sandstone_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1198,7 +1197,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneWall { get; } = registry.Register(new WallBlock(
         Language.LimestoneWall,
         nameof(LimestoneWall),
-        "limestone_rubble",
+        TID.Block("limestone_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1211,7 +1210,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleWall { get; } = registry.Register(new WallBlock(
         Language.MarbleWall,
         nameof(MarbleWall),
-        "marble_rubble",
+        TID.Block("marble_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1223,7 +1222,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceWall { get; } = registry.Register(new WallBlock(
         Language.PumiceWall,
         nameof(PumiceWall),
-        "pumice_rubble",
+        TID.Block("pumice_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1235,7 +1234,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianWall { get; } = registry.Register(new WallBlock(
         Language.ObsidianWall,
         nameof(ObsidianWall),
-        "obsidian_rubble",
+        TID.Block("obsidian_rubble"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1246,7 +1245,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteBricks { get; } = registry.Register(new ConstructionBlock(
         Language.GraniteBricks,
         nameof(GraniteBricks),
-        TextureLayout.Uniform("granite_bricks")));
+        TextureLayout.Uniform(TID.Block("granite_bricks"))));
 
     /// <summary>
     ///     Sandstone, cut into bricks and connected with mortar.
@@ -1254,7 +1253,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneBricks { get; } = registry.Register(new ConstructionBlock(
         Language.SandstoneBricks,
         nameof(SandstoneBricks),
-        TextureLayout.Uniform("sandstone_bricks")));
+        TextureLayout.Uniform(TID.Block("sandstone_bricks"))));
 
     /// <summary>
     ///     Limestone, cut into bricks and connected with mortar.
@@ -1262,7 +1261,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneBricks { get; } = registry.Register(new ConstructionBlock(
         Language.LimestoneBricks,
         nameof(LimestoneBricks),
-        TextureLayout.Uniform("limestone_bricks")));
+        TextureLayout.Uniform(TID.Block("limestone_bricks"))));
 
     /// <summary>
     ///     Marble, cut into bricks and connected with mortar.
@@ -1270,7 +1269,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleBricks { get; } = registry.Register(new ConstructionBlock(
         Language.MarbleBricks,
         nameof(MarbleBricks),
-        TextureLayout.Uniform("marble_bricks")));
+        TextureLayout.Uniform(TID.Block("marble_bricks"))));
 
     /// <summary>
     ///     Pumice, cut into bricks and connected with mortar.
@@ -1278,7 +1277,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceBricks { get; } = registry.Register(new ConstructionBlock(
         Language.PumiceBricks,
         nameof(PumiceBricks),
-        TextureLayout.Uniform("pumice_bricks")));
+        TextureLayout.Uniform(TID.Block("pumice_bricks"))));
 
     /// <summary>
     ///     Obsidian, cut into bricks and connected with mortar.
@@ -1286,7 +1285,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianBricks { get; } = registry.Register(new ConstructionBlock(
         Language.ObsidianBricks,
         nameof(ObsidianBricks),
-        TextureLayout.Uniform("obsidian_bricks")));
+        TextureLayout.Uniform(TID.Block("obsidian_bricks"))));
 
     /// <summary>
     ///     A wall constructed using granite bricks.
@@ -1294,7 +1293,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteBrickWall { get; } = registry.Register(new WallBlock(
         Language.GraniteBrickWall,
         nameof(GraniteBrickWall),
-        "granite_bricks",
+        TID.Block("granite_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1305,7 +1304,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneBrickWall { get; } = registry.Register(new WallBlock(
         Language.SandstoneBrickWall,
         nameof(SandstoneBrickWall),
-        "sandstone_bricks",
+        TID.Block("sandstone_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1316,7 +1315,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneBrickWall { get; } = registry.Register(new WallBlock(
         Language.LimestoneBrickWall,
         nameof(LimestoneBrickWall),
-        "limestone_bricks",
+        TID.Block("limestone_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1327,7 +1326,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleBrickWall { get; } = registry.Register(new WallBlock(
         Language.MarbleBrickWall,
         nameof(MarbleBrickWall),
-        "marble_bricks",
+        TID.Block("marble_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1338,7 +1337,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceBrickWall { get; } = registry.Register(new WallBlock(
         Language.PumiceBrickWall,
         nameof(PumiceBrickWall),
-        "pumice_bricks",
+        TID.Block("pumice_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1349,7 +1348,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianBrickWall { get; } = registry.Register(new WallBlock(
         Language.ObsidianBrickWall,
         nameof(ObsidianBrickWall),
-        "obsidian_bricks",
+        TID.Block("obsidian_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1361,7 +1360,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteColumn { get; } = registry.Register(new ConstructionBlock(
         Language.GraniteColumn,
         nameof(GraniteColumn),
-        TextureLayout.Column("granite_column", "granite_worked")));
+        TextureLayout.Column(TID.Block("granite_column"), TID.Block("granite_worked"))));
 
     /// <summary>
     ///     A column, made out of sandstone.
@@ -1370,7 +1369,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneColumn { get; } = registry.Register(new ConstructionBlock(
         Language.SandstoneColumn,
         nameof(SandstoneColumn),
-        TextureLayout.Column("sandstone_column", "sandstone_worked")));
+        TextureLayout.Column(TID.Block("sandstone_column"), TID.Block("sandstone_worked"))));
 
     /// <summary>
     ///     A column, made out of limestone.
@@ -1379,7 +1378,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneColumn { get; } = registry.Register(new ConstructionBlock(
         Language.LimestoneColumn,
         nameof(LimestoneColumn),
-        TextureLayout.Column("limestone_column", "limestone_worked")));
+        TextureLayout.Column(TID.Block("limestone_column"), TID.Block("limestone_worked"))));
 
     /// <summary>
     ///     A column, made out of marble.
@@ -1388,7 +1387,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleColumn { get; } = registry.Register(new ConstructionBlock(
         Language.MarbleColumn,
         nameof(MarbleColumn),
-        TextureLayout.Column("marble_column", "marble_worked")));
+        TextureLayout.Column(TID.Block("marble_column"), TID.Block("marble_worked"))));
 
     /// <summary>
     ///     A column, made out of pumice.
@@ -1397,7 +1396,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceColumn { get; } = registry.Register(new ConstructionBlock(
         Language.PumiceColumn,
         nameof(PumiceColumn),
-        TextureLayout.Column("pumice_column", "pumice_worked")));
+        TextureLayout.Column(TID.Block("pumice_column"), TID.Block("pumice_worked"))));
 
     /// <summary>
     ///     A column, made out of obsidian.
@@ -1406,7 +1405,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianColumn { get; } = registry.Register(new ConstructionBlock(
         Language.ObsidianColumn,
         nameof(ObsidianColumn),
-        TextureLayout.Column("obsidian_column", "obsidian_worked")));
+        TextureLayout.Column(TID.Block("obsidian_column"), TID.Block("obsidian_worked"))));
 
     /// <summary>
     ///     Lignite is a type of coal.
@@ -1416,7 +1415,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.CoalLignite,
         nameof(Lignite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("coal_lignite")));
+        TextureLayout.Uniform(TID.Block("coal_lignite"))));
 
     /// <summary>
     ///     Bituminous coal is a type of coal.
@@ -1426,7 +1425,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.CoalBituminous,
         nameof(BituminousCoal),
         BlockFlags.Basic,
-        TextureLayout.Uniform("coal_bituminous")));
+        TextureLayout.Uniform(TID.Block("coal_bituminous"))));
 
     /// <summary>
     ///     Anthracite is a type of coal.
@@ -1436,7 +1435,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.CoalAnthracite,
         nameof(Anthracite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("coal_anthracite")));
+        TextureLayout.Uniform(TID.Block("coal_anthracite"))));
 
     /// <summary>
     ///     Magnetite is a type of iron ore.
@@ -1445,7 +1444,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMagnetite,
         nameof(Magnetite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_iron_magnetite")));
+        TextureLayout.Uniform(TID.Block("ore_iron_magnetite"))));
 
     /// <summary>
     ///     Hematite is a type of iron ore.
@@ -1454,7 +1453,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreHematite,
         nameof(Hematite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_iron_hematite")));
+        TextureLayout.Uniform(TID.Block("ore_iron_hematite"))));
 
     /// <summary>
     ///     Native gold is gold ore, containing mostly gold with some impurities.
@@ -1463,7 +1462,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeGold,
         nameof(NativeGold),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_gold_native")));
+        TextureLayout.Uniform(TID.Block("ore_gold_native"))));
 
     /// <summary>
     ///     Native silver is silver ore, containing mostly silver with some impurities.
@@ -1472,7 +1471,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeSilver,
         nameof(NativeSilver),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_silver_native")));
+        TextureLayout.Uniform(TID.Block("ore_silver_native"))));
 
     /// <summary>
     ///     Native platinum is platinum ore, containing mostly platinum with some impurities.
@@ -1481,7 +1480,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativePlatinum,
         nameof(NativePlatinum),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_platinum_native")));
+        TextureLayout.Uniform(TID.Block("ore_platinum_native"))));
 
     /// <summary>
     ///     Native copper is copper ore, containing mostly copper with some impurities.
@@ -1490,7 +1489,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeCopper,
         nameof(NativeCopper),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_copper_native")));
+        TextureLayout.Uniform(TID.Block("ore_copper_native"))));
 
     /// <summary>
     ///     Chalcopyrite is a copper ore.
@@ -1500,7 +1499,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreChalcopyrite,
         nameof(Chalcopyrite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_copper_chalcopyrite")));
+        TextureLayout.Uniform(TID.Block("ore_copper_chalcopyrite"))));
 
     /// <summary>
     ///     Malachite is a copper ore.
@@ -1510,7 +1509,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMalachite,
         nameof(Malachite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_copper_malachite")));
+        TextureLayout.Uniform(TID.Block("ore_copper_malachite"))));
 
     /// <summary>
     ///     Electrum is a naturally occurring alloy of gold and silver.
@@ -1519,7 +1518,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreElectrum,
         nameof(Electrum),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_electrum_native")));
+        TextureLayout.Uniform(TID.Block("ore_electrum_native"))));
 
     /// <summary>
     ///     Bauxite is an aluminum ore.
@@ -1528,7 +1527,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBauxite,
         nameof(Bauxite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_aluminium_bauxite")));
+        TextureLayout.Uniform(TID.Block("ore_aluminium_bauxite"))));
 
     /// <summary>
     ///     Galena is a lead ore that is rich in lead and silver.
@@ -1537,7 +1536,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreGalena,
         nameof(Galena),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_lead_galena")));
+        TextureLayout.Uniform(TID.Block("ore_lead_galena"))));
 
     /// <summary>
     ///     Cassiterite is a tin ore.
@@ -1546,7 +1545,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCassiterite,
         nameof(Cassiterite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_tin_cassiterite")));
+        TextureLayout.Uniform(TID.Block("ore_tin_cassiterite"))));
 
     /// <summary>
     ///     Cinnabar is a mercury ore.
@@ -1555,7 +1554,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCinnabar,
         nameof(Cinnabar),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_mercury_cinnabar")));
+        TextureLayout.Uniform(TID.Block("ore_mercury_cinnabar"))));
 
     /// <summary>
     ///     Sphalerite is a zinc ore.
@@ -1564,7 +1563,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreSphalerite,
         nameof(Sphalerite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_zinc_sphalerite")));
+        TextureLayout.Uniform(TID.Block("ore_zinc_sphalerite"))));
 
     /// <summary>
     ///     Chromite is a chromium ore.
@@ -1573,7 +1572,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreChromite,
         nameof(Chromite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_chromium_chromite")));
+        TextureLayout.Uniform(TID.Block("ore_chromium_chromite"))));
 
     /// <summary>
     ///     Pyrolusite is a manganese ore.
@@ -1582,7 +1581,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OrePyrolusite,
         nameof(Pyrolusite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_manganese_pyrolusite")));
+        TextureLayout.Uniform(TID.Block("ore_manganese_pyrolusite"))));
 
     /// <summary>
     ///     Rutile is a titanium ore.
@@ -1591,7 +1590,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreRutile,
         nameof(Rutile),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_titanium_rutile")));
+        TextureLayout.Uniform(TID.Block("ore_titanium_rutile"))));
 
     /// <summary>
     ///     Pentlandite is a nickel ore which is also rich in iron.
@@ -1600,7 +1599,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OrePentlandite,
         nameof(Pentlandite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_nickel_pentlandite")));
+        TextureLayout.Uniform(TID.Block("ore_nickel_pentlandite"))));
 
     /// <summary>
     ///     Zircon is a zirconium ore.
@@ -1609,7 +1608,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreZircon,
         nameof(Zircon),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_zirconium_zircon")));
+        TextureLayout.Uniform(TID.Block("ore_zirconium_zircon"))));
 
     /// <summary>
     ///     Dolomite is a carbonate rock, rich in magnesium.
@@ -1618,7 +1617,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreDolomite,
         nameof(Dolomite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_magnesium_dolomite")));
+        TextureLayout.Uniform(TID.Block("ore_magnesium_dolomite"))));
 
     /// <summary>
     ///     Celestine is a strontium ore.
@@ -1627,7 +1626,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCelestine,
         nameof(Celestine),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_strontium_celestine")));
+        TextureLayout.Uniform(TID.Block("ore_strontium_celestine"))));
 
     /// <summary>
     ///     Uraninite is a uranium ore.
@@ -1636,7 +1635,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreUraninite,
         nameof(Uraninite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_uranium_uraninite")));
+        TextureLayout.Uniform(TID.Block("ore_uranium_uraninite"))));
 
     /// <summary>
     ///     Bismuthinite is a bismuth ore.
@@ -1645,7 +1644,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBismuthinite,
         nameof(Bismuthinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_bismuth_bismuthinite")));
+        TextureLayout.Uniform(TID.Block("ore_bismuth_bismuthinite"))));
 
     /// <summary>
     ///     Beryl is a beryllium ore.
@@ -1655,7 +1654,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBeryl,
         nameof(Beryl),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_beryllium_beryl")));
+        TextureLayout.Uniform(TID.Block("ore_beryllium_beryl"))));
 
     /// <summary>
     ///     Molybdenite is a molybdenum ore.
@@ -1664,7 +1663,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMolybdenite,
         nameof(Molybdenite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_molybdenum_molybdenite")));
+        TextureLayout.Uniform(TID.Block("ore_molybdenum_molybdenite"))));
 
     /// <summary>
     ///     Cobaltite is a cobalt ore.
@@ -1673,7 +1672,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCobaltite,
         nameof(Cobaltite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_cobalt_cobaltite")));
+        TextureLayout.Uniform(TID.Block("ore_cobalt_cobaltite"))));
 
     /// <summary>
     ///     Spodumene is a lithium ore.
@@ -1682,7 +1681,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreSpodumene,
         nameof(Spodumene),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_lithium_spodumene")));
+        TextureLayout.Uniform(TID.Block("ore_lithium_spodumene"))));
 
     /// <summary>
     ///     Vanadinite is a vanadium ore.
@@ -1691,7 +1690,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreVanadinite,
         nameof(Vanadinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_vanadium_vanadinite")));
+        TextureLayout.Uniform(TID.Block("ore_vanadium_vanadinite"))));
 
     /// <summary>
     ///     Scheelite is a tungsten ore.
@@ -1700,7 +1699,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreScheelite,
         nameof(Scheelite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_tungsten_scheelite")));
+        TextureLayout.Uniform(TID.Block("ore_tungsten_scheelite"))));
 
     /// <summary>
     ///     Greenockite is a cadmium ore.
@@ -1709,7 +1708,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreGreenockite,
         nameof(Greenockite),
         BlockFlags.Basic,
-        TextureLayout.Uniform("ore_cadmium_greenockite")));
+        TextureLayout.Uniform(TID.Block("ore_cadmium_greenockite"))));
 
     /// <summary>
     ///     When iron is exposed to oxygen and moisture, it rusts.
@@ -1719,7 +1718,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Rust,
         nameof(Rust),
         BlockFlags.Basic,
-        TextureLayout.Uniform("rust")));
+        TextureLayout.Uniform(TID.Block("rust"))));
 
     #endregion NEW BLOCKS
 

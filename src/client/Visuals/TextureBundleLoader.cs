@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Logging;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -120,50 +121,38 @@ public sealed partial class TextureBundleLoader : IResourceLoader
 
     private void AddTextureIndices(FileInfo file, Int32 index, Int32 size)
     {
-        String textureName = GetTextureName(file);
+        String key = GetTextureKey(file);
 
-        indices[textureName] = index;
+        indices[key] = index;
 
         if (size == 1) return;
 
-        for (var offset = 0; offset < size; offset++)
-            indices[$"{textureName}:{offset}"] = index + offset;
+        for (Byte offset = 0; offset < size; offset++)
+            indices[TID.CreateKey(key, offset)] = index + offset;
     }
 
-    private static String GetTextureName(FileInfo file)
+    private static String GetTextureKey(FileInfo file)
     {
-        StringBuilder name = new();
+        StringBuilder key = new();
 
         foreach (Char c in file.GetFileNameWithoutExtension())
             if (Char.IsLetterOrDigit(c) || c == '_')
-                name.Append(c);
+                key.Append(c);
 
-        return name.ToString();
+        return key.ToString();
     }
 
     private void LoadFiles(IEnumerable<FileInfo> files, IResourceContext context)
     {
         foreach (FileInfo path in files)
         {
-            Exception? error = null;
-            String? errorMessage = null;
+            Exception? error;
+            String? errorMessage;
 
             try
             {
-                Image file = Image.LoadFromFile(path);
-
-                if (file.Width % resolution == 0 && file.Height == resolution)
-                {
-                    Int32 textureCount = file.Width / resolution;
-                    AddTextureIndices(path, count, textureCount);
-
-                    for (var j = 0; j < textureCount; j++)
-                        AddTexture(file.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
-                }
-                else
-                {
-                    errorMessage = "Image size did not match the specified resolution";
-                }
+                error = null;
+                errorMessage = LoadFile(path);
             }
             catch (FileNotFoundException exception)
             {
@@ -173,6 +162,26 @@ public sealed partial class TextureBundleLoader : IResourceLoader
 
             context.ReportDiscovery(ResourceTypes.TextureBundlePNG, RID.Path(path), error, errorMessage);
         }
+    }
+
+    private String? LoadFile(FileInfo path)
+    {
+        Image file = Image.LoadFromFile(path);
+
+        if (file.Width % resolution != 0 || file.Height != resolution)
+            return "Image size did not match the specified resolution";
+
+        Int32 textureCount = file.Width / resolution;
+
+        if (textureCount > Byte.MaxValue)
+            return $"More than {Byte.MaxValue} textures in one image";
+
+        AddTextureIndices(path, count, textureCount);
+
+        for (var j = 0; j < textureCount; j++)
+            AddTexture(file.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
+
+        return null;
     }
 
     private void LoadSources(IResourceContext context)

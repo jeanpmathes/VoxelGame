@@ -13,12 +13,12 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Provides functionality to define the textures of a default six-sided block or fluid.
 /// </summary>
-public class TextureLayout(String front, String back, String left, String right, String bottom, String top)
+public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom, TID top)
 {
     /// <summary>
     ///     Returns a texture layout where every side has the same texture.
     /// </summary>
-    public static TextureLayout Uniform(String texture)
+    public static TextureLayout Uniform(TID texture)
     {
         return new TextureLayout(texture, texture, texture, texture, texture, texture);
     }
@@ -27,12 +27,12 @@ public class TextureLayout(String front, String back, String left, String right,
     ///     Returns a texture layout where every side has a different texture.
     /// </summary>
     public static TextureLayout Unique(
-        String front,
-        String back,
-        String left,
-        String right,
-        String bottom,
-        String top)
+        TID front,
+        TID back,
+        TID left,
+        TID right,
+        TID bottom,
+        TID top)
     {
         return new TextureLayout(front, back, left, right, bottom, top);
     }
@@ -40,7 +40,7 @@ public class TextureLayout(String front, String back, String left, String right,
     /// <summary>
     ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
     /// </summary>
-    public static TextureLayout Column(String sides, String ends)
+    public static TextureLayout Column(TID sides, TID ends)
     {
         return new TextureLayout(sides, sides, sides, sides, ends, ends);
     }
@@ -49,7 +49,7 @@ public class TextureLayout(String front, String back, String left, String right,
     ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around
     ///     it.
     /// </summary>
-    public static TextureLayout UniqueColumn(String sides, String bottom, String top)
+    public static TextureLayout UniqueColumn(TID sides, TID bottom, TID top)
     {
         return new TextureLayout(sides, sides, sides, sides, bottom, top);
     }
@@ -57,7 +57,7 @@ public class TextureLayout(String front, String back, String left, String right,
     /// <summary>
     ///     Returns a texture layout where all sides but the front have the same texture.
     /// </summary>
-    public static TextureLayout UniqueFront(String front, String rest)
+    public static TextureLayout UniqueFront(TID front, TID rest)
     {
         return new TextureLayout(front, rest, rest, rest, rest, rest);
     }
@@ -65,16 +65,16 @@ public class TextureLayout(String front, String back, String left, String right,
     /// <summary>
     ///     Returns a texture layout where all sides but the top side have the same texture.
     /// </summary>
-    public static TextureLayout UniqueTop(String rest, String top)
+    public static TextureLayout UniqueTop(TID rest, TID top)
     {
         return new TextureLayout(rest, rest, rest, rest, rest, top);
     }
 
     /// <summary>
     ///     Returns a texture layout for fluids. The layout itself is similar to
-    ///     <see cref="TextureLayout.Column(string, string)" />.
+    ///     <see cref="TextureLayout.Column(TID, TID)" />.
     /// </summary>
-    public static TextureLayout Fluid(String sides, String ends)
+    public static TextureLayout Fluid(TID sides, TID ends)
     {
         return Column(sides, ends);
     }
@@ -91,12 +91,12 @@ public class TextureLayout(String front, String back, String left, String right,
     {
         return new SideArray<Int32>
         {
-            [Side.Front] = indexProvider.GetTextureIndex(front, isBlock),
-            [Side.Back] = indexProvider.GetTextureIndex(back, isBlock),
-            [Side.Left] = indexProvider.GetTextureIndex(left, isBlock),
-            [Side.Right] = indexProvider.GetTextureIndex(right, isBlock),
-            [Side.Bottom] = indexProvider.GetTextureIndex(bottom, isBlock),
-            [Side.Top] = indexProvider.GetTextureIndex(top, isBlock)
+            [Side.Front] = indexProvider.GetTextureIndex(front),
+            [Side.Back] = indexProvider.GetTextureIndex(back),
+            [Side.Left] = indexProvider.GetTextureIndex(left),
+            [Side.Right] = indexProvider.GetTextureIndex(right),
+            [Side.Bottom] = indexProvider.GetTextureIndex(bottom),
+            [Side.Top] = indexProvider.GetTextureIndex(top)
         };
     }
 }

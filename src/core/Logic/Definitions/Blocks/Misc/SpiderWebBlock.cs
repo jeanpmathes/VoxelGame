@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -29,7 +30,7 @@ public class SpiderWebBlock : CrossBlock, ICombustible
     /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The texture of this block.</param>
     /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-    internal SpiderWebBlock(String name, String namedID, String texture, Single maxVelocity) :
+    internal SpiderWebBlock(String name, String namedID, TID texture, Single maxVelocity) :
         base(
             name,
             namedID,

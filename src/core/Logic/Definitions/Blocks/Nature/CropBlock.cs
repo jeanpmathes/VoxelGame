@@ -25,24 +25,21 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // s: stage
 public class CropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly String texture;
+    private readonly TID deadTexture;
+    private readonly (TID id, Int32 duration)[] growingTextures;
 
     private readonly List<BoundingVolume> volumes = [];
     private readonly List<BlockMesh> meshes = [];
 
-    private (Int32 second, Int32 third, Int32 fourth, Int32 fifth, Int32 sixth, Int32 final, Int32 dead) stages;
-
-    internal CropBlock(String name, String namedID, String texture, Int32 second, Int32 third, Int32 fourth, Int32 fifth,
-        Int32 sixth, Int32 final, Int32 dead) :
+    internal CropBlock(String name, String namedID, TID deadTexture, (TID id, Int32 duration)[] growingTextures) :
         base(
             name,
             namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {
-        this.texture = texture;
-
-        stages = (second, third, fourth, fifth, sixth, final, dead);
+        this.deadTexture = deadTexture;
+        this.growingTextures = growingTextures;
 
         for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -61,23 +58,34 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 baseIndex = textureIndexProvider.GetTextureIndex(texture, isBlock: true);
+        var textureIndices = new Int32[(Int32) GrowthStage.Dead + 1];
 
-        if (baseIndex == 0) stages = (0, 0, 0, 0, 0, 0, 0);
+        textureIndices[(Int32) GrowthStage.Dead] = textureIndexProvider.GetTextureIndex(deadTexture);
 
-        Int32[] stageTextureIndices =
-        [
-            baseIndex,
-            baseIndex + stages.second,
-            baseIndex + stages.third,
-            baseIndex + stages.fourth,
-            baseIndex + stages.fifth,
-            baseIndex + stages.sixth,
-            baseIndex + stages.final,
-            baseIndex + stages.dead
-        ];
+        Int32 currentTexture = -1;
+        Int32 remainingDuration = -1;
 
-        for (UInt32 data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, stageTextureIndices, data));
+        for (var texture = 0; texture < textureIndices.Length; texture++)
+        {
+            if (texture == (Int32) GrowthStage.Dead)
+                continue;
+
+            if (remainingDuration <= 0)
+            {
+                currentTexture += 1;
+
+                if (currentTexture >= growingTextures.Length)
+                    break;
+
+                remainingDuration = growingTextures[currentTexture].duration;
+            }
+
+            textureIndices[texture] = textureIndexProvider.GetTextureIndex(growingTextures[currentTexture].id);
+
+            remainingDuration -= 1;
+        }
+
+        for (UInt32 data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, textureIndices, data));
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

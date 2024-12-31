@@ -9,7 +9,7 @@ using System.IO;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
-#pragma warning disable S101
+#pragma warning disable S101 // Full name would be to long for this commonly used type.
 
 /// <summary>
 ///     Identifies a resource.

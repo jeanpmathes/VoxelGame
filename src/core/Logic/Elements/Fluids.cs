@@ -1,4 +1,4 @@
-﻿// <copyright file="Fluids.cs" company="VoxelGame">
+﻿// <copyright file="Fluids.cs" company=TID.Fluid("VoxelGame")>
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -45,8 +45,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 997f,
         1 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("fresh_water_moving_side", "fresh_water_moving"),
-        TextureLayout.Fluid("fresh_water_static_side", "fresh_water_static"),
+        TextureLayout.Fluid(TID.Fluid("fresh_water_moving_side"), TID.Fluid("fresh_water_moving")),
+        TextureLayout.Fluid(TID.Fluid("fresh_water_static_side"), TID.Fluid("fresh_water_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -57,8 +57,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         nameof(SeaWater),
         density: 1023f,
         1 * mPas,
-        TextureLayout.Fluid("sea_water_moving_side", "sea_water_moving"),
-        TextureLayout.Fluid("sea_water_static_side", "sea_water_static")));
+        TextureLayout.Fluid(TID.Fluid("sea_water_moving_side"), TID.Fluid("sea_water_moving")),
+        TextureLayout.Fluid(TID.Fluid("sea_water_static_side"), TID.Fluid("sea_water_static"))));
 
     /// <summary>
     ///     Milk is a white fluid that is obtained from animals.
@@ -69,8 +69,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 1033f,
         2 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("milk_moving_side", "milk_moving"),
-        TextureLayout.Fluid("milk_static_side", "milk_static")));
+        TextureLayout.Fluid(TID.Fluid("milk_moving_side"), TID.Fluid("milk_moving")),
+        TextureLayout.Fluid(TID.Fluid("milk_static_side"), TID.Fluid("milk_static"))));
 
     /// <summary>
     ///     Steam is a gas created when water is heated.
@@ -81,8 +81,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 0.5f,
         (Int32) (0.25 * mPas),
         hasNeutralTint: false,
-        TextureLayout.Fluid("steam_moving_side", "steam_moving"),
-        TextureLayout.Fluid("steam_static_side", "steam_static"),
+        TextureLayout.Fluid(TID.Fluid("steam_moving_side"), TID.Fluid("steam_moving")),
+        TextureLayout.Fluid(TID.Fluid("steam_static_side"), TID.Fluid("steam_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -94,8 +94,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 3100f,
         15 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("lava_moving_side", "lava_moving"),
-        TextureLayout.Fluid("lava_static_side", "lava_static")));
+        TextureLayout.Fluid(TID.Fluid("lava_moving_side"), TID.Fluid("lava_moving")),
+        TextureLayout.Fluid(TID.Fluid("lava_static_side"), TID.Fluid("lava_static"))));
 
     /// <summary>
     ///     Crude oil is a flammable fluid with a high viscosity. It is lighter than water.
@@ -106,8 +106,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 870f,
         8 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("oil_moving_side", "oil_moving"),
-        TextureLayout.Fluid("oil_static_side", "oil_static")));
+        TextureLayout.Fluid(TID.Fluid("oil_moving_side"), TID.Fluid("oil_moving")),
+        TextureLayout.Fluid(TID.Fluid("oil_static_side"), TID.Fluid("oil_static"))));
 
     /// <summary>
     ///     Natural gas is a flammable gas.
@@ -118,8 +118,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 0.8f,
         (Int32) (0.5 * mPas),
         hasNeutralTint: false,
-        TextureLayout.Fluid("gas_moving_side", "gas_moving"),
-        TextureLayout.Fluid("gas_static_side", "gas_static"),
+        TextureLayout.Fluid(TID.Fluid("gas_moving_side"), TID.Fluid("gas_moving")),
+        TextureLayout.Fluid(TID.Fluid("gas_static_side"), TID.Fluid("gas_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -130,8 +130,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         nameof(Concrete),
         density: 2400f,
         10 * mPas,
-        TextureLayout.Fluid("concrete_moving_side", "concrete_moving"),
-        TextureLayout.Fluid("concrete_static_side", "concrete_static")));
+        TextureLayout.Fluid(TID.Fluid("concrete_moving_side"), TID.Fluid("concrete_moving")),
+        TextureLayout.Fluid(TID.Fluid("concrete_static_side"), TID.Fluid("concrete_static"))));
 
     /// <summary>
     ///     Honey is a thick fluid.
@@ -142,8 +142,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 1450f,
         20 * mPas,
         hasNeutralTint: false,
-        TextureLayout.Fluid("honey_moving_side", "honey_moving"),
-        TextureLayout.Fluid("honey_static_side", "honey_static"),
+        TextureLayout.Fluid(TID.Fluid("honey_moving_side"), TID.Fluid("honey_moving")),
+        TextureLayout.Fluid(TID.Fluid("honey_static_side"), TID.Fluid("honey_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -155,8 +155,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 740f,
         (Int32) (0.9 * mPas),
         hasNeutralTint: false,
-        TextureLayout.Fluid("petrol_moving_side", "petrol_moving"),
-        TextureLayout.Fluid("petrol_static_side", "petrol_static"),
+        TextureLayout.Fluid(TID.Fluid("petrol_moving_side"), TID.Fluid("petrol_moving")),
+        TextureLayout.Fluid(TID.Fluid("petrol_static_side"), TID.Fluid("petrol_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -168,8 +168,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 1090f,
         (Int32) (1.4 * mPas),
         hasNeutralTint: false,
-        TextureLayout.Fluid("wine_moving_side", "wine_moving"),
-        TextureLayout.Fluid("wine_static_side", "wine_static"),
+        TextureLayout.Fluid(TID.Fluid("wine_moving_side"), TID.Fluid("wine_moving")),
+        TextureLayout.Fluid(TID.Fluid("wine_static_side"), TID.Fluid("wine_static")),
         RenderType.Transparent));
 
     /// <summary>
@@ -181,8 +181,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         density: 1030f,
         (Int32) (1.5 * mPas),
         hasNeutralTint: false,
-        TextureLayout.Fluid("beer_moving_side", "beer_moving"),
-        TextureLayout.Fluid("beer_static_side", "beer_static"),
+        TextureLayout.Fluid(TID.Fluid("beer_moving_side"), TID.Fluid("beer_moving")),
+        TextureLayout.Fluid(TID.Fluid("beer_static_side"), TID.Fluid("beer_static")),
         RenderType.Transparent));
 
     /// <summary>

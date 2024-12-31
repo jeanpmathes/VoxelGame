@@ -24,13 +24,14 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class FlatBlock : Block, IFillable, IComplex
 {
-    private readonly Single climbingVelocity;
+    private readonly TID texture;
 
-    private readonly List<BlockMesh> meshes = [];
+    private readonly Single climbingVelocity;
     private readonly Single slidingVelocity;
 
-    private readonly String texture;
+    private readonly List<BlockMesh> meshes = [];
     private readonly List<BoundingVolume> volumes = [];
+
 
     /// <summary>
     ///     Creates a FlatBlock, a block with a single face that sticks to other blocks. It allows entities to climb and can
@@ -41,7 +42,7 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <param name="texture">The texture to use for the block.</param>
     /// <param name="climbingVelocity">The velocity of players climbing the block.</param>
     /// <param name="slidingVelocity">The velocity of players sliding along the block.</param>
-    internal FlatBlock(String name, String namedID, String texture, Single climbingVelocity, Single slidingVelocity) :
+    internal FlatBlock(String name, String namedID, TID texture, Single climbingVelocity, Single slidingVelocity) :
         base(
             name,
             namedID,
@@ -99,7 +100,7 @@ public class FlatBlock : Block, IFillable, IComplex
     /// <inheritdoc />
     protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 textureIndex = textureIndexProvider.GetTextureIndex(texture, isBlock: true);
+        Int32 textureIndex = textureIndexProvider.GetTextureIndex(texture);
 
         foreach (Orientation orientation in Orientations.All)
         {

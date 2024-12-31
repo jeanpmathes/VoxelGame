@@ -78,5 +78,11 @@ public class GenerationContextTests : ContextTestBase
 
     private sealed class MockBlock() : Block("Mock Block", nameof(MockBlock), new BlockFlags(), BoundingVolume.Block);
 
-    private sealed class MockFluid() : BasicFluid("Mock Fluid", nameof(MockFluid), density: 1.0, viscosity: 1, hasNeutralTint: false, TextureLayout.Uniform(""), TextureLayout.Uniform(""));
+    private sealed class MockFluid() : BasicFluid("Mock Fluid",
+        nameof(MockFluid),
+        density: 1.0,
+        viscosity: 1,
+        hasNeutralTint: false,
+        TextureLayout.Uniform(TID.MissingTexture),
+        TextureLayout.Uniform(TID.MissingTexture));
 }

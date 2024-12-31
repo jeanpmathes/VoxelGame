@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class WallBlock : WideConnectingBlock
 {
-    private readonly String texture;
+    private readonly TID texture;
     private readonly RID extensionStraight;
 
     private readonly List<BoundingVolume> volumes = [];
@@ -35,7 +35,7 @@ public class WallBlock : WideConnectingBlock
     private BlockMesh straightX = null!;
     private BlockMesh straightZ = null!;
 
-    internal WallBlock(String name, String namedID, String texture,
+    internal WallBlock(String name, String namedID, TID texture,
         RID postModel, RID extensionModel, RID extensionStraight) :
         base(
             name,

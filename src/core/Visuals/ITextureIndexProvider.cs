@@ -17,8 +17,7 @@ public interface ITextureIndexProvider : IResourceProvider
     /// <summary>
     ///     Get the texture index for the given texture.
     /// </summary>
-    /// <param name="name">The name of the texture.</param>
-    /// <param name="isBlock">Whether the texture is a block texture or a fluid texture.</param>
+    /// <param name="identifier">The texture identifier.</param>
     /// <returns>The texture index.</returns>
-    public Int32 GetTextureIndex(String name, Boolean isBlock);
+    public Int32 GetTextureIndex(TID identifier);
 }

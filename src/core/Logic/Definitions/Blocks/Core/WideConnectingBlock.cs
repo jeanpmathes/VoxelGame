@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // w: connected west
 public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConnectable, IComplex
 {
-    private readonly String texture;
+    private readonly TID texture;
     private readonly RID postModel;
     private readonly RID extensionModel;
 
@@ -44,7 +44,7 @@ public class WideConnectingBlock : ConnectingBlock<IWideConnectable>, IWideConne
     protected WideConnectingBlock(
         String name,
         String namedID,
-        String texture,
+        TID texture,
         Boolean isOpaque,
         RID postModel,
         RID extensionModel,
