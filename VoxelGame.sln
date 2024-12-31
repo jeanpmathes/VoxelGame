@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetUp", "SetUp\SetUp.wixproj", "{A528B57B-6AE1-49B9-B725-4BA1BA264D71}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SetUp", "stp\SetUp.wixproj", "{A528B57B-6AE1-49B9-B725-4BA1BA264D71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Client", "src\client\VoxelGame.Client.csproj", "{3BD64392-3092-432F-9922-4B130465C92E}"
 EndProject
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Manual", "src\manual\VoxelGame.Manual.csproj", "{A89A633A-E461-4F61-BFF7-09318009E74F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core.Tests", "tests\VoxelGame.Core.Tests\VoxelGame.Core.Tests.csproj", "{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core.Tests", "tst\core\VoxelGame.Core.Tests.csproj", "{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI.Tests", "tests\VoxelGame.UI.Tests\VoxelGame.UI.Tests.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI.Tests", "tst\ui\VoxelGame.UI.Tests.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeGraphics", "src\native_graphics\NativeGraphics.vcxproj", "{5018F6A3-6533-4744-B1FD-727D199FD2E9}"
 EndProject
@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Graphics", "src\g
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit", "src\toolkit\VoxelGame.Toolkit.csproj", "{E0B911E1-9DB2-4F45-BF83-31174B4C9C2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit.Tests", "tests\VoxelGame.Toolkit.Tests\VoxelGame.Toolkit.Tests.csproj", "{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit.Tests", "tst\toolkit\VoxelGame.Toolkit.Tests.csproj", "{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
