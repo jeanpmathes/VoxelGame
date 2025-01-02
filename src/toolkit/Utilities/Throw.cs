@@ -52,18 +52,6 @@ public partial class Throw
         throw new ObjectDisposedException(obj);
     }
 
-    /// <summary>
-    ///     Throw an exception if an object is null.
-    /// </summary>
-    /// <param name="obj">The object to check.</param>
-    /// <param name="message">The message to throw.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the object is null.</exception>
-    [Conditional("DEBUG")]
-    public static void IfNull([NotNull] Object? obj, String message = "")
-    {
-        if (obj is null) throw new ArgumentNullException(message);
-    }
-
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();

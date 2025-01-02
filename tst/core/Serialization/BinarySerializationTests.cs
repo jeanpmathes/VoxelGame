@@ -81,7 +81,8 @@ public class BinarySerializationTests
         public String o = "fifteen";
         public Int32[] p = [16, 17, 18, 19, 20];
         public TestState q = TestState.B;
-        public static Int32 Version => 12;
+
+        public static UInt32 Version => 12;
 
         public void Serialize(Serializer serializer, IEntity.Header header)
         {

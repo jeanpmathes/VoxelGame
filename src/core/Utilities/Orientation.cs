@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -213,7 +214,7 @@ public static class OrientationExtensions
             Orientation.East => Utilities.Axis.X,
             Orientation.South => Utilities.Axis.Z,
             Orientation.West => Utilities.Axis.X,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
 
@@ -222,13 +223,15 @@ public static class OrientationExtensions
     /// </summary>
     public static Orientation NextOrientation(this Random random)
     {
+        Int32 value = random.Next(minValue: 0, maxValue: 4);
+
         return random.Next(minValue: 0, maxValue: 4) switch
         {
             0 => Orientation.North,
             1 => Orientation.East,
             2 => Orientation.South,
             3 => Orientation.West,
-            _ => throw new ArgumentOutOfRangeException(nameof(random), random, message: null)
+            _ => throw Exceptions.UnsupportedValue(value)
         };
     }
 }

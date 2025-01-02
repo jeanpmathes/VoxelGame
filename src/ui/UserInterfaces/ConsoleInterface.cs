@@ -12,6 +12,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Utilities;
@@ -271,7 +272,7 @@ public class ConsoleInterface
                 EntryType.Response => (context.Fonts.Console, responseColor),
                 EntryType.Error => (context.Fonts.ConsoleError, errorColor),
                 EntryType.Echo => (context.Fonts.Console, echoColor),
-                _ => throw new InvalidOperationException()
+                _ => throw Exceptions.UnsupportedEnumValue(Type)
             };
         }
     }

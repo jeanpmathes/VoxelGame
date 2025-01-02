@@ -15,6 +15,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
@@ -387,7 +388,7 @@ public partial class Map
                 break;
 
             default:
-                throw new InvalidOperationException();
+                throw Exceptions.UnsupportedEnumValue(collision);
         }
     }
 

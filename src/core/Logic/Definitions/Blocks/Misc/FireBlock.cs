@@ -17,6 +17,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -105,7 +106,7 @@ public class FireBlock : Block, IFillable, IComplex
                 Side.Left => west,
                 Side.Right => east,
                 Side.Top => topModel,
-                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+                _ => throw Exceptions.UnsupportedEnumValue(side)
             };
         }
     }

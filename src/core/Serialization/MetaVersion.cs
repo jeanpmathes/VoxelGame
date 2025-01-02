@@ -4,12 +4,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Serialization;
 
 /// <summary>
 ///     The version of the serialization system.
 /// </summary>
-public enum MetaVersion
+public enum MetaVersion : UInt32
 {
     /// <summary>
     ///     The initial version of the serialization system.

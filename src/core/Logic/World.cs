@@ -91,7 +91,7 @@ public abstract partial class World : IDisposable, IGrid
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        IWorldGenerator generator = GetAndInitializeGenerator(this, timer) ?? throw new InvalidOperationException("The generator could not be initialized.");
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer) ?? throw Exceptions.InvalidOperation("The generator could not be initialized.");
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
         Chunks = new ChunkSet(this, ChunkContext);

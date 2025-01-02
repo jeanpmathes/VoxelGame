@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using VoxelGame.Manual.Modifiers;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Manual.Elements;
 
@@ -40,7 +41,7 @@ internal class Text : IElement
                 break;
 
             default:
-                throw new NotSupportedException();
+                throw Exceptions.UnsupportedEnumValue(style);
         }
     }
 }

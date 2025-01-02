@@ -14,6 +14,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -90,7 +91,9 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
 
     private static BoundingVolume CreateVolume(UInt32 data)
     {
-        switch ((GrowthStage) (data & 0b00_0111))
+        var stage = (GrowthStage) (data & 0b00_0111);
+
+        switch (stage)
         {
             case GrowthStage.Initial:
             case GrowthStage.Dead:
@@ -114,7 +117,7 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
             case GrowthStage.Final:
                 return BoundingVolume.BlockWithHeight(height: 15);
 
-            default: throw new InvalidOperationException();
+            default: throw Exceptions.UnsupportedEnumValue(stage);
         }
     }
 

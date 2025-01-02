@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -153,7 +154,7 @@ public class Tree : DynamicStructure
         Kind.Palm => palmExtents,
         Kind.Savanna => savannaExtents,
         Kind.Shrub => shrubExtents,
-        _ => throw new InvalidOperationException()
+        _ => throw Exceptions.UnsupportedEnumValue(kind)
     };
 
     private Shape3D GetCrownShape()
@@ -167,7 +168,7 @@ public class Tree : DynamicStructure
             Kind.Palm => palmCrown,
             Kind.Savanna => savannaCrown,
             Kind.Shrub => shrubCrown,
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(kind)
         };
     }
 
@@ -182,7 +183,7 @@ public class Tree : DynamicStructure
             Kind.Palm => palmConfig,
             Kind.Savanna => savannaConfig,
             Kind.Shrub => shrubConfig,
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(kind)
         };
     }
 

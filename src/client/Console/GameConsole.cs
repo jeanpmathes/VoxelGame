@@ -40,8 +40,7 @@ public partial class GameConsole : IConsoleProvider
     /// <inheritdoc />
     public void ProcessInput(String input)
     {
-        if (game.Console == null)
-            throw new InvalidOperationException();
+        if (game.Console == null) return;
 
         LogProcessingConsoleInput(logger, input);
 
@@ -53,8 +52,7 @@ public partial class GameConsole : IConsoleProvider
     /// <inheritdoc />
     public void OnWorldReady()
     {
-        if (game.Console == null)
-            throw new InvalidOperationException();
+        if (game.Console == null) return;
 
         LogTryingToExecuteWorldReadyScript(logger);
 

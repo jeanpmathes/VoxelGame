@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
@@ -154,8 +155,7 @@ public abstract partial class WorldState
         /// <inheritdoc />
         public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
-            if (completed)
-                throw new InvalidOperationException("The world has already been terminated.");
+            Debug.Assert(!completed);
 
             if (saving == null)
             {

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
@@ -79,7 +80,7 @@ public class ResourceType
             Category.Font => "font",
             Category.Code => "code",
             Category.Object => "object",
-            _ => throw new ArgumentOutOfRangeException(nameof(category), category, message: null)
+            _ => throw Exceptions.UnsupportedValue(category)
         };
 
         this.type = BuildType(categoryString, type, subType);

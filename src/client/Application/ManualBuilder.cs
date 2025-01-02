@@ -47,8 +47,7 @@ public static partial class ManualBuilder
 
         controls.CreateSections(
             Client.Instance.Keybinds.Binds,
-            keybind => Section.Create(keybind.Name)
-                .Text("The key is bound to").Key(keybind.Default).Text("per default.").EndSection());
+            keybind => Section.Create(keybind.Name, section => section.Text("The key is bound to").Key(keybind.Default).Text("per default.")));
 
         controls.Generate();
 
@@ -56,14 +55,15 @@ public static partial class ManualBuilder
 
         blocks.CreateSections(
             Blocks.Instance.GetDocumentedValues<Block>(documentation),
-            ((Block block, String description) s) => Section.Create(s.block.Name)
-                .Text(s.description).NewLine()
-                .BeginList()
-                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
-                .Item("Solid:").Boolean(s.block.IsSolid)
-                .Item("Interactions:").Boolean(s.block.IsInteractable)
-                .Item("Replaceable:").Boolean(s.block.IsReplaceable)
-                .Finish().EndSection());
+            ((Block block, String description) s) =>
+                Section.Create(s.block.Name,
+                    section =>
+                        section.Text(s.description).NewLine()
+                            .List(list => list
+                                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
+                                .Item("Solid:").Boolean(s.block.IsSolid)
+                                .Item("Interactions:").Boolean(s.block.IsInteractable)
+                                .Item("Replaceable:").Boolean(s.block.IsReplaceable))));
 
         blocks.Generate();
 
@@ -71,13 +71,14 @@ public static partial class ManualBuilder
 
         fluids.CreateSections(
             Fluids.Instance.GetDocumentedValues<Fluid>(documentation),
-            ((Fluid fluid, String description) s) => Section.Create(s.fluid.Name)
-                .Text(s.description).NewLine()
-                .BeginList()
-                .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
-                .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture))
-                .Finish().EndSection());
+            ((Fluid fluid, String description) s) =>
+                Section.Create(s.fluid.Name,
+                    section => section
+                        .Text(s.description).NewLine()
+                        .List(list => list
+                            .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
+                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                            .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture)))));
 
         fluids.Generate();
 

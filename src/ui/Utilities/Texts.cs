@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.UI.Utilities;
 
@@ -70,7 +71,7 @@ public static class Texts
             Status.Ok => Language.OperationStatusOk,
             Status.Running => Language.OperationStatusRunning,
             Status.Error => Language.OperationStatusError,
-            _ => throw new ArgumentOutOfRangeException(nameof(status), status, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(status)
         };
     }
 

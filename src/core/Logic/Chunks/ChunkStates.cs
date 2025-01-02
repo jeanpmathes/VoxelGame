@@ -12,6 +12,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -92,7 +93,7 @@ public partial class Chunk
                 }
 
                 default:
-                    throw new InvalidOperationException();
+                    throw Exceptions.UnsupportedEnumValue(future.Value);
             }
         }
     }

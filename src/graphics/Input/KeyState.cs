@@ -30,10 +30,9 @@ public class KeyState
     public Boolean IsAnyKeyDown => GetAnyKeyDown() != null;
 
     /// <summary>
-    ///     Get the first key that is down.
+    ///     Get the first key that is down, or <c>null</c> if no key is down.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No key is down.</exception>
-    public VirtualKeys Any => GetAnyKeyDown() ?? throw new InvalidOperationException("No key is down.");
+    public VirtualKeys? Any => GetAnyKeyDown() ?? null;
 
     private VirtualKeys? GetAnyKeyDown()
     {

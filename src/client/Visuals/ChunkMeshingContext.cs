@@ -126,7 +126,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     Take the access to the chunk from the context.
     ///     This transfers ownership of the guards to the caller.
-    ///     If the chunk was created for meshing on the main thread, this call is not allowed.
+    ///     If the context was created for meshing on the main thread, this call is not allowed.
     /// </summary>
     /// <returns>The guards for the chunk.</returns>
     public Guard TakeAccess()
@@ -134,7 +134,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         Throw.IfDisposed(disposed);
 
         if (guard == null)
-            throw new InvalidOperationException();
+            throw Exceptions.InvalidOperation("Cannot take access from main thread meshing context.");
 
         Guard result = guard;
         guard = null;

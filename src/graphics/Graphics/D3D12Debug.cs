@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Graphics;
 
@@ -82,7 +83,7 @@ internal class D3D12Debug
 
             Debugger.Break();
 
-            throw new InvalidOperationException("Device removed.");
+            throw Exceptions.InvalidOperation("Device removed.");
         }
 
         if (level >= LogLevel.Warning) Debugger.Break();
@@ -97,7 +98,7 @@ internal class D3D12Debug
             Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_WARNING => LogLevel.Warning,
             Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_INFO => LogLevel.Information,
             Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_MESSAGE => LogLevel.Debug,
-            _ => throw new InvalidOperationException($"Unknown D3D12_MESSAGE_SEVERITY: {severity}")
+            _ => throw Exceptions.UnsupportedEnumValue(severity)
         };
     }
 
@@ -116,7 +117,7 @@ internal class D3D12Debug
             Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_RESOURCE_MANIPULATION => "MANIPULATION",
             Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_EXECUTION => "EXECUTION",
             Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_SHADER => "SHADER",
-            _ => throw new InvalidOperationException($"Unknown D3D12_MESSAGE_CATEGORY: {category}")
+            _ => throw Exceptions.UnsupportedEnumValue(category)
         };
     }
 

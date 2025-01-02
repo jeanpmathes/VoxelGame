@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -76,7 +77,7 @@ public class RotatedBlock : BasicBlock, ICombustible
             Axis.Z =>
                 // To achieve alignment along the Z-axis, rotate around the X-axis.
                 side.Rotate(Axis.X),
-            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
 }

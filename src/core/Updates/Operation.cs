@@ -116,14 +116,10 @@ public abstract class Operation
     /// <summary>
     ///     Perform an action directly after the operation has successfully completed.
     ///     Might run on a background thread.
-    ///     Not all operations support this.
     /// </summary>
     /// <param name="action">The action to perform. Will only run if the operation was successful.</param>
     /// <returns>The operation that runs the action.</returns>
-    public virtual Operation Then(Action action)
-    {
-        throw new InvalidOperationException();
-    }
+    public abstract Operation Then(Action action);
 
     /// <summary>
     ///     Wait for the operation to complete.
@@ -146,9 +142,6 @@ public abstract class Operation
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
     public void OnCompletion(Action<Operation> action, CancellationToken token = default)
     {
-        if (OperationUpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
-
         Completion += (_, _) =>
         {
             if (token.IsCancellationRequested)
@@ -204,15 +197,11 @@ public abstract class Operation<T> : Operation
     /// <summary>
     ///     Perform an action directly after the operation has successfully completed.
     ///     Might run on a background thread.
-    ///     Not all operations support this.
     /// </summary>
     /// <param name="function">The action to perform. Will only run if the operation was successful.</param>
     /// <typeparam name="TNext">The type of the result of the action.</typeparam>
     /// <returns>The operation that runs the action.</returns>
-    public virtual Operation<TNext> Then<TNext>(Func<T, TNext> function)
-    {
-        throw new InvalidOperationException();
-    }
+    public abstract Operation<TNext> Then<TNext>(Func<T, TNext> function);
 
     /// <summary>
     ///     Wait for the operation to complete.

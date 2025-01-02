@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
@@ -59,7 +58,7 @@ public sealed class TextSupport : IDisposable
                 value *= graphics.DpiX / 72;
 
                 break;
-            default: throw new InvalidEnumArgumentException($"Unknown unit {unit}.");
+            default: throw Exceptions.UnsupportedEnumValue(unit);
         }
 
         return value;

@@ -4,13 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace VoxelGame.Core.Utilities;
+namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
 ///     Provides reflection utilities.

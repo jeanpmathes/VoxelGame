@@ -37,7 +37,7 @@ public abstract class Player : PhysicsActor
     /// <summary>
     ///     The position of the current chunk this player is in.
     /// </summary>
-    public ChunkPosition Chunk => request?.Position ?? throw new InvalidOperationException();
+    public ChunkPosition Chunk => request?.Position ?? default;
 
     private void OnAddedToWorld(Object? sender, EventArgs e)
     {

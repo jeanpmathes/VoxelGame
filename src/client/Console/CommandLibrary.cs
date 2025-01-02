@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Console;
 
@@ -36,7 +36,7 @@ public class CommandLibrary
     {
         return groups.TryGetValue(name, out CommandGroup? commandGroup)
             ? commandGroup.Command.HelpText
-            : throw new ArgumentException("Command not found.");
+            : throw Exceptions.ArgumentNotInCollection(nameof(name), nameof(Names), name);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class CommandLibrary
     public IEnumerable<String> GetSignatures(String name)
     {
         if (!groups.TryGetValue(name, out CommandGroup? commandGroup))
-            throw new ArgumentException("Command not found.");
+            throw Exceptions.ArgumentNotInCollection(nameof(name), nameof(Names), name);
 
         return GetCommandSignatures(name, commandGroup);
     }

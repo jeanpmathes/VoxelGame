@@ -864,7 +864,7 @@ public sealed partial class Map : IMap, IDisposable
         private readonly Array2D<Cell> cells = new(Width);
 
         /// <inheritdoc />
-        public static Int32 Version => 1;
+        public static UInt32 Version => 1;
 
         /// <inheritdoc />
         public void Serialize(Serializer serializer, IEntity.Header header)

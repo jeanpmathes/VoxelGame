@@ -19,6 +19,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -107,7 +108,8 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="b">The second model.</param>
     public void PlaneSplit(Vector3d position, Vector3d normal, out BlockModel a, out BlockModel b)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         normal = normal.Normalized();
         List<Quad> quadsA = [];
@@ -130,7 +132,8 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="movement"></param>
     public void Move(Vector3d movement)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         var xyz = Matrix4.CreateTranslation(movement.ToVector3());
 
@@ -144,7 +147,8 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
     public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         if (rotations == 0) return;
 
@@ -184,7 +188,8 @@ public sealed partial class BlockModel : IResource, ILocated
     public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
         CreateAllSides()
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             result;
@@ -240,7 +245,8 @@ public sealed partial class BlockModel : IResource, ILocated
 
     private BlockModel CreateSideModel(Side side)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         BlockModel copy = new(this);
 
@@ -289,7 +295,7 @@ public sealed partial class BlockModel : IResource, ILocated
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(side));
+                throw Exceptions.UnsupportedEnumValue(side);
         }
 
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
@@ -303,14 +309,16 @@ public sealed partial class BlockModel : IResource, ILocated
 
     private void ApplyMatrix(Matrix4 xyz)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
     }
@@ -358,7 +366,8 @@ public sealed partial class BlockModel : IResource, ILocated
     /// </summary>
     public void Lock(ITextureIndexProvider textureIndexProvider)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         ToData(out lockedQuads, textureIndexProvider);
 
@@ -373,7 +382,7 @@ public sealed partial class BlockModel : IResource, ILocated
     public void Save(DirectoryInfo directory, String name)
     {
         if (lockedQuads != null)
-            throw new InvalidOperationException(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         Exception? exception = Serialize.SaveJSON(this, directory.GetFile(FileSystem.GetResourceFileName<BlockModel>(name)));
 

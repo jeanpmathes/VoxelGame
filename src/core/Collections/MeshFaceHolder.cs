@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -86,7 +87,7 @@ public class MeshFaceHolder
             Side.Right => (0, 0, 1),
             Side.Bottom => (0, 0, 1),
             Side.Top => (0, 0, 1),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -100,7 +101,7 @@ public class MeshFaceHolder
             Side.Right => (0, -1, 0),
             Side.Bottom => (-1, 0, 0),
             Side.Top => (-1, 0, 0),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -114,7 +115,7 @@ public class MeshFaceHolder
             Side.Right => (1, 1, 0),
             Side.Bottom => (1, 0, 0),
             Side.Top => (1, 1, 0),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -154,7 +155,7 @@ public class MeshFaceHolder
                 break;
 
             default:
-                throw new InvalidOperationException();
+                throw Exceptions.UnsupportedEnumValue(side);
         }
     }
 
@@ -171,7 +172,7 @@ public class MeshFaceHolder
             Side.Right => new Vector3i(layer, row, position),
             Side.Bottom => new Vector3i(row, layer, position),
             Side.Top => new Vector3i(row, layer, position),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -353,7 +354,7 @@ public class MeshFaceHolder
             Side.Right => (v11, v10, v00, v01),
             Side.Bottom => (v01, v11, v10, v00),
             Side.Top => (v11, v01, v00, v10),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 

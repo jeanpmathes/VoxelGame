@@ -84,9 +84,11 @@ public class Input
     {
         if (!KeyState.IsAnyKeyDown || callbackListForAnyPress.Count <= 0) return;
 
-        VirtualKeys any = KeyState.Any;
+        VirtualKeys? any = KeyState.Any;
 
-        foreach (Action<VirtualKeys> callback in callbackListForAnyPress) callback(any);
+        if (any == null) return;
+
+        foreach (Action<VirtualKeys> callback in callbackListForAnyPress) callback(any.Value);
 
         callbackListForAnyPress.Clear();
     }

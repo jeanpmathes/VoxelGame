@@ -102,7 +102,7 @@ public sealed class SpatialMeshing : IMeshing
 
         Int32 size = primitive == IMeshing.Primitive.Quad
             ? 4
-            : throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null);
+            : throw Exceptions.UnsupportedEnumValue(primitive);
 
         mesh.EnsureCapacity(mesh.Count + size * count);
     }

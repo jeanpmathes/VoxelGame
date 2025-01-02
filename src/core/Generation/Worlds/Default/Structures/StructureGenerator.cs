@@ -15,6 +15,7 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Noise;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Structures;
 
@@ -111,7 +112,7 @@ public sealed class StructureGenerator : IDisposable
         {
             StructureGeneratorDefinition.Kind.Surface => FilterSurfaceSection(position, generator),
             StructureGeneratorDefinition.Kind.Underground => FilterUndergroundSection(position, generator),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(Definition.Placement)
         };
     }
 
@@ -175,7 +176,7 @@ public sealed class StructureGenerator : IDisposable
         {
             StructureGeneratorDefinition.Kind.Surface => DetermineSurfacePlacement(section, (position.X, position.Z), generator),
             StructureGeneratorDefinition.Kind.Underground => DetermineUndergroundPlacement(randomizer),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(Definition.Placement)
         };
 
         Orientation orientation = randomizer.NextOrientation();
@@ -267,7 +268,7 @@ public sealed class StructureGenerator : IDisposable
         {
             StructureGeneratorDefinition.Kind.Surface => SearchAtSurfaceDistance(anchor, distance, generator),
             StructureGeneratorDefinition.Kind.Underground => SearchAtUndergroundDistance(anchor, distance, generator),
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(Definition.Placement)
         };
     }
 

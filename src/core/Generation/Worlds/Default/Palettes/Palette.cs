@@ -4,9 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Palettes;
 
@@ -50,7 +50,7 @@ public sealed class Palette : IResource
             Map.StoneType.Granite => granite,
             Map.StoneType.Limestone => limestone,
             Map.StoneType.Marble => marble,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(type)
         };
     }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Toolkit.Utilities;
 using Vector2 = OpenTK.Mathematics.Vector2;
 using Vector3 = OpenTK.Mathematics.Vector3;
 using Vector4 = OpenTK.Mathematics.Vector4;
@@ -489,7 +490,7 @@ public static class VMath
                 return ref e11;
 
             default:
-                throw new NotSupportedException();
+                throw Exceptions.UnsupportedValue(indexOfMax);
         }
     }
 

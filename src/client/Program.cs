@@ -127,7 +127,6 @@ internal static partial class Program
         IsDebug = true;
     }
 
-    #pragma warning disable S2221 // Goal is to catch any exception that might be unhandled.
     private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
         if (IsDebug) return runnable();
@@ -145,7 +144,6 @@ internal static partial class Program
             return 1;
         }
     }
-    #pragma warning restore S2221
 
     #region LOGGING
 

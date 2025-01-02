@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -76,7 +77,7 @@ public partial class Block
 
                     break;
 
-                default: throw new InvalidOperationException();
+                default: throw Exceptions.UnsupportedEnumValue(operation);
             }
         }
 

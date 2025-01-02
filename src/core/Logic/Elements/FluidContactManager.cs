@@ -10,6 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -69,14 +70,16 @@ public class FluidContactManager
         var a = new ContactInformation(fluidA, posA);
         var b = new ContactInformation(fluidB, posB);
 
-        return map.Resolve(a.fluid, b.fluid) switch
+        ContactAction action = map.Resolve(a.fluid, b.fluid);
+
+        return action switch
         {
             ContactAction.Default => SwapByDensity(world, a, b),
             ContactAction.CoolLava => CoolLava(world, a, b),
             ContactAction.BurnWithLava => BurnWithLava(world, a, b),
             ContactAction.DissolveConcrete => DissolveConcrete(world, a, b),
             ContactAction.MixWater => MixWater(world, a, b),
-            _ => throw new NotSupportedException()
+            _ => throw Exceptions.UnsupportedEnumValue(action)
         };
     }
 

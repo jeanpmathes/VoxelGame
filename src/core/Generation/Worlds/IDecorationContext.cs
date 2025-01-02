@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -327,7 +328,7 @@ public interface IDecorationContext : IDisposable
             (1, 0, 1) => DecorationLevels.Corner101,
             (1, 1, 0) => DecorationLevels.Corner110,
             (1, 1, 1) => DecorationLevels.Corner111,
-            _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, message: null)
+            _ => throw Exceptions.UnsupportedValue((corner.X, corner.Y, corner.Z))
         };
     }
 }

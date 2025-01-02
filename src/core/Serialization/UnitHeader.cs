@@ -37,6 +37,7 @@ public class UnitHeader : IValue
         serializer.Signature(signature);
         serializer.Serialize(ref version);
 
-        if (version > MetaVersion.Current) serializer.Fail("Unit was created with a newer version of the serialization system.");
+        if (version > MetaVersion.Current)
+            serializer.Fail("Unit was created with a newer version of the serialization system.");
     }
 }

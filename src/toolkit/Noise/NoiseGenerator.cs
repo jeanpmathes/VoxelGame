@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Toolkit.Collections;
@@ -35,7 +34,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector2d position)
     {
-        EnsureNotDisposed();
+        Throw.IfDisposed(disposed);
 
         return Native.GetNoise2D(self, position);
     }
@@ -46,7 +45,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector3d position)
     {
-        EnsureNotDisposed();
+        Throw.IfDisposed(disposed);
 
         return Native.GetNoise3D(self, position);
     }
@@ -57,7 +56,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array2D<Single> GetNoiseGrid(Vector2i position, Int32 size)
     {
-        EnsureNotDisposed();
+        Throw.IfDisposed(disposed);
 
         Array2D<Single> result = new(size, transpose: true);
         Native.GetNoiseGrid2D(self, position, new Vector2i(size), result.AsSpan());
@@ -71,20 +70,12 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array3D<Single> GetNoiseGrid(Vector3i position, Int32 size)
     {
-        EnsureNotDisposed();
+        Throw.IfDisposed(disposed);
 
         Array3D<Single> result = new(size, transpose: true);
         Native.GetNoiseGrid3D(self, position, new Vector3i(size), result.AsSpan());
 
         return result;
-    }
-
-    [Conditional("DEBUG")]
-    private void EnsureNotDisposed()
-    {
-        if (!disposed) return;
-
-        throw new ObjectDisposedException(nameof(NoiseGenerator));
     }
 
     #region DISPOSABLE

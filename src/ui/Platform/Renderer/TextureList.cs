@@ -114,9 +114,7 @@ public sealed class TextureList : IDisposable
 
             return null;
         }
-#pragma warning disable S2221
         catch (Exception e)
-#pragma warning restore S2221
         {
             return e;
         }

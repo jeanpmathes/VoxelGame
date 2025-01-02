@@ -15,6 +15,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -146,7 +147,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
 
                 break;
 
-            default: throw new InvalidOperationException();
+            default: throw Exceptions.UnsupportedEnumValue(orientation);
         }
 
         return new BoundingVolume(

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -45,7 +46,7 @@ public static class AxisExtensions
             Axis.X => Axis.Z,
             Axis.Y => Axis.Y,
             Axis.Z => Axis.X,
-            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
 
@@ -59,7 +60,7 @@ public static class AxisExtensions
             Axis.X => new Vector3d(onAxis, other, other),
             Axis.Y => new Vector3d(other, onAxis, other),
             Axis.Z => new Vector3d(other, other, onAxis),
-            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
 }

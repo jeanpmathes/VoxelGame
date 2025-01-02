@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -40,7 +41,7 @@ public class TypeKeyDictionary<TKey> where TKey : struct
 
             if (key == null) entry.Unmapped.Add(obj);
             else if (!entry.Mapped.TryAdd(key.Value, obj))
-                throw new ArgumentException($"An object with key {key} already exists for type {type.FullName}.");
+                throw Exceptions.ArgumentViolatesUniqueness(nameof(key), key.Value);
         }
     }
 

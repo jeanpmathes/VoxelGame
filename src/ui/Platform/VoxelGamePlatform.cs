@@ -15,6 +15,7 @@ using Gwen.Net;
 using Gwen.Net.Platform;
 using TextCopy;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.UI.Platform;
 
@@ -59,9 +60,7 @@ public class VoxelGamePlatform : IPlatform
 
                     ret = text;
                 }
-                    #pragma warning disable S2221 // Not clear what could be thrown here.
                 catch (Exception)
-                    #pragma warning restore S2221
                 {
                     // Method should be safe to call.
                 }
@@ -92,9 +91,7 @@ public class VoxelGamePlatform : IPlatform
                     ClipboardService.SetText(text);
                     ret = true;
                 }
-                    #pragma warning disable S2221 // Not clear what could be thrown here.
                 catch (Exception)
-                    #pragma warning restore S2221
                 {
                     // Method should be safe to call.
                 }
@@ -135,7 +132,7 @@ public class VoxelGamePlatform : IPlatform
             Cursor.No => MouseCursor.No,
             Cursor.Wait => MouseCursor.Wait,
             Cursor.Finger => MouseCursor.Hand,
-            _ => throw new ArgumentOutOfRangeException(nameof(cursor), cursor, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(cursor)
         };
 
         setCursor.Invoke(translatedCursor);
@@ -178,9 +175,7 @@ public class VoxelGamePlatform : IPlatform
 
             drives = DriveInfo.GetDrives();
         }
-            #pragma warning disable S2221 // Not clear what could be thrown here.
         catch (Exception)
-            #pragma warning restore S2221
         {
             // Method should be safe to call.
         }
@@ -200,9 +195,7 @@ public class VoxelGamePlatform : IPlatform
                         "Computer",
                         driveInfo.Name));
             }
-                #pragma warning disable S2221 // Not clear what could be thrown here.
             catch (Exception)
-                #pragma warning restore S2221
             {
                 // Method should be safe to call.
             }

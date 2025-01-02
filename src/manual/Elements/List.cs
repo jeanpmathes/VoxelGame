@@ -35,9 +35,4 @@ internal class List : Chainable, IElement
     {
         elements.Add(element);
     }
-
-    public override Chainable Finish()
-    {
-        return parent;
-    }
 }

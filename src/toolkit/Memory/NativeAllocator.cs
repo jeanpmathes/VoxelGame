@@ -46,7 +46,7 @@ public sealed class NativeAllocator : IDisposable
         var pointer = (T*) NativeMethods.Allocate(self, size).ToPointer();
 
         if (pointer == null)
-            throw new InvalidOperationException("Failed to allocate memory.");
+            throw Exceptions.InvalidOperation("Failed to allocate memory.");
 
         return new NativeAllocation<T>(pointer, count);
     }
