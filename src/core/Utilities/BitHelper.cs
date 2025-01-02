@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using VoxelGame.Toolkit;
@@ -24,6 +25,32 @@ public static class BitHelper
     public static Int32 CountSetBits(UInt32 n)
     {
         return BitOperations.PopCount(n);
+    }
+
+    /// <summary>
+    ///     Get the zero-based index of the most significant set bit.
+    ///     Invalid if <paramref name="n" /> is zero.
+    /// </summary>
+    /// <param name="n">The unsigned integer in which to find the most significant bit.</param>
+    /// <returns>The index of the most significant bit.</returns>
+    public static Int32 MostSignificantBit(UInt32 n)
+    {
+        Debug.Assert(n != 0);
+
+        return 32 - 1 - BitOperations.LeadingZeroCount(n);
+    }
+
+    /// <summary>
+    ///     Get the zero-based index of the least significant set bit.
+    ///     Invalid if <paramref name="n" /> is zero.
+    /// </summary>
+    /// <param name="n">The unsigned integer in which to find the least significant bit.</param>
+    /// <returns>The index of the least significant bit.</returns>
+    public static Int32 LeastSignificantBit(UInt32 n)
+    {
+        Debug.Assert(n != 0);
+
+        return BitOperations.TrailingZeroCount(n);
     }
 
     /// <summary>

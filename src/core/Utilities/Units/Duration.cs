@@ -30,6 +30,10 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <inheritdoc />
     public static Unit Unit => Unit.Second;
 
+    /// <inheritdoc />
+    public static Prefix.AllowedPrefixes Prefixes
+        => Prefix.AllowedPrefixes.Unprefixed | Prefix.AllowedPrefixes.Milli | Prefix.AllowedPrefixes.Micro | Prefix.AllowedPrefixes.Nano;
+
     Double IMeasure.Value => Seconds;
 
     /// <inheritdoc />

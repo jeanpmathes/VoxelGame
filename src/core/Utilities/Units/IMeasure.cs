@@ -19,14 +19,14 @@ public interface IMeasure
     static abstract Unit Unit { get; }
 
     /// <summary>
+    /// All allowed prefixes for the measure.
+    /// </summary>
+    static abstract Prefix.AllowedPrefixes Prefixes { get; }
+
+    /// <summary>
     ///     The value of the measures.
     /// </summary>
     Double Value { get; }
-
-    /// <summary>
-    ///     If set, only this prefix will be used for the measure.
-    /// </summary>
-    Prefix? Prefix => null;
 
     /// <summary>
     ///     Get the string representation of the measure.
@@ -36,7 +36,7 @@ public interface IMeasure
     /// <returns>The string representation of the measure.</returns>
     public static String ToString<T>(T measure) where T : IMeasure
     {
-        Prefix prefix = measure.Prefix ?? Prefix.FindBest(measure.Value);
+        Prefix prefix = Prefix.FindBest(measure.Value, T.Prefixes);
 
         return $"{measure.Value / prefix.Factor:F2} {prefix.Symbol}{T.Unit.Symbol}";
     }
