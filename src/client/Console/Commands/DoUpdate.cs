@@ -21,7 +21,7 @@ public class DoUpdate : Command
     public override String Name => "do-update";
 
     /// <inheritdoc />
-    public override String HelpText => "Cause a random update to occur for a targeted position.";
+    public override String HelpText => "Cause a 'random' update to occur for a targeted position.";
 
     /// <exclude />
     public void Invoke()

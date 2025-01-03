@@ -102,7 +102,7 @@ public sealed class SpatialMeshing : IMeshing
 
         Int32 size = primitive == IMeshing.Primitive.Quad
             ? 4
-            : throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null);
+            : throw Exceptions.UnsupportedEnumValue(primitive);
 
         mesh.EnsureCapacity(mesh.Count + size * count);
     }
@@ -110,7 +110,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public Int32 Count => mesh.Count;
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -140,5 +140,5 @@ public sealed class SpatialMeshing : IMeshing
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

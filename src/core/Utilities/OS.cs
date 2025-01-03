@@ -36,7 +36,7 @@ public static partial class OS
         catch (IOException e)
         {
             LogFailedToFillFile(logger, e, file.FullName, text);
-            
+
             return;
         }
 
@@ -73,13 +73,13 @@ public static partial class OS
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(OS));
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
+    [LoggerMessage(EventId = LogID.OS + 0, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
     private static partial void LogFailedToFillFile(ILogger logger, IOException e, String file, String text);
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "File to start not found: {File}")]
+    [LoggerMessage(EventId = LogID.OS + 1, Level = LogLevel.Debug, Message = "File to start not found: {File}")]
     private static partial void LogFileToStartNotFound(ILogger logger, String file);
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "Failed to start file: {File}")]
+    [LoggerMessage(EventId = LogID.OS + 2, Level = LogLevel.Debug, Message = "Failed to start file: {File}")]
     private static partial void LogFailedToStartFile(ILogger logger, Win32Exception e, String file);
 
     #endregion LOGGING

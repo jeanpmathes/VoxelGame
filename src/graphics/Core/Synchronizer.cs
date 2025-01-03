@@ -42,7 +42,7 @@ public class Synchronizer
     /// <summary>
     ///     Update the synchronizer and synchronize all objects.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         foreach (NativeObject? nativeObject in preSyncBag.AsSpan()) nativeObject?.PrepareSynchronization();
         foreach (NativeObject? nativeObject in syncBag.AsSpan()) nativeObject?.Synchronize();

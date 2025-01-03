@@ -27,18 +27,12 @@ public sealed class ScreenElementVFX : VFX
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly Vector2d relativeScreenPosition;
     private readonly ShaderBuffer<Data> data;
-
     private readonly Texture placeholder;
-
     private IDisposable? disposable;
-
     private Single scaling = 1.0f;
-
     private Color4 color = Color4.White;
-
     private Texture? texture;
     private Boolean isTextureInitialized;
-
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
@@ -58,12 +52,12 @@ public sealed class ScreenElementVFX : VFX
     ///     Create a new <see cref="ScreenElementVFX" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
-    /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
+    /// <param name="factory">The factory creating the pipeline.</param>
     /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
-    public static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines, Vector2d relativeScreenPosition)
+    internal static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, Vector2d relativeScreenPosition)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = pipelines.LoadPipelineWithBuffer<Data>(client, "ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
+            = factory.LoadPipelineWithBuffer<Data>("ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
@@ -134,7 +128,7 @@ public sealed class ScreenElementVFX : VFX
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate()
+    protected override void OnLogicUpdate()
     {
         var screenSize = client.Size.ToVector2();
 
@@ -215,7 +209,7 @@ public sealed class ScreenElementVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -232,5 +226,5 @@ public sealed class ScreenElementVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

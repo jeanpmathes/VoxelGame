@@ -65,11 +65,11 @@ public sealed class Game : IDisposable
     }
 
     /// <summary>
-    ///     Perform one update cycle.
+    ///     Perform one logic update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -77,20 +77,20 @@ public sealed class Game : IDisposable
 
         Console?.Flush();
 
-        World.Update(deltaTime, timer);
+        World.LogicUpdate(deltaTime, timer);
     }
 
     /// <summary>
-    ///     Perform one render cycle.
+    ///     Perform one render update cycle.
     /// </summary>
-    public void Render()
+    public void RenderUpdate()
     {
         Throw.IfDisposed(disposed);
 
-        World.Render();
+        World.RenderUpdate();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -120,5 +120,5 @@ public sealed class Game : IDisposable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

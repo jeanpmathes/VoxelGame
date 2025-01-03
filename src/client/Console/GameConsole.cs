@@ -5,11 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console.Commands;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 
@@ -38,12 +36,11 @@ public partial class GameConsole : IConsoleProvider
         this.game = game;
         this.commandInvoker = commandInvoker;
     }
-    
+
     /// <inheritdoc />
     public void ProcessInput(String input)
     {
-        if (game.Console == null)
-            throw new InvalidOperationException();
+        if (game.Console == null) return;
 
         LogProcessingConsoleInput(logger, input);
 
@@ -55,8 +52,7 @@ public partial class GameConsole : IConsoleProvider
     /// <inheritdoc />
     public void OnWorldReady()
     {
-        if (game.Console == null)
-            throw new InvalidOperationException();
+        if (game.Console == null) return;
 
         LogTryingToExecuteWorldReadyScript(logger);
 
@@ -66,57 +62,20 @@ public partial class GameConsole : IConsoleProvider
         else LogNoWorldReadyScriptFound(logger);
     }
 
-    /// <summary>
-    ///     Build a default invoker for the game.
-    /// </summary>
-    /// <returns>A invoker, filled with all default commands and parsers.</returns>
-    public static CommandInvoker BuildInvoker()
-    {
-        CommandInvoker invoker = new();
-
-        invoker.AddParser(Parser.BuildParser(_ => true, s => s));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Int32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Int32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => UInt32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => UInt32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(Parser.BuildParser(
-            s => Enum.IsDefined(typeof(Orientation), s),
-            Enum.Parse<Orientation>));
-
-        invoker.AddParser(Parser.BuildParser(s => Boolean.TryParse(s, out _), Boolean.Parse));
-
-        invoker.SearchCommands();
-        invoker.AddCommand(new Help(invoker));
-
-        return invoker;
-    }
-
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameConsole>();
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Processing console input: {Command}")]
+    [LoggerMessage(EventId = LogID.GameConsole + 0, Level = LogLevel.Debug, Message = "Processing console input: {Command}")]
     private static partial void LogProcessingConsoleInput(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Trying to execute world ready script")]
+    [LoggerMessage(EventId = LogID.GameConsole + 1, Level = LogLevel.Debug, Message = "Trying to execute world ready script")]
     private static partial void LogTryingToExecuteWorldReadyScript(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Executed world ready script")]
+    [LoggerMessage(EventId = LogID.GameConsole + 2, Level = LogLevel.Information, Message = "Executed world ready script")]
     private static partial void LogExecutedWorldReadyScript(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "No world ready script found")]
+    [LoggerMessage(EventId = LogID.GameConsole + 3, Level = LogLevel.Debug, Message = "No world ready script found")]
     private static partial void LogNoWorldReadyScriptFound(ILogger logger);
 
     #endregion LOGGING

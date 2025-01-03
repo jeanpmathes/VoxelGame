@@ -39,6 +39,22 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
+    ///     Create a new array with the given values.
+    /// </summary>
+    /// <param name="values">The values to initialize the array with.</param>
+    public Array2D(T[][] values) : this(values.Length)
+    {
+        Debug.Assert(values.Length == Length);
+
+        for (var x = 0; x < Length; x++)
+        {
+            Debug.Assert(values[x].Length == Length);
+
+            for (var y = 0; y < Length; y++) this[x, y] = values[x][y];
+        }
+    }
+
+    /// <summary>
     ///     Access the element at the given position.
     /// </summary>
     /// <param name="x">The x coordinate. Must be between 0 and <see cref="Length" /> - 1.</param>
@@ -83,10 +99,13 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the array as a span.
+    ///     Get the array as a span.
     /// </summary>
     /// <returns>The array as a span.</returns>
-    public Span<T> AsSpan() => array;
+    public Span<T> AsSpan()
+    {
+        return array;
+    }
 
     /// <summary>
     ///     Get a reference to the element at the given position.

@@ -85,10 +85,10 @@ bool DXApp::HasFlag(CycleFlags value, CycleFlags flag)
     return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag));
 }
 
-void DXApp::Tick(CycleFlags const flags, bool const timer)
+void DXApp::Update(CycleFlags const flags, bool const timer)
 {
-    if (m_inTick) return;
-    m_inTick = true;
+    if (m_inUpdate) return;
+    m_inUpdate = true;
 
     if (!timer && m_isUpdateTimerRunning)
     {
@@ -96,56 +96,56 @@ void DXApp::Tick(CycleFlags const flags, bool const timer)
         m_isUpdateTimerRunning = false;
     }
 
-    if (HasFlag(flags, CycleFlags::ALLOW_UPDATE)) m_updateTimer.Tick([this] { Update(m_updateTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_LOGIC_UPDATE)) m_logicTimer.Tick([this] { Update(m_logicTimer); });
 
-    if (HasFlag(flags, CycleFlags::ALLOW_RENDER)) m_renderTimer.Tick([this] { Render(m_renderTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_RENDER_UPDATE)) m_renderTimer.Tick([this] { RenderUpdate(m_renderTimer); });
 
-    m_inTick = false;
+    m_inUpdate = false;
 }
 
 void DXApp::Init()
 {
     m_mouseCursors = LoadAllCursors();
 
-    OnPreInit();
+    OnPreInitialization();
 
     m_configuration.onInit();
 
-    OnPostInit();
+    OnPostInitialization();
 
-    m_updateTimer.SetFixedTimeStep(true);
-    m_updateTimer.SetTargetElapsedSeconds(1.0 / 60.0);
+    m_logicTimer.SetFixedTimeStep(true);
+    m_logicTimer.SetTargetElapsedSeconds(1.0 / 60.0);
 
     m_renderTimer.SetFixedTimeStep(false);
 
-    OnInitComplete();
+    OnInitializationComplete();
 }
 
 void DXApp::Update(StepTimer const& timer)
 {
     double const delta = timer.GetElapsedSeconds();
-    m_totalRenderTime += delta;
+    m_totalRenderUpdateTime += delta;
 
-    m_cycle = Cycle::UPDATE;
+    m_cycle = Cycle::LOGIC_UPDATE;
 
     m_configuration.onUpdate(delta);
-    OnUpdate(delta);
+    OnLogicUpdate(delta);
 
     m_cycle = std::nullopt;
 }
 
-void DXApp::Render(StepTimer const& timer)
+void DXApp::RenderUpdate(StepTimer const& timer)
 {
-    if (m_updateTimer.GetFrameCount() == 0) return;
+    if (m_logicTimer.GetFrameCount() == 0) return;
 
     double const delta = timer.GetElapsedSeconds();
-    m_totalRenderTime += delta;
+    m_totalRenderUpdateTime += delta;
 
-    m_cycle = Cycle::RENDER;
+    m_cycle = Cycle::RENDER_UPDATE;
 
-    OnPreRender();
-    m_configuration.onRender(delta);
-    OnRender(delta);
+    OnPreRenderUpdate();
+    m_configuration.onRenderUpdate(delta);
+    OnRenderUpdate(delta);
 
     m_cycle = std::nullopt;
 }
@@ -185,7 +185,7 @@ void DXApp::OnSizeMove(bool const enter)
     if (enter)
     {
         CheckReturn(
-            SetTimer(Win32Application::GetHwnd(), IDT_UPDATE, m_updateTimer.GetTargetElapsedMilliseconds(), nullptr));
+            SetTimer(Win32Application::GetHwnd(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)
@@ -195,7 +195,7 @@ void DXApp::OnSizeMove(bool const enter)
     }
 }
 
-void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Tick(CycleFlags::ALLOW_UPDATE, true); }
+void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Update(CycleFlags::ALLOW_LOGIC_UPDATE, true); }
 
 void DXApp::OnKeyDown(UINT8 const param) const { m_configuration.onKeyDown(param); }
 

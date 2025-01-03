@@ -7,7 +7,7 @@
 namespace VoxelGame.Toolkit;
 
 /// <summary>
-/// Helpful conversion methods.
+///     Helpful conversion methods.
 /// </summary>
 public static class Conversions
 {

@@ -12,7 +12,7 @@ using VoxelGame.Logging;
 namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
-/// Utility for throwing exceptions.
+///     Utility for throwing exceptions.
 /// </summary>
 public partial class Throw
 {
@@ -52,23 +52,11 @@ public partial class Throw
         throw new ObjectDisposedException(obj);
     }
 
-    /// <summary>
-    ///     Throw an exception if an object is null.
-    /// </summary>
-    /// <param name="obj">The object to check.</param>
-    /// <param name="message">The message to throw.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the object is null.</exception>
-    [Conditional("DEBUG")]
-    public static void IfNull([NotNull] Object? obj, String message = "")
-    {
-        if (obj is null) throw new ArgumentNullException(message);
-    }
-
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
 
-    [LoggerMessage(EventId = Events.Dispose, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
+    [LoggerMessage(EventId = LogID.Throw + 0, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
     private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, String source);
 
     #endregion LOGGING

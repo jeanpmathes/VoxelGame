@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -153,7 +154,7 @@ public class Tree : DynamicStructure
         Kind.Palm => palmExtents,
         Kind.Savanna => savannaExtents,
         Kind.Shrub => shrubExtents,
-        _ => throw new InvalidOperationException()
+        _ => throw Exceptions.UnsupportedEnumValue(kind)
     };
 
     private Shape3D GetCrownShape()
@@ -167,7 +168,7 @@ public class Tree : DynamicStructure
             Kind.Palm => palmCrown,
             Kind.Savanna => savannaCrown,
             Kind.Shrub => shrubCrown,
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(kind)
         };
     }
 
@@ -182,12 +183,12 @@ public class Tree : DynamicStructure
             Kind.Palm => palmConfig,
             Kind.Savanna => savannaConfig,
             Kind.Shrub => shrubConfig,
-            _ => throw new InvalidOperationException()
+            _ => throw Exceptions.UnsupportedEnumValue(kind)
         };
     }
 
     /// <inheritdoc />
-    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
     {
         Int32 center = Extents.X / 2;
         Debug.Assert(Extents.X == Extents.Z);
@@ -201,7 +202,7 @@ public class Tree : DynamicStructure
             return (new Content(Elements.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
 
         if (!GetCrownShape().Contains(offset, out Single closeness)) return null;
-        if (closeness < factor * Random.NextSingle()) return null;
+        if (closeness < factor * random) return null;
 
         return (new Content(Elements.Blocks.Instance.Leaves), overwrite: false);
     }

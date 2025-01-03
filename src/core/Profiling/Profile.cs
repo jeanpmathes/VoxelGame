@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Collections.Properties;
@@ -111,8 +112,8 @@ public partial class Profile(ProfilerConfiguration configuration)
     }
 
     /// <summary>
-    /// Prepare a timing measurement for later completion.
-    /// This can be called multiple times with the same key, but only the first call will have an effect.
+    ///     Prepare a timing measurement for later completion.
+    ///     This can be called multiple times with the same key, but only the first call will have an effect.
     /// </summary>
     /// <param name="key">The unique key of the measurement.</param>
     /// <param name="parent">The unique key of the parent measurement, if any.</param>
@@ -177,8 +178,9 @@ public partial class Profile(ProfilerConfiguration configuration)
     {
         private readonly List<TimingMeasurement> children = [];
 
-        private readonly Object timingLock = new();
-        private readonly Object childrenLock = new();
+        private readonly Lock timingLock = new();
+        private readonly Lock childrenLock = new();
+
         private CircularTimeBuffer? reoccurring;
         private Double once;
 
@@ -324,10 +326,10 @@ public partial class Profile(ProfilerConfiguration configuration)
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Profile>();
 
-    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Global profiler configured: {Configuration}")]
+    [LoggerMessage(EventId = LogID.Profile + 0, Level = LogLevel.Information, Message = "Global profiler configured: {Configuration}")]
     private static partial void LogGlobalProfilerConfigured(ILogger logger, ProfilerConfiguration configuration);
 
-    [LoggerMessage(EventId = Events.Profiling, Level = LogLevel.Information, Message = "Creating profiler exit report")]
+    [LoggerMessage(EventId = LogID.Profile + 1, Level = LogLevel.Information, Message = "Creating profiler exit report")]
     private static partial void LogCreatingProfilerExitReport(ILogger logger);
 
     #endregion LOGGING

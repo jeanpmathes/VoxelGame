@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -26,13 +27,16 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: open
 public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
+    private readonly RID openModel;
+    private readonly RID closedModel;
+
     private readonly Single diameter;
 
     private readonly List<BlockMesh?> meshes = new(capacity: 8);
     private readonly List<BoundingVolume> volumes = [];
 
-    internal SteelPipeValveBlock(String name, String namedID, Single diameter, String openModel,
-        String closedModel) :
+    internal SteelPipeValveBlock(String name, String namedID, Single diameter,
+        RID openModel, RID closedModel) :
         base(
             name,
             namedID,
@@ -41,23 +45,8 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     {
         this.diameter = diameter;
 
-        (BlockModel openX, BlockModel openY, BlockModel openZ) = BlockModel.Load(openModel).CreateAllAxis();
-        (BlockModel closedX, BlockModel closedY, BlockModel closedZ) = BlockModel.Load(closedModel).CreateAllAxis();
-
-        meshes.Add(openX.Mesh);
-        meshes.Add(openY.Mesh);
-        meshes.Add(openZ.Mesh);
-        meshes.Add(item: null);
-
-        meshes.Add(closedX.Mesh);
-        meshes.Add(closedY.Mesh);
-        meshes.Add(closedZ.Mesh);
-        meshes.Add(item: null);
-
-        for (UInt32 data = 0; data <= 0b00_0111; data++)
-        {
-            volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
-        }
+        this.openModel = openModel;
+        this.closedModel = closedModel;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -89,6 +78,25 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
         return side.Axis() == (Axis) (block.Data & 0b00_0011);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        (BlockModel openX, BlockModel openY, BlockModel openZ) = modelProvider.GetModel(openModel).CreateAllAxis();
+        (BlockModel closedX, BlockModel closedY, BlockModel closedZ) = modelProvider.GetModel(closedModel).CreateAllAxis();
+
+        meshes.Add(openX.CreateMesh(textureIndexProvider));
+        meshes.Add(openY.CreateMesh(textureIndexProvider));
+        meshes.Add(openZ.CreateMesh(textureIndexProvider));
+        meshes.Add(item: null);
+
+        meshes.Add(closedX.CreateMesh(textureIndexProvider));
+        meshes.Add(closedY.CreateMesh(textureIndexProvider));
+        meshes.Add(closedZ.CreateMesh(textureIndexProvider));
+        meshes.Add(item: null);
+
+        for (UInt32 data = 0; data <= 0b00_0111; data++) volumes.Add((data & 0b00_0011) == 0b11 ? null! : CreateVolume(data));
     }
 
     private BoundingVolume CreateVolume(UInt32 data)

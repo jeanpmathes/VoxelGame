@@ -4,16 +4,16 @@
 // </copyright>
 // <author>Gwen.Net, jeanpmathes</author>
 
-using System;
 using Gwen.Net.Control;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.UI.Platform;
 
 /// <summary>
 ///     Base interface for Gwen GUIs.
 /// </summary>
-public interface IGwenGui : IDisposable
+public interface IGwenGui : IResource
 {
     /// <summary>
     ///     The root control.

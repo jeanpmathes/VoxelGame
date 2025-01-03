@@ -221,7 +221,7 @@ public class Section : Core.Logic.Sections.Section
         vfx.SetData(meshData);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -241,5 +241,5 @@ public class Section : Core.Logic.Sections.Section
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

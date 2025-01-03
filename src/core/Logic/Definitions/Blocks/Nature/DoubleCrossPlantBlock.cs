@@ -25,12 +25,12 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly String bottomTexture;
-    private readonly Int32 topTexOffset;
+    private readonly TID lowerTexture;
+    private readonly TID upperTexture;
 
     private readonly List<BlockMesh> meshes = [];
 
-    internal DoubleCrossPlantBlock(String name, String namedID, String bottomTexture, Int32 topTexOffset,
+    internal DoubleCrossPlantBlock(String name, String namedID, TID lowerTexture, TID upperTexture,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -38,8 +38,8 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
             new BlockFlags(),
             boundingVolume)
     {
-        this.bottomTexture = bottomTexture;
-        this.topTexOffset = topTexOffset;
+        this.lowerTexture = lowerTexture;
+        this.upperTexture = upperTexture;
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
@@ -61,12 +61,12 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 bottomTextureIndex = indexProvider.GetTextureIndex(bottomTexture);
-        Int32 topTextureIndex = bottomTextureIndex + topTexOffset;
+        Int32 lowerTextureIndex = textureIndexProvider.GetTextureIndex(lowerTexture);
+        Int32 upperTextureIndex = textureIndexProvider.GetTextureIndex(upperTexture);
 
-        for (UInt32 data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, bottomTextureIndex, topTextureIndex, visuals));
+        for (UInt32 data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, lowerTextureIndex, upperTextureIndex, visuals));
     }
 
     private static BlockMesh CreateMesh(UInt32 data, Int32 bottomTextureIndex, Int32 topTextureIndex, VisualConfiguration visuals)

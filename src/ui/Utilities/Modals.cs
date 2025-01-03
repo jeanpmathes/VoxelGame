@@ -39,7 +39,7 @@ internal static class Modals
     }
 
     /// <summary>
-    /// Open a model that asks whether to delete something.
+    ///     Open a model that asks whether to delete something.
     /// </summary>
     internal static void OpenDeletionModal(ControlBase parent, DeletionBox.Parameters parameters, DeletionBox.Actions actions, Context context)
     {

@@ -9,9 +9,9 @@ using System;
 namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
-/// The request level of a chunk.
-/// Requests are made with the highest level and spread outwards along the sides.
-/// This means not all 26 neighbors around a chunk receive the same level on spreading.
+///     The request level of a chunk.
+///     Requests are made with the highest level and spread outwards along the sides.
+///     This means not all 26 neighbors around a chunk receive the same level on spreading.
 /// </summary>
 public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<RequestLevel>
 {
@@ -78,21 +78,21 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     public Boolean IsLoaded => level >= LoadedLevel;
 
     /// <summary>
-    /// Whether the chunk should be active.
+    ///     Whether the chunk should be active.
     /// </summary>
     public Boolean IsActive => level >= ActiveLevel;
 
     /// <summary>
-    /// Whether the chunk should be simulated.
+    ///     Whether the chunk should be simulated.
     /// </summary>
     public Boolean IsSimulated => level >= SimulatedLevel;
 
     /// <summary>
-    /// The integer value of the level.
+    ///     The integer value of the level.
     /// </summary>
     public Int32 Value => level;
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <summary>
     ///     Tests if this request level is equal to another.
@@ -130,7 +130,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
         return !left.Equals(right);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 
     #region Comparable Support
 

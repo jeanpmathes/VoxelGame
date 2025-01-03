@@ -44,14 +44,12 @@ public interface IComplex : IBlockMeshable
     /// </summary>
     public readonly struct MeshData : IEquatable<MeshData>
     {
-        private readonly BlockMesh.Quad[] quads;
-
         /// <summary>
         ///     Create the mesh data.
         /// </summary>
         public MeshData(BlockMesh.Quad[] quads)
         {
-            this.quads = quads;
+            Quads = quads;
 
             QuadCount = (UInt32) quads.Length;
 
@@ -62,7 +60,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     Get the quads of the mesh.
         /// </summary>
-        public BlockMesh.Quad[] Quads => quads;
+        public BlockMesh.Quad[] Quads { get; }
 
         /// <summary>
         ///     Get the quad count of the mesh.
@@ -82,8 +80,8 @@ public interface IComplex : IBlockMeshable
         /// <inheritdoc />
         public Boolean Equals(MeshData other)
         {
-            return (Tint, IsAnimated, quads) ==
-                   (other.Tint, other.IsAnimated, quads);
+            return (Tint, IsAnimated, Quads) ==
+                   (other.Tint, other.IsAnimated, Quads);
         }
 
         /// <inheritdoc />
@@ -95,7 +93,7 @@ public interface IComplex : IBlockMeshable
         /// <inheritdoc />
         public override Int32 GetHashCode()
         {
-            return HashCode.Combine(quads, Tint, IsAnimated);
+            return HashCode.Combine(Quads, Tint, IsAnimated);
         }
 
         /// <summary>

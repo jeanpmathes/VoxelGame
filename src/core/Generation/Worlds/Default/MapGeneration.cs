@@ -12,8 +12,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
@@ -24,12 +26,9 @@ public partial class Map
 {
     private const Single MinimumLandHeight = +0.05f;
     private const Single AverageWaterHeight = -0.4f;
-
     private const Double PieceHeightChangeRange = 0.2;
-
     private const Double MaxDivergentBoundaryLandOffset = -0.025;
     private const Double MaxDivergentBoundaryWaterOffset = +0.2;
-
     private const Double MaxConvergentBoundaryLandLifting = +0.7;
     private const Double MaxConvergentBoundaryWaterLifting = +0.4;
     private const Double MaxConvergentBoundaryWaterSinking = -0.4;
@@ -389,7 +388,7 @@ public partial class Map
                 break;
 
             default:
-                throw new InvalidOperationException();
+                throw Exceptions.UnsupportedEnumValue(collision);
         }
     }
 
@@ -716,7 +715,7 @@ public partial class Map
 
     private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
     {
-        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Color : Color.White;
+        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Definition.Color : Color.White;
     }
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
@@ -765,7 +764,6 @@ public partial class Map
     private record struct HumidityData
     {
         public Single clouds;
-
         public Single dispersal;
         public Single humidity;
         public Single runoff;

@@ -72,6 +72,7 @@ public static class BlockModels
     ///     Lock a group of models.
     /// </summary>
     /// <param name="group">The models to lock.</param>
+    /// <param name="textureIndexProvider">A texture index provider.</param>
     public static void Lock(
         this (
             BlockModel front,
@@ -80,25 +81,26 @@ public static class BlockModels
             BlockModel right,
             BlockModel bottom,
             BlockModel top)
-            group)
+            group, ITextureIndexProvider textureIndexProvider)
     {
-        group.front.Lock();
-        group.back.Lock();
-        group.left.Lock();
-        group.right.Lock();
-        group.bottom.Lock();
-        group.top.Lock();
+        group.front.Lock(textureIndexProvider);
+        group.back.Lock(textureIndexProvider);
+        group.left.Lock(textureIndexProvider);
+        group.right.Lock(textureIndexProvider);
+        group.bottom.Lock(textureIndexProvider);
+        group.top.Lock(textureIndexProvider);
     }
 
     /// <summary>
     ///     Lock a group of models.
     /// </summary>
     /// <param name="group">The group to lock.</param>
-    public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group)
+    /// <param name="textureIndexProvider">A texture index provider.</param>
+    public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group, ITextureIndexProvider textureIndexProvider)
     {
-        group.north.Lock();
-        group.east.Lock();
-        group.south.Lock();
-        group.west.Lock();
+        group.north.Lock(textureIndexProvider);
+        group.east.Lock(textureIndexProvider);
+        group.south.Lock(textureIndexProvider);
+        group.west.Lock(textureIndexProvider);
     }
 }

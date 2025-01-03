@@ -65,7 +65,7 @@ namespace vg
          * \return Whether the quad's normal is inverted.
          */
         bool GetNormalInvertedFlag(uint4 const data) { return (data[1] >> 3) & BITMASK(1); }
-        
+
         /**
          * \brief Decode a float4 from a base 17 number.
          * \param value The value to decode.

@@ -27,25 +27,18 @@ public sealed class OverlayVFX : VFX
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
-
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
-
     private readonly (TextureArray block, TextureArray fluid) textures;
-
     private IDisposable? disposable;
-
     private Int32 mode = BlockMode;
     private TintColor tint = TintColor.None;
     private Boolean isAnimated;
-
     private Single lowerBound;
     private Single upperBound;
-
     private Int32 textureID;
     private Int32 firstFluidTextureID;
     private Boolean isTextureInitialized;
-
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
 
@@ -63,13 +56,13 @@ public sealed class OverlayVFX : VFX
     ///     Create a new <see cref="OverlayVFX" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
-    /// <param name="pipelines">The pipelines object used to load the pipeline.</param>
+    /// <param name="factory">The factory to create the pipeline.</param>
     /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
     /// <returns>The new VFX.</returns>
-    public static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, Pipelines pipelines, (TextureArray, TextureArray) textures)
+    internal static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, (TextureArray, TextureArray) textures)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = pipelines.LoadPipelineWithBuffer<Data>(client, "Overlay", new ShaderPresets.Draw2D(Filter.Closest));
+            = factory.LoadPipelineWithBuffer<Data>("Overlay", new ShaderPresets.Draw2D(Filter.Closest));
 
         if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
@@ -141,7 +134,7 @@ public sealed class OverlayVFX : VFX
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate()
+    protected override void OnLogicUpdate()
     {
         Matrix4d model = Matrix4d.Identity;
         Matrix4d view = Matrix4d.Identity;
@@ -277,7 +270,7 @@ public sealed class OverlayVFX : VFX
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -294,5 +287,5 @@ public sealed class OverlayVFX : VFX
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

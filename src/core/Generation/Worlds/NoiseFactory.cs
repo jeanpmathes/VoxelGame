@@ -27,8 +27,11 @@ public class NoiseFactory
 
 
     /// <summary>
-    /// Get the next noise builder.
+    ///     Get the next noise builder.
     /// </summary>
     /// <returns>A new noise builder, using a different seed.</returns>
-    public NoiseBuilder CreateNext() => NoiseBuilder.Create(random.Next(Int32.MinValue, Int32.MaxValue));
+    public NoiseBuilder CreateNext()
+    {
+        return NoiseBuilder.Create(random.Next(Int32.MinValue, Int32.MaxValue));
+    }
 }

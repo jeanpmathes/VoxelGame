@@ -30,22 +30,16 @@ internal class StartUI : ControlBase
     private const Int32 WorldSelectionMenuIndex = 2;
     private const Int32 CreditsMenuIndex = 3;
 
-    private readonly List<StandardMenu> menus = new();
+    private readonly List<StandardMenu> menus = [];
     private readonly MainMenu mainMenu;
-
-    private readonly Context context;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         IEnumerable<SettingsProvider> settingsProviders) : base(parent.Root)
     {
-        context = parent.Context;
-
         Dock = Dock.Fill;
 
-        Exit = delegate {};
-
         mainMenu = new MainMenu(this, parent.Context);
-        mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
+        mainMenu.SelectExit += (_, _) => Exit?.Invoke(this, EventArgs.Empty);
         mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
         mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
         mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
@@ -88,13 +82,13 @@ internal class StartUI : ControlBase
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            MinimumSize = new Size(width: 1000, height: 1000)
+            MinimumSize = new Size(width: 1200, height: 1000)
         };
 
-        PropertyBasedTreeControl tree = new(window, resources, context);
+        PropertyBasedTreeControl tree = new(window, resources);
 
         tree.ExpandAll();
     }
 
-    internal event EventHandler Exit;
+    internal event EventHandler? Exit;
 }

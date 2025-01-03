@@ -80,8 +80,8 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     public abstract Vector3d Movement { get; }
 
     /// <summary>
-    /// The head of the physics actor, which allows to determine where the actor is looking at.
-    /// If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
+    ///     The head of the physics actor, which allows to determine where the actor is looking at.
+    ///     If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
     /// </summary>
     public virtual IOrientable Head => this;
 
@@ -168,7 +168,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     }
 
     /// <inheritdoc />
-    public override void Tick(Double deltaTime)
+    public override void LogicUpdate(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -185,7 +185,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
             IsSwimming = false;
         }
 
-        Update(deltaTime);
+        OnLogicUpdate(deltaTime);
     }
 
     private void CalculatePhysics(Double deltaTime)
@@ -276,21 +276,21 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     }
 
     /// <summary>
-    ///     Receives the actor update every tick.
+    ///     Called in each logic update to update the physics actor.
     /// </summary>
-    /// <param name="deltaTime"></param>
-    protected abstract void Update(Double deltaTime);
+    /// <param name="deltaTime">The time since the last update.</param>
+    protected abstract void OnLogicUpdate(Double deltaTime);
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
 
-    [LoggerMessage(EventId = Events.PhysicsSystem, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
+    [LoggerMessage(EventId = LogID.PhysicsActor + 0, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
     private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -305,5 +305,5 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

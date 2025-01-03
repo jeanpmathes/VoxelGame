@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
@@ -187,7 +188,7 @@ public readonly struct Frustum : IEquatable<Frustum>
             3 => Right,
             4 => Bottom,
             5 => Top,
-            _ => throw new ArgumentOutOfRangeException(nameof(index), index, message: null)
+            _ => throw Exceptions.UnsupportedValue(index)
         };
     }
 

@@ -22,6 +22,10 @@ public readonly struct Length : IMeasure, IEquatable<Length>
     public static Unit Unit => Unit.Meter;
 
     /// <inheritdoc />
+    public static Prefix.AllowedPrefixes Prefixes
+        => Prefix.AllowedPrefixes.Kilo | Prefix.AllowedPrefixes.Unprefixed | Prefix.AllowedPrefixes.Milli | Prefix.AllowedPrefixes.Micro | Prefix.AllowedPrefixes.Nano;
+
+    /// <inheritdoc />
     Double IMeasure.Value => Meters;
 
     /// <inheritdoc />

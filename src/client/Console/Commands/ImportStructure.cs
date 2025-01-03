@@ -58,6 +58,6 @@ public class ImportStructure : Command
     private void Import(Vector3i position, String name, Orientation orientation)
     {
         StaticStructure structure = StaticStructure.Load(Program.StructureDirectory, name);
-        structure.Place(Context.Player.World, position, orientation);
+        structure.Place(seed: 0, Context.Player.World, position, orientation);
     }
 }

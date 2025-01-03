@@ -14,12 +14,15 @@ using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -40,14 +43,14 @@ public sealed partial class GameScene : IScene
 
     private Boolean isMouseUnlockedByUserRequest;
 
-    internal GameScene(Application.Client client, World world)
+    internal GameScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine)
     {
         Client = client;
 
-        ui = CreateUI(client);
-        Game = CreateGame(client, world);
+        ui = CreateUI(client, uiResources);
+        Game = CreateGame(client.Space.Camera, world, engine);
 
-        GameConsole console = new(Game, client.Resources.Commands);
+        GameConsole console = new(Game, commands);
 
         world.State.Activated += (_, _) =>
         {
@@ -86,7 +89,7 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(Game != null, "Scene has been unloaded.");
+        Debug.Assert(Game != null);
 
         ui.SetPlayerDataProvider(Game.Player);
 
@@ -98,7 +101,7 @@ public sealed partial class GameScene : IScene
         if (ui.Console != null)
             Game.Initialize(new ConsoleWrapper(ui.Console));
 
-        Client.OnFocusChange += OnFocusChanged;
+        Client.FocusChanged += OnFocusChanged;
 
         LogLoadedGameScene(logger);
     }
@@ -112,38 +115,38 @@ public sealed partial class GameScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Render", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene RenderUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene Render Game", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene RenderUpdate Game", subTimer))
         {
-            Game.Render();
+            Game.RenderUpdate();
         }
 
-        using (logger.BeginTimedSubScoped("GameScene Render UI", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene RenderUpdate UI", subTimer))
         {
-            RenderUI();
+            RenderUpdateUI();
         }
     }
 
     /// <inheritdoc />
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene Update", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene Update UI", subTimer))
+        using (logger.BeginTimedSubScoped("GameScene LogicUpdate UI", subTimer))
         {
-            ui.Update();
+            ui.LogicUpdate();
         }
 
-        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene Update Game", subTimer))
+        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate Game", subTimer))
         {
-            Game.Update(deltaTime, gameTimer);
+            Game.LogicUpdate(deltaTime, gameTimer);
         }
 
         if (!Client.IsFocused)
@@ -181,7 +184,7 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        Client.OnFocusChange -= OnFocusChanged;
+        Client.FocusChanged -= OnFocusChanged;
 
         Game.Dispose();
         Game = null!;
@@ -193,22 +196,22 @@ public sealed partial class GameScene : IScene
         return false;
     }
 
-    private static GameUserInterface CreateUI(Application.Client client)
+    private static GameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
     {
         return new GameUserInterface(
             client.Input,
             client.Settings,
-            client.Resources.UI,
+            uiResources,
             drawBackground: false);
     }
 
-    private Game CreateGame(Application.Client client, World world)
+    private Game CreateGame(Camera camera, World world, Engine engine)
     {
         Player player = new(
             mass: 70f,
-            client.Space.Camera,
+            camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            new VisualInterface(ui, client.Resources),
+            new VisualInterface(ui, engine),
             this);
 
         world.AddPlayer(player);
@@ -234,20 +237,14 @@ public sealed partial class GameScene : IScene
         {
             if (!world.State.IsActive) return;
 
-            world.State.BeginSaving(() =>
-            {
-                // Nothing to do.
-            });
+            world.State.BeginSaving();
         };
 
         ui.WorldExit += (_, args) =>
         {
             if (!world.State.IsActive) return;
 
-            world.State.BeginTerminating(() =>
-            {
-                Client.ExitGame(args.ExitToOS);
-            });
+            world.State.BeginTerminating()?.Then(() => Client.ExitGame(args.ExitToOS));
         };
 
         ui.AnyOverlayOpened += (_, _) => OnOverlayOpen();
@@ -275,17 +272,17 @@ public sealed partial class GameScene : IScene
         if (!Client.IsFocused) ui.HandleLossOfFocus();
     }
 
-    private void RenderUI()
+    private void RenderUpdateUI()
     {
         ui.UpdatePerformanceData();
-        ui.Render();
+        ui.RenderUpdate();
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
 
-    [LoggerMessage(EventId = Events.SceneChange, Level = LogLevel.Information, Message = "Loaded the game scene")]
+    [LoggerMessage(EventId = LogID.GameScene + 0, Level = LogLevel.Information, Message = "Loaded the game scene")]
     private static partial void LogLoadedGameScene(ILogger logger);
 
     #endregion LOGGING

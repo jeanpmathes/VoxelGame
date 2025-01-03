@@ -10,6 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -69,14 +70,16 @@ public class FluidContactManager
         var a = new ContactInformation(fluidA, posA);
         var b = new ContactInformation(fluidB, posB);
 
-        return map.Resolve(a.fluid, b.fluid) switch
+        ContactAction action = map.Resolve(a.fluid, b.fluid);
+
+        return action switch
         {
             ContactAction.Default => SwapByDensity(world, a, b),
             ContactAction.CoolLava => CoolLava(world, a, b),
             ContactAction.BurnWithLava => BurnWithLava(world, a, b),
             ContactAction.DissolveConcrete => DissolveConcrete(world, a, b),
             ContactAction.MixWater => MixWater(world, a, b),
-            _ => throw new NotSupportedException()
+            _ => throw Exceptions.UnsupportedEnumValue(action)
         };
     }
 
@@ -104,7 +107,7 @@ public class FluidContactManager
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation burned);
 
-        lava.fluid.TickSoon(world, lava.position, lava.isStatic);
+        lava.fluid.UpdateSoon(world, lava.position, lava.isStatic);
 
         world.SetDefaultFluid(burned.position);
         Blocks.Instance.Fire.Place(world, burned.position);
@@ -164,7 +167,7 @@ public class FluidContactManager
     {
         Select(a, b, Fluids.Instance.Concrete, out ContactInformation concrete, out ContactInformation other);
 
-        other.fluid.TickSoon(world, other.position, other.isStatic);
+        other.fluid.UpdateSoon(world, other.position, other.isStatic);
 
         SetFluid(world, concrete.position, Fluids.Instance.FreshWater, concrete.level);
 
@@ -203,7 +206,7 @@ public class FluidContactManager
             fluid.AsInstance(level),
             position);
 
-        fluid.TickSoon(world, position, isStatic: true);
+        fluid.UpdateSoon(world, position, isStatic: true);
     }
 
     private static Boolean IsFlowAllowed(World world, Vector3i from, Vector3i to)

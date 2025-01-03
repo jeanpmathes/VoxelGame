@@ -58,17 +58,20 @@ float4 PSMain(PSInput const input) : SV_TARGET
 
     switch (cb.mode)
     {
-    case BLOCK_MODE: if (color.a < 0.1f) discard;
+    case BLOCK_MODE:
+        if (color.a < 0.1f) discard;
 
         if (color.a >= 0.3f) color *= vg::decode::GetTintColor(cb.attributes);
 
         color.a = 1.0f;
         break;
 
-    case FLUID_MODE: color *= vg::decode::GetTintColor(cb.attributes);
+    case FLUID_MODE:
+        color *= vg::decode::GetTintColor(cb.attributes);
         break;
 
-    default: break;
+    default:
+        break;
     }
 
     return color;

@@ -5,18 +5,19 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     Can provide a texture index for a given texture.
 /// </summary>
-public interface ITextureIndexProvider
+public interface ITextureIndexProvider : IResourceProvider
 {
     /// <summary>
     ///     Get the texture index for the given texture.
     /// </summary>
-    /// <param name="name">The name of the texture.</param>
+    /// <param name="identifier">The texture identifier.</param>
     /// <returns>The texture index.</returns>
-    Int32 GetTextureIndex(String name);
+    public Int32 GetTextureIndex(TID identifier);
 }

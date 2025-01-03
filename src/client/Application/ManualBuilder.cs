@@ -47,37 +47,38 @@ public static partial class ManualBuilder
 
         controls.CreateSections(
             Client.Instance.Keybinds.Binds,
-            keybind => Section.Create(keybind.Name)
-                .Text("The key is bound to").Key(keybind.Default).Text("per default.").EndSection());
+            keybind => Section.Create(keybind.Name, section => section.Text("The key is bound to").Key(keybind.Default).Text("per default.")));
 
         controls.Generate();
 
         Includable blocks = new("blocks", directory);
 
         blocks.CreateSections(
-            Blocks.Instance.GetValues<Block>(documentation),
-            ((Block block, String description) s) => Section.Create(s.block.Name)
-                .Text(s.description).NewLine()
-                .BeginList()
-                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
-                .Item("Solid:").Boolean(s.block.IsSolid)
-                .Item("Interactions:").Boolean(s.block.IsInteractable)
-                .Item("Replaceable:").Boolean(s.block.IsReplaceable)
-                .Finish().EndSection());
+            Blocks.Instance.GetDocumentedValues<Block>(documentation),
+            ((Block block, String description) s) =>
+                Section.Create(s.block.Name,
+                    section =>
+                        section.Text(s.description).NewLine()
+                            .List(list => list
+                                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
+                                .Item("Solid:").Boolean(s.block.IsSolid)
+                                .Item("Interactions:").Boolean(s.block.IsInteractable)
+                                .Item("Replaceable:").Boolean(s.block.IsReplaceable))));
 
         blocks.Generate();
 
         Includable fluids = new("fluids", directory);
 
         fluids.CreateSections(
-            Fluids.Instance.GetValues<Fluid>(documentation),
-            ((Fluid fluid, String description) s) => Section.Create(s.fluid.Name)
-                .Text(s.description).NewLine()
-                .BeginList()
-                .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
-                .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture))
-                .Finish().EndSection());
+            Fluids.Instance.GetDocumentedValues<Fluid>(documentation),
+            ((Fluid fluid, String description) s) =>
+                Section.Create(s.fluid.Name,
+                    section => section
+                        .Text(s.description).NewLine()
+                        .List(list => list
+                            .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
+                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                            .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture)))));
 
         fluids.Generate();
 
@@ -88,10 +89,10 @@ public static partial class ManualBuilder
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(ManualBuilder));
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Generating game manual")]
+    [LoggerMessage(EventId = LogID.ManualBuilder + 0, Level = LogLevel.Information, Message = "Generating game manual")]
     private static partial void LogGeneratingManual(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationInformation, Level = LogLevel.Information, Message = "Saved game manual to {Path}")]
+    [LoggerMessage(EventId = LogID.ManualBuilder + 1, Level = LogLevel.Information, Message = "Saved game manual to {Path}")]
     private static partial void LogSavedManual(ILogger logger, String path);
 
     #endregion LOGGING

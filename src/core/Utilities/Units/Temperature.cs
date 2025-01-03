@@ -27,7 +27,8 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     public static Unit Unit => Unit.Celsius;
 
     /// <inheritdoc />
-    public Prefix Prefix => Prefix.None;
+    public static Prefix.AllowedPrefixes Prefixes
+        => Prefix.AllowedPrefixes.None;
 
     /// <inheritdoc />
     Double IMeasure.Value => DegreesCelsius;

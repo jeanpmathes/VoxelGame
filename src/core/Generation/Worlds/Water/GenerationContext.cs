@@ -62,5 +62,5 @@ public sealed class GenerationContext(Generator generator) : IGenerationContext
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

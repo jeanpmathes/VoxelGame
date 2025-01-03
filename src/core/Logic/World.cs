@@ -91,7 +91,7 @@ public abstract partial class World : IDisposable, IGrid
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer) ?? throw Exceptions.InvalidOperation("The generator could not be initialized.");
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
         Chunks = new ChunkSet(this, ChunkContext);
@@ -105,7 +105,7 @@ public abstract partial class World : IDisposable, IGrid
     public IWorldStates State => state;
 
     /// <summary>
-    /// Get the chunks of this world.
+    ///     Get the chunks of this world.
     /// </summary>
     public ChunkSet Chunks { get; }
 
@@ -194,7 +194,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        SetContent(content, position, tickFluid: true);
+        SetContent(content, position, updateFluid: true);
     }
 
     private void UnloadChunk(Chunk chunk)
@@ -202,9 +202,9 @@ public abstract partial class World : IDisposable, IGrid
         Chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
+    private static IWorldGenerator? GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(new WorldGeneratorContext(world, timer));
+        return Generator.Create(new WorldGeneratorContext(world, timer));
     }
 
     /// <summary>
@@ -311,7 +311,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: true);
+        SetContent(new Content(block, fluid), position, updateFluid: true);
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: false);
+        SetContent(new Content(block, fluid), position, updateFluid: false);
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, Boolean tickFluid)
+    private void SetContent(in Content content, Vector3i position, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
@@ -351,7 +351,7 @@ public abstract partial class World : IDisposable, IGrid
         chunk.GetSection(position).SetContent(position, val);
 
         content.Block.Block.ContentUpdate(this, position, content);
-        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
+        if (updateFluid) content.Fluid.Fluid.UpdateNow(this, position, content.Fluid);
 
         foreach (Side side in Side.All.Sides())
         {
@@ -365,7 +365,7 @@ public abstract partial class World : IDisposable, IGrid
 
             // Side is passed out of the perspective of the block receiving the block update.
             blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
-            fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
+            fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
         ProcessChangedSection(chunk, position);
@@ -580,53 +580,53 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     /// <param name="deltaTime">Time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
     {
-        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("World LogicUpdate", updateTimer);
 
-        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
+        using (logger.BeginTimedSubScoped("World LogicUpdate Chunks", subTimer))
         {
             UpdateChunks();
         }
 
-        state.Update(deltaTime, updateTimer);
+        state.LogicUpdate(deltaTime, updateTimer);
     }
 
     /// <summary>
-    /// Called by the active state during <see cref="Update"/> when the world is active.
+    ///     Called by the active state during <see cref="LogicUpdate" /> when the world is active.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public virtual void ActiveUpdate(Double deltaTime, Timer? updateTimer) {}
+    public virtual void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer) {}
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Created new world")]
+    [LoggerMessage(EventId = LogID.World + 0, Level = LogLevel.Information, Message = "Created new world")]
     private static partial void LogCreatedNewWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Loaded existing world")]
+    [LoggerMessage(EventId = LogID.World + 1, Level = LogLevel.Information, Message = "Loaded existing world")]
     private static partial void LogLoadedExistingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
+    [LoggerMessage(EventId = LogID.World + 2, Level = LogLevel.Information, Message = "Unloading world")]
     private static partial void LogUnloadingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
+    [LoggerMessage(EventId = LogID.World + 3, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
     private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
+    [LoggerMessage(EventId = LogID.World + 4, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
     private static partial void LogWorldSizeSet(ILogger logger, UInt32 size);
 
-    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
+    [LoggerMessage(EventId = LogID.World + 5, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
     private static partial void LogChunkRequested(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkRelease, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
+    [LoggerMessage(EventId = LogID.World + 6, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
     private static partial void LogChunkReleased(ILogger logger, ChunkPosition position);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -664,5 +664,5 @@ public abstract partial class World : IDisposable, IGrid
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -32,7 +32,7 @@ public class Mouse
     {
         this.client = client;
 
-        this.client.OnFocusChange += (_, _) =>
+        this.client.FocusChanged += (_, _) =>
         {
             if (this.client.IsFocused && isCursorLockRequiredOnFocus)
             {
@@ -47,7 +47,7 @@ public class Mouse
             }
         };
 
-        this.client.OnSizeChange += (_, e) =>
+        this.client.SizeChanged += (_, e) =>
         {
             if (!isCursorLocked) return;
 
@@ -85,7 +85,7 @@ public class Mouse
 
     private Vector2i Center => client.Size / 2;
 
-    internal void Update()
+    internal void LogicUpdate()
     {
         NativeMethods.GetMousePosition(client, out Int64 x, out Int64 y);
         position = new Vector2i((Int32) x, (Int32) y);

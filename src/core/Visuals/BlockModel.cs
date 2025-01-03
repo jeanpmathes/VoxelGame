@@ -10,26 +10,25 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-public sealed partial class BlockModel
+public sealed partial class BlockModel : IResource, ILocated
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
-
-    private static readonly DirectoryInfo path = FileSystem.GetResourceDirectory("Models");
-
-    private static ITextureIndexProvider blockTextureIndexProvider = null!;
 
     private BlockMesh.Quad[]? lockedQuads;
 
@@ -55,7 +54,7 @@ public sealed partial class BlockModel
         "Performance",
         "CA1819:Properties should not return arrays",
         Justification = "This class is meant for data storage.")]
-    public String[] TextureNames { get; set; } = Array.Empty<String>();
+    public String[] TextureNames { get; set; } = [];
 
     /// <summary>
     ///     The quads that make up this model.
@@ -64,28 +63,40 @@ public sealed partial class BlockModel
         "Performance",
         "CA1819:Properties should not return arrays",
         Justification = "This class is meant for data storage.")]
-    public Quad[] Quads { get; set; } = Array.Empty<Quad>();
+    public Quad[] Quads { get; set; } = [];
 
-    /// <summary>
-    ///     Get the model as a block mesh.
-    /// </summary>
-    public BlockMesh Mesh
+    /// <inheritdoc />
+    public static String[] Path { get; } = ["Models"];
+
+    /// <inheritdoc />
+    public static String FileExtension => "json";
+
+    /// <inheritdoc />
+    [JsonIgnore] public RID Identifier { get; private set; } = RID.Virtual;
+
+    /// <inheritdoc />
+    [JsonIgnore] public ResourceType Type => ResourceTypes.Model;
+
+    #region DISPOSING
+
+    /// <inheritdoc />
+    public void Dispose()
     {
-        get
-        {
-            ToData(out BlockMesh.Quad[] quads);
-
-            return new BlockMesh(quads);
-        }
+        // Nothing to dispose.
     }
 
+    #endregion DISPOSING
+
     /// <summary>
-    ///     Set the texture index provider.
+    ///     Create a block mesh from this model.
     /// </summary>
-    /// <param name="blockTextureProvider">The block texture index provider.</param>
-    public static void SetBlockTextureIndexProvider(ITextureIndexProvider blockTextureProvider)
+    /// <param name="textureIndexProvider">A texture index provider.</param>
+    /// <returns>The block mesh.</returns>
+    public BlockMesh CreateMesh(ITextureIndexProvider textureIndexProvider)
     {
-        blockTextureIndexProvider = blockTextureProvider;
+        ToData(out BlockMesh.Quad[] quads, textureIndexProvider);
+
+        return new BlockMesh(quads);
     }
 
     /// <summary>
@@ -97,7 +108,8 @@ public sealed partial class BlockModel
     /// <param name="b">The second model.</param>
     public void PlaneSplit(Vector3d position, Vector3d normal, out BlockModel a, out BlockModel b)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         normal = normal.Normalized();
         List<Quad> quadsA = [];
@@ -120,7 +132,8 @@ public sealed partial class BlockModel
     /// <param name="movement"></param>
     public void Move(Vector3d movement)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         var xyz = Matrix4.CreateTranslation(movement.ToVector3());
 
@@ -134,7 +147,8 @@ public sealed partial class BlockModel
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
     public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         if (rotations == 0) return;
 
@@ -152,9 +166,9 @@ public sealed partial class BlockModel
     ///     Overwrites the textures of the model, replacing them with a single texture.
     /// </summary>
     /// <param name="newTexture">The replacement texture.</param>
-    public void OverwriteTexture(String newTexture)
+    public void OverwriteTexture(TID newTexture)
     {
-        TextureNames = [newTexture];
+        TextureNames = [newTexture.Key];
 
         for (var i = 0; i < Quads.Length; i++)
         {
@@ -174,7 +188,8 @@ public sealed partial class BlockModel
     public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
         CreateAllSides()
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             result;
@@ -230,7 +245,8 @@ public sealed partial class BlockModel
 
     private BlockModel CreateSideModel(Side side)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         BlockModel copy = new(this);
 
@@ -279,7 +295,7 @@ public sealed partial class BlockModel
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(side));
+                throw Exceptions.UnsupportedEnumValue(side);
         }
 
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
@@ -293,14 +309,16 @@ public sealed partial class BlockModel
 
     private void ApplyMatrix(Matrix4 xyz)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
     }
@@ -308,7 +326,7 @@ public sealed partial class BlockModel
     /// <summary>
     ///     Get this model as data that can be used for rendering.
     /// </summary>
-    public void ToData(out BlockMesh.Quad[] quads)
+    public void ToData(out BlockMesh.Quad[] quads, ITextureIndexProvider textureIndexProvider)
     {
         if (lockedQuads != null)
         {
@@ -320,7 +338,7 @@ public sealed partial class BlockModel
         var textureIndexLookup = new Int32[TextureNames.Length];
 
         for (var i = 0; i < TextureNames.Length; i++)
-            textureIndexLookup[i] = blockTextureIndexProvider.GetTextureIndex(TextureNames[i]);
+            textureIndexLookup[i] = textureIndexProvider.GetTextureIndex(TID.Block(TextureNames[i]));
 
         quads = new BlockMesh.Quad[Quads.Length];
 
@@ -346,11 +364,12 @@ public sealed partial class BlockModel
     /// <summary>
     ///     Lock the model. This will prevent modifications to the model, but combining with other models will be faster.
     /// </summary>
-    public void Lock()
+    public void Lock(ITextureIndexProvider textureIndexProvider)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
-        ToData(out lockedQuads);
+        ToData(out lockedQuads, textureIndexProvider);
 
         Debug.Assert(lockedQuads != null);
     }
@@ -362,11 +381,13 @@ public sealed partial class BlockModel
     /// <param name="name">The name of the file.</param>
     public void Save(DirectoryInfo directory, String name)
     {
-        if (lockedQuads != null) throw new InvalidOperationException(BlockModelIsLockedMessage);
+        if (lockedQuads != null)
+            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
-        Exception? exception = Serialize.SaveJSON(this, directory.GetFile(GetFileName(name)));
+        Exception? exception = Serialize.SaveJSON(this, directory.GetFile(FileSystem.GetResourceFileName<BlockModel>(name)));
 
-        if (exception != null) LogFailedToSaveBlockModel(logger, exception);
+        if (exception != null)
+            LogFailedToSaveBlockModel(logger, exception);
     }
 
     /// <summary>
@@ -380,60 +401,28 @@ public sealed partial class BlockModel
 
     #region STATIC METHODS
 
-    private static String GetFileName(String name)
-    {
-        return name + ".json";
-    }
-
-    private static ILoadingContext? loader;
-
     /// <summary>
-    ///     Enable loading of models.
+    ///     Load a block model from a file.
     /// </summary>
-    /// <param name="context">The context to use for loading.</param>
-    public static void EnableLoading(ILoadingContext context)
+    /// <param name="file">The file to load the model from.</param>
+    /// <param name="model">The loaded model, or a fallback model if loading failed.</param>
+    /// <returns>The exception that occurred, if any.</returns>
+    public static Exception? Load(FileInfo file, out BlockModel model)
     {
-        Debug.Assert(loader == null);
-        loader = context;
-    }
+        Exception? exception = Serialize.LoadJSON(file, out model, BlockModels.CreateFallback);
 
-    /// <summary>
-    ///     Disable loading of models. Only fallback models will be available.
-    /// </summary>
-    public static void DisableLoading()
-    {
-        Debug.Assert(loader != null);
-        loader = null;
-    }
+        model.Identifier = RID.Path(file);
 
-    /// <summary>
-    ///     Load a block model from file. All models are loaded from a specific directory.
-    /// </summary>
-    /// <param name="name">The name of the file.</param>
-    /// <returns>The loaded model.</returns>
-    public static BlockModel Load(String name)
-    {
-        if (loader == null)
-        {
-            LogLoadingModelsDisabled(logger);
-
-            return BlockModels.CreateFallback();
-        }
-
-        Exception? exception = Serialize.LoadJSON(path.GetFile(GetFileName(name)), out BlockModel model, BlockModels.CreateFallback);
-
-        if (exception == null) loader.ReportSuccess(nameof(BlockModel), name);
-        else loader.ReportWarning(nameof(BlockModel), name, exception);
-
-        return model;
+        return exception;
     }
 
     /// <summary>
     ///     Get the combined mesh of multiple block models.
     /// </summary>
     /// <param name="models">The models to combine.</param>
+    /// <param name="textureIndexProvider">The texture index provider.</param>
     /// <returns>The combined mesh.</returns>
-    public static BlockMesh GetCombinedMesh(params BlockModel[] models)
+    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models)
     {
         Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
         Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
@@ -466,7 +455,7 @@ public sealed partial class BlockModel
 
         foreach (BlockModel model in models)
         {
-            model.ToData(out BlockMesh.Quad[] modelQuads);
+            model.ToData(out BlockMesh.Quad[] modelQuads, textureIndexProvider);
             vertices.AddRange(modelQuads);
         }
 
@@ -479,10 +468,10 @@ public sealed partial class BlockModel
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Failed to save block model")]
+    [LoggerMessage(EventId = LogID.BlockModel + 0, Level = LogLevel.Warning, Message = "Failed to save block model")]
     private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.ResourceLoad, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
+    [LoggerMessage(EventId = LogID.BlockModel + 1, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingModelsDisabled(ILogger logger);
 
     #endregion LOGGING

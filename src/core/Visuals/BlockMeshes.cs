@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -137,7 +138,7 @@ public static class BlockMeshes
             Quality.Medium => CreateCrossMesh(textureIndex).WithOffset(offset),
             Quality.High => CreateCrossMesh(textureIndex).WithOffset(offset).SubdivideV(),
             Quality.Ultra => CreateCrossMesh(textureIndex).WithOffset(offset).SubdivideU().SubdivideV(),
-            _ => throw new NotSupportedException()
+            _ => throw Exceptions.UnsupportedEnumValue(quality)
         };
     }
 
@@ -159,7 +160,7 @@ public static class BlockMeshes
             Quality.Medium => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset),
             Quality.High => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset).SubdivideV(),
             Quality.Ultra => CreateCropPlantMesh(textureIndex, createMiddlePiece).WithOffset(offset).SubdivideU().SubdivideV(),
-            _ => throw new NotSupportedException()
+            _ => throw Exceptions.UnsupportedEnumValue(quality)
         };
     }
 
@@ -182,7 +183,7 @@ public static class BlockMeshes
     {
         List<BlockMesh.Quad> list =
         [
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.25f, y: 0f, z: 0.0f),
                 B = new Vector3(x: 0.25f, y: 1f, z: 0.0f),
@@ -190,7 +191,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 0.25f, y: 0f, z: 1.0f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.25f),
                 B = new Vector3(x: 0.0f, y: 1f, z: 0.25f),
@@ -198,7 +199,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 1.0f, y: 0f, z: 0.25f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.75f, y: 0f, z: 0.0f),
                 B = new Vector3(x: 0.75f, y: 1f, z: 0.0f),
@@ -206,7 +207,7 @@ public static class BlockMeshes
                 D = new Vector3(x: 0.75f, y: 0f, z: 1.0f)
             },
 
-            new BlockMesh.Quad
+            new()
             {
                 A = new Vector3(x: 0.0f, y: 0f, z: 0.75f),
                 B = new Vector3(x: 0.0f, y: 1f, z: 0.75f),

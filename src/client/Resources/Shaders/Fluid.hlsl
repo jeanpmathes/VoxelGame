@@ -8,10 +8,11 @@
 #include "Section.hlsl"
 
 [shader("closesthit")]void FluidSectionClosestHit(
-    inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
+    inout native::rt::HitInfo    payload,
+    native::rt::Attributes const attributes)
 {
     float const path = vg::ray::GetPathLength(payload);
-    
+
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float4 const            tint  = vg::decode::GetTintColor(info.data);
     float4 const            color = vg::section::GetFluidBaseColor(path, info) * tint;

@@ -6,12 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -25,13 +27,16 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // s: stage
 public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly Block fruit;
-    private readonly String texture;
+    private readonly String fruitID;
+    private readonly TID texture;
 
     private readonly List<BoundingVolume> volumes = [];
     private readonly List<BlockMesh> meshes = [];
 
-    internal FruitCropBlock(String name, String namedID, String texture, Block fruit) :
+    [SuppressMessage("Usage", "CA2213", Justification = IResource.ResourcesOwnedByContext)]
+    private Block fruit = null!;
+
+    internal FruitCropBlock(String name, String namedID, TID texture, String fruit) :
         base(
             name,
             namedID,
@@ -39,7 +44,8 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
             new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f)))
     {
         this.texture = texture;
-        this.fruit = fruit;
+
+        fruitID = fruit;
 
         for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -56,9 +62,11 @@ public class FruitCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 baseTextureIndex = indexProvider.GetTextureIndex(texture);
+        fruit = Elements.Blocks.Instance.SafelyTranslateNamedID(fruitID);
+
+        Int32 baseTextureIndex = textureIndexProvider.GetTextureIndex(texture);
 
         (Int32 dead, Int32 initial, Int32 last) textureIndices =
         (

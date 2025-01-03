@@ -12,69 +12,69 @@ namespace VoxelGame.Toolkit.Noise;
 #pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
-/// Defines the available types of noise generators.
+///     Defines the available types of noise generators.
 /// </summary>
 public enum NoiseType
 {
     /// <summary>
-    /// Simplex-based gradient noise.
+    ///     Simplex-based gradient noise.
     /// </summary>
     GradientNoise = 0,
 
     /// <summary>
-    /// Cellular noise, giving the cell value.
+    ///     Cellular noise, giving the cell value.
     /// </summary>
     CellularNoise = 1
 }
 
 /// <summary>
-/// The definition of a noise generator.
+///     The definition of a noise generator.
 /// </summary>
 [NativeMarshalling(typeof(NoiseDefinitionMarshaller))]
 public struct NoiseDefinition
 {
     /// <summary>
-    /// Creates a new noise definition.
+    ///     Creates a new noise definition.
     /// </summary>
     public NoiseDefinition() {}
 
     /// <summary>
-    /// The seed of the noise generator.
+    ///     The seed of the noise generator.
     /// </summary>
     public Int32 Seed { get; init; } = 1337;
 
     /// <summary>
-    /// The type of noise generator.
+    ///     The type of noise generator.
     /// </summary>
     public NoiseType Type { get; set; } = NoiseType.GradientNoise;
 
     /// <summary>
-    /// The frequency of the generated noise.
+    ///     The frequency of the generated noise.
     /// </summary>
     public Single Frequency { get; set; } = 0.01f;
 
     /// <summary>
-    /// Whether to use fractal noise.
+    ///     Whether to use fractal noise.
     /// </summary>
     public Boolean UseFractal { get; set; }
 
     /// <summary>
-    /// The number of octaves in the fractal noise.
+    ///     The number of octaves in the fractal noise.
     /// </summary>
     public Int32 FractalOctaves { get; set; } = 3;
 
     /// <summary>
-    /// The lacunarity of the fractal noise.
+    ///     The lacunarity of the fractal noise.
     /// </summary>
     public Single FractalLacunarity { get; set; } = 2.0f;
 
     /// <summary>
-    /// The gain of the fractal noise.
+    ///     The gain of the fractal noise.
     /// </summary>
     public Single FractalGain { get; set; } = 0.5f;
 
     /// <summary>
-    /// The weighted strength of the fractal noise.
+    ///     The weighted strength of the fractal noise.
     /// </summary>
     public Single FractalWeightedStrength { get; set; }
 }

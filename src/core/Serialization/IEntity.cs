@@ -18,7 +18,7 @@ public interface IEntity
     /// <summary>
     ///     Get the current version of the entity.
     /// </summary>
-    public static abstract Int32 Version { get; }
+    public static abstract UInt32 Version { get; }
 
     /// <summary>
     ///     Serialize the entity.
@@ -31,5 +31,5 @@ public interface IEntity
     ///     Header of an entity.
     /// </summary>
     /// <param name="Version">The version of the entity.</param>
-    public record struct Header(Int32 Version);
+    public record struct Header(UInt32 Version);
 }

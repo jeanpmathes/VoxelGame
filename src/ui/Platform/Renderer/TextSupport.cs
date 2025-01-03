@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
@@ -59,7 +58,7 @@ public sealed class TextSupport : IDisposable
                 value *= graphics.DpiX / 72;
 
                 break;
-            default: throw new InvalidEnumArgumentException("Unknown unit " + unit);
+            default: throw Exceptions.UnsupportedEnumValue(unit);
         }
 
         return value;
@@ -166,7 +165,7 @@ public sealed class TextSupport : IDisposable
         return graphics.MeasureString(text, font, Point.Empty, format);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -194,5 +193,5 @@ public sealed class TextSupport : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

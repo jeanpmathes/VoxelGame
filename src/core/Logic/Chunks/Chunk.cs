@@ -113,22 +113,21 @@ public partial class Chunk : IDisposable, IEntity
     private readonly Section[] sections = new Section[SectionCount];
 
     /// <summary>
-    ///     The resource of a chunk represents its core data.
-    ///     It is used to control access in the context of multi-threading.
+    ///     Used to control access to the chunk in the context of multi-threading.
     /// </summary>
-    private readonly Resource resource = new(nameof(Chunk));
+    private readonly RW rw = new(nameof(Chunk));
 
     /// <summary>
-    ///     Using a local counter allows to use the tick managers after normalization without having to revert that.
+    ///     Using a local counter allows to use the update managers after normalization without having to revert that.
     /// </summary>
-    private readonly UpdateCounter localUpdateCounter = new();
+    private readonly UpdateCounter localLogicUpdateCounter = new();
 
-    private readonly ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk> blockTickManager;
-    private readonly ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk> fluidTickManager;
+    private readonly ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> blockUpdateManager;
+    private readonly ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> fluidUpdateManager;
 
     /// <summary>
     ///     The block data of this chunk.
-    ///     Storage layout is defined by <see cref="Section"/>.
+    ///     Storage layout is defined by <see cref="Section" />.
     /// </summary>
     private readonly NativeSegment<UInt32> blocks;
 
@@ -162,12 +161,12 @@ public partial class Chunk : IDisposable, IEntity
             sections[index] = createSection(segment);
         }
 
-        blockTickManager = new ScheduledTickManager<Block.BlockTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
-        fluidTickManager = new ScheduledTickManager<Fluid.FluidTick, MaxTicksPerFrameAndChunk>(localUpdateCounter);
+        blockUpdateManager = new ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
+        fluidUpdateManager = new ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk>(localLogicUpdateCounter);
 
-        resource.Released += OnResourceReleased;
+        rw.Released += OnReleased;
 
-        void OnResourceReleased(Object? sender, EventArgs e)
+        void OnReleased(Object? sender, EventArgs e)
         {
             State.OnChunkResourceReleased();
         }
@@ -208,7 +207,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// The requests for this chunk.
+    ///     The requests for this chunk.
     /// </summary>
     public Requests Requests { get; private set; } = null!;
 
@@ -224,8 +223,8 @@ public partial class Chunk : IDisposable, IEntity
     public Boolean IsRequestedToLoad => Requests.Level.IsLoaded;
 
     /// <summary>
-    /// Whether this chunk is requested to be active.
-    /// It will attempt to enter the active state after loading or generation.
+    ///     Whether this chunk is requested to be active.
+    ///     It will attempt to enter the active state after loading or generation.
     /// </summary>
     public Boolean IsRequestedToActivate => Requests.Level.IsActive;
 
@@ -261,7 +260,7 @@ public partial class Chunk : IDisposable, IEntity
     protected internal ChunkState State => state;
 
     /// <inheritdoc />
-    public static Int32 Version => 1;
+    public static UInt32 Version => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)
@@ -269,18 +268,18 @@ public partial class Chunk : IDisposable, IEntity
         serializer.SerializeValue(ref location);
         serializer.Serialize(blocks);
         serializer.Serialize(ref decoration);
-        serializer.SerializeEntity(blockTickManager);
-        serializer.SerializeEntity(fluidTickManager);
+        serializer.SerializeEntity(blockUpdateManager);
+        serializer.SerializeEntity(fluidUpdateManager);
     }
 
     /// <summary>
-    ///     Tick all actors in this chunk.
+    ///     Update all actors in this chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last tick.</param>
-    public void TickActors(Double deltaTime)
+    /// <param name="deltaTime">The time since the last update.</param>
+    public void SendLogicUpdatesToActors(Double deltaTime)
     {
         foreach (Actor actor in Requests.Requesters)
-            actor.Tick(deltaTime);
+            actor.LogicUpdate(deltaTime);
     }
 
     /// <summary>
@@ -306,8 +305,8 @@ public partial class Chunk : IDisposable, IEntity
 
         location = position;
 
-        blockTickManager.SetWorld(world);
-        fluidTickManager.SetWorld(world);
+        blockUpdateManager.SetWorld(world);
+        fluidUpdateManager.SetWorld(world);
 
         ChunkState.Initialize(out state, this, Context);
 
@@ -327,17 +326,17 @@ public partial class Chunk : IDisposable, IEntity
     public virtual void Reset()
     {
         Debug.Assert(!IsActive);
-        Debug.Assert(!resource.IsAcquired);
+        Debug.Assert(!rw.IsAcquired);
 
-        blockTickManager.Clear();
-        blockTickManager.SetWorld(newWorld: null);
+        blockUpdateManager.Clear();
+        blockUpdateManager.SetWorld(newWorld: null);
 
-        fluidTickManager.Clear();
-        fluidTickManager.SetWorld(newWorld: null);
+        fluidUpdateManager.Clear();
+        fluidUpdateManager.SetWorld(newWorld: null);
 
         OnStateTransition(state, to: null);
 
-        localUpdateCounter.Reset();
+        localLogicUpdateCounter.Reset();
 
         World = null!;
         state = null!;
@@ -367,37 +366,37 @@ public partial class Chunk : IDisposable, IEntity
         Guard? guard = ChunkState.TryStealAccess(ref state);
 
         if (guard == null)
-            return resource.TryAcquire(access, source);
+            return rw.TryAcquire(access, source);
 
         if (access == Access.Write)
             return guard;
 
         // We downgrade our access to read, as stealing always gives us write access.
         guard.Dispose();
-        guard = resource.TryAcquire(access, source);
+        guard = rw.TryAcquire(access, source);
         Debug.Assert(guard != null);
 
         return guard;
     }
 
     /// <summary>
-    ///     Whether it is possible to acquire the core resource.
+    ///     Whether it is possible to acquire the chunk.
     /// </summary>
     public Boolean CanAcquire(Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return state.CanStealAccess || resource.CanAcquire(access);
+        return state.CanStealAccess || rw.CanAcquire(access);
     }
 
     /// <summary>
-    ///     Check if core is held with specific access by a given guard.
+    ///     Check if the chunk is held with specific access by a given guard.
     /// </summary>
     public Boolean IsHeldBy(Guard guard, Access access)
     {
         Throw.IfDisposed(disposed);
 
-        return resource.IsHeldBy(guard, access);
+        return rw.IsHeldBy(guard, access);
     }
 
     /// <summary>
@@ -430,7 +429,7 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     /// <summary>
-    /// Called by <see cref="Requests"/>.
+    ///     Called by <see cref="Requests" />.
     /// </summary>
     internal void OnRequestLevelApplied()
     {
@@ -548,9 +547,9 @@ public partial class Chunk : IDisposable, IEntity
 
         Throw.IfDisposed(disposed);
 
-        blockTickManager.Normalize();
-        fluidTickManager.Normalize();
-        localUpdateCounter.Reset();
+        blockUpdateManager.Normalize();
+        fluidUpdateManager.Normalize();
+        localLogicUpdateCounter.Reset();
 
         FileInfo chunkFile = path.GetFile(GetChunkFileName(Position));
 
@@ -600,14 +599,14 @@ public partial class Chunk : IDisposable, IEntity
         LogFinishedDecoratingChunk(logger, Position, decorationContext.Generator.ToString());
     }
 
-    internal void ScheduleBlockTick(Block.BlockTick tick, UInt32 tickOffset)
+    internal void ScheduleBlockUpdate(Block.BlockUpdate update, UInt32 updateOffset)
     {
-        blockTickManager.Add(tick, tickOffset);
+        blockUpdateManager.Add(update, updateOffset);
     }
 
-    internal void ScheduleFluidTick(Fluid.FluidTick tick, UInt32 tickOffset)
+    internal void ScheduleFluidUpdate(Fluid.FluidUpdate update, UInt32 updateOffset)
     {
-        fluidTickManager.Add(tick, tickOffset);
+        fluidUpdateManager.Add(update, updateOffset);
     }
 
     /// <summary>
@@ -625,18 +624,18 @@ public partial class Chunk : IDisposable, IEntity
 
     /// <summary>
     ///     Send all update events.
-    ///     These include requested updates and one random update. 
+    ///     These include requested updates and one random update.
     /// </summary>
-    public void Tick()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
         Debug.Assert(IsActive);
 
-        blockTickManager.Process();
-        fluidTickManager.Process();
+        blockUpdateManager.Process();
+        fluidUpdateManager.Process();
 
-        localUpdateCounter.Increment();
+        localLogicUpdateCounter.Increment();
 
         Int32 index = NumberGenerator.Random.Next(minValue: 0, SectionCount);
         sections[index].SendRandomUpdate(World);
@@ -838,57 +837,59 @@ public partial class Chunk : IDisposable, IEntity
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private sealed class MaxTicksPerFrameAndChunk : IConstantInt32
+    private sealed class MaxScheduledUpdatesPerLogicUpdateAndChunk : IConstantInt32
     {
-        public static Int32 Value => 1024;
+        #pragma warning disable S1144 // Value is not unused.
+        static Int32 IConstantInt32.Value => 1024;
+        #pragma warning restore S1144
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started loading chunk for position: {Position}")]
+    [LoggerMessage(EventId = LogID.Chunk + 0, Level = LogLevel.Debug, Message = "Started loading chunk for position: {Position}")]
     private static partial void LogStartedLoadingChunk(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Error, Message = "File for the chunk at {Position} was invalid: format error")]
+    [LoggerMessage(EventId = LogID.Chunk + 1, Level = LogLevel.Error, Message = "File for the chunk at {Position} was invalid: format error")]
     private static partial void LogInvalidChunkFormatError(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}")]
+    [LoggerMessage(EventId = LogID.Chunk + 2, Level = LogLevel.Debug, Message = "Could not load chunk for position {Position}, it probably does not exist yet. Exception: {Message}")]
     private static partial void LogChunkLoadError(ILogger logger, ChunkPosition position, String message);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished loading chunk for position: {Position}")]
+    [LoggerMessage(EventId = LogID.Chunk + 3, Level = LogLevel.Debug, Message = "Finished loading chunk for position: {Position}")]
     private static partial void LogFinishedLoadingChunk(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Warning, Message = "File for the chunk at {Position} was invalid: position did not match")]
+    [LoggerMessage(EventId = LogID.Chunk + 4, Level = LogLevel.Warning, Message = "File for the chunk at {Position} was invalid: position did not match")]
     private static partial void LogInvalidChunkPosition(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "File for the chunk at {Position} was valid")]
+    [LoggerMessage(EventId = LogID.Chunk + 5, Level = LogLevel.Debug, Message = "File for the chunk at {Position} was valid")]
     private static partial void LogValidChunkFile(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started saving chunk {Position} to: {Path}")]
+    [LoggerMessage(EventId = LogID.Chunk + 6, Level = LogLevel.Debug, Message = "Started saving chunk {Position} to: {Path}")]
     private static partial void LogStartedSavingChunk(ILogger logger, ChunkPosition position, String path);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished saving chunk {Position} to: {Path}")]
+    [LoggerMessage(EventId = LogID.Chunk + 7, Level = LogLevel.Debug, Message = "Finished saving chunk {Position} to: {Path}")]
     private static partial void LogFinishedSavingChunk(ILogger logger, ChunkPosition position, String path);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started generating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 8, Level = LogLevel.Debug, Message = "Started generating chunk {Position} using '{Name}' generator")]
     private static partial void LogStartedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 9, Level = LogLevel.Debug, Message = "Finished generating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedGeneratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started decorating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 10, Level = LogLevel.Debug, Message = "Started decorating chunk {Position} using '{Name}' generator")]
     private static partial void LogStartedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
+    [LoggerMessage(EventId = LogID.Chunk + 11, Level = LogLevel.Debug, Message = "Finished decorating chunk {Position} using '{Name}' generator")]
     private static partial void LogFinishedDecoratingChunk(ILogger logger, ChunkPosition position, String? name);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
+    [LoggerMessage(EventId = LogID.Chunk + 12, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
     private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -923,5 +924,5 @@ public partial class Chunk : IDisposable, IEntity
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

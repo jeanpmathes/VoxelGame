@@ -182,7 +182,7 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Read in a data blob that contains a serialized entity.
+    ///     Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
@@ -199,7 +199,7 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Write an entity to a data blob.
+    ///     Write an entity to a data blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
@@ -261,8 +261,8 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Save all information directly handled by this class.
-    /// This will not save any chunks or open blobs.
+    ///     Save all information directly handled by this class.
+    ///     This will not save any chunks or open blobs.
     /// </summary>
     public void Save()
     {
@@ -379,43 +379,43 @@ public partial class WorldData
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 0, Level = LogLevel.Warning, Message = "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'")]
     private static partial void LogInvalidWorldName(ILogger logger, String invalid, String valid);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world size {Invalid} was invalid, changed to {Valid}")]
+    [LoggerMessage(EventId = LogID.WorldData + 1, Level = LogLevel.Warning, Message = "Loaded world size {Invalid} was invalid, changed to {Valid}")]
     private static partial void LogInvalidWorldSize(ILogger logger, UInt32 invalid, UInt32 valid);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded spawn position {Invalid} was invalid, changed to {Valid}")]
+    [LoggerMessage(EventId = LogID.WorldData + 2, Level = LogLevel.Warning, Message = "Loaded spawn position {Invalid} was invalid, changed to {Valid}")]
     private static partial void LogInvalidSpawnPosition(ILogger logger, Vector3d invalid, Vector3d valid);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to read blob '{Name}', format is incorrect")]
+    [LoggerMessage(EventId = LogID.WorldData + 3, Level = LogLevel.Error, Message = "Failed to read blob '{Name}', format is incorrect")]
     private static partial void LogFailedToReadBlob(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read blob '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 4, Level = LogLevel.Debug, Message = "Failed to read blob '{Name}'")]
     private static partial void LogFailedToReadBlobDebug(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to write blob '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 5, Level = LogLevel.Error, Message = "Failed to write blob '{Name}'")]
     private static partial void LogFailedToWriteBlob(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read script '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 6, Level = LogLevel.Debug, Message = "Failed to read script '{Name}'")]
     private static partial void LogFailedToReadScript(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to create script '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 7, Level = LogLevel.Error, Message = "Failed to create script '{Name}'")]
     private static partial void LogFailedToCreateScript(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Deleted world '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 8, Level = LogLevel.Information, Message = "Deleted world '{Name}'")]
     private static partial void LogDeletedWorld(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to delete world")]
+    [LoggerMessage(EventId = LogID.WorldData + 9, Level = LogLevel.Error, Message = "Failed to delete world")]
     private static partial void LogFailedToDeleteWorld(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Copied world '{Name}' to '{Target}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 10, Level = LogLevel.Information, Message = "Copied world '{Name}' to '{Target}'")]
     private static partial void LogCopiedWorld(ILogger logger, String name, String target);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to copy world")]
+    [LoggerMessage(EventId = LogID.WorldData + 11, Level = LogLevel.Error, Message = "Failed to copy world")]
     private static partial void LogFailedToCopyWorld(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Renaming world '{OldName}' to '{NewName}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 12, Level = LogLevel.Information, Message = "Renaming world '{OldName}' to '{NewName}'")]
     private static partial void LogRenamingWorld(ILogger logger, String oldName, String newName);
 
     #endregion LOGGING

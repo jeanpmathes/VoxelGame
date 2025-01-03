@@ -262,7 +262,7 @@ public sealed class RenderPipeline : IDisposable
         public TextureList.Handle Texture { get; set; }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -296,5 +296,5 @@ public sealed class RenderPipeline : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

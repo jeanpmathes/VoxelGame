@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -29,13 +30,17 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : IPipeConnectable
 {
+    private readonly RID centerModel;
+    private readonly RID connectorModel;
+    private readonly RID surfaceModel;
+
     private readonly Single diameter;
     private readonly List<BlockMesh> meshes = new(capacity: 64);
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal PipeBlock(String name, String namedID, Single diameter, String centerModel, String connectorModel,
-        String surfaceModel) :
+    internal PipeBlock(String name, String namedID, Single diameter,
+        RID centerModel, RID connectorModel, RID surfaceModel) :
         base(
             name,
             namedID,
@@ -44,38 +49,9 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         this.diameter = diameter;
 
-        BlockModel center = BlockModel.Load(centerModel);
-
-        BlockModel frontConnector = BlockModel.Load(connectorModel);
-        BlockModel frontSurface = BlockModel.Load(surfaceModel);
-
-        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
-            connectors = frontConnector.CreateAllSides();
-
-        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
-            surfaces = frontSurface.CreateAllSides();
-
-        center.Lock();
-        connectors.Lock();
-        surfaces.Lock();
-
-        for (UInt32 data = 0b00_0000; data <= 0b11_1111; data++)
-        {
-            var sides = (Sides) data;
-
-            BlockMesh mesh = BlockModel.GetCombinedMesh(
-                center,
-                Side.Front.IsSet(sides) ? connectors.front : surfaces.front,
-                Side.Back.IsSet(sides) ? connectors.back : surfaces.back,
-                Side.Left.IsSet(sides) ? connectors.left : surfaces.left,
-                Side.Right.IsSet(sides) ? connectors.right : surfaces.right,
-                Side.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
-                Side.Top.IsSet(sides) ? connectors.top : surfaces.top);
-
-            meshes.Add(mesh);
-
-            volumes.Add(CreateVolume(data));
-        }
+        this.centerModel = centerModel;
+        this.connectorModel = connectorModel;
+        this.surfaceModel = surfaceModel;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -98,6 +74,43 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     public Boolean IsOutflowAllowed(World world, Vector3i position, Side side)
     {
         return IsSideOpen(world, position, side);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel center = modelProvider.GetModel(centerModel);
+
+        BlockModel frontConnector = modelProvider.GetModel(connectorModel);
+        BlockModel frontSurface = modelProvider.GetModel(surfaceModel);
+
+        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+            connectors = frontConnector.CreateAllSides();
+
+        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+            surfaces = frontSurface.CreateAllSides();
+
+        center.Lock(textureIndexProvider);
+        connectors.Lock(textureIndexProvider);
+        surfaces.Lock(textureIndexProvider);
+
+        for (UInt32 data = 0b00_0000; data <= 0b11_1111; data++)
+        {
+            var sides = (Sides) data;
+
+            BlockMesh mesh = BlockModel.GetCombinedMesh(textureIndexProvider,
+                center,
+                Side.Front.IsSet(sides) ? connectors.front : surfaces.front,
+                Side.Back.IsSet(sides) ? connectors.back : surfaces.back,
+                Side.Left.IsSet(sides) ? connectors.left : surfaces.left,
+                Side.Right.IsSet(sides) ? connectors.right : surfaces.right,
+                Side.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
+                Side.Top.IsSet(sides) ? connectors.top : surfaces.top);
+
+            meshes.Add(mesh);
+
+            volumes.Add(CreateVolume(data));
+        }
     }
 
     private BoundingVolume CreateVolume(UInt32 data)

@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -24,12 +25,14 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // aa: axis
 public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectable, IComplex
 {
+    private readonly RID model;
+
     private readonly Single diameter;
 
     private readonly List<BlockMesh> meshes = new(capacity: 3);
     private readonly List<BoundingVolume> volumes = [];
 
-    internal StraightSteelPipeBlock(String name, String namedID, Single diameter, String model) :
+    internal StraightSteelPipeBlock(String name, String namedID, Single diameter, RID model) :
         base(
             name,
             namedID,
@@ -38,18 +41,7 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     {
         this.diameter = diameter;
 
-        (BlockModel x, BlockModel y, BlockModel z) = BlockModel.Load(model).CreateAllAxis();
-
-        meshes.Add(x.Mesh);
-        meshes.Add(y.Mesh);
-        meshes.Add(z.Mesh);
-
-        for (UInt32 data = 0; data <= 0b00_0011; data++)
-        {
-            if (data == 0b00_0011) continue; // End condition not changed to keep consistent with other blocks.
-
-            volumes.Add(CreateVolume(data));
-        }
+        this.model = model;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -78,6 +70,23 @@ public class StraightSteelPipeBlock : Block, IFillable, IIndustrialPipeConnectab
     public Boolean IsConnectable(World world, Side side, Vector3i position)
     {
         return IsSideOpen(world, position, side);
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        (BlockModel x, BlockModel y, BlockModel z) = modelProvider.GetModel(model).CreateAllAxis();
+
+        meshes.Add(x.CreateMesh(textureIndexProvider));
+        meshes.Add(y.CreateMesh(textureIndexProvider));
+        meshes.Add(z.CreateMesh(textureIndexProvider));
+
+        for (UInt32 data = 0; data <= 0b00_0011; data++)
+        {
+            if (data == 0b00_0011) continue; // End condition not changed to keep consistent with other blocks.
+
+            volumes.Add(CreateVolume(data));
+        }
     }
 
     private BoundingVolume CreateVolume(UInt32 data)

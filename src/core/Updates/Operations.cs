@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
@@ -18,8 +19,7 @@ public static class Operations
 {
     private static void RegisterOperation(Operation operation)
     {
-        if (OperationUpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
+        Debug.Assert(OperationUpdateDispatch.Instance != null);
 
         OperationUpdateDispatch.Instance.Add(operation);
     }
@@ -89,9 +89,7 @@ public static class Operations
                 {
                     action();
                 }
-#pragma warning disable S2221 // Action might throw any exception.
                 catch (Exception e)
-#pragma warning restore S2221 // Action might throw any exception.
                 {
                     exception = e;
                 }
@@ -107,6 +105,13 @@ public static class Operations
             current = previous == null ? Task.Run(work) : previous.ContinueWith(_ => work());
         }
 
+        /// <summary>
+        ///     Perform an action directly after the operation has successfully completed.
+        ///     Might run on a background thread.
+        ///     Not all operations support this.
+        /// </summary>
+        /// <param name="action">The action to perform. Will only run if the operation was successful.</param>
+        /// <returns>The operation that runs the action.</returns>
         public override Operation Then(Action action)
         {
             Operation next = new TaskOperation(() =>
@@ -140,9 +145,7 @@ public static class Operations
                     T result = function();
                     Complete(result);
                 }
-#pragma warning disable S2221 // Action might throw any exception.
                 catch (Exception e)
-#pragma warning restore S2221 // Action might throw any exception.
                 {
                     Complete(e);
                 }
@@ -170,7 +173,7 @@ public static class Operations
 
         public override Operation<TNext> Then<TNext>(Func<T, TNext> function)
         {
-            Operation<TNext> next = new TaskOperation<TNext>(() => IsWorkStatusOk ? function(WorkResult!) : throw new InvalidOperationException(), current);
+            Operation<TNext> next = new TaskOperation<TNext>(() => IsWorkStatusOk ? function(WorkResult!) : default!, current);
 
             RegisterOperation(next);
 
@@ -203,6 +206,22 @@ public static class Operations
         protected override void Run()
         {
             // Nothing to do here.
+        }
+
+        /// <inheritdoc />
+        public override Operation Then(Action action)
+        {
+            action();
+
+            return CreateDone();
+        }
+
+        /// <inheritdoc />
+        public override Operation<TNext> Then<TNext>(Func<T, TNext> function)
+        {
+            TNext next = function(WorkResult!);
+
+            return CreateDone(next);
         }
     }
 }

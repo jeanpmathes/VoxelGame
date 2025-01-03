@@ -26,28 +26,23 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly String texture;
+    private readonly TID deadTexture;
+    private readonly (TID id, Int32 duration)[] singleGrowingTextures;
+    private readonly (TID lower, TID upper, Int32 duration)[] doubleGrowingTextures;
 
     private readonly List<BlockMesh> meshes = [];
     private readonly List<BoundingVolume> volumes = [];
 
-    private (
-        Int32 dead, Int32 first, Int32 second, Int32 third,
-        (Int32 low, Int32 top) fourth, (Int32 low, Int32 top) fifth, (Int32 low, Int32 top) sixth, (Int32 low, Int32 top) final
-        ) stages;
-
-    internal DoubleCropBlock(String name, String namedID, String texture, Int32 dead, Int32 first, Int32 second,
-        Int32 third, (Int32 low, Int32 top) fourth, (Int32 low, Int32 top) fifth, (Int32 low, Int32 top) sixth,
-        (Int32 low, Int32 top) final) :
+    internal DoubleCropBlock(String name, String namedID, TID deadTexture, (TID id, Int32 duration)[] singleGrowingTextures, (TID lower, TID upper, Int32 duration)[] doubleGrowingTextures) :
         base(
             name,
             namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {
-        this.texture = texture;
-
-        stages = (dead, first, second, third, fourth, fifth, sixth, final);
+        this.deadTexture = deadTexture;
+        this.singleGrowingTextures = singleGrowingTextures;
+        this.doubleGrowingTextures = doubleGrowingTextures;
 
         for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -73,37 +68,47 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 baseIndex = indexProvider.GetTextureIndex(texture);
+        var lowerTextureIndices = new Int32[(Int32) GrowthStage.Final + 1];
+        var upperTextureIndices = new Int32[(Int32) GrowthStage.Final + 1];
 
-        if (baseIndex == 0) stages = (0, 0, 0, 0, (0, 0), (0, 0), (0, 0), (0, 0));
+        lowerTextureIndices[(Int32) GrowthStage.Dead] = textureIndexProvider.GetTextureIndex(deadTexture);
+        upperTextureIndices[(Int32) GrowthStage.Dead] = 0;
 
-        Int32[] stageTextureIndicesLow =
-        [
-            baseIndex + stages.dead,
-            baseIndex + stages.first,
-            baseIndex + stages.second,
-            baseIndex + stages.third,
-            baseIndex + stages.fourth.low,
-            baseIndex + stages.fifth.low,
-            baseIndex + stages.sixth.low,
-            baseIndex + stages.final.low
-        ];
+        var currentStateIndex = 1;
 
-        Int32[] stageTextureIndicesTop =
-        [
-            0,
-            0,
-            0,
-            0,
-            baseIndex + stages.fourth.top,
-            baseIndex + stages.fifth.top,
-            baseIndex + stages.sixth.top,
-            baseIndex + stages.final.top
-        ];
+        var remainingLowerTextures = 3;
+        var remainingUpperTextures = 4;
 
-        for (UInt32 data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, stageTextureIndicesLow, stageTextureIndicesTop, visuals));
+        foreach ((TID id, Int32 duration) in singleGrowingTextures)
+        {
+            if (remainingLowerTextures <= 0) break;
+
+            Int32 usedDuration = Math.Min(duration, remainingLowerTextures);
+            remainingLowerTextures -= usedDuration;
+
+            for (var offset = 0; offset < usedDuration; offset++)
+                lowerTextureIndices[currentStateIndex++] = textureIndexProvider.GetTextureIndex(id);
+        }
+
+        foreach ((TID lower, TID upper, Int32 duration) in doubleGrowingTextures)
+        {
+            if (remainingUpperTextures <= 0) break;
+
+            Int32 usedDuration = Math.Min(duration, remainingUpperTextures);
+            remainingUpperTextures -= usedDuration;
+
+            for (var offset = 0; offset < usedDuration; offset++)
+            {
+                lowerTextureIndices[currentStateIndex] = textureIndexProvider.GetTextureIndex(lower);
+                upperTextureIndices[currentStateIndex] = textureIndexProvider.GetTextureIndex(upper);
+
+                currentStateIndex += 1;
+            }
+        }
+
+        for (UInt32 data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, lowerTextureIndices, upperTextureIndices, visuals));
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

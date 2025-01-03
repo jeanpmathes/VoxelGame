@@ -6,7 +6,9 @@
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
@@ -64,14 +66,14 @@ public class PipelineBuilder
     /// <param name="names">The ungrouped symbols in the file.</param>
     public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, String[]? names = null)
     {
-        List<String> exports = [..names ?? Array.Empty<String>()];
+        List<String> exports = [..names ?? []];
 
         void AddIfNotEmpty(String? name)
         {
             if (!String.IsNullOrEmpty(name)) exports.Add(name);
         }
 
-        foreach (HitGroup group in groups ?? Array.Empty<HitGroup>())
+        foreach (HitGroup group in groups ?? [])
         {
             AddIfNotEmpty(group.ClosestHitSymbol);
             AddIfNotEmpty(group.AnyHitSymbol);
@@ -160,12 +162,13 @@ public class PipelineBuilder
     ///     Build the pipeline, without a custom data buffer.
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
-    /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
-    public Boolean Build(Client client, ILoadingContext loadingContext)
+    /// <param name="context">The context in which loading is happening.</param>
+    /// <returns>An error, if any.</returns>
+    public ResourceIssue? Build(Client client, IResourceContext context)
     {
         Debug.Assert(customDataBufferSize == 0);
 
-        return Build<Byte>(client, loadingContext, out _);
+        return Build<Byte>(client, context, out _);
     }
 
     /// <summary>
@@ -176,15 +179,17 @@ public class PipelineBuilder
     ///     <see cref="SetCustomDataBufferType{T}" />.
     /// </typeparam>
     /// <param name="client">The client that will use the pipeline.</param>
-    /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
+    /// <param name="context">The context in which loading is happening.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
-    public Boolean Build<T>(Client client, ILoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    /// <returns>An error, if any.</returns>
+    public ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
         (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
         Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
 
-        var success = true;
+        StringBuilder errors = new();
+        var anyError = false;
 
         buffer = client.InitializeRaytracing<T>(new SpacePipelineDescription
         {
@@ -199,18 +204,20 @@ public class PipelineBuilder
             effectSpoolCount = effectSpoolCount,
             onShaderLoadingError = (_, message) =>
             {
-                ReportFailure(loadingContext, message);
-                success = false;
+                errors.AppendLine(message);
+                anyError = true;
 
                 Debugger.Break();
             }
         });
 
-        if (!success) return false;
+        if (anyError)
+            return ResourceIssue.FromMessage(Level.Error, errors.ToString());
 
-        ReportSuccess(loadingContext);
+        foreach (ShaderFile shader in shaderFiles)
+            context.ReportDiscovery(ResourceTypes.Shader, RID.Path(shader.File));
 
-        return true;
+        return null;
     }
 
     private (ShaderFileDescription[], String[], MaterialDescription[], Texture[]) BuildDescriptions()
@@ -249,16 +256,6 @@ public class PipelineBuilder
         IEnumerable<Texture> secondSlot = secondTextureSlot ?? Enumerable.Empty<Texture>();
 
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
-    }
-
-    private static void ReportFailure(ILoadingContext loadingContext, String message)
-    {
-        loadingContext.ReportFailure(nameof(SpacePipelineDescription), "RT_Pipeline", message);
-    }
-
-    private void ReportSuccess(ILoadingContext loadingContext)
-    {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(nameof(SpacePipelineDescription), shader.File);
     }
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);

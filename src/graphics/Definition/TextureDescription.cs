@@ -6,6 +6,7 @@
 
 using System.Runtime.InteropServices;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Definition;
 
@@ -69,6 +70,6 @@ public static class ColorFormats
         if (format == Image.Format.RGBA) return ColorFormat.RGBA;
         if (format == Image.Format.BGRA) return ColorFormat.BGRA;
 
-        throw new ArgumentOutOfRangeException(nameof(format));
+        throw Exceptions.UnsupportedValue(format);
     }
 }

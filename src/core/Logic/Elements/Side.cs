@@ -13,6 +13,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -171,7 +172,7 @@ public static class SideExtensions
             Side.Right => "R",
             Side.Bottom => "D",
             Side.Top => "U",
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -198,9 +199,9 @@ public static class SideExtensions
             Elements.Sides.Right => Side.Right,
             Elements.Sides.Bottom => Side.Bottom,
             Elements.Sides.Top => Side.Top,
-            Elements.Sides.None => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
+            Elements.Sides.None => throw Exceptions.UnsupportedEnumValue(side),
             Elements.Sides.All => Side.All,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -218,7 +219,7 @@ public static class SideExtensions
             Side.Right => Elements.Sides.Right,
             Side.Bottom => Elements.Sides.Bottom,
             Side.Top => Elements.Sides.Top,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -248,7 +249,7 @@ public static class SideExtensions
             Side.Right => Side.Left,
             Side.Bottom => Side.Top,
             Side.Top => Side.Bottom,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -263,7 +264,7 @@ public static class SideExtensions
             Side.Back => Orientation.North,
             Side.Left => Orientation.West,
             Side.Right => Orientation.East,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -281,7 +282,7 @@ public static class SideExtensions
             Side.Right => true,
             Side.Bottom => false,
             Side.Top => false,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -293,7 +294,7 @@ public static class SideExtensions
     {
         Int32 index = (Int32) side + 1;
 
-        if (index > 6) throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
+        if (index > 6) throw Exceptions.UnsupportedEnumValue(side);
 
         return directions[index];
     }
@@ -347,14 +348,14 @@ public static class SideExtensions
     {
         return side switch
         {
-            Side.All => throw new ArgumentOutOfRangeException(nameof(side), side, message: null),
+            Side.All => throw Exceptions.UnsupportedEnumValue(side),
             Side.Front => Utilities.Axis.Z,
             Side.Back => Utilities.Axis.Z,
             Side.Left => Utilities.Axis.X,
             Side.Right => Utilities.Axis.X,
             Side.Bottom => Utilities.Axis.Y,
             Side.Top => Utilities.Axis.Y,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -364,7 +365,7 @@ public static class SideExtensions
     public static Side Rotate(this Side side, Axis axis)
     {
         if (side == Side.All)
-            throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
+            throw Exceptions.UnsupportedEnumValue(side);
 
         if (side.Axis() == axis)
             return side;
@@ -374,7 +375,7 @@ public static class SideExtensions
             Utilities.Axis.X => RotateAroundX(side),
             Utilities.Axis.Y => RotateAroundY(side),
             Utilities.Axis.Z => RotateAroundZ(side),
-            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
 
@@ -386,7 +387,7 @@ public static class SideExtensions
             Side.Bottom => Side.Back,
             Side.Back => Side.Top,
             Side.Top => Side.Front,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -399,7 +400,7 @@ public static class SideExtensions
             Side.Back => Side.Left,
             Side.Left => Side.Front,
             Side.Bottom => Side.Bottom,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -411,7 +412,7 @@ public static class SideExtensions
             Side.Right => Side.Bottom,
             Side.Bottom => Side.Left,
             Side.Left => Side.Top,
-            _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -480,7 +481,7 @@ public static class SideExtensions
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(side), side, message: null);
+                throw Exceptions.UnsupportedEnumValue(side);
         }
     }
 }

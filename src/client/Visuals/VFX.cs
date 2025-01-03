@@ -67,21 +67,21 @@ public abstract class VFX : IDisposable
 
     /// <summary>
     ///     Update data for the VFX.
-    ///     Call this every update cycle.
+    ///     Call this every logic update cycle.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
-        if (IsSetUp) OnUpdate();
+        if (IsSetUp) OnLogicUpdate();
     }
 
     /// <summary>
     ///     Use this to update the VFX.
     /// </summary>
-    protected virtual void OnUpdate() {}
+    protected virtual void OnLogicUpdate() {}
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -112,5 +112,5 @@ public abstract class VFX : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

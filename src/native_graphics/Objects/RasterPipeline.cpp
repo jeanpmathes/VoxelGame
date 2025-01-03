@@ -83,7 +83,7 @@ namespace
                 graphics.AddRootConstant(
                     [&client]() -> ShaderResources::Value32
                     {
-                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
                     },
                     {.reg = 0, .space = 1});
 
@@ -142,7 +142,7 @@ namespace
                 graphics.AddRootConstant(
                     [&client]() -> ShaderResources::Value32
                     {
-                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
                     },
                     {.reg = 0, .space = 1});
 
@@ -384,7 +384,7 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetUpEffectBindings(
     description.AddRootConstant(
         [&client]() -> ShaderResources::Value32
         {
-            return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+            return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
         },
         {.reg = 0, .space = 1});
 

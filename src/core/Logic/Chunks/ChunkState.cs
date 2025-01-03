@@ -65,7 +65,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Get whether the chunk with this state is active.
-    ///     Is the case when the state is <see cref="IsActive"/> and entered.
+    ///     Is the case when the state is <see cref="IsActive" /> and entered.
     /// </summary>
     public Boolean IsChunkActive => IsEntered && IsActive && !IsExited;
 
@@ -164,7 +164,7 @@ public abstract class ChunkState
     protected virtual void OnExit() {}
 
     /// <summary>
-    /// Perform cleanup in the case that the state is not transitioned to.
+    ///     Perform cleanup in the case that the state is not transitioned to.
     /// </summary>
     protected virtual void Cleanup() {}
 
@@ -192,7 +192,7 @@ public abstract class ChunkState
 
     /// <summary>
     ///     Try to set the next state according to the world chunk activation rules.
-    ///     Either <see cref="TryStrongActivation"/> or <see cref="TryWeakActivation"/> will be used.
+    ///     Either <see cref="TryStrongActivation" /> or <see cref="TryWeakActivation" /> will be used.
     /// </summary>
     /// <returns><c>true</c> if this results in a transition to a different state, otherwise <c>false</c>.</returns>
     protected Boolean TryActivation()
@@ -748,14 +748,15 @@ public abstract class ChunkState
             var index = 0;
 
             while (index < requests.Count)
-            {
                 if (IsSameStateType(current, requests[index]))
                 {
                     CleanupAndRelease(requests[index]);
                     requests.RemoveAt(index);
                 }
-                else index++;
-            }
+                else
+                {
+                    index++;
+                }
         }
 
         private static Boolean IsSameStateType(ChunkState a, ChunkState b)

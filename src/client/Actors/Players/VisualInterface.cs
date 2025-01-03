@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
@@ -43,15 +42,13 @@ public sealed class VisualInterface : IDisposable
     ///     Create a new instance of the <see cref="VisualInterface" /> class.
     /// </summary>
     /// <param name="ui">The ui to use for some of the data display.</param>
-    /// <param name="resources">The resources to use.</param>
-    public VisualInterface(GameUserInterface ui, GameResources resources)
+    /// <param name="engine">The graphics engine to use for rendering.</param>
+    public VisualInterface(GameUserInterface ui, Engine engine)
     {
-        selectionVFX = RegisterVFX(resources.Pipelines.SelectionBoxVFX);
-        overlayVFX = RegisterVFX(resources.Pipelines.OverlayVFX);
+        selectionVFX = RegisterVFX(engine.SelectionBoxVFX);
+        overlayVFX = RegisterVFX(engine.OverlayVFX);
 
-        ScreenElementVFX crosshairVFX = RegisterVFX(resources.Pipelines.CrosshairVFX);
-
-        crosshairVFX.SetTexture(resources.Player.Crosshair);
+        RegisterVFX(engine.CrosshairVFX);
 
         foreach (VFX renderer in vfxes) renderer.SetUp();
 
@@ -190,11 +187,12 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Perform normal updates.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         Throw.IfDisposed(disposed);
 
-        foreach (VFX renderer in vfxes) renderer.Update();
+        foreach (VFX renderer in vfxes)
+            renderer.LogicUpdate();
 
         ui.UpdatePlayerDebugData();
     }
@@ -209,7 +207,7 @@ public sealed class VisualInterface : IDisposable
         ui.UpdatePlayerData();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -242,5 +240,5 @@ public sealed class VisualInterface : IDisposable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

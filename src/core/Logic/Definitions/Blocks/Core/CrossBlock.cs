@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class CrossBlock : Block, IFillable, IComplex
 {
-    private readonly String texture;
+    private readonly TID texture;
 
     private BlockMesh mesh = null!;
 
@@ -27,7 +27,7 @@ public class CrossBlock : Block, IFillable, IComplex
     ///     Initializes a new instance of a cross block; a block made out of two intersecting planes.
     ///     Cross blocks are never full, solid, or opaque.
     /// </summary>
-    protected CrossBlock(String name, String namedID, String texture, BlockFlags flags,
+    protected CrossBlock(String name, String namedID, TID texture, BlockFlags flags,
         BoundingVolume boundingVolume) :
         base(
             name,
@@ -44,8 +44,8 @@ public class CrossBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        mesh = BlockMeshes.CreateCrossMesh(indexProvider.GetTextureIndex(texture));
+        mesh = BlockMeshes.CreateCrossMesh(textureIndexProvider.GetTextureIndex(texture));
     }
 }

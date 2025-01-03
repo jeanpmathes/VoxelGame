@@ -11,9 +11,10 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -26,7 +27,7 @@ public sealed partial class StartScene : IScene
 {
     private readonly Application.Client client;
 
-    private readonly ResourceLoadingFailure? resourceLoadingFailure;
+    private readonly ResourceLoadingIssueReport? resourceLoadingIssueReport;
     private readonly StartUserInterface ui;
 
     private readonly WorldProvider worldProvider;
@@ -35,10 +36,10 @@ public sealed partial class StartScene : IScene
 
     private Int32? loadWorldDirectly;
 
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
+    internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
     {
         this.client = client;
-        this.resourceLoadingFailure = resourceLoadingFailure;
+        this.resourceLoadingIssueReport = resourceLoadingIssueReport;
         this.loadWorldDirectly = loadWorldDirectly;
 
         worldProvider = new WorldProvider(Program.WorldsDirectory);
@@ -56,7 +57,7 @@ public sealed partial class StartScene : IScene
             client.Settings,
             worldProvider,
             settingsProviders,
-            client.Resources.UI,
+            uiResources,
             drawBackground: true);
     }
 
@@ -73,9 +74,9 @@ public sealed partial class StartScene : IScene
         ui.CreateControl();
         ui.SetExitAction(() => client.Close());
 
-        if (resourceLoadingFailure == null) return;
+        if (resourceLoadingIssueReport == null) return;
 
-        ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
+        ui.PresentResourceLoadingFailure(resourceLoadingIssueReport.Report, resourceLoadingIssueReport.AnyErrors);
 
         if (loadWorldDirectly is null) return;
 
@@ -84,15 +85,15 @@ public sealed partial class StartScene : IScene
     }
 
     /// <inheritdoc />
-    public void Render(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
-        ui.Render();
+        ui.RenderUpdate();
     }
 
     /// <inheritdoc />
-    public void Update(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
 
@@ -102,7 +103,7 @@ public sealed partial class StartScene : IScene
             isFirstUpdate = false;
         }
 
-        ui.Update();
+        ui.LogicUpdate();
     }
 
     /// <inheritdoc />
@@ -146,7 +147,7 @@ public sealed partial class StartScene : IScene
         {
             LogLoadingWorldDirectly(logger, index);
 
-            worldProvider.BeginLoadingWorld(info);
+            worldProvider.LoadAndActivateWorld(info);
         }
         else
         {
@@ -158,21 +159,21 @@ public sealed partial class StartScene : IScene
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 0, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
     private static partial void LogResourceLoadingFailurePreventsDirectWorldLoading(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 1, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
     private static partial void LogCouldNotRefreshWorldsToDirectlyLoadWorld(ILogger logger, Exception exception, Int32 index);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
+    [LoggerMessage(EventId = LogID.StartScene + 2, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
     private static partial void LogLoadingWorldDirectly(ILogger logger, Int32 index);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
+    [LoggerMessage(EventId = LogID.StartScene + 3, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
     private static partial void LogCouldNotDirectlyLoadWorld(ILogger logger, Int32 index);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -202,5 +203,5 @@ public sealed partial class StartScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

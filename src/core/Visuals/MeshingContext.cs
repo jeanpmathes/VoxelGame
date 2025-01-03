@@ -26,17 +26,13 @@ public class MeshingContext
     private readonly IMeshing basicTransparentMeshing;
     private readonly IMeshing foliageMeshing;
     private readonly IMeshing fluidMeshing;
-
     private readonly Section current;
     private readonly SideArray<Section?> neighbors;
-
     private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
-
     private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
-
     private readonly (TintColor block, TintColor fluid)[,] tintColors;
 
     /// <summary>

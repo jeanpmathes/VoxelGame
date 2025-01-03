@@ -11,13 +11,13 @@ using OpenTK.Mathematics;
 namespace VoxelGame.Graphics.Interop;
 
 /// <summary>
-/// Marshaller for <see cref="Vector3"/>.
+///     Marshaller for <see cref="Vector3" />.
 /// </summary>
 [CustomMarshaller(typeof(Vector3), MarshalMode.ManagedToUnmanagedIn, typeof(Vector3Marshaller))]
 public static class Vector3Marshaller
 {
     /// <summary>
-    /// Convert a managed <see cref="Vector3"/> to an unmanaged <see cref="Unmanaged"/>.
+    ///     Convert a managed <see cref="Vector3" /> to an unmanaged <see cref="Unmanaged" />.
     /// </summary>
     public static Unmanaged ConvertToUnmanaged(Vector3 managed)
     {
@@ -30,7 +30,7 @@ public static class Vector3Marshaller
     }
 
     /// <summary>
-    /// Free the unmanaged <see cref="Unmanaged"/>.
+    ///     Free the unmanaged <see cref="Unmanaged" />.
     /// </summary>
     public static void Free(Unmanaged unmanaged)
     {
@@ -38,7 +38,7 @@ public static class Vector3Marshaller
     }
 
     /// <summary>
-    /// The unmanaged representation of <see cref="Vector3"/>.
+    ///     The unmanaged representation of <see cref="Vector3" />.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public ref struct Unmanaged
@@ -50,13 +50,13 @@ public static class Vector3Marshaller
 }
 
 /// <summary>
-/// Marshaller for <see cref="Vector4"/>.
+///     Marshaller for <see cref="Vector4" />.
 /// </summary>
 [CustomMarshaller(typeof(Vector4), MarshalMode.ManagedToUnmanagedIn, typeof(Vector4Marshaller))]
 public static class Vector4Marshaller
 {
     /// <summary>
-    /// Convert a managed <see cref="Vector4"/> to an unmanaged <see cref="Unmanaged"/>.
+    ///     Convert a managed <see cref="Vector4" /> to an unmanaged <see cref="Unmanaged" />.
     /// </summary>
     public static Unmanaged ConvertToUnmanaged(Vector4 managed)
     {
@@ -70,7 +70,7 @@ public static class Vector4Marshaller
     }
 
     /// <summary>
-    /// Free the unmanaged <see cref="Unmanaged"/>.
+    ///     Free the unmanaged <see cref="Unmanaged" />.
     /// </summary>
     public static void Free(Unmanaged unmanaged)
     {
@@ -78,7 +78,7 @@ public static class Vector4Marshaller
     }
 
     /// <summary>
-    /// The unmanaged representation of <see cref="Vector4"/>.
+    ///     The unmanaged representation of <see cref="Vector4" />.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public ref struct Unmanaged

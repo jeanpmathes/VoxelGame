@@ -7,17 +7,20 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Application.Resources;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Resources;
 using VoxelGame.Client.Scenes;
+using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
+using VoxelGame.UI.Resources;
 
 namespace VoxelGame.Client.Application;
 
@@ -49,14 +52,12 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        Resources = new GameResources(this);
-
         sceneManager = new SceneManager();
         sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Input);
 
-        OnSizeChange += OnSizeChanged;
+        SizeChanged += OnSizeChanged;
     }
 
     /// <summary>
@@ -72,29 +73,57 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     internal GeneralSettings Settings { get; }
     internal GraphicsSettings Graphics { get; }
 
-    /// <summary>
-    ///     Get the resources of the game.
-    /// </summary>
-    internal GameResources Resources { get; }
-
     private Double FPS => windowBehaviour.FPS;
     private Double UPS => windowBehaviour.UPS;
+
+    internal IResourceContext? UIResources { get; private set; }
+
+    internal IResourceContext? MainResources { get; private set; }
 
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
 
-    protected override void OnInit()
+    protected override void OnInitialization()
     {
         using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
         {
             windowBehaviour = new WindowBehaviour(this);
 
-            LoadingContext loadingContext = new(timer);
+            ResourceCatalogLoader loader = new();
 
-            Resources.Load(Graphics.VisualConfiguration, loadingContext);
+            loader.AddToEnvironment(this);
+            loader.AddToEnvironment(Graphics.VisualConfiguration);
 
-            IScene startScene = sceneFactory.CreateStartScene(loadingContext.State, parameters.DirectlyLoadedWorldIndex);
-            sceneManager.Load(startScene);
+            (UIResources, ResourceLoadingIssueReport? uiIssues) = loader.Load(new UserInterfaceRequirements(), timer);
+
+            if (uiIssues is {AnyErrors: true})
+            {
+                LogFailedToLoadUIResources(logger);
+
+                Close();
+
+                return;
+            }
+
+            loader.AddToEnvironment(UIResources);
+
+            (MainResources, ResourceLoadingIssueReport? mainIssues) = loader.Load(new ClientContent(), timer);
+            ResourceLoadingIssueReport? issueReport = ResourceLoadingIssueReport.Merge("Resources", uiIssues, mainIssues);
+
+            sceneFactory.InitializeResources(MainResources);
+
+            if (MainResources.Get<TextureBundle>(Textures.BlockID) is {} blockTextures)
+                LogTextureBlockRatio(logger, blockTextures.Count / (Double) Blocks.Instance.Count);
+
+            IScene? startScene = sceneFactory.CreateStartScene(issueReport, parameters.DirectlyLoadedWorldIndex);
+
+            if (startScene != null)
+            {
+                if (MainResources.Get<Engine>() is {} engine)
+                    Visuals.Graphics.Initialize(engine);
+
+                sceneManager.Load(startScene);
+            }
 
             LogFinishedOnLoad(logger);
         }
@@ -103,31 +132,40 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         ManualBuilder.EmitManual();
     }
 
-    protected override void OnRender(Double delta)
+    protected override void OnRenderUpdate(Double delta)
     {
-        using Timer? timer = logger.BeginTimedScoped("Client Render");
+        using Timer? timer = logger.BeginTimedScoped("Client Render Update");
 
-        sceneManager.Render(delta, timer);
-        windowBehaviour.Render(delta);
+        sceneManager.RenderUpdate(delta, timer);
+        windowBehaviour.RenderUpdate(delta);
     }
 
-    protected override void OnUpdate(Double delta)
+    protected override void OnLogicUpdate(Double delta)
     {
         using Timer? timer = logger.BeginTimedScoped("Client Update");
 
-        using (logger.BeginTimedSubScoped("Client Operations", timer))
+        if (!sceneManager.IsInScene)
         {
-            operations.Update();
+            ExitToOS();
+
+            return;
         }
 
-        sceneManager.Update(delta, timer);
-        windowBehaviour.Update(delta);
+        using (logger.BeginTimedSubScoped("Client Operations", timer))
+        {
+            operations.LogicUpdate();
+        }
+
+        sceneManager.LogicUpdate(delta, timer);
+        windowBehaviour.LogicUpdate(delta);
     }
 
     protected override void OnDestroy()
     {
         sceneManager.Unload();
-        Resources.Dispose();
+
+        UIResources?.Dispose();
+        MainResources?.Dispose();
     }
 
     protected override Boolean CanClose()
@@ -141,8 +179,10 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     /// <param name="world">The world to start the game in.</param>
     internal void StartGame(World world)
     {
-        IScene gameScene = sceneFactory.CreateGameScene(world);
-        sceneManager.Load(gameScene);
+        IScene? gameScene = sceneFactory.CreateGameScene(world);
+
+        if (gameScene != null)
+            sceneManager.Load(gameScene);
     }
 
     /// <summary>
@@ -153,12 +193,17 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     {
         IScene? scene = null;
 
-        if (!exitToOS) scene = sceneFactory.CreateStartScene(resourceLoadingFailure: null, loadWorldDirectly: null);
+        if (!exitToOS)
+            scene = sceneFactory.CreateStartScene(resourceLoadingIssueReport: null, loadWorldDirectly: null);
 
-        sceneManager.Load(scene);
+        if (scene != null)
+            sceneManager.Load(scene);
+        else
+            sceneManager.Unload();
+    }
 
-        if (!exitToOS) return;
-
+    private void ExitToOS()
+    {
         LogExitingToOS(logger);
 
         Close();
@@ -175,18 +220,24 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Finished client loading")]
+    [LoggerMessage(EventId = LogID.Client + 0, Level = LogLevel.Information, Message = "Finished client loading")]
     private static partial void LogFinishedOnLoad(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting to OS")]
+    [LoggerMessage(EventId = LogID.Client + 1, Level = LogLevel.Information, Message = "Exiting to OS")]
     private static partial void LogExitingToOS(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
+    [LoggerMessage(EventId = LogID.Client + 2, Level = LogLevel.Debug, Message = "Window has been resized to: {Size}")]
     private static partial void LogWindowResized(ILogger logger, Vector2i size);
+
+    [LoggerMessage(EventId = LogID.Client + 3, Level = LogLevel.Debug, Message = "Texture/Block ratio: {Ratio:F02}")]
+    private static partial void LogTextureBlockRatio(ILogger logger, Double ratio);
+
+    [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Critical, Message = "Failed to load required UI resources, exiting")]
+    private static partial void LogFailedToLoadUIResources(ILogger logger);
 
     #endregion
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -195,12 +246,13 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     {
         if (disposed) return;
 
-        if (disposing) OnSizeChange -= OnSizeChanged;
+        if (disposing)
+            SizeChanged -= OnSizeChanged;
 
         base.Dispose(disposing);
 
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

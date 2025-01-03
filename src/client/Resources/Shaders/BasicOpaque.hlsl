@@ -8,10 +8,11 @@
 #include "Section.hlsl"
 
 [shader("closesthit")]void BasicOpaqueSectionClosestHit(
-    inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
+    inout native::rt::HitInfo    payload,
+    native::rt::Attributes const attributes)
 {
     float const path = vg::ray::GetPathLength(payload);
-    
+
     vg::spatial::Info const info      = vg::spatial::GetCurrentInfo(attributes);
     float4                  baseColor = vg::section::GetBasicBaseColor(path, info);
 

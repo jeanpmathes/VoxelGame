@@ -136,7 +136,7 @@ public sealed class TextStorage : IDisposable
         public Boolean Accessed { get; set; }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -171,5 +171,5 @@ public sealed class TextStorage : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

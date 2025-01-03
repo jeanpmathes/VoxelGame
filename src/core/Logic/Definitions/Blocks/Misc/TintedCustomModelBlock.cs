@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -23,7 +24,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // c: color
 public class TintedCustomModelBlock : CustomModelBlock, ICombustible
 {
-    internal TintedCustomModelBlock(String name, String namedID, BlockFlags flags, String modelName,
+    internal TintedCustomModelBlock(String name, String namedID, BlockFlags flags, RID modelName,
         BoundingVolume boundingVolume) :
         base(
             name,

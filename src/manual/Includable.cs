@@ -42,19 +42,6 @@ public class Includable
     }
 
     /// <summary>
-    ///     Create a new section and add it to this document.
-    /// </summary>
-    /// <param name="title">The title of the section to add.</param>
-    /// <returns>The created section.</returns>
-    public Section CreateSection(String title)
-    {
-        var section = Section.Create(title);
-        AddSection(section);
-
-        return section;
-    }
-
-    /// <summary>
     ///     Create and add multiple sections for a sequence of items.
     /// </summary>
     /// <param name="items">The items to add sections for.</param>

@@ -38,7 +38,7 @@ public class OperationUpdateDispatch
     /// <summary>
     ///     Perform an update.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         operations.Apply(operation =>
         {

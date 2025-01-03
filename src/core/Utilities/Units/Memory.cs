@@ -22,6 +22,11 @@ public readonly struct Memory : IMeasure, IEquatable<Memory>
     public static Unit Unit => Unit.Byte;
 
     /// <inheritdoc />
+    public static Prefix.AllowedPrefixes Prefixes => Prefix.AllowedPrefixes.Unprefixed
+                                                     | Prefix.AllowedPrefixes.Kilo | Prefix.AllowedPrefixes.Mega | Prefix.AllowedPrefixes.Giga | Prefix.AllowedPrefixes.Tera
+                                                     | Prefix.AllowedPrefixes.Peta | Prefix.AllowedPrefixes.Exa | Prefix.AllowedPrefixes.Zetta | Prefix.AllowedPrefixes.Yotta;
+
+    /// <inheritdoc />
     Double IMeasure.Value => Bytes;
 
     /// <inheritdoc />

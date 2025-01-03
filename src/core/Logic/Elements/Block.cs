@@ -10,14 +10,16 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>
+public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>, IResource
 {
     private const UInt32 InvalidID = UInt32.MaxValue;
     private readonly BoundingVolume boundingVolume;
@@ -33,6 +35,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     {
         Name = name;
         NamedID = namedID;
+        Identifier = RID.Named<Block>(namedID);
 
         IsFull = flags.IsFull;
         IsOpaque = flags.IsOpaque;
@@ -121,7 +124,8 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// </summary>
     /// <param name="world">The world in which to destroy the block.</param>
     /// <param name="position">The position at which to destroy to block.</param>
-    /// <param name="actor">The actor destroying the block.</param>1
+    /// <param name="actor">The actor destroying the block.</param>
+    /// 1
     /// <returns>True if destruction was successful.</returns>
     public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null)
     {
@@ -139,26 +143,34 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
 
     UInt32 IIdentifiable<UInt32>.ID => ID;
 
+    /// <inheritdoc />
+    public RID Identifier { get; }
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.Block;
+
     /// <summary>
     ///     Set up the block.
     /// </summary>
     /// <param name="id">The ID of the block.</param>
     /// <param name="indexProvider">The index provider for the block textures.</param>
+    /// <param name="modelProvider">The model provider for the block models.</param>
     /// <param name="visuals">The visual configuration of the game.</param>
-    public void SetUp(UInt32 id, ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    public void SetUp(UInt32 id, ITextureIndexProvider indexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
         Debug.Assert(ID == InvalidID);
         ID = id;
 
-        OnSetUp(indexProvider, visuals);
+        OnSetUp(indexProvider, modelProvider, visuals);
     }
 
     /// <summary>
-    ///     Called when loading blocks, meant to setup vertex data, indices etc.
+    ///     Called when loading blocks, meant to set up vertex data, indices etc.
     /// </summary>
-    /// <param name="indexProvider">A texture index provider.</param>
+    /// <param name="textureIndexProvider"></param>
+    /// <param name="modelProvider">A model provider.</param>
     /// <param name="visuals">The visual configuration of the game.</param>
-    protected virtual void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals) {}
+    protected virtual void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals) {}
 
     /// <summary>
     ///     Returns the collider for a given position.
@@ -307,7 +319,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// </summary>
     /// <param name="content">The content that is generated, containing this block.</param>
     /// <returns>Potentially modified content.</returns>
-    public virtual Content GenerateUpdate(Content content)
+    public virtual Content GeneratorUpdate(Content content)
     {
         return content;
     }
@@ -317,4 +329,45 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     {
         return NamedID;
     }
+
+    #region DISPOSING
+
+    private Boolean disposed;
+
+    /// <summary>
+    ///     Override to dispose resources.
+    /// </summary>
+    /// <param name="disposing">Whether to dispose managed resources.</param>
+    protected virtual void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            // Nothing to dispose.
+        }
+        else
+        {
+            Throw.ForMissedDispose(this);
+        }
+
+        disposed = true;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Block()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion DISPOSING
 }

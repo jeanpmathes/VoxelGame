@@ -23,7 +23,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // l: lowered
 public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly String texture;
+    private readonly TID texture;
 
     private readonly List<BlockMesh> meshes = [];
 
@@ -35,8 +35,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <param name="texture">The name of the texture of this block.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="boundingVolume">The bounding box of this block.</param>
-    internal CrossPlantBlock(String name, String namedID, String texture, BlockFlags flags,
-        BoundingVolume boundingVolume) :
+    internal CrossPlantBlock(String name, String namedID, TID texture, BlockFlags flags, BoundingVolume boundingVolume) :
         base(
             name,
             namedID,
@@ -61,9 +60,9 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 textureIndex = indexProvider.GetTextureIndex(texture);
+        Int32 textureIndex = textureIndexProvider.GetTextureIndex(texture);
 
         for (var data = 0; data <= 0b00_0001; data++) meshes.Add(BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, (data & 0b1) != 0));
     }

@@ -142,7 +142,7 @@ void Space::Render(
     Allocation<ID3D12Resource> const& depth,
     RenderData const&                 data)
 {
-    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalRenderTime());
+    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalRenderUpdateTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");

@@ -57,10 +57,9 @@ public class Requests(Chunk? chunk)
     /// <returns>True if this was the last request, meaning the chunk is no longer requested.</returns>
     public Boolean RemoveRequest(Request request)
     {
-        if (request.Index is not {} index)
-            throw new InvalidOperationException();
+        Debug.Assert(request.Index != null);
 
-        requesters.RemoveAt(index);
+        requesters.RemoveAt(request.Index.Value);
         request.Index = null;
 
         return requesters.Count == 0;

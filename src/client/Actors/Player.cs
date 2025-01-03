@@ -100,7 +100,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     String IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
-    /// Set the flying speed of the player.
+    ///     Set the flying speed of the player.
     /// </summary>
     /// <param name="speed">The new flying speed.</param>
     public void SetFlyingSpeed(Double speed)
@@ -177,7 +177,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    protected override void OnUpdate(Double deltaTime)
+    protected override void OnPlayerUpdate(Double deltaTime)
     {
         Throw.IfDisposed(disposed);
 
@@ -185,7 +185,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
         camera.Position = movementStrategy.GetCameraPosition(Head);
 
-        targeting.Update(Head, World);
+        targeting.LogicUpdate(Head, World);
 
         if (scene is {IsWindowFocused: true, IsOverlayOpen: false})
         {
@@ -203,12 +203,12 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
         // Because interaction can change the target block or the bounding box,
         // we search again for the target and update the selection now.
-        targeting.Update(Head, World);
+        targeting.LogicUpdate(Head, World);
 
         visualInterface.SetSelectionBoxTarget(World, targeting.Block, targeting.Position);
-        visualInterface.Update();
+        visualInterface.LogicUpdate();
 
-        input.Update(deltaTime);
+        input.LogicUpdate(deltaTime);
     }
 
     private void DoBlockFluidSelection()
@@ -240,24 +240,24 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Player>();
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Created new player")]
+    [LoggerMessage(EventId = LogID.Player + 0, Level = LogLevel.Debug, Message = "Created new player")]
     private static partial void LogCreatedNewPlayer(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set flying speed to {Speed}")]
+    [LoggerMessage(EventId = LogID.Player + 1, Level = LogLevel.Debug, Message = "Set flying speed to {Speed}")]
     private static partial void LogSetFlyingSpeed(ILogger logger, Double speed);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set freecam mode to {Freecam}")]
+    [LoggerMessage(EventId = LogID.Player + 2, Level = LogLevel.Debug, Message = "Set freecam mode to {Freecam}")]
     private static partial void LogSetFreecam(ILogger logger, Boolean freecam);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Set overlay rendering to {Allowed}")]
+    [LoggerMessage(EventId = LogID.Player + 3, Level = LogLevel.Debug, Message = "Set overlay rendering to {Allowed}")]
     private static partial void LogSetOverlayAllowed(ILogger logger, Boolean allowed);
 
-    [LoggerMessage(EventId = Events.Player, Level = LogLevel.Debug, Message = "Teleported player to {Position}")]
+    [LoggerMessage(EventId = LogID.Player + 4, Level = LogLevel.Debug, Message = "Teleported player to {Position}")]
     private static partial void LogTeleport(ILogger logger, Vector3d position);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -274,5 +274,5 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

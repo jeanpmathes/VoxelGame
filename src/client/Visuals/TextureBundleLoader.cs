@@ -14,6 +14,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Logging;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -22,15 +24,19 @@ namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     Represents the combination of all sources (directories) that make up a texture bundle.
+///     When loading a texture bundle, all textures from the sources are loaded into a texture array.
+///     This will cut off any textures that exceed the maximum number of textures.
 /// </summary>
-public partial class TextureBundleLoader
+public sealed partial class TextureBundleLoader : IResourceLoader
 {
-    private readonly String name;
+    private readonly RID identifier;
     private readonly Int32 resolution;
     private readonly Int32 maxTextures;
     private readonly Image.MipmapAlgorithm mipmap;
 
     private readonly Int32 mips;
+
+    private readonly List<DirectoryInfo> sources = [];
 
     private readonly List<Image> data = [];
     private readonly Dictionary<String, Int32> indices = [];
@@ -40,18 +46,18 @@ public partial class TextureBundleLoader
     /// <summary>
     ///     Create a new texture bundle loader.
     /// </summary>
-    /// <param name="name">A name referring to the texture bundle being loaded.</param>
+    /// <param name="identifier">The identifier of the resource.</param>
     /// <param name="resolution">
     ///     The resolution of each texture in the bundle. Must be a power of 2. Other resolutions will be
     ///     ignored.
     /// </param>
     /// <param name="maxTextures">The maximum number of textures that can be loaded into the bundle.</param>
     /// <param name="mipmap">The mipmap algorithm to use for the textures.</param>
-    public TextureBundleLoader(String name, Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
+    public TextureBundleLoader(RID identifier, Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
         Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
-        this.name = name;
+        this.identifier = identifier;
         this.resolution = resolution;
         this.maxTextures = maxTextures;
         this.mipmap = mipmap;
@@ -62,55 +68,44 @@ public partial class TextureBundleLoader
         AddTexture(fallback);
     }
 
-    /// <summary>
-    ///     Load textures from a directory.
-    /// </summary>
-    /// <param name="directory">The directory containing the textures.</param>
-    /// <param name="loadingContext">The loading context to report progress and errors to.</param>
-    public void Load(DirectoryInfo directory, ILoadingContext loadingContext)
+    String? ICatalogEntry.Instance => identifier.Instance;
+
+    /// <inheritdoc />
+    public IEnumerable<IResource> Load(IResourceContext context)
     {
-        FileInfo[] files;
-
-        try
+        return context.Require<VoxelGame.Graphics.Core.Client>(client =>
         {
-            files = directory.GetFiles("*.png");
-        }
-        catch (DirectoryNotFoundException)
-        {
-            loadingContext.ReportWarning($"{nameof(TextureBundle)}Part", directory, "Texture directory not found");
+            LoadSources(context);
 
-            return;
-        }
+            Span<Image> textures = CollectionsMarshal.AsSpan(data);
 
-        LoadFiles(files);
+            if (count > maxTextures)
+            {
+                LogTooManyTextures(logger, count, maxTextures);
 
-        loadingContext.ReportSuccess($"{nameof(TextureBundle)}Part", directory);
+                textures = textures[..maxTextures];
+                count = maxTextures;
+
+                Int32 maxIndex = maxTextures - 1;
+
+                foreach ((String key, Int32 index) in indices)
+                    if (index > maxIndex)
+                        indices[key] = 0;
+            }
+
+            TextureArray array = TextureArray.Load(client, textures, count, mips);
+
+            return [new TextureBundle(identifier, array, indices)];
+        });
     }
 
-    private void LoadFiles(FileInfo[] files)
+    /// <summary>
+    ///     Add a source directory from which to load textures.
+    /// </summary>
+    /// <param name="directory">The directory to add as a source.</param>
+    public void AddSource(DirectoryInfo directory)
     {
-        foreach (FileInfo path in files)
-            try
-            {
-                Image file = Image.LoadFromFile(path);
-
-                if (file.Width % resolution == 0 && file.Height == resolution)
-                {
-                    Int32 textureCount = file.Width / resolution;
-                    AddTextureIndices(path, count, textureCount);
-
-                    for (var j = 0; j < textureCount; j++)
-                        AddTexture(file.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
-                }
-                else
-                {
-                    LogImageSizeMismatch(logger, resolution, path);
-                }
-            }
-            catch (FileNotFoundException e)
-            {
-                LogImageLoadFailed(logger, e, path);
-            }
+        sources.Add(directory);
     }
 
     private void AddTexture(Image texture)
@@ -119,115 +114,110 @@ public partial class TextureBundleLoader
 
         count++;
 
-        PreprocessImage(data[^1]);
+        data[^1].RecolorTransparency();
 
         data.AddRange(data[^1].GenerateMipmaps(mips, mipmap));
     }
 
-    private static void PreprocessImage(Image image)
-    {
-        Int64 r = 0;
-        Int64 g = 0;
-        Int64 b = 0;
-        Int64 count = 0;
-
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
-        {
-            Color pixel = image.GetPixel(x, y);
-
-            if (pixel.A == 0) continue;
-
-            r += pixel.R * pixel.R;
-            g += pixel.G * pixel.G;
-            b += pixel.B * pixel.B;
-
-            count++;
-        }
-
-        Int32 GetAverage(Int64 sum)
-        {
-            return (Int32) Math.Sqrt(sum / (Double) count);
-        }
-
-        Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
-
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
-        {
-            if (image.GetPixel(x, y).A != 0) continue;
-
-            image.SetPixel(x, y, average);
-        }
-    }
-
     private void AddTextureIndices(FileInfo file, Int32 index, Int32 size)
     {
-        String textureName = GetTextureName(file);
+        String key = GetTextureKey(file);
 
-        indices[textureName] = index;
+        indices[key] = index;
 
         if (size == 1) return;
 
-        for (var offset = 0; offset < size; offset++)
-            indices[$"{textureName}:{offset}"] = index + offset;
+        for (Byte offset = 0; offset < size; offset++)
+            indices[TID.CreateKey(key, offset)] = index + offset;
     }
 
-    private static String GetTextureName(FileInfo file)
+    private static String GetTextureKey(FileInfo file)
     {
-        StringBuilder name = new();
+        StringBuilder key = new();
 
         foreach (Char c in file.GetFileNameWithoutExtension())
             if (Char.IsLetterOrDigit(c) || c == '_')
-                name.Append(c);
+                key.Append(c);
 
-        return name.ToString();
+        return key.ToString();
     }
 
-    /// <summary>
-    ///     Pack all loaded textures into a texture bundle.
-    ///     This will cut off any textures that exceed the maximum number of textures.
-    ///     The remaining textures will be loaded into a GPU texture array.
-    /// </summary>
-    /// <param name="client">The client to use for loading the textures.</param>
-    /// <param name="loadingContext">The loading context to report progress and errors to.</param>
-    /// <returns>The loaded texture bundle.</returns>
-    public TextureBundle Pack(VoxelGame.Graphics.Core.Client client, ILoadingContext loadingContext)
+    private void LoadFiles(IEnumerable<FileInfo> files, IResourceContext context)
     {
-        Span<Image> textures = CollectionsMarshal.AsSpan(data);
-
-        if (count > maxTextures)
+        foreach (FileInfo path in files)
         {
-            LogTooManyTextures(logger, count, maxTextures);
+            Exception? error;
+            String? errorMessage;
 
-            textures = textures[..maxTextures];
-            count = maxTextures;
+            try
+            {
+                error = null;
+                errorMessage = LoadFile(path);
+            }
+            catch (FileNotFoundException exception)
+            {
+                error = exception;
+                errorMessage = "Image file not found";
+            }
 
-            Int32 maxIndex = maxTextures - 1;
-
-            foreach ((String key, Int32 index) in indices)
-                if (index > maxIndex)
-                    indices[key] = 0;
+            context.ReportDiscovery(ResourceTypes.TextureBundlePNG, RID.Path(path), error, errorMessage);
         }
+    }
 
-        TextureArray loadedTextureArray = TextureArray.Load(client, textures, count, mips);
+    private String? LoadFile(FileInfo path)
+    {
+        Image file = Image.LoadFromFile(path);
 
-        loadingContext.ReportSuccess(nameof(TextureBundle), name);
+        if (file.Width % resolution != 0 || file.Height != resolution)
+            return "Image size did not match the specified resolution";
 
-        return new TextureBundle(loadedTextureArray, indices);
+        Int32 textureCount = file.Width / resolution;
+
+        if (textureCount > Byte.MaxValue)
+            return $"More than {Byte.MaxValue} textures in one image";
+
+        AddTextureIndices(path, count, textureCount);
+
+        for (var j = 0; j < textureCount; j++)
+            AddTexture(file.CreateCopy(new Rectangle(j * resolution, y: 0, resolution, resolution)));
+
+        return null;
+    }
+
+    private void LoadSources(IResourceContext context)
+    {
+        List<FileInfo> files = [];
+
+        foreach (DirectoryInfo source in sources)
+            try
+            {
+                files.AddRange(source.GetFiles("*.png"));
+            }
+            catch (DirectoryNotFoundException exception)
+            {
+                context.ReportWarning(this, "Texture directory not found", exception, source);
+            }
+
+        LoadFiles(files, context);
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<TextureBundle>();
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Critical, Message = "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 0,
+        Level = LogLevel.Critical,
+        Message = "The number of textures found ({Count}) is higher than the number of textures ({Max}) that are allowed for this TextureBundle")]
     private static partial void LogTooManyTextures(ILogger logger, Int32 count, Int32 max);
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Debug, Message = "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 1,
+        Level = LogLevel.Debug,
+        Message = "The size of the image did not match the specified resolution ({Resolution}) and was not loaded: {Path}")]
     private static partial void LogImageSizeMismatch(ILogger logger, Int32 resolution, FileInfo path);
 
-    [LoggerMessage(EventId = 0, Level = LogLevel.Error, Message = "The image could not be loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.TextureBundleLoader + 2,
+        Level = LogLevel.Error,
+        Message = "The image could not be loaded: {Path}")]
     private static partial void LogImageLoadFailed(ILogger logger, Exception exception, FileInfo path);
 
     #endregion LOGGING

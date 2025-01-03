@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 using World = VoxelGame.Client.Logic.World;
 
@@ -54,7 +56,7 @@ public partial class WorldProvider : IWorldProvider
     {
         get
         {
-            if (Status != Status.Ok) throw new InvalidOperationException();
+            Debug.Assert(Status == Status.Ok);
 
             return worlds;
         }
@@ -69,8 +71,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public Operation Refresh()
     {
-        if (Status == Status.Running)
-            throw new InvalidOperationException();
+        Debug.Assert(Status != Status.Running);
 
         Status = Status.Running;
 
@@ -93,11 +94,11 @@ public partial class WorldProvider : IWorldProvider
 
                 LogWorldLookup(logger, found.Count);
             }
-            catch (Exception e) when (e is IOException or SecurityException)
+            catch (Exception searchException) when (searchException is IOException or SecurityException)
             {
-                LogWorldRefreshError(logger, e);
+                LogWorldRefreshError(logger, searchException);
 
-                throw new AggregateException("Failed to refresh worlds", e);
+                throw Exceptions.Annotated("Failed to refresh worlds.", searchException);
             }
 
             List<String> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
@@ -120,22 +121,17 @@ public partial class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginLoadingWorld(IWorldProvider.IWorldInfo info)
+    public void LoadAndActivateWorld(IWorldProvider.IWorldInfo info)
     {
-        if (WorldActivation == null) throw new InvalidOperationException();
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         World world = new(GetData(info));
         ActivateWorld(world);
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginCreatingWorld(String name)
+    public void CreateAndActivateWorld(String name)
     {
-        if (WorldActivation == null) throw new InvalidOperationException();
-
         (Int32 upper, Int32 lower) seed = (DateTime.UtcNow.GetHashCode(), RandomNumberGenerator.GetInt32(Int32.MinValue, Int32.MaxValue));
 
         DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, name);
@@ -147,7 +143,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public Operation DeleteWorld(IWorldProvider.IWorldInfo info)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         WorldData data = GetData(info);
 
@@ -160,7 +156,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public Operation DuplicateWorld(IWorldProvider.IWorldInfo info, String duplicateName)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         WorldData data = GetData(info);
 
@@ -185,7 +181,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public void RenameWorld(IWorldProvider.IWorldInfo info, String newName)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         GetData(info).Rename(newName);
     }
@@ -193,7 +189,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public void SetFavorite(IWorldProvider.IWorldInfo info, Boolean isFavorite)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         metadata.Entries.GetOrAdd(GetMetadataKey(GetData(info))).IsFavorite = isFavorite;
         metadata.Save(metadataFile);
@@ -210,7 +206,7 @@ public partial class WorldProvider : IWorldProvider
 
     private DateTime? GetDateTimeOfLastLoad(WorldData data)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
 
@@ -219,7 +215,7 @@ public partial class WorldProvider : IWorldProvider
 
     private Boolean IsFavorite(WorldData data)
     {
-        if (Status != Status.Ok) throw new InvalidOperationException();
+        Debug.Assert(Status == Status.Ok);
 
         metadata.Entries.TryGetValue(GetMetadataKey(data), out WorldFileMetadata? fileMetadata);
 
@@ -247,12 +243,10 @@ public partial class WorldProvider : IWorldProvider
 
     private void ActivateWorld(World world)
     {
-        if (WorldActivation == null) throw new InvalidOperationException();
-
         metadata.Entries.GetOrAdd(GetMetadataKey(world.Data)).LastLoad = DateTime.UtcNow;
         metadata.Save(metadataFile);
 
-        WorldActivation(this, world);
+        WorldActivation?.Invoke(this, world);
     }
 
     private static String GetMetadataKey(WorldData data)
@@ -265,7 +259,7 @@ public partial class WorldProvider : IWorldProvider
         if (info is WorldInfo worldInfo)
             return worldInfo.Data;
 
-        throw new InvalidOperationException();
+        throw Exceptions.ArgumentOfWrongType(nameof(info), typeof(WorldInfo), info);
     }
 
     /// <summary>
@@ -287,16 +281,16 @@ public partial class WorldProvider : IWorldProvider
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldProvider>();
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Completed world lookup, found {Count} valid directories")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 0, Level = LogLevel.Information, Message = "Completed world lookup, found {Count} valid directories")]
     private static partial void LogWorldLookup(ILogger logger, Int32 count);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to refresh worlds")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 1, Level = LogLevel.Error, Message = "Failed to refresh worlds")]
     private static partial void LogWorldRefreshError(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Valid world directory found: {Directory}")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 2, Level = LogLevel.Debug, Message = "Valid world directory found: {Directory}")]
     private static partial void LogValidWorldDirectory(ILogger logger, DirectoryInfo directory);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Directory has no meta file and is ignored: {Directory}")]
+    [LoggerMessage(EventId = LogID.WorldProvider + 3, Level = LogLevel.Debug, Message = "Directory has no meta file and is ignored: {Directory}")]
     private static partial void LogIgnoredDirectory(ILogger logger, DirectoryInfo directory);
 
     #endregion

@@ -14,8 +14,10 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -30,28 +32,27 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class FireBlock : Block, IFillable, IComplex
 {
-    private const UInt32 TickOffset = 150;
-    private const UInt32 TickVariation = 25;
+    private const UInt32 UpdateOffset = 150;
+    private const UInt32 UpdateVariation = 25;
+
+    private readonly RID completeModelID;
+    private readonly RID sideModelID;
+    private readonly RID topModelID;
 
     private readonly List<BlockMesh> meshes = new(capacity: 32);
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal FireBlock(String name, String namedID, String completeModel, String sideModel, String topModel) :
+    internal FireBlock(String name, String namedID, RID completeModel, RID sideModel, RID topModel) :
         base(
             name,
             namedID,
             BlockFlags.Replaceable with {IsUnshaded = true},
             BoundingVolume.Block)
     {
-        BlockModel complete = BlockModel.Load(completeModel);
-
-        BlockModel side = BlockModel.Load(sideModel);
-        BlockModel top = BlockModel.Load(topModel);
-
-        PrepareMeshes(complete, side, top);
-
-        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+        completeModelID = completeModel;
+        sideModelID = sideModel;
+        topModelID = topModel;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -61,7 +62,20 @@ public class FireBlock : Block, IFillable, IComplex
         return mesh.GetMeshData(isAnimated: true);
     }
 
-    private void PrepareMeshes(BlockModel completeModel, BlockModel sideModel, BlockModel topModel)
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel complete = modelProvider.GetModel(completeModelID);
+
+        BlockModel side = modelProvider.GetModel(sideModelID);
+        BlockModel top = modelProvider.GetModel(topModelID);
+
+        PrepareMeshes(textureIndexProvider, complete, side, top);
+
+        for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
+    }
+
+    private void PrepareMeshes(ITextureIndexProvider textureIndexProvider, BlockModel completeModel, BlockModel sideModel, BlockModel topModel)
     {
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
             sideModel.CreateAllOrientations(rotateTopAndBottomTexture: true);
@@ -69,7 +83,7 @@ public class FireBlock : Block, IFillable, IComplex
         for (UInt32 data = 0b00_0000; data <= 0b01_1111; data++)
             if (data == 0)
             {
-                meshes.Add(completeModel.Mesh);
+                meshes.Add(completeModel.CreateMesh(textureIndexProvider));
             }
             else
             {
@@ -79,7 +93,7 @@ public class FireBlock : Block, IFillable, IComplex
                     .Where(side => side != Side.Bottom && IsFlagSet(data, side))
                     .Select(GetSideModel));
 
-                BlockMesh combinedMesh = BlockModel.GetCombinedMesh(requiredModels.ToArray());
+                BlockMesh combinedMesh = BlockModel.GetCombinedMesh(textureIndexProvider, requiredModels.ToArray());
                 meshes.Add(combinedMesh);
             }
 
@@ -92,7 +106,7 @@ public class FireBlock : Block, IFillable, IComplex
                 Side.Left => west,
                 Side.Right => east,
                 Side.Top => topModel,
-                _ => throw new ArgumentOutOfRangeException(nameof(side), side, message: null)
+                _ => throw Exceptions.UnsupportedEnumValue(side)
             };
         }
     }
@@ -152,7 +166,7 @@ public class FireBlock : Block, IFillable, IComplex
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
         world.SetBlock(this.AsInstance(world.HasFullAndSolidGround(position) ? 0 : GetData(world, position)), position);
-        ScheduleTick(world, position, GetDelay(position));
+        ScheduleUpdate(world, position, GetDelay(position));
     }
 
     private static UInt32 GetData(World world, Vector3i position)
@@ -233,7 +247,7 @@ public class FireBlock : Block, IFillable, IComplex
 
         if (!canBurn) Destroy(world, position);
 
-        ScheduleTick(world, position, GetDelay(position));
+        ScheduleUpdate(world, position, GetDelay(position));
 
         Boolean BurnAt(Vector3i burnPosition)
         {
@@ -256,8 +270,8 @@ public class FireBlock : Block, IFillable, IComplex
 
     private static UInt32 GetDelay(Vector3i position)
     {
-        return TickOffset +
-               (BlockUtilities.GetPositionDependentNumber(position, TickVariation * 2) - TickVariation);
+        return UpdateOffset +
+               (BlockUtilities.GetPositionDependentNumber(position, UpdateVariation * 2) - UpdateVariation);
     }
 
     private static UInt32 GetFlag(Side side)

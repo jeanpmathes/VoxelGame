@@ -245,7 +245,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return false;
     }
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <inheritdoc />
     public Boolean Equals(BoundingVolume? other)
@@ -274,5 +274,5 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 }

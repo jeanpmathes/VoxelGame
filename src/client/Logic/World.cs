@@ -105,7 +105,7 @@ public class World : Core.Logic.World
     /// <summary>
     ///     Render this world and everything in it.
     /// </summary>
-    public void Render()
+    public void RenderUpdate()
     {
         if (!State.IsActive) return;
 
@@ -119,14 +119,14 @@ public class World : Core.Logic.World
     }
 
     /// <inheritdoc />
-    public override void ActiveUpdate(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", updateTimer))
+        using (Timer? simTimer = logger.BeginTimedSubScoped("World LogicUpdate Simulation", updateTimer))
         {
-            DoTicksOnEverything(deltaTime, tickTimer);
+            SendLogicUpdatesForSimulation(deltaTime, simTimer);
         }
 
-        using (logger.BeginTimedSubScoped("World Update Meshing", updateTimer))
+        using (logger.BeginTimedSubScoped("World LogicUpdate Meshing", updateTimer))
         {
             MeshAndClearSectionList();
         }
@@ -150,30 +150,30 @@ public class World : Core.Logic.World
             chunk.Cast().HideAllSections();
     }
 
-    private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
+    private void SendLogicUpdatesForSimulation(Double deltaTime, Timer? updateTimer)
     {
         chunksWithActors.Clear();
 
-        using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
+        using (logger.BeginTimedSubScoped("World LogicUpdate Chunks", updateTimer))
         {
-            Chunks.ForEachActive(TickChunk);
+            Chunks.ForEachActive(SendLogicUpdateChunk);
         }
 
-        using (logger.BeginTimedSubScoped("World Tick Actors", tickTimer))
+        using (logger.BeginTimedSubScoped("World LogicUpdate Actors", updateTimer))
         {
-            #pragma warning disable S4158 // chunksWithActors is filled by calls to TickChunk
+            #pragma warning disable S4158 // chunksWithActors is filled by calls to SendLogicUpdateChunk
             foreach (Core.Logic.Chunks.Chunk chunk in chunksWithActors)
-                chunk.TickActors(deltaTime);
+                chunk.SendLogicUpdatesToActors(deltaTime);
             #pragma warning restore S4158
         }
     }
 
-    private void TickChunk(Core.Logic.Chunks.Chunk chunk)
+    private void SendLogicUpdateChunk(Core.Logic.Chunks.Chunk chunk)
     {
         if (!chunk.IsRequestedToSimulate)
             return;
 
-        chunk.Tick();
+        chunk.LogicUpdate();
 
         if (chunk.HasActors)
             chunksWithActors.Add(chunk);

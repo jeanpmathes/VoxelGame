@@ -20,7 +20,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
     internal NativeSegment(T* pointer, Int32 count)
     {
         this.pointer = pointer;
-        this.Count = count;
+        Count = count;
     }
 
     /// <inheritdoc />
@@ -123,7 +123,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
             index = -1;
         }
 
-        #region Equality Support
+        #region EQUALITY
 
         /// <inheritdoc />
         public Boolean Equals(Enumerator other)
@@ -159,7 +159,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
             return !left.Equals(right);
         }
 
-        #endregion Equality Support
+        #endregion EQUALITY
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
 
     #endregion
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <inheritdoc />
     public Boolean Equals(NativeSegment<T> other)
@@ -218,5 +218,5 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
         return !left.Equals(right);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 }

@@ -19,7 +19,7 @@ public class ObjectPool<T> where T : class
     private readonly ConcurrentBag<T> objects = [];
 
     /// <summary>
-    /// Create a new object pool.
+    ///     Create a new object pool.
     /// </summary>
     /// <param name="factory">A factory function to create new objects.</param>
     public ObjectPool(Func<T> factory)

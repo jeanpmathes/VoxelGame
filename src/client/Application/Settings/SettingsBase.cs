@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
@@ -21,6 +20,11 @@ public abstract partial class SettingsBase
     private readonly List<Setting> settings = [];
 
     /// <summary>
+    ///     Get all settings.
+    /// </summary>
+    public IEnumerable<Setting> Settings => settings;
+
+    /// <summary>
     ///     Adds a setting to the settings list.
     /// </summary>
     /// <param name="name">The name of the setting.</param>
@@ -32,11 +36,6 @@ public abstract partial class SettingsBase
         LogSettingInitialValue(Logger, name, setting.Value);
     }
 
-    /// <summary>
-    ///     Get all settings.
-    /// </summary>
-    public IEnumerable<Setting> Settings => settings;
-
     #region LOGGING
 
     /// <summary>
@@ -44,7 +43,7 @@ public abstract partial class SettingsBase
     /// </summary>
     protected abstract ILogger Logger { get; }
 
-    [LoggerMessage(EventId = Events.ApplicationSettings, Level = LogLevel.Debug, Message = "Setting {Name} is initialized with value: {Value}")]
+    [LoggerMessage(EventId = LogID.Settings + 0, Level = LogLevel.Debug, Message = "Setting {Name} is initialized with value: {Value}")]
     private static partial void LogSettingInitialValue(ILogger logger, String name, Object value);
 
     #endregion LOGGING

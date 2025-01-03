@@ -5,12 +5,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
+using Activity = VoxelGame.Core.Updates.Activity;
 
 namespace VoxelGame.Core.Logic;
 
@@ -36,7 +38,7 @@ public abstract partial class WorldState
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">An optional timer to measure the time it takes to update the world.</param>
     /// <returns>The next state if it has changed or <c>null</c> if it has not.</returns>
-    public abstract WorldState? Update(World world, Double deltaTime, Timer? updateTimer);
+    public abstract WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer);
 
     /// <summary>
     ///     Apply the chunk update mode to the given list.
@@ -45,15 +47,15 @@ public abstract partial class WorldState
     public abstract void ApplyChunkUpdateMode(ChunkStateUpdateList list);
 
     /// <inheritdoc cref="IWorldStates.BeginTerminating" />
-    public virtual Boolean BeginTerminating(Action onComplete)
+    public virtual Activity? BeginTerminating()
     {
-        return false;
+        return null;
     }
 
     /// <inheritdoc cref="IWorldStates.BeginSaving" />
-    public virtual Boolean BeginSaving(Action onComplete)
+    public virtual Activity? BeginSaving()
     {
-        return false;
+        return null;
     }
 
     /// <summary>
@@ -69,7 +71,7 @@ public abstract partial class WorldState
         private Int64 chunkUpdateCount;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
             worldUpdateCount += 1;
             chunkUpdateCount += world.ChunkStateUpdateCount;
@@ -103,9 +105,9 @@ public abstract partial class WorldState
         public override Boolean IsActive => true;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
-            world.ActiveUpdate(deltaTime, updateTimer);
+            world.OnLogicUpdateInActiveState(deltaTime, updateTimer);
 
             return next;
         }
@@ -117,25 +119,29 @@ public abstract partial class WorldState
         }
 
         /// <inheritdoc />
-        public override Boolean BeginTerminating(Action onComplete)
+        public override Activity? BeginTerminating()
         {
             if (next != null)
-                return false;
+                return null;
+
+            var activity = Activity.Create(out Action onComplete);
 
             next = new Terminating(onComplete);
 
-            return true;
+            return activity;
         }
 
         /// <inheritdoc />
-        public override Boolean BeginSaving(Action onComplete)
+        public override Activity? BeginSaving()
         {
             if (next != null)
-                return false;
+                return null;
+
+            var activity = Activity.Create(out Action onComplete);
 
             next = new Saving(onComplete);
 
-            return true;
+            return activity;
         }
     }
 
@@ -152,10 +158,9 @@ public abstract partial class WorldState
         public override Boolean IsTerminating => true;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
-            if (completed)
-                throw new InvalidOperationException("The world has already been terminated.");
+            Debug.Assert(!completed);
 
             if (saving == null)
             {
@@ -196,7 +201,7 @@ public abstract partial class WorldState
         private Int32 total;
 
         /// <inheritdoc />
-        public override WorldState? Update(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
         {
             if (saving == null)
             {
@@ -251,19 +256,19 @@ public abstract partial class WorldState
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldState>();
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
+    [LoggerMessage(EventId = LogID.WorldState + 0, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
     private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
+    [LoggerMessage(EventId = LogID.WorldState + 1, Level = LogLevel.Information, Message = "Unloaded world")]
     private static partial void LogUnloadedWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saving world")]
+    [LoggerMessage(EventId = LogID.WorldState + 2, Level = LogLevel.Information, Message = "Saving world")]
     private static partial void LogSavingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Saved world")]
+    [LoggerMessage(EventId = LogID.WorldState + 3, Level = LogLevel.Information, Message = "Saved world")]
     private static partial void LogSavedWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
+    [LoggerMessage(EventId = LogID.WorldState + 4, Level = LogLevel.Error, Message = "Failed to save world meta information")]
     private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);
 
     #endregion LOGGING

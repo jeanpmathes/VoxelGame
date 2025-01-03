@@ -126,7 +126,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     Take the access to the chunk from the context.
     ///     This transfers ownership of the guards to the caller.
-    ///     If the chunk was created for meshing on the main thread, this call is not allowed.
+    ///     If the context was created for meshing on the main thread, this call is not allowed.
     /// </summary>
     /// <returns>The guards for the chunk.</returns>
     public Guard TakeAccess()
@@ -134,7 +134,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         Throw.IfDisposed(disposed);
 
         if (guard == null)
-            throw new InvalidOperationException();
+            throw Exceptions.InvalidOperation("Cannot take access from main thread meshing context.");
 
         Guard result = guard;
         guard = null;
@@ -191,10 +191,8 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             return null;
 
         foreach (Side side in Side.All.Sides())
-        {
             // If the side is considered, it is also acquirable because we checked that before.
             // If using an exclusive side, that was already removed from the considered sides.
-
             if (considered.HasFlag(side.ToFlag()))
             {
                 Chunk? neighbor = neighbors[side]?.chunk;
@@ -211,7 +209,6 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             {
                 neighbors[side] = null;
             }
-        }
 
         return new ChunkMeshingContext(chunk, chunk.Acquire(Access.Read)!, neighbors, considered, exclusive, meshingFactory);
     }
@@ -355,7 +352,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         return text;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -396,7 +393,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 /// <summary>
@@ -414,9 +411,9 @@ public static class ChunkMeshingExtensions
     }
 
     /// <summary>
-    /// Whether the chunk is generally able to mesh itself.
-    /// A chunk is able if it is requested to activate and would be able to participate as a neighbor.
-    /// This is a stronger condition than <see cref="IsAbleToParticipateInMeshing"/>.
+    ///     Whether the chunk is generally able to mesh itself.
+    ///     A chunk is able if it is requested to activate and would be able to participate as a neighbor.
+    ///     This is a stronger condition than <see cref="IsAbleToParticipateInMeshing" />.
     /// </summary>
     public static Boolean IsAbleToMesh(this Chunk chunk)
     {

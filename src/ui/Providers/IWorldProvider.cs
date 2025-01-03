@@ -24,7 +24,7 @@ public interface IWorldProvider
 
     /// <summary>
     ///     Get all currently known worlds.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     /// </summary>
     IEnumerable<IWorldInfo> Worlds { get; }
 
@@ -48,21 +48,24 @@ public interface IWorldProvider
 
     /// <summary>
     ///     Load a specific world from disk.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     ///     Will cause a scene change.
     /// </summary>
-    /// <param name="info">The world to load, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
-    void BeginLoadingWorld(IWorldInfo info);
+    /// <param name="info">
+    ///     The world to load, must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    void LoadAndActivateWorld(IWorldInfo info);
 
     /// <summary>
     ///     Create a new world and then load it. Will cause a scene change.
     /// </summary>
     /// <param name="name">The name of the world to create.</param>
-    void BeginCreatingWorld(String name);
+    void CreateAndActivateWorld(String name);
 
     /// <summary>
     ///     Delete a world.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     /// </summary>
     /// <param name="info">
     ///     The world to delete, must be an object from <see cref="Worlds" />, retrieved after a successful

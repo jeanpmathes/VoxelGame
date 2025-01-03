@@ -57,9 +57,9 @@ public sealed class WorldElement : VerticalLayout
             worldProvider.RenameWorld(world, name.Text);
         };
 
-        IconButton favorite = context.CreateIconButton(top, context.Resources.StarEmptyIcon, Language.Favorite, isSmall: true);
-        favorite.ToggledOnIconName = context.Resources.StarFilledIcon;
-        favorite.ToggledOffIconName = context.Resources.StarEmptyIcon;
+        IconButton favorite = context.CreateIconButton(top, Icons.Instance.StarEmpty, Language.Favorite, isSmall: true);
+        favorite.ToggledOnIconName = Icons.Instance.StarFilled;
+        favorite.ToggledOffIconName = Icons.Instance.StarEmpty;
         favorite.IsToggle = true;
         favorite.ShouldDrawToggleDepressedWhenOn = false;
         favorite.Dock = Dock.Right;

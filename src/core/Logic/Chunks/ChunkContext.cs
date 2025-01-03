@@ -123,7 +123,7 @@ public sealed class ChunkContext : IDisposable
         deactivate(chunk);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -161,5 +161,5 @@ public sealed class ChunkContext : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

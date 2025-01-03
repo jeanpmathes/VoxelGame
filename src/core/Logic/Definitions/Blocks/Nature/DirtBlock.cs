@@ -40,11 +40,11 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    protected override void OnSetUp(ITextureIndexProvider indexProvider, VisualConfiguration visuals)
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        base.OnSetUp(indexProvider, visuals);
+        base.OnSetUp(textureIndexProvider, modelProvider, visuals);
 
-        wetTextureIndices = wet.GetTextureIndices(indexProvider);
+        wetTextureIndices = wet.GetTextureIndices(textureIndexProvider, isBlock: true);
     }
 
     /// <inheritdoc />
@@ -70,7 +70,7 @@ public class DirtBlock : BasicBlock, IPlantable, IGrassSpreadable, IFillable
     }
 
     /// <inheritdoc />
-    public override Content GenerateUpdate(Content content)
+    public override Content GeneratorUpdate(Content content)
     {
         (BlockInstance block, FluidInstance fluid) = content;
 

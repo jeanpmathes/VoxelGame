@@ -78,7 +78,7 @@ internal class KeyOrButtonSetting : Setting
 
         Button resetBind = new(layout)
         {
-            ImageName = context.Resources.ResetIcon,
+            ImageName = Icons.Instance.Reset,
             Size = new Size(width: 40, height: 40),
             ToolTipText = Language.Reset,
             Dock = Dock.Right

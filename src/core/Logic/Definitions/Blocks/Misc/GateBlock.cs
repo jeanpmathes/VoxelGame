@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -23,36 +24,22 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComplex
 {
+    private readonly RID closedModel;
+    private readonly RID openModel;
+
     private readonly List<BlockMesh> meshes = new(capacity: 8);
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal GateBlock(String name, String namedID, String closedModel, String openModel) :
+    internal GateBlock(String name, String namedID, RID closedModel, RID openModel) :
         base(
             name,
             namedID,
             BlockFlags.Functional,
             BoundingVolume.Block)
     {
-        BlockModel closed = BlockModel.Load(closedModel);
-        BlockModel open = BlockModel.Load(openModel);
-
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) closedModels =
-            closed.CreateAllOrientations(rotateTopAndBottomTexture: false);
-
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
-            open.CreateAllOrientations(rotateTopAndBottomTexture: false);
-
-        for (UInt32 data = 0b00_0000; data <= 0b00_0111; data++)
-        {
-            var orientation = (Orientation) (data & 0b00_0011);
-            Boolean isClosed = (data & 0b00_0100) == 0;
-
-            BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).Mesh;
-            meshes.Add(mesh);
-
-            volumes.Add(CreateVolume(data));
-        }
+        this.closedModel = closedModel;
+        this.openModel = openModel;
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)
@@ -77,6 +64,30 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
             Orientation.West => side is Side.Front or Side.Back,
             _ => false
         };
+    }
+
+    /// <inheritdoc />
+    protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
+    {
+        BlockModel closed = modelProvider.GetModel(closedModel);
+        BlockModel open = modelProvider.GetModel(openModel);
+
+        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) closedModels =
+            closed.CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) openModels =
+            open.CreateAllOrientations(rotateTopAndBottomTexture: false);
+
+        for (UInt32 data = 0b00_0000; data <= 0b00_0111; data++)
+        {
+            var orientation = (Orientation) (data & 0b00_0011);
+            Boolean isClosed = (data & 0b00_0100) == 0;
+
+            BlockMesh mesh = orientation.Pick(isClosed ? closedModels : openModels).CreateMesh(textureIndexProvider);
+            meshes.Add(mesh);
+
+            volumes.Add(CreateVolume(data));
+        }
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

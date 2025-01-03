@@ -29,10 +29,10 @@ internal class MainMenu : StandardMenu
         CreateContent();
     }
 
-    internal event EventHandler SelectExit = delegate {};
-    internal event EventHandler SelectWorlds = delegate {};
-    internal event EventHandler SelectSettings = delegate {};
-    internal event EventHandler SelectCredits = delegate {};
+    internal event EventHandler? SelectExit;
+    internal event EventHandler? SelectWorlds;
+    internal event EventHandler? SelectSettings;
+    internal event EventHandler? SelectCredits;
 
     protected override void CreateMenu(ControlBase menu)
     {
@@ -41,28 +41,28 @@ internal class MainMenu : StandardMenu
             Text = Language.Worlds
         };
 
-        worlds.Released += (_, _) => SelectWorlds(this, EventArgs.Empty);
+        worlds.Released += (_, _) => SelectWorlds?.Invoke(this, EventArgs.Empty);
 
         Button settings = new(menu)
         {
             Text = Language.Settings
         };
 
-        settings.Released += (_, _) => SelectSettings(this, EventArgs.Empty);
+        settings.Released += (_, _) => SelectSettings?.Invoke(this, EventArgs.Empty);
 
         Button credits = new(menu)
         {
             Text = Language.Credits
         };
 
-        credits.Released += (_, _) => SelectCredits(this, EventArgs.Empty);
+        credits.Released += (_, _) => SelectCredits?.Invoke(this, EventArgs.Empty);
 
         Button exit = new(menu)
         {
             Text = Language.Exit
         };
 
-        exit.Released += (_, _) => SelectExit(this, EventArgs.Empty);
+        exit.Released += (_, _) => SelectExit?.Invoke(this, EventArgs.Empty);
     }
 
     internal void DisableWorlds()
@@ -74,7 +74,7 @@ internal class MainMenu : StandardMenu
     {
         TrueRatioImagePanel image = new(display)
         {
-            ImageName = Context.Resources.StartImage,
+            ImageName = Icons.Instance.StartImage,
             Dock = Dock.Fill
         };
 

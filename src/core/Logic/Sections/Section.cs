@@ -28,7 +28,7 @@ public class Section : IDisposable
     public const Int32 Size = 16;
 
     /// <summary>
-    /// Number of entries in a section.
+    ///     Number of entries in a section.
     /// </summary>
     public const Int32 Count = Size * Size * Size;
 
@@ -357,7 +357,7 @@ public class Section : IDisposable
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     /// <summary>
     ///     Whether the section is disposed.
@@ -392,5 +392,5 @@ public class Section : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

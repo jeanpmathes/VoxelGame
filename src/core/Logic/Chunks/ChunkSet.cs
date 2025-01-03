@@ -184,10 +184,7 @@ public sealed partial class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        foreach (Chunk chunk in chunks.Values)
-        {
-            chunk.BeginSaving();
-        }
+        foreach (Chunk chunk in chunks.Values) chunk.BeginSaving();
     }
 
     /// <summary>
@@ -275,7 +272,7 @@ public sealed partial class ChunkSet : IDisposable
         complete.RemoveAt(index);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -313,13 +310,13 @@ public sealed partial class ChunkSet : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSet>();
 
-    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Warning, Message = "Chunk {Chunk} already requested by {Actor}, ignoring")]
+    [LoggerMessage(EventId = LogID.ChunkSet + 0, Level = LogLevel.Warning, Message = "Chunk {Chunk} already requested by {Actor}, ignoring")]
     private static partial void LogDuplicateChunkRequest(ILogger logger, ChunkPosition chunk, Actor actor);
 
     #endregion LOGGING

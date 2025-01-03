@@ -18,16 +18,12 @@ namespace VoxelGame.UI.Controls.Common;
 /// </summary>
 public class PropertyBasedTreeControl : TreeControl
 {
-    private readonly Context context;
-
     /// <summary>
     ///     Create a <see cref="PropertyBasedTreeControl" /> from a <see cref="Property" />.
     /// </summary>
-    internal PropertyBasedTreeControl(ControlBase parent, Property property, Context context) : base(parent)
+    internal PropertyBasedTreeControl(ControlBase parent, Property property) : base(parent)
     {
-        this.context = context;
-
-        TreeControlBuilder builder = new(this, context);
+        TreeControlBuilder builder = new(this);
         builder.Visit(property);
     }
 
@@ -37,11 +33,11 @@ public class PropertyBasedTreeControl : TreeControl
     /// <param name="property">The <see cref="Property" /> to update the <see cref="PropertyBasedTreeControl" /> with.</param>
     public void Update(Property property)
     {
-        TreeControlBuilder builder = new(this, context);
+        TreeControlBuilder builder = new(this);
         builder.Visit(property);
     }
 
-    private sealed class TreeControlBuilder(TreeControl tree, Context context) : Visitor
+    private sealed class TreeControlBuilder(TreeControl tree) : Visitor
     {
         private TreeNode current = tree.RootNode;
         private Int32 index;
@@ -112,7 +108,7 @@ public class PropertyBasedTreeControl : TreeControl
         {
             TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
 
-            String icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
+            String icon = error.IsCritical ? Icons.Instance.Error : Icons.Instance.Warning;
             Color color = error.IsCritical ? Colors.Error : Colors.Warning;
 
             node.SetImage(icon, Context.SmallIconSize, color);

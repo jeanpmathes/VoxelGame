@@ -152,7 +152,7 @@ public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
         value.Dispose();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

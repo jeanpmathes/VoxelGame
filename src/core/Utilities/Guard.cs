@@ -43,7 +43,7 @@ public sealed class Guard : IDisposable
         return resource == @object;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -77,5 +77,5 @@ public sealed class Guard : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -11,11 +11,14 @@
 #include "Decoding.hlsl"
 
 void ApplySway(
-    inout native::spatial::SpatialVertex vertex, float2 uv, bool const isUpperPart, bool const isDoublePlant,
+    inout native::spatial::SpatialVertex vertex,
+    float2                               uv,
+    bool const                           isUpperPart,
+    bool const                           isDoublePlant,
     in fnl_state const                   noise)
 {
     float const amplitude = 0.2f;
-    float const speed     = 0.8f;
+    float const speed     = 0.5f;
 
     float const  strength = (uv.y + (isUpperPart ? 1.0f : 0.0f)) * (isDoublePlant ? 0.5f : 1.0f);
     float2 const position = vertex.position.xz + vg::custom.windDir.xz * native::spatial::global.time * speed;

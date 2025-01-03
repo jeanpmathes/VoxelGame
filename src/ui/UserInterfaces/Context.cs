@@ -10,6 +10,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Graphics.Input;
 using VoxelGame.UI.Controls.Common;
+using VoxelGame.UI.Resources;
 using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -24,7 +25,7 @@ internal sealed class Context
 
     private Int32 modalDepth;
 
-    internal Context(Input input, UIResources resources)
+    internal Context(Input input, UserInterfaceResources resources)
     {
         Fonts = resources.Fonts;
         Input = input;
@@ -35,7 +36,7 @@ internal sealed class Context
     ///     All fonts available to be used.
     ///     Each font is associated with a role.
     /// </summary>
-    internal FontHolder Fonts { get; }
+    internal FontBundle Fonts { get; }
 
     /// <summary>
     ///     The input manager.
@@ -45,7 +46,7 @@ internal sealed class Context
     /// <summary>
     ///     Loaded resources like icons and the names to access them.
     /// </summary>
-    internal UIResources Resources { get; }
+    internal UserInterfaceResources Resources { get; }
 
     /// <summary>
     ///     Whether the user interface currently shows any modal windows.
@@ -71,7 +72,8 @@ internal sealed class Context
             IconOverrideColor = color
         };
 
-        button.SetSkin(useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin, doChildren: true);
+        Skin skin = useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin;
+        button.SetSkin(skin.Value, doChildren: true);
 
         return button;
     }

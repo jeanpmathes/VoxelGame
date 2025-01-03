@@ -98,7 +98,7 @@ public sealed class ChunkPool : IDisposable
         }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -115,5 +115,5 @@ public sealed class ChunkPool : IDisposable
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

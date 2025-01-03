@@ -15,6 +15,7 @@ using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Events;
 using VoxelGame.Toolkit.Utilities;
@@ -25,12 +26,14 @@ namespace VoxelGame.UI.Platform;
 
 internal sealed class VGui : IGwenGui
 {
-    private readonly List<SkinBase> skins = new();
-    private List<Action> inputEvents = new();
-    private Canvas canvas = null!;
+    private readonly List<SkinBase> skins = [];
+
+    private List<Action> inputEvents = [];
 
     private InputTranslator input = null!;
     private DirectXRenderer renderer = null!;
+
+    private Canvas canvas = null!;
 
     internal VGui(Client parent, GwenGuiSettings settings)
     {
@@ -41,6 +44,9 @@ internal sealed class VGui : IGwenGui
     private GwenGuiSettings Settings { get; }
 
     private Client Parent { get; }
+
+    public RID Identifier { get; } = RID.Named<VGui>("Default");
+    public ResourceType Type => ResourceTypes.GUI;
 
     public ControlBase Root => canvas;
 
@@ -101,7 +107,7 @@ internal sealed class VGui : IGwenGui
         // While handling an event, code might be executed that passes control to the OS.
         // As such, new events might be invoked, causing problems with the iteration.
 
-        List<Action> events = new();
+        List<Action> events = [];
         VMath.Swap(ref events, ref inputEvents);
 
         foreach (Action inputEvent in events) inputEvent();
@@ -176,7 +182,7 @@ internal sealed class VGui : IGwenGui
         inputEvents.Add(() => input.ProcessMouseWheel(obj));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -208,5 +214,5 @@ internal sealed class VGui : IGwenGui
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -131,6 +131,37 @@ public static partial class FileSystem
     }
 
     /// <summary>
+    ///     Get the path of a resource folder in the application resources directory.
+    /// </summary>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The directory path.</returns>
+    public static DirectoryInfo GetResourceDirectory<T>() where T : ILocated
+    {
+        return GetResourceDirectory(T.Path);
+    }
+
+    /// <summary>
+    ///     Get a file pattern searching for all files of a specific resource type in a directory.
+    /// </summary>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The file pattern.</returns>
+    public static String GetResourceSearchPattern<T>() where T : ILocated
+    {
+        return $"*.{T.FileExtension}";
+    }
+
+    /// <summary>
+    ///     Get the name of a resource file.
+    /// </summary>
+    /// <param name="name">The name of the resource.</param>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The file name.</returns>
+    public static String GetResourceFileName<T>(String name) where T : ILocated
+    {
+        return $"{name}.{T.FileExtension}";
+    }
+
+    /// <summary>
     ///     Get the path to this resource file or directory relative to the resource directory.
     /// </summary>
     public static String GetResourceRelativePath(this FileSystemInfo resource)
@@ -268,7 +299,7 @@ public static partial class FileSystem
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
+    [LoggerMessage(EventId = LogID.FileSystem + 0, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
     private static partial void LogGetSizeFailure(ILogger logger, IOException exception, String path);
 
     #endregion LOGGING

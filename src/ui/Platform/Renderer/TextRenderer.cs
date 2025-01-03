@@ -43,7 +43,15 @@ public sealed class TextRenderer : IDisposable
     /// <summary>
     ///     Gets the backing store.
     /// </summary>
-    public Texture Texture => disposed ? throw new ObjectDisposedException(nameof(TextRenderer)) : texture;
+    public Texture Texture
+    {
+        get
+        {
+            Throw.IfDisposed(disposed);
+
+            return texture;
+        }
+    }
 
     /// <summary>
     ///     Draws the specified string to the backing store.
@@ -76,7 +84,7 @@ public sealed class TextRenderer : IDisposable
         renderer.LoadTextureDirectly(Texture, new Image(bitmap));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -106,5 +114,5 @@ public sealed class TextRenderer : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

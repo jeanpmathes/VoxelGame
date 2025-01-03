@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using VoxelGame.Core.Utilities;
 
@@ -30,8 +31,7 @@ public class CircularTimeBuffer
     /// <param name="capacity">The capacity, must be larger than zero.</param>
     public CircularTimeBuffer(Int32 capacity)
     {
-        if (capacity < 1)
-            throw new ArgumentOutOfRangeException(nameof(capacity), @"Capacity has to be larger than zero.");
+        Debug.Assert(capacity > 0);
 
         this.capacity = capacity;
         buffer = new Double[capacity];

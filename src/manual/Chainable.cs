@@ -67,19 +67,22 @@ public abstract class Chainable
     }
 
     /// <summary>
-    ///     Begin a list, and increase the level.
+    ///     Add a list to the section.
     /// </summary>
-    /// <returns>The list chainable. Must be ended.</returns>
-    public Chainable BeginList()
+    /// <param name="builder">The builder for the list.</param>
+    /// <returns>This.</returns>
+    public Chainable List(Func<Chainable, Chainable> builder)
     {
-        List list = new(this);
+        List list = new();
         AddElement(list);
 
-        return list;
+        builder(list);
+
+        return this;
     }
 
     /// <summary>
-    ///     Add an item to a list.
+    ///     Add an item. Only makes sense in a list.
     /// </summary>
     /// <param name="bullet">An optional bullet leading the item.</param>
     /// <returns>This.</returns>
@@ -88,23 +91,5 @@ public abstract class Chainable
         AddElement(new Item(bullet));
 
         return this;
-    }
-
-    /// <summary>
-    ///     Decrease the level.
-    /// </summary>
-    /// <returns>The chainable of a lower level.</returns>
-    public virtual Chainable Finish()
-    {
-        throw new InvalidOperationException();
-    }
-
-    /// <summary>
-    ///     End the chain. Only valid on the lowest level.
-    /// </summary>
-    /// <returns>The section defined by this chain.</returns>
-    public virtual Section EndSection()
-    {
-        throw new InvalidOperationException();
     }
 }

@@ -19,7 +19,13 @@ public class Cactus : DynamicStructure
     public override Vector3i Extents => new(x: 1, y: 3, z: 1);
 
     /// <inheritdoc />
-    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset)
+    protected override Random? GetRandomness(Int32 seed)
+    {
+        return null;
+    }
+
+    /// <inheritdoc />
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
     {
         return (new Content(Elements.Blocks.Instance.Cactus), true);
     }

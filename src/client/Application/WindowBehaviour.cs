@@ -45,7 +45,7 @@ internal sealed class WindowBehaviour
     ///     Call when rendering.
     /// </summary>
     /// <param name="time">The time since the last render operation.</param>
-    internal void Render(Double time)
+    internal void RenderUpdate(Double time)
     {
         renderDeltaBuffer.Write(time);
     }
@@ -54,7 +54,7 @@ internal sealed class WindowBehaviour
     ///     Call when updating.
     /// </summary>
     /// <param name="time">The time since the last update operation.</param>
-    internal void Update(Double time)
+    internal void LogicUpdate(Double time)
     {
         if (client.IsFocused && fullscreenToggle.Changed) client.ToggleFullscreen();
 

@@ -51,33 +51,33 @@ public partial class Client : IDisposable
 
         Definition.Native.NativeConfiguration configuration = new()
         {
-            onInit = () =>
+            onInitialization = () =>
             {
                 mainThread = Thread.CurrentThread;
 
-                OnInit();
+                OnInitialization();
             },
-            onUpdate = delta =>
+            onLogicUpdate = delta =>
             {
                 cycle = Cycle.Update;
 
                 Time += delta;
 
-                Input.PreUpdate();
+                Input.PreLogicUpdate();
 
-                OnUpdate(delta);
+                OnLogicUpdate(delta);
 
-                Sync.Update();
+                Sync.LogicUpdate();
 
-                Input.PostUpdate();
+                Input.PostLogicUpdate();
 
                 cycle = null;
             },
-            onRender = delta =>
+            onRenderUpdate = delta =>
             {
                 cycle = Cycle.Render;
 
-                OnRender(delta);
+                OnRenderUpdate(delta);
 
                 cycle = null;
             },
@@ -98,14 +98,15 @@ public partial class Client : IDisposable
                 Vector2i oldSize = Size;
                 Size = new Vector2i((Int32) width, (Int32) height);
 
-                OnSizeChange(this, new SizeChangeEventArgs(oldSize, Size));
+                SizeChanged?.Invoke(this, new SizeChangeEventArgs(oldSize, Size));
             },
             onActiveStateChange = newState =>
             {
                 Boolean oldState = IsFocused;
                 IsFocused = newState;
 
-                if (oldState != newState) OnFocusChange(this, new FocusChangeEventArgs(oldState, IsFocused));
+                if (oldState != newState)
+                    FocusChanged?.Invoke(this, new FocusChangeEventArgs(oldState, IsFocused));
             },
             onDebug = D3D12Debug.Enable(this),
             width = (UInt32) windowSettings.Size.X,
@@ -133,14 +134,14 @@ public partial class Client : IDisposable
     public Input.Input Input { get; }
 
     /// <summary>
-    ///     Whether the client is currently in the update cycle.
+    ///     Whether the client is currently in the logic update cycle.
     /// </summary>
-    internal Boolean IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
 
     /// <summary>
-    ///     Whether the client is currently in the render cycle.
+    ///     Whether the client is currently in the render update cycle.
     /// </summary>
-    internal Boolean IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+    internal Boolean IsInRenderUpdate => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
 
     /// <summary>
     ///     Whether the client is currently outside any cycle but still on the main thread.
@@ -193,12 +194,12 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Called when the focus / active state of the window changes.
     /// </summary>
-    public event EventHandler<FocusChangeEventArgs> OnFocusChange = delegate {};
+    public event EventHandler<FocusChangeEventArgs>? FocusChanged;
 
     /// <summary>
     ///     Called when the window is resized.
     /// </summary>
-    public event EventHandler<SizeChangeEventArgs> OnSizeChange = delegate {};
+    public event EventHandler<SizeChangeEventArgs>? SizeChanged;
 
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
@@ -255,19 +256,19 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Called on initialization of the client.
     /// </summary>
-    protected virtual void OnInit() {}
+    protected virtual void OnInitialization() {}
 
     /// <summary>
-    ///     Called for each update step.
+    ///     Called for each fixed update step.
     /// </summary>
     /// <param name="delta">The time since the last update in seconds.</param>
-    protected virtual void OnUpdate(Double delta) {}
+    protected virtual void OnLogicUpdate(Double delta) {}
 
     /// <summary>
-    ///     Called for each render step.
+    ///     Called for each render update step.
     /// </summary>
     /// <param name="delta">The time since the last render in seconds.</param>
-    protected virtual void OnRender(Double delta) {}
+    protected virtual void OnRenderUpdate(Double delta) {}
 
     /// <summary>
     ///     Called when the client is destroyed.
@@ -418,27 +419,27 @@ public partial class Client : IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Information, Message = "Closing window")]
+    [LoggerMessage(EventId = LogID.Client + 0, Level = LogLevel.Information, Message = "Closing window")]
     private static partial void LogClosingWindow(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
+    [LoggerMessage(EventId = LogID.Client + 1, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
     private static partial void LogClientStoppedRunning(ILogger logger, Int32 exitCode);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Disposing client")]
+    [LoggerMessage(EventId = LogID.Client + 2, Level = LogLevel.Debug, Message = "Disposing client")]
     private static partial void LogDisposingClient(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 3, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
     private static partial void LogSavedScreenshot(ILogger logger, String path);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
     private static partial void LogFailedToSaveScreenshot(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
+    [LoggerMessage(EventId = LogID.Client + 5, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
     private static partial void LogFatalError(ILogger logger, Exception exception, String hr, String message);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// <copyright file="IOverlayTextureProvider.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
 using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Visuals;
@@ -13,7 +19,7 @@ public record struct OverlayTexture(Int32 TextureIdentifier, TintColor Tint, Boo
 
 /// <summary>
 ///     Provides an overlay texture index.
-///     Blocks and fluids implementing this interface should have be a full or varying height block for best effect.
+///     Blocks and fluids implementing this interface should be a full or varying height block for best effect.
 /// </summary>
 public interface IOverlayTextureProvider
 {

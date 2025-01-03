@@ -30,8 +30,8 @@ public abstract class Serializer
     public abstract void SerializeSmall(ref Int32 value);
 
     /// <summary>
-    /// Serialize an unsigned integer that is expected to be small but positive.
-    /// Serializers can use this to optimize for space usage.
+    ///     Serialize an unsigned integer that is expected to be small but positive.
+    ///     Serializers can use this to optimize for space usage.
     /// </summary>
     public void SerializeSmall(ref UInt32 value)
     {
@@ -254,12 +254,9 @@ public abstract class Serializer
     public void SerializeEntity<T>(T entity)
         where T : IEntity
     {
-        Int32 version = T.Version;
+        UInt32 version = T.Version;
 
-        if (Unit.Version <= MetaVersion.Initial) Serialize(ref version);
-#pragma warning disable S3717
-        else throw new NotImplementedException("Entity headers are not implemented for the current version of the serialization system.");
-#pragma warning restore S3717
+        Serialize(ref version);
 
         if (version > T.Version)
             Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.Version}.");

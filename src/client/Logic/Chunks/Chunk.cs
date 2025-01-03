@@ -73,7 +73,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    /// Ask a chunk to consider re-meshing because of a (newly) active neighbor.
+    ///     Ask a chunk to consider re-meshing because of a (newly) active neighbor.
     /// </summary>
     public void ReMesh()
     {
@@ -255,14 +255,14 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    [LoggerMessage(EventId = LogID.Chunk + 0, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
     private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    [LoggerMessage(EventId = LogID.Chunk + 1, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
     private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
 
     [LoggerMessage(
-        EventId = Events.ChunkOperation,
+        EventId = LogID.Chunk + 2,
         Level = LogLevel.Debug,
         Message = "Setting mesh data of chunk {Position}, changing meshed sides from [{OldSides}] to [{NewSides}]",
         SkipEnabledCheck = true)]
@@ -270,7 +270,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

@@ -10,7 +10,6 @@ using System.CommandLine.Invocation;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application;
 
@@ -110,7 +109,7 @@ public static partial class Arguments
 
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
+    [LoggerMessage(EventId = LogID.Arguments + 0, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
     private static partial void LogExitingWithCode(ILogger logger, Int32 exitCode);
 
     #endregion LOGGING

@@ -16,7 +16,7 @@ namespace VoxelGame.Manual;
 /// </summary>
 public class Section : Chainable
 {
-    private readonly List<IElement> elements = new();
+    private readonly List<IElement> elements = [];
     private readonly String title;
 
     private Section(String title)
@@ -28,21 +28,20 @@ public class Section : Chainable
     ///     Create a new section.
     /// </summary>
     /// <param name="title">The title of the section.</param>
+    /// <param name="builder">The builder for the section.</param>
     /// <returns>The created section.</returns>
-    public static Section Create(String title)
+    public static Section Create(String title, Func<Chainable, Chainable> builder)
     {
-        return new Section(title);
+        Section section = new(title);
+
+        builder(section);
+
+        return section;
     }
 
     internal override void AddElement(IElement element)
     {
         elements.Add(element);
-    }
-
-    /// <inheritdoc />
-    public override Section EndSection()
-    {
-        return this;
     }
 
     internal void Generate(StreamWriter writer, String parent)

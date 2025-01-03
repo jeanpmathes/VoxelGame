@@ -114,9 +114,7 @@ public sealed class TextureList : IDisposable
 
             return null;
         }
-#pragma warning disable S2221
         catch (Exception e)
-#pragma warning restore S2221
         {
             return e;
         }
@@ -274,7 +272,7 @@ public sealed class TextureList : IDisposable
         public Boolean IsValid => Index != InvalidIndex;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -308,5 +306,5 @@ public sealed class TextureList : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

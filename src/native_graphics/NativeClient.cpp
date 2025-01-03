@@ -9,7 +9,7 @@
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
-UINT const   NativeClient::AGILITY_SDK_VERSION = 613;
+UINT const   NativeClient::AGILITY_SDK_VERSION = 614;
 LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
 NativeClient::NativeClient(Configuration const& configuration)
@@ -33,7 +33,7 @@ ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return m_device; }
 
 ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return m_allocator; }
 
-void NativeClient::OnPreInit()
+void NativeClient::OnPreInitialization()
 {
     LoadDevice();
     InitializeFences();
@@ -48,7 +48,7 @@ void NativeClient::OnPreInit()
     LoadRasterPipeline();
 }
 
-void NativeClient::OnPostInit()
+void NativeClient::OnPostInitialization()
 {
     if (!m_spaceInitialized) m_space = nullptr;
 
@@ -58,7 +58,7 @@ void NativeClient::OnPostInit()
     m_uploader = nullptr;
 }
 
-void NativeClient::OnInitComplete() { m_space->SpoolUp(); }
+void NativeClient::OnInitializationComplete() { if (m_space) m_space->SpoolUp(); }
 
 void NativeClient::LoadDevice()
 {
@@ -433,9 +433,9 @@ void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsComm
     commandList->DiscardResource(m_intermediateRenderTarget.Get(), nullptr);
 }
 
-void NativeClient::OnUpdate(double const delta) { if (m_space) m_space->Update(delta); }
+void NativeClient::OnLogicUpdate(double const delta) { if (m_space) m_space->Update(delta); }
 
-void NativeClient::OnPreRender()
+void NativeClient::OnPreRenderUpdate()
 {
     if (!m_windowVisible) return;
 
@@ -443,7 +443,7 @@ void NativeClient::OnPreRender()
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
 
-void NativeClient::OnRender(double const)
+void NativeClient::OnRenderUpdate(double const)
 {
     if (!m_windowVisible) return;
 
