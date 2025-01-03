@@ -6,6 +6,7 @@
 
 using System;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Core.Logic;
 
@@ -22,15 +23,15 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
     private WorldState state = new WorldState.Activating(timer);
 
     /// <inheritdoc />
-    public Boolean BeginTerminating(Action onComplete)
+    public Activity? BeginTerminating()
     {
-        return state.BeginTerminating(onComplete);
+        return state.BeginTerminating();
     }
 
     /// <inheritdoc />
-    public Boolean BeginSaving(Action onComplete)
+    public Activity? BeginSaving()
     {
-        return state.BeginSaving(onComplete);
+        return state.BeginSaving();
     }
 
     /// <inheritdoc />

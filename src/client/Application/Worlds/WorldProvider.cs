@@ -121,8 +121,7 @@ public partial class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginLoadingWorld(IWorldProvider.IWorldInfo info)
+    public void LoadAndActivateWorld(IWorldProvider.IWorldInfo info)
     {
         Debug.Assert(Status == Status.Ok);
 
@@ -131,8 +130,7 @@ public partial class WorldProvider : IWorldProvider
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "CA2000")]
-    public void BeginCreatingWorld(String name)
+    public void CreateAndActivateWorld(String name)
     {
         (Int32 upper, Int32 lower) seed = (DateTime.UtcNow.GetHashCode(), RandomNumberGenerator.GetInt32(Int32.MinValue, Int32.MaxValue));
 

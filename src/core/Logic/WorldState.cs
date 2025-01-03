@@ -12,6 +12,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
+using Activity = VoxelGame.Core.Updates.Activity;
 
 namespace VoxelGame.Core.Logic;
 
@@ -46,15 +47,15 @@ public abstract partial class WorldState
     public abstract void ApplyChunkUpdateMode(ChunkStateUpdateList list);
 
     /// <inheritdoc cref="IWorldStates.BeginTerminating" />
-    public virtual Boolean BeginTerminating(Action onComplete)
+    public virtual Activity? BeginTerminating()
     {
-        return false;
+        return null;
     }
 
     /// <inheritdoc cref="IWorldStates.BeginSaving" />
-    public virtual Boolean BeginSaving(Action onComplete)
+    public virtual Activity? BeginSaving()
     {
-        return false;
+        return null;
     }
 
     /// <summary>
@@ -118,25 +119,29 @@ public abstract partial class WorldState
         }
 
         /// <inheritdoc />
-        public override Boolean BeginTerminating(Action onComplete)
+        public override Activity? BeginTerminating()
         {
             if (next != null)
-                return false;
+                return null;
+
+            var activity = Activity.Create(out Action onComplete);
 
             next = new Terminating(onComplete);
 
-            return true;
+            return activity;
         }
 
         /// <inheritdoc />
-        public override Boolean BeginSaving(Action onComplete)
+        public override Activity? BeginSaving()
         {
             if (next != null)
-                return false;
+                return null;
+
+            var activity = Activity.Create(out Action onComplete);
 
             next = new Saving(onComplete);
 
-            return true;
+            return activity;
         }
     }
 

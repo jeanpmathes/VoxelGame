@@ -270,7 +270,7 @@ internal class WorldSelection : StandardMenu
         {
             ValidateInput(out Boolean isValid);
 
-            if (isValid) worldProvider.BeginCreatingWorld(name.Text);
+            if (isValid) worldProvider.CreateAndActivateWorld(name.Text);
         }
     }
 

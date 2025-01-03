@@ -77,7 +77,7 @@ public class WorldActions : ControlBase
             context);
 
         Button load = context.CreateIconButton(buttons, Icons.Instance.Load, Language.Load);
-        load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
+        load.Released += (_, _) => worldProvider.LoadAndActivateWorld(world);
 
         Button delete = context.CreateIconButton(buttons, Icons.Instance.Delete, Language.Delete, Colors.Danger);
 

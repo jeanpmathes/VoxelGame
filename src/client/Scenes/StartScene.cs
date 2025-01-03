@@ -147,7 +147,7 @@ public sealed partial class StartScene : IScene
         {
             LogLoadingWorldDirectly(logger, index);
 
-            worldProvider.BeginLoadingWorld(info);
+            worldProvider.LoadAndActivateWorld(info);
         }
         else
         {

@@ -236,20 +236,14 @@ public sealed partial class GameScene : IScene
         {
             if (!world.State.IsActive) return;
 
-            world.State.BeginSaving(() =>
-            {
-                // Nothing to do.
-            });
+            world.State.BeginSaving();
         };
 
         ui.WorldExit += (_, args) =>
         {
             if (!world.State.IsActive) return;
 
-            world.State.BeginTerminating(() =>
-            {
-                Client.ExitGame(args.ExitToOS);
-            });
+            world.State.BeginTerminating()?.Then(() => Client.ExitGame(args.ExitToOS));
         };
 
         ui.AnyOverlayOpened += (_, _) => OnOverlayOpen();

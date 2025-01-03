@@ -55,13 +55,13 @@ public interface IWorldProvider
     ///     The world to load, must be an object from <see cref="Worlds" />, retrieved after a successful
     ///     <see cref="Refresh" />.
     /// </param>
-    void BeginLoadingWorld(IWorldInfo info);
+    void LoadAndActivateWorld(IWorldInfo info);
 
     /// <summary>
     ///     Create a new world and then load it. Will cause a scene change.
     /// </summary>
     /// <param name="name">The name of the world to create.</param>
-    void BeginCreatingWorld(String name);
+    void CreateAndActivateWorld(String name);
 
     /// <summary>
     ///     Delete a world.

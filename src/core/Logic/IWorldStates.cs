@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Core.Logic;
 
@@ -26,16 +27,14 @@ public interface IWorldStates
     /// <summary>
     ///     Begin terminating the world.
     /// </summary>
-    /// <param name="onComplete">Called when the world has successfully terminated.</param>
-    /// <returns>True if the world has begun terminating, false if it cannot terminate in the current state.</returns>
-    public Boolean BeginTerminating(Action onComplete);
+    /// <returns>The started activity, or <c>null</c> if the world cannot be terminated.</returns>
+    public Activity? BeginTerminating();
 
     /// <summary>
     ///     Begin saving the world.
     /// </summary>
-    /// <param name="onComplete">Called when the world has successfully saved.</param>
-    /// <returns>True if the world has begun saving, false if it cannot save in the current state.</returns>
-    public Boolean BeginSaving(Action onComplete);
+    /// <returns>The started activity, or <c>null</c> if the world cannot be saved.</returns>
+    public Activity? BeginSaving();
 
     /// <summary>
     ///     Fired when the world enters an active state.
