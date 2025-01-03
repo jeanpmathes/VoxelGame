@@ -1,4 +1,4 @@
-﻿// <copyright file="Fluids.cs" company=TID.Fluid("VoxelGame")>
+﻿// <copyright file="Fluids.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

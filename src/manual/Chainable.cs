@@ -73,7 +73,7 @@ public abstract class Chainable
     /// <returns>This.</returns>
     public Chainable List(Func<Chainable, Chainable> builder)
     {
-        List list = new(this);
+        List list = new();
         AddElement(list);
 
         builder(list);

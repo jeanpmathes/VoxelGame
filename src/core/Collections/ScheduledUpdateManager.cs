@@ -258,7 +258,9 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdate>>();
 
-    [LoggerMessage(EventId = LogID.ScheduledUpdateManager + 0, Level = LogLevel.Warning, Message = "The maximum number of scheduled updates for a single update cycle have been reached, further updates we be scheduled later")]
+    [LoggerMessage(EventId = LogID.ScheduledUpdateManager + 0,
+        Level = LogLevel.Warning,
+        Message = "The maximum number of scheduled updates for a single update cycle have been reached, further updates we be scheduled later")]
     private static partial void LogUpdateScheduleLimitReached(ILogger logger);
 
     #endregion LOGGING

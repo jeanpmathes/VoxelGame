@@ -14,13 +14,7 @@ namespace VoxelGame.Manual.Elements;
 /// </summary>
 internal class List : Chainable, IElement
 {
-    private readonly List<IElement> elements = new();
-    private readonly Chainable parent;
-
-    internal List(Chainable parent)
-    {
-        this.parent = parent;
-    }
+    private readonly List<IElement> elements = [];
 
     void IElement.Generate(StreamWriter writer)
     {

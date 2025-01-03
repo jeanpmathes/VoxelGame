@@ -19,6 +19,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI;
@@ -47,7 +48,7 @@ public sealed partial class GameScene : IScene
         Client = client;
 
         ui = CreateUI(client, uiResources);
-        Game = CreateGame(client, world, engine);
+        Game = CreateGame(client.Space.Camera, world, engine);
 
         GameConsole console = new(Game, commands);
 
@@ -204,11 +205,11 @@ public sealed partial class GameScene : IScene
             drawBackground: false);
     }
 
-    private Game CreateGame(Application.Client client, World world, Engine engine)
+    private Game CreateGame(Camera camera, World world, Engine engine)
     {
         Player player = new(
             mass: 70f,
-            client.Space.Camera,
+            camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
             new VisualInterface(ui, engine),
             this);

@@ -68,7 +68,8 @@ public sealed class EngineLoader : IResourceLoader
         return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData)];
     }
 
-    private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(Application.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
+    private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(
+        VoxelGame.Graphics.Core.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
     {
         PipelineBuilder builder = new();
 

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// <copyright file="IPipeConnectable.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 

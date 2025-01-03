@@ -30,16 +30,12 @@ internal class StartUI : ControlBase
     private const Int32 WorldSelectionMenuIndex = 2;
     private const Int32 CreditsMenuIndex = 3;
 
-    private readonly List<StandardMenu> menus = new();
+    private readonly List<StandardMenu> menus = [];
     private readonly MainMenu mainMenu;
-
-    private readonly Context context;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         IEnumerable<SettingsProvider> settingsProviders) : base(parent.Root)
     {
-        context = parent.Context;
-
         Dock = Dock.Fill;
 
         mainMenu = new MainMenu(this, parent.Context);
