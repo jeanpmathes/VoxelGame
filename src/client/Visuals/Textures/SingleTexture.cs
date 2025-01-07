@@ -9,7 +9,7 @@ using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Client.Visuals;
+namespace VoxelGame.Client.Visuals.Textures;
 
 /// <summary>
 ///     A texture resource. Wraps a <see cref="Texture" />.

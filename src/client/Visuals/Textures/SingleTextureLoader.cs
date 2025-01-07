@@ -10,7 +10,7 @@ using System.IO;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Client.Visuals;
+namespace VoxelGame.Client.Visuals.Textures;
 
 /// <summary>
 ///     Loads a single texture.

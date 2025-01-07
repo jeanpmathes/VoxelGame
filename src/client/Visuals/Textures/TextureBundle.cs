@@ -10,7 +10,7 @@ using System.Drawing;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Graphics;
 
-namespace VoxelGame.Client.Visuals;
+namespace VoxelGame.Client.Visuals.Textures;
 
 /// <summary>
 ///     A list of textures that can be used by shaders.

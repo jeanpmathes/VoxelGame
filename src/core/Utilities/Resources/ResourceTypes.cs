@@ -6,6 +6,8 @@
 
 namespace VoxelGame.Core.Utilities.Resources;
 
+#pragma warning disable S1192 // Same strings do not necessarily refer to the same thing here.
+
 /// <summary>
 ///     Predefined resource types.
 /// </summary>
@@ -35,6 +37,11 @@ public static class ResourceTypes
     ///     The PNG subtype of a texture resource in a bundle.
     /// </summary>
     public static ResourceType TextureBundlePNG { get; } = new(ResourceType.Category.Texture, "bundle", "png");
+
+    /// <summary>
+    ///     The XML subtype of a texture resource in a bundle.
+    /// </summary>
+    public static ResourceType TextureBundleXML { get; } = new(ResourceType.Category.Texture, "bundle", "xml");
 
     /// <summary>
     ///     The resource bundle type.
@@ -110,4 +117,19 @@ public static class ResourceTypes
     ///     The object type corresponding to command invokers.
     /// </summary>
     public static ResourceType CommandInvoker { get; } = new(ResourceType.Category.Object, "command_invoker");
+
+    /// <summary>
+    ///     The object type corresponding to commands.
+    /// </summary>
+    public static ResourceType Command { get; } = new(ResourceType.Category.Object, "command");
+
+    /// <summary>
+    ///     The object type corresponding to texture modifiers.
+    /// </summary>
+    public static ResourceType Modifier { get; } = new(ResourceType.Category.Object, "texture_modifier");
+
+    /// <summary>
+    ///     The object type corresponding to texture combinators.
+    /// </summary>
+    public static ResourceType Combinator { get; } = new(ResourceType.Category.Object, "texture_combinator");
 }

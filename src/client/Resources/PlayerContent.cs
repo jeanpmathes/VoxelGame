@@ -6,6 +6,7 @@
 
 using System.IO;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 

@@ -1,0 +1,14 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers mode="overwrite">
+        <Layer source="tex#1,2"/>
+        <Layer source="p:tex">
+            <Modifier type="color" value="#ff0000"/>
+            <Modifier type="no-tint"/>
+        </Layer>
+    </Layers>
+    <Modifiers>
+        <Modifier type="color" value="#00ff00"/>
+        <Modifier type="no-tint"/>
+    </Modifiers>
+</Texture>

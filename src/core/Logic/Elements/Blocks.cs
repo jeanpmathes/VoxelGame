@@ -167,8 +167,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block VeryTallGrass { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.VeryTallGrass,
         nameof(VeryTallGrass),
-        TID.Block("very_tall_grass", offset: 0),
-        TID.Block("very_tall_grass", offset: 1),
+        TID.Block("very_tall_grass", x: 0),
+        TID.Block("very_tall_grass", x: 1),
         BoundingVolume.CrossBlock));
 
     /// <summary>
@@ -187,8 +187,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.TallFlower,
         nameof(TallFlower),
-        TID.Block("tall_flower", offset: 0),
-        TID.Block("tall_flower", offset: 1),
+        TID.Block("tall_flower", x: 0),
+        TID.Block("tall_flower", x: 1),
         BoundingVolume.CrossBlock));
 
     /// <summary>
@@ -247,7 +247,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Log,
         nameof(Log),
         BlockFlags.Basic,
-        TextureLayout.Column(TID.Block("log", offset: 0), TID.Block("log", offset: 1))));
+        TextureLayout.Column(TID.Block("log", x: 0), TID.Block("log", x: 1))));
 
     /// <summary>
     ///     Processed wood that can be used as construction material. It is flammable.
@@ -292,7 +292,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Cactus { get; } = registry.Register(new GrowingBlock(
         Language.Cactus,
         nameof(Cactus),
-        TextureLayout.Column(TID.Block("cactus", offset: 0), TID.Block("cactus", offset: 1)),
+        TextureLayout.Column(TID.Block("cactus", x: 0), TID.Block("cactus", x: 1)),
         nameof(Sand),
         maxHeight: 4));
 
@@ -303,7 +303,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Pumpkin,
         nameof(Pumpkin),
         BlockFlags.Basic,
-        TextureLayout.Column(TID.Block("pumpkin", offset: 0), TID.Block("pumpkin", offset: 1))));
+        TextureLayout.Column(TID.Block("pumpkin", x: 0), TID.Block("pumpkin", x: 1))));
 
     /// <summary>
     ///     Melons are the fruit of the melon plant. They have to be placed on solid ground.
@@ -312,7 +312,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Melon,
         nameof(Melon),
         BlockFlags.Basic,
-        TextureLayout.Column(TID.Block("melon", offset: 0), TID.Block("melon", offset: 1))));
+        TextureLayout.Column(TID.Block("melon", x: 0), TID.Block("melon", x: 1))));
 
     /// <summary>
     ///     Spiderwebs slow the movement of entities and can be used to trap enemies.
@@ -339,13 +339,13 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Flax { get; } = registry.Register(new CropBlock(
         Language.Flax,
         nameof(Flax),
-        TID.Block("flax", offset: 5),
+        TID.Block("flax", x: 5),
         [
-            (TID.Block("flax", offset: 0), 2),
-            (TID.Block("flax", offset: 1), 1),
-            (TID.Block("flax", offset: 2), 1),
-            (TID.Block("flax", offset: 3), 2),
-            (TID.Block("flax", offset: 4), 1)
+            (TID.Block("flax", x: 0), 2),
+            (TID.Block("flax", x: 1), 1),
+            (TID.Block("flax", x: 2), 1),
+            (TID.Block("flax", x: 3), 2),
+            (TID.Block("flax", x: 4), 1)
         ]));
 
     /// <summary>
@@ -354,13 +354,13 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Potatoes { get; } = registry.Register(new CropBlock(
         Language.Potatoes,
         nameof(Potatoes),
-        TID.Block("potato", offset: 5),
+        TID.Block("potato", x: 5),
         [
-            (TID.Block("potato", offset: 0), 1),
-            (TID.Block("potato", offset: 1), 2),
-            (TID.Block("potato", offset: 2), 2),
-            (TID.Block("potato", offset: 3), 1),
-            (TID.Block("potato", offset: 4), 1)
+            (TID.Block("potato", x: 0), 1),
+            (TID.Block("potato", x: 1), 2),
+            (TID.Block("potato", x: 2), 2),
+            (TID.Block("potato", x: 3), 1),
+            (TID.Block("potato", x: 4), 1)
         ]));
 
     /// <summary>
@@ -369,12 +369,12 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Onions { get; } = registry.Register(new CropBlock(
         Language.Onions,
         nameof(Onions),
-        TID.Block("onion", offset: 4),
+        TID.Block("onion", x: 4),
         [
-            (TID.Block("onion", offset: 0), 2),
-            (TID.Block("onion", offset: 1), 2),
-            (TID.Block("onion", offset: 2), 2),
-            (TID.Block("onion", offset: 3), 1)
+            (TID.Block("onion", x: 0), 2),
+            (TID.Block("onion", x: 1), 2),
+            (TID.Block("onion", x: 2), 2),
+            (TID.Block("onion", x: 3), 1)
         ]));
 
     /// <summary>
@@ -383,12 +383,12 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Wheat { get; } = registry.Register(new CropBlock(
         Language.Wheat,
         nameof(Wheat),
-        TID.Block("wheat", offset: 4),
+        TID.Block("wheat", x: 4),
         [
-            (TID.Block("wheat", offset: 0), 2),
-            (TID.Block("wheat", offset: 1), 2),
-            (TID.Block("wheat", offset: 2), 2),
-            (TID.Block("wheat", offset: 3), 1)
+            (TID.Block("wheat", x: 0), 2),
+            (TID.Block("wheat", x: 1), 2),
+            (TID.Block("wheat", x: 2), 2),
+            (TID.Block("wheat", x: 3), 1)
         ]));
 
     /// <summary>
@@ -398,15 +398,15 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Maize { get; } = registry.Register(new DoubleCropBlock(
         Language.Maize,
         nameof(Maize),
-        TID.Block("maize", offset: 0),
+        TID.Block("maize", x: 0),
         [
-            (TID.Block("maize", offset: 1), 1),
-            (TID.Block("maize", offset: 2), 2)
+            (TID.Block("maize", x: 1), 1),
+            (TID.Block("maize", x: 2), 2)
         ],
         [
-            (TID.Block("maize", offset: 3), TID.Block("maize", offset: 6), 2),
-            (TID.Block("maize", offset: 4), TID.Block("maize", offset: 7), 1),
-            (TID.Block("maize", offset: 5), TID.Block("maize", offset: 8), 1)
+            (TID.Block("maize", x: 3), TID.Block("maize", x: 6), 2),
+            (TID.Block("maize", x: 4), TID.Block("maize", x: 7), 1),
+            (TID.Block("maize", x: 5), TID.Block("maize", x: 8), 1)
         ]));
 
     /// <summary>

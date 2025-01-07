@@ -46,11 +46,31 @@ public static class Conversion
     }
 
     /// <summary>
+    ///     Converts a <see cref="Vector4" /> to a <see cref="Color" />.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The color.</returns>
+    public static Color ToColor(this Vector4d vector)
+    {
+        return (Color) vector.ToColor4();
+    }
+
+    /// <summary>
+    ///     Converts a <see cref="Vector4" /> to a <see cref="Color4" />.
+    /// </summary>
+    /// <param name="vector">The vector to convert.</param>
+    /// <returns>The color.</returns>
+    private static Color4 ToColor4(this Vector4d vector)
+    {
+        return new Color4((Single) vector.X, (Single) vector.Y, (Single) vector.Z, (Single) vector.W);
+    }
+
+    /// <summary>
     ///     Converts a <see cref="Color" /> to a <see cref="Vector4" />.
     /// </summary>
     /// <param name="color">The color to convert.</param>
     /// <returns>The vector.</returns>
-    private static Vector4 ToVector4(this Color color)
+    public static Vector4 ToVector4(this Color color)
     {
         return (Vector4) (Color4) color;
     }

@@ -56,7 +56,7 @@ public readonly struct RID : IEquatable<RID>
     /// <param name="name">The name of the resource.</param>
     /// <typeparam name="T">The type of the resource.</typeparam>
     /// <returns>The resource identifier.</returns>
-    public static RID Named<T>(String name) where T : IResource
+    public static RID Named<T>(String name) where T : notnull
     {
         return new RID(Reflections.GetDecoratedName<T>("Resource", name));
     }

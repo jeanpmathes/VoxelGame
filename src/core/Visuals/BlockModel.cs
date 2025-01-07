@@ -168,7 +168,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(TID newTexture)
     {
-        TextureNames = [newTexture.Key];
+        TextureNames = [newTexture.Base];
 
         for (var i = 0; i < Quads.Length; i++)
         {

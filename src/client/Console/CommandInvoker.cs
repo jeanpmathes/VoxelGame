@@ -74,28 +74,18 @@ public sealed partial class CommandInvoker : IResource
     /// <summary>
     ///     Search and discover all commands in the calling assembly.
     /// </summary>
-    public void SearchCommands()
+    /// <param name="context">The context in which loading is done.</param>
+    public void SearchCommands(IResourceContext context)
     {
         LogSearchingCommands(logger);
 
         var count = 0;
 
-        foreach (Type type in Reflections.GetSubclasses<Command>())
+        foreach (Command command in Reflections.GetSubclassInstances<Command>())
         {
-            ICommand? command = null;
-
-            try
-            {
-                command = (ICommand?) Activator.CreateInstance(type);
-            }
-            catch (Exception e) when (e is MethodAccessException or MemberAccessException)
-            {
-                // Commands that have no public constructor are ignored but can be added manually.
-            }
-
-            if (command == null) continue;
-
             library.AddCommand(command);
+
+            context.ReportDiscovery(ResourceTypes.Command, RID.Named<Command>(command.Name));
 
             LogFoundCommand(logger, command.Name);
             count++;

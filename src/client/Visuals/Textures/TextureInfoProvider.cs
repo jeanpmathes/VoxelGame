@@ -7,12 +7,11 @@
 using System;
 using System.Drawing;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Client.Resources;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
-namespace VoxelGame.Client.Visuals;
+namespace VoxelGame.Client.Visuals.Textures;
 
 /// <summary>
 ///     Provides the texture indices of loaded textures for blocks and fluids, as well as their dominant colors.
@@ -60,8 +59,8 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
     /// <inheritdoc />
     public void SetUp()
     {
-        blockTextures = Context?.Get<TextureBundle>(Textures.BlockID);
-        fluidTextures = Context?.Get<TextureBundle>(Textures.FluidID);
+        blockTextures = Context?.Get<TextureBundle>(Resources.Textures.BlockID);
+        fluidTextures = Context?.Get<TextureBundle>(Resources.Textures.FluidID);
     }
 
     /// <inheritdoc />

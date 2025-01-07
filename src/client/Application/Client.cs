@@ -13,6 +13,7 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Client.Resources;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;

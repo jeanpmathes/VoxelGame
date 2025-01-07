@@ -153,7 +153,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     public RID Identifier { get; }
 
     /// <inheritdoc />
-    public ResourceType Type => ResourceTypes.Block;
+    public ResourceType Type => ResourceTypes.Fluid;
 
     private static BoundingVolume[] CreateVolumes()
     {

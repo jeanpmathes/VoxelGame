@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -13,25 +15,30 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A texture identifier.
 /// </summary>
-public readonly struct TID : IEquatable<TID>
+public readonly partial struct TID : IEquatable<TID>
 {
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
-    public const String MissingTextureKey = "missing_texture";
+    private const String MissingTextureKey = "missing_texture";
 
     /// <summary>
     ///     The zero offset.
     /// </summary>
-    public const Byte ZeroOffset = 0;
+    private const Byte ZeroOffset = 0;
 
-    private readonly String baseKey = MissingTextureKey;
-    private readonly Byte offset = ZeroOffset;
+    private readonly Byte xOffset = ZeroOffset;
+    private readonly Byte yOffset = ZeroOffset;
 
     /// <summary>
     ///     Gets the key of the texture.
     /// </summary>
-    public String Key => offset == ZeroOffset ? baseKey : $"{baseKey}:{offset}";
+    public String Key => $"{Base}:{xOffset},{yOffset}";
+
+    /// <summary>
+    ///     Gets the base key of the texture, without any offsets.
+    /// </summary>
+    public String Base { get; } = MissingTextureKey;
 
     /// <summary>
     ///     Whether the texture is a block texture or a fluid texture.
@@ -41,12 +48,15 @@ public readonly struct TID : IEquatable<TID>
     /// <summary>
     ///     Creates a new texture identifier referring to the missing texture.
     /// </summary>
-    public static TID MissingTexture => new(MissingTextureKey, offset: 0, isBlock: true);
+    public static TID MissingTexture => new(MissingTextureKey, xOffset: 0, yOffset: 0, isBlock: true);
 
-    private TID(String baseKey, Byte offset, Boolean isBlock)
+    private TID(String baseKey, Byte xOffset, Byte yOffset, Boolean isBlock)
     {
-        this.baseKey = baseKey;
-        this.offset = offset;
+        Debug.Assert(BaseKeyRegex().IsMatch(baseKey));
+
+        this.Base = baseKey;
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
 
         IsBlock = isBlock;
     }
@@ -55,21 +65,12 @@ public readonly struct TID : IEquatable<TID>
     ///     Create a block texture identifier.
     /// </summary>
     /// <param name="key">The key of the texture.</param>
+    /// <param name="x">The x offset of the texture in its source.</param>
+    /// <param name="y">The y offset of the texture in its source.</param>
     /// <returns>The texture identifier.</returns>
-    public static TID Block(String key)
+    public static TID Block(String key, Byte x = ZeroOffset, Byte y = ZeroOffset)
     {
-        return new TID(key, offset: 0, isBlock: true);
-    }
-
-    /// <summary>
-    ///     Create a block texture identifier with an offset.
-    /// </summary>
-    /// <param name="key">The key of the texture.</param>
-    /// <param name="offset">The offset of the texture.</param>
-    /// <returns>The texture identifier.</returns>
-    public static TID Block(String key, Byte offset)
-    {
-        return new TID(key, offset, isBlock: true);
+        return new TID(key, x, y, isBlock: true);
     }
 
     /// <summary>
@@ -79,13 +80,13 @@ public readonly struct TID : IEquatable<TID>
     /// <returns>The texture identifier.</returns>
     public static TID Fluid(String key)
     {
-        return new TID(key, offset: 0, isBlock: false);
+        return new TID(key, ZeroOffset, ZeroOffset, isBlock: false);
     }
 
     /// <summary>
     ///     Whether this identifier refers to the missing texture.
     /// </summary>
-    public Boolean IsMissingTexture => baseKey == MissingTextureKey;
+    public Boolean IsMissingTexture => Base == MissingTextureKey;
 
     /// <inheritdoc />
     public override String ToString()
@@ -97,11 +98,12 @@ public readonly struct TID : IEquatable<TID>
     ///     Creates a key identifying a texture with an offset.
     /// </summary>
     /// <param name="key">The base key of the texture.</param>
-    /// <param name="offset">The offset of the texture.</param>
+    /// <param name="x">The x offset of the texture.</param>
+    /// <param name="y">The y offset of the texture.</param>
     /// <returns>The key identifying the texture with the offset.</returns>
-    public static String CreateKey(String key, Byte offset)
+    public static String CreateKey(String key, Byte x, Byte y)
     {
-        TID tid = new(key, offset, isBlock: true);
+        TID tid = new(key, x, y, isBlock: true);
 
         return tid.Key;
     }
@@ -111,7 +113,7 @@ public readonly struct TID : IEquatable<TID>
     /// <inheritdoc />
     public Boolean Equals(TID other)
     {
-        return baseKey == other.baseKey && offset == other.offset && IsBlock == other.IsBlock;
+        return Base == other.Base && xOffset == other.xOffset && yOffset == other.yOffset && IsBlock == other.IsBlock;
     }
 
     /// <inheritdoc />
@@ -123,7 +125,7 @@ public readonly struct TID : IEquatable<TID>
     /// <inheritdoc />
     public override Int32 GetHashCode()
     {
-        return HashCode.Combine(baseKey, offset, IsBlock);
+        return HashCode.Combine(Base, xOffset, yOffset, IsBlock);
     }
 
     /// <summary>
@@ -141,6 +143,9 @@ public readonly struct TID : IEquatable<TID>
     {
         return !left.Equals(right);
     }
+
+    [GeneratedRegex(@"^[a-z0-9_]+$")]
+    private static partial Regex BaseKeyRegex();
 
     #endregion EQUALITY
 }

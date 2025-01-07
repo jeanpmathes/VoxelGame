@@ -1,0 +1,31 @@
+﻿<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+    <xs:element name="Texture" type="TextureType"/>
+    <xs:complexType name="LayerType" mixed="true">
+        <xs:sequence>
+            <xs:element type="ModifierType" name="Modifier" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="source" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="ModifierType">
+        <xs:attribute type="xs:string" name="type" use="required"/>
+        <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+    <xs:complexType name="LayersType">
+        <xs:sequence>
+            <xs:element type="LayerType" name="Layer" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="mode" default="blend"/>
+    </xs:complexType>
+    <xs:complexType name="ModifiersType">
+        <xs:sequence>
+            <xs:element type="ModifierType" name="Modifier" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TextureType">
+        <xs:sequence>
+            <xs:element type="LayersType" name="Layers"/>
+            <xs:element type="ModifiersType" name="Modifiers"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
