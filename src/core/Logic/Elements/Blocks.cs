@@ -157,19 +157,29 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallGrass { get; } = registry.Register(new CrossPlantBlock(
         Language.TallGrass,
         nameof(TallGrass),
-        TID.Block("tall_grass"),
+        TID.Block("grass_tall"),
         BlockFlags.Replaceable,
-        BoundingVolume.CrossBlock));
+        BoundingVolume.CrossBlock(height: 0.5)));
 
     /// <summary>
-    ///     A much larger version of the normal tall grass.
+    ///     A somewhat taller version of the normal tall grass.
     /// </summary>
-    public Block VeryTallGrass { get; } = registry.Register(new DoubleCrossPlantBlock(
-        Language.VeryTallGrass,
-        nameof(VeryTallGrass),
-        TID.Block("very_tall_grass", x: 0),
-        TID.Block("very_tall_grass", x: 1),
-        BoundingVolume.CrossBlock));
+    public Block TallerGrass { get; } = registry.Register(new CrossPlantBlock(
+        Language.TallerGrass,
+        nameof(TallerGrass),
+        TID.Block("grass_taller"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock()));
+
+    /// <summary>
+    ///     An even taller version of the normal tall grass.
+    ///     Truly the tallest grass in the game.
+    /// </summary>
+    public Block TallestGrass { get; } = registry.Register(new DoubleCrossPlantBlock(
+        Language.TallestGrass,
+        nameof(TallestGrass),
+        TID.Block("grass_tallest"),
+        BoundingVolume.CrossBlock()));
 
     /// <summary>
     ///     A simple flower.
@@ -187,9 +197,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.TallFlower,
         nameof(TallFlower),
-        TID.Block("tall_flower", y: 0),
-        TID.Block("tall_flower", y: 1),
-        BoundingVolume.CrossBlock));
+        TID.Block("flower_tall"),
+        BoundingVolume.CrossBlock()));
 
     /// <summary>
     ///     Mud is created when water and dirt mix.

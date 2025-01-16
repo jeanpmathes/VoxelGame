@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;

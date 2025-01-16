@@ -36,7 +36,7 @@ public class SpiderWebBlock : CrossBlock, ICombustible
             namedID,
             texture,
             BlockFlags.Trigger,
-            BoundingVolume.CrossBlock)
+            BoundingVolume.CrossBlock())
     {
         this.maxVelocity = maxVelocity;
     }

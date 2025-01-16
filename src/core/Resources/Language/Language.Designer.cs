@@ -2202,6 +2202,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Taller Grass.
+        /// </summary>
+        public static string TallerGrass {
+            get {
+                return ResourceManager.GetString("TallerGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tallest Grass.
+        /// </summary>
+        public static string TallestGrass {
+            get {
+                return ResourceManager.GetString("TallestGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tall Flower.
         /// </summary>
         public static string TallFlower {
@@ -2315,15 +2333,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Vase {
             get {
                 return ResourceManager.GetString("Vase", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Very Tall Grass.
-        /// </summary>
-        public static string VeryTallGrass {
-            get {
-                return ResourceManager.GetString("VeryTallGrass", resourceCulture);
             }
         }
         

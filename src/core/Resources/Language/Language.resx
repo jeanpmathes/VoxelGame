@@ -324,9 +324,6 @@
     <data name="Vase" xml:space="preserve">
     <value>Vase</value>
   </data>
-    <data name="VeryTallGrass" xml:space="preserve">
-    <value>Very Tall Grass</value>
-  </data>
     <data name="Vines" xml:space="preserve">
     <value>Vines</value>
   </data>
@@ -917,5 +914,11 @@
     </data>
     <data name="Save" xml:space="preserve">
         <value>Save</value>
+    </data>
+    <data name="TallerGrass" xml:space="preserve">
+        <value>Taller Grass</value>
+    </data>
+    <data name="TallestGrass" xml:space="preserve">
+        <value>Tallest Grass</value>
     </data>
 </root>

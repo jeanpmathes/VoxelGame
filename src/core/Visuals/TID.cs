@@ -134,7 +134,7 @@ public readonly partial struct TID : IEquatable<TID>
     /// <param name="x">The x offset. Must remain in the valid range.</param>
     /// <param name="y">The y offset. Must remain in the valid range.</param>
     /// <returns>The new texture identifier.</returns>
-    public TID Offset(Byte x, Byte y = ZeroOffset)
+    public TID Offset(Byte x = ZeroOffset, Byte y = ZeroOffset)
     {
         Int32 newX = xOffset + x;
         Int32 newY = yOffset + y;
