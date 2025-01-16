@@ -14,6 +14,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -26,23 +27,19 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly TID deadTexture;
-    private readonly (TID id, Int32 duration)[] singleGrowingTextures;
-    private readonly (TID lower, TID upper, Int32 duration)[] doubleGrowingTextures;
+    private readonly TID texture;
 
     private readonly List<BlockMesh> meshes = [];
     private readonly List<BoundingVolume> volumes = [];
 
-    internal DoubleCropBlock(String name, String namedID, TID deadTexture, (TID id, Int32 duration)[] singleGrowingTextures, (TID lower, TID upper, Int32 duration)[] doubleGrowingTextures) :
+    internal DoubleCropBlock(String name, String namedID, TID texture) :
         base(
             name,
             namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {
-        this.deadTexture = deadTexture;
-        this.singleGrowingTextures = singleGrowingTextures;
-        this.doubleGrowingTextures = doubleGrowingTextures;
+        this.texture = texture;
 
         for (UInt32 data = 0; data <= 0b01_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -73,42 +70,37 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         var lowerTextureIndices = new Int32[(Int32) GrowthStage.Final + 1];
         var upperTextureIndices = new Int32[(Int32) GrowthStage.Final + 1];
 
-        lowerTextureIndices[(Int32) GrowthStage.Dead] = textureIndexProvider.GetTextureIndex(deadTexture);
-        upperTextureIndices[(Int32) GrowthStage.Dead] = 0;
-
-        var currentStateIndex = 1;
-
-        var remainingLowerTextures = 3;
-        var remainingUpperTextures = 4;
-
-        foreach ((TID id, Int32 duration) in singleGrowingTextures)
+        for (var stage = GrowthStage.Dead; stage <= GrowthStage.Final; stage++)
         {
-            if (remainingLowerTextures <= 0) break;
+            Byte xOffset = StageToTextureOffset(stage);
+            Boolean isTwoBlocksTall = IsTwoBlocksTall(stage);
 
-            Int32 usedDuration = Math.Min(duration, remainingLowerTextures);
-            remainingLowerTextures -= usedDuration;
-
-            for (var offset = 0; offset < usedDuration; offset++)
-                lowerTextureIndices[currentStateIndex++] = textureIndexProvider.GetTextureIndex(id);
-        }
-
-        foreach ((TID lower, TID upper, Int32 duration) in doubleGrowingTextures)
-        {
-            if (remainingUpperTextures <= 0) break;
-
-            Int32 usedDuration = Math.Min(duration, remainingUpperTextures);
-            remainingUpperTextures -= usedDuration;
-
-            for (var offset = 0; offset < usedDuration; offset++)
-            {
-                lowerTextureIndices[currentStateIndex] = textureIndexProvider.GetTextureIndex(lower);
-                upperTextureIndices[currentStateIndex] = textureIndexProvider.GetTextureIndex(upper);
-
-                currentStateIndex += 1;
-            }
+            lowerTextureIndices[(Int32) stage] = textureIndexProvider.GetTextureIndex(texture.Offset(xOffset));
+            upperTextureIndices[(Int32) stage] = isTwoBlocksTall ? textureIndexProvider.GetTextureIndex(texture.Offset(xOffset, y: 1)) : 0;
         }
 
         for (UInt32 data = 0; data <= 0b01_1111; data++) meshes.Add(CreateMesh(data, lowerTextureIndices, upperTextureIndices, visuals));
+    }
+
+    private static Byte StageToTextureOffset(GrowthStage stage)
+    {
+        return stage switch
+        {
+            GrowthStage.Dead => 0,
+            GrowthStage.Initial => 1,
+            GrowthStage.Second => 2,
+            GrowthStage.Third => 2,
+            GrowthStage.Fourth => 3,
+            GrowthStage.Fifth => 3,
+            GrowthStage.Sixth => 4,
+            GrowthStage.Final => 5,
+            _ => throw Exceptions.UnsupportedEnumValue(stage)
+        };
+    }
+
+    private static Boolean IsTwoBlocksTall(GrowthStage stage)
+    {
+        return stage is GrowthStage.Fourth or GrowthStage.Fifth or GrowthStage.Sixth or GrowthStage.Final;
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)
@@ -229,7 +221,10 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         /// </summary>
         Initial = 1,
 
-        // Second
+        /// <summary>
+        ///     One Block tall.
+        /// </summary>
+        Second = 2,
 
         /// <summary>
         ///     One Block tall.
@@ -246,7 +241,10 @@ public class DoubleCropBlock : Block, ICombustible, IFillable, IFoliage
         /// </summary>
         Fifth = 5,
 
-        // Sixth
+        /// <summary>
+        ///     Two blocks tall.
+        /// </summary>
+        Sixth = 6,
 
         /// <summary>
         ///     Two blocks tall.

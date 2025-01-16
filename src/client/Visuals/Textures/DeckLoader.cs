@@ -94,7 +94,10 @@ public class DeckLoader
 
         if (unresolvable.Count <= 0) return;
 
-        foreach ((Deck deck, String[] missing) in unresolvable) Context.ReportWarning(this, $"Unresolvable deck: {deck.File.Name}, missing: {String.Join(", ", missing)}", path: deck.File);
+        foreach ((Deck deck, String[] missing) in unresolvable)
+            Context.ReportWarning(this,
+                $"Unresolvable deck {ImageLibrary.GetName(deck.File)}, missing: {String.Join(", ", missing)}",
+                path: deck.File);
     }
 
     private List<(Deck decks, String[] missing)> ProcessDecks(IEnumerable<Deck> decks)
@@ -103,11 +106,11 @@ public class DeckLoader
 
         foreach (Deck deck in decks)
         {
-            ResolvedDeck? resolved = ResolveDeck(deck, out String[]? missingCombinators, out String[]? missingModifiers, out String[]? missingSources);
+            ResolvedDeck? resolved = ResolveDeck(deck, out String[] missingCombinators, out String[] missingModifiers, out String[] missingSources);
 
             ReportWarnings(deck, missingCombinators, missingModifiers);
 
-            if (missingSources != null)
+            if (missingSources.Length > 0)
             {
                 // Missing source might be another deck, so trying later could resolve this.
                 unresolvable.Add((deck, missingSources));
@@ -116,8 +119,13 @@ public class DeckLoader
             {
                 Sheet? sheet = BuildDeck(resolved, deck.File);
 
-                if (sheet != null)
-                    Library.AddSheet(deck.File, sheet, part: false);
+                if (sheet == null)
+                    continue;
+
+                Boolean added = Library.AddSheet(deck.File, sheet, part: false);
+
+                if (!added)
+                    Context.ReportWarning(this, $"Name '{ImageLibrary.GetName(deck.File)}' is already in use", path: deck.File);
             }
         }
 
@@ -126,27 +134,28 @@ public class DeckLoader
 
     private Sheet? BuildDeck(ResolvedDeck deck, FileInfo file)
     {
+        CombinatorContext combinatorContext = new(deck.Combinator, file, Context);
+        ModifierContext modifierContext = new(file, Context);
+
         ResolvedLayer first = deck.Layers.First();
         ResolvedLayer[] rest = deck.Layers.Skip(count: 1).ToArray();
 
-        Sheet? currentSheet = BuildLayer(first, file);
+        Sheet? currentSheet = BuildLayer(first, combinatorContext, modifierContext);
 
         if (currentSheet == null)
             return null;
-
-        CombinatorContext cc = new(deck.Combinator, file, Context);
 
         foreach (ResolvedLayer layer in rest)
         {
             if (currentSheet == null)
                 return null;
 
-            Sheet? newSheet = BuildLayer(layer, file);
+            Sheet? newSheet = BuildLayer(layer, combinatorContext, modifierContext);
 
             if (newSheet == null)
                 return null;
 
-            currentSheet = deck.Combinator.Combine(currentSheet, newSheet, cc);
+            currentSheet = deck.Combinator.Combine(currentSheet, newSheet, combinatorContext);
         }
 
         foreach (ResolvedModifier modifier in deck.Modifiers)
@@ -154,25 +163,26 @@ public class DeckLoader
             if (currentSheet == null)
                 return null;
 
-            Sheet[,]? modified = ApplyModifier(currentSheet, modifier, out (Byte w, Byte h)? dimensions);
+            Sheet[,]? modified = ApplyModifier(currentSheet, modifier, modifierContext, out (Byte w, Byte h)? dimensions);
 
             if (modified == null || dimensions == null)
             {
-                Context.ReportWarning(this,
-                    $"Modifier '{modifier.Modifier.Type}' with index '{modifier.Index}' produced inconsistent dimensions",
-                    path: file);
+                modifierContext.ReportWarning(this,
+                    $"Modifier '{modifier.Modifier.Type}' with index '{modifier.Index}' produced inconsistent dimensions");
 
                 return null;
             }
 
-            currentSheet = MergeSheets(modified, (currentSheet.Width, currentSheet.Height), dimensions.Value, file);
+            currentSheet = MergeSheets(modified, combinatorContext, (currentSheet.Width, currentSheet.Height), dimensions.Value);
         }
 
         return currentSheet;
     }
 
-    private static Sheet[,]? ApplyModifier(Sheet source, ResolvedModifier modifier, out (Byte w, Byte h)? dimensions)
+    private static Sheet[,]? ApplyModifier(Sheet source, ResolvedModifier modifier, ModifierContext context, out (Byte w, Byte h)? dimensions)
     {
+        context.Modifier = modifier.Modifier;
+
         var results = new Sheet[source.Width, source.Height];
 
         dimensions = null;
@@ -180,7 +190,10 @@ public class DeckLoader
         for (Byte x = 0; x < source.Width; x++)
         for (Byte y = 0; y < source.Height; y++)
         {
-            Sheet result = modifier.Modifier.Modify(source[x, y], modifier.Parameters);
+            Sheet? result = modifier.Modifier.Modify(source[x, y], modifier.Parameters, context);
+
+            if (result == null)
+                return null;
 
             dimensions ??= (result.Width, result.Height);
 
@@ -193,16 +206,15 @@ public class DeckLoader
         return results;
     }
 
-    private Sheet? MergeSheets(Sheet[,] sheets, (Byte w, Byte h) sourceSize, (Byte w, Byte h) modifierSize, FileSystemInfo file)
+    private Sheet? MergeSheets(Sheet[,] sheets, CombinatorContext combinatorContext, (Byte w, Byte h) sourceSize, (Byte w, Byte h) modifierSize)
     {
         Int32 width = sourceSize.w * modifierSize.w;
         Int32 height = sourceSize.h * modifierSize.h;
 
         if (!Sheet.IsSizeValid(width, height))
         {
-            Context.ReportWarning(this,
-                $"Resulting sheet size is invalid: {width}x{height}",
-                path: file);
+            combinatorContext.ReportWarning(this,
+                $"Resulting sheet size is invalid: {width}x{height}");
 
             return null;
         }
@@ -216,7 +228,7 @@ public class DeckLoader
         return merged;
     }
 
-    private Sheet? BuildLayer(ResolvedLayer layer, FileSystemInfo file)
+    private Sheet? BuildLayer(ResolvedLayer layer, CombinatorContext combinatorContext, ModifierContext modifierContext)
     {
         Sheet? source = layer.Source;
 
@@ -225,13 +237,12 @@ public class DeckLoader
             if (source == null)
                 return null;
 
-            Sheet[,]? modified = ApplyModifier(source, modifier, out (Byte w, Byte h)? modifierSize);
+            Sheet[,]? modified = ApplyModifier(source, modifier, modifierContext, out (Byte w, Byte h)? modifierSize);
 
             if (modified == null || modifierSize == null)
             {
-                Context.ReportWarning(this,
-                    $"Modifier '{modifier.Modifier.Type}' with index '{modifier.Index}' in layer with index '{layer.Index}' produced inconsistent dimensions",
-                    path: file);
+                modifierContext.ReportWarning(this,
+                    $"Modifier '{modifier.Modifier.Type}' with index '{modifier.Index}' produced inconsistent dimensions");
 
                 return null;
             }
@@ -241,34 +252,29 @@ public class DeckLoader
 
             if (!Sheet.IsSizeValid(width, height))
             {
-                Context.ReportWarning(this,
-                    $"Resulting sheet size in layer with index '{layer.Index}' is invalid: {width}x{height}",
-                    path: file);
+                modifierContext.ReportWarning(this,
+                    $"Resulting sheet size in layer with index '{layer.Index}' is invalid: {width}x{height}");
 
                 return null;
             }
 
-            source = MergeSheets(modified, (source.Width, source.Height), modifierSize.Value, file);
+            source = MergeSheets(modified, combinatorContext, (source.Width, source.Height), modifierSize.Value);
         }
 
         return source;
     }
 
-    private void ReportWarnings(Deck deck, String[]? missingCombinators, String[]? missingModifiers)
+    private void ReportWarnings(Deck deck, String[] missingCombinators, String[] missingModifiers)
     {
-        if (missingCombinators != null)
+        if (missingCombinators.Length > 0)
             Context.ReportWarning(this, $"Missing combinators: {String.Join(", ", missingCombinators)}", path: deck.File);
 
-        if (missingModifiers != null)
+        if (missingModifiers.Length > 0)
             Context.ReportWarning(this, $"Missing modifiers: {String.Join(", ", missingModifiers)}", path: deck.File);
     }
 
-    private ResolvedDeck? ResolveDeck(Deck deck, out String[]? missingCombinators, out String[]? missingModifiers, out String[]? missingSources)
+    private ResolvedDeck? ResolveDeck(Deck deck, out String[] missingCombinators, out String[] missingModifiers, out String[] missingSources)
     {
-        missingCombinators = null;
-        missingSources = null;
-        missingModifiers = null;
-
         missingCombinators = deck.Combinator is null || combinators.ContainsKey(deck.Combinator) ? [] : [deck.Combinator];
 
         String[] requiredModifiers = deck.Layers
@@ -279,11 +285,10 @@ public class DeckLoader
 
         missingModifiers = requiredModifiers.Except(modifiers.Keys).ToArray();
 
+        missingSources = [];
+
         if (missingCombinators.Length > 0 || missingModifiers.Length > 0)
             return null;
-
-        missingCombinators = null;
-        missingModifiers = null;
 
         String[] requiredSources = deck.Layers
             .Select(layer => layer.Source)
@@ -294,8 +299,6 @@ public class DeckLoader
 
         if (missingSources.Length > 0)
             return null;
-
-        missingSources = null;
 
         return new ResolvedDeck
         {
@@ -362,15 +365,20 @@ public class DeckLoader
                 Modifiers = layer.Elements("Modifier").Select(modifier => new Deck.Modifier
                 {
                     Type = GetRequiredAttribute(modifier, "type"),
-                    Parameters = modifier.Attributes().ToDictionary(attribute => attribute.Name.LocalName, attribute => attribute.Value)
+                    Parameters = GetParameters(modifier)
                 }).ToArray()
             }).ToArray() ?? [],
             Modifiers = root.Elements("Modifiers").SingleOrDefault()?.Elements("Modifier").Select(modifier => new Deck.Modifier
             {
                 Type = GetRequiredAttribute(modifier, "type"),
-                Parameters = modifier.Attributes().ToDictionary(attribute => attribute.Name.LocalName, attribute => attribute.Value)
+                Parameters = GetParameters(modifier)
             }).ToArray() ?? []
         };
+    }
+
+    private static IReadOnlyDictionary<String, String> GetParameters(XElement element)
+    {
+        return element.Attributes().Where(attribute => attribute.Name.LocalName != "type").ToDictionary(attribute => attribute.Name.LocalName, attribute => attribute.Value);
     }
 
     private static String GetRequiredAttribute(XElement element, String name)
@@ -385,9 +393,32 @@ public class DeckLoader
 
     private sealed class CombinatorContext(Combinator combinator, FileInfo file, IResourceContext context) : Combinator.IContext
     {
-        public void ReportWarning(String message)
+        void Combinator.IContext.ReportWarning(String message)
         {
-            context.ReportWarning(combinator, message, path: file);
+            ReportWarning(combinator, message);
+        }
+
+        public void ReportWarning(Object source, String message)
+        {
+            context.ReportWarning(source, message, path: file);
+        }
+    }
+
+    private sealed class ModifierContext(FileInfo file, IResourceContext context) : Modifier.IContext
+    {
+        public Modifier? Modifier { get; set; }
+
+        void Modifier.IContext.ReportWarning(String message)
+        {
+            if (Modifier != null)
+                ReportWarning(Modifier, message);
+            else
+                ReportWarning(this, message);
+        }
+
+        public void ReportWarning(Object source, String message)
+        {
+            context.ReportWarning(source, message, path: file);
         }
     }
 

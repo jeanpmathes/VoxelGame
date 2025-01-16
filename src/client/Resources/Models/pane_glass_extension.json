@@ -1,7 +1,7 @@
 {
   "TextureNames": [
-    "glass",
-    "glass_pane_top"
+    "glass:0,0",
+    "glass_pane_top:0,0"
   ],
   "Quads": [
     {

@@ -1,9 +1,9 @@
 {
   "TextureNames": [
-    "bed_side",
-    "wood_nt",
-    "bedsheet_bottom",
-    "bedsheet_top"
+    "bed:0,1",
+    "wood_no_tint:0,0",
+    "bed:1,0",
+    "bed:1,1"
   ],
   "Quads": [
     {

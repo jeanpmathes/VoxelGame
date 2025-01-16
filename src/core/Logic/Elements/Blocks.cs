@@ -179,7 +179,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         nameof(Flower),
         TID.Block("flower"),
         BlockFlags.Replaceable,
-        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.5f, z: 0.175f))));
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))));
 
     /// <summary>
     ///     A very tall flower.
@@ -187,8 +187,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
         Language.TallFlower,
         nameof(TallFlower),
-        TID.Block("tall_flower", x: 0),
-        TID.Block("tall_flower", x: 1),
+        TID.Block("tall_flower", y: 0),
+        TID.Block("tall_flower", y: 1),
         BoundingVolume.CrossBlock));
 
     /// <summary>
@@ -339,14 +339,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Flax { get; } = registry.Register(new CropBlock(
         Language.Flax,
         nameof(Flax),
-        TID.Block("flax", x: 5),
-        [
-            (TID.Block("flax", x: 0), 2),
-            (TID.Block("flax", x: 1), 1),
-            (TID.Block("flax", x: 2), 1),
-            (TID.Block("flax", x: 3), 2),
-            (TID.Block("flax", x: 4), 1)
-        ]));
+        TID.Block("flax")));
 
     /// <summary>
     ///     Potatoes are a crop plant that grows on farmland. They require water to fully grow.
@@ -354,14 +347,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Potatoes { get; } = registry.Register(new CropBlock(
         Language.Potatoes,
         nameof(Potatoes),
-        TID.Block("potato", x: 5),
-        [
-            (TID.Block("potato", x: 0), 1),
-            (TID.Block("potato", x: 1), 2),
-            (TID.Block("potato", x: 2), 2),
-            (TID.Block("potato", x: 3), 1),
-            (TID.Block("potato", x: 4), 1)
-        ]));
+        TID.Block("potato")));
 
     /// <summary>
     ///     Onions are a crop plant that grows on farmland. They require water to fully grow.
@@ -369,13 +355,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Onions { get; } = registry.Register(new CropBlock(
         Language.Onions,
         nameof(Onions),
-        TID.Block("onion", x: 4),
-        [
-            (TID.Block("onion", x: 0), 2),
-            (TID.Block("onion", x: 1), 2),
-            (TID.Block("onion", x: 2), 2),
-            (TID.Block("onion", x: 3), 1)
-        ]));
+        TID.Block("onion")));
 
     /// <summary>
     ///     Wheat is a crop plant that grows on farmland. It requires water to fully grow.
@@ -383,13 +363,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Wheat { get; } = registry.Register(new CropBlock(
         Language.Wheat,
         nameof(Wheat),
-        TID.Block("wheat", x: 4),
-        [
-            (TID.Block("wheat", x: 0), 2),
-            (TID.Block("wheat", x: 1), 2),
-            (TID.Block("wheat", x: 2), 2),
-            (TID.Block("wheat", x: 3), 1)
-        ]));
+        TID.Block("wheat")));
 
     /// <summary>
     ///     Maize is a crop plant that grows on farmland.
@@ -398,16 +372,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block Maize { get; } = registry.Register(new DoubleCropBlock(
         Language.Maize,
         nameof(Maize),
-        TID.Block("maize", x: 0),
-        [
-            (TID.Block("maize", x: 1), 1),
-            (TID.Block("maize", x: 2), 2)
-        ],
-        [
-            (TID.Block("maize", x: 3), TID.Block("maize", x: 6), 2),
-            (TID.Block("maize", x: 4), TID.Block("maize", x: 7), 1),
-            (TID.Block("maize", x: 5), TID.Block("maize", x: 8), 1)
-        ]));
+        TID.Block("maize")));
 
     /// <summary>
     ///     The pumpkin plant grows pumpkin fruits.
@@ -506,7 +471,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ClayBricks { get; } = registry.Register(new ConstructionBlock(
         Language.ClayBricks,
         nameof(ClayBricks),
-        TextureLayout.Uniform(TID.Block("bricks"))));
+        TextureLayout.Uniform(TID.Block("clay_bricks"))));
 
     /// <summary>
     ///     Red plastic is a construction material.
@@ -626,7 +591,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ClayBrickWall { get; } = registry.Register(new WallBlock(
         Language.ClayBrickWall,
         nameof(ClayBrickWall),
-        TID.Block("bricks"),
+        TID.Block("clay_bricks"),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -670,8 +635,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block FluidBarrier { get; } = registry.Register(new FluidBarrierBlock(
         Language.Barrier,
         nameof(FluidBarrier),
-        TextureLayout.Uniform(TID.Block("fluid_barrier_closed")),
-        TextureLayout.Uniform(TID.Block("fluid_barrier_open"))));
+        TextureLayout.Uniform(TID.Block("fluid_barrier", x: 1)),
+        TextureLayout.Uniform(TID.Block("fluid_barrier", x: 0))));
 
     /// <summary>
     ///     The industrial steel pipe can be used to control fluid flow.
@@ -1119,7 +1084,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteRubble { get; } = registry.Register(new PermeableBlock(
         Language.GraniteRubble,
         nameof(GraniteRubble),
-        TextureLayout.Uniform(TID.Block("granite_rubble"))));
+        TextureLayout.Uniform(TID.Block("granite", x: 1))));
 
     /// <summary>
     ///     When breaking sandstone, it turns into sandstone rubble.
@@ -1128,7 +1093,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneRubble { get; } = registry.Register(new PermeableBlock(
         Language.SandstoneRubble,
         nameof(SandstoneRubble),
-        TextureLayout.Uniform(TID.Block("sandstone_rubble"))));
+        TextureLayout.Uniform(TID.Block("sandstone", x: 1))));
 
     /// <summary>
     ///     When breaking limestone, it turns into limestone rubble.
@@ -1137,7 +1102,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneRubble { get; } = registry.Register(new PermeableBlock(
         Language.LimestoneRubble,
         nameof(LimestoneRubble),
-        TextureLayout.Uniform(TID.Block("limestone_rubble"))));
+        TextureLayout.Uniform(TID.Block("limestone", x: 1))));
 
     /// <summary>
     ///     When breaking marble, it turns into marble rubble.
@@ -1146,7 +1111,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleRubble { get; } = registry.Register(new PermeableBlock(
         Language.MarbleRubble,
         nameof(MarbleRubble),
-        TextureLayout.Uniform(TID.Block("marble_rubble"))));
+        TextureLayout.Uniform(TID.Block("marble", x: 1))));
 
     /// <summary>
     ///     When breaking pumice, it turns into pumice rubble.
@@ -1155,7 +1120,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceRubble { get; } = registry.Register(new PermeableBlock(
         Language.PumiceRubble,
         nameof(PumiceRubble),
-        TextureLayout.Uniform(TID.Block("pumice_rubble"))));
+        TextureLayout.Uniform(TID.Block("pumice", x: 1))));
 
     /// <summary>
     ///     When breaking obsidian, it turns into obsidian rubble.
@@ -1164,7 +1129,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianRubble { get; } = registry.Register(new PermeableBlock(
         Language.ObsidianRubble,
         nameof(ObsidianRubble),
-        TextureLayout.Uniform(TID.Block("obsidian_rubble"))));
+        TextureLayout.Uniform(TID.Block("obsidian", x: 1))));
 
     /// <summary>
     ///     A wall made out of granite rubble.
@@ -1173,7 +1138,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block GraniteWall { get; } = registry.Register(new WallBlock(
         Language.GraniteWall,
         nameof(GraniteWall),
-        TID.Block("granite_rubble"),
+        TID.Block("granite", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1185,7 +1150,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block SandstoneWall { get; } = registry.Register(new WallBlock(
         Language.SandstoneWall,
         nameof(SandstoneWall),
-        TID.Block("sandstone_rubble"),
+        TID.Block("sandstone", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1197,7 +1162,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block LimestoneWall { get; } = registry.Register(new WallBlock(
         Language.LimestoneWall,
         nameof(LimestoneWall),
-        TID.Block("limestone_rubble"),
+        TID.Block("limestone", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1210,7 +1175,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block MarbleWall { get; } = registry.Register(new WallBlock(
         Language.MarbleWall,
         nameof(MarbleWall),
-        TID.Block("marble_rubble"),
+        TID.Block("marble", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1222,7 +1187,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block PumiceWall { get; } = registry.Register(new WallBlock(
         Language.PumiceWall,
         nameof(PumiceWall),
-        TID.Block("pumice_rubble"),
+        TID.Block("pumice", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1234,7 +1199,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block ObsidianWall { get; } = registry.Register(new WallBlock(
         Language.ObsidianWall,
         nameof(ObsidianWall),
-        TID.Block("obsidian_rubble"),
+        TID.Block("obsidian", x: 1),
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
@@ -1352,60 +1317,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         RID.File<BlockModel>("wall_post"),
         RID.File<BlockModel>("wall_extension"),
         RID.File<BlockModel>("wall_extension_straight")));
-
-    /// <summary>
-    ///     A column, made out of granite.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block GraniteColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.GraniteColumn,
-        nameof(GraniteColumn),
-        TextureLayout.Column(TID.Block("granite_column"), TID.Block("granite_worked"))));
-
-    /// <summary>
-    ///     A column, made out of sandstone.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block SandstoneColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.SandstoneColumn,
-        nameof(SandstoneColumn),
-        TextureLayout.Column(TID.Block("sandstone_column"), TID.Block("sandstone_worked"))));
-
-    /// <summary>
-    ///     A column, made out of limestone.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block LimestoneColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.LimestoneColumn,
-        nameof(LimestoneColumn),
-        TextureLayout.Column(TID.Block("limestone_column"), TID.Block("limestone_worked"))));
-
-    /// <summary>
-    ///     A column, made out of marble.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block MarbleColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.MarbleColumn,
-        nameof(MarbleColumn),
-        TextureLayout.Column(TID.Block("marble_column"), TID.Block("marble_worked"))));
-
-    /// <summary>
-    ///     A column, made out of pumice.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block PumiceColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.PumiceColumn,
-        nameof(PumiceColumn),
-        TextureLayout.Column(TID.Block("pumice_column"), TID.Block("pumice_worked"))));
-
-    /// <summary>
-    ///     A column, made out of obsidian.
-    ///     Columns serve both as decoration and as a structural element.
-    /// </summary>
-    public Block ObsidianColumn { get; } = registry.Register(new ConstructionBlock(
-        Language.ObsidianColumn,
-        nameof(ObsidianColumn),
-        TextureLayout.Column(TID.Block("obsidian_column"), TID.Block("obsidian_worked"))));
 
     /// <summary>
     ///     Lignite is a type of coal.

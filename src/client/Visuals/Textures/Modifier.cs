@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Visuals;
+using System.Drawing;
+using System.Globalization;
+using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals.Textures;
 
@@ -16,23 +18,40 @@ namespace VoxelGame.Client.Visuals.Textures;
 ///     One can inherit from this class to create custom modifiers.
 ///     Custom modifiers are detected by reflection.
 /// </summary>
-/// <param name="type">The type of this modifier. Used as a key to find the correct modifier.</param>
-public abstract class Modifier(String type)
+public abstract class Modifier
 {
+    private readonly Parameter[] @params;
+
+    /// <summary>
+    ///     Create a new modifier.
+    /// </summary>
+    /// <param name="type">The type of this modifier. Used as a key to find the correct modifier.</param>
+    /// <param name="params">The parameters of the modifier.</param>
+    protected Modifier(String type, params Parameter[] @params)
+    {
+        Type = type;
+
+        this.@params = @params;
+    }
+
     /// <summary>
     ///     The type of this modifier. Used as a key to find the correct modifier.
     /// </summary>
-    public String Type { get; } = type;
+    public String Type { get; }
 
     /// <summary>
     ///     Modify the given image.
     /// </summary>
     /// <param name="image">The image - can be modified in place.</param>
     /// <param name="parameters">The parameters of the modifier.</param>
-    /// <returns>The resulting sheet of images.</returns>
-    public Sheet Modify(Image image, IReadOnlyDictionary<String, String> parameters)
+    /// <param name="context">The context in which the modifier is executed.</param>
+    /// <returns>The resulting sheet of images, or <c>null</c> if the modifier is not applicable.</returns>
+    public Sheet? Modify(Image image, IReadOnlyDictionary<String, String> parameters, IContext context)
     {
-        return Modify(image, new Parameters());
+        Parameters? parsed = ParseParameters(parameters, context);
+
+        return parsed != null ? Modify(image, parsed) : null;
+
     }
 
     /// <summary>
@@ -46,7 +65,7 @@ public abstract class Modifier(String type)
     /// <summary>
     ///     Wrap an image in a sheet, without copying it.
     /// </summary>
-    protected Sheet Wrap(Image image)
+    protected static Sheet Wrap(Image image)
     {
         return new Sheet(width: 1, height: 1)
         {
@@ -54,5 +73,158 @@ public abstract class Modifier(String type)
         };
     }
 
-    protected class Parameters {}
+    private Parameters? ParseParameters(IReadOnlyDictionary<String, String> parameters, IContext context)
+    {
+        var failed = false;
+        var parsed = new Dictionary<Parameter, Object>();
+        var unknown = new HashSet<String>(parameters.Keys);
+
+        foreach (Parameter parameter in @params)
+        {
+            String? value = parameters.GetValueOrDefault(parameter.Name);
+            Object? parsedValue = parameter.DetermineValue(value);
+
+            if (parsedValue == null)
+            {
+                context.ReportWarning($"Failed to provide parameter '{parameter.Name}'");
+                failed = true;
+            }
+            else parsed[parameter] = parsedValue;
+
+            unknown.Remove(parameter.Name);
+        }
+
+        foreach (String name in unknown)
+        {
+            context.ReportWarning($"Unknown parameter '{name}'");
+        }
+
+        return failed ? null : new Parameters(parsed);
+    }
+
+    /// <summary>
+    /// Create a new color parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="fallback">The optional fallback value.</param>
+    /// <returns>The created color parameter.</returns>
+    protected static Parameter<Color> CreateColorParameter(String name, Color? fallback = null)
+    {
+        return new ColorParameter(name, fallback);
+    }
+
+    /// <summary>
+    /// Create a new double parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="fallback">The optional fallback value.</param>
+    /// <returns>The created double parameter.</returns>
+    protected static Parameter<Double> CreateDoubleParameter(String name, Double? fallback = null)
+    {
+        return new DoubleParameter(name, fallback);
+    }
+
+    /// <summary>
+    /// The context in which the modifier is executed.
+    /// </summary>
+    public interface IContext
+    {
+        /// <summary>
+        /// Report a warning.
+        /// </summary>
+        /// <param name="message">The message of the warning.</param>
+        public void ReportWarning(String message);
+    }
+
+    /// <summary>
+    /// Contains all parsed parameters of a modifier.
+    /// </summary>
+    /// <param name="parameters">The parsed parameters of the modifier.</param>
+    protected class Parameters(Dictionary<Parameter, Object> parameters)
+    {
+        /// <summary>
+        ///     Get the value of the given parameter.
+        /// </summary>
+        /// <param name="parameter">The parameter.</param>
+        /// <typeparam name="T">The type of the parameter.</typeparam>
+        /// <returns>The value of the parameter.</returns>
+        public T Get<T>(Parameter<T> parameter) where T : notnull
+        {
+            return (T) parameters[parameter];
+        }
+    }
+
+    /// <summary>
+    /// Base class for a parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    protected abstract class Parameter(String name)
+    {
+        /// <summary>
+        /// Gets the name of the parameter.
+        /// </summary>
+        public String Name { get; } = name;
+
+        /// <summary>
+        /// Determine the value of the parameter.
+        /// </summary>
+        /// <param name="input">The string input of the parameter, can be <c>null</c>.</param>
+        /// <returns>The value of the parameter, or <c>null</c> if the parameter failed.</returns>
+        public abstract Object? DetermineValue(String? input);
+    }
+
+    /// <summary>
+    /// Specific and typed base class for a parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="fallback">An optional fallback value, if not set the parameter is required.</param>
+    /// <typeparam name="T">The type of the parameter.</typeparam>
+    protected abstract class Parameter<T>(String name, Object? fallback) : Parameter(name) where T : notnull
+    {
+        /// <summary>
+        /// Get the value of the parameter.
+        /// </summary>
+        /// <param name="parameters">The current parameters of the modifier.</param>
+        /// <returns>The value of the parameter.</returns>
+        public T Get(Parameters parameters)
+        {
+            return parameters.Get(this);
+        }
+
+        /// <inheritdoc />
+        public override Object? DetermineValue(String? input)
+        {
+            return input != null ? Parse(input) : fallback;
+        }
+
+        /// <summary>
+        /// Parse the input text to the parameter type.
+        /// </summary>
+        /// <param name="text">A string representation of the parameter.</param>
+        /// <returns>An object of the parameter type, or <c>null</c> if the parsing failed.</returns>
+        protected abstract Object? Parse(String text);
+    }
+
+    private sealed class ColorParameter(String name, Color? fallback) : Parameter<Color>(name, fallback)
+    {
+        protected override Object? Parse(String text)
+        {
+            try
+            {
+                return text.StartsWith(value: '#') ? ColorTranslator.FromHtml(text) : Color.FromName(text);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+
+    private sealed class DoubleParameter(String name, Double? fallback) : Parameter<Double>(name, fallback)
+    {
+        protected override Object? Parse(String text)
+        {
+            return Double.TryParse(text, CultureInfo.InvariantCulture, out Double result) ? result : null;
+        }
+    }
 }

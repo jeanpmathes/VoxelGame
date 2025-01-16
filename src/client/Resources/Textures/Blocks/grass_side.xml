@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="dirt:0,0">
+            <Modifier type="no-tint"/>
+        </Layer>
+        <Layer source="p:grass_side:0,0"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

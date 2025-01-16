@@ -20,6 +20,7 @@ public class ImageLibrary
 {
     private const String PartPrefix = "p:";
     private const String CombinedSuffix = ":all";
+
     private readonly Dictionary<String, Image> splitParts = [];
     private readonly Dictionary<String, Image> splitTextures = [];
 
@@ -35,20 +36,22 @@ public class ImageLibrary
     ///     Whether the images are parts to use or full textures on their own.
     ///     Parts will not be available when the texture loading process is done.
     /// </param>
-    public void AddSheet(FileInfo file, Sheet sheet, Boolean part)
+    /// <returns><c>true</c> if the sheet was added, <c>false</c> if it already exists.</returns>
+    public Boolean AddSheet(FileInfo file, Sheet sheet, Boolean part)
     {
         Dictionary<String, Image> splitTarget = part ? splitParts : splitTextures;
         Dictionary<String, Sheet> fullTarget = part ? combinedParts : combinedTextures;
 
         String name = GetName(file);
 
-        // todo: check that the name is not already in use (separate part and no-part names)
-
-        fullTarget[name] = sheet;
+        if (!fullTarget.TryAdd(name, sheet))
+            return false;
 
         for (Byte x = 0; x < sheet.Width; x++)
         for (Byte y = 0; y < sheet.Height; y++)
             splitTarget[TID.CreateKey(name, x, y)] = sheet[x, y];
+
+        return true;
     }
 
     /// <summary>
@@ -127,7 +130,8 @@ public class ImageLibrary
 
         foreach ((String key, Image image) in splitTextures)
         {
-            // todo: skip images that are completely empty (zero everywhere)
+            if (image.IsEmpty())
+                continue;
 
             indices[key] = textures.Count;
             textures.Add(image);
@@ -136,7 +140,12 @@ public class ImageLibrary
         return new IntermediateBundle(textures, indices);
     }
 
-    private static String GetName(FileInfo file)
+    /// <summary>
+    /// Get the name of a texture from its file.
+    /// </summary>
+    /// <param name="file">The file defining the texture.</param>
+    /// <returns>The name of the texture.</returns>
+    public static String GetName(FileInfo file)
     {
         StringBuilder key = new();
 

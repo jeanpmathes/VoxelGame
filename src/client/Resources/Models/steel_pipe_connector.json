@@ -1,7 +1,7 @@
 {
   "TextureNames": [
-    "steel_pipe",
-    "pipe_hole"
+    "steel_pipe:0,0",
+    "pipe_hole:0,0"
   ],
   "Quads": [
     {

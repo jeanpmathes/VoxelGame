@@ -67,7 +67,12 @@ public static class Bundler
             Sheet? sheet = sheetLoader.Load(file, out (Exception? exception, String message)? error);
 
             if (sheet != null)
-                library.AddSheet(file, sheet, part);
+            {
+                Boolean added = library.AddSheet(file, sheet, part);
+
+                if (!added)
+                    error = (null, $"Name '{ImageLibrary.GetName(file)}' is already in use");
+            }
 
             context.ReportDiscovery(ResourceTypes.TextureBundlePNG, RID.Path(file), error?.exception, error?.message);
         }

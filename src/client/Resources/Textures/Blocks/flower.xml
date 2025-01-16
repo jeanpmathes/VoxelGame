@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers mode="replace">
+        <Layer source="p:flower_stalk:0,0"/>
+        <Layer source="p:flower_petal:0,0">
+            <Modifier type="no-tint"/>
+        </Layer>
+    </Layers>
+    <Modifiers/>
+</Texture>

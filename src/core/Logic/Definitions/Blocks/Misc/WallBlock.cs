@@ -53,6 +53,8 @@ public class WallBlock : WideConnectingBlock
     /// <inheritdoc />
     protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
+        base.OnSetUp(textureIndexProvider, modelProvider, visuals);
+
         BlockModel straightZModel = modelProvider.GetModel(extensionStraight);
         straightZModel.OverwriteTexture(texture);
 

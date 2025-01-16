@@ -264,11 +264,6 @@ public class Image
             count++;
         }
 
-        Int32 GetAverage(Int64 sum)
-        {
-            return (Int32) Math.Sqrt(sum / (Double) count);
-        }
-
         Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
 
         for (var x = 0; x < Width; x++)
@@ -277,6 +272,11 @@ public class Image
             if (GetPixel(x, y).A != 0) continue;
 
             SetPixel(x, y, average);
+        }
+
+        Int32 GetAverage(Int64 sum)
+        {
+            return (Int32) Math.Sqrt(sum / (Double) count);
         }
     }
 
@@ -309,7 +309,7 @@ public class Image
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Int32 Reformat(Int32 original, Format originalFormat, Format targetFormat)
     {
-        Int32 result = default;
+        var result = 0;
 
         result |= ((original >> originalFormat.R) & ChannelMask) << targetFormat.R;
         result |= ((original >> originalFormat.G) & ChannelMask) << targetFormat.G;
@@ -345,6 +345,20 @@ public class Image
 
             yield return current;
         }
+    }
+
+    /// <summary>
+    /// Check if an image is empty.
+    /// An image is considered empty if all pixels have the zero-value.
+    /// </summary>
+    /// <returns>The result of the check.</returns>
+    public Boolean IsEmpty()
+    {
+        for (var i = 0; i < data.Length; i++)
+            if (data[i] != 0)
+                return false;
+
+        return true;
     }
 
     /// <summary>

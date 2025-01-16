@@ -26,21 +26,19 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // s: stage
 public class CropBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly TID deadTexture;
-    private readonly (TID id, Int32 duration)[] growingTextures;
+    private readonly TID texture;
 
     private readonly List<BoundingVolume> volumes = [];
     private readonly List<BlockMesh> meshes = [];
 
-    internal CropBlock(String name, String namedID, TID deadTexture, (TID id, Int32 duration)[] growingTextures) :
+    internal CropBlock(String name, String namedID, TID texture) :
         base(
             name,
             namedID,
             new BlockFlags(),
             BoundingVolume.Block)
     {
-        this.deadTexture = deadTexture;
-        this.growingTextures = growingTextures;
+        this.texture = texture;
 
         for (UInt32 data = 0; data <= 0b00_1111; data++) volumes.Add(CreateVolume(data));
     }
@@ -61,32 +59,26 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     {
         var textureIndices = new Int32[(Int32) GrowthStage.Dead + 1];
 
-        textureIndices[(Int32) GrowthStage.Dead] = textureIndexProvider.GetTextureIndex(deadTexture);
-
-        Int32 currentTexture = -1;
-        Int32 remainingDuration = -1;
-
-        for (var texture = 0; texture < textureIndices.Length; texture++)
-        {
-            if (texture == (Int32) GrowthStage.Dead)
-                continue;
-
-            if (remainingDuration <= 0)
-            {
-                currentTexture += 1;
-
-                if (currentTexture >= growingTextures.Length)
-                    break;
-
-                remainingDuration = growingTextures[currentTexture].duration;
-            }
-
-            textureIndices[texture] = textureIndexProvider.GetTextureIndex(growingTextures[currentTexture].id);
-
-            remainingDuration -= 1;
-        }
+        for (var stage = GrowthStage.Initial; stage <= GrowthStage.Dead; stage++)
+            textureIndices[(Int32) stage] = textureIndexProvider.GetTextureIndex(texture.Offset(GetStateOffset(stage)));
 
         for (UInt32 data = 0; data <= 0b00_1111; data++) meshes.Add(CreateMesh(visuals.FoliageQuality, textureIndices, data));
+    }
+
+    private static Byte GetStateOffset(GrowthStage stage)
+    {
+        return stage switch
+        {
+            GrowthStage.Initial => 0,
+            GrowthStage.Second => 1,
+            GrowthStage.Third => 1,
+            GrowthStage.Fourth => 2,
+            GrowthStage.Fifth => 2,
+            GrowthStage.Sixth => 3,
+            GrowthStage.Final => 4,
+            GrowthStage.Dead => 5,
+            _ => throw Exceptions.UnsupportedEnumValue(stage)
+        };
     }
 
     private static BoundingVolume CreateVolume(UInt32 data)

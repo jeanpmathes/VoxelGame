@@ -27,18 +27,14 @@ public readonly partial struct TID : IEquatable<TID>
     /// </summary>
     private const Byte ZeroOffset = 0;
 
+    private readonly String baseKey = MissingTextureKey;
     private readonly Byte xOffset = ZeroOffset;
     private readonly Byte yOffset = ZeroOffset;
 
     /// <summary>
     ///     Gets the key of the texture.
     /// </summary>
-    public String Key => $"{Base}:{xOffset},{yOffset}";
-
-    /// <summary>
-    ///     Gets the base key of the texture, without any offsets.
-    /// </summary>
-    public String Base { get; } = MissingTextureKey;
+    public String Key => $"{baseKey}:{xOffset},{yOffset}";
 
     /// <summary>
     ///     Whether the texture is a block texture or a fluid texture.
@@ -54,7 +50,7 @@ public readonly partial struct TID : IEquatable<TID>
     {
         Debug.Assert(BaseKeyRegex().IsMatch(baseKey));
 
-        this.Base = baseKey;
+        this.baseKey = baseKey;
         this.xOffset = xOffset;
         this.yOffset = yOffset;
 
@@ -84,9 +80,70 @@ public readonly partial struct TID : IEquatable<TID>
     }
 
     /// <summary>
+    /// Create a texture identifier from a string.
+    /// The string should be in the format <c>'base_key':'x','y'</c>.
+    /// </summary>
+    /// <param name="str">The string to parse.</param>
+    /// <param name="isBlock">The type of the texture.</param>
+    /// <returns>The texture identifier.</returns>
+    public static TID FromString(String str, Boolean isBlock)
+    {
+        ReadOnlySpan<Char> key = str.AsSpan();
+
+        Int32 colonIndex = key.IndexOf(value: ':');
+
+        if (colonIndex == -1)
+            return new TID(str, ZeroOffset, ZeroOffset, isBlock);
+
+        ReadOnlySpan<Char> baseKey = key[..colonIndex];
+
+        ReadOnlySpan<Char> offset = key[(colonIndex + 1)..];
+        Int32 commaIndex = offset.IndexOf(value: ',');
+
+        Byte xOffset = ZeroOffset;
+        Byte yOffset = ZeroOffset;
+
+        if (commaIndex == -1)
+        {
+            if (Byte.TryParse(offset, out Byte xValue))
+                xOffset = xValue;
+        }
+        else
+        {
+            ReadOnlySpan<Char> x = offset[..commaIndex];
+            ReadOnlySpan<Char> y = offset[(commaIndex + 1)..];
+
+            if (Byte.TryParse(x, out Byte xValue))
+                xOffset = xValue;
+
+            if (Byte.TryParse(y, out Byte yValue))
+                yOffset = yValue;
+        }
+
+        return new TID(baseKey.ToString(), xOffset, yOffset, isBlock);
+    }
+
+    /// <summary>
     ///     Whether this identifier refers to the missing texture.
     /// </summary>
-    public Boolean IsMissingTexture => Base == MissingTextureKey;
+    public Boolean IsMissingTexture => baseKey == MissingTextureKey;
+
+    /// <summary>
+    /// Offset from this texture.
+    /// </summary>
+    /// <param name="x">The x offset. Must remain in the valid range.</param>
+    /// <param name="y">The y offset. Must remain in the valid range.</param>
+    /// <returns>The new texture identifier.</returns>
+    public TID Offset(Byte x, Byte y = ZeroOffset)
+    {
+        Int32 newX = xOffset + x;
+        Int32 newY = yOffset + y;
+
+        Debug.Assert(newX <= Byte.MaxValue);
+        Debug.Assert(newY <= Byte.MaxValue);
+
+        return new TID(baseKey, (Byte) newX, (Byte) newY, IsBlock);
+    }
 
     /// <inheritdoc />
     public override String ToString()
@@ -113,7 +170,7 @@ public readonly partial struct TID : IEquatable<TID>
     /// <inheritdoc />
     public Boolean Equals(TID other)
     {
-        return Base == other.Base && xOffset == other.xOffset && yOffset == other.yOffset && IsBlock == other.IsBlock;
+        return baseKey == other.baseKey && xOffset == other.xOffset && yOffset == other.yOffset && IsBlock == other.IsBlock;
     }
 
     /// <inheritdoc />
@@ -125,7 +182,7 @@ public readonly partial struct TID : IEquatable<TID>
     /// <inheritdoc />
     public override Int32 GetHashCode()
     {
-        return HashCode.Combine(Base, xOffset, yOffset, IsBlock);
+        return HashCode.Combine(baseKey, xOffset, yOffset, IsBlock);
     }
 
     /// <summary>

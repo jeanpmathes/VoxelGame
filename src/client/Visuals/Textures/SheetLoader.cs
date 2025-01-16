@@ -58,7 +58,7 @@ public class SheetLoader
 
             texture.RecolorTransparency();
 
-            sheet[x, y] = texture;
+            sheet[x, (Byte) (yCount - y - 1)] = texture;
         }
 
         error = null;

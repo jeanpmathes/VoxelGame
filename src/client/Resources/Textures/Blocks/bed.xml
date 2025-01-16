@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="p:bed_base:all">
+            <Modifier type="no-tint"/>
+        </Layer>
+        <Layer source="p:bed_tinted:all"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

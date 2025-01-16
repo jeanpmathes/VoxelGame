@@ -168,7 +168,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(TID newTexture)
     {
-        TextureNames = [newTexture.Base];
+        TextureNames = [newTexture.Key];
 
         for (var i = 0; i < Quads.Length; i++)
         {
@@ -338,7 +338,7 @@ public sealed partial class BlockModel : IResource, ILocated
         var textureIndexLookup = new Int32[TextureNames.Length];
 
         for (var i = 0; i < TextureNames.Length; i++)
-            textureIndexLookup[i] = textureIndexProvider.GetTextureIndex(TID.Block(TextureNames[i]));
+            textureIndexLookup[i] = textureIndexProvider.GetTextureIndex(TID.FromString(TextureNames[i], isBlock: true));
 
         quads = new BlockMesh.Quad[Quads.Length];
 
