@@ -83,6 +83,5 @@ public class GenerationContextTests : ContextTestBase
         density: 1.0,
         viscosity: 1,
         hasNeutralTint: false,
-        TextureLayout.Uniform(TID.MissingTexture),
-        TextureLayout.Uniform(TID.MissingTexture));
+        TID.MissingTexture);
 }

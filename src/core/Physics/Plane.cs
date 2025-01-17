@@ -93,13 +93,13 @@ public readonly struct Plane : IEquatable<Plane>
 
         Vector3d normal = Vector3d.Cross(n1, n2);
 
-        if (VMath.NearlyZero(normal.LengthSquared)) return null;
+        if (MathTool.NearlyZero(normal.LengthSquared)) return null;
 
         Vector3d l = Vector3d.Cross(n2, normal);
 
         Double n = Vector3d.Dot(n1, l);
 
-        if (VMath.NearlyZero(n)) return null;
+        if (MathTool.NearlyZero(n)) return null;
 
         Vector3d p = p1 - p2;
         Double t = Vector3d.Dot(n1, p) / n;

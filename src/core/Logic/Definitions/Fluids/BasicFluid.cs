@@ -21,8 +21,8 @@ namespace VoxelGame.Core.Logic.Definitions.Fluids;
 public class BasicFluid : Fluid, IOverlayTextureProvider
 {
     private readonly Boolean hasNeutralTint;
-    private readonly TextureLayout movingLayout;
     private readonly TextureLayout staticLayout;
+    private readonly TextureLayout movingLayout;
 
     private SideArray<Int32> movingTextures = null!;
     private SideArray<Int32> staticTextures = null!;
@@ -38,11 +38,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <param name="density">The density of the fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid.</param>
     /// <param name="hasNeutralTint">Whether this fluid has a neutral tint.</param>
-    /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
-    /// <param name="staticLayout">The texture layout when this fluid is static.</param>
+    /// <param name="texture">The texture of the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
     public BasicFluid(String name, String namedID, Double density, Int32 viscosity, Boolean hasNeutralTint,
-        TextureLayout movingLayout, TextureLayout staticLayout, RenderType renderType = RenderType.Opaque) :
+        TID texture, RenderType renderType = RenderType.Opaque) :
         base(
             name,
             namedID,
@@ -54,8 +53,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         this.hasNeutralTint = hasNeutralTint;
 
-        this.movingLayout = movingLayout;
-        this.staticLayout = staticLayout;
+        staticLayout = TextureLayout.Fluid(texture.Offset(y: 0), texture.Offset(y: 1));
+        movingLayout = TextureLayout.Fluid(texture.Offset(y: 2), texture.Offset(y: 3));
     }
 
     /// <inheritdoc />

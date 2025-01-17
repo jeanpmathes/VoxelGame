@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using OpenTK.Mathematics;
 using VoxelGame.Client.Visuals.Textures.Combinators;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -182,14 +183,16 @@ public class DeckLoader
     private static Sheet[,]? ApplyModifier(Sheet source, ResolvedModifier modifier, ModifierContext context, out (Byte w, Byte h)? dimensions)
     {
         context.Modifier = modifier.Modifier;
+        context.Size = (source.Width, source.Height);
 
         var results = new Sheet[source.Width, source.Height];
-
         dimensions = null;
 
         for (Byte x = 0; x < source.Width; x++)
         for (Byte y = 0; y < source.Height; y++)
         {
+            context.Position = (x, y);
+
             Sheet? result = modifier.Modifier.Modify(source[x, y], modifier.Parameters, context);
 
             if (result == null)
@@ -407,6 +410,10 @@ public class DeckLoader
     private sealed class ModifierContext(FileInfo file, IResourceContext context) : Modifier.IContext
     {
         public Modifier? Modifier { get; set; }
+
+        public Vector2i Position { get; set; }
+
+        public Vector2i Size { get; set; }
 
         void Modifier.IContext.ReportWarning(String message)
         {

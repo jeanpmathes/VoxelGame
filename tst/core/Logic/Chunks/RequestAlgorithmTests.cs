@@ -24,7 +24,7 @@ public class RequestAlgorithmTests
         for (Int32 x = -range; x <= range; x++)
         for (Int32 y = -range; y <= range; y++)
         for (Int32 z = -range; z <= range; z++)
-            if (VMath.Manhattan((x, y, z), Vector3i.Zero) <= range)
+            if (MathTool.Manhattan((x, y, z), Vector3i.Zero) <= range)
                 yield return new ChunkPosition(x, y, z);
     }
 

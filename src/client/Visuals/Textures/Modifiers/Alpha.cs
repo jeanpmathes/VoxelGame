@@ -21,7 +21,7 @@ public class Alpha() : Modifier("alpha", [valueParameter])
     private static readonly Parameter<Double> valueParameter = CreateDoubleParameter("value");
 
     /// <inheritdoc />
-    protected override Sheet Modify(Image image, Parameters parameters)
+    protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
         Double alpha = parameters.Get(valueParameter);
 

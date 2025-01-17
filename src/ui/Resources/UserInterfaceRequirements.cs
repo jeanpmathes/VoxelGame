@@ -18,7 +18,7 @@ public class UserInterfaceRequirements : ResourceCatalog
     ///     Creates a new instance of the UI resource catalog.
     /// </summary>
     public UserInterfaceRequirements() : base([
-        new VGuiLoader(),
+        new GameGuiLoader(),
         new FontLoader()
     ]) {}
 }

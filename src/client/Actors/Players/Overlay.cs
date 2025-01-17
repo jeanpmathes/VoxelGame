@@ -126,7 +126,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
         Vector2d a = viewPlane.Project2D(dimensions.a, axis);
         Vector2d b = viewPlane.Project2D(dimensions.b, axis);
 
-        Double ratio = VMath.InverseLerp(a.Y, b.Y, point.Y);
+        Double ratio = MathTool.InverseLerp(a.Y, b.Y, point.Y);
 
         (Double newLowerBound, Double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
 

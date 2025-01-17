@@ -127,7 +127,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     public Vector3d Position
     {
         get => actualPosition;
-        set => actualPosition = VMath.ClampComponents(value, -World.Extents, World.Extents);
+        set => actualPosition = MathTool.ClampComponents(value, -World.Extents, World.Extents);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
         Vector3d requiredForce = (movement - Velocity) * Mass;
         requiredForce -= force;
-        AddForce(VMath.ClampComponents(requiredForce, -maxForce, maxForce));
+        AddForce(MathTool.ClampComponents(requiredForce, -maxForce, maxForce));
     }
 
     /// <inheritdoc />

@@ -27,7 +27,7 @@ public class NoiseGeneratorTests
 
         Array2D<Single> noise = generator.GetNoiseGrid(from, size);
 
-        foreach ((Int32 x, Int32 y) in VMath.Range2(size, size))
+        foreach ((Int32 x, Int32 y) in MathTool.Range2(size, size))
         {
             Single gridValue = noise[x, y];
             Assert.InRange(gridValue, low: -1, high: 1);
@@ -47,7 +47,7 @@ public class NoiseGeneratorTests
 
         Array3D<Single> noise = generator.GetNoiseGrid(from, size);
 
-        foreach ((Int32 x, Int32 y, Int32 z) in VMath.Range3(size, size, size))
+        foreach ((Int32 x, Int32 y, Int32 z) in MathTool.Range3(size, size, size))
         {
             Single gridValue = noise[x, y, z];
             Assert.InRange(gridValue, low: -1, high: 1);

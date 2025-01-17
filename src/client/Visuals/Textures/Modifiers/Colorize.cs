@@ -21,7 +21,7 @@ public class Colorize() : Modifier("colorize", [colorParameter])
     private static readonly Parameter<Color> colorParameter = CreateColorParameter("color");
 
     /// <inheritdoc />
-    protected override Sheet Modify(Image image, Parameters parameters)
+    protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
         Vector4d color = parameters.Get(colorParameter).ToVector4();
 

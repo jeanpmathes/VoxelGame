@@ -179,7 +179,7 @@ public static class Raycast
 
         List<(Content content, Vector3i position)> positions = new(extents * extents * extents);
 
-        foreach ((Int32 x, Int32 y, Int32 z) offset in VMath.Range3(extents, extents, extents))
+        foreach ((Int32 x, Int32 y, Int32 z) offset in MathTool.Range3(extents, extents, extents))
         {
             Vector3i position = min + offset;
             Content? content = world.GetContent(position);

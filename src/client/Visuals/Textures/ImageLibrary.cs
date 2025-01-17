@@ -47,8 +47,8 @@ public class ImageLibrary
         if (!fullTarget.TryAdd(name, sheet))
             return false;
 
-        for (Byte x = 0; x < sheet.Width; x++)
         for (Byte y = 0; y < sheet.Height; y++)
+        for (Byte x = 0; x < sheet.Width; x++)
             splitTarget[TID.CreateKey(name, x, y)] = sheet[x, y];
 
         return true;

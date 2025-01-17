@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using OpenTK.Mathematics;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals.Textures;
@@ -50,7 +51,7 @@ public abstract class Modifier
     {
         Parameters? parsed = ParseParameters(parameters, context);
 
-        return parsed != null ? Modify(image, parsed) : null;
+        return parsed != null ? Modify(image, parsed, context) : null;
 
     }
 
@@ -59,8 +60,9 @@ public abstract class Modifier
     /// </summary>
     /// <param name="image">The image - can be modified in place.</param>
     /// <param name="parameters">The parsed parameters of the modifier.</param>
+    /// <param name="context">The context in which the modifier is executed.</param>
     /// <returns>The resulting sheet of images.</returns>
-    protected abstract Sheet Modify(Image image, Parameters parameters);
+    protected abstract Sheet Modify(Image image, Parameters parameters, IContext context);
 
     /// <summary>
     ///     Wrap an image in a sheet, without copying it.
@@ -125,10 +127,31 @@ public abstract class Modifier
     }
 
     /// <summary>
+    ///     Create a new boolean parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="fallback">The optional fallback value.</param>
+    /// <returns>The created boolean parameter.</returns>
+    protected static Parameter<Boolean> CreateBooleanParameter(String name, Boolean? fallback = null)
+    {
+        return new BooleanParameter(name, fallback);
+    }
+
+    /// <summary>
     /// The context in which the modifier is executed.
     /// </summary>
     public interface IContext
     {
+        /// <summary>
+        ///     Get the position of the image in the sheet currently being processed.
+        /// </summary>
+        public Vector2i Position { get; }
+
+        /// <summary>
+        ///     Get the size of the sheet currently being processed.
+        /// </summary>
+        public Vector2i Size { get; }
+
         /// <summary>
         /// Report a warning.
         /// </summary>
@@ -225,6 +248,14 @@ public abstract class Modifier
         protected override Object? Parse(String text)
         {
             return Double.TryParse(text, CultureInfo.InvariantCulture, out Double result) ? result : null;
+        }
+    }
+
+    private sealed class BooleanParameter(String name, Boolean? fallback) : Parameter<Boolean>(name, fallback)
+    {
+        protected override Object? Parse(String text)
+        {
+            return Boolean.TryParse(text, out Boolean result) ? result : null;
         }
     }
 }

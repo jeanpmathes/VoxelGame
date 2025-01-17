@@ -75,10 +75,10 @@ public class CircularTimeBuffer
         Max = Math.Max(Max, time);
         Min = Math.Min(Min, time);
 
-        if (VMath.NearlyEqual(old, Max))
+        if (MathTool.NearlyEqual(old, Max))
             Max = buffer.Take(filledSlots).Max();
 
-        if (VMath.NearlyEqual(old, Min))
+        if (MathTool.NearlyEqual(old, Min))
             Min = buffer.Take(filledSlots).Min();
     }
 }

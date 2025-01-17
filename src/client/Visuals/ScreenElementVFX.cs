@@ -137,7 +137,7 @@ public sealed class ScreenElementVFX : VFX
         Vector2d pixelOffset = (relativeScreenPosition - (0.5, 0.5)) * screenSize;
         Vector3d translation = new(pixelOffset);
 
-        Matrix4d model = VMath.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
+        Matrix4d model = MathTool.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
         Matrix4d view = Matrix4d.Identity;
         var projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
 

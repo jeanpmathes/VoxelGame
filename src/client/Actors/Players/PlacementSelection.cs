@@ -92,13 +92,13 @@ internal class PlacementSelection
         if (IsBlockMode)
         {
             Int64 nextBlockId = ActiveBlock.ID + change;
-            nextBlockId = VMath.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
+            nextBlockId = MathTool.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
             ActiveBlock = Blocks.Instance.TranslateID((UInt32) nextBlockId);
         }
         else
         {
             Int64 nextFluidId = ActiveFluid.ID + change;
-            nextFluidId = VMath.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
+            nextFluidId = MathTool.ClampRotating(nextFluidId, min: 1, Fluids.Instance.Count);
             ActiveFluid = Fluids.Instance.TranslateID((UInt32) nextFluidId);
         }
 

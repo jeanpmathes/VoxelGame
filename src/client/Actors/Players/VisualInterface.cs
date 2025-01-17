@@ -162,7 +162,7 @@ public sealed class VisualInterface : IDisposable
         {
             size = Math.Abs(upperBound - lowerBound);
 
-            if (VMath.NearlyEqual(upperBound, b: 1.0) && lowerBound > 0.0)
+            if (MathTool.NearlyEqual(upperBound, b: 1.0) && lowerBound > 0.0)
                 size *= -1.0;
         }
 

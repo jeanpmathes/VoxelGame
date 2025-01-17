@@ -73,10 +73,12 @@ public readonly partial struct TID : IEquatable<TID>
     ///     Create a fluid texture identifier.
     /// </summary>
     /// <param name="key">The key of the texture.</param>
+    /// <param name="x">The x offset of the texture in its source.</param>
+    /// <param name="y">The y offset of the texture in its source.</param>
     /// <returns>The texture identifier.</returns>
-    public static TID Fluid(String key)
+    public static TID Fluid(String key, Byte x = ZeroOffset, Byte y = ZeroOffset)
     {
-        return new TID(key, ZeroOffset, ZeroOffset, isBlock: false);
+        return new TID(key, x, y, isBlock: false);
     }
 
     /// <summary>

@@ -24,13 +24,13 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class Image
 {
-    private const Int32 BitsPerByte = 8;
+    private const Byte BitsPerByte = 8;
     private const Int32 ChannelMask = (1 << BitsPerByte) - 1;
 
-    private const Int32 C0 = 0 * BitsPerByte;
-    private const Int32 C1 = 1 * BitsPerByte;
-    private const Int32 C2 = 2 * BitsPerByte;
-    private const Int32 C3 = 3 * BitsPerByte;
+    private const Byte C0 = 0 * BitsPerByte;
+    private const Byte C1 = 1 * BitsPerByte;
+    private const Byte C2 = 2 * BitsPerByte;
+    private const Byte C3 = 3 * BitsPerByte;
 
     private readonly Int32[] data;
 
@@ -240,6 +240,17 @@ public class Image
     }
 
     /// <summary>
+    ///     Gets the pixel at given position.
+    /// </summary>
+    /// <param name="x">The x coordinate of the pixel.</param>
+    /// <param name="y">The y coordinate of the pixel.</param>
+    /// <returns>The color of the pixel.</returns>
+    public Color GetPixel(Int32 x, Int32 y)
+    {
+        return Color.FromArgb(Reformat(this[x, y], StorageFormat, BitmapImageFormat));
+    }
+
+    /// <summary>
     ///     Set the color (RGB components) of all transparent pixels to the average color of all non-transparent pixels.
     ///     The transparency of the pixels will be kept.
     /// </summary>
@@ -281,14 +292,31 @@ public class Image
     }
 
     /// <summary>
-    ///     Gets the pixel at given position.
+    /// Create a translated (moved) image, shifting by the given amount of pixels.
+    /// This wraps around the image, so pixels that are moved out of the image will appear on the other side.
     /// </summary>
-    /// <param name="x">The x coordinate of the pixel.</param>
-    /// <param name="y">The y coordinate of the pixel.</param>
-    /// <returns>The color of the pixel.</returns>
-    public Color GetPixel(Int32 x, Int32 y)
+    /// <param name="dx">The amount of pixels to move the image in the x direction.</param>
+    /// <param name="dy">The amount of pixels to move the image in the y direction.</param>
+    public Image Translated(Int32 dx, Int32 dy)
     {
-        return Color.FromArgb(Reformat(this[x, y], StorageFormat, BitmapImageFormat));
+        if (dx == 0 && dy == 0)
+            return CreateCopy();
+
+        dx = MathTool.Mod(dx, Width);
+        dy = MathTool.Mod(dy, Height);
+
+        Image translated = new(Width, Height, StorageFormat);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            Int32 tx = MathTool.Mod(x + dx, Width);
+            Int32 ty = MathTool.Mod(y + dy, Height);
+
+            translated.SetPixel(x, y, GetPixel(tx, ty));
+        }
+
+        return translated;
     }
 
     /// <summary>
@@ -365,7 +393,7 @@ public class Image
     ///     Defines a color format based on the order of the channels.
     ///     These formats apply for colors using 32 bits per pixel, where each channel is 8 bits.
     /// </summary>
-    public record struct Format(Int32 R, Int32 G, Int32 B, Int32 A)
+    public record struct Format(Byte R, Byte G, Byte B, Byte A)
     {
         /// <summary>
         ///     The format where the channels are in the order R, G, B, A.

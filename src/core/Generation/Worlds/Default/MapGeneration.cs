@@ -400,7 +400,7 @@ public partial class Map
     /// </summary>
     private static void HandleConvergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
-        Double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double strength = MathTool.CalculateAngle(a.drift, b.drift) / Math.PI;
         Vector2d direction;
         Vector2i start;
 
@@ -464,7 +464,7 @@ public partial class Map
     /// </summary>
     private static void HandleDivergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
-        Double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double divergence = MathTool.CalculateAngle(a.drift, b.drift) / Math.PI;
 
         ref Cell cellA = ref data.GetCell(a.position);
         ref Cell cellB = ref data.GetCell(b.position);
@@ -495,7 +495,7 @@ public partial class Map
         foreach ((Int16 node, Double value) in continentsNodes)
         {
             Double angle = value * Math.PI;
-            driftDirections[node] = VMath.CreateVectorFromAngle(angle);
+            driftDirections[node] = MathTool.CreateVectorFromAngle(angle);
         }
 
         return driftDirections;
@@ -594,7 +594,7 @@ public partial class Map
         for (var step = 0; step < simulationSteps; step++)
         {
             SimulateClimate(data, current, next);
-            VMath.Swap(ref current, ref next);
+            MathTool.Swap(ref current, ref next);
         }
 
         for (var x = 0; x < Width; x++)

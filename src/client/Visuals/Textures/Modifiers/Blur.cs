@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 public class Blur() : Modifier("blur")
 {
     /// <inheritdoc />
-    protected override Sheet Modify(Image image, Parameters parameters)
+    protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
         Image blurred = new(image.Width, image.Height);
 

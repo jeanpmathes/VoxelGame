@@ -20,7 +20,7 @@ public class NoTint() : Modifier("no-tint")
     private const Int32 Alpha = Byte.MaxValue / 4;
 
     /// <inheritdoc />
-    protected override Sheet Modify(Image image, Parameters parameters)
+    protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
         for (var x = 0; x < image.Width; x++)
         for (var y = 0; y < image.Height; y++)

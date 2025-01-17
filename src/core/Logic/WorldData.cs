@@ -122,7 +122,7 @@ public partial class WorldData
 
         Vector3d validSpawn = ClampSpawn(information).Position;
 
-        if (!silent && !VMath.NearlyEqual(validSpawn, information.SpawnInformation.Position))
+        if (!silent && !MathTool.NearlyEqual(validSpawn, information.SpawnInformation.Position))
         {
             LogInvalidSpawnPosition(logger, information.SpawnInformation.Position, validSpawn);
             information.SpawnInformation = new SpawnInformation(validSpawn);
@@ -162,7 +162,7 @@ public partial class WorldData
     private static SpawnInformation ClampSpawn(WorldInformation information)
     {
         Vector3d size = new(information.Size);
-        Vector3d clamped = VMath.ClampComponents(information.SpawnInformation.Position, -size, size);
+        Vector3d clamped = MathTool.ClampComponents(information.SpawnInformation.Position, -size, size);
 
         return new SpawnInformation(clamped);
     }

@@ -31,8 +31,8 @@ public record UserInterfaceResources(IGwenGui GUI, FontBundle Fonts, Skin Defaul
         if (gui == null || fonts == null)
             return null;
 
-        var defaultSkin = context.Get<Skin>(VGuiLoader.DefaultSkin);
-        var alternativeSkin = context.Get<Skin>(VGuiLoader.AlternativeSkin);
+        var defaultSkin = context.Get<Skin>(GameGuiLoader.DefaultSkin);
+        var alternativeSkin = context.Get<Skin>(GameGuiLoader.AlternativeSkin);
 
         if (defaultSkin == null || alternativeSkin == null)
             return null;

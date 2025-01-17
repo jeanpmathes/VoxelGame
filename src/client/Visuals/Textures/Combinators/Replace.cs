@@ -1,4 +1,4 @@
-﻿// <copyright file="Blend.cs" company="VoxelGame">
+﻿// <copyright file="Replace.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
