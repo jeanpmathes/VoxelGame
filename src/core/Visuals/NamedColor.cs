@@ -1,17 +1,15 @@
-﻿// <copyright file="BlockColor.cs" company="VoxelGame">
+﻿// <copyright file="NamedColor.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Visuals;
-
-namespace VoxelGame.Core.Utilities;
+namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     A set of colors that can be stored in up to four bits, less bits are supported too.
+///     A set of colors that can be stored in up to four bits, fewer bits are supported too.
 /// </summary>
-public enum BlockColor
+public enum NamedColor
 {
     /// <summary>
     ///     The default color.
@@ -175,55 +173,55 @@ public enum BlockColor
 }
 
 /// <summary>
-///     Extension methods for <see cref="BlockColor" />.
+///     Extension methods for <see cref="NamedColor" />.
 /// </summary>
 public static class BlockColorExtensions
 {
     /// <summary>
-    ///     Converts a <see cref="BlockColor" /> to a <see cref="TintColor" />.
+    ///     Converts a <see cref="NamedColor" /> to a <see cref="ColorS" />.
     /// </summary>
-    /// <param name="color">The <see cref="BlockColor" /> to convert.</param>
-    /// <returns>The resulting TintColor.</returns>
-    public static TintColor ToTintColor(this BlockColor color)
+    /// <param name="color">The <see cref="NamedColor" /> to convert.</param>
+    /// <returns>The resulting <see cref="ColorS" />.</returns>
+    public static ColorS ToColorS(this NamedColor color)
     {
         return color switch
         {
-            BlockColor.Red => TintColor.Red,
-            BlockColor.Green => TintColor.Green,
-            BlockColor.Blue => TintColor.Blue,
+            NamedColor.Red => ColorS.Red,
+            NamedColor.Green => ColorS.Green,
+            NamedColor.Blue => ColorS.Blue,
 
-            BlockColor.Yellow => TintColor.Yellow,
-            BlockColor.Cyan => TintColor.Cyan,
-            BlockColor.Magenta => TintColor.Magenta,
-            BlockColor.Orange => TintColor.Orange,
+            NamedColor.Yellow => ColorS.Yellow,
+            NamedColor.Cyan => ColorS.Cyan,
+            NamedColor.Magenta => ColorS.Magenta,
+            NamedColor.Orange => ColorS.Orange,
 
-            BlockColor.DarkGreen => TintColor.DarkGreen,
-            BlockColor.Lime => TintColor.Lime,
-            BlockColor.Gray => TintColor.Gray,
-            BlockColor.Indigo => TintColor.Indigo,
-            BlockColor.Maroon => TintColor.Maroon,
-            BlockColor.Olive => TintColor.Olive,
-            BlockColor.Brown => TintColor.Brown,
-            BlockColor.Navy => TintColor.Navy,
+            NamedColor.DarkGreen => ColorS.DarkGreen,
+            NamedColor.Lime => ColorS.Lime,
+            NamedColor.Gray => ColorS.Gray,
+            NamedColor.Indigo => ColorS.Indigo,
+            NamedColor.Maroon => ColorS.Maroon,
+            NamedColor.Olive => ColorS.Olive,
+            NamedColor.Brown => ColorS.Brown,
+            NamedColor.Navy => ColorS.Navy,
 
-            BlockColor.Amaranth => TintColor.Amaranth,
-            BlockColor.Amber => TintColor.Amber,
-            BlockColor.Apricot => TintColor.Apricot,
-            BlockColor.Aquamarine => TintColor.Aquamarine,
-            BlockColor.Beige => TintColor.Beige,
-            BlockColor.Coffee => TintColor.Coffee,
-            BlockColor.Coral => TintColor.Coral,
-            BlockColor.Crimson => TintColor.Crimson,
-            BlockColor.Emerald => TintColor.Emerald,
-            BlockColor.Lilac => TintColor.Lilac,
-            BlockColor.Mauve => TintColor.Mauve,
-            BlockColor.Periwinkle => TintColor.Periwinkle,
-            BlockColor.PrussianBlue => TintColor.PrussianBlue,
-            BlockColor.SlateGray => TintColor.SlateGray,
-            BlockColor.Taupe => TintColor.Taupe,
-            BlockColor.Viridian => TintColor.Viridian,
+            NamedColor.Amaranth => ColorS.Amaranth,
+            NamedColor.Amber => ColorS.Amber,
+            NamedColor.Apricot => ColorS.Apricot,
+            NamedColor.Aquamarine => ColorS.Aquamarine,
+            NamedColor.Beige => ColorS.Beige,
+            NamedColor.Coffee => ColorS.Coffee,
+            NamedColor.Coral => ColorS.Coral,
+            NamedColor.Crimson => ColorS.Crimson,
+            NamedColor.Emerald => ColorS.Emerald,
+            NamedColor.Lilac => ColorS.Lilac,
+            NamedColor.Mauve => ColorS.Mauve,
+            NamedColor.Periwinkle => ColorS.Periwinkle,
+            NamedColor.PrussianBlue => ColorS.PrussianBlue,
+            NamedColor.SlateGray => ColorS.SlateGray,
+            NamedColor.Taupe => ColorS.Taupe,
+            NamedColor.Viridian => ColorS.Viridian,
 
-            _ => new TintColor(r: 1f, g: 1f, b: 1f)
+            _ => ColorS.None
         };
     }
 }

@@ -6,9 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
@@ -23,17 +21,11 @@ public class Alpha() : Modifier("alpha", [valueParameter])
     /// <inheritdoc />
     protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
-        Double alpha = parameters.Get(valueParameter);
+        var alpha = (Byte) (parameters.Get(valueParameter) * Byte.MaxValue);
 
         for (var x = 0; x < image.Width; x++)
         for (var y = 0; y < image.Height; y++)
-        {
-            Vector4d pixel = image.GetPixel(x, y).ToVector4();
-
-            pixel.W = alpha;
-
-            image.SetPixel(x, y, pixel.ToColor());
-        }
+            image.SetPixel(x, y, image.GetPixel(x, y) with {A = alpha});
 
         return Wrap(image);
     }

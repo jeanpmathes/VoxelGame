@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
@@ -36,7 +36,7 @@ public sealed class BiomeDefinition(String name, Palette palette) : IResource
     /// <summary>
     ///     A color representing the biome.
     /// </summary>
-    public Color Color { get; init; }
+    public ColorS Color { get; init; }
 
     /// <summary>
     ///     Get the normal width of the ice layer on oceans.

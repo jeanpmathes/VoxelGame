@@ -68,17 +68,17 @@ public enum DecorationLevels
 /// </summary>
 public interface IDecorationContext : IDisposable
 {
-    private static readonly Vector3i[] corners = MathTool.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
+    private static readonly Vector3i[] corners = MathTools.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
 
-    private static readonly (Int32, Int32, Int32)[] centerSectionOffsets = MathTool.Range3((1, 1, 1), (2, 2, 2)).ToArray();
-    private static readonly (Int32, Int32, Int32)[] cornerSectionOffsets = MathTool.Range3(x: 4, y: 4, z: 4).Where(IsNotCubeTip).ToArray();
+    private static readonly (Int32, Int32, Int32)[] centerSectionOffsets = MathTools.Range3((1, 1, 1), (2, 2, 2)).ToArray();
+    private static readonly (Int32, Int32, Int32)[] cornerSectionOffsets = MathTools.Range3(x: 4, y: 4, z: 4).Where(IsNotCubeTip).ToArray();
 
     private static readonly (Vector3i, DecorationLevels)[][] cornerPositions =
-        MathTool.Range3(x: 2, y: 2, z: 2)
+        MathTools.Range3(x: 2, y: 2, z: 2)
             .Select(corner => (Vector3i) corner)
             .OrderBy(GetCornerIndex)
             .Select(corner =>
-                MathTool.Range3(x: 2, y: 2, z: 2)
+                MathTools.Range3(x: 2, y: 2, z: 2)
                     .Select(offset => (Vector3i) offset)
                     .Select(offset => (
                         corner + offset, // Localized position of the chunk.

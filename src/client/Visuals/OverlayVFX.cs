@@ -8,7 +8,6 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Graphics.Definition;
@@ -32,7 +31,7 @@ public sealed class OverlayVFX : VFX
     private readonly (TextureArray block, TextureArray fluid) textures;
     private IDisposable? disposable;
     private Int32 mode = BlockMode;
-    private TintColor tint = TintColor.None;
+    private ColorS tint = ColorS.None;
     private Boolean isAnimated;
     private Single lowerBound;
     private Single upperBound;
@@ -147,8 +146,9 @@ public sealed class OverlayVFX : VFX
         Meshing.SetFlag(ref attributes, Meshing.QuadFlag.IsAnimated, isAnimated);
 
         Matrix4d mvp = model * view * projection;
+        Matrix4 mvpF = new((Vector4) mvp.Row0, (Vector4) mvp.Row1, (Vector4) mvp.Row2, (Vector4) mvp.Row3);
 
-        data.Data = new Data(mvp.ToMatrix4(), attributes, (lowerBound, upperBound), mode, firstFluidTextureID);
+        data.Data = new Data(mvpF, attributes, (lowerBound, upperBound), mode, firstFluidTextureID);
     }
 
     private void Draw(Draw2D drawer)

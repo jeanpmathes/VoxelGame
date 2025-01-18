@@ -5,9 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
@@ -17,7 +16,7 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 [UsedImplicitly]
 public class NoTint() : Modifier("no-tint")
 {
-    private const Int32 Alpha = Byte.MaxValue / 4;
+    private const Byte Alpha = Byte.MaxValue / 4;
 
     /// <inheritdoc />
     protected override Sheet Modify(Image image, Parameters parameters, IContext context)
@@ -25,12 +24,12 @@ public class NoTint() : Modifier("no-tint")
         for (var x = 0; x < image.Width; x++)
         for (var y = 0; y < image.Height; y++)
         {
-            Color color = image.GetPixel(x, y);
+            Color32 color = image.GetPixel(x, y);
 
             if (color.A == 0)
                 continue;
 
-            image.SetPixel(x, y, Color.FromArgb(Alpha, color.R, color.G, color.B));
+            image.SetPixel(x, y, color with {A = Alpha});
         }
 
         return Wrap(image);

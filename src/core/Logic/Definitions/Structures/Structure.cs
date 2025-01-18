@@ -82,8 +82,8 @@ public abstract class Structure
 
         Vector3i orientedExtents = GetOrientedExtents(orientation);
 
-        Vector3i offsetMin = MathTool.ClampComponents(first - position, Vector3i.Zero, orientedExtents);
-        Vector3i offsetMax = MathTool.ClampComponents(last + Vector3i.One - position, Vector3i.Zero, orientedExtents);
+        Vector3i offsetMin = MathTools.ClampComponents(first - position, Vector3i.Zero, orientedExtents);
+        Vector3i offsetMax = MathTools.ClampComponents(last + Vector3i.One - position, Vector3i.Zero, orientedExtents);
 
         if (offsetMin == offsetMax) return;
 

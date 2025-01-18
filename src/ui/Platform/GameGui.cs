@@ -14,7 +14,6 @@ using Gwen.Net.Control;
 using Gwen.Net.Platform;
 using Gwen.Net.Skin;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Events;
@@ -107,10 +106,10 @@ internal sealed class GameGui : IGwenGui
         // While handling an event, code might be executed that passes control to the OS.
         // As such, new events might be invoked, causing problems with the iteration.
 
-        List<Action> events = [];
-        MathTool.Swap(ref events, ref inputEvents);
+        (List<Action> events, inputEvents) = (inputEvents, []);
 
-        foreach (Action inputEvent in events) inputEvent();
+        foreach (Action inputEvent in events)
+            inputEvent();
     }
 
     public void Render()

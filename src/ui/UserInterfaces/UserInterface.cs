@@ -130,7 +130,7 @@ public abstract class UserInterface : IDisposable
     {
         Single newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
 
-        if (MathTool.NearlyZero(newScale)) return;
+        if (MathTools.NearlyZero(newScale)) return;
 
         resources.GUI.Root.Scale = newScale;
     }

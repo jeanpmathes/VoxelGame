@@ -28,7 +28,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private SideArray<Int32> staticTextures = null!;
 
     private Int32 mainTexture;
-    private Color4 dominantColor;
+    private ColorS dominantColor;
 
     /// <summary>
     ///     Create a new basic fluid.
@@ -63,7 +63,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return new OverlayTexture
         {
             TextureIdentifier = mainTexture,
-            Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None,
+            Tint = hasNeutralTint ? ColorS.Neutral : ColorS.None,
             IsAnimated = true
         };
     }
@@ -79,9 +79,9 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     /// <inheritdoc />
-    public override Color4? GetColor(TintColor tint)
+    public override ColorS? GetColor(ColorS tint)
     {
-        Color4 color = dominantColor;
+        ColorS color = dominantColor;
 
         if (hasNeutralTint)
             color *= tint;
@@ -94,7 +94,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         return FluidMeshData.Basic(
             info.IsStatic ? staticTextures[info.Side] : movingTextures[info.Side],
-            hasNeutralTint ? TintColor.Neutral : TintColor.None);
+            hasNeutralTint ? ColorS.Neutral : ColorS.None);
     }
 
     /// <inheritdoc />

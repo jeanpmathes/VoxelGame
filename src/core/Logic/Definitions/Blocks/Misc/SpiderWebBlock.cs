@@ -50,6 +50,6 @@ public class SpiderWebBlock : CrossBlock, ICombustible
     /// <inheritdoc />
     protected override void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        actor.Velocity = MathTool.Clamp(actor.Velocity, min: -1f, maxVelocity);
+        actor.Velocity = MathTools.Clamp(actor.Velocity, min: -1f, maxVelocity);
     }
 }

@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -20,13 +19,13 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
 {
     private const Int32 MissingTextureIndex = 0;
 
-    private static readonly Color fallbackColor = Color.Black;
+    private static readonly ColorS fallbackColor = ColorS.Black;
 
     private TextureBundle? blockTextures;
     private TextureBundle? fluidTextures;
 
     /// <inheritdoc />
-    public Color GetDominantColor(Int32 index, Boolean isBlock)
+    public ColorS GetDominantColor(Int32 index, Boolean isBlock)
     {
         if (index == MissingTextureIndex)
             return fallbackColor;

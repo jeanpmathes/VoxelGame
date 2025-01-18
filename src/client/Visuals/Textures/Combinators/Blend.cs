@@ -5,9 +5,7 @@
 // <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures.Combinators;
 
@@ -22,13 +20,8 @@ public class Blend() : BasicCombinator("blend")
     {
         for (var x = 0; x < back.Width; x++)
         for (var y = 0; y < back.Height; y++)
-        {
-            Vector4d backColor = back.GetPixel(x, y).ToVector4();
-            Vector4d frontColor = front.GetPixel(x, y).ToVector4();
-
-            Vector4d result = backColor * (1 - frontColor.W) + frontColor * frontColor.W;
-
-            back.SetPixel(x, y, result.ToColor());
-        }
+            back.SetPixel(x,
+                y,
+                ColorS.Blend(back.GetPixel(x, y).ToColorS(), front.GetPixel(x, y).ToColorS()).ToColor32());
     }
 }

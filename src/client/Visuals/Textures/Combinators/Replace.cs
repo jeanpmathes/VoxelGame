@@ -4,9 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
 using JetBrains.Annotations;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures.Combinators;
 
@@ -23,7 +22,7 @@ public class Replace() : BasicCombinator("replace")
         for (var x = 0; x < back.Width; x++)
         for (var y = 0; y < back.Height; y++)
         {
-            Color frontColor = front.GetPixel(x, y);
+            Color32 frontColor = front.GetPixel(x, y);
 
             if (frontColor.A == 0)
                 continue;

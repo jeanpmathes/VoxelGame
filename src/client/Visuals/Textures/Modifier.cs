@@ -6,10 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using OpenTK.Mathematics;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures;
 
@@ -110,7 +109,7 @@ public abstract class Modifier
     /// <param name="name">The name of the parameter.</param>
     /// <param name="fallback">The optional fallback value.</param>
     /// <returns>The created color parameter.</returns>
-    protected static Parameter<Color> CreateColorParameter(String name, Color? fallback = null)
+    protected static Parameter<ColorS> CreateColorParameter(String name, ColorS? fallback = null)
     {
         return new ColorParameter(name, fallback);
     }
@@ -228,18 +227,11 @@ public abstract class Modifier
         protected abstract Object? Parse(String text);
     }
 
-    private sealed class ColorParameter(String name, Color? fallback) : Parameter<Color>(name, fallback)
+    private sealed class ColorParameter(String name, ColorS? fallback) : Parameter<ColorS>(name, fallback)
     {
         protected override Object? Parse(String text)
         {
-            try
-            {
-                return text.StartsWith(value: '#') ? ColorTranslator.FromHtml(text) : Color.FromName(text);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return ColorS.FromString(text);
         }
     }
 

@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Graphics;
 
 namespace VoxelGame.Client.Visuals.Textures;
@@ -73,7 +73,7 @@ public sealed class TextureBundle : IResource
     /// </summary>
     /// <param name="index">The index of the texture.</param>
     /// <returns>The dominant color of the texture.</returns>
-    public Color GetDominantColor(Int32 index)
+    public ColorS GetDominantColor(Int32 index)
     {
         return TextureArray.GetDominantColor(index);
     }

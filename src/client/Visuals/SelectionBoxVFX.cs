@@ -6,12 +6,11 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
@@ -32,8 +31,8 @@ public sealed class SelectionBoxVFX : VFX
     private readonly ShaderBuffer<Data> buffer;
     private Effect? effect;
     private BoxCollider? currentBox;
-    private Color darkColor = Color.Black;
-    private Color brightColor = Color.White;
+    private ColorS darkColor = ColorS.Black;
+    private ColorS brightColor = ColorS.White;
 
     private SelectionBoxVFX(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
@@ -92,7 +91,7 @@ public sealed class SelectionBoxVFX : VFX
     ///     Set the color to use o bright background.
     /// </summary>
     /// <param name="newColor">The new color.</param>
-    public void SetDarkColor(Color newColor)
+    public void SetDarkColor(ColorS newColor)
     {
         darkColor = newColor;
     }
@@ -101,7 +100,7 @@ public sealed class SelectionBoxVFX : VFX
     ///     Set the color to use on dark background.
     /// </summary>
     /// <param name="newColor">The new color.</param>
-    public void SetBrightColor(Color newColor)
+    public void SetBrightColor(ColorS newColor)
     {
         brightColor = newColor;
     }
@@ -111,7 +110,7 @@ public sealed class SelectionBoxVFX : VFX
     {
         Debug.Assert(effect != null);
 
-        buffer.Data = new Data(darkColor.ToVector3(), brightColor.ToVector3());
+        buffer.Data = new Data(darkColor.ToColor4(), brightColor.ToColor4());
     }
 
     /// <summary>
@@ -144,8 +143,8 @@ public sealed class SelectionBoxVFX : VFX
 
     private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
     {
-        (Single minX, Single minY, Single minZ) = boundingVolume.Min.ToVector3();
-        (Single maxX, Single maxY, Single maxZ) = boundingVolume.Max.ToVector3();
+        (Single minX, Single minY, Single minZ) = (Vector3) boundingVolume.Min;
+        (Single maxX, Single maxY, Single maxZ) = (Vector3) boundingVolume.Max;
 
         // The four bottom lines:
         AddLine(vertices, (minX, minY, minZ), (maxX, minY, minZ));
@@ -182,7 +181,7 @@ public sealed class SelectionBoxVFX : VFX
         /// <summary>
         ///     Create the shader data.
         /// </summary>
-        public Data(Vector3 darkColor, Vector3 brightColor)
+        public Data(Color4 darkColor, Color4 brightColor)
         {
             DarkColor = darkColor;
             BrightColor = brightColor;
@@ -192,13 +191,13 @@ public sealed class SelectionBoxVFX : VFX
         ///     The color to use with bright background.
         /// </summary>
         [FieldOffset(0 * ShaderBuffers.FieldOffset)]
-        public readonly Vector3 DarkColor;
+        public readonly Color4 DarkColor;
 
         /// <summary>
         ///     The color to use with dark background.
         /// </summary>
         [FieldOffset(1 * ShaderBuffers.FieldOffset)]
-        public readonly Vector3 BrightColor;
+        public readonly Color4 BrightColor;
 
         /// <summary>
         ///     Check equality.

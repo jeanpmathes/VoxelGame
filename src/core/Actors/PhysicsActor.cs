@@ -127,7 +127,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     public Vector3d Position
     {
         get => actualPosition;
-        set => actualPosition = MathTool.ClampComponents(value, -World.Extents, World.Extents);
+        set => actualPosition = MathTools.ClampComponents(value, -World.Extents, World.Extents);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
         Vector3d requiredForce = (movement - Velocity) * Mass;
         requiredForce -= force;
-        AddForce(MathTool.ClampComponents(requiredForce, -maxForce, maxForce));
+        AddForce(MathTools.ClampComponents(requiredForce, -maxForce, maxForce));
     }
 
     /// <inheritdoc />
@@ -235,7 +235,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         }
 
         force = new Vector3d(x: 0, Gravity * Mass, z: 0);
-        force -= Velocity.Sign().ToVector3d() * drag * Velocity.LengthSquared;
+        force -= (Vector3d) Velocity.Sign() * drag * Velocity.LengthSquared;
     }
 
     private void DoPhysicsStep(ref BoxCollider collider, ref Vector3d movement,

@@ -40,7 +40,7 @@ public class GrowingFlatBlock : FlatBlock, ICombustible
     /// <inheritdoc />
     protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMeshData(info) with {Tint = TintColor.Neutral};
+        return base.GetMeshData(info) with {Tint = ColorS.Neutral};
     }
 
     /// <inheritdoc />

@@ -210,7 +210,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         Throw.IfDisposed(disposed);
 
-        Box3d chunkBox = MathTool.CreateBox3(Position.Center, Extents);
+        Box3d chunkBox = MathTools.CreateBox3(Position.Center, Extents);
 
         const Double tolerance = 16.0;
 
@@ -228,7 +228,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
 
-            Box3d sectionBox = MathTool.CreateBox3(position + Core.Logic.Sections.Section.Extents, Core.Logic.Sections.Section.Extents);
+            Box3d sectionBox = MathTools.CreateBox3(position + Core.Logic.Sections.Section.Extents, Core.Logic.Sections.Section.Extents);
             Boolean visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
             GetSection(LocalSectionToIndex(x, y, z)).SetVfxEnabledState(visible);

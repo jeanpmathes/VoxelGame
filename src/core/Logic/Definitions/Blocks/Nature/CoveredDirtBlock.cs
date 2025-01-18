@@ -72,7 +72,7 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     {
         ISimple.MeshData mesh = base.GetMeshData(info);
 
-        mesh = mesh with {Tint = hasNeutralTint ? TintColor.Neutral : TintColor.None};
+        mesh = mesh with {Tint = hasNeutralTint ? ColorS.Neutral : ColorS.None};
 
         if (info.Fluid.IsFluid) mesh = mesh with {TextureIndex = wetTextureIndices[info.Side]};
 

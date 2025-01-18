@@ -48,7 +48,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Create a bounding box with a given offset.
     /// </summary>
     public BoundingVolume(Vector3d offset, Vector3d extents) : this(
-        MathTool.CreateBox3(offset, extents),
+        MathTools.CreateBox3(offset, extents),
         Array.Empty<BoundingVolume>()) {}
 
     /// <summary>
@@ -62,7 +62,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Create a bounding box with children, and a given offset.
     /// </summary>
     public BoundingVolume(Vector3d offset, Vector3d extents, params BoundingVolume[] boundingBoxes) : this(
-        MathTool.CreateBox3(offset, extents),
+        MathTools.CreateBox3(offset, extents),
         boundingBoxes) {}
 
     /// <summary>

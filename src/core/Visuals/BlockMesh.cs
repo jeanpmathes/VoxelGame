@@ -135,11 +135,11 @@ public class BlockMesh
     /// <param name="tint">An optional tint.</param>
     /// <param name="isAnimated">Whether the model is animated.</param>
     /// <returns>The mesh data.</returns>
-    public IComplex.MeshData GetMeshData(TintColor? tint = null, Boolean isAnimated = false)
+    public IComplex.MeshData GetMeshData(ColorS? tint = null, Boolean isAnimated = false)
     {
         return new IComplex.MeshData(quads)
         {
-            Tint = tint ?? TintColor.None,
+            Tint = tint ?? ColorS.None,
             IsAnimated = isAnimated
         };
     }

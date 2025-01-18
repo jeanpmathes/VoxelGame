@@ -5,8 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
@@ -25,7 +26,7 @@ public class Blur() : Modifier("blur")
         for (var x = 0; x < image.Width; x++)
         for (var y = 0; y < image.Height; y++)
         {
-            Color pixel = GetBlurredPixel(image, x, y);
+            Color32 pixel = GetBlurredPixel(image, x, y);
 
             blurred.SetPixel(x, y, pixel);
         }
@@ -33,17 +34,14 @@ public class Blur() : Modifier("blur")
         return Wrap(blurred);
     }
 
-    private static Color GetBlurredPixel(Image image, Int32 x, Int32 y)
+    private static Color32 GetBlurredPixel(Image image, Int32 x, Int32 y)
     {
         const Int32 size = 1;
 
-        Int32 a = image.GetPixel(x, y).A;
+        Byte alpha = image.GetPixel(x, y).A;
 
-        var r = 0;
-        var g = 0;
-        var b = 0;
-
-        var total = 0;
+        Vector4i sum = Vector4i.Zero;
+        var count = 0;
 
         for (Int32 i = -size; i <= size; i++)
         for (Int32 j = -size; j <= size; j++)
@@ -51,22 +49,13 @@ public class Blur() : Modifier("blur")
             if (x + i < 0 || x + i >= image.Width || y + j < 0 || y + j >= image.Height)
                 continue;
 
-            Color pixel = image.GetPixel(x + i, y + j);
-
-            r += pixel.R;
-            g += pixel.G;
-            b += pixel.B;
-
-            total++;
+            sum += image.GetPixel(x + i, y + j).ToVector4i();
+            count += 1;
         }
 
-        if (total != 0)
-        {
-            r /= total;
-            g /= total;
-            b /= total;
-        }
+        if (count != 0)
+            sum /= count;
 
-        return Color.FromArgb(a, r, g, b);
+        return Color32.FromRGBA(sum) with {A = alpha};
     }
 }

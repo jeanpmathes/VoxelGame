@@ -41,7 +41,7 @@ public static class Neighborhood
     /// <summary>
     ///     Get all indices of the array.
     /// </summary>
-    public static IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices { get; } = MathTool.Range3(Length, Length, Length).ToArray();
+    public static IEnumerable<(Int32 x, Int32 y, Int32 z)> Indices { get; } = MathTools.Range3(Length, Length, Length).ToArray();
 }
 
 /// <summary>

@@ -6,12 +6,11 @@
 
 using System.Collections;
 using System.Diagnostics;
-using System.Drawing;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Objects;
-using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Graphics.Graphics;
 
@@ -21,9 +20,9 @@ namespace VoxelGame.Graphics.Graphics;
 public sealed class TextureArray : IEnumerable<Texture>
 {
     private readonly Texture[] textures;
-    private readonly Color[] dominantColors;
+    private readonly ColorS[] dominantColors;
 
-    private TextureArray(Texture[] textures, Color[] dominantColors)
+    private TextureArray(Texture[] textures, ColorS[] dominantColors)
     {
         this.textures = textures;
         this.dominantColors = dominantColors;
@@ -54,7 +53,7 @@ public sealed class TextureArray : IEnumerable<Texture>
     /// </summary>
     /// <param name="index">The index of the texture.</param>
     /// <returns>The dominant color.</returns>
-    public Color GetDominantColor(Int32 index)
+    public ColorS GetDominantColor(Int32 index)
     {
         return dominantColors[index];
     }
@@ -73,7 +72,7 @@ public sealed class TextureArray : IEnumerable<Texture>
         Debug.Assert(images.Length == mips * count);
 
         var data = new Texture[count];
-        var colors = new Color[count];
+        var colors = new ColorS[count];
 
         // ReSharper disable once RedundantAssignment
         Vector2i size = images[index: 0].Size;
@@ -88,7 +87,8 @@ public sealed class TextureArray : IEnumerable<Texture>
 
             Int32 last = end - 1;
 
-            if (images[last].Size == (1, 1)) colors[index] = images[last].GetPixel(x: 0, y: 0);
+            if (images[last].Size == (1, 1))
+                colors[index] = images[last].GetPixel(x: 0, y: 0).ToColorS();
         }
 
         return new TextureArray(data, colors);

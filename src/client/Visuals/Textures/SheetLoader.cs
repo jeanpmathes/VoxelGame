@@ -5,9 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using System.IO;
-using Image = VoxelGame.Core.Visuals.Image;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures;
 
@@ -53,8 +53,10 @@ public class SheetLoader
         for (Byte x = 0; x < xCount; x++)
         for (Byte y = 0; y < yCount; y++)
         {
-            Rectangle area = new(x * Resolution, y * Resolution, Resolution, Resolution);
-            Image texture = image.CreateCopy(area);
+            Vector2i min = new(x * Resolution, y * Resolution);
+            Vector2i max = new(min.X + Resolution, min.Y + Resolution);
+
+            Image texture = image.CreateCopy(new Box2i(min, max));
 
             texture.RecolorTransparency();
 

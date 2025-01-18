@@ -45,7 +45,7 @@ public sealed partial class Generator : IWorldGenerator
     private static List<StructureGeneratorDefinition> loadedStructures = [];
     private static List<BiomeDefinition> loadedBiomes = [];
 
-    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTool.Square((Player.LoadDistance + 1) * 2 + 1));
+    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((Player.LoadDistance + 1) * 2 + 1));
 
     private readonly Palette palette;
 
@@ -319,7 +319,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private static Double GetOffset(Vector2i position, in Map.Sample sample)
     {
-        return MathTool.MixingBilinearInterpolation(
+        return MathTools.MixingBilinearInterpolation(
             sample.Biome00.GetOffset(position),
             sample.Biome10.GetOffset(position),
             sample.Biome01.GetOffset(position),
@@ -346,7 +346,7 @@ public sealed partial class Generator : IWorldGenerator
         else if (depths.d <= depths.a && depths.d <= depths.b && depths.d <= depths.c) depths.d *= 2;
         else depths.e *= 2;
 
-        var targetDepth = (Int32) MathTool.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
+        var targetDepth = (Int32) MathTools.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
         Biome.Dampening dampening = sample.ActualBiome.CalculateDampening(offset);
 
         Int32 fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);
@@ -364,7 +364,7 @@ public sealed partial class Generator : IWorldGenerator
             sample.Biome11.Definition.IceWidth,
             sample.SpecialBiome.Definition.IceWidth);
 
-        return (Int32) Math.Round(MathTool.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
+        return (Int32) Math.Round(MathTools.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)

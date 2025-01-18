@@ -56,7 +56,7 @@ public interface IFoliage : IBlockMeshable
         {
             Quads = mesh.GetMeshData(out quadCount);
 
-            Tint = TintColor.None;
+            Tint = ColorS.None;
             IsAnimated = false;
             IsUpperPart = false;
             IsDoublePlant = false;
@@ -75,7 +75,7 @@ public interface IFoliage : IBlockMeshable
         /// <summary>
         ///     The block tint.
         /// </summary>
-        public TintColor Tint { get; init; }
+        public ColorS Tint { get; init; }
 
         /// <summary>
         ///     Whether the block is animated.

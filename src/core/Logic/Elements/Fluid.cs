@@ -200,7 +200,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// </summary>
     /// <param name="tint">The current fluid tint.</param>
     /// <returns>The color.</returns>
-    public virtual Color4? GetColor(TintColor tint)
+    public virtual ColorS? GetColor(ColorS tint)
     {
         return null;
     }

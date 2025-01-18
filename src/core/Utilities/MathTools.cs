@@ -1,4 +1,4 @@
-﻿// <copyright file="MathTool.cs" company="VoxelGame">
+﻿// <copyright file="MathTools.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -20,20 +20,9 @@ namespace VoxelGame.Core.Utilities;
 ///     A class containing different mathematical methods and extensions.
 /// </summary>
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "This are public methods for general use.")]
-public static class MathTool
+public static class MathTools
 {
     private const Single Epsilon = 128 * Single.Epsilon;
-
-    /// <summary>
-    ///     Swap two values.
-    /// </summary>
-    /// <param name="a">The first value, will be replaced by the second value.</param>
-    /// <param name="b">The second value, will be replaced by the first value.</param>
-    /// <typeparam name="T">The type of the values.</typeparam>
-    public static void Swap<T>(ref T a, ref T b)
-    {
-        (a, b) = (b, a);
-    }
 
     /// <summary>
     ///     Get a sequence of random integers.
@@ -510,6 +499,14 @@ public static class MathTool
     public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, in T eZ, Vector3d weights)
     {
         return ref SelectByWeight(SelectByWeight(e00, e10, e01, e11, weights.Xy), eZ, weights.Z);
+    }
+
+    /// <summary>
+    ///     Get the square root of each vector component.
+    /// </summary>
+    public static Vector4 Sqrt(this Vector4 v)
+    {
+        return new Vector4(MathF.Sqrt(v.X), MathF.Sqrt(v.Y), MathF.Sqrt(v.Z), MathF.Sqrt(v.W));
     }
 
     /// <summary>

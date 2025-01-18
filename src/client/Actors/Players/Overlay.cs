@@ -126,7 +126,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
         Vector2d a = viewPlane.Project2D(dimensions.a, axis);
         Vector2d b = viewPlane.Project2D(dimensions.b, axis);
 
-        Double ratio = MathTool.InverseLerp(a.Y, b.Y, point.Y);
+        Double ratio = MathTools.InverseLerp(a.Y, b.Y, point.Y);
 
         (Double newLowerBound, Double newUpperBound) = inverted ? (ratio, 1.0) : (0.0, ratio);
 
@@ -145,7 +145,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     {
         if (!Texture.Tint.IsNeutral) return Texture;
 
-        (TintColor block, TintColor fluid) = world.Map.GetPositionTint(Position);
+        (ColorS block, ColorS fluid) = world.Map.GetPositionTint(Position);
 
         return Texture with {Tint = IsBlock ? block : fluid};
     }
@@ -155,11 +155,11 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     /// </summary>
     /// <param name="world">The world in which the overlay is rendered.</param>
     /// <returns>The color of the fog, or null if no fog is caused.</returns>
-    public Color4? GetFogColor(World world)
+    public ColorS? GetFogColor(World world)
     {
         if (IsBlock) return null;
 
-        (TintColor _, TintColor fluid) = world.Map.GetPositionTint(Position);
+        (ColorS _, ColorS fluid) = world.Map.GetPositionTint(Position);
 
         return Content.Fluid.Fluid.GetColor(fluid);
     }

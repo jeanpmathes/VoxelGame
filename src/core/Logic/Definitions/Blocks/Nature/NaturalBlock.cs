@@ -43,7 +43,7 @@ public class NaturalBlock : BasicBlock, ICombustible
     {
         ISimple.MeshData mesh = base.GetMeshData(info);
 
-        if (hasNeutralTint) mesh = mesh with {Tint = TintColor.Neutral};
+        if (hasNeutralTint) mesh = mesh with {Tint = ColorS.Neutral};
 
         return mesh;
     }

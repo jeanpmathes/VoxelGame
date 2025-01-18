@@ -135,7 +135,7 @@ public sealed partial class BlockModel : IResource, ILocated
         if (lockedQuads != null)
             throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
-        var xyz = Matrix4.CreateTranslation(movement.ToVector3());
+        var xyz = Matrix4.CreateTranslation((Vector3) movement);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
@@ -346,18 +346,18 @@ public sealed partial class BlockModel : IResource, ILocated
         {
             Quad quad = Quads[index];
 
-            quads[index].A = quad.Vert0.Position.ToVector3();
-            quads[index].B = quad.Vert1.Position.ToVector3();
-            quads[index].C = quad.Vert2.Position.ToVector3();
-            quads[index].D = quad.Vert3.Position.ToVector3();
+            quads[index].A = (Vector3) quad.Vert0.Position;
+            quads[index].B = (Vector3) quad.Vert1.Position;
+            quads[index].C = (Vector3) quad.Vert2.Position;
+            quads[index].D = (Vector3) quad.Vert3.Position;
 
             Meshing.SetTextureIndex(ref quads[index].data, textureIndexLookup[quad.TextureId]);
 
             Meshing.SetUVs(ref quads[index].data,
-                quad.Vert0.UV.ToVector2(),
-                quad.Vert1.UV.ToVector2(),
-                quad.Vert2.UV.ToVector2(),
-                quad.Vert3.UV.ToVector2());
+                (Vector2) quad.Vert0.UV,
+                (Vector2) quad.Vert1.UV,
+                (Vector2) quad.Vert2.UV,
+                (Vector2) quad.Vert3.UV);
         }
     }
 

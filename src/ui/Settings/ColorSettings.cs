@@ -6,10 +6,11 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
+using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Core.Visuals;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.UI.Settings;
@@ -21,10 +22,10 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class ColorSettings : Setting
 {
-    private readonly Func<Color> get;
-    private readonly Action<Color> set;
+    private readonly Func<ColorS> get;
+    private readonly Action<ColorS> set;
 
-    internal ColorSettings(String name, Func<Color> get, Action<Color> set)
+    internal ColorSettings(String name, Func<ColorS> get, Action<ColorS> set)
     {
         this.get = get;
         this.set = set;
@@ -68,13 +69,17 @@ internal class ColorSettings : Setting
         };
     }
 
-    private static Color ConvertColor(Gwen.Net.Color color)
+    private static ColorS ConvertColor(Color color)
     {
-        return Color.FromArgb(color.A, color.R, color.G, color.B);
+        Color32 color32 = Color32.FromRGBA(color.R, color.G, color.B, color.A);
+
+        return color32.ToColorS();
     }
 
-    private static Gwen.Net.Color ConvertColor(Color color)
+    private static Color ConvertColor(ColorS color)
     {
-        return new Gwen.Net.Color(color.A, color.R, color.G, color.B);
+        var color32 = color.ToColor32();
+
+        return new Color(color32.A, color32.R, color32.G, color32.B);
     }
 }

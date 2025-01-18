@@ -145,7 +145,7 @@ public struct ChunkPosition : IEquatable<ChunkPosition>, IValue
     /// </summary>
     public static Int32 Manhattan(ChunkPosition a, ChunkPosition b)
     {
-        return MathTool.Manhattan((a.X, a.Y, a.Z), (b.X, b.Y, b.Z));
+        return MathTools.Manhattan((a.X, a.Y, a.Z), (b.X, b.Y, b.Z));
     }
 
     /// <inheritdoc />

@@ -57,7 +57,7 @@ public class VaryingHeightBlock : Block, IVaryingHeight
         return new IVaryingHeight.MeshData
         {
             TextureIndex = textureIndices[info.Side],
-            Tint = TintColor.None
+            Tint = ColorS.None
         };
     }
 

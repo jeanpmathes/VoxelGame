@@ -228,7 +228,7 @@ public record Prefix(String Symbol, Double Factor)
 
         value = Math.Abs(value);
 
-        if (MathTool.NearlyZero(value)) return Unprefixed;
+        if (MathTools.NearlyZero(value)) return Unprefixed;
 
         var mask = (UInt32) allowed;
 

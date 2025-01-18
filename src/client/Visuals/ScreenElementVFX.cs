@@ -5,10 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
@@ -25,16 +25,16 @@ namespace VoxelGame.Client.Visuals;
 public sealed class ScreenElementVFX : VFX
 {
     private readonly VoxelGame.Graphics.Core.Client client;
-    private readonly Vector2d relativeScreenPosition;
     private readonly ShaderBuffer<Data> data;
+    private readonly Vector2d relativeScreenPosition;
     private readonly Texture placeholder;
-    private IDisposable? disposable;
-    private Single scaling = 1.0f;
-    private Color4 color = Color4.White;
     private Texture? texture;
+    private Single scaling = 1.0f;
+    private ColorS color = ColorS.White;
     private Boolean isTextureInitialized;
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
+    private IDisposable? disposable;
 
     private ScreenElementVFX(VoxelGame.Graphics.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
@@ -112,7 +112,7 @@ public sealed class ScreenElementVFX : VFX
     ///     Set the color to apply to the texture.
     /// </summary>
     /// <param name="newColor">The new color.</param>
-    public void SetColor(Color newColor)
+    public void SetColor(ColorS newColor)
     {
         color = newColor;
     }
@@ -137,13 +137,14 @@ public sealed class ScreenElementVFX : VFX
         Vector2d pixelOffset = (relativeScreenPosition - (0.5, 0.5)) * screenSize;
         Vector3d translation = new(pixelOffset);
 
-        Matrix4d model = MathTool.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
+        Matrix4d model = MathTools.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
         Matrix4d view = Matrix4d.Identity;
         var projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
 
         Matrix4d mvp = model * view * projection;
+        Matrix4 mvpF = new((Vector4) mvp.Row0, (Vector4) mvp.Row1, (Vector4) mvp.Row2, (Vector4) mvp.Row3);
 
-        data.Data = new Data(mvp.ToMatrix4(), color);
+        data.Data = new Data(mvpF, color.ToColor4());
     }
 
     /// <summary>

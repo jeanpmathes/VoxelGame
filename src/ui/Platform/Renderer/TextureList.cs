@@ -248,7 +248,7 @@ public sealed class TextureList : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        System.Drawing.Color color = images[handle.Index].GetPixel((Int32) x, (Int32) y);
+        Color32 color = images[handle.Index].GetPixel((Int32) x, (Int32) y);
 
         return new Color(color.A, color.R, color.G, color.B);
     }

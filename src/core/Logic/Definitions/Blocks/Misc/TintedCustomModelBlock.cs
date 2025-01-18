@@ -10,7 +10,6 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -36,7 +35,7 @@ public class TintedCustomModelBlock : CustomModelBlock, ICombustible
     /// <inheritdoc />
     protected override IComplex.MeshData GetMeshData(BlockMeshInfo info)
     {
-        return base.GetMeshData(info) with {Tint = ((BlockColor) (0b01_1111 & info.Data)).ToTintColor()};
+        return base.GetMeshData(info) with {Tint = ((NamedColor) (0b01_1111 & info.Data)).ToColorS()};
     }
 
     /// <inheritdoc />

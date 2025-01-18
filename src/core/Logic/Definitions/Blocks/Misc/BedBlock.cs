@@ -51,11 +51,11 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     {
         Boolean isHead = (info.Data & 0b1) == 1;
         var orientation = (Int32) ((info.Data & 0b00_0110) >> 1);
-        var color = (BlockColor) ((info.Data & 0b11_1000) >> 3);
+        var color = (NamedColor) ((info.Data & 0b11_1000) >> 3);
 
         BlockMesh mesh = isHead ? headMeshes[orientation] : footMeshes[orientation];
 
-        return mesh.GetMeshData(color.ToTintColor());
+        return mesh.GetMeshData(color.ToColorS());
     }
 
     /// <inheritdoc />
