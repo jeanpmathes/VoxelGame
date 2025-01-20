@@ -152,7 +152,7 @@ public class Image
     {
         Format copyFormat = targetFormat ?? StorageFormat;
 
-        Vector2i size = area?.Size ?? Size;
+        Vector2i size = area?.Size + (1, 1) ?? Size;
 
         Int32[] copy;
 
@@ -256,12 +256,12 @@ public class Image
     /// <summary>
     /// Get the average color of the image.
     /// This ignores pixels that are completely transparent.
-    /// Only supported for images with a size less than or equal <c>512x512</c>.
+    /// Only supported for images with a size less than or equal <c>32x32</c>.
     /// </summary>
     /// <returns>The average color, or transparent black if no non-transparent pixels are present.</returns>
     public Color32 CalculateAverage()
     {
-        Debug.Assert(Width < 512 && Height < 512);
+        Debug.Assert(Width < 32 && Height < 32);
 
         Vector4i sum = Vector4i.Zero;
         var count = 0;
@@ -279,7 +279,7 @@ public class Image
 
         return count == 0
             ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
-            : ColorS.FromVector4(sum.ToVector4().Sqrt() / count).ToColor32();
+            : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
     }
 
     /// <summary>
@@ -489,9 +489,9 @@ public class Image
                     else
                     {
                         Int32 f1 = (c1.A != 0).ToInt();
-                        Int32 f2 = (c1.A != 0).ToInt();
-                        Int32 f3 = (c1.A != 0).ToInt();
-                        Int32 f4 = (c1.A != 0).ToInt();
+                        Int32 f2 = (c2.A != 0).ToInt();
+                        Int32 f3 = (c3.A != 0).ToInt();
+                        Int32 f4 = (c4.A != 0).ToInt();
 
                         factors = (f1, f2, f3, f4);
                     }
@@ -525,16 +525,16 @@ public class Image
             {
                 Vector4i sum = Vector4i.Zero;
 
-                sum += c1.ToVector4i() * factors.X;
-                sum += c2.ToVector4i() * factors.Y;
-                sum += c3.ToVector4i() * factors.Z;
-                sum += c4.ToVector4i() * factors.W;
+                sum += c1.ToVector4i() * c1.ToVector4i() * factors.X;
+                sum += c2.ToVector4i() * c2.ToVector4i() * factors.Y;
+                sum += c3.ToVector4i() * c3.ToVector4i() * factors.Z;
+                sum += c4.ToVector4i() * c4.ToVector4i() * factors.W;
 
                 Int32 count = factors.X + factors.Y + factors.Z + factors.W;
 
                 return count == 0
                     ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
-                    : ColorS.FromVector4(sum.ToVector4() / count).ToColor32();
+                    : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
             }
         }
     }

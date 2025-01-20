@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Tests.Utilities;
 public class MathToolsTests
 {
     [Fact]
-    public void VMath_SelectByWeight_ShouldSelectEntryWithHighestWeight()
+    public void MathTools_SelectByWeight_ShouldSelectEntryWithHighestWeight()
     {
         const Int32 a = 0;
         const Int32 b = 1;

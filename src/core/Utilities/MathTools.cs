@@ -140,6 +140,22 @@ public static class MathTools
     }
 
     /// <summary>
+    ///     Clamp a value between zero and one.
+    /// </summary>
+    public static Double Clamp01(Double value)
+    {
+        return Math.Clamp(value, min: 0, max: 1);
+    }
+
+    /// <summary>
+    ///     Clamp a value between zero and one.
+    /// </summary>
+    public static Single Clamp01(Single value)
+    {
+        return Math.Clamp(value, min: 0, max: 1);
+    }
+
+    /// <summary>
     ///     Returns a copy of the vector where every component is positive.
     /// </summary>
     /// <param name="vector">The vector of which an absolute vector should be created.</param>

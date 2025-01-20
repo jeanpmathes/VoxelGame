@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -87,7 +88,12 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public static Color32 FromRGBA(Vector4i rgba)
     {
-        return FromRGBA((Byte) rgba.X, (Byte) rgba.Y, (Byte) rgba.Z, (Byte) rgba.W);
+        Int32 red = Math.Clamp(rgba.X, Byte.MinValue, Byte.MaxValue);
+        Int32 green = Math.Clamp(rgba.Y, Byte.MinValue, Byte.MaxValue);
+        Int32 blue = Math.Clamp(rgba.Z, Byte.MinValue, Byte.MaxValue);
+        Int32 alpha = Math.Clamp(rgba.W, Byte.MinValue, Byte.MaxValue);
+
+        return FromRGBA((Byte) red, (Byte) green, (Byte) blue, (Byte) alpha);
     }
 
     /// <summary>
@@ -97,10 +103,10 @@ public struct Color32 : IEquatable<Color32>
     /// <returns>The created <see cref="Color32" />.</returns>
     public static Color32 FromColorS(ColorS color)
     {
-        var r = (Byte) (color.R * Byte.MaxValue);
-        var g = (Byte) (color.G * Byte.MaxValue);
-        var b = (Byte) (color.B * Byte.MaxValue);
-        var a = (Byte) (color.A * Byte.MaxValue);
+        var r = (Byte) (MathTools.Clamp01(color.R) * Byte.MaxValue);
+        var g = (Byte) (MathTools.Clamp01(color.G) * Byte.MaxValue);
+        var b = (Byte) (MathTools.Clamp01(color.B) * Byte.MaxValue);
+        var a = (Byte) (MathTools.Clamp01(color.A) * Byte.MaxValue);
 
         return FromRGBA(r, g, b, a);
     }
@@ -147,6 +153,20 @@ public struct Color32 : IEquatable<Color32>
     public Vector4i ToVector4i()
     {
         return new Vector4i(R, G, B, A);
+    }
+
+    /// <summary>
+    ///     Create a color from a vector containing the color channels in RGBA order.
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "OpenTK naming conventions.")]
+    public static Color32 FromVector4i(Vector4i rgba)
+    {
+        var r = (Byte) Math.Clamp(rgba.X, Byte.MinValue, Byte.MaxValue);
+        var g = (Byte) Math.Clamp(rgba.Y, Byte.MinValue, Byte.MaxValue);
+        var b = (Byte) Math.Clamp(rgba.Z, Byte.MinValue, Byte.MaxValue);
+        var a = (Byte) Math.Clamp(rgba.W, Byte.MinValue, Byte.MaxValue);
+
+        return FromRGBA(r, g, b, a);
     }
 
     /// <summary>
