@@ -206,7 +206,7 @@ public static class Meshing
     {
         Debug.Assert(!tint.IsNeutral);
 
-        const Int32 tintShift = 23;
+        const Int32 tintShift = 32 - ColorS.TintPrecision * 3;
         data.b |= tint.ToBits() << tintShift;
     }
 

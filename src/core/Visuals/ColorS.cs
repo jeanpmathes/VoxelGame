@@ -167,11 +167,26 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     #region OPERATIONS
 
     /// <summary>
+    ///     The precision of the tint color passed to the shaders.
+    /// </summary>
+    public const Int32 TintPrecision = 4;
+
+    /// <summary>
     ///     Gets the color as a limited bit representation used for the tint system in shaders.
     /// </summary>
     public UInt32 ToBits()
     {
-        return ((UInt32) (R * 7f) << 6) | ((UInt32) (G * 7f) << 3) | (UInt32) (B * 7f);
+        const Int32 shift = 8 - TintPrecision;
+
+        Color32 rounded = ToColor32().ReduceBits(TintPrecision);
+
+        UInt32 bits = 0;
+
+        bits |= (UInt32) (rounded.R >> shift) << (TintPrecision * 2);
+        bits |= (UInt32) (rounded.G >> shift) << (TintPrecision * 1);
+        bits |= (UInt32) (rounded.B >> shift) << (TintPrecision * 0);
+
+        return bits;
     }
 
     /// <summary>
@@ -376,7 +391,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     /// <summary>
     ///     Gets an indigo color: <c>(0.5|1|0)</c>
     /// </summary>
-    public static ColorS Indigo => new(red: 0.5f, green: 1f, blue: 0f);
+    public static ColorS Indigo => new(red: 0.3f, green: 0.0f, blue: 0.5f);
 
     /// <summary>
     ///     Gets a maroon color: <c>(0.5|0|0)</c>

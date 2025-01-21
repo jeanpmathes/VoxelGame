@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using OpenTK.Mathematics;
@@ -204,6 +205,32 @@ public struct Color32 : IEquatable<Color32>
         get => (Byte) ((bgra >> Format.A) & ChannelMask);
         set => bgra = (bgra & ~(ChannelMask << Format.A)) | (value << Format.A);
     }
+
+    #region OPERATIONS
+
+    /// <summary>
+    ///     Round the color values to match the given bit depth.
+    ///     This will not change the alpha channel.
+    /// </summary>
+    /// <param name="bits">The number of bits to round to, inclusive between 0 and 8.</param>
+    /// <returns>The rounded color.</returns>
+    public Color32 ReduceBits(Byte bits)
+    {
+        Debug.Assert(bits <= 8);
+
+        if (bits == 0)
+            return new Color32(bgra: 0);
+
+        var divisor = (Byte) (1 << (8 - bits));
+
+        return FromRGBA(
+            (Byte) (R / divisor * divisor),
+            (Byte) (G / divisor * divisor),
+            (Byte) (B / divisor * divisor),
+            A);
+    }
+
+    #endregion OPERATIONS
 
     #region EQUALITY
 
