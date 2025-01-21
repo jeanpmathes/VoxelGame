@@ -53,7 +53,7 @@ public interface IComplex : IBlockMeshable
 
             QuadCount = (UInt32) quads.Length;
 
-            Tint = TintColor.None;
+            Tint = ColorS.None;
             IsAnimated = false;
         }
 
@@ -70,7 +70,7 @@ public interface IComplex : IBlockMeshable
         /// <summary>
         ///     The block tint.
         /// </summary>
-        public TintColor Tint { get; init; }
+        public ColorS Tint { get; init; }
 
         /// <summary>
         ///     Whether the block is animated.

@@ -116,11 +116,32 @@ public static class Reflections
 
 
     /// <summary>
-    ///     Get all subclasses of a type.
+    ///     Get instances of all subclasses of a type.
+    ///     Only concrete classes with a public parameterless constructor are considered.
     /// </summary>
     /// <typeparam name="T">The type to get the subclasses of.</typeparam>
-    /// <returns>All concrete subclasses of the type.</returns>
-    public static IEnumerable<Object> GetSubclasses<T>()
+    /// <returns>All instances of the subclasses.</returns>
+    public static IEnumerable<T> GetSubclassInstances<T>()
+    {
+        List<T> instances = [];
+
+        foreach (Type type in GetSubclasses<T>())
+        {
+            try
+            {
+                if (Activator.CreateInstance(type) is T instance)
+                    instances.Add(instance);
+            }
+            catch (Exception e) when (e is MethodAccessException or MemberAccessException or MissingMemberException)
+            {
+                // Commands that have no public constructor are ignored but can be added manually.
+            }
+        }
+
+        return instances;
+    }
+
+    private static IEnumerable<Type> GetSubclasses<T>()
     {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes())
             .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(T)));

@@ -153,7 +153,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     public RID Identifier { get; }
 
     /// <inheritdoc />
-    public ResourceType Type => ResourceTypes.Block;
+    public ResourceType Type => ResourceTypes.Fluid;
 
     private static BoundingVolume[] CreateVolumes()
     {
@@ -200,7 +200,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// </summary>
     /// <param name="tint">The current fluid tint.</param>
     /// <returns>The color.</returns>
-    public virtual Color4? GetColor(TintColor tint)
+    public virtual ColorS? GetColor(ColorS tint)
     {
         return null;
     }

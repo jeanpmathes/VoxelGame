@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="granite:0,0">
+            <Modifier type="blur"/>
+        </Layer>
+        <Layer source="p:styling_border:0,0"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

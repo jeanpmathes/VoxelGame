@@ -123,7 +123,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         {
             if (!side.IsSet((Sides) data)) continue;
 
-            var direction = side.Direction().ToVector3d();
+            var direction = (Vector3d) side.Direction();
 
             connectors.Add(
                 new BoundingVolume(

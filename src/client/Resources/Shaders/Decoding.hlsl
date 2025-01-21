@@ -31,11 +31,11 @@ namespace vg
          */
         float4 GetTintColor(uint4 const data)
         {
-            uint r = (data[1] >> 29) & BITMASK(3);
-            uint g = (data[1] >> 26) & BITMASK(3);
-            uint b = (data[1] >> 23) & BITMASK(3);
+            uint r = (data[1] >> 28) & BITMASK(4);
+            uint g = (data[1] >> 24) & BITMASK(4);
+            uint b = (data[1] >> 20) & BITMASK(4);
 
-            return float4(float3(r, g, b) / 7.0f, 1.0f);
+            return float4(float3(r, g, b) / 15.0f, 1.0f);
         }
 
         /**

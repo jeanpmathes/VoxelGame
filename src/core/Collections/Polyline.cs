@@ -59,7 +59,7 @@ public class Polyline
             Vector2d a = Points[i];
             Vector2d b = Points[i + 1];
 
-            if (x < b.X) return MathHelper.Lerp(a.Y, b.Y, VMath.InverseLerp(a.X, b.X, x));
+            if (x < b.X) return MathHelper.Lerp(a.Y, b.Y, MathTools.InverseLerp(a.X, b.X, x));
         }
 
         return Right(x);

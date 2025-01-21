@@ -118,7 +118,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     }
 
     /// <inheritdoc />
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3i position)
+    public (ColorS block, ColorS fluid) GetPositionTint(Vector3i position)
     {
         return Map.GetPositionTint(position);
     }

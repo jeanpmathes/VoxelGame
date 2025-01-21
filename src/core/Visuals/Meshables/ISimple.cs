@@ -5,10 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -45,7 +45,8 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
     /// <inheritdoc />
     void IBlockMeshable.Validate()
     {
-        Debug.Assert(IsFull, "Simple blocks must be full.");
+        if (!IsFull)
+            throw Exceptions.InvalidOperation("Only special meshables accept full blocks.");
     }
 
     OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
@@ -116,7 +117,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         {
             TextureIndex = textureIndex,
             IsTextureRotated = isTextureRotated,
-            Tint = TintColor.None,
+            Tint = ColorS.None,
             IsAnimated = false
         };
     }
@@ -139,7 +140,7 @@ public interface ISimple : IBlockMeshable, IOverlayTextureProvider
         /// <summary>
         ///     The block tint.
         /// </summary>
-        internal TintColor Tint { get; init; }
+        internal ColorS Tint { get; init; }
 
         /// <summary>
         ///     Whether the block is animated.

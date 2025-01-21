@@ -86,10 +86,10 @@ public static class Meshing
     /// </summary>
     private static UInt32 EncodeInBase17(Vector4 vector)
     {
-        UInt32 x = VMath.RoundedToUInt(vector.X * 16);
-        UInt32 y = VMath.RoundedToUInt(vector.Y * 16);
-        UInt32 z = VMath.RoundedToUInt(vector.Z * 16);
-        UInt32 w = VMath.RoundedToUInt(vector.W * 16);
+        UInt32 x = MathTools.RoundedToUInt(vector.X * 16);
+        UInt32 y = MathTools.RoundedToUInt(vector.Y * 16);
+        UInt32 z = MathTools.RoundedToUInt(vector.Z * 16);
+        UInt32 w = MathTools.RoundedToUInt(vector.W * 16);
 
         return w * 17 * 17 * 17 +
                z * 17 * 17 +
@@ -202,12 +202,12 @@ public static class Meshing
     ///     Set the tint for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTint(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, TintColor tint)
+    public static void SetTint(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, ColorS tint)
     {
         Debug.Assert(!tint.IsNeutral);
 
-        const Int32 tintShift = 23;
-        data.b |= tint.ToBits << tintShift;
+        const Int32 tintShift = 32 - ColorS.TintPrecision * 3;
+        data.b |= tint.ToBits() << tintShift;
     }
 
     /// <summary>

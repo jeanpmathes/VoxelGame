@@ -22,6 +22,7 @@ namespace VoxelGame.Core.Logic.Elements;
 public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>, IResource
 {
     private const UInt32 InvalidID = UInt32.MaxValue;
+
     private readonly BoundingVolume boundingVolume;
 
     /// <summary>

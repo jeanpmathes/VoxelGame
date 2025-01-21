@@ -39,7 +39,7 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 FoliageQuality.Accessors));
 
         WindowSize = new Bindable<Vector2i>(
-            () => clientSettings.WindowSize.ToVector2i(),
+            () => new Vector2i(clientSettings.WindowSize.Width, clientSettings.WindowSize.Height),
             size =>
             {
                 clientSettings.WindowSize = new Size(size.X, size.Y);

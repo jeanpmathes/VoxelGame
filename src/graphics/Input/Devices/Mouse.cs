@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 
@@ -59,7 +58,7 @@ public class Mouse
 
             Vector2i CalculateResizedPosition(Vector2i previous)
             {
-                return (previous.ToVector2() / e.OldSize * e.NewSize).ToVector2i();
+                return (Vector2i) (previous.ToVector2() / e.OldSize * e.NewSize);
             }
         };
     }

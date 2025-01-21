@@ -6,7 +6,6 @@
 
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;
@@ -49,7 +48,7 @@ public class Light : Spatial
 
         dirty = false;
 
-        NativeMethods.SetLightDirection(this, direction.ToVector3());
+        NativeMethods.SetLightDirection(this, (Vector3) direction);
     }
 }
 

@@ -31,5 +31,5 @@ public interface IChunkMeshingContext
     /// </summary>
     /// <param name="position">The world/block position.</param>
     /// <returns>The tint colors.</returns>
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3i position);
+    public (ColorS block, ColorS fluid) GetPositionTint(Vector3i position);
 }

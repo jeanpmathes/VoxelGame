@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -101,13 +100,13 @@ public sealed partial class Map : IMap, IDisposable
     private const Double MinTemperature = -5.0;
     private const Double MaxTemperature = 30.0;
 
-    private static readonly Color blockTintWarm = Color.LightGreen;
-    private static readonly Color blockTintCold = Color.DarkGreen;
-    private static readonly Color blockTintMoist = Color.LawnGreen;
-    private static readonly Color blockTintDry = Color.Olive;
+    private static readonly ColorS blockTintWarm = ColorS.LightGreen;
+    private static readonly ColorS blockTintCold = ColorS.DarkGreen;
+    private static readonly ColorS blockTintMoist = ColorS.LawnGreen;
+    private static readonly ColorS blockTintDry = ColorS.Olive;
 
-    private static readonly Color fluidTintWarm = Color.LightSeaGreen;
-    private static readonly Color fluidTintCold = Color.MediumBlue;
+    private static readonly ColorS fluidTintWarm = ColorS.LightSeaGreen;
+    private static readonly ColorS fluidTintCold = ColorS.MediumBlue;
 
     private static readonly Polyline mountainStrengthFunction = new()
     {
@@ -209,17 +208,17 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <inheritdoc />
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3d position)
+    public (ColorS block, ColorS fluid) GetPositionTint(Vector3d position)
     {
         Vector2i samplingPosition = position.Floor().Xz;
         Sample sample = GetSample(samplingPosition);
 
         Single temperature = NormalizeTemperature(sample.GetRealTemperature(position.Y));
 
-        Color block = Colors.Mix(Colors.Mix(blockTintCold, blockTintWarm, temperature), Colors.Mix(blockTintDry, blockTintMoist, sample.Humidity));
-        Color fluid = Colors.Mix(fluidTintCold, fluidTintWarm, temperature);
+        ColorS block = ColorS.Mix(ColorS.Mix(blockTintCold, blockTintWarm, temperature), ColorS.Mix(blockTintDry, blockTintMoist, sample.Humidity));
+        ColorS fluid = ColorS.Mix(fluidTintCold, fluidTintWarm, temperature);
 
-        return (new TintColor(block), new TintColor(fluid));
+        return (block, fluid);
     }
 
     /// <inheritdoc />
@@ -241,7 +240,7 @@ public sealed partial class Map : IMap, IDisposable
 
     private static Single NormalizeTemperature(Temperature temperature)
     {
-        return (Single) VMath.InverseLerp(MinTemperature, MaxTemperature, temperature.DegreesCelsius);
+        return (Single) MathTools.InverseLerp(MinTemperature, MaxTemperature, temperature.DegreesCelsius);
     }
 
     private static Temperature GetTemperatureAtHeight(Temperature groundTemperature, Single humidity, Double heightAboveGround)
@@ -434,16 +433,16 @@ public sealed partial class Map : IMap, IDisposable
         Int32 xN = GetNearestNeighbor(position.X);
         Int32 yN = GetNearestNeighbor(position.Y);
 
-        (Int32 x1, Int32 x2) = VMath.MinMax(xP, xN);
-        (Int32 y1, Int32 y2) = VMath.MinMax(yP, yN);
+        (Int32 x1, Int32 x2) = MathTools.MinMax(xP, xN);
+        (Int32 y1, Int32 y2) = MathTools.MinMax(yP, yN);
 
         const Int32 halfCellSize = CellSize / 2;
 
         Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(halfCellSize, halfCellSize);
         Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(halfCellSize, halfCellSize);
 
-        Double tX = VMath.InverseLerp(p1.X, p2.X, position.X);
-        Double tY = VMath.InverseLerp(p1.Y, p2.Y, position.Y);
+        Double tX = MathTools.InverseLerp(p1.X, p2.X, position.X);
+        Double tY = MathTools.InverseLerp(p1.Y, p2.Y, position.Y);
 
         tX = ApplyBiomeChangeFunction(tX);
         tY = ApplyBiomeChangeFunction(tY);
@@ -462,9 +461,9 @@ public sealed partial class Map : IMap, IDisposable
         ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
         ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
 
-        var temperature = (Single) VMath.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var humidity = (Single) VMath.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
-        var height = (Single) VMath.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
+        var temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
+        var humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
+        var height = (Single) MathTools.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
 
         Single mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
         Single coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, (blendX, blendY), out Boolean isCliff);
@@ -483,7 +482,7 @@ public sealed partial class Map : IMap, IDisposable
             specialStrength = coastlineStrength;
         }
 
-        Biome actual = VMath.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
+        Biome actual = MathTools.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
 
         return new Sample
         {
@@ -541,10 +540,10 @@ public sealed partial class Map : IMap, IDisposable
 
         static Vector2d FindClosestZero(Double f00, Double f10, Double f01, Double f11, Double x, Double y)
         {
-            Vector2d grad = VMath.GradBiLerp(f00, f10, f01, f11, x, y);
+            Vector2d grad = MathTools.GradBiLerp(f00, f10, f01, f11, x, y);
             Double dv = Vector2d.Dot(grad, Vector2d.Normalize(grad));
 
-            Double k = VMath.BiLerp(f00, f10, f01, f11, x, y) / dv;
+            Double k = MathTools.BiLerp(f00, f10, f01, f11, x, y) / dv;
 
             return new Vector2d(x, y) - k * Vector2d.Normalize(grad);
         }
@@ -553,7 +552,7 @@ public sealed partial class Map : IMap, IDisposable
 
         if (Double.IsNaN(distanceToZero))
             // All four heights are the same, so there is no gradient.
-            distanceToZero = VMath.NearlyZero(c00.height) ? 0 : 1;
+            distanceToZero = MathTools.NearlyZero(c00.height) ? 0 : 1;
 
         var distanceStrength = (Single) distanceStrengthFunction.Evaluate(distanceToZero);
 
@@ -562,7 +561,7 @@ public sealed partial class Map : IMap, IDisposable
             return c.IsLand ? 0.0 : 1.0;
         }
 
-        var oceanStrength = (Single) VMath.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
+        var oceanStrength = (Single) MathTools.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
 
         Single coastlineStrength;
 
@@ -602,7 +601,7 @@ public sealed partial class Map : IMap, IDisposable
             return c.IsLand ? c.height : 0.0f;
         }
 
-        var cliffStrength = (Single) VMath.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
+        var cliffStrength = (Single) MathTools.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
 
         const Single maxBeachHeight = 0.001f;
 
@@ -656,7 +655,7 @@ public sealed partial class Map : IMap, IDisposable
         Double stoneX = sample.StoneData.tX + stoneNoise.X.GetNoise(position) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
         Double stoneY = sample.StoneData.tY + stoneNoise.Y.GetNoise(position) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
 
-        return VMath.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
+        return MathTools.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
     }
 
     /// <summary>

@@ -24,14 +24,6 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class Image
 {
-    private const Int32 BitsPerByte = 8;
-    private const Int32 ChannelMask = (1 << BitsPerByte) - 1;
-
-    private const Int32 C0 = 0 * BitsPerByte;
-    private const Int32 C1 = 1 * BitsPerByte;
-    private const Int32 C2 = 2 * BitsPerByte;
-    private const Int32 C3 = 3 * BitsPerByte;
-
     private readonly Int32[] data;
 
     private Image(Int32[] data, Format format, Int32 width, Int32 height)
@@ -77,7 +69,7 @@ public class Image
             Span<Int32> src = new((Int32*) content.Scan0, bitmap.Width * bitmap.Height);
             Span<Int32> dst = data;
 
-            Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
+            Format.Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
 
             bitmap.UnlockBits(content);
         }
@@ -142,7 +134,7 @@ public class Image
             Span<Int32> src = data;
             Span<Int32> dst = new((Int32*) content.Scan0, bitmap.Width * bitmap.Height);
 
-            Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
+            Format.Reformat(dst, BitmapImageFormat, src, StorageFormat, data.Length);
 
             bitmap.UnlockBits(content);
 
@@ -156,18 +148,18 @@ public class Image
     /// <param name="area">The area to copy, or null to copy the whole image.</param>
     /// <param name="targetFormat">The format of the copy, or null to use the format of this image.</param>
     /// <returns>The copy.</returns>
-    public Image CreateCopy(Rectangle? area = null, Format? targetFormat = null)
+    public Image CreateCopy(Box2i? area = null, Format? targetFormat = null)
     {
         Format copyFormat = targetFormat ?? StorageFormat;
 
-        Vector2i size = area == null ? Size : area.Value.Size.ToVector2i();
+        Vector2i size = area?.Size + (1, 1) ?? Size;
 
         Int32[] copy;
 
         if (area == null)
         {
             copy = new Int32[data.Length];
-            Reformat(copy, copyFormat, data, StorageFormat, size.X * size.Y);
+            Format.Reformat(copy, copyFormat, data, StorageFormat, size.X * size.Y);
         }
         else
         {
@@ -175,10 +167,10 @@ public class Image
 
             for (var y = 0; y < size.Y; y++)
             {
-                Span<Int32> src = data.AsSpan().Slice(area.Value.X + (area.Value.Y + y) * Width, size.X);
+                Span<Int32> src = data.AsSpan().Slice(area.Value.Min.X + (area.Value.Min.Y + y) * Width, size.X);
                 Span<Int32> dst = copy.AsSpan().Slice(y * size.X);
 
-                Reformat(dst, copyFormat, src, StorageFormat, size.X);
+                Format.Reformat(dst, copyFormat, src, StorageFormat, size.X);
             }
         }
 
@@ -218,8 +210,8 @@ public class Image
     {
         Image fallback = new(size, size, format);
 
-        Color magenta = Color.FromArgb(alpha: 64, red: 255, green: 0, blue: 255);
-        Color black = Color.FromArgb(alpha: 64, red: 0, green: 0, blue: 0);
+        Color32 magenta = Color32.FromRGBA(alpha: 64, red: 255, green: 0, blue: 255);
+        Color32 black = Color32.FromRGBA(alpha: 64, red: 0, green: 0, blue: 0);
 
         for (var x = 0; x < fallback.Width; x++)
         for (var y = 0; y < fallback.Height; y++)
@@ -234,9 +226,60 @@ public class Image
     /// <param name="x">The x coordinate of the pixel.</param>
     /// <param name="y">The y coordinate of the pixel.</param>
     /// <param name="color">The color to set.</param>
-    public void SetPixel(Int32 x, Int32 y, Color color)
+    public void SetPixel(Int32 x, Int32 y, Color32 color)
     {
-        this[x, y] = Reformat(color.ToArgb(), BitmapImageFormat, StorageFormat);
+        this[x, y] = color.ToInt32(StorageFormat);
+    }
+
+    /// <summary>
+    ///     Sets the pixel at given position.
+    /// </summary>
+    /// <param name="x">The x coordinate of the pixel.</param>
+    /// <param name="y">The y coordinate of the pixel.</param>
+    /// <param name="color">The color to set.</param>
+    public void SetPixel(Int32 x, Int32 y, ColorS color)
+    {
+        SetPixel(x, y, color.ToColor32());
+    }
+
+    /// <summary>
+    ///     Gets the pixel at given position.
+    /// </summary>
+    /// <param name="x">The x coordinate of the pixel.</param>
+    /// <param name="y">The y coordinate of the pixel.</param>
+    /// <returns>The color of the pixel.</returns>
+    public Color32 GetPixel(Int32 x, Int32 y)
+    {
+        return Color32.FromInt32(this[x, y], StorageFormat);
+    }
+
+    /// <summary>
+    /// Get the average color of the image.
+    /// This ignores pixels that are completely transparent.
+    /// Only supported for images with a size less than or equal <c>32x32</c>.
+    /// </summary>
+    /// <returns>The average color, or transparent black if no non-transparent pixels are present.</returns>
+    public Color32 CalculateAverage()
+    {
+        Debug.Assert(Width <= 32 && Height <= 32);
+
+        Vector4i sum = Vector4i.Zero;
+        var count = 0;
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            Color32 pixel = GetPixel(x, y);
+
+            if (pixel.A == 0) continue;
+
+            sum += pixel.ToVector4i() * pixel.ToVector4i();
+            count += 1;
+        }
+
+        return count == 0
+            ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
+            : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
     }
 
     /// <summary>
@@ -245,31 +288,7 @@ public class Image
     /// </summary>
     public void RecolorTransparency()
     {
-        Int64 r = 0;
-        Int64 g = 0;
-        Int64 b = 0;
-        Int64 count = 0;
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
-        {
-            Color pixel = GetPixel(x, y);
-
-            if (pixel.A == 0) continue;
-
-            r += pixel.R * pixel.R;
-            g += pixel.G * pixel.G;
-            b += pixel.B * pixel.B;
-
-            count++;
-        }
-
-        Int32 GetAverage(Int64 sum)
-        {
-            return (Int32) Math.Sqrt(sum / (Double) count);
-        }
-
-        Color average = Color.FromArgb(alpha: 0, GetAverage(r), GetAverage(g), GetAverage(b));
+        Color32 average = CalculateAverage() with {A = 0};
 
         for (var x = 0; x < Width; x++)
         for (var y = 0; y < Height; y++)
@@ -281,14 +300,31 @@ public class Image
     }
 
     /// <summary>
-    ///     Gets the pixel at given position.
+    /// Create a translated (moved) image, shifting by the given amount of pixels.
+    /// This wraps around the image, so pixels that are moved out of the image will appear on the other side.
     /// </summary>
-    /// <param name="x">The x coordinate of the pixel.</param>
-    /// <param name="y">The y coordinate of the pixel.</param>
-    /// <returns>The color of the pixel.</returns>
-    public Color GetPixel(Int32 x, Int32 y)
+    /// <param name="dx">The amount of pixels to move the image in the x direction.</param>
+    /// <param name="dy">The amount of pixels to move the image in the y direction.</param>
+    public Image Translated(Int32 dx, Int32 dy)
     {
-        return Color.FromArgb(Reformat(this[x, y], StorageFormat, BitmapImageFormat));
+        if (dx == 0 && dy == 0)
+            return CreateCopy();
+
+        dx = MathTools.Mod(dx, Width);
+        dy = MathTools.Mod(dy, Height);
+
+        Image translated = new(Width, Height, StorageFormat);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Height; y++)
+        {
+            Int32 tx = MathTools.Mod(x + dx, Width);
+            Int32 ty = MathTools.Mod(y + dy, Height);
+
+            translated.SetPixel(x, y, GetPixel(tx, ty));
+        }
+
+        return translated;
     }
 
     /// <summary>
@@ -304,29 +340,6 @@ public class Image
     private static Rectangle GetFull(System.Drawing.Image image)
     {
         return new Rectangle(x: 0, y: 0, image.Width, image.Height);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Int32 Reformat(Int32 original, Format originalFormat, Format targetFormat)
-    {
-        Int32 result = default;
-
-        result |= ((original >> originalFormat.R) & ChannelMask) << targetFormat.R;
-        result |= ((original >> originalFormat.G) & ChannelMask) << targetFormat.G;
-        result |= ((original >> originalFormat.B) & ChannelMask) << targetFormat.B;
-        result |= ((original >> originalFormat.A) & ChannelMask) << targetFormat.A;
-
-        return result;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Reformat(Span<Int32> dst, Format dstFormat, Span<Int32> src, Format srcFormat, Int32 length)
-    {
-        if (dstFormat != srcFormat)
-            for (var i = 0; i < length; i++)
-                dst[i] = Reformat(src[i], srcFormat, dstFormat);
-        else if (dst != src)
-            src.CopyTo(dst);
     }
 
     /// <summary>
@@ -348,20 +361,72 @@ public class Image
     }
 
     /// <summary>
+    /// Check if an image is empty.
+    /// An image is considered empty if all pixels have the zero-value.
+    /// </summary>
+    /// <returns>The result of the check.</returns>
+    public Boolean IsEmpty()
+    {
+        foreach (Int32 value in data)
+            if (value != 0)
+                return false;
+
+        return true;
+    }
+
+    /// <summary>
     ///     Defines a color format based on the order of the channels.
     ///     These formats apply for colors using 32 bits per pixel, where each channel is 8 bits.
     /// </summary>
-    public record struct Format(Int32 R, Int32 G, Int32 B, Int32 A)
+    public record struct Format(Byte R, Byte G, Byte B, Byte A)
     {
         /// <summary>
         ///     The format where the channels are in the order R, G, B, A.
         /// </summary>
-        public static readonly Format RGBA = new(C0, C1, C2, C3);
+        public static readonly Format RGBA = new(Color32.C0, Color32.C1, Color32.C2, Color32.C3);
 
         /// <summary>
         ///     The format where the channels are in the order B, G, R, A.
         /// </summary>
-        public static readonly Format BGRA = new(C2, C1, C0, C3);
+        public static readonly Format BGRA = new(Color32.C2, Color32.C1, Color32.C0, Color32.C3);
+
+        /// <summary>
+        ///     Reformat a single value from one format to another.
+        /// </summary>
+        /// <param name="original">The original value.</param>
+        /// <param name="originalFormat">The format of the original value.</param>
+        /// <param name="targetFormat">The format of the target value.</param>
+        /// <returns>The value in the target format.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Int32 Reformat(Int32 original, Format originalFormat, Format targetFormat)
+        {
+            var result = 0;
+
+            result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
+            result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
+            result |= ((original >> originalFormat.B) & Color32.ChannelMask) << targetFormat.B;
+            result |= ((original >> originalFormat.A) & Color32.ChannelMask) << targetFormat.A;
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Reformat a span of values from one format to another.
+        /// </summary>
+        /// <param name="dst">The target span.</param>
+        /// <param name="dstFormat">The format of the target values.</param>
+        /// <param name="src">The source span.</param>
+        /// <param name="srcFormat">The format of the source values.</param>
+        /// <param name="length">The number of values to reformat.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Reformat(Span<Int32> dst, Format dstFormat, Span<Int32> src, Format srcFormat, Int32 length)
+        {
+            if (dstFormat != srcFormat)
+                for (var i = 0; i < length; i++)
+                    dst[i] = Reformat(src[i], srcFormat, dstFormat);
+            else if (dst != src)
+                src.CopyTo(dst);
+        }
     }
 
     /// <summary>
@@ -402,16 +467,16 @@ public class Image
 
         private sealed class AveragingAlgorithm(Boolean transparency) : MipmapAlgorithm
         {
-            private ((Int32, Int32, Int32, Int32) factors, Int32 alpha) DetermineFactorsAndAlpha(
-                Color c1, Color c2, Color c3, Color c4)
+            private (Vector4i factors, Byte? alpha) DetermineFactorsAndAlpha(
+                Color32 c1, Color32 c2, Color32 c3, Color32 c4)
             {
-                (Int32, Int32, Int32, Int32) factors;
-                Int32 alpha;
+                Vector4i factors;
+                Byte? alpha;
 
                 if (transparency)
                 {
                     factors = (1, 1, 1, 1);
-                    alpha = CalculateAveragedColorChannel(c1.A, c2.A, c3.A, c4.A, factors);
+                    alpha = null;
                 }
                 else
                 {
@@ -423,10 +488,10 @@ public class Image
                     }
                     else
                     {
-                        Int32 f1 = c1.HasOpaqueness().ToInt();
-                        Int32 f2 = c2.HasOpaqueness().ToInt();
-                        Int32 f3 = c3.HasOpaqueness().ToInt();
-                        Int32 f4 = c4.HasOpaqueness().ToInt();
+                        Int32 f1 = (c1.A != 0).ToInt();
+                        Int32 f2 = (c2.A != 0).ToInt();
+                        Int32 f3 = (c3.A != 0).ToInt();
+                        Int32 f4 = (c4.A != 0).ToInt();
 
                         factors = (f1, f2, f3, f4);
                     }
@@ -440,34 +505,36 @@ public class Image
                 for (var w = 0; w < next.Width; w++)
                 for (var h = 0; h < next.Height; h++)
                 {
-                    Color c1 = previous.GetPixel(w * 2, h * 2);
-                    Color c2 = previous.GetPixel(w * 2 + 1, h * 2);
-                    Color c3 = previous.GetPixel(w * 2, h * 2 + 1);
-                    Color c4 = previous.GetPixel(w * 2 + 1, h * 2 + 1);
+                    Color32 c1 = previous.GetPixel(w * 2, h * 2);
+                    Color32 c2 = previous.GetPixel(w * 2 + 1, h * 2);
+                    Color32 c3 = previous.GetPixel(w * 2, h * 2 + 1);
+                    Color32 c4 = previous.GetPixel(w * 2 + 1, h * 2 + 1);
 
-                    ((Int32, Int32, Int32, Int32) factors, Int32 alpha) = DetermineFactorsAndAlpha(c1, c2, c3, c4);
+                    (Vector4i factors, Byte? alpha) = DetermineFactorsAndAlpha(c1, c2, c3, c4);
 
-                    Color average = Color.FromArgb(
-                        alpha,
-                        CalculateAveragedColorChannel(c1.R, c2.R, c3.R, c4.R, factors),
-                        CalculateAveragedColorChannel(c1.G, c2.G, c3.G, c4.G, factors),
-                        CalculateAveragedColorChannel(c1.B, c2.B, c3.B, c4.B, factors));
+                    Color32 average = CalculateAverageColor(c1, c2, c3, c4, factors);
+
+                    if (alpha != null)
+                        average.A = alpha.Value;
 
                     next.SetPixel(w, h, average);
                 }
             }
 
-            private static Int32 CalculateAveragedColorChannel(Int32 c1, Int32 c2, Int32 c3, Int32 c4, (Int32, Int32, Int32, Int32) factors)
+            private static Color32 CalculateAverageColor(Color32 c1, Color32 c2, Color32 c3, Color32 c4, Vector4i factors)
             {
-                (Int32 f1, Int32 f2, Int32 f3, Int32 f4) = factors;
-                Double divisor = f1 + f2 + f3 + f4;
+                Vector4i sum = Vector4i.Zero;
 
-                Int32 s1 = c1 * c1 * f1;
-                Int32 s2 = c2 * c2 * f2;
-                Int32 s3 = c3 * c3 * f3;
-                Int32 s4 = c4 * c4 * f4;
+                sum += c1.ToVector4i() * c1.ToVector4i() * factors.X;
+                sum += c2.ToVector4i() * c2.ToVector4i() * factors.Y;
+                sum += c3.ToVector4i() * c3.ToVector4i() * factors.Z;
+                sum += c4.ToVector4i() * c4.ToVector4i() * factors.W;
 
-                return (Int32) Math.Sqrt((s1 + s2 + s3 + s4) / divisor);
+                Int32 count = factors.X + factors.Y + factors.Z + factors.W;
+
+                return count == 0
+                    ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
+                    : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
             }
         }
     }

@@ -11,7 +11,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -22,18 +21,18 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
+    private readonly Section current;
+    private readonly SideArray<Section?> neighbors;
     private readonly IMeshing basicOpaqueMeshing;
     private readonly IMeshing basicTransparentMeshing;
     private readonly IMeshing foliageMeshing;
     private readonly IMeshing fluidMeshing;
-    private readonly Section current;
-    private readonly SideArray<Section?> neighbors;
     private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
     private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
-    private readonly (TintColor block, TintColor fluid)[,] tintColors;
+    private readonly (ColorS block, ColorS fluid)[,] colors;
 
     /// <summary>
     ///     Create a new block meshing context.
@@ -53,7 +52,7 @@ public class MeshingContext
         fluidMeshing = factory.Create(hint: 1024);
 
         neighbors = GetNeighborSections(position, context);
-        tintColors = GetTintColors(position, context);
+        colors = GetTintColors(position, context);
 
         opaqueFullBlockMeshFaceHolders = CreateMeshFaceHolders();
         transparentFullBlockMeshFaceHolders = CreateMeshFaceHolders();
@@ -68,18 +67,18 @@ public class MeshingContext
     ///     Get current block tint, used when the tint is set to neutral.
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
-    public TintColor GetBlockTint(Vector3i position)
+    public ColorS GetBlockTint(Vector3i position)
     {
-        return tintColors[position.X, position.Z].block;
+        return colors[position.X, position.Z].block;
     }
 
     /// <summary>
     ///     Get current fluid tint, used when the tint is set to neutral.
     /// </summary>
     /// <param name="position">The position, in section-local coordinates.</param>
-    public TintColor GetFluidTint(Vector3i position)
+    public ColorS GetFluidTint(Vector3i position)
     {
-        return tintColors[position.X, position.Z].fluid;
+        return colors[position.X, position.Z].fluid;
     }
 
     private static SideArray<Section?> GetNeighborSections(SectionPosition position, IChunkMeshingContext context)
@@ -92,9 +91,9 @@ public class MeshingContext
         return neighborSections;
     }
 
-    private static (TintColor block, TintColor fluid)[,] GetTintColors(SectionPosition position, IChunkMeshingContext context)
+    private static (ColorS block, ColorS fluid)[,] GetTintColors(SectionPosition position, IChunkMeshingContext context)
     {
-        var colors = new (TintColor block, TintColor fluid)[Section.Size, Section.Size];
+        var colors = new (ColorS block, ColorS fluid)[Section.Size, Section.Size];
 
         for (var x = 0; x < Section.Size; x++)
         for (var z = 0; z < Section.Size; z++)
@@ -167,7 +166,7 @@ public class MeshingContext
     {
         (BlockInstance block, FluidInstance fluid)? result;
 
-        if (Section.IsInBounds(position.ToTuple()))
+        if (Section.IsInBounds((position.X, position.Y, position.Z)))
         {
             BlockInstance block = current.GetBlock(position);
             FluidInstance fluid = current.GetFluid(position);

@@ -49,7 +49,7 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     {
         return new IFoliage.MeshData(meshes[(Int32) info.Data & 0b00_0001])
         {
-            Tint = TintColor.Neutral
+            Tint = ColorS.Neutral
         };
     }
 

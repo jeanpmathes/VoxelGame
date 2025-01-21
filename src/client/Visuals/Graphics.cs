@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Visuals;
@@ -78,20 +78,20 @@ public partial class Graphics
 
     /// <summary>
     ///     Configure the fog values to describe the overlap between the fog and the view plane.
-    ///     This is necessary when the view plane is inside of a fog volume.
+    ///     This is necessary when the view plane is inside a fog volume.
     /// </summary>
     /// <param name="size">
     ///     The size of the overlap between the fog and the view plane.
     ///     Given in relative height, positive values start from the bottom, negative values from the top.
-    ///     If the view plane is not inside of the fog, this value should be 0.
+    ///     If the view plane is not inside the fog, this value should be 0.
     /// </param>
     /// <param name="color">The color of the fog.</param>
-    public void SetFogOverlapConfiguration(Double size, Color4 color)
+    public void SetFogOverlapConfiguration(Double size, ColorS color)
     {
         engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
         {
             data.fogOverlapSize = (Single) size;
-            data.fogOverlapColor = color.ToVector3();
+            data.fogOverlapColor = color.ToVector4().Xyz;
         });
     }
 

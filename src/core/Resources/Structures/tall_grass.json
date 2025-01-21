@@ -15,7 +15,7 @@
           0
         ]
       },
-      "Block": "VeryTallGrass",
+      "Block": "TallestGrass",
       "Data": 0,
       "Fluid": "None",
       "Level": 7,
@@ -29,7 +29,7 @@
           0
         ]
       },
-      "Block": "VeryTallGrass",
+      "Block": "TallestGrass",
       "Data": 1,
       "Fluid": "None",
       "Level": 7,

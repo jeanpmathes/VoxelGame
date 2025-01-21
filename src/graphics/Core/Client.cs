@@ -494,9 +494,4 @@ internal static class ClientMarshaller
     {
         return managed.Native;
     }
-
-    internal static void Free(IntPtr unmanaged)
-    {
-        // Nothing to do here.
-    }
 }

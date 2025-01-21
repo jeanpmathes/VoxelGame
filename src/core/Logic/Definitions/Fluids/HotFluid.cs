@@ -21,16 +21,14 @@ public class HotFluid : BasicFluid
     ///     Create a new <see cref="HotFluid" />.
     /// </summary>
     public HotFluid(String name, String namedID, Single density, Int32 viscosity, Boolean hasNeutralTint,
-        TextureLayout movingLayout, TextureLayout staticLayout,
-        RenderType renderType = RenderType.Opaque) :
+        TID texture, RenderType renderType = RenderType.Opaque) :
         base(
             name,
             namedID,
             density,
             viscosity,
             hasNeutralTint,
-            movingLayout,
-            staticLayout,
+            texture,
             renderType) {}
 
     /// <inheritdoc />

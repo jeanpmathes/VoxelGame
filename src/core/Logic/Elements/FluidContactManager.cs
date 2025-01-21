@@ -120,7 +120,7 @@ public class FluidContactManager
     /// </summary>
     private static Boolean SwapByDensity(World world, ContactInformation a, ContactInformation b)
     {
-        if (VMath.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
+        if (MathTools.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
 
         if (a.position.Y == b.position.Y) return DensityLift(world, a, b);
 
@@ -140,7 +140,7 @@ public class FluidContactManager
     /// </summary>
     private static Boolean DensityLift(World world, ContactInformation a, ContactInformation b)
     {
-        (ContactInformation light, ContactInformation dense) = VMath.ArgMinMax((a.fluid.Density, a), (b.fluid.Density, b));
+        (ContactInformation light, ContactInformation dense) = MathTools.ArgMinMax((a.fluid.Density, a), (b.fluid.Density, b));
 
         if (dense.level == FluidLevel.One) return false;
 

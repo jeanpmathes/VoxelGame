@@ -15,6 +15,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -156,17 +157,17 @@ public sealed class VisualInterface : IDisposable
         }
 
         var size = 0.0;
-        Color4? fog = selected?.GetFogColor(player.World);
+        ColorS? fog = selected?.GetFogColor(player.World);
 
         if (fog != null)
         {
             size = Math.Abs(upperBound - lowerBound);
 
-            if (VMath.NearlyEqual(upperBound, b: 1.0) && lowerBound > 0.0)
+            if (MathTools.NearlyEqual(upperBound, b: 1.0) && lowerBound > 0.0)
                 size *= -1.0;
         }
 
-        Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? Color4.Black);
+        Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? ColorS.Black);
     }
 
     /// <summary>

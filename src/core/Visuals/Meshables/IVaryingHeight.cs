@@ -135,7 +135,7 @@ public interface IVaryingHeight : IBlockMeshable, IHeightVariable, IOverlayTextu
         /// <summary>
         ///     The block tint.
         /// </summary>
-        public TintColor Tint { get; init; }
+        public ColorS Tint { get; init; }
 
         /// <inheritdoc />
         public Boolean Equals(MeshData other)

@@ -48,7 +48,7 @@ public sealed class CommandLoader : IResourceLoader
 
         invoker.AddParser(Parser.BuildParser(s => Boolean.TryParse(s, out _), Boolean.Parse));
 
-        invoker.SearchCommands();
+        invoker.SearchCommands(context);
         invoker.AddCommand(new Help(invoker));
 
         return [invoker];

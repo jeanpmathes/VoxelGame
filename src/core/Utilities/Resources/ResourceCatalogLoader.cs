@@ -216,7 +216,7 @@ public sealed partial class ResourceCatalogLoader
             {
                 String message = errorMessage ?? error!.Message;
 
-                currentReport!.Add(new Error($"{identifier}", "Discovered sub-resource failed to load, see log for details", isCritical: false));
+                currentReport!.Add(new Error($"{identifier}", $"Sub-resource error: {message}", isCritical: false));
 
                 LogWarningForSubResource(logger, error, currentHierarchy!, type, identifier, message);
             }

@@ -1,0 +1,9 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="p:blank:0,0">
+            <Modifier type="colorize" color="#000000"/>
+        </Layer>
+    </Layers>
+    <Modifiers/>
+</Texture>

@@ -25,21 +25,18 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // h: height
 public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
-    private readonly TID lowerTexture;
-    private readonly TID upperTexture;
+    private readonly TID texture;
 
     private readonly List<BlockMesh> meshes = [];
 
-    internal DoubleCrossPlantBlock(String name, String namedID, TID lowerTexture, TID upperTexture,
-        BoundingVolume boundingVolume) :
+    internal DoubleCrossPlantBlock(String name, String namedID, TID texture, BoundingVolume boundingVolume) :
         base(
             name,
             namedID,
             new BlockFlags(),
             boundingVolume)
     {
-        this.lowerTexture = lowerTexture;
-        this.upperTexture = upperTexture;
+        this.texture = texture;
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
@@ -48,7 +45,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 
         return new IFoliage.MeshData(meshes[(Int32) (info.Data & 0b00_0011)])
         {
-            Tint = TintColor.Neutral,
+            Tint = ColorS.Neutral,
             IsDoublePlant = true,
             IsUpperPart = isUpper
         };
@@ -63,10 +60,11 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <inheritdoc />
     protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
-        Int32 lowerTextureIndex = textureIndexProvider.GetTextureIndex(lowerTexture);
-        Int32 upperTextureIndex = textureIndexProvider.GetTextureIndex(upperTexture);
+        Int32 lowerTextureIndex = textureIndexProvider.GetTextureIndex(texture.Offset(y: 0));
+        Int32 upperTextureIndex = textureIndexProvider.GetTextureIndex(texture.Offset(y: 1));
 
-        for (UInt32 data = 0; data <= 0b00_0011; data++) meshes.Add(CreateMesh(data, lowerTextureIndex, upperTextureIndex, visuals));
+        for (UInt32 data = 0; data <= 0b00_0011; data++)
+            meshes.Add(CreateMesh(data, lowerTextureIndex, upperTextureIndex, visuals));
     }
 
     private static BlockMesh CreateMesh(UInt32 data, Int32 bottomTextureIndex, Int32 topTextureIndex, VisualConfiguration visuals)

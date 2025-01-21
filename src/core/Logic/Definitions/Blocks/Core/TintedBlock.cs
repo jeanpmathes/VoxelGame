@@ -9,7 +9,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -45,9 +44,9 @@ public class TintedBlock : BasicBlock, IWideConnectable
         };
     }
 
-    private static TintColor GetTintColor(UInt32 data)
+    private static ColorS GetTintColor(UInt32 data)
     {
-        return ((BlockColor) (0b01_1111 & data)).ToTintColor();
+        return ((NamedColor) (0b01_1111 & data)).ToColorS();
     }
 
     /// <inheritdoc />

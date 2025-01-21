@@ -1,7 +1,7 @@
 {
   "TextureNames": [
-    "door_steel_base",
-    "door_steel_top"
+    "door_steel:0,0",
+    "door_steel:0,1"
   ],
   "Quads": [
     {

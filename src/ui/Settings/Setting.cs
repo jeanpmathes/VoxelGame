@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
@@ -105,7 +104,7 @@ public abstract class Setting
     /// <param name="accessors">Functions to get and set the value.</param>
     /// <returns>The created setting.</returns>
     public static Setting CreateColorSetting(ISettingsValidator validator, String name,
-        (Func<Color> get, Action<Color> set) accessors)
+        (Func<ColorS> get, Action<ColorS> set) accessors)
     {
         return new ColorSettings(name, accessors.get, accessors.set)
         {

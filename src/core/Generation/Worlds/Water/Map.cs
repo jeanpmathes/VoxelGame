@@ -23,9 +23,9 @@ public class Map : IMap
     }
 
     /// <inheritdoc />
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3d position)
+    public (ColorS block, ColorS fluid) GetPositionTint(Vector3d position)
     {
-        return (TintColor.Green, TintColor.Blue);
+        return (ColorS.Green, ColorS.Blue);
     }
 
     /// <inheritdoc />

@@ -26,7 +26,7 @@ public interface IMap
     /// <summary>
     ///     Get the tint for a position.
     /// </summary>
-    (TintColor block, TintColor fluid) GetPositionTint(Vector3d position);
+    (ColorS block, ColorS fluid) GetPositionTint(Vector3d position);
 
     /// <summary>
     ///     Get the temperature for a position.

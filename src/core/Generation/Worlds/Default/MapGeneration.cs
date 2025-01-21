@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,9 +13,9 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Utilities;
-using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -400,7 +399,7 @@ public partial class Map
     /// </summary>
     private static void HandleConvergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
-        Double strength = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double strength = MathTools.CalculateAngle(a.drift, b.drift) / Math.PI;
         Vector2d direction;
         Vector2i start;
 
@@ -464,7 +463,7 @@ public partial class Map
     /// </summary>
     private static void HandleDivergentBoundary(Data data, Array2D<Single> offsets, TectonicCell a, TectonicCell b)
     {
-        Double divergence = VMath.CalculateAngle(a.drift, b.drift) / Math.PI;
+        Double divergence = MathTools.CalculateAngle(a.drift, b.drift) / Math.PI;
 
         ref Cell cellA = ref data.GetCell(a.position);
         ref Cell cellB = ref data.GetCell(b.position);
@@ -495,7 +494,7 @@ public partial class Map
         foreach ((Int16 node, Double value) in continentsNodes)
         {
             Double angle = value * Math.PI;
-            driftDirections[node] = VMath.CreateVectorFromAngle(angle);
+            driftDirections[node] = MathTools.CreateVectorFromAngle(angle);
         }
 
         return driftDirections;
@@ -515,16 +514,16 @@ public partial class Map
         view.Save(path.GetFile("terrain_view.png"));
     }
 
-    private static Color GetTerrainColor(Cell current)
+    private static ColorS GetTerrainColor(Cell current)
     {
-        Color water = Color.Blue;
-        Color land = Color.Green;
+        ColorS water = ColorS.Blue;
+        ColorS land = ColorS.Green;
 
-        Color terrain = current.IsLand ? land : water;
+        ColorS terrain = current.IsLand ? land : water;
         Double mixStrength = Math.Abs(current.height) - 0.5;
         Boolean darken = mixStrength > 0;
 
-        Color mixed = Colors.Mix(terrain, darken ? Color.Black : Color.White, Math.Abs(mixStrength));
+        ColorS mixed = ColorS.Mix(terrain, darken ? ColorS.Black : ColorS.White, Math.Abs(mixStrength));
 
         return mixed;
     }
@@ -549,12 +548,12 @@ public partial class Map
         }
     }
 
-    private static Color GetTemperatureColor(Cell current)
+    private static ColorS GetTemperatureColor(Cell current)
     {
-        Color tempered = Colors.FromRGB(2.0f * current.temperature, 2.0f * (1 - current.temperature), b: 0.0f);
-        Color other = current.IsLand ? Color.Black : tempered;
+        ColorS tempered = ColorS.FromRGB(2.0f * current.temperature, 2.0f * (1 - current.temperature), blue: 0.0f);
+        ColorS other = current.IsLand ? ColorS.Black : tempered;
 
-        return Colors.Mix(tempered, other);
+        return ColorS.Mix(tempered, other);
     }
 
     private static void EmitTemperatureView(Data data, DirectoryInfo path)
@@ -594,7 +593,7 @@ public partial class Map
         for (var step = 0; step < simulationSteps; step++)
         {
             SimulateClimate(data, current, next);
-            VMath.Swap(ref current, ref next);
+            (current, next) = (next, current);
         }
 
         for (var x = 0; x < Width; x++)
@@ -692,11 +691,11 @@ public partial class Map
         return next;
     }
 
-    private static Color GetHumidityColor(Cell current)
+    private static ColorS GetHumidityColor(Cell current)
     {
-        Color precipitation = Colors.FromRGB(current.humidity, current.humidity, current.humidity);
+        ColorS precipitation = ColorS.FromRGB(current.humidity, current.humidity, current.humidity);
 
-        return current.IsLand ? precipitation : Color.Aqua;
+        return current.IsLand ? precipitation : ColorS.Aqua;
     }
 
     private static void EmitHumidityView(Data data, DirectoryInfo path)
@@ -713,9 +712,9 @@ public partial class Map
         view.Save(path.GetFile("precipitation_view.png"));
     }
 
-    private static Color GetBiomeColor(Cell current, BiomeDistribution biomes)
+    private static ColorS GetBiomeColor(Cell current, BiomeDistribution biomes)
     {
-        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Definition.Color : Color.White;
+        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Definition.Color : ColorS.White;
     }
 
     private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
@@ -732,19 +731,19 @@ public partial class Map
         view.Save(path.GetFile("biome_view.png"));
     }
 
-    private static Color GetStoneTypeColor(Cell current)
+    private static ColorS GetStoneTypeColor(Cell current)
     {
         if (current.IsLand)
             return current.stoneType switch
             {
-                StoneType.Granite => Color.Green,
-                StoneType.Limestone => Color.Blue,
-                StoneType.Marble => Color.Red,
-                StoneType.Sandstone => Color.Yellow,
-                _ => Color.Black
+                StoneType.Granite => ColorS.Green,
+                StoneType.Limestone => ColorS.Blue,
+                StoneType.Marble => ColorS.Red,
+                StoneType.Sandstone => ColorS.Yellow,
+                _ => ColorS.Black
             };
 
-        return Color.White;
+        return ColorS.White;
     }
 
     private static void EmitStoneView(Data data, DirectoryInfo path)

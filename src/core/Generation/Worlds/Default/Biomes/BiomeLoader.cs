@@ -6,13 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
@@ -90,7 +90,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition PolarDesert { get; } = biomes.Register(new BiomeDefinition(nameof(PolarDesert), palette)
         {
-            Color = Color.Gray,
+            Color = ColorS.Gray,
             Amplitude = 2f,
             Frequency = 0.007f,
             Cover = new Cover(hasPlants: false),
@@ -111,7 +111,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition TropicalRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TropicalRainforest), palette)
         {
-            Color = Color.DarkGreen,
+            Color = ColorS.DarkGreen,
             Amplitude = 15f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
@@ -144,7 +144,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition TemperateRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TemperateRainforest), palette)
         {
-            Color = Color.Green,
+            Color = ColorS.Green,
             Amplitude = 15f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
@@ -174,7 +174,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Taiga { get; } = biomes.Register(new BiomeDefinition(nameof(Taiga), palette)
         {
-            Color = Color.Navy,
+            Color = ColorS.Navy,
             Amplitude = 3f,
             Frequency = 0.007f,
             Cover = new Cover(hasPlants: true),
@@ -200,7 +200,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Tundra { get; } = biomes.Register(new BiomeDefinition(nameof(Tundra), palette)
         {
-            Color = Color.CadetBlue,
+            Color = ColorS.CadetBlue,
             Amplitude = 3f,
             Frequency = 0.007f,
             Cover = new Cover(hasPlants: true),
@@ -222,7 +222,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Savanna { get; } = biomes.Register(new BiomeDefinition(nameof(Savanna), palette)
         {
-            Color = Color.Olive,
+            Color = ColorS.Olive,
             Amplitude = 1f,
             Frequency = 0.01f,
             Cover = new Cover(hasPlants: true),
@@ -250,7 +250,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest), palette)
         {
-            Color = Color.LimeGreen,
+            Color = ColorS.Lime,
             Amplitude = 10f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
@@ -281,7 +281,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest), palette)
         {
-            Color = Color.SeaGreen,
+            Color = ColorS.SeaGreen,
             Amplitude = 15f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
@@ -311,7 +311,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Shrubland { get; } = biomes.Register(new BiomeDefinition(nameof(Shrubland), palette)
         {
-            Color = Color.Salmon,
+            Color = ColorS.Salmon,
             Amplitude = 1f,
             Frequency = 0.01f,
             Cover = new Cover(hasPlants: true),
@@ -340,7 +340,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Desert { get; } = biomes.Register(new BiomeDefinition(nameof(Desert), palette)
         {
-            Color = Color.Yellow,
+            Color = ColorS.Yellow,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: false),
@@ -366,7 +366,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Grassland { get; } = biomes.Register(new BiomeDefinition(nameof(Grassland), palette)
         {
-            Color = Color.SaddleBrown,
+            Color = ColorS.SaddleBrown,
             Amplitude = 4f,
             Frequency = 0.004f,
             Cover = new Cover(hasPlants: true),
@@ -395,7 +395,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean), palette)
         {
-            Color = Color.White,
+            Color = ColorS.White,
             Amplitude = 5.0f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: false),
@@ -415,7 +415,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean), palette)
         {
-            Color = Color.White,
+            Color = ColorS.White,
             Amplitude = 5.0f,
             Frequency = 0.005f,
             IceWidth = 6,
@@ -436,7 +436,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Mountains { get; } = biomes.Register(new BiomeDefinition(nameof(Mountains), palette)
         {
-            Color = Color.Black,
+            Color = ColorS.Black,
             Amplitude = 30f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: false),
@@ -456,7 +456,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach), palette)
         {
-            Color = Color.Black,
+            Color = ColorS.Black,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: false),
@@ -481,7 +481,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff), palette)
         {
-            Color = Color.Black,
+            Color = ColorS.Black,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: true),
@@ -499,7 +499,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff), palette)
         {
-            Color = Color.Black,
+            Color = ColorS.Black,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: false),

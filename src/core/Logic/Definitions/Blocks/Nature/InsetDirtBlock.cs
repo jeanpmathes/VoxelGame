@@ -78,7 +78,7 @@ public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPot
         return new IVaryingHeight.MeshData
         {
             TextureIndex = texture,
-            Tint = TintColor.None
+            Tint = ColorS.None
         };
     }
 

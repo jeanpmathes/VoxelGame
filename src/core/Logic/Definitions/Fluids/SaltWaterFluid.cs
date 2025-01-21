@@ -20,15 +20,14 @@ public class SaltWaterFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="SaltWaterFluid" />.
     /// </summary>
-    public SaltWaterFluid(String name, String namedID, Single density, Int32 viscosity, TextureLayout movingLayout, TextureLayout staticLayout) :
+    public SaltWaterFluid(String name, String namedID, Single density, Int32 viscosity, TID texture) :
         base(
             name,
             namedID,
             density,
             viscosity,
             hasNeutralTint: true,
-            movingLayout,
-            staticLayout,
+            texture,
             RenderType.Transparent) {}
 
     /// <inheritdoc />

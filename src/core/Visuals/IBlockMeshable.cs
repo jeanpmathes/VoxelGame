@@ -4,9 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -31,6 +31,7 @@ public interface IBlockMeshable : IBlockBase
     /// </summary>
     public void Validate()
     {
-        Debug.Assert(!IsFull, "Only special meshables accept full blocks.");
+        if (IsFull)
+            throw Exceptions.InvalidOperation("Only special meshables accept full blocks.");
     }
 }

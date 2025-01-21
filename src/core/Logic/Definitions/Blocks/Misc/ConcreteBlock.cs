@@ -12,7 +12,6 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -60,12 +59,12 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
 
     IVaryingHeight.MeshData IVaryingHeight.GetMeshData(BlockMeshInfo info)
     {
-        Decode(info.Data, out BlockColor color, out _);
+        Decode(info.Data, out NamedColor color, out _);
 
         return new IVaryingHeight.MeshData
         {
             TextureIndex = textures[info.Side],
-            Tint = color.ToTintColor()
+            Tint = color.ToColorS()
         };
     }
 
@@ -94,7 +93,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     /// <inheritdoc />
     protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
     {
-        world.SetBlock(this.AsInstance(Encode(BlockColor.Default, IHeightVariable.MaximumHeight)), position);
+        world.SetBlock(this.AsInstance(Encode(NamedColor.Default, IHeightVariable.MaximumHeight)), position);
     }
 
     /// <summary>
@@ -107,18 +106,18 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     public void Place(World world, FluidLevel level, Vector3i position)
     {
         if (Place(world, position))
-            world.SetBlock(this.AsInstance(Encode(BlockColor.Default, level.GetBlockHeight())), position);
+            world.SetBlock(this.AsInstance(Encode(NamedColor.Default, level.GetBlockHeight())), position);
     }
 
     /// <inheritdoc />
     protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
     {
-        Decode(data, out BlockColor color, out Int32 height);
-        var next = (BlockColor) ((Int32) color + 1);
+        Decode(data, out NamedColor color, out Int32 height);
+        var next = (NamedColor) ((Int32) color + 1);
         actor.World.SetBlock(this.AsInstance(Encode(next, height)), position);
     }
 
-    private static UInt32 Encode(BlockColor color, Int32 height)
+    private static UInt32 Encode(NamedColor color, Int32 height)
     {
         var val = 0;
         val |= ((Int32) color << 3) & 0b11_1000;
@@ -127,9 +126,9 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
         return (UInt32) val;
     }
 
-    private static void Decode(UInt32 data, out BlockColor color, out Int32 height)
+    private static void Decode(UInt32 data, out NamedColor color, out Int32 height)
     {
-        color = (BlockColor) ((data & 0b11_1000) >> 3);
+        color = (NamedColor) ((data & 0b11_1000) >> 3);
         height = (Int32) (data & 0b00_0111) * 2 + 1;
     }
 }

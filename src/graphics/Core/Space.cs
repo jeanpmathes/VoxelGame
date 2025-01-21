@@ -104,7 +104,7 @@ public class Space
     /// <param name="newAdjustment">The new adjustment.</param>
     public void SetAdjustment(Vector3d newAdjustment)
     {
-        if (VMath.NearlyEqual(adjustment, newAdjustment))
+        if (MathTools.NearlyEqual(adjustment, newAdjustment))
         {
             HasAdjustmentChanged = false;
         }

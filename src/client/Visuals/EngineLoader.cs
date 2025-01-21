@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Client.Resources;
+using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -30,9 +30,9 @@ public sealed class EngineLoader : IResourceLoader
     public IEnumerable<IResource> Load(IResourceContext context)
     {
         return context.Require<Application.Client>(client =>
-            context.Require<TextureBundle>(Textures.BlockID,
+            context.Require<TextureBundle>(Resources.Textures.BlockID,
                 blocks =>
-                    context.Require<TextureBundle>(Textures.FluidID,
+                    context.Require<TextureBundle>(Resources.Textures.FluidID,
                         fluids =>
                             context.Require<VisualConfiguration>(visuals =>
                                 Load(context, blocks, fluids, client, visuals)))));

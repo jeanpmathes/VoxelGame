@@ -210,9 +210,6 @@
     <data name="Honey" xml:space="preserve">
     <value>Honig</value>
   </data>
-    <data name="InputNotValid" xml:space="preserve">
-    <value>Eingabe nicht gültig!</value>
-  </data>
     <data name="Ladder" xml:space="preserve">
     <value>Leiter</value>
   </data>
@@ -326,9 +323,6 @@
   </data>
     <data name="Vase" xml:space="preserve">
     <value>Vase</value>
-  </data>
-    <data name="VeryTallGrass" xml:space="preserve">
-    <value>Sehr Hohes Gras</value>
   </data>
     <data name="Vines" xml:space="preserve">
     <value>Ranken</value>
@@ -500,9 +494,6 @@
   </data>
     <data name="KeySelectTargeted" xml:space="preserve">
     <value>Wähle Angezieltes</value>
-  </data>
-    <data name="GraphicsAnisotropicFiltering" xml:space="preserve">
-    <value>Anisotropes Filtern</value>
   </data>
     <data name="KeyCrouch" xml:space="preserve">
     <value>Ducken</value>
@@ -819,24 +810,6 @@
     <data name="PumiceBricks" xml:space="preserve">
         <value>Bimsstein-Steinziegel</value>
     </data>
-    <data name="LimestoneColumn" xml:space="preserve">
-        <value>Kalksteinsäule</value>
-    </data>
-    <data name="MarbleColumn" xml:space="preserve">
-        <value>Marmorsäule</value>
-    </data>
-    <data name="ObsidianColumn" xml:space="preserve">
-        <value>Obsidiansäule</value>
-    </data>
-    <data name="SandstoneColumn" xml:space="preserve">
-        <value>Sandsteinsäule</value>
-    </data>
-    <data name="GraniteColumn" xml:space="preserve">
-        <value>Granitsäule</value>
-    </data>
-    <data name="PumiceColumn" xml:space="preserve">
-        <value>Bimssteinsäule</value>
-    </data>
     <data name="CoalLignite" xml:space="preserve">
         <value>Braunkohle</value>
     </data>
@@ -941,5 +914,11 @@
     </data>
     <data name="Save" xml:space="preserve">
         <value>Speichern</value>
+    </data>
+    <data name="TallerGrass" xml:space="preserve">
+        <value>Höheres Gras</value>
+    </data>
+    <data name="TallestGrass" xml:space="preserve">
+        <value>Höchstes Gras</value>
     </data>
 </root>

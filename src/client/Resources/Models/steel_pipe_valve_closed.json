@@ -1,8 +1,8 @@
 {
   "TextureNames": [
-    "steel_pipe",
-    "pipe_hole",
-    "red_plastic"
+    "steel_pipe:0,0",
+    "pipe_hole:0,0",
+    "red_plastic:0,0"
   ],
   "Quads": [
     {

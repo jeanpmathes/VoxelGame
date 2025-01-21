@@ -7,7 +7,6 @@
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
@@ -172,8 +171,8 @@ public class Camera : NativeObject, IView
             new BasicCameraData
             {
                 Position = preparedPosition,
-                Front = Forward.ToVector3(),
-                Up = Up.ToVector3()
+                Front = (Vector3) Forward,
+                Up = (Vector3) Up
             });
     }
 

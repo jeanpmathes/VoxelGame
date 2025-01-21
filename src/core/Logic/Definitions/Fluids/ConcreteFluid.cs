@@ -23,18 +23,15 @@ public class ConcreteFluid : BasicFluid
     /// <param name="namedID">The named ID of the fluid.</param>
     /// <param name="density">The density of the fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid.</param>
-    /// <param name="movingLayout">The texture layout when this fluid is moving.</param>
-    /// <param name="staticLayout">The texture layout when this fluid is static.</param>
-    public ConcreteFluid(String name, String namedID, Single density, Int32 viscosity, TextureLayout movingLayout,
-        TextureLayout staticLayout) :
+    /// <param name="texture">The texture of the fluid.</param>
+    public ConcreteFluid(String name, String namedID, Single density, Int32 viscosity, TID texture) :
         base(
             name,
             namedID,
             density,
             viscosity,
             hasNeutralTint: false,
-            movingLayout,
-            staticLayout) {}
+            texture) {}
 
     /// <inheritdoc />
     internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
