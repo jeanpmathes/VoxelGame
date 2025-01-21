@@ -53,8 +53,8 @@ public class SheetLoader
         for (Byte x = 0; x < xCount; x++)
         for (Byte y = 0; y < yCount; y++)
         {
-            Vector2i min = new(x * Resolution, y * Resolution);
-            Vector2i max = new(min.X + Resolution, min.Y + Resolution);
+            Vector2i min = (x * Resolution, y * Resolution);
+            Vector2i max = (min.X + Resolution, min.Y + Resolution) - Vector2i.One;
 
             Image texture = image.CreateCopy(new Box2i(min, max));
 

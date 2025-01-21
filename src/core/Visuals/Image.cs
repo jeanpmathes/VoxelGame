@@ -261,7 +261,7 @@ public class Image
     /// <returns>The average color, or transparent black if no non-transparent pixels are present.</returns>
     public Color32 CalculateAverage()
     {
-        Debug.Assert(Width < 32 && Height < 32);
+        Debug.Assert(Width <= 32 && Height <= 32);
 
         Vector4i sum = Vector4i.Zero;
         var count = 0;
