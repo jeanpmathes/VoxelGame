@@ -82,11 +82,11 @@ public class BinarySerializationTests
         public Int32[] p = [16, 17, 18, 19, 20];
         public TestState q = TestState.B;
 
-        public static UInt32 Version => 12;
+        public static UInt32 CurrentVersion => 12;
 
         public void Serialize(Serializer serializer, IEntity.Header header)
         {
-            Assert.Equal(Version, header.Version);
+            Assert.Equal(CurrentVersion, header.Version);
 
             serializer.Serialize(ref a);
             serializer.Serialize(ref b);

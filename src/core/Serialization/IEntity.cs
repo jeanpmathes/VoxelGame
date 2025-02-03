@@ -18,7 +18,7 @@ public interface IEntity
     /// <summary>
     ///     Get the current version of the entity.
     /// </summary>
-    public static abstract UInt32 Version { get; }
+    public static abstract UInt32 CurrentVersion { get; }
 
     /// <summary>
     ///     Serialize the entity.

@@ -45,7 +45,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
     }
 
     /// <inheritdoc />
-    public static UInt32 Version => 1;
+    public static UInt32 CurrentVersion => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)
@@ -260,7 +260,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
     [LoggerMessage(EventId = LogID.ScheduledUpdateManager + 0,
         Level = LogLevel.Warning,
-        Message = "The maximum number of scheduled updates for a single update cycle have been reached, further updates we be scheduled later")]
+        Message = "The maximum number of scheduled updates for a single update cycle have been reached, further updates will be scheduled later")]
     private static partial void LogUpdateScheduleLimitReached(ILogger logger);
 
     #endregion LOGGING

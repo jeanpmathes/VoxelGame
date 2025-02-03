@@ -93,4 +93,9 @@ public record BlockFlags
     ///     Create flags for a trigger block.
     /// </summary>
     public static BlockFlags Trigger => new() {IsTrigger = true, ReceiveCollisions = true};
+
+    /// <summary>
+    ///     Create flags for a leaves block.
+    /// </summary>
+    public static BlockFlags Leaves => new() {IsSolid = true, RenderFaceAtNonOpaques = true};
 }

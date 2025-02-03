@@ -27,11 +27,11 @@ public abstract class Modifier
     /// </summary>
     /// <param name="type">The type of this modifier. Used as a key to find the correct modifier.</param>
     /// <param name="params">The parameters of the modifier.</param>
-    protected Modifier(String type, params Parameter[] @params)
+    protected Modifier(String type, Parameter[]? @params = null)
     {
         Type = type;
 
-        this.@params = @params;
+        this.@params = @params ?? [];
     }
 
     /// <summary>
@@ -134,6 +134,17 @@ public abstract class Modifier
     protected static Parameter<Boolean> CreateBooleanParameter(String name, Boolean? fallback = null)
     {
         return new BooleanParameter(name, fallback);
+    }
+
+    /// <summary>
+    ///     Create a new integer parameter.
+    /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="fallback">The optional fallback value.</param>
+    /// <returns>The created integer parameter.</returns>
+    protected static Parameter<Int32> CreateIntegerParameter(String name, Int32? fallback = null)
+    {
+        return new IntegerParameter(name, fallback);
     }
 
     /// <summary>
@@ -248,6 +259,14 @@ public abstract class Modifier
         protected override Object? Parse(String text)
         {
             return Boolean.TryParse(text, out Boolean result) ? result : null;
+        }
+    }
+
+    private sealed class IntegerParameter(String name, Int32? fallback) : Parameter<Int32>(name, fallback)
+    {
+        protected override Object? Parse(String text)
+        {
+            return Int32.TryParse(text, CultureInfo.InvariantCulture, out Int32 result) ? result : null;
         }
     }
 }

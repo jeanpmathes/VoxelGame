@@ -1,0 +1,14 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers mode="replace">
+        <Layer source="p:shepherds_tree:0,0">
+            <Modifier type="no-tint"/>
+            <Modifier type="repeat" x="2" y="2"/>
+        </Layer>
+        <Layer source="p:bed_base:all">
+            <Modifier type="no-tint"/>
+        </Layer>
+        <Layer source="p:bed_tinted:all"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

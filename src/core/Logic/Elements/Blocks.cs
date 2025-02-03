@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Blocks;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
@@ -100,7 +101,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         public ConcreteBlock Concrete { get; } = (ConcreteBlock) blocks.Concrete;
         public SnowBlock Snow { get; } = (SnowBlock) blocks.Snow;
         public ModifiableHeightBlock Ice { get; } = (ModifiableHeightBlock) blocks.Ice;
-        public RotatedBlock Log { get; } = (RotatedBlock) blocks.Log;
         public FlatBlock Vines { get; } = (FlatBlock) blocks.Vines;
         public SaltBlock Salt { get; } = (SaltBlock) blocks.Salt;
     }
@@ -234,37 +234,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Snow,
         nameof(Snow),
         TextureLayout.Uniform(TID.Block("snow"))));
-
-    /// <summary>
-    ///     Leaves are transparent parts of the tree. They are flammable.
-    /// </summary>
-    public Block Leaves { get; } = registry.Register(new NaturalBlock(
-        Language.Leaves,
-        nameof(Leaves),
-        hasNeutralTint: true,
-        new BlockFlags
-        {
-            IsSolid = true,
-            RenderFaceAtNonOpaques = true
-        },
-        TextureLayout.Uniform(TID.Block("leaves"))));
-
-    /// <summary>
-    ///     Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
-    /// </summary>
-    public Block Log { get; } = registry.Register(new RotatedBlock(
-        Language.Log,
-        nameof(Log),
-        BlockFlags.Basic,
-        TextureLayout.Column(TID.Block("log", x: 0), TID.Block("log", x: 1))));
-
-    /// <summary>
-    ///     Processed wood that can be used as construction material. It is flammable.
-    /// </summary>
-    public Block Wood { get; } = registry.Register(new OrganicConstructionBlock(
-        Language.Wood,
-        nameof(Wood),
-        TextureLayout.Uniform(TID.Block("wood"))));
 
     /// <summary>
     ///     Sand naturally forms and allows water to flow through it.
@@ -514,12 +483,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f))));
 
     /// <summary>
-    ///     The bed can be placed to set a different spawn point.
-    ///     It is possible to change to color of a bed.
-    /// </summary>
-    public Block Bed { get; } = registry.Register(new BedBlock(Language.Bed, nameof(Bed), RID.File<BlockModel>("bed")));
-
-    /// <summary>
     ///     Wool is a flammable material, that allows its color to be changed.
     /// </summary>
     public Block Wool { get; } = registry.Register(new OrganicTintedBlock(
@@ -583,17 +546,6 @@ public sealed partial class Blocks(Registry<Block> registry)
     #region ACCESS BLOCKS
 
     /// <summary>
-    ///     The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
-    ///     As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
-    /// </summary>
-    public Block FenceWood { get; } = registry.Register(new FenceBlock(
-        Language.WoodenFence,
-        nameof(FenceWood),
-        TID.Block("wood"),
-        RID.File<BlockModel>("fence_post"),
-        RID.File<BlockModel>("fence_extension")));
-
-    /// <summary>
     ///     A wall constructed using clay bricks.
     ///     The wall does not prevent jumping over it, and can connect to other blocks.
     /// </summary>
@@ -611,27 +563,9 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block DoorSteel { get; } = registry.Register(new DoorBlock(
         Language.SteelDoor,
         nameof(DoorSteel),
+        texture: null,
         RID.File<BlockModel>("door_steel_closed"),
         RID.File<BlockModel>("door_steel_open")));
-
-    /// <summary>
-    ///     The wooden door allows closing of a room. It can be opened and closed.
-    ///     As this door is made out of wood, it is flammable.
-    /// </summary>
-    public Block DoorWood { get; } = registry.Register(new OrganicDoorBlock(
-        Language.WoodenDoor,
-        nameof(DoorWood),
-        RID.File<BlockModel>("door_wood_closed"),
-        RID.File<BlockModel>("door_wood_open")));
-
-    /// <summary>
-    ///     Fence gates are meant as a passage trough fences and walls.
-    /// </summary>
-    public Block GateWood { get; } = registry.Register(new GateBlock(
-        Language.WoodenGate,
-        nameof(GateWood),
-        RID.File<BlockModel>("gate_wood_closed"),
-        RID.File<BlockModel>("gate_wood_open")));
 
     #endregion ACCESS BLOCKS
 
@@ -655,21 +589,10 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SteelPipe,
         nameof(SteelPipe),
         diameter: 0.375f,
+        texture: null,
         RID.File<BlockModel>("steel_pipe_center"),
         RID.File<BlockModel>("steel_pipe_connector"),
         RID.File<BlockModel>("steel_pipe_surface")));
-
-    /// <summary>
-    ///     The wooden pipe offers a primitive way of controlling fluid flow.
-    ///     It connects to other pipes.
-    /// </summary>
-    public Block WoodenPipe { get; } = registry.Register(new PipeBlock<IPrimitivePipeConnectable>(
-        Language.WoodenPipe,
-        nameof(WoodenPipe),
-        diameter: 0.3125f,
-        RID.File<BlockModel>("wood_pipe_center"),
-        RID.File<BlockModel>("wood_pipe_connector"),
-        RID.File<BlockModel>("wood_pipe_surface")));
 
     /// <summary>
     ///     This pipe is a special steel pipe that can only form straight connections.
@@ -1639,6 +1562,149 @@ public sealed partial class Blocks(Registry<Block> registry)
         nameof(Rust),
         BlockFlags.Basic,
         TextureLayout.Uniform(TID.Block("rust"))));
+
+    /// <summary>
+    ///     Oak wood.
+    /// </summary>
+    public Wood Oak { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.OakLeaves, Language.OakLog, Language.OakWood),
+        nameof(Oak));
+
+    /// <summary>
+    ///     Maple wood.
+    /// </summary>
+    public Wood Maple { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.MapleLeaves, Language.MapleLog, Language.MapleWood),
+        nameof(Maple));
+
+    /// <summary>
+    ///     Birch wood.
+    /// </summary>
+    public Wood Birch { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.BirchLeaves, Language.BirchLog, Language.BirchWood),
+        nameof(Birch));
+
+    /// <summary>
+    ///     Maple wood.
+    /// </summary>
+    public Wood Walnut { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.WalnutLeaves, Language.WalnutLog, Language.WalnutWood),
+        nameof(Walnut));
+
+    /// <summary>
+    ///     Cherry wood.
+    /// </summary>
+    public Wood Cherry { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.CherryLeaves, Language.CherryLog, Language.CherryWood),
+        nameof(Cherry));
+
+    /// <summary>
+    ///     Ash tree wood.
+    /// </summary>
+    public Wood AshTree { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.AshTreeLeaves, Language.AshTreeLog, Language.AshTreeWood),
+        nameof(AshTree));
+
+    /// <summary>
+    ///     Rubber tree wood.
+    /// </summary>
+    public Wood RubberTree { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.RubberTreeLeaves, Language.RubberTreeLog, Language.RubberTreeWood),
+        nameof(RubberTree));
+
+    /// <summary>
+    ///     Pine wood.
+    /// </summary>
+    public Wood Pine { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.PineLeaves, Language.PineLog, Language.PineWood),
+        nameof(Pine),
+        needles: true);
+
+    /// <summary>
+    ///     Spruce wood.
+    /// </summary>
+    public Wood Spruce { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.SpruceLeaves, Language.SpruceLog, Language.SpruceWood),
+        nameof(Spruce),
+        needles: true);
+
+    /// <summary>
+    ///     Fir wood.
+    /// </summary>
+    public Wood Fir { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.FirLeaves, Language.FirLog, Language.FirWood),
+        nameof(Fir),
+        needles: true);
+
+    /// <summary>
+    ///     Mahogany wood.
+    /// </summary>
+    public Wood Mahogany { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.MahoganyLeaves, Language.MahoganyLog, Language.MahoganyWood),
+        nameof(Mahogany));
+
+    /// <summary>
+    ///     Teak wood.
+    /// </summary>
+    public Wood Teak { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.TeakLeaves, Language.TeakLog, Language.TeakWood),
+        nameof(Teak));
+
+    /// <summary>
+    ///     Ebony wood.
+    /// </summary>
+    public Wood Ebony { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.EbonyLeaves, Language.EbonyLog, Language.EbonyWood),
+        nameof(Ebony));
+
+    /// <summary>
+    ///     Coconut palm wood.
+    /// </summary>
+    public Wood CoconutPalm { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
+        nameof(CoconutPalm));
+
+    /// <summary>
+    ///     Date palm wood.
+    /// </summary>
+    public Wood DatePalm { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
+        nameof(DatePalm));
+
+    /// <summary>
+    ///     Acacia wood.
+    /// </summary>
+    public Wood Acacia { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.AcaciaLeaves, Language.AcaciaLog, Language.AcaciaWood),
+        nameof(Acacia));
+
+    /// <summary>
+    ///     Baobab wood.
+    /// </summary>
+    public Wood Baobab { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.BaobabLeaves, Language.BaobabLog, Language.BaobabWood),
+        nameof(Baobab));
+
+    /// <summary>
+    ///     Shepherd's tree wood.
+    /// </summary>
+    public Wood ShepherdsTree { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.ShepherdsTreeLeaves, Language.ShepherdsTreeLog, Language.ShepherdsTreeWood),
+        nameof(ShepherdsTree));
+
+    /// <summary>
+    ///     Juniper wood.
+    /// </summary>
+    public Wood Juniper { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.JuniperLeaves, Language.JuniperLog, Language.JuniperWood),
+        nameof(Juniper));
+
+    /// <summary>
+    ///     Mesquite wood.
+    /// </summary>
+    public Wood Mesquite { get; } = registry.RegisterWood(
+        new WoodConvention.Language(Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
+        nameof(Mesquite));
 
     #endregion NEW BLOCKS
 

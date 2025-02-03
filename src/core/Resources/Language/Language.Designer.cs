@@ -69,6 +69,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acacia Leaves.
+        /// </summary>
+        public static string AcaciaLeaves {
+            get {
+                return ResourceManager.GetString("AcaciaLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acacia Log.
+        /// </summary>
+        public static string AcaciaLog {
+            get {
+                return ResourceManager.GetString("AcaciaLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acacia Wood.
+        /// </summary>
+        public static string AcaciaWood {
+            get {
+                return ResourceManager.GetString("AcaciaWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Air.
         /// </summary>
         public static string Air {
@@ -96,11 +123,65 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ash Leaves.
+        /// </summary>
+        public static string AshTreeLeaves {
+            get {
+                return ResourceManager.GetString("AshTreeLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ash Log.
+        /// </summary>
+        public static string AshTreeLog {
+            get {
+                return ResourceManager.GetString("AshTreeLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ash Wood.
+        /// </summary>
+        public static string AshTreeWood {
+            get {
+                return ResourceManager.GetString("AshTreeWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Back.
         /// </summary>
         public static string Back {
             get {
                 return ResourceManager.GetString("Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baobab Leaves.
+        /// </summary>
+        public static string BaobabLeaves {
+            get {
+                return ResourceManager.GetString("BaobabLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baobab Log.
+        /// </summary>
+        public static string BaobabLog {
+            get {
+                return ResourceManager.GetString("BaobabLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baobab Wood.
+        /// </summary>
+        public static string BaobabWood {
+            get {
+                return ResourceManager.GetString("BaobabWood", resourceCulture);
             }
         }
         
@@ -137,6 +218,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Beer {
             get {
                 return ResourceManager.GetString("Beer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birch Leaves.
+        /// </summary>
+        public static string BirchLeaves {
+            get {
+                return ResourceManager.GetString("BirchLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birch Log.
+        /// </summary>
+        public static string BirchLog {
+            get {
+                return ResourceManager.GetString("BirchLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birch Wood.
+        /// </summary>
+        public static string BirchWood {
+            get {
+                return ResourceManager.GetString("BirchWood", resourceCulture);
             }
         }
         
@@ -204,6 +312,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cherry Leaves.
+        /// </summary>
+        public static string CherryLeaves {
+            get {
+                return ResourceManager.GetString("CherryLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cherry Log.
+        /// </summary>
+        public static string CherryLog {
+            get {
+                return ResourceManager.GetString("CherryLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cherry Wood.
+        /// </summary>
+        public static string CherryWood {
+            get {
+                return ResourceManager.GetString("CherryWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Clay.
         /// </summary>
         public static string Clay {
@@ -263,6 +398,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string CoalLignite {
             get {
                 return ResourceManager.GetString("CoalLignite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Coconut Palm Leaves.
+        /// </summary>
+        public static string CoconutPalmLeaves {
+            get {
+                return ResourceManager.GetString("CoconutPalmLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Coconut Palm Log.
+        /// </summary>
+        public static string CoconutPalmLog {
+            get {
+                return ResourceManager.GetString("CoconutPalmLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Coconut Palm Wood.
+        /// </summary>
+        public static string CoconutPalmWood {
+            get {
+                return ResourceManager.GetString("CoconutPalmWood", resourceCulture);
             }
         }
         
@@ -348,6 +510,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Date Palm Leaves.
+        /// </summary>
+        public static string DatePalmLeaves {
+            get {
+                return ResourceManager.GetString("DatePalmLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date Palm Log.
+        /// </summary>
+        public static string DatePalmLog {
+            get {
+                return ResourceManager.GetString("DatePalmLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Date Palm Wood.
+        /// </summary>
+        public static string DatePalmWood {
+            get {
+                return ResourceManager.GetString("DatePalmWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
         public static string Delete {
@@ -375,11 +564,47 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Door.
+        /// </summary>
+        public static string Door {
+            get {
+                return ResourceManager.GetString("Door", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Duplicate.
         /// </summary>
         public static string Duplicate {
             get {
                 return ResourceManager.GetString("Duplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ebony Leaves.
+        /// </summary>
+        public static string EbonyLeaves {
+            get {
+                return ResourceManager.GetString("EbonyLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ebony Log.
+        /// </summary>
+        public static string EbonyLog {
+            get {
+                return ResourceManager.GetString("EbonyLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ebony Wood.
+        /// </summary>
+        public static string EbonyWood {
+            get {
+                return ResourceManager.GetString("EbonyWood", resourceCulture);
             }
         }
         
@@ -447,6 +672,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fence.
+        /// </summary>
+        public static string Fence {
+            get {
+                return ResourceManager.GetString("Fence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File Size.
         /// </summary>
         public static string FileSize {
@@ -461,6 +695,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Fire {
             get {
                 return ResourceManager.GetString("Fire", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fir Needles.
+        /// </summary>
+        public static string FirLeaves {
+            get {
+                return ResourceManager.GetString("FirLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fir Log.
+        /// </summary>
+        public static string FirLog {
+            get {
+                return ResourceManager.GetString("FirLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fir Wood.
+        /// </summary>
+        public static string FirWood {
+            get {
+                return ResourceManager.GetString("FirWood", resourceCulture);
             }
         }
         
@@ -497,6 +758,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string FreshWater {
             get {
                 return ResourceManager.GetString("FreshWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gate.
+        /// </summary>
+        public static string Gate {
+            get {
+                return ResourceManager.GetString("Gate", resourceCulture);
             }
         }
         
@@ -713,6 +983,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Info {
             get {
                 return ResourceManager.GetString("Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Juniper Leaves.
+        /// </summary>
+        public static string JuniperLeaves {
+            get {
+                return ResourceManager.GetString("JuniperLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Juniper Log.
+        /// </summary>
+        public static string JuniperLog {
+            get {
+                return ResourceManager.GetString("JuniperLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Juniper Wood.
+        /// </summary>
+        public static string JuniperWood {
+            get {
+                return ResourceManager.GetString("JuniperWood", resourceCulture);
             }
         }
         
@@ -1077,11 +1374,65 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mahogany Leaves.
+        /// </summary>
+        public static string MahoganyLeaves {
+            get {
+                return ResourceManager.GetString("MahoganyLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mahagony Log.
+        /// </summary>
+        public static string MahoganyLog {
+            get {
+                return ResourceManager.GetString("MahoganyLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mahogany Wood.
+        /// </summary>
+        public static string MahoganyWood {
+            get {
+                return ResourceManager.GetString("MahoganyWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maize.
         /// </summary>
         public static string Maize {
             get {
                 return ResourceManager.GetString("Maize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maple Leaves.
+        /// </summary>
+        public static string MapleLeaves {
+            get {
+                return ResourceManager.GetString("MapleLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maple Log.
+        /// </summary>
+        public static string MapleLog {
+            get {
+                return ResourceManager.GetString("MapleLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maple Wood.
+        /// </summary>
+        public static string MapleWood {
+            get {
+                return ResourceManager.GetString("MapleWood", resourceCulture);
             }
         }
         
@@ -1185,6 +1536,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mesquite Leaves.
+        /// </summary>
+        public static string MesquiteLeaves {
+            get {
+                return ResourceManager.GetString("MesquiteLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mesquite Log.
+        /// </summary>
+        public static string MesquiteLog {
+            get {
+                return ResourceManager.GetString("MesquiteLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mesquite Wood.
+        /// </summary>
+        public static string MesquiteWood {
+            get {
+                return ResourceManager.GetString("MesquiteWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Milk.
         /// </summary>
         public static string Milk {
@@ -1262,6 +1640,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string NoWorldsFound {
             get {
                 return ResourceManager.GetString("NoWorldsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oak Leaves.
+        /// </summary>
+        public static string OakLeaves {
+            get {
+                return ResourceManager.GetString("OakLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oak Log.
+        /// </summary>
+        public static string OakLog {
+            get {
+                return ResourceManager.GetString("OakLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oak Wood.
+        /// </summary>
+        public static string OakWood {
+            get {
+                return ResourceManager.GetString("OakWood", resourceCulture);
             }
         }
         
@@ -1707,6 +2112,51 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pine Needles.
+        /// </summary>
+        public static string PineLeaves {
+            get {
+                return ResourceManager.GetString("PineLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pine Log.
+        /// </summary>
+        public static string PineLog {
+            get {
+                return ResourceManager.GetString("PineLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pine Wood.
+        /// </summary>
+        public static string PineWood {
+            get {
+                return ResourceManager.GetString("PineWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pipe.
+        /// </summary>
+        public static string Pipe {
+            get {
+                return ResourceManager.GetString("Pipe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Planks.
+        /// </summary>
+        public static string Planks {
+            get {
+                return ResourceManager.GetString("Planks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Potatoes.
         /// </summary>
         public static string Potatoes {
@@ -1914,6 +2364,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Rubber Tree Leaves.
+        /// </summary>
+        public static string RubberTreeLeaves {
+            get {
+                return ResourceManager.GetString("RubberTreeLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rubber Tree Log.
+        /// </summary>
+        public static string RubberTreeLog {
+            get {
+                return ResourceManager.GetString("RubberTreeLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rubber Tree Wood.
+        /// </summary>
+        public static string RubberTreeWood {
+            get {
+                return ResourceManager.GetString("RubberTreeWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rust.
         /// </summary>
         public static string Rust {
@@ -2112,6 +2589,33 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Shepherd&apos;s Tree Leaves.
+        /// </summary>
+        public static string ShepherdsTreeLeaves {
+            get {
+                return ResourceManager.GetString("ShepherdsTreeLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shepherd&apos;s Tree Log.
+        /// </summary>
+        public static string ShepherdsTreeLog {
+            get {
+                return ResourceManager.GetString("ShepherdsTreeLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shepherd&apos;s Tree Wood.
+        /// </summary>
+        public static string ShepherdsTreeWood {
+            get {
+                return ResourceManager.GetString("ShepherdsTreeWood", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to by.
         /// </summary>
         public static string SizeBy {
@@ -2144,6 +2648,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string SpiderWeb {
             get {
                 return ResourceManager.GetString("SpiderWeb", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spruce Needles.
+        /// </summary>
+        public static string SpruceLeaves {
+            get {
+                return ResourceManager.GetString("SpruceLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spruce Log.
+        /// </summary>
+        public static string SpruceLog {
+            get {
+                return ResourceManager.GetString("SpruceLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spruce Wood.
+        /// </summary>
+        public static string SpruceWood {
+            get {
+                return ResourceManager.GetString("SpruceWood", resourceCulture);
             }
         }
         
@@ -2234,6 +2765,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string TallGrass {
             get {
                 return ResourceManager.GetString("TallGrass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teak Leaves.
+        /// </summary>
+        public static string TeakLeaves {
+            get {
+                return ResourceManager.GetString("TeakLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teak Log.
+        /// </summary>
+        public static string TeakLog {
+            get {
+                return ResourceManager.GetString("TeakLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teak Wood.
+        /// </summary>
+        public static string TeakWood {
+            get {
+                return ResourceManager.GetString("TeakWood", resourceCulture);
             }
         }
         
@@ -2351,6 +2909,33 @@ namespace VoxelGame.Core.Resources.Language {
         public static string VoxelGame {
             get {
                 return ResourceManager.GetString("VoxelGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Walnut Leaves.
+        /// </summary>
+        public static string WalnutLeaves {
+            get {
+                return ResourceManager.GetString("WalnutLeaves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Walnut Log.
+        /// </summary>
+        public static string WalnutLog {
+            get {
+                return ResourceManager.GetString("WalnutLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Walnut Wood.
+        /// </summary>
+        public static string WalnutWood {
+            get {
+                return ResourceManager.GetString("WalnutWood", resourceCulture);
             }
         }
         

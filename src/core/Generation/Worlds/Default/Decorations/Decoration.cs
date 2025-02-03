@@ -121,11 +121,11 @@ public abstract class Decoration : IResource
     /// <param name="Position">The position of the section.</param>
     /// <param name="Sections">The section and its neighbors.</param>
     /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
-    /// <param name="Noise">The noise used for decoration placement.</param>
+    /// <param name="NoiseArray">The noise used for decoration placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Generator">The generator that is placing the decoration.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> Noise, Int32 Index, Palette Palette, Generator Generator) : IGrid
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> NoiseArray, Int32 Index, Palette Palette, Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
@@ -167,7 +167,7 @@ public abstract class Decoration : IResource
 
     private sealed class Noise(in Context context)
     {
-        private readonly Array3D<Single> noise = context.Noise;
+        private readonly Array3D<Single> noise = context.NoiseArray;
         private readonly Random randomNumberGenerator = new(HashCode.Combine(context.Position, context.Index));
 
         public Boolean CheckCandidate(Vector3i position, Single rarity, out Single random)

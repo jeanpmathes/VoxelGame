@@ -242,8 +242,8 @@ public class PipelineBuilder
             isVisible = material.Groups.HasFlag(Groups.Visible),
             isShadowCaster = material.Groups.HasFlag(Groups.ShadowCaster),
             isOpaque = material.IsOpaque,
-            isAnimated = material.Animation.HasValue,
-            animationShaderIndex = material.Animation ?? 0,
+            isAnimated = material.AnimationIndex.HasValue,
+            animationShaderIndex = material.AnimationIndex ?? 0,
             normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
             normalAnyHitSymbol = material.Normal.AnyHitSymbol,
             normalIntersectionSymbol = material.Normal.IntersectionSymbol,
@@ -260,7 +260,7 @@ public class PipelineBuilder
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);
 
-    private sealed record MaterialConfig(String Name, Groups Groups, Boolean IsOpaque, UInt32? Animation, HitGroup Normal, HitGroup Shadow);
+    private sealed record MaterialConfig(String Name, Groups Groups, Boolean IsOpaque, UInt32? AnimationIndex, HitGroup Normal, HitGroup Shadow);
 
     /// <summary>
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.

@@ -28,6 +28,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // p: position
 public class BedBlock : Block, ICombustible, IFillable, IComplex
 {
+    private readonly TID texture;
     private readonly RID model;
 
     private readonly List<BlockMesh> footMeshes = new(capacity: 4);
@@ -35,7 +36,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal BedBlock(String name, String namedID, RID model) :
+    internal BedBlock(String name, String namedID, TID texture, RID model) :
         base(
             name,
             namedID,
@@ -44,6 +45,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5),
                 new Vector3d(x: 0.5, y: 0.21875, z: 0.5)))
     {
+        this.texture = texture;
         this.model = model;
     }
 
@@ -62,6 +64,11 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     protected override void OnSetUp(ITextureIndexProvider textureIndexProvider, IBlockModelProvider modelProvider, VisualConfiguration visuals)
     {
         BlockModel blockModel = modelProvider.GetModel(model);
+
+        blockModel.OverwriteTexture(texture.Offset(x: 0, y: 1), index: 0);
+        blockModel.OverwriteTexture(texture.Offset(x: 0, y: 0), index: 1);
+        blockModel.OverwriteTexture(texture.Offset(x: 1, y: 0), index: 2);
+        blockModel.OverwriteTexture(texture.Offset(x: 1, y: 1), index: 3);
 
         blockModel.PlaneSplit(Vector3d.UnitZ, Vector3d.UnitZ, out BlockModel foot, out BlockModel head);
         foot.Move(-Vector3d.UnitZ);

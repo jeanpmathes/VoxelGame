@@ -921,4 +921,199 @@
     <data name="TallestGrass" xml:space="preserve">
         <value>Tallest Grass</value>
     </data>
+    <data name="OakLog" xml:space="preserve">
+        <value>Oak Log</value>
+    </data>
+    <data name="OakLeaves" xml:space="preserve">
+        <value>Oak Leaves</value>
+    </data>
+    <data name="OakWood" xml:space="preserve">
+        <value>Oak Wood</value>
+    </data>
+    <data name="MapleLeaves" xml:space="preserve">
+        <value>Maple Leaves</value>
+    </data>
+    <data name="MapleLog" xml:space="preserve">
+        <value>Maple Log</value>
+    </data>
+    <data name="MapleWood" xml:space="preserve">
+        <value>Maple Wood</value>
+    </data>
+    <data name="BirchLeaves" xml:space="preserve">
+        <value>Birch Leaves</value>
+    </data>
+    <data name="BirchLog" xml:space="preserve">
+        <value>Birch Log</value>
+    </data>
+    <data name="BirchWood" xml:space="preserve">
+        <value>Birch Wood</value>
+    </data>
+    <data name="WalnutLeaves" xml:space="preserve">
+        <value>Walnut Leaves</value>
+    </data>
+    <data name="WalnutLog" xml:space="preserve">
+        <value>Walnut Log</value>
+    </data>
+    <data name="WalnutWood" xml:space="preserve">
+        <value>Walnut Wood</value>
+    </data>
+    <data name="CherryLeaves" xml:space="preserve">
+        <value>Cherry Leaves</value>
+    </data>
+    <data name="CherryLog" xml:space="preserve">
+        <value>Cherry Log</value>
+    </data>
+    <data name="CherryWood" xml:space="preserve">
+        <value>Cherry Wood</value>
+    </data>
+    <data name="AshTreeLeaves" xml:space="preserve">
+        <value>Ash Leaves</value>
+    </data>
+    <data name="AshTreeLog" xml:space="preserve">
+        <value>Ash Log</value>
+    </data>
+    <data name="AshTreeWood" xml:space="preserve">
+        <value>Ash Wood</value>
+    </data>
+    <data name="RubberTreeLeaves" xml:space="preserve">
+        <value>Rubber Tree Leaves</value>
+    </data>
+    <data name="RubberTreeLog" xml:space="preserve">
+        <value>Rubber Tree Log</value>
+    </data>
+    <data name="RubberTreeWood" xml:space="preserve">
+        <value>Rubber Tree Wood</value>
+    </data>
+    <data name="PineWood" xml:space="preserve">
+        <value>Pine Wood</value>
+    </data>
+    <data name="PineLog" xml:space="preserve">
+        <value>Pine Log</value>
+    </data>
+    <data name="PineLeaves" xml:space="preserve">
+        <value>Pine Needles</value>
+    </data>
+    <data name="SpruceLog" xml:space="preserve">
+        <value>Spruce Log</value>
+    </data>
+    <data name="SpruceWood" xml:space="preserve">
+        <value>Spruce Wood</value>
+    </data>
+    <data name="SpruceLeaves" xml:space="preserve">
+        <value>Spruce Needles</value>
+    </data>
+    <data name="FirLeaves" xml:space="preserve">
+        <value>Fir Needles</value>
+    </data>
+    <data name="FirLog" xml:space="preserve">
+        <value>Fir Log</value>
+    </data>
+    <data name="FirWood" xml:space="preserve">
+        <value>Fir Wood</value>
+    </data>
+    <data name="MahoganyLeaves" xml:space="preserve">
+        <value>Mahogany Leaves</value>
+    </data>
+    <data name="MahoganyLog" xml:space="preserve">
+        <value>Mahagony Log</value>
+    </data>
+    <data name="MahoganyWood" xml:space="preserve">
+        <value>Mahogany Wood</value>
+    </data>
+    <data name="TeakLeaves" xml:space="preserve">
+        <value>Teak Leaves</value>
+    </data>
+    <data name="TeakLog" xml:space="preserve">
+        <value>Teak Log</value>
+    </data>
+    <data name="TeakWood" xml:space="preserve">
+        <value>Teak Wood</value>
+    </data>
+    <data name="EbonyLeaves" xml:space="preserve">
+        <value>Ebony Leaves</value>
+    </data>
+    <data name="EbonyLog" xml:space="preserve">
+        <value>Ebony Log</value>
+    </data>
+    <data name="EbonyWood" xml:space="preserve">
+        <value>Ebony Wood</value>
+    </data>
+    <data name="CoconutPalmLeaves" xml:space="preserve">
+        <value>Coconut Palm Leaves</value>
+    </data>
+    <data name="CoconutPalmLog" xml:space="preserve">
+        <value>Coconut Palm Log</value>
+    </data>
+    <data name="CoconutPalmWood" xml:space="preserve">
+        <value>Coconut Palm Wood</value>
+    </data>
+    <data name="DatePalmLeaves" xml:space="preserve">
+        <value>Date Palm Leaves</value>
+    </data>
+    <data name="DatePalmLog" xml:space="preserve">
+        <value>Date Palm Log</value>
+    </data>
+    <data name="DatePalmWood" xml:space="preserve">
+        <value>Date Palm Wood</value>
+    </data>
+    <data name="AcaciaLeaves" xml:space="preserve">
+        <value>Acacia Leaves</value>
+    </data>
+    <data name="AcaciaLog" xml:space="preserve">
+        <value>Acacia Log</value>
+    </data>
+    <data name="AcaciaWood" xml:space="preserve">
+        <value>Acacia Wood</value>
+    </data>
+    <data name="BaobabLeaves" xml:space="preserve">
+        <value>Baobab Leaves</value>
+    </data>
+    <data name="BaobabLog" xml:space="preserve">
+        <value>Baobab Log</value>
+    </data>
+    <data name="BaobabWood" xml:space="preserve">
+        <value>Baobab Wood</value>
+    </data>
+    <data name="ShepherdsTreeLeaves" xml:space="preserve">
+        <value>Shepherd's Tree Leaves</value>
+    </data>
+    <data name="ShepherdsTreeLog" xml:space="preserve">
+        <value>Shepherd's Tree Log</value>
+    </data>
+    <data name="ShepherdsTreeWood" xml:space="preserve">
+        <value>Shepherd's Tree Wood</value>
+    </data>
+    <data name="JuniperLeaves" xml:space="preserve">
+        <value>Juniper Leaves</value>
+    </data>
+    <data name="JuniperLog" xml:space="preserve">
+        <value>Juniper Log</value>
+    </data>
+    <data name="JuniperWood" xml:space="preserve">
+        <value>Juniper Wood</value>
+    </data>
+    <data name="MesquiteLeaves" xml:space="preserve">
+        <value>Mesquite Leaves</value>
+    </data>
+    <data name="MesquiteLog" xml:space="preserve">
+        <value>Mesquite Log</value>
+    </data>
+    <data name="MesquiteWood" xml:space="preserve">
+        <value>Mesquite Wood</value>
+    </data>
+    <data name="Planks" xml:space="preserve">
+        <value>Planks</value>
+    </data>
+    <data name="Fence" xml:space="preserve">
+        <value>Fence</value>
+    </data>
+    <data name="Gate" xml:space="preserve">
+        <value>Gate</value>
+    </data>
+    <data name="Door" xml:space="preserve">
+        <value>Door</value>
+    </data>
+    <data name="Pipe" xml:space="preserve">
+        <value>Pipe</value>
+    </data>
 </root>

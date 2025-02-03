@@ -260,7 +260,7 @@ public partial class Chunk : IDisposable, IEntity
     protected internal ChunkState State => state;
 
     /// <inheritdoc />
-    public static UInt32 Version => 1;
+    public static UInt32 CurrentVersion => 1;
 
     /// <inheritdoc />
     public void Serialize(Serializer serializer, IEntity.Header header)

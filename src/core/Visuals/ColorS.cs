@@ -379,6 +379,11 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     public static ColorS Lime => new(red: 0.75f, green: 1f, blue: 0f);
 
     /// <summary>
+    ///     Gets a dark green color: <c>(0.05|0.4|0.05)</c>
+    /// </summary>
+    public static ColorS ForrestGreen => new(red: 0.05f, green: 0.4f, blue: 0.05f);
+
+    /// <summary>
     ///     Gets a gray color: <c>(0.15|0.15|0.15)</c>
     /// </summary>
     public static ColorS Gray => new(red: 0.15f, green: 0.15f, blue: 0.15f);

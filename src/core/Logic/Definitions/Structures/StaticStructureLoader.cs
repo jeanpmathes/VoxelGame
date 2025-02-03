@@ -39,7 +39,7 @@ public sealed class StaticStructureLoader : IResourceLoader
 
         foreach (FileInfo file in files)
         {
-            Exception? exception = StaticStructure.Load(file, out StaticStructure structure);
+            Exception? exception = StaticStructure.Load(file, context, out StaticStructure structure);
 
             if (exception != null) loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
             else loaded.Add(structure);

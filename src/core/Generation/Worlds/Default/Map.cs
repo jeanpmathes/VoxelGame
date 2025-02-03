@@ -101,7 +101,7 @@ public sealed partial class Map : IMap, IDisposable
     private const Double MaxTemperature = 30.0;
 
     private static readonly ColorS blockTintWarm = ColorS.LightGreen;
-    private static readonly ColorS blockTintCold = ColorS.DarkGreen;
+    private static readonly ColorS blockTintCold = ColorS.ForrestGreen;
     private static readonly ColorS blockTintMoist = ColorS.LawnGreen;
     private static readonly ColorS blockTintDry = ColorS.Olive;
 
@@ -863,7 +863,7 @@ public sealed partial class Map : IMap, IDisposable
         private readonly Array2D<Cell> cells = new(Width);
 
         /// <inheritdoc />
-        public static UInt32 Version => 1;
+        public static UInt32 CurrentVersion => 1;
 
         /// <inheritdoc />
         public void Serialize(Serializer serializer, IEntity.Header header)

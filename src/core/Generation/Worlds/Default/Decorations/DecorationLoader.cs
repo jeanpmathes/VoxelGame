@@ -40,7 +40,10 @@ public sealed class DecorationLoader : IResourceLoader
             new BoulderDecoration("Boulder", rarity: 2000.0f, new SurfaceDecorator(width: 5)),
             new StructureDecoration("Shrub", rarity: 100.0f, new Tree(Tree.Kind.Shrub), new PlantableDecorator(Vector3i.UnitY, width: 3)),
             new RootDecoration("Roots", rarity: 1000.0f, new DepthDecorator(minDepth: 5, maxDepth: 15)),
-            new FlatBlockDecoration("Vines", rarity: 1.0f, Blocks.Instance.Specials.Vines, new HashSet<Block> {Blocks.Instance.Log, Blocks.Instance.Leaves})
+            new FlatBlockDecoration("Vines",
+                rarity: 1.0f,
+                Blocks.Instance.Specials.Vines,
+                new HashSet<Block> {Blocks.Instance.Mahogany.Log, Blocks.Instance.Mahogany.Leaves, Blocks.Instance.Teak.Log, Blocks.Instance.Teak.Leaves})
         ]);
     }
 }

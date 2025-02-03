@@ -199,11 +199,11 @@ public class Tree : DynamicStructure
             return (new Content(Elements.Blocks.Instance.Roots), overwrite: true);
 
         if (offset.X == center && offset.Z == center && offset.Y < height)
-            return (new Content(Elements.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+            return (new Content(Elements.Blocks.Instance.Oak.Log), overwrite: true);
 
         if (!GetCrownShape().Contains(offset, out Single closeness)) return null;
         if (closeness < factor * random) return null;
 
-        return (new Content(Elements.Blocks.Instance.Leaves), overwrite: false);
+        return (new Content(Elements.Blocks.Instance.Oak.Leaves), overwrite: false);
     }
 }

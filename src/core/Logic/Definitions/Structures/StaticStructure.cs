@@ -36,7 +36,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
         Extents = extents;
     }
 
-    private StaticStructure(Definition definition, String name, RID identifier)
+    private StaticStructure(Definition definition, String name, RID identifier, IResourceContext? context)
     {
         Identifier = identifier;
         Extents = new Vector3i(MaxSize);
@@ -50,7 +50,8 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
 
         contents = new Content?[extents.X, extents.Y, extents.Z];
 
-        foreach (Placement placement in definition.Placements) ApplyPlacement(placement, name);
+        foreach (Placement placement in definition.Placements)
+            ApplyPlacement(placement, name, context);
     }
 
     /// <inheritdoc />
@@ -122,7 +123,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     /// <returns>The loaded structure, or null if the loading failed.</returns>
     public static StaticStructure Load(DirectoryInfo directory, String name)
     {
-        Exception? exception = Load(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), out StaticStructure structure);
+        Exception? exception = Load(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), context: null, out StaticStructure structure);
 
         if (exception != null) LogFailedStructureLoad(logger, exception, name);
         else LogSuccessfulStructureLoad(logger, name);
@@ -134,9 +135,10 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     ///     Load a structure from a file.
     /// </summary>
     /// <param name="file">The file to load from.</param>
+    /// <param name="context">The context to report loading issues to, or <c>null</c> to just log them.</param>
     /// <param name="structure">The loaded structure, or a fallback structure if the loading failed.</param>
     /// <returns>An exception if loading failed, <c>null</c> otherwise.</returns>
-    public static Exception? Load(FileInfo file, out StaticStructure structure)
+    public static Exception? Load(FileInfo file, IResourceContext? context, out StaticStructure structure)
     {
         Exception? exception = Serialize.LoadJSON(file, out Definition definition);
 
@@ -147,7 +149,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
             return exception;
         }
 
-        structure = new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file));
+        structure = new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file), context);
 
         return null;
     }
@@ -164,7 +166,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
         return new StaticStructure(fallback, Vector3i.One);
     }
 
-    private void ApplyPlacement(Placement placement, String name)
+    private void ApplyPlacement(Placement placement, String name, IResourceContext? context)
     {
         Vector3i position = GetVector(placement.Position, name);
 
@@ -180,7 +182,9 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
 
         if (block == null)
         {
-            LogUnknownBlockInStructure(logger, placement.Block, name);
+            if (context != null) context.ReportWarning(this, $"Unknown block '{placement.Block}' in structure '{name}'");
+            else LogUnknownBlockInStructure(logger, placement.Block, name);
+
             block = Elements.Blocks.Instance.Air;
         }
 
@@ -190,7 +194,9 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
 
         if (fluid == null)
         {
-            LogUnknownFluidInStructure(logger, placement.Fluid, name);
+            if (context != null) context.ReportWarning(this, $"Unknown fluid '{placement.Fluid}' in structure '{name}'");
+            else LogUnknownFluidInStructure(logger, placement.Fluid, name);
+
             fluid = Elements.Fluids.Instance.None;
         }
 

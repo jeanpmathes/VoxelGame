@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
@@ -16,10 +17,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class OrganicDoorBlock : DoorBlock, ICombustible
 {
-    internal OrganicDoorBlock(String name, String namedID, RID closed, RID open) :
+    internal OrganicDoorBlock(String name, String namedID, TID texture, RID closed, RID open) :
         base(
             name,
             namedID,
+            texture,
             closed,
             open) {}
 }

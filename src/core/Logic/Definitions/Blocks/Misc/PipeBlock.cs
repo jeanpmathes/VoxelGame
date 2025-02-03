@@ -30,6 +30,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : IPipeConnectable
 {
+    private readonly TID? texture;
     private readonly RID centerModel;
     private readonly RID connectorModel;
     private readonly RID surfaceModel;
@@ -39,7 +40,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal PipeBlock(String name, String namedID, Single diameter,
+    internal PipeBlock(String name, String namedID, Single diameter, TID? texture,
         RID centerModel, RID connectorModel, RID surfaceModel) :
         base(
             name,
@@ -49,6 +50,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         this.diameter = diameter;
 
+        this.texture = texture;
         this.centerModel = centerModel;
         this.connectorModel = connectorModel;
         this.surfaceModel = surfaceModel;
@@ -83,6 +85,13 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         BlockModel frontConnector = modelProvider.GetModel(connectorModel);
         BlockModel frontSurface = modelProvider.GetModel(surfaceModel);
+
+        if (texture is {} newTexture)
+        {
+            center.OverwriteTexture(newTexture, index: 0);
+            frontConnector.OverwriteTexture(newTexture, index: 0);
+            frontSurface.OverwriteTexture(newTexture, index: 0);
+        }
 
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             connectors = frontConnector.CreateAllSides();

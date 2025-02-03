@@ -163,22 +163,27 @@ public sealed partial class BlockModel : IResource, ILocated
     }
 
     /// <summary>
-    ///     Overwrites the textures of the model, replacing them with a single texture.
+    ///     Overwrites the texture of the model, replacing them with a single texture.
+    ///     This is only valid for models that have a single texture.
     /// </summary>
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(TID newTexture)
     {
-        TextureNames = [newTexture.Key];
+        Debug.Assert(TextureNames.Length == 1);
 
-        for (var i = 0; i < Quads.Length; i++)
-        {
-            Quad old = Quads[i];
+        OverwriteTexture(newTexture, index: 0);
+    }
 
-            Quads[i] = old with
-            {
-                TextureId = 0
-            };
-        }
+    /// <summary>
+    ///     Overwrite the texture with the given local index.
+    /// </summary>
+    /// <param name="newTexture">The new texture.</param>
+    /// <param name="index">The index of the texture to replace.</param>
+    public void OverwriteTexture(TID newTexture, Int32 index)
+    {
+        Debug.Assert(index >= 0 && index < TextureNames.Length);
+
+        TextureNames[index] = newTexture.Key;
     }
 
     /// <summary>
