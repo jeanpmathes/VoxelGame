@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VoxelGame.Core.Logic.Definitions;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -40,7 +42,7 @@ public sealed class BlockLoader : IResourceLoader
                     foreach (Block block in Blocks.Instance.Content.Take(BlockLimit))
                         block.SetUp(id++, textureIndexProvider, blockModelProvider, visualConfiguration);
 
-                    return Blocks.Instance.Content.Take(BlockLimit);
+                    return Blocks.Instance.Content.Take(BlockLimit).Cast<IContent>().Concat(Blocks.Instance.Registry.RetrieveContent<IConvention>());
                 })));
     }
 }

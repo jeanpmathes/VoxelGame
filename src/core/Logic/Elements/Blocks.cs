@@ -10,12 +10,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -29,24 +29,29 @@ namespace VoxelGame.Core.Logic.Elements;
 /// <summary>
 ///     Contains all block definitions of the core game.
 /// </summary>
-public sealed partial class Blocks(Registry<Block> registry)
+public sealed partial class Blocks(ContentRegistry registry)
 {
     private SpecialBlocks? special;
 
     /// <summary>
+    ///     The registry containing all content defined in this class.
+    /// </summary>
+    public ContentRegistry Registry => registry;
+
+    /// <summary>
     ///     Get all blocks in this class.
     /// </summary>
-    public IEnumerable<Block> Content => registry.Values;
+    public IEnumerable<Block> Content => registry.Blocks.Values;
 
     /// <summary>
     ///     Get the blocks instance.
     /// </summary>
-    public static Blocks Instance { get; } = new(new Registry<Block>(block => block.NamedID));
+    public static Blocks Instance { get; } = new(ContentRegistry.Create());
 
     /// <summary>
     ///     Gets the count of registered blocks.
     /// </summary>
-    public Int32 Count => registry.Count;
+    public Int32 Count => registry.Blocks.Count;
 
     /// <summary>
     ///     Get special blocks as their actual block type.
@@ -61,7 +66,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Block TranslateID(UInt32 id)
     {
-        if (registry.Count > id) return registry[(Int32) id];
+        if (registry.Blocks.Count > id) return registry.Blocks[(Int32) id];
 
         LogUnknownID(logger, id, Air.NamedID);
 
@@ -75,7 +80,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     /// <returns>The block, or null if no block with the ID exists.</returns>
     public Block? TranslateNamedID(String namedID)
     {
-        return registry[namedID];
+        return registry.Blocks[namedID];
     }
 
     /// <summary>
@@ -85,7 +90,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
     public Block SafelyTranslateNamedID(String namedID)
     {
-        Block? block = registry[namedID];
+        Block? block = registry.Blocks[namedID];
 
         if (block != null)
             return block;
@@ -1567,144 +1572,161 @@ public sealed partial class Blocks(Registry<Block> registry)
     ///     Oak wood.
     /// </summary>
     public Wood Oak { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.OakLeaves, Language.OakLog, Language.OakWood),
-        nameof(Oak));
+        new Wood.Language(Language.OakLeaves, Language.OakLog, Language.OakWood),
+        nameof(Oak),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Maple wood.
     /// </summary>
     public Wood Maple { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.MapleLeaves, Language.MapleLog, Language.MapleWood),
-        nameof(Maple));
+        new Wood.Language(Language.MapleLeaves, Language.MapleLog, Language.MapleWood),
+        nameof(Maple),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Birch wood.
     /// </summary>
     public Wood Birch { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.BirchLeaves, Language.BirchLog, Language.BirchWood),
-        nameof(Birch));
+        new Wood.Language(Language.BirchLeaves, Language.BirchLog, Language.BirchWood),
+        nameof(Birch),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Maple wood.
     /// </summary>
     public Wood Walnut { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.WalnutLeaves, Language.WalnutLog, Language.WalnutWood),
-        nameof(Walnut));
+        new Wood.Language(Language.WalnutLeaves, Language.WalnutLog, Language.WalnutWood),
+        nameof(Walnut),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Cherry wood.
     /// </summary>
     public Wood Cherry { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.CherryLeaves, Language.CherryLog, Language.CherryWood),
-        nameof(Cherry));
+        new Wood.Language(Language.CherryLeaves, Language.CherryLog, Language.CherryWood),
+        nameof(Cherry),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Ash tree wood.
     /// </summary>
     public Wood AshTree { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.AshTreeLeaves, Language.AshTreeLog, Language.AshTreeWood),
-        nameof(AshTree));
+        new Wood.Language(Language.AshTreeLeaves, Language.AshTreeLog, Language.AshTreeWood),
+        nameof(AshTree),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Rubber tree wood.
     /// </summary>
     public Wood RubberTree { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.RubberTreeLeaves, Language.RubberTreeLog, Language.RubberTreeWood),
-        nameof(RubberTree));
+        new Wood.Language(Language.RubberTreeLeaves, Language.RubberTreeLog, Language.RubberTreeWood),
+        nameof(RubberTree),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Pine wood.
     /// </summary>
     public Wood Pine { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.PineLeaves, Language.PineLog, Language.PineWood),
+        new Wood.Language(Language.PineLeaves, Language.PineLog, Language.PineWood),
         nameof(Pine),
-        needles: true);
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Normal, Needles: true));
 
     /// <summary>
     ///     Spruce wood.
     /// </summary>
     public Wood Spruce { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.SpruceLeaves, Language.SpruceLog, Language.SpruceWood),
+        new Wood.Language(Language.SpruceLeaves, Language.SpruceLog, Language.SpruceWood),
         nameof(Spruce),
-        needles: true);
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
 
     /// <summary>
     ///     Fir wood.
     /// </summary>
     public Wood Fir { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.FirLeaves, Language.FirLog, Language.FirWood),
+        new Wood.Language(Language.FirLeaves, Language.FirLog, Language.FirWood),
         nameof(Fir),
-        needles: true);
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
 
     /// <summary>
     ///     Mahogany wood.
     /// </summary>
     public Wood Mahogany { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.MahoganyLeaves, Language.MahoganyLog, Language.MahoganyWood),
-        nameof(Mahogany));
+        new Wood.Language(Language.MahoganyLeaves, Language.MahoganyLog, Language.MahoganyWood),
+        nameof(Mahogany),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Teak wood.
     /// </summary>
     public Wood Teak { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.TeakLeaves, Language.TeakLog, Language.TeakWood),
-        nameof(Teak));
+        new Wood.Language(Language.TeakLeaves, Language.TeakLog, Language.TeakWood),
+        nameof(Teak),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Ebony wood.
     /// </summary>
     public Wood Ebony { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.EbonyLeaves, Language.EbonyLog, Language.EbonyWood),
-        nameof(Ebony));
+        new Wood.Language(Language.EbonyLeaves, Language.EbonyLog, Language.EbonyWood),
+        nameof(Ebony),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Coconut palm wood.
     /// </summary>
     public Wood CoconutPalm { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
-        nameof(CoconutPalm));
+        new Wood.Language(Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
+        nameof(CoconutPalm),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Soil: Wood.Tree.SoilType.Sand));
 
     /// <summary>
     ///     Date palm wood.
     /// </summary>
     public Wood DatePalm { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
-        nameof(DatePalm));
+        new Wood.Language(Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
+        nameof(DatePalm),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Soil: Wood.Tree.SoilType.Sand));
 
     /// <summary>
     ///     Acacia wood.
     /// </summary>
     public Wood Acacia { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.AcaciaLeaves, Language.AcaciaLog, Language.AcaciaWood),
-        nameof(Acacia));
+        new Wood.Language(Language.AcaciaLeaves, Language.AcaciaLog, Language.AcaciaWood),
+        nameof(Acacia),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Baobab wood.
     /// </summary>
     public Wood Baobab { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.BaobabLeaves, Language.BaobabLog, Language.BaobabWood),
-        nameof(Baobab));
+        new Wood.Language(Language.BaobabLeaves, Language.BaobabLog, Language.BaobabWood),
+        nameof(Baobab),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Shepherd's tree wood.
     /// </summary>
     public Wood ShepherdsTree { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.ShepherdsTreeLeaves, Language.ShepherdsTreeLog, Language.ShepherdsTreeWood),
-        nameof(ShepherdsTree));
+        new Wood.Language(Language.ShepherdsTreeLeaves, Language.ShepherdsTreeLog, Language.ShepherdsTreeWood),
+        nameof(ShepherdsTree),
+        new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Juniper wood.
     /// </summary>
     public Wood Juniper { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.JuniperLeaves, Language.JuniperLog, Language.JuniperWood),
-        nameof(Juniper));
+        new Wood.Language(Language.JuniperLeaves, Language.JuniperLog, Language.JuniperWood),
+        nameof(Juniper),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Mesquite wood.
     /// </summary>
     public Wood Mesquite { get; } = registry.RegisterWood(
-        new WoodConvention.Language(Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
-        nameof(Mesquite));
+        new Wood.Language(Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
+        nameof(Mesquite),
+        new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     #endregion NEW BLOCKS
 

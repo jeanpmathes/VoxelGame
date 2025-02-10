@@ -29,7 +29,7 @@ public class DecorationProvider : ResourceProvider<Decoration>, IDecorationProvi
         return GetResource(identifier);
     }
 
-    private sealed class EmptyDecoration() : Decoration("Fallback", Single.PositiveInfinity, new NeverDecorator())
+    private sealed class EmptyDecoration() : Decoration("Fallback", new NeverDecorator())
     {
         public override Int32 Size => 0;
 

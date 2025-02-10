@@ -42,6 +42,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private static Palette? loadedPalette;
     private static BiomeDistributionDefinition? loadedBiomeDistribution;
+
     private static List<StructureGeneratorDefinition> loadedStructures = [];
     private static List<BiomeDefinition> loadedBiomes = [];
 
@@ -230,25 +231,25 @@ public sealed partial class Generator : IWorldGenerator
     {
         ICollection<Biome> sectionBiomes = GetSectionBiomes(sections.Center.Position, columns);
 
-        HashSet<Decoration> decorations = [];
+        HashSet<(Decoration decoration, Single rarity)> decorations = [];
         Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
 
         foreach (Biome biome in sectionBiomes)
-        foreach (Decoration decoration in biome.Definition.Decorations)
+        foreach ((Decoration decoration, Single rarity) in biome.Definition.Decorations)
         {
-            decorations.Add(decoration);
+            decorations.Add((decoration, rarity));
             decorationToBiomes.GetOrAdd(decoration).Add(biome);
         }
 
-        Debug.Assert(decorations.GroupBy(d => d.Name).All(g => g.Count() <= 1));
+        Debug.Assert(decorations.GroupBy(d => d.decoration.Name).All(g => g.Count() <= 1));
 
         Array3D<Single> noise = decorationNoise.GetNoiseGrid(sections.Center.Position.FirstBlock, Section.Size);
 
         var index = 0;
 
-        foreach (Decoration decoration in decorations.OrderByDescending(d => d.Size).ThenBy(d => d.Name))
+        foreach ((Decoration decoration, Single rarity) in decorations.OrderByDescending(d => d.decoration.Size).ThenBy(d => d.decoration.Name))
         {
-            Decoration.Context context = new(sections.Center.Position, sections, decorationToBiomes[decoration], noise, index++, palette, this);
+            Decoration.Context context = new(sections.Center.Position, sections, decorationToBiomes[decoration], noise, rarity, index++, palette, this);
 
             decoration.Place(context);
         }

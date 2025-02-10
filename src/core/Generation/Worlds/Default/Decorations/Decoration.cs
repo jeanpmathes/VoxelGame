@@ -31,14 +31,10 @@ public abstract class Decoration : IResource
     ///     Creates a new decoration.
     /// </summary>
     /// <param name="name">The name of the decoration. Must be unique.</param>
-    /// <param name="rarity">
-    ///     The rarity of the decoration. A higher value indicates a lower chance of placement.
-    /// </param>
     /// <param name="decorator">The decorator that will be used to place the decoration.</param>
-    protected Decoration(String name, Single rarity, Decorator decorator)
+    protected Decoration(String name, Decorator decorator)
     {
         Name = name;
-        Rarity = rarity;
         Identifier = RID.Named<Decoration>(name);
 
         this.decorator = decorator;
@@ -48,11 +44,6 @@ public abstract class Decoration : IResource
     ///     Get the size of the decoration. Must be less or equal than <see cref="Section.Size" />.
     /// </summary>
     public abstract Int32 Size { get; }
-
-    /// <summary>
-    ///     The rarity of the decoration. A higher value indicates a lower chance of placement.
-    /// </summary>
-    private Single Rarity { get; }
 
     /// <summary>
     ///     Get the name of the decoration.
@@ -94,7 +85,7 @@ public abstract class Decoration : IResource
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (!noise.CheckCandidate(position, Rarity, out Single random)) continue;
+            if (!noise.CheckCandidate(position, context.Rarity, out Single random)) continue;
 
             placementContext = placementContext with {Random = random, Depth = surfaceHeight - position.Y};
 
@@ -122,10 +113,11 @@ public abstract class Decoration : IResource
     /// <param name="Sections">The section and its neighbors.</param>
     /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
     /// <param name="NoiseArray">The noise used for decoration placement.</param>
+    /// <param name="Rarity">The rarity of the decoration. A higher value indicates a lower chance of placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Generator">The generator that is placing the decoration.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> NoiseArray, Int32 Index, Palette Palette, Generator Generator) : IGrid
+    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> NoiseArray, Single Rarity, Int32 Index, Palette Palette, Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.

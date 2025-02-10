@@ -114,6 +114,11 @@ public static class ResourceTypes
     public static ResourceType Fluid { get; } = new(ResourceType.Category.Object, "fluid");
 
     /// <summary>
+    ///     The object type corresponding to content conventions.
+    /// </summary>
+    public static ResourceType Convention { get; } = new(ResourceType.Category.Object, "convention");
+
+    /// <summary>
     ///     The object type corresponding to command invokers.
     /// </summary>
     public static ResourceType CommandInvoker { get; } = new(ResourceType.Category.Object, "command_invoker");

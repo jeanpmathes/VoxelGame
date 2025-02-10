@@ -72,9 +72,10 @@ public sealed class BiomeDefinition(String name, Palette palette) : IResource
     }
 
     /// <summary>
-    ///     Get all decorations of this biome.
+    ///     Get all decorations of this biome, combined with their rarity.
+    ///     A higher rarity indicates a lower chance of placement.
     /// </summary>
-    public ICollection<Decoration> Decorations { get; init; } = new List<Decoration>();
+    public ICollection<(Decoration decoration, Single rarity)> Decorations { get; init; } = new List<(Decoration, Single)>();
 
     /// <summary>
     ///     Get the structure of this biome, if any.

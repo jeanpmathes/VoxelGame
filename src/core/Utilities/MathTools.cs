@@ -301,6 +301,16 @@ public static class MathTools
     }
 
     /// <summary>
+    ///     Returns a ceil-ed vector of a given vector.
+    /// </summary>
+    /// <param name="vector">The vector to ceil.</param>
+    /// <returns>The component-wise ceil-ed vector.</returns>
+    public static Vector3i Ceiling(this Vector3d vector)
+    {
+        return new Vector3i((Int32) Math.Ceiling(vector.X), (Int32) Math.Ceiling(vector.Y), (Int32) Math.Ceiling(vector.Z));
+    }
+
+    /// <summary>
     ///     Get the position below a given position.
     /// </summary>
     public static Vector3i Below(this Vector3i vector)

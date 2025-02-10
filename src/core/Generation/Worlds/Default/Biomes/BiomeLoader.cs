@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -73,17 +74,10 @@ public sealed class BiomeLoader : IResourceLoader
     {
         private static readonly RID tallGrass = RID.Named<Decoration>("TallGrass");
         private static readonly RID tallFlower = RID.Named<Decoration>("TallFlower");
-        private static readonly RID normalTree = RID.Named<Decoration>("NormalTree");
-        private static readonly RID normalTree2 = RID.Named<Decoration>("NormalTree2");
-        private static readonly RID tropicalTree = RID.Named<Decoration>("TropicalTree");
         private static readonly RID roots = RID.Named<Decoration>("Roots");
         private static readonly RID vines = RID.Named<Decoration>("Vines");
-        private static readonly RID needleTree = RID.Named<Decoration>("NeedleTree");
-        private static readonly RID savannaTree = RID.Named<Decoration>("SavannaTree");
-        private static readonly RID shrub = RID.Named<Decoration>("Shrub");
         private static readonly RID boulder = RID.Named<Decoration>("Boulder");
         private static readonly RID cactus = RID.Named<Decoration>("Cactus");
-        private static readonly RID palmTree = RID.Named<Decoration>("PalmTree");
 
         /// <summary>
         ///     The polar desert biome.
@@ -127,14 +121,17 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(tropicalTree),
-                decorations.GetDecoration(roots),
-                decorations.GetDecoration(vines)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 30.0f),
+                (decorations.GetDecoration(roots), 1000.0f),
+                (decorations.GetDecoration(vines), 1.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
         });
@@ -160,12 +157,15 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(roots)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
             }
         });
 
@@ -188,10 +188,13 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 8),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(needleTree)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 3.0f)
             }
         });
 
@@ -213,6 +216,10 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateLoose(width: 27),
                 Layer.CreateGroundwater(width: 8),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 500.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
         });
@@ -238,10 +245,13 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(savannaTree)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Baobab)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 30.0f)
             }
         });
 
@@ -266,13 +276,17 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(normalTree2),
-                decorations.GetDecoration(roots)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
             }
         });
 
@@ -297,12 +311,14 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(shrub),
-                decorations.GetDecoration(roots)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
             }
         });
 
@@ -327,11 +343,13 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(boulder),
-                decorations.GetDecoration(shrub)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 1000.0f)
             }
         });
 
@@ -354,9 +372,10 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(cactus)
+                (decorations.GetDecoration(cactus), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 1000.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
@@ -382,10 +401,13 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(boulder)
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 5000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 5000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 5000.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
         });
@@ -470,9 +492,9 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             },
-            Decorations = new List<Decoration>
+            Decorations = new List<(Decoration, Single)>
             {
-                decorations.GetDecoration(palmTree)
+                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)
             }
         });
 
@@ -511,5 +533,12 @@ public sealed class BiomeLoader : IResourceLoader
                 Layer.CreateStone(width: 39)
             }
         });
+
+        #pragma warning disable S3242 // Types have meaning.
+        private static RID Get(Wood wood)
+        {
+            return RID.Named<Decoration>(wood.NamedID);
+        }
+        #pragma warning restore S3242
     }
 }

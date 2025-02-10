@@ -7,13 +7,14 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Logic.Definitions;
 
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     Defines the basic <see cref="Block" /> methods required for a lot of block functionality.
 /// </summary>
-public interface IBlockBase
+public interface IBlockBase : IContent
 {
     /// <summary>
     ///     Gets the block id which can be any value from 0 to 4095.
@@ -24,11 +25,6 @@ public interface IBlockBase
     ///     Gets the localized name of the block.
     /// </summary>
     public String Name { get; }
-
-    /// <summary>
-    ///     An unlocalized string that identifies this block.
-    /// </summary>
-    public String NamedID { get; }
 
     /// <summary>
     ///     This property is only relevant for non-opaque full blocks. It decides if their faces should be rendered next to
