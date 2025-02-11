@@ -1292,7 +1292,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreMagnetite,
         nameof(Magnetite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_iron_magnetite"))));
+        TextureLayout.Uniform(TID.Block("iron_ore_magnetite"))));
 
     /// <summary>
     ///     Hematite is a type of iron ore.
@@ -1301,7 +1301,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreHematite,
         nameof(Hematite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_iron_hematite"))));
+        TextureLayout.Uniform(TID.Block("iron_ore_hematite"))));
 
     /// <summary>
     ///     Native gold is gold ore, containing mostly gold with some impurities.
@@ -1310,7 +1310,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreNativeGold,
         nameof(NativeGold),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_gold_native"))));
+        TextureLayout.Uniform(TID.Block("gold_ore_native"))));
 
     /// <summary>
     ///     Native silver is silver ore, containing mostly silver with some impurities.
@@ -1319,7 +1319,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreNativeSilver,
         nameof(NativeSilver),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_silver_native"))));
+        TextureLayout.Uniform(TID.Block("silver_ore_native"))));
 
     /// <summary>
     ///     Native platinum is platinum ore, containing mostly platinum with some impurities.
@@ -1328,7 +1328,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreNativePlatinum,
         nameof(NativePlatinum),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_platinum_native"))));
+        TextureLayout.Uniform(TID.Block("platinum_ore_native"))));
 
     /// <summary>
     ///     Native copper is copper ore, containing mostly copper with some impurities.
@@ -1337,7 +1337,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreNativeCopper,
         nameof(NativeCopper),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_native"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_native"))));
 
     /// <summary>
     ///     Chalcopyrite is a copper ore.
@@ -1347,7 +1347,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreChalcopyrite,
         nameof(Chalcopyrite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_chalcopyrite"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_chalcopyrite"))));
 
     /// <summary>
     ///     Malachite is a copper ore.
@@ -1357,7 +1357,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreMalachite,
         nameof(Malachite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_malachite"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_malachite"))));
 
     /// <summary>
     ///     Electrum is a naturally occurring alloy of gold and silver.
@@ -1366,7 +1366,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreElectrum,
         nameof(Electrum),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_electrum_native"))));
+        TextureLayout.Uniform(TID.Block("electrum_ore_native"))));
 
     /// <summary>
     ///     Bauxite is an aluminum ore.
@@ -1375,7 +1375,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreBauxite,
         nameof(Bauxite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_aluminium_bauxite"))));
+        TextureLayout.Uniform(TID.Block("aluminium_ore_bauxite"))));
 
     /// <summary>
     ///     Galena is a lead ore that is rich in lead and silver.
@@ -1384,7 +1384,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreGalena,
         nameof(Galena),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_lead_galena"))));
+        TextureLayout.Uniform(TID.Block("lead_ore_galena"))));
 
     /// <summary>
     ///     Cassiterite is a tin ore.
@@ -1393,7 +1393,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreCassiterite,
         nameof(Cassiterite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_tin_cassiterite"))));
+        TextureLayout.Uniform(TID.Block("tin_ore_cassiterite"))));
 
     /// <summary>
     ///     Cinnabar is a mercury ore.
@@ -1402,7 +1402,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreCinnabar,
         nameof(Cinnabar),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_mercury_cinnabar"))));
+        TextureLayout.Uniform(TID.Block("mercury_ore_cinnabar"))));
 
     /// <summary>
     ///     Sphalerite is a zinc ore.
@@ -1411,7 +1411,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreSphalerite,
         nameof(Sphalerite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_zinc_sphalerite"))));
+        TextureLayout.Uniform(TID.Block("zinc_ore_sphalerite"))));
 
     /// <summary>
     ///     Chromite is a chromium ore.
@@ -1420,7 +1420,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreChromite,
         nameof(Chromite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_chromium_chromite"))));
+        TextureLayout.Uniform(TID.Block("chromium_ore_chromite"))));
 
     /// <summary>
     ///     Pyrolusite is a manganese ore.
@@ -1429,7 +1429,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OrePyrolusite,
         nameof(Pyrolusite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_manganese_pyrolusite"))));
+        TextureLayout.Uniform(TID.Block("manganese_ore_pyrolusite"))));
 
     /// <summary>
     ///     Rutile is a titanium ore.
@@ -1438,7 +1438,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreRutile,
         nameof(Rutile),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_titanium_rutile"))));
+        TextureLayout.Uniform(TID.Block("titanium_ore_rutile"))));
 
     /// <summary>
     ///     Pentlandite is a nickel ore which is also rich in iron.
@@ -1447,7 +1447,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OrePentlandite,
         nameof(Pentlandite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_nickel_pentlandite"))));
+        TextureLayout.Uniform(TID.Block("nickel_ore_pentlandite"))));
 
     /// <summary>
     ///     Zircon is a zirconium ore.
@@ -1456,7 +1456,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreZircon,
         nameof(Zircon),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_zirconium_zircon"))));
+        TextureLayout.Uniform(TID.Block("zirconium_ore_zircon"))));
 
     /// <summary>
     ///     Dolomite is a carbonate rock, rich in magnesium.
@@ -1465,7 +1465,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreDolomite,
         nameof(Dolomite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_magnesium_dolomite"))));
+        TextureLayout.Uniform(TID.Block("magnesium_ore_dolomite"))));
 
     /// <summary>
     ///     Celestine is a strontium ore.
@@ -1474,7 +1474,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreCelestine,
         nameof(Celestine),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_strontium_celestine"))));
+        TextureLayout.Uniform(TID.Block("strontium_ore_celestine"))));
 
     /// <summary>
     ///     Uraninite is a uranium ore.
@@ -1483,7 +1483,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreUraninite,
         nameof(Uraninite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_uranium_uraninite"))));
+        TextureLayout.Uniform(TID.Block("uranium_ore_uraninite"))));
 
     /// <summary>
     ///     Bismuthinite is a bismuth ore.
@@ -1492,7 +1492,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreBismuthinite,
         nameof(Bismuthinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_bismuth_bismuthinite"))));
+        TextureLayout.Uniform(TID.Block("bismuth_ore_bismuthinite"))));
 
     /// <summary>
     ///     Beryl is a beryllium ore.
@@ -1502,7 +1502,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreBeryl,
         nameof(Beryl),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_beryllium_beryl"))));
+        TextureLayout.Uniform(TID.Block("beryllium_ore_beryl"))));
 
     /// <summary>
     ///     Molybdenite is a molybdenum ore.
@@ -1511,7 +1511,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreMolybdenite,
         nameof(Molybdenite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_molybdenum_molybdenite"))));
+        TextureLayout.Uniform(TID.Block("molybdenum_ore_molybdenite"))));
 
     /// <summary>
     ///     Cobaltite is a cobalt ore.
@@ -1520,7 +1520,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreCobaltite,
         nameof(Cobaltite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_cobalt_cobaltite"))));
+        TextureLayout.Uniform(TID.Block("cobalt_ore_cobaltite"))));
 
     /// <summary>
     ///     Spodumene is a lithium ore.
@@ -1529,7 +1529,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreSpodumene,
         nameof(Spodumene),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_lithium_spodumene"))));
+        TextureLayout.Uniform(TID.Block("lithium_ore_spodumene"))));
 
     /// <summary>
     ///     Vanadinite is a vanadium ore.
@@ -1538,7 +1538,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreVanadinite,
         nameof(Vanadinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_vanadium_vanadinite"))));
+        TextureLayout.Uniform(TID.Block("vanadium_ore_vanadinite"))));
 
     /// <summary>
     ///     Scheelite is a tungsten ore.
@@ -1547,7 +1547,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreScheelite,
         nameof(Scheelite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_tungsten_scheelite"))));
+        TextureLayout.Uniform(TID.Block("tungsten_ore_scheelite"))));
 
     /// <summary>
     ///     Greenockite is a cadmium ore.
@@ -1556,7 +1556,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.OreGreenockite,
         nameof(Greenockite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_cadmium_greenockite"))));
+        TextureLayout.Uniform(TID.Block("cadmium_ore_greenockite"))));
 
     /// <summary>
     ///     When iron is exposed to oxygen and moisture, it rusts.
