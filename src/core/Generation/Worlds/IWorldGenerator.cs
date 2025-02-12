@@ -70,6 +70,8 @@ public interface IWorldGenerator : IDisposable
 
     /// <summary>
     ///     Search for named generated elements, such as structures.
+    ///     The search must be lazy, only starting on enumeration.
+    ///     The search must be thread-safe.
     /// </summary>
     /// <param name="start">The start position.</param>
     /// <param name="name">The name of the element.</param>

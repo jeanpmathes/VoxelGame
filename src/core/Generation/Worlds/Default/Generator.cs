@@ -16,6 +16,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Generation.Worlds.Default.Search;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -55,13 +56,15 @@ public sealed partial class Generator : IWorldGenerator
     private readonly List<StructureGenerator> structures = [];
     private readonly List<Biome> biomes = [];
 
-    private readonly Dictionary<String, StructureGenerator> structuresByName = [];
+    private readonly Searcher search;
 
     private Generator(IWorldGeneratorContext context, Palette palette,
         BiomeDistributionDefinition biomeDistributionDefinition,
         IEnumerable<StructureGeneratorDefinition> structureDefinitions,
         IEnumerable<BiomeDefinition> biomeDefinitions)
     {
+        search = new Searcher(this);
+
         this.palette = palette;
 
         // Used for map generation and sampling.
@@ -72,6 +75,7 @@ public sealed partial class Generator : IWorldGenerator
 
         Dictionary<BiomeDefinition, Biome> biomeMap = new();
         Dictionary<StructureGeneratorDefinition, StructureGenerator> structureMap = new();
+        Dictionary<String, StructureGenerator> structuresByName = new();
 
         using (logger.BeginTimedSubScoped("Structures Setup", context.Timer))
         {
@@ -113,6 +117,8 @@ public sealed partial class Generator : IWorldGenerator
             .WithType(NoiseType.GradientNoise)
             .WithFrequency(frequency: 0.5f)
             .Build();
+
+        search.AddStructureSearch(structuresByName);
 
         LogCreatedWorldGenerator(logger, nameof(Default));
     }
@@ -179,9 +185,7 @@ public sealed partial class Generator : IWorldGenerator
     /// <inheritdoc />
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
-        StructureGenerator? structure = structuresByName.GetValueOrDefault(name);
-
-        return structure?.Search(start, maxDistance, this);
+        return search.Search(start, name, maxDistance);
     }
 
     /// <inheritdoc />

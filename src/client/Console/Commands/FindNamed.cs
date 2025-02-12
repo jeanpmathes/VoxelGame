@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
 /// <summary>
-///     Search and find any named generated object in the world.
+///     Search and find any named generated entity in the world.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class FindNamed : Command
@@ -27,7 +27,7 @@ public class FindNamed : Command
     public override String Name => "find-named";
 
     /// <inheritdoc />
-    public override String HelpText => "Search and find any named generated object in the world.";
+    public override String HelpText => "Search and find any named generated entity in the world.";
 
     /// <exclude />
     public void Invoke(String name)
