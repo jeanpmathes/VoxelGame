@@ -98,11 +98,8 @@ public sealed class StructureGenerator : IDisposable
 
     private static Boolean FilterSurfaceSection(SectionPosition position, Generator generator)
     {
-        Vector2i firstColumn = position.FirstBlock.Xz;
-        Vector2i lastColumn = position.LastBlock.Xz;
-
-        Int32 firstHeight = generator.GetWorldHeight(firstColumn);
-        Int32 lastHeight = generator.GetWorldHeight(lastColumn);
+        Int32 firstHeight = generator.GetWorldHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetWorldHeight(position.LastBlock);
 
         return position.Contains(position.FirstBlock with {Y = firstHeight}) &&
                position.Contains(position.LastBlock with {Y = lastHeight});
@@ -110,11 +107,8 @@ public sealed class StructureGenerator : IDisposable
 
     private static Boolean FilterUndergroundSection(SectionPosition position, Generator generator)
     {
-        Vector2i firstColumn = position.FirstBlock.Xz;
-        Vector2i lastColumn = position.LastBlock.Xz;
-
-        Int32 firstHeight = generator.GetWorldHeight(firstColumn);
-        Int32 lastHeight = generator.GetWorldHeight(lastColumn);
+        Int32 firstHeight = generator.GetWorldHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetWorldHeight(position.LastBlock);
 
         Int32 sectionBlockHeight = position.LastBlock.Y;
 
@@ -167,11 +161,11 @@ public sealed class StructureGenerator : IDisposable
         Definition.Structure.PlacePartial(random.GetHashCode(), new SectionGrid(section), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
-    private static Int32 DetermineSurfacePlacement(SectionPosition section, (Int32 x, Int32 z) position, Generator generator)
+    private static Int32 DetermineSurfacePlacement(SectionPosition section, (Int32 x, Int32 z) column, Generator generator)
     {
-        Vector2i column = (section.FirstBlock + (position.x, 0, position.z)).Xz;
+        Vector3i position = section.FirstBlock + (column.x, 0, column.z);
 
-        return Generator.GetWorldHeight(column, generator.Map.GetSample(column), out _) - section.FirstBlock.Y;
+        return generator.GetWorldHeight(position) - section.FirstBlock.Y;
     }
 
     private static Int32 DetermineUndergroundPlacement(Random randomizer)

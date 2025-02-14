@@ -73,7 +73,7 @@ internal class ColumnSampleStore(Int32 chunkX, Int32 chunkZ, Map.Sample[] sample
 
     internal static Map.Sample GetSample(Vector2i position, ColumnSampleStore? store, Map map)
     {
-        return store?.GetSample(position) ?? map.GetSample(position);
+        return store?.GetSample(position) ?? map.GetSample((position.X, 0, position.Y));
     }
 
     private void Store(Int32 x, Int32 z, Map.Sample sample)

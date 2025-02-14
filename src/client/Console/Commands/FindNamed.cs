@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -47,7 +47,7 @@ public class FindNamed : Command
         Search(name, count, maxDistance);
     }
 
-    private void Search(String name, Int32 count = 1, UInt32 maxDistance = Chunk.BlockSize * 100)
+    private void Search(String name, Int32 count = 1, UInt32 maxDistance = World.BlockLimit * 2)
     {
         if (count < 1)
         {

@@ -28,6 +28,7 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 /// <summary>
 ///     Represents a rough overview over the entire world, as a 2D map.
 ///     This class can load, store and generate these maps.
+///     The map itself is organized in cells, each cell containing information about the terrain, temperature and humidity.
 /// </summary>
 public sealed partial class Map : IMap, IDisposable
 {
@@ -92,10 +93,13 @@ public sealed partial class Map : IMap, IDisposable
     /// <summary>
     ///     The size of a map cell, in meters / blocks.
     /// </summary>
-    private const Int32 CellSize = 20_000;
+    public const Int32 CellSize = 20_000;
+
+    private const Int32 CellSizeHalf = CellSize / 2;
 
     private const Int32 MinimumWidth = (Int32) (World.BlockLimit * 2) / CellSize;
     private const Int32 Width = MinimumWidth + 2;
+    private const Int32 WidthHalf = Width / 2;
 
     private const Double MinTemperature = -5.0;
     private const Double MaxTemperature = 30.0;
@@ -198,7 +202,7 @@ public sealed partial class Map : IMap, IDisposable
     public Property GetPositionDebugData(Vector3d position)
     {
         Vector3i samplingPosition = position.Floor();
-        Sample sample = GetSample(samplingPosition.Xz);
+        Sample sample = GetSample(samplingPosition);
 
         return new Group(nameof(Default),
         [
@@ -210,7 +214,7 @@ public sealed partial class Map : IMap, IDisposable
     /// <inheritdoc />
     public (ColorS block, ColorS fluid) GetPositionTint(Vector3d position)
     {
-        Vector2i samplingPosition = position.Floor().Xz;
+        Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition);
 
         Single temperature = NormalizeTemperature(sample.GetRealTemperature(position.Y));
@@ -224,7 +228,7 @@ public sealed partial class Map : IMap, IDisposable
     /// <inheritdoc />
     public Temperature GetTemperature(Vector3d position)
     {
-        Vector2i samplingPosition = position.Floor().Xz;
+        Vector3i samplingPosition = position.Floor();
         Sample sample = GetSample(samplingPosition);
 
         return sample.GetRealTemperature(position.Y);
@@ -396,11 +400,11 @@ public sealed partial class Map : IMap, IDisposable
     /// <summary>
     ///     Get a sample of the map at the given coordinates.
     /// </summary>
-    /// <param name="position">The world position (just XZ) of the sample.</param>
+    /// <param name="position">The world position where to sample.</param>
     /// <returns>The sample.</returns>
-    public Sample GetSample(Vector2i position)
+    public Sample GetSample(Vector3i position)
     {
-        return GetSample(position, grid2D: null);
+        return GetSample(position.Xz, grid2D: null);
     }
 
     /// <summary>
@@ -417,49 +421,51 @@ public sealed partial class Map : IMap, IDisposable
     /// <summary>
     ///     Get a sample of the map at the given coordinates.
     /// </summary>
-    /// <param name="position">The world position (just XZ) of the sample.</param>
+    /// <param name="column">
+    ///     The column to sample from, in block coordinates.
+    ///     This is simply the X and Z coordinates of a block column.
+    /// </param>
     /// <param name="grid2D">
     ///     An optional noise grid.
     ///     Serves to optimize sampling by allowing to batch noise generation.
     /// </param>
     /// <returns>The sample.</returns>
-    internal Sample GetSample(Vector2i position, NoiseGrid2D? grid2D)
+    internal Sample GetSample(Vector2i column, NoiseGrid2D? grid2D)
     {
         Debug.Assert(data != null);
 
-        Int32 xP = DivideByCellSize(position.X);
-        Int32 yP = DivideByCellSize(position.Y);
+        Int32 xP = DivideByCellSize(column.X);
+        Int32 yP = DivideByCellSize(column.Y);
 
-        Int32 xN = GetNearestNeighbor(position.X);
-        Int32 yN = GetNearestNeighbor(position.Y);
+        Int32 xN = GetNearestNeighbor(column.X);
+        Int32 yN = GetNearestNeighbor(column.Y);
 
         (Int32 x1, Int32 x2) = MathTools.MinMax(xP, xN);
         (Int32 y1, Int32 y2) = MathTools.MinMax(yP, yN);
 
-        const Int32 halfCellSize = CellSize / 2;
+        // Both p1 and p2 are centers of cells - between them is a cell-sized area which contains the sampling position.
+        // This is done as the cell values apply only to the center of the cell, everything else is interpolated.
 
-        Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(halfCellSize, halfCellSize);
-        Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(halfCellSize, halfCellSize);
+        Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(CellSizeHalf);
+        Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(CellSizeHalf);
 
-        Double tX = MathTools.InverseLerp(p1.X, p2.X, position.X);
-        Double tY = MathTools.InverseLerp(p1.Y, p2.Y, position.Y);
+        Double tX = MathTools.InverseLerp(p1.X, p2.X, column.X);
+        Double tY = MathTools.InverseLerp(p1.Y, p2.Y, column.Y);
 
         tX = ApplyBiomeChangeFunction(tX);
         tY = ApplyBiomeChangeFunction(tY);
 
         const Double transitionFactor = 0.015;
 
-        Vector2 noise = samplingNoise.GetNoise(position, grid2D);
+        Vector2 noise = samplingNoise.GetNoise(column, grid2D);
 
         Double blendX = tX + noise.X * GetBorderStrength(tX) * transitionFactor;
         Double blendY = tY + noise.Y * GetBorderStrength(tY) * transitionFactor;
 
-        const Int32 extents = Width / 2;
-
-        ref readonly Cell c00 = ref data.GetCell(x1 + extents, y1 + extents);
-        ref readonly Cell c10 = ref data.GetCell(x2 + extents, y1 + extents);
-        ref readonly Cell c01 = ref data.GetCell(x1 + extents, y2 + extents);
-        ref readonly Cell c11 = ref data.GetCell(x2 + extents, y2 + extents);
+        ref readonly Cell c00 = ref data.GetCell(x1 + WidthHalf, y1 + WidthHalf);
+        ref readonly Cell c10 = ref data.GetCell(x2 + WidthHalf, y1 + WidthHalf);
+        ref readonly Cell c01 = ref data.GetCell(x1 + WidthHalf, y2 + WidthHalf);
+        ref readonly Cell c11 = ref data.GetCell(x2 + WidthHalf, y2 + WidthHalf);
 
         var temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
         var humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
@@ -633,9 +639,43 @@ public sealed partial class Map : IMap, IDisposable
     private static Int32 DivideByCellSize(Int32 number)
     {
         Int32 result = number / CellSize;
-        Int32 adjusted = number < 0 && number != CellSize * result ? result - 1 : result;
 
-        return adjusted;
+        // We round away from zero for negative numbers, so that overall we always round towards negative infinity.
+
+        return number < 0 && number != CellSize * result ? result - 1 : result;
+    }
+
+    /// <summary>
+    ///     Get the cell position that contains the given block position.
+    /// </summary>
+    /// <param name="world">The block / world position.</param>
+    /// <returns>The cell position.</returns>
+    public static Vector2i GetCellIndex(Vector3i world)
+    {
+        return new Vector2i(DivideByCellSize(world.X), DivideByCellSize(world.Z));
+    }
+
+    /// <summary>
+    ///     Transform a cell position to a world position, using the center of the cell.
+    /// </summary>
+    /// <param name="cell">The cell position.</param>
+    /// <param name="y">The y position.</param>
+    /// <returns>The world position.</returns>
+    public static Vector3i GetCellCenter(Vector2i cell, Int32 y)
+    {
+        Vector2i position = cell * CellSize + new Vector2i(CellSizeHalf);
+
+        return new Vector3i(position.X, y, position.Y);
+    }
+
+    /// <summary>
+    ///     Check whether a cell is within the map limits.
+    /// </summary>
+    /// <param name="cell"></param>
+    /// <returns></returns>
+    public static Boolean IsInLimits(Vector2i cell)
+    {
+        return cell.X + WidthHalf is >= 0 and < Width && cell.Y + WidthHalf is >= 0 and < Width;
     }
 
     /// <summary>

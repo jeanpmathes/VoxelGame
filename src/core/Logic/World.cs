@@ -31,7 +31,7 @@ namespace VoxelGame.Core.Logic;
 public abstract partial class World : IDisposable, IGrid
 {
     /// <summary>
-    ///     The highest absolute value of a block position coordinate component.
+    ///     The largest absolute value of a block position coordinate component.
     ///     This value also describes the word extents in blocks, thus the world size is two times this value.
     ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>

@@ -75,7 +75,9 @@ public sealed partial class Generator : IWorldGenerator
 
         Dictionary<BiomeDefinition, Biome> biomeMap = new();
         Dictionary<StructureGeneratorDefinition, StructureGenerator> structureMap = new();
+
         Dictionary<String, StructureGenerator> structuresByName = new();
+        Dictionary<String, Biome> biomesByName = new();
 
         using (logger.BeginTimedSubScoped("Structures Setup", context.Timer))
         {
@@ -98,6 +100,8 @@ public sealed partial class Generator : IWorldGenerator
 
                 biomeMap.Add(definition, biome);
                 biomes.Add(biome);
+
+                biomesByName.Add(definition.Name, biome);
             }
 
             Biomes = new BiomeDistribution(biomeDistributionDefinition, biomeMap);
@@ -119,6 +123,7 @@ public sealed partial class Generator : IWorldGenerator
             .Build();
 
         search.AddStructureSearch(structuresByName);
+        search.AddBiomeSearch(biomesByName);
 
         LogCreatedWorldGenerator(logger, nameof(Default));
     }
@@ -291,11 +296,11 @@ public sealed partial class Generator : IWorldGenerator
     /// <summary>
     ///     Get the world height for the given column.
     /// </summary>
-    /// <param name="column">The column to get the height for.</param>
+    /// <param name="position">The position to get the height for. The Y component is ignored.</param>
     /// <returns>The world height.</returns>
-    public Int32 GetWorldHeight(Vector2i column)
+    public Int32 GetWorldHeight(Vector3i position)
     {
-        return GetWorldHeight(column, Map.GetSample(column), out _);
+        return GetWorldHeight(position.Xz, Map.GetSample(position), out _);
     }
 
     /// <summary>

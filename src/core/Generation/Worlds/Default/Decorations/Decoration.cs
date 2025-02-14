@@ -73,7 +73,7 @@ public abstract class Decoration : IResource
     {
         Vector3i position = context.Position.FirstBlock + (column.x, 0, column.z);
 
-        Map.Sample sample = context.Generator.Map.GetSample(position.Xz);
+        Map.Sample sample = context.Generator.Map.GetSample(position);
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
