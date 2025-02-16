@@ -35,27 +35,36 @@ public abstract class SearchCategory(Searcher searcher)
 /// <summary>
 ///     A category of things that can be searched for in the world.
 /// </summary>
+/// <param name="elements">The elements that can be searched for.</param>
+/// <param name="modifiers">The modifiers that can be applied to the search.</param>
 /// <param name="searcher">The searcher that owns this category.</param>
 /// <typeparam name="T">The type of thing that can be searched for.</typeparam>
-public abstract class SearchCategory<T>(Dictionary<String, T> elements, Searcher searcher) : SearchCategory(searcher) where T : class
+public abstract class SearchCategory<T>(Dictionary<String, T> elements, List<String> modifiers, Searcher searcher) : SearchCategory(searcher) where T : class
 {
+    private readonly HashSet<String> modifiers = [..modifiers];
+
     /// <inheritdoc />
     public override IEnumerable<Vector3i>? Search(Vector3i start, String entity, String? modifier, UInt32 maxDistance)
     {
-        if (modifier != null)
+        if (!IsModifierValid(modifier))
             return null;
 
         return elements.GetValueOrDefault(entity) is {} element
-            ? SearchElement(element, start, maxDistance)
+            ? SearchElement(element, modifier, start, maxDistance)
             : null;
     }
 
-    private IEnumerable<Vector3i> SearchElement(T element, Vector3i start, UInt32 maxBlockDistance)
+    private Boolean IsModifierValid(String? modifier)
+    {
+        return modifier == null || modifiers.Contains(modifier);
+    }
+
+    private IEnumerable<Vector3i> SearchElement(T element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
     {
         Int32 maxConvertedDistance = ConvertDistance(maxBlockDistance);
 
         for (var distance = 0; distance < maxConvertedDistance; distance++)
-            foreach (Vector3i position in SearchAtDistance(element, start, distance))
+            foreach (Vector3i position in SearchAtDistance(element, modifier, start, distance))
                 yield return position;
     }
 
@@ -71,8 +80,9 @@ public abstract class SearchCategory<T>(Dictionary<String, T> elements, Searcher
     ///     Must be thread-safe and lazy.
     /// </summary>
     /// <param name="element">The element to search for.</param>
+    /// <param name="modifier">The modifier to apply to the search.</param>
     /// <param name="anchor">The anchor position to search from.</param>
     /// <param name="distance">The current search distance, unit determined by <see cref="ConvertDistance" />.</param>
     /// <returns>The positions of the element at the given distance.</returns>
-    protected abstract IEnumerable<Vector3i> SearchAtDistance(T element, Vector3i anchor, Int32 distance);
+    protected abstract IEnumerable<Vector3i> SearchAtDistance(T element, String? modifier, Vector3i anchor, Int32 distance);
 }

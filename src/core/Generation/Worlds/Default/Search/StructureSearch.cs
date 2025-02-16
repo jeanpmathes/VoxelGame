@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Search;
 /// <summary>
 ///     Searches for structures in the world.
 /// </summary>
-public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher) : SearchCategory<StructureGenerator>(structures, searcher)
+public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher) : SearchCategory<StructureGenerator>(structures, [], searcher)
 {
     /// <inheritdoc />
     protected override Int32 ConvertDistance(UInt32 blockDistance)
@@ -28,7 +28,7 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
     }
 
     /// <inheritdoc />
-    protected override IEnumerable<Vector3i> SearchAtDistance(StructureGenerator structure, Vector3i anchor, Int32 distance)
+    protected override IEnumerable<Vector3i> SearchAtDistance(StructureGenerator structure, String? modifier, Vector3i anchor, Int32 distance)
     {
         return structure.Definition.Placement switch
         {
