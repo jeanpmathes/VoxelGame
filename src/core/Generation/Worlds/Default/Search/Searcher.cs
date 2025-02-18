@@ -25,14 +25,13 @@ public class Searcher(Generator generator)
     /// </summary>
     public Generator Generator { get; } = generator;
 
-    internal void AddStructureSearch(Dictionary<String, StructureGenerator> structures)
+    internal void InitializeSearch(Dictionary<String, StructureGenerator> structures, Dictionary<String, Biome> biomes)
     {
-        categories["Structure"] = new StructureSearch(structures, this);
-    }
+        BiomeSearch biomeSearch = new(biomes, this);
+        StructureSearch structureSearch = new(structures, this, biomes.Values, biomeSearch);
 
-    internal void AddBiomeSearch(Dictionary<String, Biome> biomes)
-    {
-        categories["Biome"] = new BiomeSearch(biomes, this);
+        categories["Biome"] = biomeSearch;
+        categories["Structure"] = structureSearch;
     }
 
     /// <summary>

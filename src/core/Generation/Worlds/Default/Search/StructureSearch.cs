@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic;
@@ -19,16 +20,25 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Search;
 /// <summary>
 ///     Searches for structures in the world.
 /// </summary>
-public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher) : SearchCategory<StructureGenerator>(structures, [], searcher)
+public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher, ICollection<Biome> biomes, BiomeSearch biomeSearch)
+    : SearchCategory<StructureGenerator>(structures, [], searcher)
 {
-    /// <inheritdoc />
-    protected override Int32 ConvertDistance(UInt32 blockDistance)
-    {
-        return (Int32) Math.Clamp(blockDistance / Section.Size + 1, min: 0, 2 * World.SectionLimit);
-    }
+    private const Int32 InCellSearchDistanceInSections = Map.CellSize / Section.Size + 1;
+
+    private readonly Dictionary<StructureGenerator, IReadOnlySet<Biome>> structureToBiomes = biomes
+        .Where(biome => biome.Structure != null)
+        .ToDictionary(biome => biome.Structure!, Set.Of);
 
     /// <inheritdoc />
-    protected override IEnumerable<Vector3i> SearchAtDistance(StructureGenerator structure, String? modifier, Vector3i anchor, Int32 distance)
+    protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
+    {
+        foreach (Vector3i cell in biomeSearch.SearchBiomes(structureToBiomes[element], BiomeSearch.Mode.Inner, start, maxBlockDistance))
+            for (var distance = 0; distance < InCellSearchDistanceInSections; distance++)
+                foreach (Vector3i position in SearchAtDistance(element, cell, distance))
+                    yield return position;
+    }
+
+    private IEnumerable<Vector3i> SearchAtDistance(StructureGenerator structure, Vector3i anchor, Int32 distance)
     {
         return structure.Definition.Placement switch
         {
@@ -112,10 +122,10 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
     private Boolean FilterSectionByBiome(SectionPosition section, StructureGenerator structure)
     {
-        ICollection<Biome> biomes = Generator.GetSectionBiomes(section, columns: null);
+        ICollection<Biome> sectionBiomes = Generator.GetSectionBiomes(section, columns: null);
 
-        if (biomes.Count != 1) return false;
+        if (sectionBiomes.Count != 1) return false;
 
-        return biomes.First().Structure == structure;
+        return sectionBiomes.First().Structure == structure;
     }
 }

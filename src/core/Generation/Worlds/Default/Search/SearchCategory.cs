@@ -59,30 +59,13 @@ public abstract class SearchCategory<T>(Dictionary<String, T> elements, List<Str
         return modifier == null || modifiers.Contains(modifier);
     }
 
-    private IEnumerable<Vector3i> SearchElement(T element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
-    {
-        Int32 maxConvertedDistance = ConvertDistance(maxBlockDistance);
-
-        for (var distance = 0; distance < maxConvertedDistance; distance++)
-            foreach (Vector3i position in SearchAtDistance(element, modifier, start, distance))
-                yield return position;
-    }
-
     /// <summary>
-    ///     Convert the block distance to the unit used by the search algorithm.
-    /// </summary>
-    /// <param name="blockDistance">The block distance to convert.</param>
-    /// <returns>The distance in the unit used by the search algorithm.</returns>
-    protected abstract Int32 ConvertDistance(UInt32 blockDistance);
-
-    /// <summary>
-    ///     Implement the search for the element at the given distance.
-    ///     Must be thread-safe and lazy.
+    /// Searches for the element in the world.
     /// </summary>
     /// <param name="element">The element to search for.</param>
-    /// <param name="modifier">The modifier to apply to the search.</param>
-    /// <param name="anchor">The anchor position to search from.</param>
-    /// <param name="distance">The current search distance, unit determined by <see cref="ConvertDistance" />.</param>
-    /// <returns>The positions of the element at the given distance.</returns>
-    protected abstract IEnumerable<Vector3i> SearchAtDistance(T element, String? modifier, Vector3i anchor, Int32 distance);
+    /// <param name="modifier">The search modifier.</param>
+    /// <param name="start">The search start position.</param>
+    /// <param name="maxBlockDistance">The maximum block distance to search.</param>
+    /// <returns>All found positions that have the element.</returns>
+    protected abstract IEnumerable<Vector3i> SearchElement(T element, String? modifier, Vector3i start, UInt32 maxBlockDistance);
 }

@@ -122,8 +122,7 @@ public sealed partial class Generator : IWorldGenerator
             .WithFrequency(frequency: 0.5f)
             .Build();
 
-        search.AddStructureSearch(structuresByName);
-        search.AddBiomeSearch(biomesByName);
+        search.InitializeSearch(structuresByName, biomesByName);
 
         LogCreatedWorldGenerator(logger, nameof(Default));
     }

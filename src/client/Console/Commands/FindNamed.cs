@@ -56,8 +56,6 @@ public class FindNamed : Command
             return;
         }
 
-        Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
-
         IEnumerable<Vector3i>? positions = Context.Player.World
             .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance);
 
@@ -67,6 +65,8 @@ public class FindNamed : Command
 
             return;
         }
+
+        Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
 
         Operations.Launch(() =>
         {
