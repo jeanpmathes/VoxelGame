@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 
@@ -37,13 +38,17 @@ public sealed class StaticStructureLoader : IResourceLoader
 
         List<IResource> loaded = [];
 
-        foreach (FileInfo file in files)
+        Operations.Launch(async token =>
         {
-            Exception? exception = StaticStructure.Load(file, context, out StaticStructure structure);
+            foreach (FileInfo file in files)
+            {
+                Result<StaticStructure> result = await StaticStructure.LoadAsync(file, context, token).InAnyContext();
 
-            if (exception != null) loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)));
-            else loaded.Add(structure);
-        }
+                result.Switch(
+                    structure => loaded.Add(structure),
+                    exception => loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception))));
+            }
+        }).Wait();
 
         return loaded;
     }

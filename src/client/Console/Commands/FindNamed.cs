@@ -68,13 +68,14 @@ public class FindNamed : Command
 
         Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
 
-        Operations.Launch(() =>
+        Operations.Launch(async token =>
         {
             foreach (Vector3i position in positions.Take(count))
-                Context.Console.EnqueueResponse($"Found {name} at {position}.",
-                    new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position)));
+                await Context.Console.WriteResponseAsync($"Found {name} at {position}.",
+                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position))],
+                    token).InAnyContext();
 
-            Context.Console.EnqueueResponse($"Search for {name} finished.");
+            await Context.Console.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
         });
     }
 }

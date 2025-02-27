@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
@@ -70,9 +71,9 @@ public sealed class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void EmitViews(DirectoryInfo path)
+    public Operation EmitWorldInfo(DirectoryInfo path)
     {
-        // No views to emit.
+        return Operations.CreateDone();
     }
 
     /// <inheritdoc />

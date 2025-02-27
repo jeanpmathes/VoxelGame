@@ -151,7 +151,7 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully terminated.</param>
     public class Terminating(Action onComplete) : WorldState
     {
-        private Future? saving;
+        private Operation? saving;
         private Boolean completed;
 
         /// <inheritdoc />
@@ -165,14 +165,19 @@ public abstract partial class WorldState
             if (saving == null)
             {
                 world.Data.Information.Version = ApplicationInformation.Instance.Version;
-                saving = Future.Create(world.Data.Save);
+
+                saving = Operations.Launch(async token =>
+                {
+                    await world.Data.SaveAsync(token).InAnyContext();
+                });
             }
 
-            if (!saving.IsCompleted || !world.Chunks.IsEmpty)
+            if (saving.IsRunning || !world.Chunks.IsEmpty)
                 return null;
 
-            if (saving.Exception is {} exception)
-                LogFailedToSaveWorldMetaInformation(logger, exception);
+            saving.Result?.Switch(
+                () => {},
+                exception => LogFailedToSaveWorldMetaInformation(logger, exception));
 
             LogUnloadedWorld(logger);
 
@@ -195,7 +200,7 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully saving.</param>
     public class Saving(Action onComplete) : WorldState
     {
-        private Future? saving;
+        private Operation? saving;
 
         private Int32 progress;
         private Int32 total;
@@ -208,7 +213,11 @@ public abstract partial class WorldState
                 LogSavingWorld(logger);
 
                 world.Data.Information.Version = ApplicationInformation.Instance.Version;
-                saving = Future.Create(world.Data.Save);
+
+                saving = Operations.Launch(async token =>
+                {
+                    await world.Data.SaveAsync(token).InAnyContext();
+                });
 
                 foreach (Chunk chunk in world.Chunks.All)
                 {
@@ -220,11 +229,12 @@ public abstract partial class WorldState
                 }
             }
 
-            if (!saving.IsCompleted || progress < total)
+            if (saving.IsRunning || progress < total)
                 return null;
 
-            if (saving.Exception is {} exception)
-                LogFailedToSaveWorldMetaInformation(logger, exception);
+            saving.Result?.Switch(
+                () => {},
+                exception => LogFailedToSaveWorldMetaInformation(logger, exception));
 
             LogSavedWorld(logger);
 

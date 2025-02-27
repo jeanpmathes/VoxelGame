@@ -62,12 +62,14 @@ public class CheckChunks : Command
         void ReportFoundChunk(Chunk chunk, String message)
         {
             Context.Console.WriteError(message,
+            [
                 new FollowUp("Break",
                     () =>
                     {
                         Debugger.Break();
                         Debugger.Log(level: 0, "CheckChunks", chunk.ToString());
-                    }));
+                    })
+            ]);
         }
     }
 }

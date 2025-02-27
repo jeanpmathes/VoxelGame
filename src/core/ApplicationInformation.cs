@@ -25,7 +25,7 @@ public class ApplicationInformation
     }
 
     /// <summary>
-    ///     Information about the current game.
+    ///     Information about the current application.
     /// </summary>
     public static ApplicationInformation Instance { get; private set; } = null!;
 
@@ -77,7 +77,8 @@ public class ApplicationInformation
     [Conditional("DEBUG")]
     public static void ThrowIfNotOnMainThread(Object @object, [CallerMemberName] String operation = "")
     {
-        if (Instance.IsOnMainThread) return;
+        if (!IsInitialized || Instance.IsOnMainThread)
+            return;
 
         Debug.Fail($"Attempted to perform operation '{operation}' with object '{@object}' from non-main thread");
     }

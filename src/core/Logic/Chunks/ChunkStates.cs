@@ -53,21 +53,20 @@ public partial class Chunk
             }
             else if (loading.IsCompleted)
             {
-                if (loading.Exception != null) HandleFaultedFuture(loading);
-                else HandleSuccessfulFuture(loading);
+                loading.Result?.Switch(HandleSuccessful, HandleFaulted);
             }
         }
 
-        private void HandleFaultedFuture(Future future)
+        private void HandleFaulted(Exception exception)
         {
-            LogChunkLoadingError(logger, future.Exception!.GetBaseException(), Chunk.Position);
+            LogChunkLoadingError(logger, exception, Chunk.Position);
 
             SetNextState<Generating>();
         }
 
-        private void HandleSuccessfulFuture(Future<LoadingResult> future)
+        private void HandleSuccessful(LoadingResult result)
         {
-            switch (future.Value!)
+            switch (result)
             {
                 case LoadingResult.Success:
                     TryActivation();
@@ -93,7 +92,7 @@ public partial class Chunk
                 }
 
                 default:
-                    throw Exceptions.UnsupportedEnumValue(future.Value);
+                    throw Exceptions.UnsupportedEnumValue(result);
             }
         }
     }
@@ -124,14 +123,15 @@ public partial class Chunk
             {
                 Cleanup();
 
-                if (generating.Exception is {} exception)
-                {
-                    LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
+                generating.Result?.Switch(
+                    TryActivation,
+                    exception =>
+                    {
+                        LogChunkGenerationError(logger, exception, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
-
-                TryActivation();
+                        throw exception;
+                    }
+                );
             }
         }
 
@@ -195,14 +195,15 @@ public partial class Chunk
             {
                 Cleanup();
 
-                if (decorating.Exception is {} exception)
-                {
-                    LogChunkDecorationError(logger, exception.GetBaseException(), Chunk.Position);
+                decorating.Result?.Switch(
+                    TryActivation,
+                    exception =>
+                    {
+                        LogChunkDecorationError(logger, exception, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
-
-                TryActivation();
+                        throw exception;
+                    }
+                );
             }
         }
 
@@ -239,10 +240,13 @@ public partial class Chunk
             }
             else if (saving.IsCompleted)
             {
-                if (saving.Exception is {} exception)
-                    LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
-
-                TryActivation();
+                saving.Result?.Switch(
+                    () => TryActivation(),
+                    exception =>
+                    {
+                        LogChunkSavingError(logger, exception, Chunk.Position);
+                    }
+                );
             }
         }
     }

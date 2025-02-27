@@ -11,9 +11,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -259,40 +263,75 @@ public static partial class FileSystem
     /// </summary>
     /// <param name="source">The source directory.</param>
     /// <param name="destination">The destination directory.</param>
-    public static void CopyTo(this DirectoryInfo source, DirectoryInfo destination)
+    /// <param name="token">A token to cancel the operation.</param>
+    public static async Task CopyToAsync(this DirectoryInfo source, DirectoryInfo destination, CancellationToken token = default)
     {
         destination.Create();
 
-        foreach (FileInfo file in source.EnumerateFiles()) file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+        foreach (FileInfo file in source.EnumerateFiles())
+        {
+            token.ThrowIfCancellationRequested();
 
-        foreach (DirectoryInfo directory in source.EnumerateDirectories()) directory.CopyTo(destination.GetDirectory(directory.Name));
+            file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+        }
+
+        foreach (DirectoryInfo directory in source.EnumerateDirectories())
+        {
+            token.ThrowIfCancellationRequested();
+
+            await directory.CopyToAsync(destination.GetDirectory(directory.Name), token).InAnyContext();
+        }
     }
 
     /// <summary>
     ///     Get the size of a file or directory.
     /// </summary>
     /// <param name="info">The file or directory.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <returns>The size of the file or directory, or null if the size could not be determined.</returns>
-    public static Memory? GetSize(this FileSystemInfo info)
+    public static Task<Memory?> GetSizeAsync(this FileSystemInfo info, CancellationToken token = default)
     {
+        Memory? result;
+
         try
         {
-            return new Memory
+            switch (info)
             {
-                Bytes = info switch
+                case FileInfo fileInfo:
                 {
-                    FileInfo fileInfo => fileInfo.Length,
-                    DirectoryInfo directoryInfo => directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length),
-                    _ => 0
+                    result = new Memory {Bytes = fileInfo.Length};
+
+                    break;
                 }
-            };
+
+                case DirectoryInfo directoryInfo:
+                {
+                    Int64 size = 0;
+
+                    foreach (FileInfo file in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        size += file.Length;
+                    }
+
+                    result = new Memory {Bytes = size};
+
+                    break;
+                }
+
+                default:
+                    throw Exceptions.UnsupportedValue(info);
+            }
         }
         catch (IOException exception)
         {
             LogGetSizeFailure(logger, exception, info.FullName);
 
-            return null;
+            result = null;
         }
+
+        return Task.FromResult(result);
     }
 
     #region LOGGING

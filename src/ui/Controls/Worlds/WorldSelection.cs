@@ -173,10 +173,10 @@ internal class WorldSelection : StandardMenu
 
         refreshCancellation = new CancellationTokenSource();
 
-        worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, Status.Running));
+        worlds.BuildText(Texts.FormatWithStatus(Language.SearchingWorlds, Status.Running));
         SetButtonBarEnabled(enabled: false);
 
-        worldProvider.Refresh().OnCompletion(op =>
+        worldProvider.Refresh().OnCompletionSync(_ =>
             {
                 SetButtonBarEnabled(enabled: true);
 
@@ -184,9 +184,11 @@ internal class WorldSelection : StandardMenu
                 refreshCancellation?.Dispose();
                 refreshCancellation = null;
 #pragma warning disable S2952
-
-                if (op.IsOk) UpdateList();
-                else worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
+            },
+            UpdateList,
+            _ =>
+            {
+                worlds.BuildText(Texts.FormatWithStatus(Language.SearchingWorlds, Status.ErrorOrCancel), isError: true);
             },
             refreshCancellation.Token);
     }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Generation.Worlds;
@@ -63,10 +64,11 @@ public interface IWorldGenerator : IDisposable
     IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0);
 
     /// <summary>
-    ///     Emit views of global generated data for debugging.
+    ///     Emit info about world data for debugging.
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>
-    void EmitViews(DirectoryInfo path);
+    /// <returns>The operation emitting the world info.</returns>
+    Operation EmitWorldInfo(DirectoryInfo path);
 
     /// <summary>
     ///     Search for named generated elements, such as structures.

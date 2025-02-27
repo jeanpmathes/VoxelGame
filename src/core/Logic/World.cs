@@ -18,6 +18,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
@@ -62,7 +63,10 @@ public abstract partial class World : IDisposable, IGrid
                 path),
             isNew: true)
     {
-        Data.Save();
+        Operations.Launch(async token =>
+        {
+            await Data.SaveAsync(token).InAnyContext();
+        });
 
         LogCreatedNewWorld(logger);
     }
@@ -208,13 +212,13 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     /// <summary>
-    ///     Emit views of global world data for debugging.
+    ///     Emit information about of global world data for debugging.
     /// </summary>
-    public void EmitViews(DirectoryInfo directory)
+    public Operation EmitWorldInfo(DirectoryInfo directory)
     {
         Throw.IfDisposed(disposed);
 
-        ChunkContext.Generator.EmitViews(directory);
+        return ChunkContext.Generator.EmitWorldInfo(directory);
     }
 
     /// <summary>

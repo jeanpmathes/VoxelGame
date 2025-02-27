@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
@@ -65,7 +67,7 @@ public partial class WorldProvider : IWorldProvider
     /// <inheritdoc />
     public Operation<Property> GetWorldProperties(IWorldProvider.IWorldInfo info)
     {
-        return Operations.Launch(GetData(info).DetermineProperties);
+        return Operations.Launch(async token => await GetData(info).DeterminePropertiesAsync(token).InAnyContext());
     }
 
     /// <inheritdoc />
@@ -77,20 +79,17 @@ public partial class WorldProvider : IWorldProvider
 
         worlds.Clear();
 
-        Operation<List<WorldData>> refresh = Operations.Launch(() =>
+        Operation<List<WorldData>> refresh = Operations.Launch(async token =>
         {
-            WorldDirectoryMetadata loaded = WorldDirectoryMetadata.Load(metadataFile, out Exception? exception);
+            Result<WorldDirectoryMetadata> loaded = await WorldDirectoryMetadata.LoadAsync(metadataFile, token);
 
-            if (exception != null)
-                throw exception;
-
-            metadata = loaded;
+            metadata = loaded.UnwrapOrThrow();
 
             List<WorldData>? found;
 
             try
             {
-                found = SearchForWorlds();
+                found = await SearchForWorldsAsync(token);
 
                 LogWorldLookup(logger, found.Count);
             }
@@ -109,13 +108,15 @@ public partial class WorldProvider : IWorldProvider
             return found;
         });
 
-        refresh.OnCompletion(op =>
-        {
-            if (op.Result != null)
-                worlds.AddRange(op.Result.Select(data => new WorldInfo(data, this)));
-
-            Status = op.Status;
-        });
+        refresh.OnCompletionSync(status =>
+            {
+                Status = status;
+            },
+            result =>
+            {
+                worlds.AddRange(result.Select(data => new WorldInfo(data, this)));
+            },
+            _ => {});
 
         return refresh;
     }
@@ -162,17 +163,16 @@ public partial class WorldProvider : IWorldProvider
 
         DirectoryInfo newDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, duplicateName);
 
-        Operation<WorldData> duplication = data.CopyTo(newDirectory).Then(duplicate =>
+        Operation<WorldData> duplication = data.CopyTo(newDirectory).Then(async (duplicate, token) =>
         {
-            duplicate.Rename(duplicateName);
+            await duplicate.RenameAsync(duplicateName, token).InAnyContext();
 
             return duplicate;
         });
 
-        duplication.OnCompletion(op =>
+        duplication.OnSuccessfulSync(result =>
         {
-            if (op.Result is {} result)
-                worlds.Add(new WorldInfo(result, this));
+            worlds.Add(new WorldInfo(result, this));
         });
 
         return duplication;
@@ -183,7 +183,10 @@ public partial class WorldProvider : IWorldProvider
     {
         Debug.Assert(Status == Status.Ok);
 
-        GetData(info).Rename(newName);
+        Operations.Launch(async token =>
+        {
+            await GetData(info).RenameAsync(newName, token).InAnyContext();
+        });
     }
 
     /// <inheritdoc />
@@ -192,7 +195,8 @@ public partial class WorldProvider : IWorldProvider
         Debug.Assert(Status == Status.Ok);
 
         metadata.Entries.GetOrAdd(GetMetadataKey(GetData(info))).IsFavorite = isFavorite;
-        metadata.Save(metadataFile);
+
+        SaveMetadata();
     }
 
     /// <inheritdoc />
@@ -222,14 +226,19 @@ public partial class WorldProvider : IWorldProvider
         return fileMetadata?.IsFavorite ?? false;
     }
 
-    private List<WorldData> SearchForWorlds()
+    private async Task<List<WorldData>> SearchForWorldsAsync(CancellationToken token = default)
     {
         List<WorldData> found = [];
 
         foreach (DirectoryInfo directory in WorldsDirectory.EnumerateDirectories())
+        {
+            token.ThrowIfCancellationRequested();
+
             if (WorldData.IsWorldDirectory(directory))
             {
-                found.Add(WorldData.LoadInformation(directory));
+                WorldData data = await WorldData.LoadInformationAsync(directory, token).InAnyContext();
+
+                found.Add(data);
 
                 LogValidWorldDirectory(logger, directory);
             }
@@ -237,6 +246,7 @@ public partial class WorldProvider : IWorldProvider
             {
                 LogIgnoredDirectory(logger, directory);
             }
+        }
 
         return found;
     }
@@ -244,7 +254,8 @@ public partial class WorldProvider : IWorldProvider
     private void ActivateWorld(World world)
     {
         metadata.Entries.GetOrAdd(GetMetadataKey(world.Data)).LastLoad = DateTime.UtcNow;
-        metadata.Save(metadataFile);
+
+        SaveMetadata();
 
         WorldActivation?.Invoke(this, world);
     }
@@ -260,6 +271,14 @@ public partial class WorldProvider : IWorldProvider
             return worldInfo.Data;
 
         throw Exceptions.ArgumentOfWrongType(nameof(info), typeof(WorldInfo), info);
+    }
+
+    private void SaveMetadata()
+    {
+        Operations.Launch(async token =>
+        {
+            await metadata.SaveAsync(metadataFile, token).InAnyContext();
+        });
     }
 
     /// <summary>

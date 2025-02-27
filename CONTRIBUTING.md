@@ -13,7 +13,7 @@ Contributiosn are welcomed, whether it's:
 - Proposing new features
 - Changing some textures or other assets
 - Writing documentation
-- Expanding the wiki and 
+- Expanding the wiki 
 
 ## Rules
 

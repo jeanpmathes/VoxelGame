@@ -8,11 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
@@ -116,19 +119,30 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     }
 
     /// <summary>
-    ///     Load a structure.
+    ///     Load a structure safely, using a fallback if loading fails.
     /// </summary>
     /// <param name="directory">The directory to load from.</param>
     /// <param name="name">The name of the structure.</param>
-    /// <returns>The loaded structure, or null if the loading failed.</returns>
-    public static StaticStructure Load(DirectoryInfo directory, String name)
+    /// <param name="token">The token to cancel the operation.</param>
+    /// <returns>The loaded structure, or a fallback if loading failed.</returns>
+    public static async Task<StaticStructure> LoadSafelyAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
-        Exception? exception = Load(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), context: null, out StaticStructure structure);
+        Result<StaticStructure> result = await LoadAsync(directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), context: null, token).InAnyContext();
 
-        if (exception != null) LogFailedStructureLoad(logger, exception, name);
-        else LogSuccessfulStructureLoad(logger, name);
+        return result.Switch(
+            success =>
+            {
+                LogSuccessfulStructureLoad(logger, name);
 
-        return structure;
+                return success;
+            },
+            exception =>
+            {
+                LogFailedStructureLoad(logger, exception, name);
+
+                return CreateFallback();
+            }
+        );
     }
 
     /// <summary>
@@ -136,22 +150,13 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     /// </summary>
     /// <param name="file">The file to load from.</param>
     /// <param name="context">The context to report loading issues to, or <c>null</c> to just log them.</param>
-    /// <param name="structure">The loaded structure, or a fallback structure if the loading failed.</param>
-    /// <returns>An exception if loading failed, <c>null</c> otherwise.</returns>
-    public static Exception? Load(FileInfo file, IResourceContext? context, out StaticStructure structure)
+    /// <param name="token">The token to cancel the operation.</param>
+    /// <returns>The result of the operation.</returns>
+    public static async Task<Result<StaticStructure>> LoadAsync(FileInfo file, IResourceContext? context, CancellationToken token = default)
     {
-        Exception? exception = Serialize.LoadJSON(file, out Definition definition);
+        Result<Definition> result = await Serialize.LoadJsonAsync<Definition>(file, token).InAnyContext();
 
-        if (exception != null)
-        {
-            structure = CreateFallback();
-
-            return exception;
-        }
-
-        structure = new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file), context);
-
-        return null;
+        return result.Map(definition => new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file), context));
     }
 
     /// <summary>
@@ -232,12 +237,13 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     }
 
     /// <summary>
-    ///     Store the structure in a file.
+    ///     Save the structure in a file.
     /// </summary>
-    /// <param name="directory">The directory to store the file in.</param>
+    /// <param name="directory">The directory to save the file in.</param>
     /// <param name="name">The name of the structure.</param>
-    /// <returns>True if the structure was stored successfully, false otherwise.</returns>
-    public Boolean Store(DirectoryInfo directory, String name)
+    /// <param name="token">The token to cancel the operation.</param>
+    /// <returns>The result of the operation.</returns>
+    public async Task<Result> SaveAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
         List<Placement> placements = [];
 
@@ -266,13 +272,14 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
             Placements = placements.ToArray()
         };
 
-        Exception? exception = Serialize.SaveJSON(definition, directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)));
+        Result result = await Serialize.SaveJsonAsync(definition, directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), token).InAnyContext();
 
-        if (exception == null) return false;
+        result.Switch(
+            () => {},
+            exception => LogFailedStructureStore(logger, exception, name)
+        );
 
-        LogFailedStructureStore(logger, exception, name);
-
-        return false;
+        return result;
     }
 
     #region LOGGING

@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Collections;
@@ -500,7 +502,7 @@ public partial class Map
         return driftDirections;
     }
 
-    private static void EmitTerrainView(Data data, DirectoryInfo path)
+    private static async Task EmitTerrainViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
     {
         Image view = new(Width, Width);
 
@@ -511,7 +513,7 @@ public partial class Map
             view.SetPixel(x, y, GetTerrainColor(current));
         }
 
-        view.Save(path.GetFile("terrain_view.png"));
+        await view.SaveAsync(path.GetFile("terrain_view.png"), token).InAnyContext();
     }
 
     private static ColorS GetTerrainColor(Cell current)
@@ -556,7 +558,7 @@ public partial class Map
         return ColorS.Mix(tempered, other);
     }
 
-    private static void EmitTemperatureView(Data data, DirectoryInfo path)
+    private static async Task EmitTemperatureViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
     {
         Image view = new(Width, Width);
 
@@ -567,7 +569,7 @@ public partial class Map
             view.SetPixel(x, y, GetTemperatureColor(current));
         }
 
-        view.Save(path.GetFile("temperature_view.png"));
+        await view.SaveAsync(path.GetFile("temperature_view.png"), token).InAnyContext();
     }
 
     private static Array2D<HumidityData> CreateInitialHumidityData()
@@ -698,7 +700,7 @@ public partial class Map
         return current.IsLand ? precipitation : ColorS.Aqua;
     }
 
-    private static void EmitHumidityView(Data data, DirectoryInfo path)
+    private static async Task EmitHumidityViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
     {
         Image view = new(Width, Width);
 
@@ -709,7 +711,7 @@ public partial class Map
             view.SetPixel(x, y, GetHumidityColor(current));
         }
 
-        view.Save(path.GetFile("precipitation_view.png"));
+        await view.SaveAsync(path.GetFile("precipitation_view.png"), token).InAnyContext();
     }
 
     private static ColorS GetBiomeColor(Cell current, BiomeDistribution biomes)
@@ -717,7 +719,7 @@ public partial class Map
         return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Definition.Color : ColorS.White;
     }
 
-    private static void EmitBiomeView(Data data, BiomeDistribution biomes, DirectoryInfo path)
+    private static async Task EmitBiomeViewAsync(Data data, BiomeDistribution biomes, DirectoryInfo path, CancellationToken token = default)
     {
         Image view = new(Width, Width);
 
@@ -728,7 +730,7 @@ public partial class Map
             view.SetPixel(x, y, GetBiomeColor(current, biomes));
         }
 
-        view.Save(path.GetFile("biome_view.png"));
+        await view.SaveAsync(path.GetFile("biome_view.png"), token).InAnyContext();
     }
 
     private static ColorS GetStoneTypeColor(Cell current)
@@ -746,7 +748,7 @@ public partial class Map
         return ColorS.White;
     }
 
-    private static void EmitStoneView(Data data, DirectoryInfo path)
+    private static async Task EmitStoneViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
     {
         Image view = new(Width, Width);
 
@@ -757,7 +759,7 @@ public partial class Map
             view.SetPixel(x, y, GetStoneTypeColor(current));
         }
 
-        view.Save(path.GetFile("stone_view.png"));
+        await view.SaveAsync(path.GetFile("stone_view.png"), token).InAnyContext();
     }
 
     private record struct HumidityData

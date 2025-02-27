@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -15,6 +16,7 @@ using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
@@ -352,18 +354,22 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
-    ///     Emit views of different map values.
+    ///     Emit info about different map values.
     /// </summary>
-    /// <param name="path">The path to a directory to save the views to.</param>
-    public void EmitViews(DirectoryInfo path)
+    /// <param name="path">The path to a directory to save the info to.</param>
+    public Operation EmitWorldInfo(DirectoryInfo path)
     {
         Debug.Assert(data != null);
 
-        EmitTerrainView(data, path);
-        EmitStoneView(data, path);
-        EmitTemperatureView(data, path);
-        EmitHumidityView(data, path);
-        EmitBiomeView(data, biomes, path);
+        return Operations.Launch(async token =>
+        {
+            await Task.WhenAll(
+                EmitTerrainViewAsync(data, path, token),
+                EmitStoneViewAsync(data, path, token),
+                EmitTemperatureViewAsync(data, path, token),
+                EmitHumidityViewAsync(data, path, token),
+                EmitBiomeViewAsync(data, biomes, path, token)).InAnyContext();
+        });
     }
 
     private void Load(IWorldGeneratorContext context, String blob)

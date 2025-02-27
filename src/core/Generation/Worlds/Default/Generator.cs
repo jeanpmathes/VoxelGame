@@ -24,6 +24,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
@@ -181,9 +182,9 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc />
-    public void EmitViews(DirectoryInfo path)
+    public Operation EmitWorldInfo(DirectoryInfo path)
     {
-        Map.EmitViews(path);
+        return Map.EmitWorldInfo(path);
     }
 
     /// <inheritdoc />

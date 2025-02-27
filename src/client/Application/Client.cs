@@ -53,7 +53,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        sceneManager = new SceneManager();
+        sceneManager = new SceneManager(operations);
         sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Input);

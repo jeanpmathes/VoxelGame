@@ -8,6 +8,7 @@ using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -57,7 +58,10 @@ public class ImportStructure : Command
 
     private void Import(Vector3i position, String name, Orientation orientation)
     {
-        StaticStructure structure = StaticStructure.Load(Program.StructureDirectory, name);
-        structure.Place(seed: 0, Context.Player.World, position, orientation);
+        Operations.Launch(async token => await StaticStructure.LoadSafelyAsync(Program.StructureDirectory, name, token).InAnyContext())
+            .OnSuccessfulSync(result =>
+            {
+                result.Place(seed: 0, Context.Player.World, position, orientation);
+            });
     }
 }

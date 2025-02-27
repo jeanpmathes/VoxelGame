@@ -455,37 +455,40 @@ public partial class Chunk : IDisposable, IEntity
 
         LogStartedLoadingChunk(logger, position);
 
-        Exception? exception = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
+        Result result = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
 
-        if (exception is FileFormatException)
-        {
-            LogInvalidChunkFormatError(logger, position);
+        return result.Switch(
+            () =>
+            {
+                LogFinishedLoadingChunk(logger, position);
 
-            return LoadingResult.FormatError;
-        }
+                if (chunk.Position != position)
+                {
+                    LogInvalidChunkPosition(logger, position);
 
-        if (exception != null)
-        {
-            // Because there is no check whether the file exists, IO exceptions are expected.
-            // Thus, they are not logged as errors or warnings.
+                    return LoadingResult.ValidationError;
+                }
 
-            LogChunkLoadError(logger, position, exception.Message);
+                LogValidChunkFile(logger, position);
 
-            return LoadingResult.IOError;
-        }
+                return LoadingResult.Success;
+            },
+            exception =>
+            {
+                if (exception is FileFormatException)
+                {
+                    LogInvalidChunkFormatError(logger, position);
 
-        LogFinishedLoadingChunk(logger, position);
+                    return LoadingResult.FormatError;
+                }
 
-        if (chunk.Position != position)
-        {
-            LogInvalidChunkPosition(logger, position);
+                // Because there is no check whether the file exists, IO exceptions are expected.
+                // Thus, they are not logged as errors or warnings.
 
-            return LoadingResult.ValidationError;
-        }
+                LogChunkLoadError(logger, position, exception.Message);
 
-        LogValidChunkFile(logger, position);
-
-        return LoadingResult.Success;
+                return LoadingResult.IOError;
+            });
     }
 
     /// <summary>
@@ -557,10 +560,9 @@ public partial class Chunk : IDisposable, IEntity
 
         chunkFile.Directory?.Create();
 
-        Exception? exception = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
+        Result result = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
 
-        if (exception != null)
-            throw exception;
+        result.ThrowIfError();
 
         LogFinishedSavingChunk(logger, Position, chunkFile.FullName);
     }

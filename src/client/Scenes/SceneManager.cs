@@ -9,6 +9,7 @@ using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Scenes;
@@ -16,7 +17,8 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-public partial class SceneManager
+/// <param name="dispatch">On scene change, all operations on this dispatch will be cancelled or completed.</param>
+public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
 {
     private IScene? current;
 
@@ -55,6 +57,9 @@ public partial class SceneManager
         if (current == null)
             return;
 
+        if (dispatch != null)
+            CancelOrCompleteDispatch(dispatch);
+
         LogUnloadingScene(logger, current);
 
         current.Unload();
@@ -64,6 +69,16 @@ public partial class SceneManager
         Visuals.Graphics.Instance.Reset();
 
         Cleanup();
+    }
+
+    private static void CancelOrCompleteDispatch(OperationUpdateDispatch dispatch)
+    {
+        LogCompletingDispatch(logger);
+
+        dispatch.CancelAll();
+        dispatch.CompleteAll();
+
+        LogCompletedDispatch(logger);
     }
 
     private static void Cleanup()
@@ -123,6 +138,12 @@ public partial class SceneManager
 
     [LoggerMessage(EventId = LogID.SceneManager + 2, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
     private static partial void LogUnloadingScene(ILogger logger, IScene? scene);
+
+    [LoggerMessage(EventId = LogID.SceneManager + 3, Level = LogLevel.Debug, Message = "Cancelling and completing operations")]
+    private static partial void LogCompletingDispatch(ILogger logger);
+
+    [LoggerMessage(EventId = LogID.SceneManager + 4, Level = LogLevel.Debug, Message = "Cacelled and completed operations")]
+    private static partial void LogCompletedDispatch(ILogger logger);
 
     #endregion LOGGING
 }

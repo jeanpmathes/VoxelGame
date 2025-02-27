@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
@@ -132,27 +133,27 @@ public sealed partial class StartScene : IScene
     {
         if (loadWorldDirectly is not {} index) return;
 
-        Exception? exception = worldProvider.Refresh().WaitForCompletion();
+        Result result = worldProvider.Refresh().Wait();
 
-        if (exception != null)
-        {
-            LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
+        result.Switch(() =>
+            {
+                IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
 
-            return;
-        }
+                if (info != null)
+                {
+                    LogLoadingWorldDirectly(logger, index);
 
-        IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
-
-        if (info != null)
-        {
-            LogLoadingWorldDirectly(logger, index);
-
-            worldProvider.LoadAndActivateWorld(info);
-        }
-        else
-        {
-            LogCouldNotDirectlyLoadWorld(logger, index);
-        }
+                    worldProvider.LoadAndActivateWorld(info);
+                }
+                else
+                {
+                    LogCouldNotDirectlyLoadWorld(logger, index);
+                }
+            },
+            exception =>
+            {
+                LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
+            });
     }
 
     #region LOGGING
