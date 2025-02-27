@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
 using Activity = VoxelGame.Core.Updates.Activity;
 
@@ -79,7 +79,7 @@ public abstract partial class WorldState
             if (!world.Chunks.IsEveryChunkToSimulateActive())
                 return null;
 
-            Duration readyTime = timer?.Elapsed ?? default;
+            var readyTime = (timer?.Elapsed ?? default).ToString(CultureInfo.InvariantCulture);
             LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
 
             timer?.Dispose();
@@ -267,7 +267,7 @@ public abstract partial class WorldState
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldState>();
 
     [LoggerMessage(EventId = LogID.WorldState + 0, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
-    private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
+    private static partial void LogWorldReady(ILogger logger, String readyTime, Int64 worldUpdates, Int64 chunkUpdates);
 
     [LoggerMessage(EventId = LogID.WorldState + 1, Level = LogLevel.Information, Message = "Unloaded world")]
     private static partial void LogUnloadedWorld(ILogger logger);

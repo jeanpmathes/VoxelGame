@@ -73,6 +73,16 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     /// <inheritdoc />
     public override String ToString()
     {
-        return IMeasure.ToString(this);
+        return IMeasure.ToString(this, format: null);
+    }
+
+    /// <summary>
+    ///     Convert the duration to a string.
+    /// </summary>
+    /// <param name="format">The format provider.</param>
+    /// <returns>The string representation of the duration.</returns>
+    public String ToString(IFormatProvider? format)
+    {
+        return IMeasure.ToString(this, format);
     }
 }

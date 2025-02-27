@@ -65,6 +65,6 @@ public readonly struct Length : IMeasure, IEquatable<Length>
     /// <inheritdoc />
     public override String ToString()
     {
-        return IMeasure.ToString(this);
+        return IMeasure.ToString(this, format: null);
     }
 }
