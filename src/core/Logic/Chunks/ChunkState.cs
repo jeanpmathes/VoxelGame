@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
@@ -259,44 +261,46 @@ public abstract class ChunkState
     /// <summary>
     ///     Wait until the function is completed before calling update again.
     /// </summary>
-    /// <param name="func">The function to wait for.</param>
-    protected Future<T> WaitForCompletion<T>(Func<T> func)
+    /// <param name="func">The async function to wait for.</param>
+    protected Future<T> WaitForCompletion<T>(Func<Task<T>> func)
     {
         Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
 
         WaitMode |= StateWaitModes.WaitForCompletion;
 
-        return Future.Create(() =>
+        return Future.Create(async () =>
+            {
+                T result = await func().InAnyContext();
+
+                await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+
+                return result;
+            },
+            CancellationToken.None);
+
+        static void ClearWait(Chunk chunk)
         {
-            T result = func();
-
-            Context.UpdateList.AddOnUpdate(Chunk, ClearFlag);
-
-            return result;
-        });
-
-        static void ClearFlag(Chunk chunk)
-        {
-            chunk.State.WaitMode &= ~StateWaitModes.WaitForCompletion;
+            chunk.State.WaitMode = StateWaitModes.None;
         }
     }
 
     /// <summary>
     ///     Wait until the action is completed before calling update again.
     /// </summary>
-    /// <param name="action">The action to wait for.</param>
-    protected Future WaitForCompletion(Action action)
+    /// <param name="action">The async action to wait for.</param>
+    protected Future WaitForCompletion(Func<Task> action)
     {
         Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
 
         WaitMode |= StateWaitModes.WaitForCompletion;
 
-        return Future.Create(() =>
-        {
-            action();
+        return Future.Create(async () =>
+            {
+                await action().InAnyContext();
 
-            Context.UpdateList.AddOnUpdate(Chunk, ClearWait);
-        });
+                await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+            },
+            CancellationToken.None);
 
         static void ClearWait(Chunk chunk)
         {

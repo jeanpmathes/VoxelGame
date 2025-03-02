@@ -74,23 +74,34 @@ public static class Serialize
     }
 
     /// <summary>
-    ///     Save an object to a binary file.
+    ///     Save an object to a binary file asynchronously.
     /// </summary>
     /// <param name="entity">The object to save.</param>
     /// <param name="file">The file to save to.</param>
     /// <param name="signature">The signature of the file format defined by the entity.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The result of the operation.</returns>
-    public static Result SaveBinary<T>(T entity, FileInfo file, String signature) where T : IEntity
+    public static async Task<Result> SaveBinaryAsync<T>(T entity, FileInfo file, String signature, CancellationToken token = default) where T : IEntity
     {
+        // todo: try async all-the-way approach, compare timings
+
         try
         {
-            using Stream fileStream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
-            using DeflateStream compressionStream = new(fileStream, CompressionMode.Compress);
-            using BufferedStream bufferedStream = new(compressionStream);
-            using BinarySerializer serializer = new(bufferedStream, signature, file);
+            using MemoryStream memoryStream = new();
 
-            serializer.SerializeEntity(entity);
+            await using (DeflateStream compressionStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true))
+            await using (BufferedStream bufferedStream = new(compressionStream))
+            using (BinarySerializer serializer = new(bufferedStream, signature, file))
+            {
+                serializer.SerializeEntity(entity);
+            }
+
+
+            memoryStream.Position = 0;
+
+            await using Stream fileStream = file.Open(FileMode.Create, FileAccess.Write, FileShare.None);
+            await memoryStream.CopyToAsync(fileStream, token).InAnyContext();
 
             return Result.Ok();
         }
@@ -101,20 +112,30 @@ public static class Serialize
     }
 
     /// <summary>
-    ///     Load an object from a binary file.
+    ///     Load an object from a binary file asynchronously.
     /// </summary>
     /// <param name="file">The file to load from.</param>
     /// <param name="entity">The object to load into, will be modified by the loading operation.</param>
     /// <param name="signature">The signature of the file format defined by the entity.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>An exception if the operation failed, null otherwise.</returns>
-    public static Result LoadBinary<T>(FileInfo file, T entity, String signature) where T : IEntity
+    public static async Task<Result> LoadBinaryAsync<T>(FileInfo file, T entity, String signature, CancellationToken token = default) where T : IEntity
     {
         try
         {
-            using Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
-            using DeflateStream decompressionStream = new(fileStream, CompressionMode.Decompress);
-            using BufferedStream bufferedStream = new(decompressionStream);
+            using MemoryStream memoryStream = new();
+
+            await using (Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                await fileStream.CopyToAsync(memoryStream, token).InAnyContext();
+            }
+
+
+            memoryStream.Position = 0;
+
+            await using DeflateStream decompressionStream = new(memoryStream, CompressionMode.Decompress);
+            await using BufferedStream bufferedStream = new(decompressionStream);
             using BinaryDeserializer deserializer = new(bufferedStream, signature, file);
 
             deserializer.SerializeEntity(entity);
@@ -128,17 +149,18 @@ public static class Serialize
     }
 
     /// <summary>
-    ///     Load an object from a binary file.
+    ///     Load an object from a binary file asynchronously.
     /// </summary>
     /// <param name="file">The file to load from.</param>
     /// <param name="signature">The signature of the file format defined by the entity.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The result of the operation.</returns>
-    public static Result<T> LoadBinary<T>(FileInfo file, String signature) where T : IEntity, new()
+    public static async Task<Result<T>> LoadBinaryAsync<T>(FileInfo file, String signature, CancellationToken token = default) where T : IEntity, new()
     {
         T entity = new();
 
-        return LoadBinary(file, entity, signature).Switch(
+        return (await LoadBinaryAsync(file, entity, signature, token).InAnyContext()).Switch(
             () => Result.Ok(entity),
             Result.Error<T>
         );

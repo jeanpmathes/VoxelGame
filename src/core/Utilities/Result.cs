@@ -188,4 +188,18 @@ public static class ResultExtensions
     {
         return result.UnwrapWithFallback(() => new T(), out error);
     }
+
+    /// <summary>
+    ///     Unwrap a result, using the null value if it is an error.
+    /// </summary>
+    /// <param name="result">The result.</param>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <returns>The value or null.</returns>
+    public static T? UnwrapOrNull<T>(this Result<T> result) where T : class
+    {
+        return result.Switch<T?>(
+            v => v,
+            _ => null
+        );
+    }
 }

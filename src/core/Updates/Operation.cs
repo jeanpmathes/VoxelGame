@@ -238,6 +238,17 @@ public abstract class Operation<T> : Operation
     }
 
     /// <summary>
+    ///     Wait for the operation to complete.
+    /// </summary>
+    /// <returns>The result of the operation.</returns>
+    public new Result<T> Wait()
+    {
+        base.Wait();
+
+        return Result!;
+    }
+
+    /// <summary>
     /// Check if the operation is completed.
     /// </summary>
     /// <returns>The result of the operation, or <c>null</c> if the operation is still running.</returns>

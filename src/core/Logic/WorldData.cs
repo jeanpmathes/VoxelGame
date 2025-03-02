@@ -187,11 +187,12 @@ public partial class WorldData
     ///     Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
     /// <returns>The entity, or null if an error occurred.</returns>
-    public T? ReadBlob<T>(String name) where T : class, IEntity, new()
+    public async Task<T?> ReadBlobAsync<T>(String name, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Result<T> result = Serialize.LoadBinary<T>(BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
+        Result<T> result = await Serialize.LoadBinaryAsync<T>(BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
         return result.Switch(
             T? (blob) => blob,
@@ -209,10 +210,11 @@ public partial class WorldData
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
-    public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
+    public async Task WriteBlobAsync<T>(String name, T entity, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Result result = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
+        Result result = await Serialize.SaveBinaryAsync(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
         result.Switch(
             () => {},

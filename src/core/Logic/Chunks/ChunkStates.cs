@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
@@ -49,7 +50,7 @@ public partial class Chunk
             if (loading == null)
             {
                 FileInfo path = Chunk.World.Data.ChunkDirectory.GetFile(GetChunkFileName(Chunk.Position));
-                loading = WaitForCompletion(() => Load(path, Chunk));
+                loading = WaitForCompletion(async () => await LoadAsync(path, Chunk).InAnyContext());
             }
             else if (loading.IsCompleted)
             {
@@ -117,7 +118,13 @@ public partial class Chunk
             {
                 generationContext = Context.Generator.CreateGenerationContext(Chunk.Position);
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position);
-                generating = WaitForCompletion(() => Chunk.Generate(generationContext, decorationContext));
+
+                generating = WaitForCompletion(() =>
+                {
+                    Chunk.Generate(generationContext, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (generating.IsCompleted)
             {
@@ -189,7 +196,13 @@ public partial class Chunk
             if (decorating == null)
             {
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position, extents: 1);
-                decorating = WaitForCompletion(() => Chunk.Decorate(chunks, decorationContext));
+
+                decorating = WaitForCompletion(() =>
+                {
+                    Chunk.Decorate(chunks, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (decorating.IsCompleted)
             {
@@ -236,7 +249,7 @@ public partial class Chunk
         {
             if (saving == null)
             {
-                saving = WaitForCompletion(() => Chunk.Save(Chunk.World.Data.ChunkDirectory));
+                saving = WaitForCompletion(async () => await Chunk.SaveAsync(Chunk.World.Data.ChunkDirectory).InAnyContext());
             }
             else if (saving.IsCompleted)
             {

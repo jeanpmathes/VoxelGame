@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
@@ -24,6 +26,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.Toolkit.Utilities.Constants;
+using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -447,15 +450,16 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     /// <param name="path">The path to the chunk file to load and check. The path itself is not checked.</param>
     /// <param name="chunk">The chunk to load into.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <returns>The result type of the loading operation.</returns>
-    private static LoadingResult Load(FileInfo path, Chunk chunk)
+    private static async Task<LoadingResult> LoadAsync(FileInfo path, Chunk chunk, CancellationToken token = default)
     {
         // Serialization might change the position of the chunk, so we need to store it before loading.
         ChunkPosition position = chunk.Position;
 
         LogStartedLoadingChunk(logger, position);
 
-        Result result = Serialization.Serialize.LoadBinary(path, chunk, FileSignature);
+        Result result = await Serialization.Serialize.LoadBinaryAsync(path, chunk, FileSignature, token).InAnyContext();
 
         return result.Switch(
             () =>
@@ -544,7 +548,8 @@ public partial class Chunk : IDisposable, IEntity
     ///     Saves this chunk in the directory specified by the path.
     /// </summary>
     /// <param name="path">The path of the directory where this chunk should be saved.</param>
-    private void Save(DirectoryInfo path)
+    /// <param name="token">The cancellation token.</param>
+    private async Task SaveAsync(DirectoryInfo path, CancellationToken token = default)
     {
         Debug.Assert(IsGenerated);
 
@@ -560,7 +565,7 @@ public partial class Chunk : IDisposable, IEntity
 
         chunkFile.Directory?.Create();
 
-        Result result = Serialization.Serialize.SaveBinary(this, chunkFile, FileSignature);
+        Result result = await Serialization.Serialize.SaveBinaryAsync(this, chunkFile, FileSignature, token).InAnyContext();
 
         result.ThrowIfError();
 

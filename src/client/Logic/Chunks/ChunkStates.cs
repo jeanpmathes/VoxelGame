@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
@@ -73,7 +74,7 @@ public partial class Chunk
             {
                 Debug.Assert(context != null);
 
-                meshing = WaitForCompletion(() => Chunk.CreateMeshData(context));
+                meshing = WaitForCompletion(() => Task.FromResult(Chunk.CreateMeshData(context)));
             }
             else if (meshing.IsCompleted)
             {

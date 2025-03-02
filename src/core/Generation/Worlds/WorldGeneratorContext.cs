@@ -8,6 +8,7 @@ using System;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -25,12 +26,12 @@ public class WorldGeneratorContext(World world, Timer? timer) : IWorldGeneratorC
     /// <inheritdoc />
     public T? ReadBlob<T>(String name) where T : class, IEntity, new()
     {
-        return world.Data.ReadBlob<T>(name);
+        return Operations.Launch(async token => await world.Data.ReadBlobAsync<T>(name, token).InAnyContext()).Wait().UnwrapWithFallback(() => null, out _);
     }
 
     /// <inheritdoc />
     public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
     {
-        world.Data.WriteBlob(name, entity);
+        Operations.Launch(async token => await world.Data.WriteBlobAsync(name, entity, token).InAnyContext()).Wait();
     }
 }
