@@ -677,4 +677,14 @@ public static class MathTools
     {
         return (value % m + m) % m;
     }
+
+    /// <summary>
+    ///     Get the fractional part of a double.
+    /// </summary>
+    /// <param name="value">The value to get the fractional part of.</param>
+    /// <returns>The fractional part of the value.</returns>
+    public static Double Fraction(Double value)
+    {
+        return value - Math.Floor(value);
+    }
 }

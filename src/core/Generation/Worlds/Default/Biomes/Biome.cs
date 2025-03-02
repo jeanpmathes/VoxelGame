@@ -151,11 +151,12 @@ public sealed class Biome : IDisposable
     /// </summary>
     /// <param name="position">The position of the block.</param>
     /// <param name="isFilled">Whether the block is filled with water because it is below sea level.</param>
+    /// <param name="heightFraction">The fraction of the height, above the integer terrain height.</param>
     /// <param name="sample">The current map sample.</param>
     /// <returns>The cover content.</returns>
-    public Content GetCoverContent(Vector3i position, Boolean isFilled, in Map.Sample sample)
+    public Content GetCoverContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
     {
-        return Definition.Cover.GetContent(coverNoise, position, isFilled, sample);
+        return Definition.Cover.GetContent(coverNoise, position, isFilled, heightFraction, sample);
     }
 
     /// <summary>

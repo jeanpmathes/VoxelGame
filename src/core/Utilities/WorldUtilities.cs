@@ -22,7 +22,7 @@ public static class BlockUtilities
     /// </summary>
     /// <param name="position">The position.</param>
     /// <param name="mod">The value range. The resulting number will be in [0, mod).</param>
-    /// <returns></returns>
+    /// <returns>The position dependant number.</returns>
     public static Int32 GetPositionDependentNumber(Vector3i position, Int32 mod)
     {
         return Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
@@ -33,7 +33,7 @@ public static class BlockUtilities
     /// </summary>
     /// <param name="position">The position.</param>
     /// <param name="mod">The value range. The resulting number will be in [0, mod).</param>
-    /// <returns></returns>
+    /// <returns>The position dependant number.</returns>
     public static UInt32 GetPositionDependentNumber(Vector3i position, UInt32 mod)
     {
         return (UInt32) Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;

@@ -776,7 +776,7 @@ public sealed partial class Map : IMap, IDisposable
     public readonly record struct Sample
     {
         /// <summary>
-        ///     The height of the sample.
+        ///     The height of the sample, relative to the maximum height.
         /// </summary>
         public Single Height { get; init; }
 
@@ -848,6 +848,7 @@ public sealed partial class Map : IMap, IDisposable
 
         /// <summary>
         ///     Get the height of the sample.
+        ///     Note that this does not consider biome-dependent height offsets.
         /// </summary>
         /// <returns>The height.</returns>
 #pragma warning disable S4049 // Consistency.

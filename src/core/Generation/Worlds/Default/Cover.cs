@@ -7,6 +7,8 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
 
@@ -32,14 +34,27 @@ public sealed class Cover
     /// <summary>
     ///     Get the cover for a given block.
     /// </summary>
-    public Content GetContent(NoiseGenerator noise, Vector3i position, Boolean isFilled, in Map.Sample sample)
+    public Content GetContent(NoiseGenerator noise, Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
     {
         if (isFilled) return Content.Default;
 
         Temperature temperature = sample.GetRealTemperature(position.Y);
 
         if (temperature.IsFreezing)
-            return new Content(Blocks.Instance.Specials.Snow.GetInstance(height: 1), FluidInstance.Default);
+        {
+            Int32 height = MathTools.RoundedToInt(IHeightVariable.MaximumHeight * heightFraction * 0.75);
+
+            height += BlockUtilities.GetPositionDependentNumber(position, mod: 5) switch
+            {
+                0 => 1,
+                1 => -1,
+                _ => 0
+            };
+
+            height = Math.Clamp(height, min: 0, IHeightVariable.MaximumHeight);
+
+            return new Content(Blocks.Instance.Specials.Snow.GetInstance(height), FluidInstance.Default);
+        }
 
         if (!hasPlants) return Content.Default;
 

@@ -226,7 +226,8 @@ public sealed partial class Generator : IWorldGenerator
         {
             Map = Map,
             Sample = sample,
-            WorldHeight = GetWorldHeight((x, z), sample, out Int32 effectiveOffset),
+            WorldHeight = GetWorldHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
+            WorldHeightFraction = heightFraction,
             Dampening = CreateFilledDampening(effectiveOffset, sample),
             IceWidth = GetIceWidth(sample)
         };
@@ -279,15 +280,18 @@ public sealed partial class Generator : IWorldGenerator
     /// </summary>
     /// <param name="column">The column to get the height for.</param>
     /// <param name="sample">A map sample for the column.</param>
+    /// <param name="heightFraction">The fraction of the height above the integer part.</param>
     /// <param name="effectiveOffset">The effective offset of the column.</param>
-    /// <returns>The world height.</returns>
-    public static Int32 GetWorldHeight(Vector2i column, in Map.Sample sample, out Int32 effectiveOffset)
+    /// <returns>The world height, in blocks.</returns>
+    public static Int32 GetWorldHeight(Vector2i column, in Map.Sample sample, out Double heightFraction, out Int32 effectiveOffset)
     {
         Double offset = GetOffset(column, sample);
         Double height = sample.Height * Map.MaxHeight;
 
         var rawHeight = (Int32) height;
         var modifiedHeight = (Int32) (height + offset);
+
+        heightFraction = MathTools.Fraction(height + offset);
         effectiveOffset = rawHeight - modifiedHeight;
 
         return modifiedHeight;
@@ -300,7 +304,7 @@ public sealed partial class Generator : IWorldGenerator
     /// <returns>The world height.</returns>
     public Int32 GetWorldHeight(Vector3i position)
     {
-        return GetWorldHeight(position.Xz, Map.GetSample(position), out _);
+        return GetWorldHeight(position.Xz, Map.GetSample(position), out _, out _);
     }
 
     /// <summary>
@@ -392,7 +396,7 @@ public sealed partial class Generator : IWorldGenerator
 
             var content = Content.Default;
 
-            if (depth == -1) content = context.Biome.GetCoverContent(position, isFilled, context.Sample);
+            if (depth == -1) content = context.Biome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
 
             if (isFilled) content = FillContent(content);
 
@@ -424,6 +428,8 @@ public sealed partial class Generator : IWorldGenerator
     private readonly record struct Context
     {
         public Int32 WorldHeight { get; init; }
+
+        public Double WorldHeightFraction { get; init; }
 
         public Biome.Dampening Dampening { get; init; }
 

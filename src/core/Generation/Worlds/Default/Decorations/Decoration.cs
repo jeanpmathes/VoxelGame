@@ -77,7 +77,7 @@ public abstract class Decoration : IResource
 
         if (!context.Biomes.Contains(sample.ActualBiome)) return;
 
-        Int32 surfaceHeight = Generator.GetWorldHeight(column, sample, out _);
+        Int32 surfaceHeight = Generator.GetWorldHeight(column, sample, out _, out _);
 
         PlacementContext placementContext = new(Random: 0.0f, Depth: 0, context.Generator.Map.GetStoneType((column.x, 0, column.z), sample), context.Palette);
 
