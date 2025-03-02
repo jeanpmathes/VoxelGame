@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Memory;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -84,11 +85,9 @@ public static class Serialize
     /// <returns>The result of the operation.</returns>
     public static async Task<Result> SaveBinaryAsync<T>(T entity, FileInfo file, String signature, CancellationToken token = default) where T : IEntity
     {
-        // todo: try async all-the-way approach, compare timings
-
         try
         {
-            using MemoryStream memoryStream = new();
+            using MemoryStream memoryStream = Streams.Shared.GetPooledMemoryStream();
 
             await using (DeflateStream compressionStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true))
             await using (BufferedStream bufferedStream = new(compressionStream))
@@ -124,7 +123,7 @@ public static class Serialize
     {
         try
         {
-            using MemoryStream memoryStream = new();
+            using MemoryStream memoryStream = Streams.Shared.GetPooledMemoryStream();
 
             await using (Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
             {
