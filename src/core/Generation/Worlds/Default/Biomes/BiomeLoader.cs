@@ -261,7 +261,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest), palette)
         {
             Color = ColorS.Lime,
-            Amplitude = 10f,
+            Amplitude = 7f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
             Layers = new List<Layer>
@@ -296,7 +296,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest), palette)
         {
             Color = ColorS.SeaGreen,
-            Amplitude = 15f,
+            Amplitude = 7f,
             Frequency = 0.005f,
             Cover = new Cover(hasPlants: true),
             Layers = new List<Layer>
