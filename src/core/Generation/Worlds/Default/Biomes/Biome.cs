@@ -38,7 +38,7 @@ public sealed class Biome : IDisposable
             .WithType(NoiseType.GradientNoise)
             .WithFrequency(definition.Frequency)
             .WithFractals()
-            .WithOctaves(octaves: 3)
+            .WithOctaves(octaves: 5)
             .WithLacunarity(lacunarity: 2.0f)
             .WithGain(gain: 0.5f)
             .WithWeightedStrength(weightedStrength: 0.0f)
