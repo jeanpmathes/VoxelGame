@@ -177,25 +177,14 @@ public class Result<T> : Result
 public static class ResultExtensions
 {
     /// <summary>
-    ///     Unwrap a result, using the default value if it is an error.
-    ///     This will not throw an exception.
-    /// </summary>
-    /// <param name="result">The result.</param>
-    /// <param name="error">The exception that occurred, if any.</param>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <returns>The value or the default value.</returns>
-    public static T UnwrapWithDefault<T>(Result<T> result, out Exception? error) where T : new()
-    {
-        return result.UnwrapWithFallback(() => new T(), out error);
-    }
-
-    /// <summary>
     ///     Unwrap a result, using the null value if it is an error.
     /// </summary>
     /// <param name="result">The result.</param>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <returns>The value or null.</returns>
+    #pragma warning disable S4226 // Has to be extension because of type inference.
     public static T? UnwrapOrNull<T>(this Result<T> result) where T : class
+    #pragma warning restore S4226
     {
         return result.Switch<T?>(
             v => v,

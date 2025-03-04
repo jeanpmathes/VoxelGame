@@ -83,7 +83,7 @@ public partial class WorldProvider : IWorldProvider
         {
             Result<WorldDirectoryMetadata> loaded = await WorldDirectoryMetadata.LoadAsync(metadataFile, token);
 
-            metadata = loaded.UnwrapOrThrow();
+            metadata = loaded.UnwrapOrNull() ?? new WorldDirectoryMetadata();
 
             List<WorldData>? found;
 
