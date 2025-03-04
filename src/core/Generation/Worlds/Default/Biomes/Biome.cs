@@ -19,7 +19,6 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 public sealed class Biome : IDisposable
 {
     private readonly NoiseGenerator noise;
-    private readonly NoiseGenerator coverNoise;
 
     /// <summary>
     ///     Create a new biome.
@@ -44,11 +43,6 @@ public sealed class Biome : IDisposable
             .WithGain(gain: 0.5f)
             .WithWeightedStrength(weightedStrength: 0.0f)
             .Build();
-
-        coverNoise = factory.CreateNext()
-            .WithType(NoiseType.GradientNoise)
-            .WithFrequency(frequency: 0.5f)
-            .Build();
     }
 
     /// <summary>
@@ -67,7 +61,6 @@ public sealed class Biome : IDisposable
     public void Dispose()
     {
         noise.Dispose();
-        coverNoise.Dispose();
     }
 
     #endregion DISPOSING
@@ -156,7 +149,7 @@ public sealed class Biome : IDisposable
     /// <returns>The cover content.</returns>
     public Content GetCoverContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
     {
-        return Definition.Cover.GetContent(coverNoise, position, isFilled, heightFraction, sample);
+        return Definition.Cover.GetContent(position, isFilled, heightFraction, sample);
     }
 
     /// <summary>

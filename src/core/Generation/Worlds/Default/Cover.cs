@@ -10,7 +10,6 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -34,7 +33,7 @@ public sealed class Cover
     /// <summary>
     ///     Get the cover for a given block.
     /// </summary>
-    public Content GetContent(NoiseGenerator noise, Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
+    public Content GetContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
     {
         if (isFilled) return Content.Default;
 
@@ -58,13 +57,15 @@ public sealed class Cover
 
         if (!hasPlants) return Content.Default;
 
-        // No grid noise is used here because this method is only called for a single block per column.
+        Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+        Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
 
-        Single value = noise.GetNoise(position);
-        value = value > 0 ? value : value + 1;
+        if (value >= humidity)
+            return Content.Default;
 
-        if (value < sample.Humidity) return value < sample.Humidity * FlowerFactor ? new Content(Blocks.Instance.Flower) : new Content(Blocks.Instance.TallGrass);
+        if (value < humidity * FlowerFactor)
+            return new Content(Blocks.Instance.Flower);
 
-        return Content.Default;
+        return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
     }
 }
