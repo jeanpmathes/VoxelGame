@@ -80,6 +80,15 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     Create a variant of the top layer, that also uses the alternative when very close to the ocean height.
+    ///     This creates a beach-like effect when used at coastlines.
+    /// </summary>
+    public static Layer CreateCoastlineTop(Block top, Block lowOrFilled, Int32 width)
+    {
+        return new CoastlineTop(top, lowOrFilled, width);
+    }
+
+    /// <summary>
     ///     Create a simple layer. It can be declared as solid, which is only valid when not fillable.
     /// </summary>
     public static Layer CreateSimple(Block block, Int32 width, Boolean isSolid)
@@ -90,7 +99,7 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a layer with ground water that uses a loose block depending on stone type.
+    ///     Create a layer with groundwater that uses a loose block depending on stone type.
     /// </summary>
     public static Layer CreateGroundwater(Int32 width)
     {
@@ -124,12 +133,13 @@ public abstract class Layer
     /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
-    /// <param name="depth">The depth in the layer.</param>
+    /// <param name="depth">The depth within the layer.</param>
     /// <param name="offset">The random offset from normal world height.</param>
     /// <param name="stoneType">The stone type of the column.</param>
+    /// <param name="y">The y coordinate of the current position.</param>
     /// <param name="isFilled">Whether the column is filled with fluid or not.</param>
     /// <returns>The data for the layer content.</returns>
-    public abstract Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled);
+    public abstract Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled);
 
     private sealed class Top : Layer
     {
@@ -144,9 +154,28 @@ public abstract class Layer
             filledData = new Content(filled);
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return isFilled ? filledData : normalData;
+        }
+    }
+
+    private sealed class CoastlineTop : Layer
+    {
+        private readonly Content lowOrFilledData;
+        private readonly Content normalData;
+
+        public CoastlineTop(Block top, Block lowOrFilled, Int32 width)
+        {
+            Width = width;
+
+            normalData = new Content(top);
+            lowOrFilledData = new Content(lowOrFilled);
+        }
+
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
+        {
+            return isFilled || y < 5 ? lowOrFilledData : normalData;
         }
     }
 
@@ -162,7 +191,7 @@ public abstract class Layer
             data = new Content(block);
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return data;
         }
@@ -179,7 +208,7 @@ public abstract class Layer
             groundWaterDepth = width / 2;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             if (isFilled) return Palette!.GetLoose(stoneType);
 
@@ -202,7 +231,7 @@ public abstract class Layer
             filled = Content.Default;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return isFilled ? filled : snow;
         }
@@ -215,7 +244,7 @@ public abstract class Layer
             Width = width;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return Palette!.GetLoose(stoneType);
         }
@@ -233,7 +262,7 @@ public abstract class Layer
             data = new Content(block);
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return data;
         }
@@ -247,7 +276,7 @@ public abstract class Layer
             IsDampen = true;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return Palette!.GetStone(stoneType);
         }
@@ -261,7 +290,7 @@ public abstract class Layer
             IsSolid = true;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             return Palette!.GetStone(stoneType);
         }
@@ -284,7 +313,7 @@ public abstract class Layer
             this.amplitude = amplitude;
         }
 
-        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Boolean isFilled)
+        public override Content GetContent(Int32 depth, Int32 offset, Map.StoneType stoneType, Int32 y, Boolean isFilled)
         {
             if (offset > amplitude)
             {

@@ -79,6 +79,16 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     }
 
     /// <summary>
+    ///     Create a new color from the given HSV channels.
+    /// </summary>
+    public static ColorS FromHSV(Single hue, Single saturation, Single value)
+    {
+        Color4 color = Color4.FromHsv((hue, saturation, value, 1.0f));
+
+        return new ColorS(color.R, color.G, color.B, color.A);
+    }
+
+    /// <summary>
     ///     Create a new color from the given channels.
     /// </summary>
     public static ColorS FromRGBA(Single red, Single green, Single blue, Single alpha)

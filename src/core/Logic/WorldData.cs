@@ -158,7 +158,7 @@ public partial class WorldData
 
     private static UInt32 ClampSize(UInt32 size)
     {
-        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
+        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize * (1 + RequestLevel.Range));
     }
 
     private static SpawnInformation ClampSpawn(WorldInformation information)

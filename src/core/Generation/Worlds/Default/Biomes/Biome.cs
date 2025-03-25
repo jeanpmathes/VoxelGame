@@ -107,11 +107,12 @@ public sealed class Biome : IDisposable
     ///     Get the biome content for a given depth beneath the surface level.
     /// </summary>
     /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
+    /// <param name="y">The y coordinate of the current depth.</param>
     /// <param name="dampening">The dampening to apply to the column.</param>
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <returns>The biome content.</returns>
-    public Content GetContent(Int32 depthBelowSurface, Dampening dampening, Map.StoneType stoneType, Boolean isFilled)
+    public Content GetContent(Int32 depthBelowSurface, Int32 y, Dampening dampening, Map.StoneType stoneType, Boolean isFilled)
     {
         Layer current;
         Int32 depthInLayer;
@@ -136,7 +137,7 @@ public sealed class Biome : IDisposable
         Int32 actualDepthToSolid = Definition.MinDepthToSolid + dampening.Width;
         Boolean isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
 
-        return current.GetContent(depthInLayer, actualOffset, stoneType, isFilledAtCurrentDepth);
+        return current.GetContent(depthInLayer, actualOffset, stoneType, y, isFilledAtCurrentDepth);
     }
 
     /// <summary>

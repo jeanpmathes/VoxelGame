@@ -333,12 +333,11 @@ public sealed partial class Generator : IWorldGenerator
 
     private static Double GetOffset(Vector2i position, in Map.Sample sample)
     {
-        return MathTools.MixingBilinearInterpolation(
+        return MathTools.BiLerp(
             sample.Biome00.GetOffset(position),
             sample.Biome10.GetOffset(position),
             sample.Biome01.GetOffset(position),
             sample.Biome11.GetOffset(position),
-            sample.SpecialBiome.GetOffset(position),
             sample.BlendFactors);
     }
 
@@ -347,20 +346,18 @@ public sealed partial class Generator : IWorldGenerator
     /// </summary>
     private static Biome.Dampening CreateFilledDampening(Int32 offset, in Map.Sample sample)
     {
-        (Int32 a, Int32 b, Int32 c, Int32 d, Int32 e) depths = (
+        (Int32 a, Int32 b, Int32 c, Int32 d) depths = (
             sample.Biome00.GetDepthToSolid(sample.Biome00.CalculateDampening(offset)),
             sample.Biome10.GetDepthToSolid(sample.Biome10.CalculateDampening(offset)),
             sample.Biome01.GetDepthToSolid(sample.Biome01.CalculateDampening(offset)),
-            sample.Biome11.GetDepthToSolid(sample.Biome11.CalculateDampening(offset)),
-            sample.SpecialBiome.GetDepthToSolid(sample.SpecialBiome.CalculateDampening(offset)));
+            sample.Biome11.GetDepthToSolid(sample.Biome11.CalculateDampening(offset)));
 
         if (depths.a <= depths.b && depths.a <= depths.c && depths.a <= depths.d) depths.a *= 2;
         else if (depths.b <= depths.a && depths.b <= depths.c && depths.b <= depths.d) depths.b *= 2;
         else if (depths.c <= depths.a && depths.c <= depths.b && depths.c <= depths.d) depths.c *= 2;
-        else if (depths.d <= depths.a && depths.d <= depths.b && depths.d <= depths.c) depths.d *= 2;
-        else depths.e *= 2;
+        else depths.d *= 2;
 
-        var targetDepth = (Int32) MathTools.MixingBilinearInterpolation(depths.a, depths.b, depths.c, depths.d, depths.e, sample.BlendFactors);
+        var targetDepth = (Int32) MathTools.BiLerp(depths.a, depths.b, depths.c, depths.d, sample.BlendFactors);
         Biome.Dampening dampening = sample.ActualBiome.CalculateDampening(offset);
 
         Int32 fill = targetDepth - sample.ActualBiome.GetDepthToSolid(dampening);
@@ -371,14 +368,13 @@ public sealed partial class Generator : IWorldGenerator
 
     private static Int32 GetIceWidth(in Map.Sample sample)
     {
-        (Int32 a, Int32 b, Int32 c, Int32 d, Int32 e) widths = (
+        (Int32 a, Int32 b, Int32 c, Int32 d) widths = (
             sample.Biome00.Definition.IceWidth,
             sample.Biome10.Definition.IceWidth,
             sample.Biome01.Definition.IceWidth,
-            sample.Biome11.Definition.IceWidth,
-            sample.SpecialBiome.Definition.IceWidth);
+            sample.Biome11.Definition.IceWidth);
 
-        return (Int32) Math.Round(MathTools.MixingBilinearInterpolation(widths.a, widths.b, widths.c, widths.d, widths.e, sample.BlendFactors), MidpointRounding.AwayFromZero);
+        return (Int32) Math.Round(MathTools.BiLerp(widths.a, widths.b, widths.c, widths.d, sample.BlendFactors), MidpointRounding.AwayFromZero);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)
@@ -405,12 +401,12 @@ public sealed partial class Generator : IWorldGenerator
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, isFilled, stoneType, context);
+        return depth >= context.Biome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, position.Y, isFilled, stoneType, context);
     }
 
-    private static Content GetBiomeContent(Int32 depth, Boolean isFilled, Map.StoneType stoneType, Context context)
+    private static Content GetBiomeContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Context context)
     {
-        Content content = context.Biome.GetContent(depth, context.Dampening, stoneType, isFilled);
+        Content content = context.Biome.GetContent(depth, y, context.Dampening, stoneType, isFilled);
 
         if (isFilled) content = FillContent(content);
 

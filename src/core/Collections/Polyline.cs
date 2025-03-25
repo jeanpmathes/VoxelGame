@@ -29,7 +29,7 @@ public class Polyline
     }
 
     /// <summary>
-    ///     The left function, which is used outside of the interval defined by the points.
+    ///     The left function, which is used outside the interval defined by the points.
     /// </summary>
     public Func<Double, Double> Left { get; init; }
 
@@ -39,7 +39,7 @@ public class Polyline
     public IList<Vector2d> Points { get; } = new List<Vector2d>();
 
     /// <summary>
-    ///     The right function, which is used outside of the interval defined by the points.
+    ///     The right function, which is used outside the interval defined by the points.
     /// </summary>
     public Func<Double, Double> Right { get; init; }
 

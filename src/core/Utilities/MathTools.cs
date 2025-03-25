@@ -426,6 +426,14 @@ public static class MathTools
     }
 
     /// <summary>
+    ///     Perform a component-wise inverse lerp operation on two vectors.
+    /// </summary>
+    public static Vector2d InverseLerp(Vector2d a, Vector2d b, Vector2d value)
+    {
+        return new Vector2d(InverseLerp(a.X, b.X, value.X), InverseLerp(a.Y, b.Y, value.Y));
+    }
+
+    /// <summary>
     ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
     /// </summary>
     public static Double BiLerp(Double f00, Double f10, Double f01, Double f11, Double tx, Double ty)
@@ -434,24 +442,11 @@ public static class MathTools
     }
 
     /// <summary>
-    ///     Get the gradient of the bilinear interpolation function. The factors must be in the range [0, 1].
+    ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
     /// </summary>
-    public static Vector2d GradBiLerp(Double f00, Double f10, Double f01, Double f11, Double tx, Double ty)
+    public static Double BiLerp(Double f00, Double f10, Double f01, Double f11, Vector2d t)
     {
-        // bilerp: f(tx, ty) = (1 - tx) * (1 - ty) * f00 + tx * (1 - ty) * f10 + (1 - tx) * ty * f01 + tx * ty * f11
-
-        Double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
-        Double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
-
-        return new Vector2d(fx, fy);
-    }
-
-    /// <summary>
-    ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
-    /// </summary>
-    public static Double MixingBilinearInterpolation(Double f00, Double f10, Double f01, Double f11, Double fZ, Vector3d t)
-    {
-        return MathHelper.Lerp(BiLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
+        return BiLerp(f00, f10, f01, f11, t.X, t.Y);
     }
 
     /// <summary>
@@ -518,15 +513,6 @@ public static class MathTools
         return ref e1;
     }
 
-
-    /// <summary>
-    ///     Select from five values using three weights.
-    /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, in T eZ, Vector3d weights)
-    {
-        return ref SelectByWeight(SelectByWeight(e00, e10, e01, e11, weights.Xy), eZ, weights.Z);
-    }
-
     /// <summary>
     ///     Get the square root of each vector component.
     /// </summary>
@@ -541,6 +527,15 @@ public static class MathTools
     public static Double CalculateAngle(Vector2d a, Vector2d b)
     {
         return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
+    }
+
+    /// <summary>
+    ///     Perform a component-wise min-max operation on two vectors, returning all minimal components in the first vector and
+    ///     all maximal components in the second vector.
+    /// </summary>
+    public static (Vector2i min, Vector2i max) MinMax(Vector2i a, Vector2i b)
+    {
+        return (new Vector2i(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), new Vector2i(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y)));
     }
 
     /// <summary>
@@ -666,6 +661,14 @@ public static class MathTools
     ///     Simply gets the cube of a number.
     /// </summary>
     public static Int32 Cube(Int32 x)
+    {
+        return x * x * x;
+    }
+
+    /// <summary>
+    /// Simply gets the cube of a number.
+    /// </summary>
+    public static Single Cube(Single x)
     {
         return x * x * x;
     }

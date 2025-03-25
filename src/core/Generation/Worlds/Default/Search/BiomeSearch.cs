@@ -71,7 +71,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
 
     private IEnumerable<Vector3i> SearchAtDistance(IReadOnlySet<Biome> biomes, Mode mode, Vector3i anchor, Int32 distance)
     {
-        Vector2i center = Map.GetCellIndex(anchor);
+        Vector2i center = Map.GetCellFromColumn(anchor.Xz);
 
         for (Int32 dx = -distance; dx <= distance; dx++)
         {
@@ -88,7 +88,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
 
                 Vector2i current = center + (dx, dz);
 
-                if (!Map.IsInLimits(current)) continue;
+                if (!Map.IsValidCell(current)) continue;
 
                 if (SearchInCell(biomes, mode, current, out Vector3i found))
                     yield return found;
@@ -145,7 +145,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
         {
             found = default;
 
-            if (!Map.IsInLimits(neighborCell))
+            if (!Map.IsValidCell(neighborCell))
                 return false;
 
             // The neighbor cell should contain a different biome.

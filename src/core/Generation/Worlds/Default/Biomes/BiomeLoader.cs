@@ -478,7 +478,7 @@ public sealed class BiomeLoader : IResourceLoader
         /// </summary>
         public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach), palette)
         {
-            Color = ColorS.Black,
+            Color = ColorS.Orange,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: false),
@@ -499,36 +499,36 @@ public sealed class BiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The grass covered cliff biome, which is found at coastlines with large height differences.
+        ///     The grass covered cliff biome, which is found at large height differences.
         /// </summary>
         public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff), palette)
         {
-            Color = ColorS.Black,
+            Color = ColorS.LightGray,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: true),
             Layers = new List<Layer>
             {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
+                Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
+                Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)
             }
         });
 
         /// <summary>
-        ///     The sand covered cliff biome, which is found at coastlines with large height differences.
+        ///     The sand covered cliff biome, which is found at large height differences.
         /// </summary>
         public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff), palette)
         {
-            Color = ColorS.Black,
+            Color = ColorS.SlateGray,
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover(hasPlants: false),
             Layers = new List<Layer>
             {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),
+                Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)
             }

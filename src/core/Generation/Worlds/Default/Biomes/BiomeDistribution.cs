@@ -51,12 +51,31 @@ public class BiomeDistribution
     }
 
     /// <summary>
-    ///     Get the biome at the given temperature and humidity.
+    /// Determine the biome for a location based on the given conditions.
     /// </summary>
+    /// <param name="conditions">The special cell conditions in effect.</param>
     /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
     /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
-    /// <returns>The biome at the given temperature and humidity.</returns>
-    public Biome GetBiome(Single temperature, Single humidity)
+    /// <param name="isLand">Whether the location is land or water.</param>
+    /// <returns>The appropriate biome.</returns>
+    public Biome DetermineBiome(Map.CellConditions conditions, Single temperature, Single humidity, Boolean isLand)
+    {
+        if (!isLand)
+            return DetermineOceanBiome(temperature, humidity);
+
+        if (conditions.HasFlag(Map.CellConditions.Mountainous))
+            return mountain;
+
+        if (Map.HasCliff(conditions))
+            return DetermineCliffBiome(temperature, humidity);
+
+        if (conditions.HasFlag(Map.CellConditions.Coastline))
+            return beach;
+
+        return DetermineBiome(temperature, humidity);
+    }
+
+    private Biome DetermineBiome(Single temperature, Single humidity)
     {
         Debug.Assert(temperature is >= 0 and <= 1);
         Debug.Assert(humidity is >= 0 and <= 1);
@@ -76,42 +95,16 @@ public class BiomeDistribution
         return biome;
     }
 
-    /// <summary>
-    ///     Get the appropriate mountain biome.
-    /// </summary>
-    /// <returns></returns>
-    #pragma warning disable S4049 // For symmetry with GetCoastlineBiome and GetOceanBiome
-    public Biome GetMountainBiome()
-    #pragma warning restore S4049
+    private Biome DetermineCliffBiome(Single temperature, Single humidity)
     {
-        return mountain;
-    }
-
-    /// <summary>
-    ///     Get the appropriate coastline biome.
-    /// </summary>
-    /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
-    /// <param name="isCliff">Whether the coastline is a cliff.</param>
-    /// <returns>The appropriate coastline biome.</returns>
-    public Biome GetCoastlineBiome(Single temperature, Single humidity, Boolean isCliff)
-    {
-        if (!isCliff) return beach;
-
-        Biome biome = GetBiome(temperature, humidity);
+        Biome biome = DetermineBiome(temperature, humidity);
 
         return biome == desert ? sandyCliff : grassyCliff;
     }
 
-    /// <summary>
-    ///     Get the appropriate ocean biome.
-    /// </summary>
-    /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
-    /// <returns>The appropriate ocean biome.</returns>
-    public Biome GetOceanBiome(Single temperature, Single humidity)
+    private Biome DetermineOceanBiome(Single temperature, Single humidity)
     {
-        Biome biome = GetBiome(temperature, humidity);
+        Biome biome = DetermineBiome(temperature, humidity);
 
         return biome == polarDesert ? polarOcean : ocean;
     }

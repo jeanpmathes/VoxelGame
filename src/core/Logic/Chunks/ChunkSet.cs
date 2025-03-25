@@ -70,6 +70,8 @@ public sealed partial class ChunkSet : IDisposable
     {
         Throw.IfDisposed(disposed);
 
+        Debug.Assert(World.IsInLimits(position));
+
         Request request = new(position, requester);
 
         if (pendingRequests.Add(request))
@@ -125,6 +127,8 @@ public sealed partial class ChunkSet : IDisposable
 
         if (chunk != null)
             return chunk;
+
+        Debug.Assert(World.IsInLimits(position));
 
         chunk = context.GetObject(world, position);
 

@@ -10,7 +10,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Logic;
@@ -38,7 +37,7 @@ public sealed partial class Map : IMap, IDisposable
     ///     Additional cell data that is stored as flags.
     /// </summary>
     [Flags]
-    public enum CellConditions : Byte
+    public enum CellConditions : UInt16
     {
         /// <summary>
         ///     No conditions.
@@ -58,7 +57,37 @@ public sealed partial class Map : IMap, IDisposable
         /// <summary>
         ///     Marks a cell as having a rift valley.
         /// </summary>
-        Rift = 1 << 2
+        Rift = 1 << 2,
+
+        /// <summary>
+        ///     Marks a cell as being a coastline.
+        /// </summary>
+        Coastline = 1 << 3,
+
+        /// <summary>
+        ///     Marks a cell as being very mountainous.
+        /// </summary>
+        Mountainous = 1 << 4,
+
+        /// <summary>
+        ///     Marks a cell as having a cliff at the northern side.
+        /// </summary>
+        CliffNorth = 1 << 5,
+
+        /// <summary>
+        ///     Marks a cell as having a cliff at the southern side.
+        /// </summary>
+        CliffSouth = 1 << 6,
+
+        /// <summary>
+        ///     Marks a cell as having a cliff at the eastern side.
+        /// </summary>
+        CliffEast = 1 << 7,
+
+        /// <summary>
+        ///     Marks a cell as having a cliff at the western side.
+        /// </summary>
+        CliffWest = 1 << 8
     }
 
     /// <summary>
@@ -90,12 +119,12 @@ public sealed partial class Map : IMap, IDisposable
     /// <summary>
     ///     Height of the highest mountains and deepest oceans, in meters / blocks.
     /// </summary>
-    public const Int32 MaxHeight = 10_000;
+    public const Int32 MaxHeight = 5_000;
 
     /// <summary>
     ///     The size of a map cell, in meters / blocks.
     /// </summary>
-    public const Int32 CellSize = 20_000;
+    public const Int32 CellSize = 200;
 
     private const Int32 CellSizeHalf = CellSize / 2;
 
@@ -113,74 +142,6 @@ public sealed partial class Map : IMap, IDisposable
 
     private static readonly ColorS fluidTintWarm = ColorS.LightSeaGreen;
     private static readonly ColorS fluidTintCold = ColorS.MediumBlue;
-
-    private static readonly Polyline mountainStrengthFunction = new()
-    {
-        Left = _ => 0.0,
-        Points =
-        {
-            (0.3, 0.0),
-            (0.4, 0.4)
-        },
-        Right = x => x
-    };
-
-    private static readonly Polyline depthStrengthFunction = new()
-    {
-        Left = _ => 1.0,
-        Points =
-        {
-            (0.0, 1.0),
-            (0.01, 0.0) // Here 0.01 is the maximum coastline height.
-        },
-        Right = _ => 0.0
-    };
-
-    private static readonly Polyline distanceStrengthFunction = new()
-    {
-        Left = _ => 1.0,
-        Points =
-        {
-            (0.0, 1.0),
-            (0.02, 0.0) // Here 0.01 is the maximum coastline width.
-        },
-        Right = _ => 0.0
-    };
-
-    private static readonly Polyline oceanStrengthFunction = new()
-    {
-        Left = x => -x,
-        Points =
-        {
-            (0.4, -0.4),
-            (0.5, 0.5)
-        },
-        Right = x => x
-    };
-
-    private static readonly Polyline flattenedHeightFunction = new()
-    {
-        Left = _ => 0.0,
-        Points =
-        {
-            (0.0, 0.0),
-            (0.0125, 0.005),
-            (0.025, 0.025)
-        },
-        Right = x => x
-    };
-
-    private static readonly Polyline cliffFactorFunction = new()
-    {
-        Left = _ => 0.0,
-        Points =
-        {
-            (0.0, 0.0),
-            (0.5, 0.1),
-            (0.55, 1.0)
-        },
-        Right = _ => 1.0
-    };
 
     private readonly BiomeDistribution biomes;
 
@@ -234,6 +195,18 @@ public sealed partial class Map : IMap, IDisposable
         Sample sample = GetSample(samplingPosition);
 
         return sample.GetRealTemperature(position.Y);
+    }
+
+    /// <summary>
+    ///     Check whether the given conditions contain any cliffs.
+    /// </summary>
+    public static Boolean HasCliff(CellConditions conditions)
+    {
+        const Int32 mask = (Int32) CellConditions.CliffNorth | (Int32) CellConditions.CliffSouth
+                                                             | (Int32) CellConditions.CliffEast
+                                                             | (Int32) CellConditions.CliffWest;
+
+        return (mask & (Int32) conditions) != 0;
     }
 
     private static Temperature ConvertTemperatureToCelsius(Single temperature)
@@ -328,12 +301,12 @@ public sealed partial class Map : IMap, IDisposable
     {
         generatingNoise.Pieces = factory.CreateNext()
             .WithType(NoiseType.CellularNoise)
-            .WithFrequency(frequency: 0.05f)
+            .WithFrequency(frequency: 0.025f)
             .Build();
 
         generatingNoise.Stone = factory.CreateNext()
             .WithType(NoiseType.GradientNoise)
-            .WithFrequency(frequency: 0.08f)
+            .WithFrequency(frequency: 0.03f)
             .Build();
     }
 
@@ -349,6 +322,7 @@ public sealed partial class Map : IMap, IDisposable
         GenerateTerrain(data, generatingNoise);
         GenerateTemperature(data);
         GenerateHumidity(data);
+        GenerateAdditionalSpecialConditions(data);
 
         LogGeneratedMap(logger, timer?.Elapsed ?? default);
     }
@@ -366,6 +340,7 @@ public sealed partial class Map : IMap, IDisposable
             await Task.WhenAll(
                 EmitTerrainViewAsync(data, path, token),
                 EmitStoneViewAsync(data, path, token),
+                EmitContinentViewAsync(data, path, token),
                 EmitTemperatureViewAsync(data, path, token),
                 EmitHumidityViewAsync(data, path, token),
                 EmitBiomeViewAsync(data, biomes, path, token)).InAnyContext();
@@ -440,225 +415,240 @@ public sealed partial class Map : IMap, IDisposable
     {
         Debug.Assert(data != null);
 
-        Int32 xP = DivideByCellSize(column.X);
-        Int32 yP = DivideByCellSize(column.Y);
+        (Vector2i c1, Vector2i c2, Vector2d blend) = GetSamplingCells(column, grid2D, out Vector2d t);
 
-        Int32 xN = GetNearestNeighbor(column.X);
-        Int32 yN = GetNearestNeighbor(column.Y);
+        ref readonly Cell c00 = ref data.GetCell(c1.X + WidthHalf, c1.Y + WidthHalf);
+        ref readonly Cell c10 = ref data.GetCell(c2.X + WidthHalf, c1.Y + WidthHalf);
+        ref readonly Cell c01 = ref data.GetCell(c1.X + WidthHalf, c2.Y + WidthHalf);
+        ref readonly Cell c11 = ref data.GetCell(c2.X + WidthHalf, c2.Y + WidthHalf);
 
-        (Int32 x1, Int32 x2) = MathTools.MinMax(xP, xN);
-        (Int32 y1, Int32 y2) = MathTools.MinMax(yP, yN);
+        var temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blend);
+        var humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blend);
 
-        // Both p1 and p2 are centers of cells - between them is a cell-sized area which contains the sampling position.
-        // This is done as the cell values apply only to the center of the cell, everything else is interpolated.
+        Single height = GetHeight(c00, c10, c01, c11, blend);
 
-        Vector2d p1 = new Vector2d(x1, y1) * CellSize + new Vector2d(CellSizeHalf);
-        Vector2d p2 = new Vector2d(x2, y2) * CellSize + new Vector2d(CellSizeHalf);
+        Biome b00 = GetBiome(c00);
+        Biome b10 = GetBiome(c10);
+        Biome b01 = GetBiome(c01);
+        Biome b11 = GetBiome(c11);
 
-        Double tX = MathTools.InverseLerp(p1.X, p2.X, column.X);
-        Double tY = MathTools.InverseLerp(p1.Y, p2.Y, column.Y);
-
-        tX = ApplyBiomeChangeFunction(tX);
-        tY = ApplyBiomeChangeFunction(tY);
-
-        const Double transitionFactor = 0.015;
-
-        Vector2 noise = samplingNoise.GetNoise(column, grid2D);
-
-        Double blendX = tX + noise.X * GetBorderStrength(tX) * transitionFactor;
-        Double blendY = tY + noise.Y * GetBorderStrength(tY) * transitionFactor;
-
-        ref readonly Cell c00 = ref data.GetCell(x1 + WidthHalf, y1 + WidthHalf);
-        ref readonly Cell c10 = ref data.GetCell(x2 + WidthHalf, y1 + WidthHalf);
-        ref readonly Cell c01 = ref data.GetCell(x1 + WidthHalf, y2 + WidthHalf);
-        ref readonly Cell c11 = ref data.GetCell(x2 + WidthHalf, y2 + WidthHalf);
-
-        var temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, blendX, blendY);
-        var humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, blendX, blendY);
-        var height = (Single) MathTools.BiLerp(c00.height, c10.height, c01.height, c11.height, blendX, blendY);
-
-        Single mountainStrength = GetMountainStrength(c00, c10, c01, c11, height, (blendX, blendY));
-        Single coastlineStrength = GetCoastlineStrength(c00, c10, c01, c11, ref height, (blendX, blendY), out Boolean isCliff);
-
-        Biome specialBiome;
-        Single specialStrength;
-
-        if (mountainStrength > coastlineStrength)
-        {
-            specialBiome = biomes.GetMountainBiome();
-            specialStrength = mountainStrength;
-        }
-        else
-        {
-            specialBiome = biomes.GetCoastlineBiome(temperature, humidity, isCliff);
-            specialStrength = coastlineStrength;
-        }
-
-        Biome actual = MathTools.SelectByWeight(GetBiome(c00), GetBiome(c10), GetBiome(c01), GetBiome(c11), specialBiome, (blendX, blendY, specialStrength));
+        Biome actual = MathTools.SelectByWeight(b00, b10, b01, b11, blend);
 
         return new Sample
         {
             Height = height,
             Temperature = temperature,
             Humidity = humidity,
-            BlendFactors = (blendX, blendY, specialStrength),
+            BlendFactors = blend,
             ActualBiome = actual,
-            Biome00 = GetBiome(c00),
-            Biome10 = GetBiome(c10),
-            Biome01 = GetBiome(c01),
-            Biome11 = GetBiome(c11),
-            SpecialBiome = specialBiome,
-            StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, tX, tY)
+            Biome00 = b00,
+            Biome10 = b10,
+            Biome01 = b01,
+            Biome11 = b11,
+            StoneData = (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, t)
         };
     }
 
-    private static Int32 GetNearestNeighbor(Int32 number)
+    private (Vector2i c1, Vector2i c2, Vector2d blend) GetSamplingCells(Vector2i column, NoiseGrid2D? grid2D, out Vector2d t)
     {
-        const Int32 halfCellSize = CellSize / 2;
+        Vector2i cell = GetCellFromColumn(column);
+        Vector2i neighbor = GetNearestNeighbor(column);
 
-        Int32 subject = DivideByCellSize(number);
-        Int32 a = DivideByCellSize(number - halfCellSize);
-        Int32 b = DivideByCellSize(number + halfCellSize);
+        (Vector2i c1, Vector2i c2) = MathTools.MinMax(cell, neighbor);
 
-        return a == subject ? b : a;
+        Vector2d p1 = GetCellCenter(c1);
+        Vector2d p2 = GetCellCenter(c2);
+
+        // The cell centers create a cell-sized rectangle, in which the values are interpolated.
+
+        t = MathTools.InverseLerp(p1, p2, column);
+
+        Vector2d noise = samplingNoise.GetNoise(column, grid2D);
+        Vector2d blend = t + noise * 0.2;
+
+        ReAlignSamplingCells(ref blend, ref c1, ref c2);
+
+        return (c1, c2, blend);
+    }
+
+    private static void ReAlignSamplingCells(ref Vector2d blend, ref Vector2i c1, ref Vector2i c2)
+    {
+        if (blend.X < 0.0)
+        {
+            blend.X += 1.0;
+            c1.X -= 1;
+            c2.X -= 1;
+        }
+        else if (blend.X > 1.0)
+        {
+            blend.X -= 1.0;
+            c1.X += 1;
+            c2.X += 1;
+        }
+
+        if (blend.Y < 0.0)
+        {
+            blend.Y += 1.0;
+            c1.Y -= 1;
+            c2.Y -= 1;
+        }
+        else if (blend.Y > 1.0)
+        {
+            blend.Y -= 1.0;
+            c1.Y += 1;
+            c2.Y += 1;
+        }
+    }
+
+    private static Single GetHeight(in Cell c00, in Cell c10, in Cell c01, in Cell c11, Vector2d blend)
+    {
+        var defaultHeight = (Single) MathTools.BiLerp(c00.height, c10.height, c01.height, c11.height, blend);
+
+        CellConditions total = c00.conditions | c10.conditions | c01.conditions | c11.conditions;
+
+        if (!HasCliff(total))
+            return defaultHeight;
+
+        var s00 = 0.0f;
+        var s10 = 0.0f;
+        var s01 = 0.0f;
+        var s11 = 0.0f;
+
+        Single unavailable = Single.NaN;
+
+        if (ApplyCliffs(c00, ref unavailable, ref s01, ref s10, ref unavailable))
+            s00 = 1.0f;
+
+        if (ApplyCliffs(c10, ref unavailable, ref s11, ref unavailable, ref s00))
+            s10 = 1.0f;
+
+        if (ApplyCliffs(c01, ref s00, ref unavailable, ref s11, ref unavailable))
+            s01 = 1.0f;
+
+        if (ApplyCliffs(c11, ref s10, ref unavailable, ref unavailable, ref s01))
+            s11 = 1.0f;
+
+        var cliffStrength = (Single) MathTools.BiLerp(s00, s10, s01, s11, blend);
+
+        if (cliffStrength < 0.5f)
+            return defaultHeight;
+
+        cliffStrength -= 0.5f;
+        cliffStrength *= 2.0f;
+
+        var cliffHeight = (Single) MathTools.BiLerp(
+            GetCliffHeight(c00, Single.NegativeInfinity, c01.height, c10.height, Single.NegativeInfinity),
+            GetCliffHeight(c10, Single.NegativeInfinity, c11.height, Single.NegativeInfinity, c00.height),
+            GetCliffHeight(c01, c00.height, Single.NegativeInfinity, c11.height, Single.NegativeInfinity),
+            GetCliffHeight(c11, c10.height, Single.NegativeInfinity, Single.NegativeInfinity, c01.height),
+            blend);
+
+        return Single.Lerp(defaultHeight, cliffHeight, cliffStrength);
+    }
+
+    private static Boolean ApplyCliffs(in Cell cell, ref Single north, ref Single south, ref Single east, ref Single west)
+    {
+        if (!HasCliff(cell.conditions))
+            return false;
+
+        var isRaisedCliff = false;
+
+        if (!Single.IsNaN(north) && cell.conditions.HasFlag(CellConditions.CliffNorth))
+        {
+            north = 1.0f;
+            isRaisedCliff = true;
+        }
+
+        if (!Single.IsNaN(south) && cell.conditions.HasFlag(CellConditions.CliffSouth))
+        {
+            south = 1.0f;
+            isRaisedCliff = true;
+        }
+
+        if (!Single.IsNaN(east) && cell.conditions.HasFlag(CellConditions.CliffEast))
+        {
+            east = 1.0f;
+            isRaisedCliff = true;
+        }
+
+        if (!Single.IsNaN(west) && cell.conditions.HasFlag(CellConditions.CliffWest))
+        {
+            west = 1.0f;
+            isRaisedCliff = true;
+        }
+
+        return isRaisedCliff;
+    }
+
+    private static Single GetCliffHeight(in Cell cell, Single northHeight, Single southHeight, Single eastHeight, Single westHeight)
+    {
+        if (!HasCliff(cell.conditions))
+            return cell.height;
+
+        Single height = cell.height;
+
+        if (cell.conditions.HasFlag(CellConditions.CliffNorth))
+            height = Math.Max(height, northHeight);
+
+        if (cell.conditions.HasFlag(CellConditions.CliffSouth))
+            height = Math.Max(height, southHeight);
+
+        if (cell.conditions.HasFlag(CellConditions.CliffEast))
+            height = Math.Max(height, eastHeight);
+
+        if (cell.conditions.HasFlag(CellConditions.CliffWest))
+            height = Math.Max(height, westHeight);
+
+        return height * 0.95f;
+    }
+
+    private static Vector2i GetNearestNeighbor(Vector2i column)
+    {
+        Vector2i cell = GetCellFromColumn(column);
+
+        Vector2i neighborA = GetCellFromColumn(column - new Vector2i(CellSizeHalf));
+        Vector2i neighborB = GetCellFromColumn(column + new Vector2i(CellSizeHalf));
+
+        Int32 x = cell.X == neighborA.X ? neighborB.X : neighborA.X;
+        Int32 y = cell.Y == neighborA.Y ? neighborB.Y : neighborA.Y;
+
+        return new Vector2i(x, y);
     }
 
     private Biome GetBiome(in Cell cell)
     {
-        return cell.IsLand ? biomes.GetBiome(cell.temperature, cell.humidity) : biomes.GetOceanBiome(cell.temperature, cell.humidity);
+        return GetBiome(biomes, cell);
     }
 
-    private static Single GetMountainStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, Single height, Vector2d blend)
+    private static Biome GetBiome(BiomeDistribution biomes, in Cell cell)
     {
-        (Double w1, Double w2, Double w3, Double w4) = GetMountainSlopeWeights(blend.X, blend.Y);
-
-        Double e1 = GetSurfaceHeightDifference(c00, c10) * GetBorderStrength(blend.X) * w1;
-        Double e2 = GetSurfaceHeightDifference(c01, c11) * GetBorderStrength(blend.X) * w2;
-
-        Double e3 = GetSurfaceHeightDifference(c00, c01) * GetBorderStrength(blend.Y) * w3;
-        Double e4 = GetSurfaceHeightDifference(c10, c11) * GetBorderStrength(blend.Y) * w4;
-
-        var slopeMountainStrength = (Single) (e1 + e2 + e3 + e4);
-        Single mountainStrength = Math.Min(slopeMountainStrength + height / 1.2f, val2: 1.0f);
-
-        mountainStrength = (Single) mountainStrengthFunction.Evaluate(mountainStrength);
-
-        return mountainStrength;
-    }
-
-    private static Single GetCoastlineStrength(in Cell c00, in Cell c10, in Cell c01, in Cell c11, ref Single height, Vector2d blend, out Boolean isCliff)
-    {
-        var depthStrength = (Single) depthStrengthFunction.Evaluate(height);
-
-        static Vector2d FindClosestZero(Double f00, Double f10, Double f01, Double f11, Double x, Double y)
-        {
-            Vector2d grad = MathTools.GradBiLerp(f00, f10, f01, f11, x, y);
-            Double dv = Vector2d.Dot(grad, Vector2d.Normalize(grad));
-
-            Double k = MathTools.BiLerp(f00, f10, f01, f11, x, y) / dv;
-
-            return new Vector2d(x, y) - k * Vector2d.Normalize(grad);
-        }
-
-        Double distanceToZero = (blend - FindClosestZero(c00.height, c10.height, c01.height, c11.height, blend.X, blend.Y)).Length;
-
-        if (Double.IsNaN(distanceToZero))
-            // All four heights are the same, so there is no gradient.
-            distanceToZero = MathTools.NearlyZero(c00.height) ? 0 : 1;
-
-        var distanceStrength = (Single) distanceStrengthFunction.Evaluate(distanceToZero);
-
-        Double GetOceanStrength(in Cell c)
-        {
-            return c.IsLand ? 0.0 : 1.0;
-        }
-
-        var oceanStrength = (Single) MathTools.BiLerp(GetOceanStrength(c00), GetOceanStrength(c10), GetOceanStrength(c01), GetOceanStrength(c11), blend.X, blend.Y);
-
-        Single coastlineStrength;
-
-        if (height < 0.0f)
-        {
-            coastlineStrength = depthStrength - oceanStrength;
-        }
-        else
-        {
-            // It is possible that the ocean strength is greater 0.5 above the water height.
-            // To prevent ocean biome above the water, the coastline strength must be greater 0.5 in that case.
-
-            oceanStrength = (Single) oceanStrengthFunction.Evaluate(oceanStrength);
-
-            coastlineStrength = depthStrength + oceanStrength;
-        }
-
-        coastlineStrength = Math.Clamp(coastlineStrength, min: 0.0f, max: 1.0f);
-        coastlineStrength = Math.Max(coastlineStrength, distanceStrength);
-
-        Single GetFlattenedHeight(Single height)
-        {
-            Single sign = Math.Sign(height);
-
-            var flattenedHeight = (Single) flattenedHeightFunction.Evaluate(Math.Abs(height));
-
-            return sign * flattenedHeight;
-        }
-
-        Single GetCliffFactor()
-        {
-            return (Single) cliffFactorFunction.Evaluate(1.0 - distanceStrength);
-        }
-
-        Single GetSurfaceHeight(in Cell c)
-        {
-            return c.IsLand ? c.height : 0.0f;
-        }
-
-        var cliffStrength = (Single) MathTools.BiLerp(GetSurfaceHeight(c00), GetSurfaceHeight(c10), GetSurfaceHeight(c01), GetSurfaceHeight(c11), blend.X, blend.Y);
-
-        const Single maxBeachHeight = 0.001f;
-
-        height = MathHelper.Lerp(GetFlattenedHeight(height), GetCliffFactor() * height, cliffStrength);
-        isCliff = height > maxBeachHeight;
-
-        return coastlineStrength;
-    }
-
-    private static Single GetSurfaceHeightDifference(in Cell a, in Cell b)
-    {
-        if (a.IsLand && b.IsLand) return Math.Abs(a.height - b.height);
-
-        return 0;
-    }
-
-    private static (Double, Double, Double, Double) GetMountainSlopeWeights(Double x, Double y)
-    {
-        Double w1 = 1 - x;
-        Double w2 = 1 - y;
-        Double w3 = x;
-        Double w4 = y;
-
-        Double sum = w1 + w2 + w3 + w4;
-
-        return (w1 / sum, w2 / sum, w3 / sum, w4 / sum);
-    }
-
-    private static Int32 DivideByCellSize(Int32 number)
-    {
-        Int32 result = number / CellSize;
-
-        // We round away from zero for negative numbers, so that overall we always round towards negative infinity.
-
-        return number < 0 && number != CellSize * result ? result - 1 : result;
+        return biomes.DetermineBiome(cell.conditions, cell.temperature, cell.humidity, cell.IsLand);
     }
 
     /// <summary>
-    ///     Get the cell position that contains the given block position.
+    ///     Get the cell (coordinates) that contains the given column.
     /// </summary>
-    /// <param name="world">The block / world position.</param>
-    /// <returns>The cell position.</returns>
-    public static Vector2i GetCellIndex(Vector3i world)
+    /// <param name="column">The column to get the cell for.</param>
+    /// <returns>The cell coordinates.</returns>
+    public static Vector2i GetCellFromColumn(Vector2i column)
     {
-        return new Vector2i(DivideByCellSize(world.X), DivideByCellSize(world.Z));
+        Vector2i divided = column / CellSize;
+
+        // We round away from zero for negative numbers, so that overall we always round towards negative infinity.
+
+        return new Vector2i(
+            column.X < 0 && column.X != CellSize * divided.X ? divided.X - 1 : divided.X,
+            column.Y < 0 && column.Y != CellSize * divided.Y ? divided.Y - 1 : divided.Y);
+    }
+
+    /// <summary>
+    /// Get the center of a cell, as a world-position column.
+    /// </summary>
+    /// <param name="cell">The cell coordinates.</param>
+    /// <returns>The column (in block coordinates).</returns>
+    private static Vector2i GetCellCenter(Vector2i cell)
+    {
+        return cell * CellSize + new Vector2i(CellSizeHalf);
     }
 
     /// <summary>
@@ -669,9 +659,9 @@ public sealed partial class Map : IMap, IDisposable
     /// <returns>The world position.</returns>
     public static Vector3i GetCellCenter(Vector2i cell, Int32 y)
     {
-        Vector2i position = cell * CellSize + new Vector2i(CellSizeHalf);
+        Vector2i column = GetCellCenter(cell);
 
-        return new Vector3i(position.X, y, position.Y);
+        return new Vector3i(column.X, y, column.Y);
     }
 
     /// <summary>
@@ -679,7 +669,7 @@ public sealed partial class Map : IMap, IDisposable
     /// </summary>
     /// <param name="cell"></param>
     /// <returns></returns>
-    public static Boolean IsInLimits(Vector2i cell)
+    public static Boolean IsValidCell(Vector2i cell)
     {
         return cell.X + WidthHalf is >= 0 and < Width && cell.Y + WidthHalf is >= 0 and < Width;
     }
@@ -696,26 +686,16 @@ public sealed partial class Map : IMap, IDisposable
             sample.StoneData.stone00 == sample.StoneData.stone11)
             return sample.StoneData.stone00;
 
-        const Double transitionFactor = 0.05;
+        Vector2d noise = stoneNoise.GetNoise(position.Xz, grid2D: null);
+        Vector2d stone = sample.StoneData.t + noise * 0.05;
 
-        Double stoneX = sample.StoneData.tX + stoneNoise.X.GetNoise(position) * GetBorderStrength(sample.StoneData.tX) * transitionFactor;
-        Double stoneY = sample.StoneData.tY + stoneNoise.Y.GetNoise(position) * GetBorderStrength(sample.StoneData.tY) * transitionFactor;
-
-        return MathTools.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, (stoneX, stoneY));
-    }
-
-    /// <summary>
-    ///     Get the border strength from a blend factor.
-    /// </summary>
-    private static Double GetBorderStrength(Double t)
-    {
-        return (t > 0.5 ? 1 - t : t) * 2;
+        return MathTools.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, stone);
     }
 
     private sealed class NoiseGenerator2D(Func<NoiseGenerator> factory) : IDisposable
     {
-        public NoiseGenerator X { get; } = factory();
-        public NoiseGenerator Y { get; } = factory();
+        private NoiseGenerator X { get; } = factory();
+        private NoiseGenerator Y { get; } = factory();
 
         public void Dispose()
         {
@@ -817,19 +797,14 @@ public sealed partial class Map : IMap, IDisposable
         public Biome Biome11 { get; init; }
 
         /// <summary>
-        ///     Get the special biome.
+        ///     Get the blending factors.
         /// </summary>
-        public Biome SpecialBiome { get; init; }
-
-        /// <summary>
-        ///     Get the blending factors. The factor on the z axis is the factor for a special biome.
-        /// </summary>
-        public Vector3d BlendFactors { get; init; }
+        public Vector2d BlendFactors { get; init; }
 
         /// <summary>
         ///     Data regarding the stone composition.
         /// </summary>
-        public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Double tX, Double tY) StoneData { get; init; }
+        public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Vector2d t) StoneData { get; init; }
 
         /// <summary>
         ///     Get the temperature at a given height.
@@ -927,38 +902,12 @@ public sealed partial class Map : IMap, IDisposable
         {
             return ref cells[position];
         }
-    }
 
-    #region BIOME CHANGE FUNCTION
-
-    private static readonly Vector2d pointA = new(x: 0.00, y: 0.00);
-    private static readonly Vector2d pointB = new(x: 0.40, y: 0.01);
-    private static readonly Vector2d pointC = new(x: 0.45, y: 0.05);
-    private static readonly Vector2d pointD = new(x: 0.50, y: 0.50);
-    private static readonly Vector2d pointE = Vector2d.One - pointC;
-    private static readonly Vector2d pointF = Vector2d.One - pointB;
-    private static readonly Vector2d pointG = Vector2d.One - pointA;
-
-    private static readonly Polyline biomeChangeFunction = new()
-    {
-        Points =
+        public static Boolean IsInLimits(Int32 x, Int32 y)
         {
-            pointA,
-            pointB,
-            pointC,
-            pointD,
-            pointE,
-            pointF,
-            pointG
+            return x is >= 0 and < Width && y is >= 0 and < Width;
         }
-    };
-
-    private static Double ApplyBiomeChangeFunction(Double t)
-    {
-        return biomeChangeFunction.Evaluate(t);
     }
-
-    #endregion BIOME CHANGE FUNCTION
 
     #region LOGGING
 

@@ -195,6 +195,8 @@ public class Image
 
             bitmap.Save(memoryStream, ImageFormat.Png);
 
+            memoryStream.Seek(offset: 0, SeekOrigin.Begin);
+
             await using FileStream fileStream = file.Create();
             await memoryStream.CopyToAsync(fileStream, token).InAnyContext();
 

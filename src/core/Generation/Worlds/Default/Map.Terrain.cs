@@ -1,4 +1,4 @@
-﻿// <copyright file="MapGeneration.cs" company="VoxelGame">
+﻿// <copyright file="Map.Terrain.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -6,13 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -21,18 +21,32 @@ using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
-#pragma warning disable S4017
+#pragma warning disable S4017 // Internal interfaces, thus confusion is limited.
 
 public partial class Map
 {
-    private const Single MinimumLandHeight = +0.05f;
-    private const Single AverageWaterHeight = -0.4f;
-    private const Double PieceHeightChangeRange = 0.2;
+    private const Single MinimumLandHeight = +0.01f;
+    private const Single AverageWaterHeight = -0.1f;
+    private const Double PieceHeightChangeRange = 0.05;
     private const Double MaxDivergentBoundaryLandOffset = -0.025;
-    private const Double MaxDivergentBoundaryWaterOffset = +0.2;
+    private const Double MaxDivergentBoundaryWaterOffset = +0.05;
     private const Double MaxConvergentBoundaryLandLifting = +0.7;
-    private const Double MaxConvergentBoundaryWaterLifting = +0.4;
-    private const Double MaxConvergentBoundaryWaterSinking = -0.4;
+    private const Double MaxConvergentBoundaryWaterLifting = +0.05;
+    private const Double MaxConvergentBoundaryWaterSinking = -0.2;
+
+    private static void GenerateTerrain(Data data, GeneratingNoise noise)
+    {
+        (List<List<Int16>> adjacency, Dictionary<Int16, Double> pieceToValue) pieces = FillWithPieces(data, noise);
+
+        AddPieceHeights(data, pieces.pieceToValue);
+
+        (List<(Int16, Double)> nodes, Dictionary<Int16, List<Int16>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
+
+        GenerateStoneTypes(data, noise);
+        SimulateTectonics(data, continents);
+
+        SpreadCoastlineHeightIntoOcean(data);
+    }
 
     private static (List<List<Int16>>, Dictionary<Int16, Double>) FillWithPieces(Data data, GeneratingNoise noise)
     {
@@ -49,9 +63,15 @@ public partial class Map
             Double value = noiseGrid[x, y];
             ref Cell current = ref data.GetCell(x, y);
 
-            if (!valueToPiece.ContainsKey(value)) valueToPiece[value] = currentPiece++;
+            if (!valueToPiece.TryGetValue(value, out Int16 piece))
+            {
+                piece = currentPiece++;
+                valueToPiece[value] = piece;
 
-            current.continent = valueToPiece[value];
+                Debug.Assert(piece >= 0); // Detect overflow.
+            }
+
+            current.continent = piece;
 
             UpdateAdjacencies(data, adjacencyHashed, ref current, (x, y));
         }
@@ -59,28 +79,15 @@ public partial class Map
         return (Algorithms.BuildAdjacencyList(adjacencyHashed), Algorithms.InvertDictionary(valueToPiece));
     }
 
-    private static void UpdateAdjacencies(Data data, IDictionary<Int16, HashSet<Int16>> adjacencyHashed, ref Cell current, (Int32, Int32) position)
+    private static void AddPieceHeights(Data data, IDictionary<Int16, Double> pieceToValue)
     {
-        void AddAdjacency(Int16 a, Int16 b)
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
         {
-            adjacencyHashed.GetOrAdd(a).Add(b);
-            adjacencyHashed.GetOrAdd(b).Add(a);
-        }
+            ref Cell cell = ref data.GetCell(x, y);
 
-        (Int32 x, Int32 y) = position;
-
-        if (x != 0)
-        {
-            ref Cell left = ref data.GetCell(x - 1, y);
-
-            if (left.continent != current.continent) AddAdjacency(left.continent, current.continent);
-        }
-
-        if (y != 0)
-        {
-            ref Cell top = ref data.GetCell(x, y - 1);
-
-            if (top.continent != current.continent) AddAdjacency(top.continent, current.continent);
+            Double offset = pieceToValue[cell.continent] * PieceHeightChangeRange;
+            cell.height += (Single) offset;
         }
     }
 
@@ -243,30 +250,6 @@ public partial class Map
         }
     }
 
-    private static void GenerateTerrain(Data data, GeneratingNoise noise)
-    {
-        (List<List<Int16>> adjacency, Dictionary<Int16, Double> pieceToValue) pieces = FillWithPieces(data, noise);
-
-        AddPieceHeights(data, pieces.pieceToValue);
-
-        (List<(Int16, Double)> nodes, Dictionary<Int16, List<Int16>> adjancecy) continents = BuildContinents(data, pieces.adjacency, pieces.pieceToValue);
-
-        GenerateStoneTypes(data, noise);
-        SimulateTectonics(data, continents);
-    }
-
-    private static void AddPieceHeights(Data data, IDictionary<Int16, Double> pieceToValue)
-    {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            ref Cell cell = ref data.GetCell(x, y);
-
-            Double offset = pieceToValue[cell.continent] * PieceHeightChangeRange;
-            cell.height += (Single) offset;
-        }
-    }
-
     private static void SimulateTectonics(Data data,
         (List<(Int16, Double)> nodes, Dictionary<Int16, List<Int16>> adjancecy) continents)
     {
@@ -310,6 +293,31 @@ public partial class Map
         AddOffsetsToData(data, offsets);
     }
 
+    private static void UpdateAdjacencies(Data data, IDictionary<Int16, HashSet<Int16>> adjacencyHashed, ref Cell current, (Int32, Int32) position)
+    {
+        (Int32 x, Int32 y) = position;
+
+        if (x != 0)
+        {
+            ref Cell left = ref data.GetCell(x - 1, y);
+
+            if (left.continent != current.continent) AddAdjacency(left.continent, current.continent);
+        }
+
+        if (y != 0)
+        {
+            ref Cell top = ref data.GetCell(x, y - 1);
+
+            if (top.continent != current.continent) AddAdjacency(top.continent, current.continent);
+        }
+
+        void AddAdjacency(Int16 a, Int16 b)
+        {
+            adjacencyHashed.GetOrAdd(a).Add(b);
+            adjacencyHashed.GetOrAdd(b).Add(a);
+        }
+    }
+
     private static void GenerateStoneTypes(Data data, GeneratingNoise noise)
     {
         Array2D<Single> noiseGrid = noise.Stone.GetNoiseGrid((0, 0), Width);
@@ -330,21 +338,6 @@ public partial class Map
             ref Cell current = ref data.GetCell(x, y);
             current.stoneType = stoneType;
         }
-    }
-
-    private static void AddOffsetsToData(Data data, Array2D<Single> offsets)
-    {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            ref Cell current = ref data.GetCell(x, y);
-            current.height += offsets[x, y];
-        }
-    }
-
-    private static Boolean IsOutOfBounds(Vector2i position)
-    {
-        return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
     }
 
     private static void HandleTectonicCollision(
@@ -489,6 +482,103 @@ public partial class Map
         offsets[b.position] = (Single) (divergence * (cellB.IsLand ? MaxDivergentBoundaryLandOffset : MaxDivergentBoundaryWaterOffset));
     }
 
+    private static void SpreadCoastlineHeightIntoOcean(Data data)
+    {
+        Array2D<Single> offsets = new(Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell current = ref data.GetCell(x, y);
+
+            if (!current.IsLand)
+                continue;
+
+            Int32 oceanNeighbors = GetNumberOfOceanNeighbors(data, x, y);
+
+            if (oceanNeighbors == 0)
+                continue;
+
+            Single availableHeight = current.height * GetHeightSpreadingFactor(current.stoneType);
+            Single heightPerNeighbor = availableHeight / oceanNeighbors;
+
+            AddHeightToOceanNeighbors(data, offsets, heightPerNeighbor, x, y);
+
+            offsets[x, y] -= availableHeight;
+        }
+
+        AddOffsetsToData(data, offsets);
+    }
+
+    private static Int32 GetNumberOfOceanNeighbors(Data data, Int32 x, Int32 y)
+    {
+        var count = 0;
+
+        for (Int32 dx = -1; dx <= 1; dx++)
+        for (Int32 dy = -1; dy <= 1; dy++)
+        {
+            if (dx == 0 && dy == 0)
+                continue;
+
+            Int32 nx = x + dx;
+            Int32 ny = y + dy;
+
+            if (!Data.IsInLimits(nx, ny))
+                continue;
+
+            if (!data.GetCell(nx, ny).IsLand)
+                count++;
+        }
+
+        return count;
+    }
+
+    private static void AddHeightToOceanNeighbors(Data data, Array2D<Single> offsets, Single height, Int32 x, Int32 y)
+    {
+        for (Int32 dx = -1; dx <= 1; dx++)
+        for (Int32 dy = -1; dy <= 1; dy++)
+        {
+            if (dx == 0 && dy == 0)
+                continue;
+
+            Int32 nx = x + dx;
+            Int32 ny = y + dy;
+
+            if (!Data.IsInLimits(nx, ny))
+                continue;
+
+            if (!data.GetCell(nx, ny).IsLand)
+                offsets[nx, ny] += height;
+        }
+    }
+
+    private static Single GetHeightSpreadingFactor(StoneType stoneType)
+    {
+        return stoneType switch
+        {
+            StoneType.Granite => 0.5f,
+            StoneType.Limestone => 0.8f,
+            StoneType.Marble => 0.6f,
+            StoneType.Sandstone => 0.9f,
+            _ => 0.0f
+        };
+    }
+
+    private static void AddOffsetsToData(Data data, Array2D<Single> offsets)
+    {
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            ref Cell current = ref data.GetCell(x, y);
+            current.height += offsets[x, y];
+        }
+    }
+
+    private static Boolean IsOutOfBounds(Vector2i position)
+    {
+        return position.X is < 0 or >= Width || position.Y is < 0 or >= Width;
+    }
+
     private static Dictionary<Int16, Vector2d> GetDriftDirections(List<(Int16, Double)> continentsNodes)
     {
         Dictionary<Int16, Vector2d> driftDirections = new();
@@ -530,209 +620,6 @@ public partial class Map
         return mixed;
     }
 
-    private static void GenerateTemperature(Data data)
-    {
-        Vector2 center = new(Width / 2.0f, Width / 2.0f);
-
-        Single GetTemperature(Single distance)
-        {
-            return Math.Abs(Math.Abs(distance * 0.025f - 1.0f) % 2.0f - 1.0f);
-        }
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            Single distance = (center - (x, y)).Length;
-            Single temperature = GetTemperature(distance);
-
-            ref Cell current = ref data.GetCell(x, y);
-            current.temperature = temperature;
-        }
-    }
-
-    private static ColorS GetTemperatureColor(Cell current)
-    {
-        ColorS tempered = ColorS.FromRGB(2.0f * current.temperature, 2.0f * (1 - current.temperature), blue: 0.0f);
-        ColorS other = current.IsLand ? ColorS.Black : tempered;
-
-        return ColorS.Mix(tempered, other);
-    }
-
-    private static async Task EmitTemperatureViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
-    {
-        Image view = new(Width, Width);
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetTemperatureColor(current));
-        }
-
-        await view.SaveAsync(path.GetFile("temperature_view.png"), token).InAnyContext();
-    }
-
-    private static Array2D<HumidityData> CreateInitialHumidityData()
-    {
-        const Single initialHumidity = 0.15f;
-
-        Array2D<HumidityData> initial = new(Width);
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-            initial[x, y].humidity = initialHumidity;
-
-        return initial;
-    }
-
-    private static void GenerateHumidity(Data data)
-    {
-        Array2D<HumidityData> current = CreateInitialHumidityData();
-        Array2D<HumidityData> next = CreateInitialHumidityData();
-
-        const Int32 simulationSteps = 100;
-
-        for (var step = 0; step < simulationSteps; step++)
-        {
-            SimulateClimate(data, current, next);
-            (current, next) = (next, current);
-        }
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            ref Cell cell = ref data.GetCell(x, y);
-            cell.humidity = current[x, y].humidity;
-        }
-    }
-
-    private static void SimulateClimate(Data data, Array2D<HumidityData> current, Array2D<HumidityData> next)
-    {
-        Parallel.For(fromInclusive: 0,
-            Width * Width,
-            index =>
-            {
-                Vector2i position = new(index % Width, index / Width);
-                next[position] = SimulateCellClimate(data, current, position);
-            });
-    }
-
-    private static IEnumerable<(Vector2i position, Boolean isInWind)> GetNeighbors(Vector2i position)
-    {
-        if (position.X > 0) yield return ((position.X - 1, position.Y), false);
-        if (position.X < Width - 1) yield return ((position.X + 1, position.Y), true);
-        if (position.Y > 0) yield return ((position.X, position.Y - 1), false);
-        if (position.Y < Width - 1) yield return ((position.X, position.Y + 1), false);
-    }
-
-    /// <summary>
-    ///     Simulates one step for a single cell, taking into account the cell data and the previous step data of this and
-    ///     neighboring cells.
-    ///     The system is inspired by the following tutorial by Jasper Flick:
-    ///     https://catlikecoding.com/unity/tutorials/hex-map/part-25/
-    /// </summary>
-    private static HumidityData SimulateCellClimate(in Data data, in Array2D<HumidityData> state, Vector2i position)
-    {
-        const Single evaporationRate = 0.5f;
-        const Single precipitationRate = 0.25f;
-        const Single runoffRate = 0.25f;
-        const Single windStrength = 5.0f;
-
-        Cell cell = data.GetCell(position);
-        HumidityData current = state[position];
-
-        HumidityData next;
-
-        next.clouds = current.clouds;
-        next.humidity = current.humidity;
-        next.dispersal = 0.0f;
-        next.runoff = 0.0f;
-
-        if (cell.IsLand)
-        {
-            Single evaporation = next.humidity * evaporationRate;
-            next.humidity -= evaporation;
-            next.clouds += evaporation;
-        }
-        else
-        {
-            next.humidity = 1.0f;
-            next.clouds += evaporationRate;
-        }
-
-        Single precipitation = next.clouds * precipitationRate;
-        next.clouds -= precipitation;
-        next.humidity += precipitation;
-
-        Single cloudMaximum = 1.0f - Math.Min(cell.height, cell.temperature - 0.1f);
-
-        if (next.clouds > cloudMaximum)
-        {
-            next.humidity += next.clouds - cloudMaximum;
-            next.clouds = cloudMaximum;
-        }
-
-        next.dispersal = next.clouds * (1.0f / (3.0f + windStrength));
-        next.runoff = next.humidity * runoffRate * (1.0f / 4.0f);
-        next.clouds = 0.0f;
-
-        foreach ((Vector2i neighborPosition, Boolean isInWind) in GetNeighbors(position))
-        {
-            Cell neighborCell = data.GetCell(neighborPosition);
-            HumidityData neighborData = state[neighborPosition];
-
-            next.clouds += isInWind ? neighborData.dispersal * windStrength : neighborData.dispersal;
-
-            if (neighborCell.height > cell.height) next.humidity += neighborData.runoff;
-
-            if (neighborCell.height < cell.height) next.humidity -= next.runoff;
-        }
-
-        next.humidity = Math.Min(next.humidity, cell.temperature);
-
-        return next;
-    }
-
-    private static ColorS GetHumidityColor(Cell current)
-    {
-        ColorS precipitation = ColorS.FromRGB(current.humidity, current.humidity, current.humidity);
-
-        return current.IsLand ? precipitation : ColorS.Aqua;
-    }
-
-    private static async Task EmitHumidityViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
-    {
-        Image view = new(Width, Width);
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetHumidityColor(current));
-        }
-
-        await view.SaveAsync(path.GetFile("precipitation_view.png"), token).InAnyContext();
-    }
-
-    private static ColorS GetBiomeColor(Cell current, BiomeDistribution biomes)
-    {
-        return current.IsLand ? biomes.GetBiome(current.temperature, current.humidity).Definition.Color : ColorS.White;
-    }
-
-    private static async Task EmitBiomeViewAsync(Data data, BiomeDistribution biomes, DirectoryInfo path, CancellationToken token = default)
-    {
-        Image view = new(Width, Width);
-
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
-        {
-            Cell current = data.GetCell(x, y);
-            view.SetPixel(x, y, GetBiomeColor(current, biomes));
-        }
-
-        await view.SaveAsync(path.GetFile("biome_view.png"), token).InAnyContext();
-    }
-
     private static ColorS GetStoneTypeColor(Cell current)
     {
         if (current.IsLand)
@@ -762,12 +649,26 @@ public partial class Map
         await view.SaveAsync(path.GetFile("stone_view.png"), token).InAnyContext();
     }
 
-    private record struct HumidityData
+    private static ColorS GetContinentColor(Int16 continent, Boolean isLand)
     {
-        public Single clouds;
-        public Single dispersal;
-        public Single humidity;
-        public Single runoff;
+        Single hue = continent * 0.618033988749895f % 1.0f;
+        Single saturation = isLand ? 0.8f : 0.2f;
+
+        return ColorS.FromHSV(hue, saturation, value: 0.95f);
+    }
+
+    private static async Task EmitContinentViewAsync(Data data, DirectoryInfo path, CancellationToken token = default)
+    {
+        Image view = new(Width, Width);
+
+        for (var x = 0; x < Width; x++)
+        for (var y = 0; y < Width; y++)
+        {
+            Cell current = data.GetCell(x, y);
+            view.SetPixel(x, y, GetContinentColor(current.continent, current.IsLand));
+        }
+
+        await view.SaveAsync(path.GetFile("continent_view.png"), token).InAnyContext();
     }
 
     private enum TectonicCollision
