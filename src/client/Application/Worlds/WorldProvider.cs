@@ -32,6 +32,8 @@ namespace VoxelGame.Client.Application.Worlds;
 /// </summary>
 public partial class WorldProvider : IWorldProvider
 {
+    private readonly Client client;
+
     private readonly FileInfo metadataFile;
 
     private readonly List<IWorldProvider.IWorldInfo> worlds = [];
@@ -40,9 +42,12 @@ public partial class WorldProvider : IWorldProvider
     /// <summary>
     ///     Create a new world provider.
     /// </summary>
+    /// <param name="client">The client.</param>
     /// <param name="worldsDirectory">The directory where worlds are loaded from and saved to.</param>
-    public WorldProvider(DirectoryInfo worldsDirectory)
+    internal WorldProvider(Client client, DirectoryInfo worldsDirectory)
     {
+        this.client = client;
+
         WorldsDirectory = worldsDirectory;
 
         metadataFile = worldsDirectory.GetFile("meta.json");
@@ -276,9 +281,10 @@ public partial class WorldProvider : IWorldProvider
     private void SaveMetadata()
     {
         Operations.Launch(async token =>
-        {
-            await metadata.SaveAsync(metadataFile, token).InAnyContext();
-        });
+            {
+                await metadata.SaveAsync(metadataFile, token).InAnyContext();
+            },
+            client.ClientUpdateDispatch);
     }
 
     /// <summary>

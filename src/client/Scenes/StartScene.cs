@@ -43,7 +43,7 @@ public sealed partial class StartScene : IScene
         this.resourceLoadingIssueReport = resourceLoadingIssueReport;
         this.loadWorldDirectly = loadWorldDirectly;
 
-        worldProvider = new WorldProvider(Program.WorldsDirectory);
+        worldProvider = new WorldProvider(client, Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
         List<SettingsProvider> settingsProviders =

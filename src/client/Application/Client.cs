@@ -35,7 +35,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     private readonly SceneFactory sceneFactory;
     private readonly SceneManager sceneManager;
 
-    private readonly OperationUpdateDispatch operations = new(singleton: true);
+    private readonly OperationUpdateDispatch sceneOperations = new(singleton: true);
 
     private WindowBehaviour windowBehaviour = null!;
 
@@ -53,7 +53,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        sceneManager = new SceneManager(operations);
+        sceneManager = new SceneManager(sceneOperations);
         sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Input);
@@ -77,9 +77,15 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     private Double FPS => windowBehaviour.FPS;
     private Double UPS => windowBehaviour.UPS;
 
-    internal IResourceContext? UIResources { get; private set; }
+    private IResourceContext? UIResources { get; set; }
+    private IResourceContext? MainResources { get; set; }
 
-    internal IResourceContext? MainResources { get; private set; }
+    /// <summary>
+    ///     Get an update dispatch which does not cancel and complete operations on scene change.
+    ///     Using this dispatch is necessary when operations should continue even when the scene changes.
+    ///     Otherwise, using the default dispatch is recommended.
+    /// </summary>
+    internal OperationUpdateDispatch ClientUpdateDispatch { get; } = new();
 
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
@@ -154,7 +160,8 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
         using (logger.BeginTimedSubScoped("Client Operations", timer))
         {
-            operations.LogicUpdate();
+            sceneOperations.LogicUpdate();
+            ClientUpdateDispatch.LogicUpdate();
         }
 
         sceneManager.LogicUpdate(delta, timer);
@@ -248,7 +255,11 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         if (disposed) return;
 
         if (disposing)
+        {
             SizeChanged -= OnSizeChanged;
+
+            ClientUpdateDispatch.CompleteAll();
+        }
 
         base.Dispose(disposing);
 
