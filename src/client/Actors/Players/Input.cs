@@ -37,34 +37,32 @@ internal sealed class Input
 
     private Double timer;
 
-    internal Input()
+    internal Input(KeybindManager keybinds)
     {
-        KeybindManager keybind = Application.Client.Instance.Keybinds;
-
-        Button forwardsButton = keybind.GetButton(keybind.Forwards);
-        Button backwardsButton = keybind.GetButton(keybind.Backwards);
-        Button strafeRightButton = keybind.GetButton(keybind.StrafeRight);
-        Button strafeLeftButton = keybind.GetButton(keybind.StrafeLeft);
+        Button forwardsButton = keybinds.GetButton(keybinds.Forwards);
+        Button backwardsButton = keybinds.GetButton(keybinds.Backwards);
+        Button strafeRightButton = keybinds.GetButton(keybinds.StrafeRight);
+        Button strafeLeftButton = keybinds.GetButton(keybinds.StrafeLeft);
 
         movementInput = new InputAxis2(
             new InputAxis(forwardsButton, backwardsButton),
             new InputAxis(strafeRightButton, strafeLeftButton));
 
-        sprintButton = keybind.GetButton(keybind.Sprint);
-        jumpButton = keybind.GetButton(keybind.Jump);
-        crouchButton = keybind.GetButton(keybind.Crouch);
+        sprintButton = keybinds.GetButton(keybinds.Sprint);
+        jumpButton = keybinds.GetButton(keybinds.Jump);
+        crouchButton = keybinds.GetButton(keybinds.Crouch);
 
-        interactOrPlaceButton = keybind.GetButton(keybind.InteractOrPlace);
-        destroyButton = keybind.GetButton(keybind.Destroy);
-        blockInteractButton = keybind.GetButton(keybind.BlockInteract);
+        interactOrPlaceButton = keybinds.GetButton(keybinds.InteractOrPlace);
+        destroyButton = keybinds.GetButton(keybinds.Destroy);
+        blockInteractButton = keybinds.GetButton(keybinds.BlockInteract);
 
-        placementModeToggle = keybind.GetToggle(keybind.PlacementMode);
+        placementModeToggle = keybinds.GetToggle(keybinds.PlacementMode);
         placementModeToggle.Clear();
 
-        selectTargetedButton = keybind.GetPushButton(keybind.SelectTargeted);
+        selectTargetedButton = keybinds.GetPushButton(keybinds.SelectTargeted);
 
-        Button nextButton = keybind.GetPushButton(keybind.NextPlacement);
-        Button previousButton = keybind.GetPushButton(keybind.PreviousPlacement);
+        Button nextButton = keybinds.GetPushButton(keybinds.NextPlacement);
+        Button previousButton = keybinds.GetPushButton(keybinds.PreviousPlacement);
         selectionAxis = new InputAxis(nextButton, previousButton);
     }
 

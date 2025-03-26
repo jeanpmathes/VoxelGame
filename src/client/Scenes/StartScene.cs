@@ -49,7 +49,7 @@ public sealed partial class StartScene : IScene
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(client.Settings),
-            SettingsProvider.Wrap(Application.Client.Instance.Keybinds),
+            SettingsProvider.Wrap(client.Keybinds),
             SettingsProvider.Wrap(client.Graphics)
         ];
 

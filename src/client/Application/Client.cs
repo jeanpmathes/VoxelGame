@@ -47,24 +47,20 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     /// <param name="parameters">The parameters, passed from the command line.</param>
     internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters) : base(windowSettings)
     {
-        Instance = this;
         this.parameters = parameters;
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
+        Graphics.CreateSettings(this);
+
         sceneManager = new SceneManager(sceneOperations);
         sceneFactory = new SceneFactory(this);
 
-        Keybinds = new KeybindManager(Input);
+        Keybinds = new KeybindManager(Settings, Input);
 
         SizeChanged += OnSizeChanged;
     }
-
-    /// <summary>
-    ///     Get the game client instance.
-    /// </summary>
-    internal static Client Instance { get; private set; } = null!;
 
     /// <summary>
     ///     Get the keybinds bound for the game.
@@ -136,7 +132,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         }
 
         // Optional generation of manual.
-        ManualBuilder.EmitManual();
+        ManualBuilder.EmitManual(this);
     }
 
     protected override void OnRenderUpdate(Double delta)

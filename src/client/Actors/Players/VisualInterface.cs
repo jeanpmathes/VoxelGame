@@ -42,9 +42,10 @@ public sealed class VisualInterface : IDisposable
     /// <summary>
     ///     Create a new instance of the <see cref="VisualInterface" /> class.
     /// </summary>
+    /// <param name="keybinds">The keybinds to use.</param>
     /// <param name="ui">The ui to use for some of the data display.</param>
     /// <param name="engine">The graphics engine to use for rendering.</param>
-    public VisualInterface(GameUserInterface ui, Engine engine)
+    internal VisualInterface(KeybindManager keybinds, GameUserInterface ui, Engine engine)
     {
         selectionVFX = RegisterVFX(engine.SelectionBoxVFX);
         overlayVFX = RegisterVFX(engine.OverlayVFX);
@@ -53,8 +54,7 @@ public sealed class VisualInterface : IDisposable
 
         foreach (VFX renderer in vfxes) renderer.SetUp();
 
-        KeybindManager keybind = Application.Client.Instance.Keybinds;
-        debugViewButton = keybind.GetPushButton(keybind.DebugView);
+        debugViewButton = keybinds.GetPushButton(keybinds.DebugView);
 
         this.ui = ui;
     }

@@ -66,8 +66,9 @@ public class Section : Core.Logic.Sections.Section
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void CreateAndSetMesh(ChunkMeshingContext context)
+    public void CreateAndSetMesh(World world, ChunkMeshingContext context)
     {
         Throw.IfDisposed(disposed);
 
@@ -75,14 +76,15 @@ public class Section : Core.Logic.Sections.Section
         missing = required & ~context.AvailableSides & Sides.All;
 
         using SectionMeshData meshData = CreateMeshData(context);
-        SetMeshDataInternal(meshData);
+        SetMeshDataInternal(world, meshData);
     }
 
     /// <summary>
     ///     Recreate and set the mesh if it is incomplete, which means that it was meshed without all required neighbors.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void RecreateIncompleteMesh(ChunkMeshingContext context)
+    public void RecreateIncompleteMesh(World world, ChunkMeshingContext context)
     {
         Throw.IfDisposed(disposed);
 
@@ -90,7 +92,7 @@ public class Section : Core.Logic.Sections.Section
 
         Sides required = GetRequiredSides(Position);
 
-        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
+        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(world, context);
     }
 
     /// <summary>
@@ -180,8 +182,9 @@ public class Section : Core.Logic.Sections.Section
     ///     Set the mesh data for this section. The mesh must be generated from this section.
     ///     Must be called from the main thread.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="meshData">The mesh data to use and activate.</param>
-    public void SetMeshData(SectionMeshData meshData)
+    public void SetMeshData(World world, SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
@@ -189,7 +192,7 @@ public class Section : Core.Logic.Sections.Section
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
         missing = Sides.None;
 
-        SetMeshDataInternal(meshData);
+        SetMeshDataInternal(world, meshData);
     }
 
     /// <summary>
@@ -204,7 +207,7 @@ public class Section : Core.Logic.Sections.Section
         if (vfx != null) vfx.IsEnabled = enabled;
     }
 
-    private void SetMeshDataInternal(SectionMeshData meshData)
+    private void SetMeshDataInternal(World world, SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
 
@@ -212,7 +215,7 @@ public class Section : Core.Logic.Sections.Section
 
         if (vfx == null)
         {
-            vfx = new SectionVFX(Application.Client.Instance.Space, Position.FirstBlock);
+            vfx = new SectionVFX(world.Space, Position.FirstBlock);
             vfx.SetUp();
 
             vfx.IsEnabled = vfxEnabled;

@@ -103,7 +103,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         Throw.IfDisposed(disposed);
 
-        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(context);
+        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(World, context);
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
-        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(context);
+        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(World, context);
     }
 
     /// <summary>
@@ -199,7 +199,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         MeshedSides = meshData.Sides;
 
         foreach (Int32 index in meshData.Indices)
-            GetSection(index).SetMeshData(meshData.SectionMeshData[index]!);
+            GetSection(index).SetMeshData(World, meshData.SectionMeshData[index]!);
     }
 
     /// <summary>
