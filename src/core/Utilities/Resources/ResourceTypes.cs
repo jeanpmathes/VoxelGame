@@ -84,6 +84,11 @@ public static class ResourceTypes
     public static ResourceType Biome { get; } = new(ResourceType.Category.Object, "worldgen", "biome");
 
     /// <summary>
+    ///     The sub-biome resource type.
+    /// </summary>
+    public static ResourceType SubBiome { get; } = new(ResourceType.Category.Object, "worldgen", "sub-biome");
+
+    /// <summary>
     ///     The biome distribution resource type.
     /// </summary>
     public static ResourceType BiomeDistribution { get; } = new(ResourceType.Category.Object, "worldgen_biome_distribution");

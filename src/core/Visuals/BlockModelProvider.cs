@@ -13,14 +13,21 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class BlockModelProvider : ResourceProvider<BlockModel>, IBlockModelProvider
 {
-    /// <summary>
-    ///     Creates a new block model provider.
-    /// </summary>
-    public BlockModelProvider() : base(BlockModels.CreateFallback, model => model.Copy()) {}
-
     /// <inheritdoc />
     public BlockModel GetModel(RID identifier)
     {
         return GetResource(identifier);
+    }
+
+    /// <inheritdoc />
+    protected override BlockModel CreateFallback()
+    {
+        return BlockModels.CreateFallback();
+    }
+
+    /// <inheritdoc />
+    protected override BlockModel Copy(BlockModel resource)
+    {
+        return resource.Copy();
     }
 }

@@ -1,0 +1,501 @@
+﻿// <copyright file="SubBiomeLoader.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using VoxelGame.Core.Generation.Worlds.Default.Decorations;
+using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
+
+namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
+
+/// <summary>
+///     Loads all sub-biomes.
+/// </summary>
+public class SubBiomeLoader : IResourceLoader
+{
+    String? ICatalogEntry.Instance => null;
+
+    /// <inheritdoc />
+    public IEnumerable<IResource> Load(IResourceContext context)
+    {
+        return context.Require<Palette>(palette =>
+            context.Require<IDecorationProvider>(decorations =>
+                context.Require<IStructureGeneratorDefinitionProvider>(structures =>
+                {
+                    Registry<SubBiomeDefinition> registry = new(subBiomeDefinition => subBiomeDefinition.Name);
+                    SubBiomes subBiomes = new(registry, palette, decorations, structures);
+
+                    return [..subBiomes.Registry.Values];
+                })));
+    }
+
+    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+    private sealed class SubBiomes(
+        Registry<SubBiomeDefinition> subBiomes,
+        Palette palette,
+        IDecorationProvider decorations,
+        IStructureGeneratorDefinitionProvider structures)
+    {
+        private static readonly RID tallGrass = RID.Named<Decoration>("TallGrass");
+        private static readonly RID tallFlower = RID.Named<Decoration>("TallFlower");
+        private static readonly RID roots = RID.Named<Decoration>("Roots");
+        private static readonly RID vines = RID.Named<Decoration>("Vines");
+        private static readonly RID boulder = RID.Named<Decoration>("Boulder");
+        private static readonly RID cactus = RID.Named<Decoration>("Cactus");
+        public Registry<SubBiomeDefinition> Registry => subBiomes;
+
+        /// <summary>
+        ///     The polar desert sub-biome.
+        /// </summary>
+        public SubBiomeDefinition PolarDesert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesert), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.007f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSnow(width: 3),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
+                Layer.CreateLoose(width: 27),
+                Layer.CreateGroundwater(width: 8),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            }
+        });
+
+        /// <summary>
+        ///     The tropical rainforest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition TropicalRainforest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforest), palette)
+        {
+            Amplitude = 15f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 6),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 33),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 30.0f),
+                (decorations.GetDecoration(roots), 1000.0f),
+                (decorations.GetDecoration(vines), 1.0f)
+            },
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
+        });
+
+        /// <summary>
+        ///     The temperate rainforest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition TemperateRainforest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforest), palette)
+        {
+            Amplitude = 15f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 6),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 33),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The taiga sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Taiga { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Taiga), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
+                Layer.CreateLoose(width: 27),
+                Layer.CreateGroundwater(width: 8),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 3.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The tundra sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Tundra { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Tundra), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
+                Layer.CreateLoose(width: 27),
+                Layer.CreateGroundwater(width: 8),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 500.0f)
+            },
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
+        });
+
+        /// <summary>
+        ///     The savanna sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Savanna { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Savanna), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 2),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Baobab)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 30.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The seasonal forest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition SeasonalForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForest), palette)
+        {
+            Amplitude = 7f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 2),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The dry forest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition DryForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForest), palette)
+        {
+            Amplitude = 7f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 6),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 33),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The shrubland sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Shrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Shrubland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 2),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 1000.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The desert sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Desert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Desert), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.008f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(cactus), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 1000.0f)
+            },
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
+        });
+
+        /// <summary>
+        ///     The grassland sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Grassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Grassland), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.004f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateLoose(width: 3),
+                Layer.CreateGroundwater(width: 2),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 5000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 5000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 5000.0f)
+            },
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
+        });
+
+        /// <summary>
+        ///     The normal ocean sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Ocean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Ocean), palette)
+        {
+            Amplitude = 5.0f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+            }
+        });
+
+        /// <summary>
+        ///     The polar ocean sub-biome. It is covered in ice and occurs in cold regions.
+        /// </summary>
+        public SubBiomeDefinition PolarOcean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOcean), palette)
+        {
+            Amplitude = 5.0f,
+            Frequency = 0.005f,
+            IceWidth = 6,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+            }
+        });
+
+        /// <summary>
+        ///     The mountain sub-biome. It is a special sub-biome that depends on the height of the terrain.
+        /// </summary>
+        public SubBiomeDefinition Mountains { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Mountains), palette)
+        {
+            Amplitude = 30f,
+            Frequency = 0.005f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateStonyTop(width: 9, amplitude: 15),
+                Layer.CreateStonyDampen(maxWidth: 31),
+                Layer.CreateStone(width: 31),
+                Layer.CreateLoose(width: 9),
+                Layer.CreateGroundwater(width: 1),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+            }
+        });
+
+        /// <summary>
+        ///     The beach sub-biome. It is found at low heights next to coastlines.
+        /// </summary>
+        public SubBiomeDefinition Beach { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Beach), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.008f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            },
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)
+            }
+        });
+
+        /// <summary>
+        ///     The grass covered cliff sub-biome, which is found at large height differences.
+        /// </summary>
+        public SubBiomeDefinition GrassyCliff { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrassyCliff), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.008f,
+            Cover = new Cover(hasPlants: true),
+            Layers = new List<Layer>
+            {
+                Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
+                Layer.CreateStone(width: 53),
+                Layer.CreateStonyDampen(maxWidth: 28),
+                Layer.CreateStone(width: 39)
+            }
+        });
+
+        /// <summary>
+        ///     The sand covered cliff sub-biome, which is found at large height differences.
+        /// </summary>
+        public SubBiomeDefinition SandyCliff { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SandyCliff), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.008f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),
+                Layer.CreateStone(width: 53),
+                Layer.CreateStonyDampen(maxWidth: 28),
+                Layer.CreateStone(width: 39)
+            }
+        });
+
+        #pragma warning disable S3242 // Types have meaning.
+        private static RID Get(Wood wood)
+        {
+            return RID.Named<Decoration>(wood.NamedID);
+        }
+        #pragma warning restore S3242
+    }
+}

@@ -4,11 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
@@ -27,6 +27,8 @@ public class Catalog : ResourceCatalog
         new DecorationProvider(),
         new StructureGeneratorDefinitionLoader(),
         new StructureGeneratorDefinitionProvider(),
+        new SubBiomeLoader(),
+        new SubBiomeDefinitionProvider(),
         new BiomeLoader()
     ]) {}
 }

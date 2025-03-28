@@ -26,8 +26,8 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
     private const Int32 InCellSearchDistanceInSections = Map.CellSize / Section.Size + 1;
 
     private readonly Dictionary<StructureGenerator, IReadOnlySet<Biome>> structureToBiomes = biomes
-        .Where(biome => biome.Structure != null)
-        .ToDictionary(biome => biome.Structure!, Set.Of);
+        .Where(biome => biome.SubBiome.Structure != null)
+        .ToDictionary(biome => biome.SubBiome.Structure!, Set.Of);
 
     /// <inheritdoc />
     protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
@@ -126,6 +126,6 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
         if (sectionBiomes.Count != 1) return false;
 
-        return sectionBiomes.First().Structure == structure;
+        return sectionBiomes.First().SubBiome.Structure == structure;
     }
 }
