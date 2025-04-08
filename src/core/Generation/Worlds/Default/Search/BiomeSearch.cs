@@ -62,7 +62,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
     /// <returns>The found positions.</returns>
     public IEnumerable<Vector3i> SearchBiomes(IReadOnlySet<Biome> biomes, Mode mode, Vector3i start, UInt32 maxBlockDistance)
     {
-        var maxCellDistance = (Int32) Math.Clamp(maxBlockDistance / Map.CellSize + 1, min: 0, 2 * World.SectionLimit);
+        var maxCellDistance = (Int32) Math.Clamp(maxBlockDistance / Map.CellSize + 1, min: 0, World.BlockLimit * 2 / Map.CellSize);
 
         for (var distance = 0; distance < maxCellDistance; distance++)
             foreach (Vector3i position in SearchAtDistance(biomes, mode, start, distance))
@@ -88,12 +88,12 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
 
                 Vector2i current = center + (dx, dz);
 
+                dz++;
+
                 if (!Map.IsValidCell(current)) continue;
 
                 if (SearchInCell(biomes, mode, current, out Vector3i found))
                     yield return found;
-
-                dz++;
             }
         }
     }

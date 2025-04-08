@@ -37,7 +37,7 @@ public sealed class Cover
     {
         if (isFilled) return Content.Default;
 
-        Temperature temperature = sample.GetRealTemperature(position.Y);
+        Temperature temperature = sample.EstimateTemperature(position.Y);
 
         if (temperature.IsFreezing)
         {

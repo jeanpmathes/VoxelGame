@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -240,27 +239,27 @@ public sealed partial class Generator : IWorldGenerator
     /// <inheritdoc cref="IDecorationContext.DecorateSection" />
     internal void DecorateSection(Neighborhood<Section> sections, ColumnSampleStore? columns)
     {
-        ICollection<Biome> sectionBiomes = GetSectionBiomes(sections.Center.Position, columns);
+        ICollection<SubBiome> sectionSubBiomes = GetSectionSubBiomes(sections.Center.Position, columns);
 
-        HashSet<(Decoration decoration, Single rarity)> decorations = [];
-        Dictionary<Decoration, HashSet<Biome>> decorationToBiomes = new();
+        Dictionary<Decoration, Single> decorationToRarity = new();
+        Dictionary<Decoration, HashSet<SubBiome>> decorationToSubBiomes = new();
 
-        foreach (Biome biome in sectionBiomes)
-        foreach ((Decoration decoration, Single rarity) in biome.Definition.SubBiome.Decorations)
+        foreach (SubBiome subBiome in sectionSubBiomes)
+        foreach ((Decoration decoration, Single rarity) in subBiome.Definition.Decorations)
         {
-            decorations.Add((decoration, rarity));
-            decorationToBiomes.GetOrAdd(decoration).Add(biome);
-        }
+            // A lower rarity means a higher chance of placement, and rarity can be any number from 0 to infinity.
 
-        Debug.Assert(decorations.GroupBy(d => d.decoration.Name).All(g => g.Count() <= 1));
+            decorationToRarity[decoration] = Math.Min(rarity, decorationToRarity.GetValueOrDefault(decoration, Single.PositiveInfinity));
+            decorationToSubBiomes.GetOrAdd(decoration).Add(subBiome);
+        }
 
         Array3D<Single> noise = decorationNoise.GetNoiseGrid(sections.Center.Position.FirstBlock, Section.Size);
 
         var index = 0;
 
-        foreach ((Decoration decoration, Single rarity) in decorations.OrderByDescending(d => d.decoration.Size).ThenBy(d => d.decoration.Name))
+        foreach ((Decoration decoration, Single rarity) in decorationToRarity.OrderByDescending(d => d.Key.Size).ThenBy(d => d.Key.Name))
         {
-            Decoration.Context context = new(sections.Center.Position, sections, decorationToBiomes[decoration], noise, rarity, index++, palette, this);
+            Decoration.Context context = new(sections.Center.Position, sections, decorationToSubBiomes[decoration], noise, rarity, index++, palette, this);
 
             decoration.Place(context);
         }
@@ -269,11 +268,11 @@ public sealed partial class Generator : IWorldGenerator
     /// <inheritdoc cref="IGenerationContext.GenerateStructures" />
     internal void GenerateStructures(Section section, ColumnSampleStore? columns)
     {
-        ICollection<Biome> sectionBiomes = GetSectionBiomes(section.Position, columns);
+        ICollection<SubBiome> sectionBiomes = GetSectionSubBiomes(section.Position, columns);
 
         if (sectionBiomes.Count != 1) return;
 
-        sectionBiomes.First().SubBiome.Structure?.AttemptPlacement(section, this);
+        sectionBiomes.First().Structure?.AttemptPlacement(section, this);
     }
 
     /// <summary>
@@ -309,37 +308,37 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <summary>
-    ///     Get the biomes for a given section.
+    ///     Get the sub-biomes for a given section.
     ///     The biomes are determined by sampling each corner of the section.
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <param name="columns">A column sample store to use, if available.</param>
     /// <returns>A list of the biomes, each biome is only included once.</returns>
-    internal ICollection<Biome> GetSectionBiomes(SectionPosition position, ColumnSampleStore? columns)
+    internal ICollection<SubBiome> GetSectionSubBiomes(SectionPosition position, ColumnSampleStore? columns)
     {
-        List<Biome> sectionBiomes = [];
+        List<SubBiome> sectionSubBiomes = [];
 
         Vector2i start = position.FirstBlock.Xz;
         const Int32 offset = Section.Size - 1;
 
-        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (0, 0), columns, Map).ActualBiome);
-        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (offset, 0), columns, Map).ActualBiome);
-        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (0, offset), columns, Map).ActualBiome);
-        sectionBiomes.Add(ColumnSampleStore.GetSample(start + (offset, offset), columns, Map).ActualBiome);
+        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (0, 0), columns, Map).ActualSubBiome);
+        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (offset, 0), columns, Map).ActualSubBiome);
+        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (0, offset), columns, Map).ActualSubBiome);
+        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (offset, offset), columns, Map).ActualSubBiome);
 
-        sectionBiomes = sectionBiomes.Distinct().ToList();
+        sectionSubBiomes = sectionSubBiomes.Distinct().ToList();
 
-        return sectionBiomes;
+        return sectionSubBiomes;
     }
 
     private static Double GetOffset(Vector2i position, in Map.Sample sample)
     {
         return MathTools.BiLerp(
-            sample.Biome00.SubBiome.GetOffset(position),
-            sample.Biome10.SubBiome.GetOffset(position),
-            sample.Biome01.SubBiome.GetOffset(position),
-            sample.Biome11.SubBiome.GetOffset(position),
-            sample.BlendFactors);
+            sample.SubBiome00.GetOffset(position),
+            sample.SubBiome10.GetOffset(position),
+            sample.SubBiome01.GetOffset(position),
+            sample.SubBiome11.GetOffset(position),
+            sample.SubBiomeBlendFactors);
     }
 
     /// <summary>
@@ -348,20 +347,20 @@ public sealed partial class Generator : IWorldGenerator
     private static SubBiome.Dampening CreateFilledDampening(Int32 offset, in Map.Sample sample)
     {
         (Int32 a, Int32 b, Int32 c, Int32 d) depths = (
-            sample.Biome00.SubBiome.GetDepthToSolid(sample.Biome00.SubBiome.CalculateDampening(offset)),
-            sample.Biome10.SubBiome.GetDepthToSolid(sample.Biome10.SubBiome.CalculateDampening(offset)),
-            sample.Biome01.SubBiome.GetDepthToSolid(sample.Biome01.SubBiome.CalculateDampening(offset)),
-            sample.Biome11.SubBiome.GetDepthToSolid(sample.Biome11.SubBiome.CalculateDampening(offset)));
+            sample.SubBiome00.GetDepthToSolid(sample.SubBiome00.CalculateDampening(offset)),
+            sample.SubBiome10.GetDepthToSolid(sample.SubBiome10.CalculateDampening(offset)),
+            sample.SubBiome01.GetDepthToSolid(sample.SubBiome01.CalculateDampening(offset)),
+            sample.SubBiome11.GetDepthToSolid(sample.SubBiome11.CalculateDampening(offset)));
 
         if (depths.a <= depths.b && depths.a <= depths.c && depths.a <= depths.d) depths.a *= 2;
         else if (depths.b <= depths.a && depths.b <= depths.c && depths.b <= depths.d) depths.b *= 2;
         else if (depths.c <= depths.a && depths.c <= depths.b && depths.c <= depths.d) depths.c *= 2;
         else depths.d *= 2;
 
-        var targetDepth = (Int32) MathTools.BiLerp(depths.a, depths.b, depths.c, depths.d, sample.BlendFactors);
-        SubBiome.Dampening dampening = sample.ActualBiome.SubBiome.CalculateDampening(offset);
+        var targetDepth = (Int32) MathTools.BiLerp(depths.a, depths.b, depths.c, depths.d, sample.SubBiomeBlendFactors);
+        SubBiome.Dampening dampening = sample.ActualSubBiome.CalculateDampening(offset);
 
-        Int32 fill = targetDepth - sample.ActualBiome.SubBiome.GetDepthToSolid(dampening);
+        Int32 fill = targetDepth - sample.ActualSubBiome.GetDepthToSolid(dampening);
         fill = Math.Max(val1: 0, fill);
 
         return dampening with {Width = dampening.Width + fill};
@@ -370,12 +369,12 @@ public sealed partial class Generator : IWorldGenerator
     private static Int32 GetIceWidth(in Map.Sample sample)
     {
         (Int32 a, Int32 b, Int32 c, Int32 d) widths = (
-            sample.Biome00.Definition.SubBiome.IceWidth,
-            sample.Biome10.Definition.SubBiome.IceWidth,
-            sample.Biome01.Definition.SubBiome.IceWidth,
-            sample.Biome11.Definition.SubBiome.IceWidth);
+            sample.SubBiome00.Definition.IceWidth,
+            sample.SubBiome10.Definition.IceWidth,
+            sample.SubBiome01.Definition.IceWidth,
+            sample.SubBiome11.Definition.IceWidth);
 
-        return (Int32) Math.Round(MathTools.BiLerp(widths.a, widths.b, widths.c, widths.d, sample.BlendFactors), MidpointRounding.AwayFromZero);
+        return (Int32) Math.Round(MathTools.BiLerp(widths.a, widths.b, widths.c, widths.d, sample.SubBiomeBlendFactors), MidpointRounding.AwayFromZero);
     }
 
     private Content GenerateContent(Vector3i position, in Context context)
@@ -393,7 +392,7 @@ public sealed partial class Generator : IWorldGenerator
 
             var content = Content.Default;
 
-            if (depth == -1) content = context.Biome.SubBiome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
+            if (depth == -1) content = context.SubBiome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
 
             if (isFilled) content = FillContent(content);
 
@@ -402,12 +401,12 @@ public sealed partial class Generator : IWorldGenerator
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        return depth >= context.Biome.SubBiome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, position.Y, isFilled, stoneType, context);
+        return depth >= context.SubBiome.GetTotalWidth(context.Dampening) ? palette.GetStone(stoneType) : GetBiomeContent(depth, position.Y, isFilled, stoneType, context);
     }
 
     private static Content GetBiomeContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Context context)
     {
-        Content content = context.Biome.SubBiome.GetContent(depth, y, context.Dampening, stoneType, isFilled);
+        Content content = context.SubBiome.GetContent(depth, y, context.Dampening, stoneType, isFilled);
 
         if (isFilled) content = FillContent(content);
 
@@ -430,7 +429,7 @@ public sealed partial class Generator : IWorldGenerator
 
         public SubBiome.Dampening Dampening { get; init; }
 
-        public Biome Biome => Sample.ActualBiome;
+        public SubBiome SubBiome => Sample.ActualSubBiome;
 
         public Map.Sample Sample { get; init; }
 

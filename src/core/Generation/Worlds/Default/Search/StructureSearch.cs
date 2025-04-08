@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Toolkit.Utilities;
@@ -25,9 +24,10 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 {
     private const Int32 InCellSearchDistanceInSections = Map.CellSize / Section.Size + 1;
 
-    private readonly Dictionary<StructureGenerator, IReadOnlySet<Biome>> structureToBiomes = biomes
-        .Where(biome => biome.SubBiome.Structure != null)
-        .ToDictionary(biome => biome.SubBiome.Structure!, Set.Of);
+    private readonly Dictionary<StructureGenerator, IReadOnlySet<Biome>> structureToBiomes = new(); // biomes
+    //.Where(biome => biome.Structure != null)
+    //.ToDictionary(biome => biome.SubBiome.Structure!, Set.Of);
+    // todo: fix me - has to use sub biome search
 
     /// <inheritdoc />
     protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
@@ -122,10 +122,10 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
     private Boolean FilterSectionByBiome(SectionPosition section, StructureGenerator structure)
     {
-        ICollection<Biome> sectionBiomes = Generator.GetSectionBiomes(section, columns: null);
+        ICollection<SubBiome> sectionSubBiomes = Generator.GetSectionSubBiomes(section, columns: null);
 
-        if (sectionBiomes.Count != 1) return false;
+        if (sectionSubBiomes.Count != 1) return false;
 
-        return sectionBiomes.First().SubBiome.Structure == structure;
+        return false; // todo: fix this - sectionBiomes.First().SubBiome.Structure == structure;
     }
 }

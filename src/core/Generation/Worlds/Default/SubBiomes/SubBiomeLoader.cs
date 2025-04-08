@@ -74,6 +74,26 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
+        ///     The other polar desert sub-biome.
+        /// </summary>
+        public SubBiomeDefinition OtherPolarDesert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OtherPolarDesert), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.007f,
+            Cover = new Cover(hasPlants: false),
+            Layers = new List<Layer>
+            {
+                Layer.CreateStone(width: 5),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
+                Layer.CreateLoose(width: 27),
+                Layer.CreateGroundwater(width: 8),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            }
+        });
+
+        /// <summary>
         ///     The tropical rainforest sub-biome.
         /// </summary>
         public SubBiomeDefinition TropicalRainforest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforest), palette)

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
@@ -16,6 +17,8 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 /// </summary>
 public sealed class Biome : IDisposable
 {
+    private readonly List<(SubBiome, Single)> subBiomes;
+
     /// <summary>
     ///     Create a new biome.
     /// </summary>
@@ -28,7 +31,7 @@ public sealed class Biome : IDisposable
     {
         Definition = definition;
 
-        SubBiome = new SubBiome(factory, definition.SubBiome, structureMap);
+        subBiomes = CreateSubBiomes(factory, definition, structureMap);
     }
 
     /// <summary>
@@ -37,17 +40,67 @@ public sealed class Biome : IDisposable
     public BiomeDefinition Definition { get; }
 
     /// <summary>
-    ///     The sub-biome that is part of this biome.
+    /// Get all sub-biomes used by this biome.
     /// </summary>
-    public SubBiome SubBiome { get; }
+    public IEnumerable<SubBiome> SubBiomes
+    {
+        get
+        {
+            foreach ((SubBiome subBiome, _) in subBiomes)
+                yield return subBiome;
+        }
+    }
 
     #region DISPOSING
 
     /// <inheritdoc />
     public void Dispose()
     {
-        SubBiome.Dispose();
+        foreach ((SubBiome subBiome, _) in subBiomes) subBiome.Dispose();
     }
 
     #endregion DISPOSING
+
+    private static List<(SubBiome, Single)> CreateSubBiomes(NoiseFactory factory, BiomeDefinition definition,
+        IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)
+    {
+        Single tickets = 0;
+
+        foreach ((_, Int32 count) in definition.SubBiomes) tickets += count;
+
+        Debug.Assert(tickets > 0);
+
+        List<(SubBiome, Single)> result = [];
+
+        Single sum = 0;
+
+        foreach ((SubBiomeDefinition subBiomeDefinition, Int32 count) in definition.SubBiomes)
+        {
+            SubBiome subBiome = new(factory, subBiomeDefinition, structureMap);
+
+            sum += count / tickets;
+
+            result.Add((subBiome, sum));
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Choose a sub-biome based on a value.
+    /// </summary>
+    /// <param name="value">A value between 0 and 1.</param>
+    /// <returns>The chosen sub-biome.</returns>
+    public SubBiome ChooseSubBiome(Single value)
+    {
+        Debug.Assert(value is >= 0 and <= 1);
+
+        foreach ((SubBiome subBiome, Single threshold) in subBiomes)
+            if (value < threshold)
+                return subBiome;
+
+        (SubBiome last, _) = subBiomes[^1];
+
+        return last;
+    }
 }

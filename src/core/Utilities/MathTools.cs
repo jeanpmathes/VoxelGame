@@ -295,6 +295,16 @@ public static class MathTools
     /// </summary>
     /// <param name="vector">The vector to floor.</param>
     /// <returns>The component-wise floored vector.</returns>
+    public static Vector2i Floor(this Vector2d vector)
+    {
+        return new Vector2i((Int32) Math.Floor(vector.X), (Int32) Math.Floor(vector.Y));
+    }
+
+    /// <summary>
+    ///     Returns a floored vector of a given vector.
+    /// </summary>
+    /// <param name="vector">The vector to floor.</param>
+    /// <returns>The component-wise floored vector.</returns>
     public static Vector3i Floor(this Vector3d vector)
     {
         return new Vector3i((Int32) Math.Floor(vector.X), (Int32) Math.Floor(vector.Y), (Int32) Math.Floor(vector.Z));
@@ -415,6 +425,14 @@ public static class MathTools
     public static Box3d CreateBox3(Vector3d center, Vector3d extents)
     {
         return new Box3d(center - extents, center + extents);
+    }
+
+    /// <summary>
+    ///     Perform a component-wise linear interpolation between two values.
+    /// </summary>
+    public static Vector2d Lerp(Vector2d a, Vector2d b, Vector2d t)
+    {
+        return new Vector2d(MathHelper.Lerp(a.X, b.X, t.X), MathHelper.Lerp(a.Y, b.Y, t.Y));
     }
 
     /// <summary>

@@ -68,7 +68,11 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition PolarDesert { get; } = biomes.Register(new BiomeDefinition(nameof(PolarDesert))
         {
             Color = ColorS.Gray,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(PolarDesert)))
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("PolarDesert")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("OtherPolarDesert")), 1)
+            ]
         });
 
         /// <summary>
@@ -77,7 +81,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition TropicalRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TropicalRainforest))
         {
             Color = ColorS.DarkGreen,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TropicalRainforest)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TropicalRainforest))), 1)]
         });
 
         /// <summary>
@@ -86,7 +90,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition TemperateRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TemperateRainforest))
         {
             Color = ColorS.Green,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TemperateRainforest)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TemperateRainforest))), 1)]
         });
 
         /// <summary>
@@ -95,7 +99,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Taiga { get; } = biomes.Register(new BiomeDefinition(nameof(Taiga))
         {
             Color = ColorS.Navy,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Taiga)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Taiga))), 1)]
         });
 
         /// <summary>
@@ -104,7 +108,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Tundra { get; } = biomes.Register(new BiomeDefinition(nameof(Tundra))
         {
             Color = ColorS.CadetBlue,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Tundra)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Tundra))), 1)]
         });
 
         /// <summary>
@@ -113,7 +117,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Savanna { get; } = biomes.Register(new BiomeDefinition(nameof(Savanna))
         {
             Color = ColorS.Olive,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Savanna)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Savanna))), 1)]
         });
 
         /// <summary>
@@ -122,7 +126,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest))
         {
             Color = ColorS.Lime,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SeasonalForest)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SeasonalForest))), 1)]
         });
 
         /// <summary>
@@ -131,7 +135,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest))
         {
             Color = ColorS.SeaGreen,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(DryForest)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(DryForest))), 1)]
         });
 
         /// <summary>
@@ -140,7 +144,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Shrubland { get; } = biomes.Register(new BiomeDefinition(nameof(Shrubland))
         {
             Color = ColorS.Salmon,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Shrubland)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Shrubland))), 1)]
         });
 
         /// <summary>
@@ -149,7 +153,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Desert { get; } = biomes.Register(new BiomeDefinition(nameof(Desert))
         {
             Color = ColorS.Yellow,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Desert)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Desert))), 1)]
         });
 
         /// <summary>
@@ -158,7 +162,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Grassland { get; } = biomes.Register(new BiomeDefinition(nameof(Grassland))
         {
             Color = ColorS.SaddleBrown,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Grassland)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Grassland))), 1)]
         });
 
         /// <summary>
@@ -167,7 +171,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean))
         {
             Color = ColorS.White,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Ocean)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Ocean))), 1)]
         });
 
         /// <summary>
@@ -176,7 +180,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean))
         {
             Color = ColorS.White,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(PolarOcean)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(PolarOcean))), 1)]
         });
 
         /// <summary>
@@ -185,7 +189,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Mountains { get; } = biomes.Register(new BiomeDefinition(nameof(Mountains))
         {
             Color = ColorS.Black,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Mountains)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Mountains))), 1)]
         });
 
         /// <summary>
@@ -194,7 +198,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach))
         {
             Color = ColorS.Orange,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Beach)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Beach))), 1)]
         });
 
         /// <summary>
@@ -203,7 +207,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff))
         {
             Color = ColorS.LightGray,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(GrassyCliff)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(GrassyCliff))), 1)]
         });
 
         /// <summary>
@@ -212,7 +216,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff))
         {
             Color = ColorS.SlateGray,
-            SubBiome = subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SandyCliff)))
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SandyCliff))), 1)]
         });
     }
 }

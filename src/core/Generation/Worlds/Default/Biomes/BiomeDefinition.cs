@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -28,9 +29,12 @@ public sealed class BiomeDefinition(String name) : IResource
     public required ColorS Color { get; init; }
 
     /// <summary>
-    /// The sub-biome that is part of this biome.
+    /// The sub-biomes of this biome, as tuples.
+    /// Each tuple associates a sub-biome with a ticket count.
+    /// A higher count number means that the sub-biome is more likely to be chosen.
+    /// Must contain at least one sub-biome.
     /// </summary>
-    public required SubBiomeDefinition SubBiome { get; init; }
+    public required IEnumerable<(SubBiomeDefinition, Int32)> SubBiomes { get; init; }
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<BiomeDefinition>(name);

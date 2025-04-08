@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
@@ -75,7 +75,7 @@ public abstract class Decoration : IResource
 
         Map.Sample sample = context.Generator.Map.GetSample(position);
 
-        if (!context.Biomes.Contains(sample.ActualBiome)) return;
+        if (!context.SubBiomes.Contains(sample.ActualSubBiome)) return;
 
         Int32 surfaceHeight = Generator.GetWorldHeight(column, sample, out _, out _);
 
@@ -111,13 +111,21 @@ public abstract class Decoration : IResource
     /// </summary>
     /// <param name="Position">The position of the section.</param>
     /// <param name="Sections">The section and its neighbors.</param>
-    /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
+    /// <param name="SubBiomes">The sub-biomes in which the decoration may be placed.</param>
     /// <param name="NoiseArray">The noise used for decoration placement.</param>
     /// <param name="Rarity">The rarity of the decoration. A higher value indicates a lower chance of placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Generator">The generator that is placing the decoration.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> NoiseArray, Single Rarity, Int32 Index, Palette Palette, Generator Generator) : IGrid
+    public record Context(
+        SectionPosition Position,
+        Array3D<Section> Sections,
+        ISet<SubBiome> SubBiomes,
+        Array3D<Single> NoiseArray,
+        Single Rarity,
+        Int32 Index,
+        Palette Palette,
+        Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
