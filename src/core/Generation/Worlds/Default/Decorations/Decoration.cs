@@ -188,7 +188,7 @@ public abstract class Decoration : IResource
     /// <param name="Palette">The palette of the world generation.</param>
     public record struct PlacementContext(Single Random, Int32 Depth, Map.StoneType StoneType, Palette Palette);
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -227,5 +227,5 @@ public abstract class Decoration : IResource
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

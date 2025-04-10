@@ -23,7 +23,7 @@ public sealed class MissingResource(ResourceType type, RID identifier, ResourceI
     /// <inheritdoc />
     public ResourceIssue Issue => issue;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()

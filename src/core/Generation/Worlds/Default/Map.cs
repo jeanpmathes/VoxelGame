@@ -23,7 +23,6 @@ using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Collections;
-using VoxelGame.Toolkit.Noise;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
@@ -152,14 +151,7 @@ public sealed partial class Map : IMap, IDisposable
 
     private readonly BiomeDistribution biomes;
 
-    private readonly GeneratingNoise generatingNoise = new();
-
     private Data? data;
-
-    private NoiseGenerator2D cellSamplingOffsetNoise = null!;
-    private NoiseGenerator2D stoneSamplingOffsetNoise = null!;
-
-    private NoiseGenerator subBiomeDeterminationNoise = null!;
 
     /// <summary>
     ///     Create a new map.
@@ -169,6 +161,9 @@ public sealed partial class Map : IMap, IDisposable
     {
         this.biomes = biomes;
     }
+
+    internal SamplingNoise SamplingNoise { get; private set; } = null!;
+    internal GeneratingNoise GeneratingNoise { get; private set; } = null!;
 
     /// <inheritdoc />
     public Property GetPositionDebugData(Vector3d position)
@@ -244,43 +239,6 @@ public sealed partial class Map : IMap, IDisposable
         };
     }
 
-    private void SetUpSamplingNoise(NoiseFactory factory)
-    {
-        cellSamplingOffsetNoise = new NoiseGenerator2D(CreateSamplingNoise);
-        stoneSamplingOffsetNoise = new NoiseGenerator2D(CreateStoneNoise);
-
-        subBiomeDeterminationNoise = factory.CreateNext()
-            .WithType(NoiseType.CellularNoise)
-            .WithFrequency(frequency: 0.01f)
-            .Build();
-
-        NoiseGenerator CreateSamplingNoise()
-        {
-            return factory.CreateNext()
-                .WithType(NoiseType.GradientNoise)
-                .WithFrequency(frequency: 0.01f)
-                .WithFractals()
-                .WithOctaves(octaves: 5)
-                .WithLacunarity(lacunarity: 2.0f)
-                .WithGain(gain: 0.5f)
-                .WithWeightedStrength(weightedStrength: 0.0f)
-                .Build();
-        }
-
-        NoiseGenerator CreateStoneNoise()
-        {
-            return factory.CreateNext()
-                .WithType(NoiseType.GradientNoise)
-                .WithFrequency(frequency: 0.05f)
-                .WithFractals()
-                .WithOctaves(octaves: 2)
-                .WithLacunarity(lacunarity: 2.0f)
-                .WithGain(gain: 0.5f)
-                .WithWeightedStrength(weightedStrength: 0.0f)
-                .Build();
-        }
-    }
-
     /// <summary>
     ///     Initialize the map. If available, it will be loaded from a blob.
     ///     If loading is not possible, it will be generated.
@@ -301,7 +259,7 @@ public sealed partial class Map : IMap, IDisposable
         if (blob != null)
             Load(context, blob);
 
-        SetUpGeneratingNoise(factory);
+        GeneratingNoise = new GeneratingNoise(factory);
 
         if (data == null)
         {
@@ -309,20 +267,7 @@ public sealed partial class Map : IMap, IDisposable
             dirty = true;
         }
 
-        SetUpSamplingNoise(factory);
-    }
-
-    private void SetUpGeneratingNoise(NoiseFactory factory)
-    {
-        generatingNoise.Pieces = factory.CreateNext()
-            .WithType(NoiseType.CellularNoise)
-            .WithFrequency(frequency: 0.025f)
-            .Build();
-
-        generatingNoise.Stone = factory.CreateNext()
-            .WithType(NoiseType.GradientNoise)
-            .WithFrequency(frequency: 0.03f)
-            .Build();
+        SamplingNoise = new SamplingNoise(factory);
     }
 
     private void Generate()
@@ -334,7 +279,7 @@ public sealed partial class Map : IMap, IDisposable
 
         using Timer? timer = Timer.Start("Map Generation", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
 
-        GenerateTerrain(data, generatingNoise);
+        GenerateTerrain(data, GeneratingNoise);
         GenerateTemperature(data);
         GenerateHumidity(data);
         GenerateAdditionalSpecialConditions(data);
@@ -400,18 +345,7 @@ public sealed partial class Map : IMap, IDisposable
     /// <returns>The sample.</returns>
     public Sample GetSample(Vector3i position)
     {
-        return GetSample(position.Xz, grid2D: null);
-    }
-
-    /// <summary>
-    ///     Get a noise grid for the given position and size.
-    /// </summary>
-    /// <param name="position">The position of the grid.</param>
-    /// <param name="size">The size of the grid.</param>
-    /// <returns>The noise grid.</returns>
-    internal NoiseGrid2D GetNoiseGrid(Vector2i position, Int32 size)
-    {
-        return cellSamplingOffsetNoise.GetNoiseGrid(position, size);
+        return GetSample(position.Xz, store: null);
     }
 
     /// <summary>
@@ -421,24 +355,24 @@ public sealed partial class Map : IMap, IDisposable
     ///     The column to sample from, in block coordinates.
     ///     This is simply the X and Z coordinates of a block column.
     /// </param>
-    /// <param name="grid2D">
-    ///     An optional noise grid.
+    /// <param name="store">
+    ///     An optional noise store.
     ///     Serves to optimize sampling by allowing to batch noise generation.
     /// </param>
     /// <returns>The sample.</returns>
-    internal Sample GetSample(Vector2i column, NoiseGrid2D? grid2D)
+    internal Sample GetSample(Vector2i column, SamplingNoiseStore? store)
     {
         Debug.Assert(data != null);
 
-        Biome actualBiome = DetermineColumnBiome(column, grid2D, slot: 0);
-        (Single temperature, Single humidity, Single height) = GetColumnValues(column, grid2D, slot: 0, out Vector2i shiftedColumn);
+        Biome actualBiome = DetermineColumnBiome(column, store, cacheHint: 0);
+        (Single temperature, Single humidity, Single height) = GetColumnValues(column, store, cacheHint: 0, out Vector2i shiftedColumn);
 
         (Vector2i p1, Vector2i p2, Vector2d subBiomeBlend) = GetSubBiomeSamplingPoints(shiftedColumn);
 
-        SubBiome s00 = DetermineSubBiome((p1.X, p1.Y), grid2D, slot: 1);
-        SubBiome s10 = DetermineSubBiome((p2.X, p1.Y), grid2D, slot: 2);
-        SubBiome s01 = DetermineSubBiome((p1.X, p2.Y), grid2D, slot: 3);
-        SubBiome s11 = DetermineSubBiome((p2.X, p2.Y), grid2D, slot: 4);
+        SubBiome s00 = DetermineSubBiome((p1.X, p1.Y), store, cacheHint: 1);
+        SubBiome s10 = DetermineSubBiome((p2.X, p1.Y), store, cacheHint: 2);
+        SubBiome s01 = DetermineSubBiome((p1.X, p2.Y), store, cacheHint: 3);
+        SubBiome s11 = DetermineSubBiome((p2.X, p2.Y), store, cacheHint: 4);
 
         SubBiome actualSubBiome = MathTools.SelectByWeight(s00, s10, s01, s11, subBiomeBlend);
 
@@ -454,16 +388,16 @@ public sealed partial class Map : IMap, IDisposable
             SubBiome01 = s01,
             SubBiome11 = s11,
             SubBiomeBlendFactors = subBiomeBlend,
-            StoneData = GetColumnStoneData(column, grid2D, slot: 0) // We use column here because the method will do shifting itself.
+            StoneData = GetColumnStoneData(column, store, cacheHint: 0) // We use column here because the method will do shifting itself.
         };
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Biome DetermineColumnBiome(Vector2i column, NoiseGrid2D? grid2D, Int32 slot)
+    private Biome DetermineColumnBiome(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint)
     {
         Debug.Assert(data != null);
 
-        (Vector2i c1, Vector2i c2, Vector2d biomeBlend) = GetSamplingCells(column, grid2D, slot, out _);
+        (Vector2i c1, Vector2i c2, Vector2d biomeBlend) = GetSamplingCells(column, store, cacheHint, out _);
 
         ref readonly Cell c00 = ref data.GetCell(c1.X + WidthHalf, c1.Y + WidthHalf);
         ref readonly Cell c10 = ref data.GetCell(c2.X + WidthHalf, c1.Y + WidthHalf);
@@ -479,11 +413,11 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (Single temperature, Single humidity, Single height) GetColumnValues(Vector2i column, NoiseGrid2D? grid2D, Int32 slot, out Vector2i point)
+    private (Single temperature, Single humidity, Single height) GetColumnValues(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint, out Vector2i point)
     {
         Debug.Assert(data != null);
 
-        (Vector2i c1, Vector2i c2, Vector2d biomeBlend) = GetSamplingCells(column, grid2D, slot, out _);
+        (Vector2i c1, Vector2i c2, Vector2d biomeBlend) = GetSamplingCells(column, store, cacheHint, out _);
         point = MathTools.Lerp(GetCellCenter(c1), GetCellCenter(c2), biomeBlend).Floor();
 
         ref readonly Cell c00 = ref data.GetCell(c1.X + WidthHalf, c1.Y + WidthHalf);
@@ -500,11 +434,11 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Vector2d t) GetColumnStoneData(Vector2i column, NoiseGrid2D? grid2D, Int32 slot)
+    private (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Vector2d t) GetColumnStoneData(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint)
     {
         Debug.Assert(data != null);
 
-        (Vector2i c1, Vector2i c2, Vector2d _) = GetSamplingCells(column, grid2D, slot, out Vector2d t);
+        (Vector2i c1, Vector2i c2, Vector2d _) = GetSamplingCells(column, store, cacheHint, out Vector2d t);
 
         ref readonly Cell c00 = ref data.GetCell(c1.X + WidthHalf, c1.Y + WidthHalf);
         ref readonly Cell c10 = ref data.GetCell(c2.X + WidthHalf, c1.Y + WidthHalf);
@@ -514,18 +448,18 @@ public sealed partial class Map : IMap, IDisposable
         return (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, t);
     }
 
-    private SubBiome DetermineSubBiome(Vector2i column, NoiseGrid2D? grid2D, Int32 slot)
+    private SubBiome DetermineSubBiome(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint)
     {
-        Biome biome = DetermineColumnBiome(column, grid2D, slot);
+        Biome biome = DetermineColumnBiome(column, store, cacheHint);
 
-        Single noise = subBiomeDeterminationNoise.GetNoise(column);
+        Single noise = SamplingNoise.GetSubBiomeDeterminationNoise(column, store, cacheHint);
         Single value = Math.Abs(noise);
 
         return biome.ChooseSubBiome(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (Vector2i c1, Vector2i c2, Vector2d blend) GetSamplingCells(Vector2i column, NoiseGrid2D? grid2D, Int32 slot, out Vector2d t)
+    private (Vector2i c1, Vector2i c2, Vector2d blend) GetSamplingCells(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint, out Vector2d t)
     {
         Vector2i cell = GetCellFromColumn(column);
         Vector2i neighbor = GetNearestNeighbor(column, CellSize);
@@ -539,7 +473,7 @@ public sealed partial class Map : IMap, IDisposable
 
         t = MathTools.InverseLerp(p1, p2, column);
 
-        Vector2d noise = cellSamplingOffsetNoise.GetNoise(column, grid2D, slot);
+        Vector2d noise = SamplingNoise.GetCellSamplingOffsetNoise(column, store, cacheHint);
         Vector2d blend = t + noise * 0.2;
 
         ReAlignSamplingCells(ref blend, ref c1, ref c2);
@@ -804,151 +738,10 @@ public sealed partial class Map : IMap, IDisposable
             sample.StoneData.stone00 == sample.StoneData.stone11)
             return sample.StoneData.stone00;
 
-        Vector2d noise = stoneSamplingOffsetNoise.GetNoise(position.Xz, grid2D: null, slot: 0);
+        Vector2d noise = SamplingNoise.GetStoneSamplingOffsetNoise(position.Xz);
         Vector2d stone = sample.StoneData.t + noise * 0.05;
 
         return MathTools.SelectByWeight(sample.StoneData.stone00, sample.StoneData.stone10, sample.StoneData.stone01, sample.StoneData.stone11, stone);
-    }
-
-    /// <summary>
-    ///     A noise generator combining two noise generators to create a 2D noise generator.
-    /// </summary>
-    /// <param name="factory">The factory to use for creating the noise generators.</param>
-    internal sealed class NoiseGenerator2D(Func<NoiseGenerator> factory) : IDisposable
-    {
-        private NoiseGenerator X { get; } = factory();
-        private NoiseGenerator Y { get; } = factory();
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            X.Dispose();
-            Y.Dispose();
-        }
-
-        public Vector2 GetNoise(Vector2i position, NoiseGrid2D? grid2D, Int32 slot)
-        {
-            return grid2D?.GetNoise(position, this, slot) ?? (X.GetNoise(position), Y.GetNoise(position));
-        }
-
-        /// <summary>
-        ///     Create a noise grid for the given position and size.
-        /// </summary>
-        public NoiseGrid2D GetNoiseGrid(Vector2i position, Int32 size)
-        {
-            Array2D<Single> x = X.GetNoiseGrid(position, size);
-            Array2D<Single> y = Y.GetNoiseGrid(position, size);
-
-            return new NoiseGrid2D(position, x, y);
-        }
-    }
-
-    /// <summary>
-    ///     Contains two 2D noise grids, used during sampling, as well as a four-slot cache.
-    ///     When accessing, a cache slot can be chosen.
-    ///     If the access lies within the area of the grid, no cache slot is needed.
-    ///     Otherwise, on of the four cache slots must be used.
-    /// </summary>
-    /// <param name="Base">The base position of the noise grids.</param>
-    /// <param name="X">The first noise grid.</param>
-    /// <param name="Y">The second noise grid.</param>
-    internal sealed record NoiseGrid2D(Vector2i Base, Array2D<Single> X, Array2D<Single> Y)
-    {
-        private readonly Int32 size = X.Length;
-
-        /// <summary>
-        ///     Get the noise at the given position.
-        /// </summary>
-        /// <param name="position">The position to get the noise at.</param>
-        /// <param name="generator">The noise generator to use if the noise is not cached.</param>
-        /// <param name="slot">Which cache slot to use, <c>0</c> to not use a cache slot, and <c>1</c> to <c>4</c> to use a cache slot.</param>
-        /// <returns>The noise at the given position.</returns>
-        public Vector2 GetNoise(Vector2i position, NoiseGenerator2D generator, Int32 slot)
-        {
-            Vector2 result;
-
-            switch (slot)
-            {
-                case 0:
-                    Vector2i relative = position - Base;
-
-                    result = (X[relative], Y[relative]);
-
-                    break;
-
-                case 1:
-                    result = ReadCache(position, generator, ref key1, ref value1);
-
-                    break;
-
-                case 2:
-                    result = ReadCache(position, generator, ref key2, ref value2);
-
-                    break;
-
-                case 3:
-                    result = ReadCache(position, generator, ref key3, ref value3);
-
-                    break;
-
-                case 4:
-                    result = ReadCache(position, generator, ref key4, ref value4);
-
-                    break;
-
-                default:
-                    throw Exceptions.UnsupportedValue(slot);
-            }
-
-            return result;
-        }
-
-        #region CACHING
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Vector2 ReadCache(Vector2i readingKey, NoiseGenerator2D generator, ref Vector2i slotKey, ref Vector2 slotValue)
-        {
-            if (slotKey == readingKey)
-                return slotValue;
-
-            Vector2i relative = readingKey - Base;
-
-            slotKey = readingKey;
-
-            if (relative.X >= 0 && relative.X < size &&
-                relative.Y >= 0 && relative.Y < size)
-                slotValue = (X[relative], Y[relative]);
-            else
-                slotValue = generator.GetNoise(readingKey, grid2D: null, slot: 0);
-
-            return slotValue;
-        }
-
-        private Vector2i key1 = (Int32.MaxValue, Int32.MaxValue);
-        private Vector2 value1;
-
-        private Vector2i key2 = (Int32.MaxValue, Int32.MaxValue);
-        private Vector2 value2;
-
-        private Vector2i key3 = (Int32.MaxValue, Int32.MaxValue);
-        private Vector2 value3;
-
-        private Vector2i key4 = (Int32.MaxValue, Int32.MaxValue);
-        private Vector2 value4;
-
-        #endregion CACHING
-    }
-
-    private sealed class GeneratingNoise : IDisposable
-    {
-        public NoiseGenerator Pieces { get; set; } = null!;
-        public NoiseGenerator Stone { get; set; } = null!;
-
-        public void Dispose()
-        {
-            Pieces.Dispose();
-            Stone.Dispose();
-        }
     }
 
     /// <summary>
@@ -1144,12 +937,8 @@ public sealed partial class Map : IMap, IDisposable
 
         if (disposing)
         {
-            cellSamplingOffsetNoise.Dispose();
-            stoneSamplingOffsetNoise.Dispose();
-
-            subBiomeDeterminationNoise.Dispose();
-
-            generatingNoise.Dispose();
+            GeneratingNoise.Dispose();
+            SamplingNoise.Dispose();
         }
         else
         {

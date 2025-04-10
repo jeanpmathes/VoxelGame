@@ -113,7 +113,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.SubBiome;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -121,7 +121,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     [MemberNotNull(nameof(upperHorizon))]
     [MemberNotNull(nameof(lowerHorizon))]

@@ -45,7 +45,7 @@ internal class ColumnSampleStore(Int32 chunkX, Int32 chunkZ, Map.Sample[] sample
         var samples = new Map.Sample[Chunk.BlockSize * Chunk.BlockSize];
 
         ColumnSampleStore store = new(chunkX, chunkZ, samples);
-        Map.NoiseGrid2D noise = generator.Map.GetNoiseGrid(store.anchor, Chunk.BlockSize);
+        SamplingNoiseStore noise = new(store.anchor, generator.Map);
 
         for (var x = 0; x < Chunk.BlockSize; x++)
         for (var z = 0; z < Chunk.BlockSize; z++)

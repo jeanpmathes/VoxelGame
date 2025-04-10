@@ -42,7 +42,7 @@ public sealed class BiomeDefinition(String name) : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Biome;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -50,5 +50,5 @@ public sealed class BiomeDefinition(String name) : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

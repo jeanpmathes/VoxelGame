@@ -80,7 +80,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <inheritdoc />
     [JsonIgnore] public ResourceType Type => ResourceTypes.Model;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -88,7 +88,7 @@ public sealed partial class BlockModel : IResource, ILocated
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Create a block mesh from this model.

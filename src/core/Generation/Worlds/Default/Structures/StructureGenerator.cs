@@ -42,7 +42,7 @@ public sealed class StructureGenerator : IDisposable
     /// </summary>
     public StructureGeneratorDefinition Definition { get; }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -50,7 +50,7 @@ public sealed class StructureGenerator : IDisposable
         noise.Dispose();
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Attempt to place the structure for a given section, if the structure is present in the section.

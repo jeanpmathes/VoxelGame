@@ -301,7 +301,7 @@ public sealed partial class ResourceCatalogLoader
             Completed?.Invoke(this, EventArgs.Empty);
         }
 
-        #region DISPOSING
+        #region DISPOSABLE
 
         private Boolean disposed;
 
@@ -329,7 +329,7 @@ public sealed partial class ResourceCatalogLoader
             Dispose(disposing: false);
         }
 
-        #endregion DISPOSING
+        #endregion DISPOSABLE
     }
 
     #region LOGGING

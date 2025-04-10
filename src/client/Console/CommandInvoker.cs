@@ -35,7 +35,7 @@ public sealed partial class CommandInvoker : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.CommandInvoker;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -43,7 +43,7 @@ public sealed partial class CommandInvoker : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Invoked when new commands are added or discovered.

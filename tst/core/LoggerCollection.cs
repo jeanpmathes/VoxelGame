@@ -19,7 +19,7 @@ public class LoggerFixture : IDisposable
         LoggingHelper.SetUpMockLogging();
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     protected virtual void Dispose(Boolean disposing) {}
 
@@ -34,7 +34,7 @@ public class LoggerFixture : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }
 
 [CollectionDefinition(Name)]

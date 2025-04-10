@@ -32,7 +32,7 @@ public sealed class Palette : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.GeneratorPalette;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -40,7 +40,7 @@ public sealed class Palette : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     internal Content GetStone(Map.StoneType type)
     {

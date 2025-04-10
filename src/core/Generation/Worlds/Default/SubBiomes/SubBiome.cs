@@ -56,7 +56,7 @@ public sealed class SubBiome : IDisposable
     /// </summary>
     public StructureGenerator? Structure { get; }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -64,7 +64,7 @@ public sealed class SubBiome : IDisposable
         noise.Dispose();
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Get an offset value for the given column, which can be applied to the height.

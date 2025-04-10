@@ -51,7 +51,7 @@ public sealed class Biome : IDisposable
         }
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -59,7 +59,7 @@ public sealed class Biome : IDisposable
         foreach ((SubBiome subBiome, _) in subBiomes) subBiome.Dispose();
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     private static List<(SubBiome, Single)> CreateSubBiomes(NoiseFactory factory, BiomeDefinition definition,
         IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)

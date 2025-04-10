@@ -72,7 +72,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Structure;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -80,7 +80,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Read a structure from a grid.

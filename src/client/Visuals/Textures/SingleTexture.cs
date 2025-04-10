@@ -27,7 +27,7 @@ public sealed class SingleTexture(RID identifier, Texture texture) : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Texture;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -56,5 +56,5 @@ public sealed class SingleTexture(RID identifier, Texture texture) : IResource
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

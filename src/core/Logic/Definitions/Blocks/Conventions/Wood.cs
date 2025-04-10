@@ -113,7 +113,7 @@ public sealed class Wood(String namedID, String texture, Wood.Tree tree, Wood.La
     /// <inheritdoc />
     public IEnumerable<IContent> Content => registry.RetrieveContent();
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -121,7 +121,7 @@ public sealed class Wood(String namedID, String texture, Wood.Tree tree, Wood.La
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     #region TREE
 

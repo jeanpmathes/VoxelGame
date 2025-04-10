@@ -331,7 +331,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         return NamedID;
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -370,5 +370,5 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }
