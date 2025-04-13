@@ -68,7 +68,7 @@ public sealed class SamplingNoise : IDisposable
         {
             return factory.CreateNext()
                 .WithType(NoiseType.CellularNoise)
-                .WithFrequency(frequency: 0.01f)
+                .WithFrequency(frequency: 0.03f)
                 .Build();
         }
     }
