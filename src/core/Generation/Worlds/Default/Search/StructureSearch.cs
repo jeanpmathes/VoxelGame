@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Generation.Worlds.Default.Biomes;
+using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
@@ -19,21 +20,20 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Search;
 /// <summary>
 ///     Searches for structures in the world.
 /// </summary>
-public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher, ICollection<Biome> biomes, BiomeSearch biomeSearch)
+public class StructureSearch(Dictionary<String, StructureGenerator> structures, Searcher searcher, ICollection<SubBiome> subBiomes, SubBiomeSearch subBiomeSearch)
     : SearchCategory<StructureGenerator>(structures, [], searcher)
 {
-    private const Int32 InCellSearchDistanceInSections = Map.CellSize / Section.Size + 1;
+    private const Int32 InSubBiomeGridCellSearchDistanceInSections = Map.SubBiomeGridSize / Section.Size + 1;
 
-    private readonly Dictionary<StructureGenerator, IReadOnlySet<Biome>> structureToBiomes = new(); // biomes
-    //.Where(biome => biome.Structure != null)
-    //.ToDictionary(biome => biome.SubBiome.Structure!, Set.Of);
-    // todo: fix me - has to use sub biome search
+    private readonly Dictionary<StructureGenerator, IReadOnlySet<SubBiome>> structureToSubBiomes = subBiomes
+        .Where(subBiome => subBiome.Structure != null)
+        .ToDictionary(subBiome => subBiome.Structure!, Set.Of);
 
     /// <inheritdoc />
     protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
     {
-        foreach (Vector3i cell in biomeSearch.SearchBiomes(structureToBiomes[element], BiomeSearch.Mode.Inner, start, maxBlockDistance))
-            for (var distance = 0; distance < InCellSearchDistanceInSections; distance++)
+        foreach (Vector3i cell in subBiomeSearch.SearchSubBiomes(structureToSubBiomes[element], start, maxBlockDistance))
+            for (var distance = 0; distance < InSubBiomeGridCellSearchDistanceInSections; distance++)
                 foreach (Vector3i position in SearchAtDistance(element, cell, distance))
                     yield return position;
     }
@@ -126,6 +126,6 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
         if (sectionSubBiomes.Count != 1) return false;
 
-        return false; // todo: fix this - sectionBiomes.First().SubBiome.Structure == structure;
+        return sectionSubBiomes.First().Structure == structure;
     }
 }

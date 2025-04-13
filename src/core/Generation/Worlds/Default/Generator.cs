@@ -46,6 +46,7 @@ public sealed partial class Generator : IWorldGenerator
     private static BiomeDistributionDefinition? loadedBiomeDistribution;
 
     private static List<StructureGeneratorDefinition> loadedStructures = [];
+    private static List<SubBiomeDefinition> loadedSubBiomes = [];
     private static List<BiomeDefinition> loadedBiomes = [];
 
     private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((Player.LoadDistance + 1) * 2 + 1));
@@ -55,6 +56,7 @@ public sealed partial class Generator : IWorldGenerator
     private readonly NoiseGenerator decorationNoise;
 
     private readonly List<StructureGenerator> structures = [];
+    private readonly List<SubBiome> subBiomes = [];
     private readonly List<Biome> biomes = [];
 
     private readonly Searcher search;
@@ -62,6 +64,7 @@ public sealed partial class Generator : IWorldGenerator
     private Generator(IWorldGeneratorContext context, Palette palette,
         BiomeDistributionDefinition biomeDistributionDefinition,
         IEnumerable<StructureGeneratorDefinition> structureDefinitions,
+        IEnumerable<SubBiomeDefinition> subBiomeDefinitions,
         IEnumerable<BiomeDefinition> biomeDefinitions)
     {
         search = new Searcher(this);
@@ -75,9 +78,11 @@ public sealed partial class Generator : IWorldGenerator
         NoiseFactory worldNoiseFactory = new(context.Seed.lower);
 
         Dictionary<BiomeDefinition, Biome> biomeMap = new();
+        Dictionary<SubBiomeDefinition, SubBiome> subBiomeMap = new();
         Dictionary<StructureGeneratorDefinition, StructureGenerator> structureMap = new();
 
         Dictionary<String, StructureGenerator> structuresByName = new();
+        Dictionary<String, SubBiome> subBiomesByName = new();
         Dictionary<String, Biome> biomesByName = new();
 
         using (logger.BeginTimedSubScoped("Structures Setup", context.Timer))
@@ -93,11 +98,24 @@ public sealed partial class Generator : IWorldGenerator
             }
         }
 
+        using (logger.BeginTimedSubScoped("Sub-Biomes Setup", context.Timer))
+        {
+            foreach (SubBiomeDefinition definition in subBiomeDefinitions.OrderBy(e => e.Identifier.ToString()))
+            {
+                SubBiome subBiome = new(worldNoiseFactory, definition, structureMap);
+
+                subBiomeMap.Add(definition, subBiome);
+                subBiomes.Add(subBiome);
+
+                subBiomesByName.Add(definition.Name, subBiome);
+            }
+        }
+
         using (logger.BeginTimedSubScoped("Biomes Setup", context.Timer))
         {
             foreach (BiomeDefinition definition in biomeDefinitions.OrderBy(e => e.Identifier.ToString()))
             {
-                Biome biome = new(worldNoiseFactory, definition, structureMap);
+                Biome biome = new(definition, subBiomeMap);
 
                 biomeMap.Add(definition, biome);
                 biomes.Add(biome);
@@ -123,7 +141,7 @@ public sealed partial class Generator : IWorldGenerator
             .WithFrequency(frequency: 0.5f)
             .Build();
 
-        search.InitializeSearch(structuresByName, biomesByName);
+        search.InitializeSearch(structuresByName, subBiomesByName, biomesByName);
 
         LogCreatedWorldGenerator(logger, nameof(Default));
     }
@@ -154,6 +172,7 @@ public sealed partial class Generator : IWorldGenerator
                 loadedBiomeDistribution = biomeDistribution;
 
                 loadedStructures = context.GetAll<StructureGeneratorDefinition>().ToList();
+                loadedSubBiomes = context.GetAll<SubBiomeDefinition>().ToList();
                 loadedBiomes = context.GetAll<BiomeDefinition>().ToList();
 
                 return [];
@@ -166,7 +185,7 @@ public sealed partial class Generator : IWorldGenerator
         if (loadedPalette == null || loadedBiomeDistribution == null)
             return null;
 
-        return new Generator(context, loadedPalette, loadedBiomeDistribution, loadedStructures, loadedBiomes);
+        return new Generator(context, loadedPalette, loadedBiomeDistribution, loadedStructures, loadedSubBiomes, loadedBiomes);
     }
 
     /// <inheritdoc />
@@ -466,6 +485,9 @@ public sealed partial class Generator : IWorldGenerator
 
             foreach (StructureGenerator structure in structures)
                 structure.Dispose();
+
+            foreach (SubBiome subBiome in subBiomes)
+                subBiome.Dispose();
 
             foreach (Biome biome in biomes)
                 biome.Dispose();

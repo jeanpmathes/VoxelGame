@@ -115,12 +115,10 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
 
     private Boolean SearchCellCenter(IReadOnlySet<Biome> biomes, Vector2i currentCell, out Vector3i found)
     {
-        Vector3i center = Map.GetCellCenter(currentCell, y: 0);
-        Int32 y = Generator.GetWorldHeight(center);
+        found = Map.GetCellCenter(currentCell, y: 0);
+        found.Y = Generator.GetWorldHeight(found);
 
-        found = center with {Y = y};
-
-        Map.Sample sample = Generator.Map.GetSample(center with {Y = y});
+        Map.Sample sample = Generator.Map.GetSample(found);
 
         return biomes.Contains(sample.ActualBiome);
     }

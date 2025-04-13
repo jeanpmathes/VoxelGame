@@ -666,6 +666,17 @@ public sealed partial class Map : IMap, IDisposable
         return GetGridCellFromColumn(column, CellSize);
     }
 
+    /// <summary>
+    ///     Get the sub-biome grid cell (coordinates) that contains the given column.
+    /// </summary>
+    /// <param name="column">The column to get the cell for.</param>
+    /// <returns>The sub-biome grid cell coordinates.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2i GetSubBiomeGridCellFromColumn(Vector2i column)
+    {
+        return GetGridCellFromColumn(column, SubBiomeGridSize);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector2i GetGridCellFromColumn(Vector2i column, Int32 gridSize)
     {
@@ -716,14 +727,36 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
+    ///     Transform a sub-biome grid cell position to a world position, using the center of the grid cell.
+    /// </summary>
+    /// <param name="cell">The sub-biome grid cell position.</param>
+    /// <param name="y">The y position.</param>
+    /// <returns>The world position.</returns>
+    public static Vector3i GetSubBiomeGridCellCenter(Vector2i cell, Int32 y)
+    {
+        Vector2i column = GetGridCellCenter(cell, SubBiomeGridSize);
+
+        return new Vector3i(column.X, y, column.Y);
+    }
+
+    /// <summary>
     ///     Check whether a cell is within the map limits and valid to sample.
     ///     The actual map is larger to ensure that all valid cells have neighbors.
     /// </summary>
-    /// <param name="cell"></param>
-    /// <returns></returns>
     public static Boolean IsValidCell(Vector2i cell)
     {
         return cell.X + MinimumWidthHalf is >= 0 and < MinimumWidth && cell.Y + MinimumWidthHalf is >= 0 and < MinimumWidth;
+    }
+
+    /// <summary>
+    ///     Check whether a sub-biome grid cell is within the map limits and valid to sample.
+    /// </summary>
+    public static Boolean IsValidSubBiomeGridCell(Vector2i cell)
+    {
+        Vector3i worldPosition = GetSubBiomeGridCellCenter(cell, y: 0);
+        Vector2i correspondingCell = GetCellFromColumn(worldPosition.Xz);
+
+        return IsValidCell(correspondingCell);
     }
 
     /// <summary>

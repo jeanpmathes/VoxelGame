@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Search;
 
@@ -25,12 +26,17 @@ public class Searcher(Generator generator)
     /// </summary>
     public Generator Generator { get; } = generator;
 
-    internal void InitializeSearch(Dictionary<String, StructureGenerator> structures, Dictionary<String, Biome> biomes)
+    internal void InitializeSearch(
+        Dictionary<String, StructureGenerator> structures,
+        Dictionary<String, SubBiome> subBiomes,
+        Dictionary<String, Biome> biomes)
     {
         BiomeSearch biomeSearch = new(biomes, this);
-        StructureSearch structureSearch = new(structures, this, biomes.Values, biomeSearch);
+        SubBiomeSearch subBiomeSearch = new(subBiomes, this, biomes.Values, biomeSearch);
+        StructureSearch structureSearch = new(structures, this, subBiomes.Values, subBiomeSearch);
 
         categories["Biome"] = biomeSearch;
+        categories["SubBiome"] = subBiomeSearch;
         categories["Structure"] = structureSearch;
     }
 

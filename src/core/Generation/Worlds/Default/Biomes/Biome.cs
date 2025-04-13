@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
@@ -22,16 +21,13 @@ public sealed class Biome : IDisposable
     /// <summary>
     ///     Create a new biome.
     /// </summary>
-    /// <param name="factory">The noise factory to use.</param>
     /// <param name="definition">The definition of the biome.</param>
-    /// <param name="structureMap">Mapping from structure generator definitions to structure generators.</param>
-    public Biome(
-        NoiseFactory factory, BiomeDefinition definition,
-        IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)
+    /// <param name="subBiomeMap">Mapping from sub-biome definitions to sub-biomes generators.</param>
+    public Biome(BiomeDefinition definition, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
     {
         Definition = definition;
 
-        subBiomes = CreateSubBiomes(factory, definition, structureMap);
+        subBiomes = SetUpSubBiomes(definition, subBiomeMap);
     }
 
     /// <summary>
@@ -56,13 +52,12 @@ public sealed class Biome : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach ((SubBiome subBiome, _) in subBiomes) subBiome.Dispose();
+        // Sub-biomes are disposed by the map class.
     }
 
     #endregion DISPOSABLE
 
-    private static List<(SubBiome, Single)> CreateSubBiomes(NoiseFactory factory, BiomeDefinition definition,
-        IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)
+    private static List<(SubBiome, Single)> SetUpSubBiomes(BiomeDefinition definition, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
     {
         Single tickets = 0;
 
@@ -76,7 +71,7 @@ public sealed class Biome : IDisposable
 
         foreach ((SubBiomeDefinition subBiomeDefinition, Int32 count) in definition.SubBiomes)
         {
-            SubBiome subBiome = new(factory, subBiomeDefinition, structureMap);
+            SubBiome subBiome = subBiomeMap[subBiomeDefinition];
 
             sum += count / tickets;
 
