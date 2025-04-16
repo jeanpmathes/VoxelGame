@@ -48,6 +48,11 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     public Single Frequency { get; init; }
 
     /// <summary>
+    ///     An overall offset to apply to the sub-biome height.
+    /// </summary>
+    public Int32 Offset { get; init; }
+
+    /// <summary>
     ///     All layers that are part of the sub-biome.
     /// </summary>
     public required IList<Layer> Layers
@@ -79,8 +84,16 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 
     /// <summary>
     ///     Get the cover of the sub-biome.
+    ///     Cover is placed on top of the highest layer of the sub-biome.
     /// </summary>
     public Cover Cover { get; init; } = null!;
+
+    /// <summary>
+    ///     Get the stuffer of the sub-biome.
+    ///     It can be used to stuff the space between the global height and the local height.
+    ///     Only applied if the <see cref="Offset" /> is reached.
+    /// </summary>
+    public Stuffer? Stuffer { get; init; }
 
     /// <summary>
     ///     The width of the dampening layer.

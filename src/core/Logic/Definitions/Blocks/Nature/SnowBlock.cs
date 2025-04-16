@@ -18,10 +18,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class SnowBlock : GroundedModifiableHeightBlock, IFillable
 {
-    /// <summary>
-    ///     Creates a new instance of the <see cref="SnowBlock" /> class.
-    /// </summary>
-    internal SnowBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
+    internal SnowBlock(String name, String namedID, TextureLayout layout, Boolean isSolid = true, Boolean isTrigger = false) : base(name, namedID, layout, isSolid, isTrigger) {}
 
     /// <inheritdoc />
     public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)

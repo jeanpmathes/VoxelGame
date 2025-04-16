@@ -73,7 +73,7 @@ public sealed class SubBiome : IDisposable
     /// <returns>The offset value.</returns>
     public Single GetOffset(Vector2i position)
     {
-        return noise.GetNoise(position) * Definition.Amplitude;
+        return noise.GetNoise(position) * Definition.Amplitude + Definition.Offset;
     }
 
     /// <summary>

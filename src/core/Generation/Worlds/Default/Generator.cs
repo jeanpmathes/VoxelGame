@@ -247,6 +247,7 @@ public sealed partial class Generator : IWorldGenerator
             Sample = sample,
             WorldHeight = GetWorldHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
             WorldHeightFraction = heightFraction,
+            EffectiveOffset = effectiveOffset,
             Dampening = CreateFilledDampening(effectiveOffset, sample),
             IceWidth = GetIceWidth(sample)
         };
@@ -405,13 +406,15 @@ public sealed partial class Generator : IWorldGenerator
 
         if (depth < 0) // A negative depths means that the block is above the world height.
         {
+            Boolean isStuffed = context is {SubBiome.Definition.Stuffer: not null, EffectiveOffset: > 0} && context.EffectiveOffset + context.SubBiome.Definition.Offset >= -depth;
             Boolean isIce = isFilled && Math.Abs(position.Y - SeaLevel) < context.IceWidth;
 
-            if (isIce) return new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+            if (isIce && !isStuffed) return new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
 
             var content = Content.Default;
 
-            if (depth == -1) content = context.SubBiome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
+            if (isStuffed) content = context.SubBiome.Definition.Stuffer!.GetContent();
+            else if (depth == -1) content = context.SubBiome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
 
             if (isFilled) content = FillContent(content);
 
@@ -445,6 +448,8 @@ public sealed partial class Generator : IWorldGenerator
         public Int32 WorldHeight { get; init; }
 
         public Double WorldHeightFraction { get; init; }
+
+        public Int32 EffectiveOffset { get; init; }
 
         public SubBiome.Dampening Dampening { get; init; }
 

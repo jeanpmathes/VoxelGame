@@ -1116,4 +1116,7 @@
     <data name="Pipe" xml:space="preserve">
         <value>Rohr</value>
     </data>
+    <data name="LooseSnow" xml:space="preserve">
+        <value>Loser Schnee</value>
+    </data>
 </root>

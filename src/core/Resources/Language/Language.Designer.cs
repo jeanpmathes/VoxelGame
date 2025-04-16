@@ -1374,6 +1374,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loose Snow.
+        /// </summary>
+        public static string LooseSnow {
+            get {
+                return ResourceManager.GetString("LooseSnow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mahogany Leaves.
         /// </summary>
         public static string MahoganyLeaves {

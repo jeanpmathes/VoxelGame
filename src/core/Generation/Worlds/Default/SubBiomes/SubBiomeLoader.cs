@@ -53,44 +53,99 @@ public class SubBiomeLoader : IResourceLoader
         private static readonly RID cactus = RID.Named<Decoration>("Cactus");
         public Registry<SubBiomeDefinition> Registry => subBiomes;
 
+        private static IEnumerable<Layer> Permafrost =>
+        [
+            Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
+            Layer.CreateLoose(width: 27),
+            Layer.CreateGroundwater(width: 8),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+        ];
+
         /// <summary>
-        ///     The polar desert sub-biome.
+        ///     A snow-filled flat field.
         /// </summary>
-        public SubBiomeDefinition PolarDesert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesert), palette)
+        public SubBiomeDefinition SnowField { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SnowField), palette)
         {
             Amplitude = 2f,
-            Frequency = 0.007f,
+            Frequency = 0.004f,
             Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSnow(width: 3),
+            Layers =
+            [
+                Layer.CreateSnow(width: 3, loose: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
                 Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            }
+                .. Permafrost
+            ]
         });
 
         /// <summary>
-        ///     The other polar desert sub-biome.
+        ///     Flat fields with loose snow, where one can sink into the snow.
         /// </summary>
-        public SubBiomeDefinition OtherPolarDesert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OtherPolarDesert), palette)
+        public SubBiomeDefinition LooseSnow { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(LooseSnow), palette)
         {
-            Amplitude = 2f,
-            Frequency = 0.007f,
+            Amplitude = 4f,
+            Frequency = 0.03f,
+            Offset = -3,
+            Cover = new Cover(hasPlants: false, isSnowLoose: true),
+            Stuffer = new Stuffer.Ice(),
+            Layers =
+            [
+                Layer.CreateSnow(width: 3, loose: true),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     Snowy dunes.
+        /// </summary>
+        public SubBiomeDefinition SnowyDunes { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SnowyDunes), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.01f,
             Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateStone(width: 5),
+            Layers =
+            [
+                Layer.CreateSnow(width: 3, loose: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
                 Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            }
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     A cold, stony area.
+        /// </summary>
+        public SubBiomeDefinition ColdRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdRidge), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.09f,
+            Cover = new Cover(hasPlants: false),
+            Layers =
+            [
+                Layer.CreateStone(width: 5),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     Frozen water basins.
+        /// </summary>
+        public SubBiomeDefinition FrozenBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(FrozenBasin), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.03f,
+            Offset = -3,
+            Cover = new Cover(hasPlants: false),
+            Stuffer = new Stuffer.Ice(),
+            Layers =
+            [
+                Layer.CreateStone(width: 5),
+                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
         });
 
         /// <summary>

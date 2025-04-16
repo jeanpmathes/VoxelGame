@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 
@@ -115,11 +116,12 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a snow layer. Snow will not generated when filled.
+    ///     Create a snow layer. Snow will not be generated when filled.
+    ///     This layer can place either normal or loose snow blocks.
     /// </summary>
-    public static Layer CreateSnow(Int32 width)
+    public static Layer CreateSnow(Int32 width, Boolean loose)
     {
-        return new Snow(width);
+        return new Snow(width, loose);
     }
 
     /// <summary>
@@ -223,11 +225,15 @@ public abstract class Layer
         private readonly Content filled;
         private readonly Content snow;
 
-        public Snow(Int32 width)
+        public Snow(Int32 width, Boolean loose)
         {
             Width = width;
 
-            snow = new Content(Blocks.Instance.Specials.Snow.FullHeightInstance, FluidInstance.Default);
+            SnowBlock snowBlock = loose
+                ? Blocks.Instance.Specials.LooseSnow
+                : Blocks.Instance.Specials.Snow;
+
+            snow = new Content(snowBlock.FullHeightInstance, FluidInstance.Default);
             filled = Content.Default;
         }
 

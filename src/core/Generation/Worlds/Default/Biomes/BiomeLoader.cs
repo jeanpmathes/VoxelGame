@@ -70,8 +70,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Gray,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("PolarDesert")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("OtherPolarDesert")), 1)
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowField")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("LooseSnow")), 2),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowyDunes")), 10),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdRidge")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("FrozenBasin")), 3)
             ]
         });
 

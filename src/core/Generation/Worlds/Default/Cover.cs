@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
@@ -19,15 +20,19 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 public sealed class Cover
 {
     private const Double FlowerFactor = 0.05;
+
     private readonly Boolean hasPlants;
+    private readonly Boolean isSnowLoose;
 
     /// <summary>
     ///     Create a new cover generator.
     /// </summary>
     /// <param name="hasPlants">Whether the cover should generate plants.</param>
-    public Cover(Boolean hasPlants)
+    /// <param name="isSnowLoose">Whether snow is placed as normal or loose snow.</param>
+    public Cover(Boolean hasPlants, Boolean isSnowLoose = false)
     {
         this.hasPlants = hasPlants;
+        this.isSnowLoose = isSnowLoose;
     }
 
     /// <summary>
@@ -52,7 +57,11 @@ public sealed class Cover
 
             height = Math.Clamp(height, min: 0, IHeightVariable.MaximumHeight);
 
-            return new Content(Blocks.Instance.Specials.Snow.GetInstance(height), FluidInstance.Default);
+            SnowBlock snow = isSnowLoose
+                ? Blocks.Instance.Specials.LooseSnow
+                : Blocks.Instance.Specials.Snow;
+
+            return new Content(snow.GetInstance(height), FluidInstance.Default);
         }
 
         if (!hasPlants) return Content.Default;

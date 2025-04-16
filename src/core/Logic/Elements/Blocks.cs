@@ -105,6 +105,7 @@ public sealed partial class Blocks(ContentRegistry registry)
     {
         public ConcreteBlock Concrete { get; } = (ConcreteBlock) blocks.Concrete;
         public SnowBlock Snow { get; } = (SnowBlock) blocks.Snow;
+        public LooseSnowBlock LooseSnow { get; } = (LooseSnowBlock) blocks.LooseSnow;
         public ModifiableHeightBlock Ice { get; } = (ModifiableHeightBlock) blocks.Ice;
         public FlatBlock Vines { get; } = (FlatBlock) blocks.Vines;
         public SaltBlock Salt { get; } = (SaltBlock) blocks.Salt;
@@ -304,7 +305,7 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.SpiderWeb,
         nameof(Spiderweb),
         TID.Block("spider_web"),
-        maxVelocity: 0.01f));
+        maxVelocity: 0.01));
 
     /// <summary>
     ///     Vines grow downwards, and can hang freely. It is possible to climb them.
@@ -1727,6 +1728,15 @@ public sealed partial class Blocks(ContentRegistry registry)
         new Wood.Language(Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
         nameof(Mesquite),
         new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Loose snow allows entities to sink into it.
+    /// </summary>
+    public Block LooseSnow { get; } = registry.Register(new LooseSnowBlock(
+        Language.LooseSnow,
+        nameof(LooseSnow),
+        TextureLayout.Uniform(TID.Block("snow_loose")),
+        maxVelocity: 0.01));
 
     #endregion NEW BLOCKS
 
