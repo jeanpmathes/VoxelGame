@@ -68,12 +68,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 2f,
             Frequency = 0.004f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 4),
                 .. Permafrost
             ]
         });
@@ -86,13 +86,13 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.03f,
             Offset = -3,
-            Cover = new Cover(hasPlants: false, isSnowLoose: true),
+            Cover = new Cover(Cover.Vegetation.None, isSnowLoose: true),
             Stuffer = new Stuffer.Ice(),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: true),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
                 .. Permafrost
             ]
         });
@@ -104,28 +104,28 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.01f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 4),
                 .. Permafrost
             ]
         });
 
         /// <summary>
-        ///     A cold, stony area.
+        ///     A frosty, stony area.
         /// </summary>
-        public SubBiomeDefinition ColdRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdRidge), palette)
+        public SubBiomeDefinition FrostyRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(FrostyRidge), palette)
         {
             Amplitude = 5f,
             Frequency = 0.09f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers =
             [
                 Layer.CreateStone(width: 5),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateDampen(Blocks.Instance.Permafrost, maxWidth: 9),
                 .. Permafrost
             ]
         });
@@ -138,12 +138,12 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.03f,
             Offset = -3,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Stuffer = new Stuffer.Ice(),
             Layers =
             [
                 Layer.CreateStone(width: 5),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
                 .. Permafrost
             ]
         });
@@ -155,12 +155,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 15f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 6),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -190,12 +190,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 15f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 6),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -222,12 +222,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
                 Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
                 Layer.CreateLoose(width: 27),
                 Layer.CreateGroundwater(width: 8),
@@ -244,28 +244,108 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The tundra sub-biome.
+        ///     A very cold shrubland.
         /// </summary>
-        public SubBiomeDefinition Tundra { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Tundra), palette)
+        public SubBiomeDefinition ColdShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdShrubland), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover(Cover.Vegetation.Normal),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                .. Permafrost
+            ],
             Decorations = new List<(Decoration, Single)>
             {
                 (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 500.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
+        });
+
+        /// <summary>
+        ///     A very cold grassland.
+        /// </summary>
+        public SubBiomeDefinition ColdGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdGrassland), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover(Cover.Vegetation.Normal),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     A cold, stony area.
+        /// </summary>
+        public SubBiomeDefinition ColdRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdRidge), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.06f,
+            Cover = new Cover(Cover.Vegetation.None),
+            Layers =
+            [
+                Layer.CreateStone(width: 5),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     A patch of permafrost directly at the surface.
+        /// </summary>
+        public SubBiomeDefinition PermafrostPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PermafrostPatch), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.007f,
+            Cover = new Cover(Cover.Vegetation.None),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 8, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Permafrost, maxWidth: 6),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     A basin filled with thawed water - or ice, depending on the temperature.
+        /// </summary>
+        public SubBiomeDefinition ThawBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ThawBasin), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.03f,
+            Offset = -3,
+            Cover = new Cover(Cover.Vegetation.None),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateMud(width: 5),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
+        });
+
+        /// <summary>
+        ///     An area covered in lichen.
+        /// </summary>
+        public SubBiomeDefinition LichenField { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(LichenField), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.007f,
+            Cover = new Cover(Cover.Vegetation.Lichen),
+            Layers =
+            [
+                Layer.CreateStone(width: 5),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ]
         });
 
         /// <summary>
@@ -275,12 +355,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 2),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -305,12 +385,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 7f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 2),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -339,12 +419,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 7f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 6),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -370,12 +450,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 2),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -400,12 +480,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
                 Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
@@ -426,12 +506,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.004f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
                 Layer.CreateLoose(width: 3),
                 Layer.CreateGroundwater(width: 2),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
@@ -457,12 +537,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 5.0f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
@@ -477,12 +557,12 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 5.0f,
             Frequency = 0.005f,
             IceWidth = 6,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
@@ -496,7 +576,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 30f,
             Frequency = 0.005f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateStonyTop(width: 9, amplitude: 15),
@@ -515,12 +595,12 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
@@ -539,7 +619,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(hasPlants: true),
+            Cover = new Cover(Cover.Vegetation.Normal),
             Layers = new List<Layer>
             {
                 Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
@@ -556,7 +636,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
+            Cover = new Cover(Cover.Vegetation.None),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),

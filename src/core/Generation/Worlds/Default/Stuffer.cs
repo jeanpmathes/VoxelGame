@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -15,21 +16,38 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 public abstract class Stuffer
 {
     /// <summary>
-    ///     Get the content for a given block.
+    ///     Get the content of this stuffer for a position.
     /// </summary>
+    /// <param name="temperature">The temperature of the position.</param>
     /// <returns>The content of the stuffer.</returns>
-    public abstract Content GetContent();
+    public abstract Content GetContent(Temperature temperature);
 
     /// <summary>
+    /// Simply stuffs with ice.
     /// </summary>
     public sealed class Ice : Stuffer
     {
         private readonly Content content = new(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
 
         /// <inheritdoc />
-        public override Content GetContent()
+        public override Content GetContent(Temperature temperature)
         {
             return content;
+        }
+    }
+
+    /// <summary>
+    ///     Stuffs with water, or ice if temperature is low.
+    /// </summary>
+    public sealed class Water : Stuffer
+    {
+        private readonly Content water = new(BlockInstance.Default, Fluids.Instance.FreshWater.AsInstance());
+        private readonly Content ice = new(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+
+        /// <inheritdoc />
+        public override Content GetContent(Temperature temperature)
+        {
+            return temperature.IsFreezing ? ice : water;
         }
     }
 }

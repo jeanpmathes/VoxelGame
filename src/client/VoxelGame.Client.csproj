@@ -1376,6 +1376,9 @@
         <None Update="Resources\Textures\Blocks\snow_loose.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Textures\Blocks\lichen.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

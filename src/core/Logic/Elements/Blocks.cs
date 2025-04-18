@@ -1738,6 +1738,14 @@ public sealed partial class Blocks(ContentRegistry registry)
         TextureLayout.Uniform(TID.Block("snow_loose")),
         maxVelocity: 0.01));
 
+    /// <summary>
+    ///     Lichen is a plant that grows on rocks and trees.
+    /// </summary>
+    public Block Lichen { get; } = registry.Register(new LichenBlock(
+        Language.Lichen,
+        nameof(Lichen),
+        TID.Block("lichen")));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

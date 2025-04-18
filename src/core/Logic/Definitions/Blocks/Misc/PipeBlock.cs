@@ -109,12 +109,12 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
             BlockMesh mesh = BlockModel.GetCombinedMesh(textureIndexProvider,
                 center,
-                Side.Front.IsSet(sides) ? connectors.front : surfaces.front,
-                Side.Back.IsSet(sides) ? connectors.back : surfaces.back,
-                Side.Left.IsSet(sides) ? connectors.left : surfaces.left,
-                Side.Right.IsSet(sides) ? connectors.right : surfaces.right,
-                Side.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
-                Side.Top.IsSet(sides) ? connectors.top : surfaces.top);
+                sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
+                sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,
+                sides.HasFlag(Sides.Left) ? connectors.left : surfaces.left,
+                sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
+                sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
+                sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top);
 
             meshes.Add(mesh);
 
@@ -130,7 +130,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         foreach (Side side in Side.All.Sides())
         {
-            if (!side.IsSet((Sides) data)) continue;
+            if (!((Sides) data).HasFlag(side.ToFlag())) continue;
 
             var direction = (Vector3d) side.Direction();
 
@@ -202,6 +202,6 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-        return side.IsSet((Sides) block.Data);
+        return ((Sides) block.Data).HasFlag(side.ToFlag());
     }
 }

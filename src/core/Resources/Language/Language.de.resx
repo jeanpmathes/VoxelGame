@@ -1119,4 +1119,7 @@
     <data name="LooseSnow" xml:space="preserve">
         <value>Loser Schnee</value>
     </data>
+    <data name="Lichen" xml:space="preserve">
+        <value>Flechten</value>
+    </data>
 </root>

@@ -19,6 +19,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
 ///     This class represents a block with a single face that sticks to other blocks.
+///     It also allows entities to climb on it.
 ///     Data bit usage: <c>----oo</c>
 /// </summary>
 // o: orientation
@@ -55,28 +56,7 @@ public class FlatBlock : Block, IFillable, IComplex
         this.texture = texture;
 
         for (UInt32 data = 0; data <= 0b00_0011; data++)
-        {
-            BoundingVolume volume = (Orientation) (data & 0b00_0011) switch
-            {
-                Orientation.North => new BoundingVolume(
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3d(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.South => new BoundingVolume(
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.05f),
-                    new Vector3d(x: 0.45f, y: 0.5f, z: 0.05f)),
-                Orientation.West => new BoundingVolume(
-                    new Vector3d(x: 0.95f, y: 0.5f, z: 0.5f),
-                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.45f)),
-                Orientation.East => new BoundingVolume(
-                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.5f),
-                    new Vector3d(x: 0.05f, y: 0.5f, z: 0.45f)),
-                _ => new BoundingVolume(
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.95f),
-                    new Vector3d(x: 0.5f, y: 0.5f, z: 0.05f))
-            };
-
-            volumes.Add(volume);
-        }
+            volumes.Add(BoundingVolume.FlatBlock((Orientation) (data & 0b00_0011), width: 0.9, depth: 0.1));
     }
 
     IComplex.MeshData IComplex.GetMeshData(BlockMeshInfo info)

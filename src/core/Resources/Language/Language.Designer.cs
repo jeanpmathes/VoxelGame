@@ -1275,6 +1275,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lichen.
+        /// </summary>
+        public static string Lichen {
+            get {
+                return ResourceManager.GetString("Lichen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Limestone.
         /// </summary>
         public static string Limestone {

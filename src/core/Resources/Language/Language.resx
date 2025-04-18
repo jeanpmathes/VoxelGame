@@ -1119,4 +1119,7 @@
     <data name="LooseSnow" xml:space="preserve">
         <value>Loose Snow</value>
     </data>
+    <data name="Lichen" xml:space="preserve">
+        <value>Lichen</value>
+    </data>
 </root>

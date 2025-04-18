@@ -413,7 +413,7 @@ public sealed partial class Generator : IWorldGenerator
 
             var content = Content.Default;
 
-            if (isStuffed) content = context.SubBiome.Definition.Stuffer!.GetContent();
+            if (isStuffed) content = context.SubBiome.Definition.Stuffer!.GetContent(context.Sample.EstimateTemperature(position.Y));
             else if (depth == -1) content = context.SubBiome.GetCoverContent(position, isFilled, context.WorldHeightFraction, context.Sample);
 
             if (isFilled) content = FillContent(content);
@@ -428,7 +428,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private static Content GetBiomeContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Context context)
     {
-        Content content = context.SubBiome.GetContent(depth, y, context.Dampening, stoneType, isFilled);
+        Content content = context.SubBiome.GetContent(depth, y, isFilled, context.Dampening, stoneType, context.Sample.EstimateTemperature(y));
 
         if (isFilled) content = FillContent(content);
 

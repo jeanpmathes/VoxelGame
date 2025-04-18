@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
@@ -109,11 +110,12 @@ public sealed class SubBiome : IDisposable
     /// </summary>
     /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
     /// <param name="y">The y coordinate of the current depth.</param>
+    /// <param name="isFilled">Whether this column is filled with water.</param>
     /// <param name="dampening">The dampening to apply to the column.</param>
     /// <param name="stoneType">The stone type of the column.</param>
-    /// <param name="isFilled">Whether this column is filled with water.</param>
+    /// <param name="temperature">The temperature at the current position.</param>
     /// <returns>The sub-biome content.</returns>
-    public Content GetContent(Int32 depthBelowSurface, Int32 y, Dampening dampening, Map.StoneType stoneType, Boolean isFilled)
+    public Content GetContent(Int32 depthBelowSurface, Int32 y, Boolean isFilled, Dampening dampening, Map.StoneType stoneType, Temperature temperature)
     {
         Layer current;
         Int32 depthInLayer;
@@ -138,7 +140,7 @@ public sealed class SubBiome : IDisposable
         Int32 actualDepthToSolid = Definition.MinDepthToSolid + dampening.Width;
         Boolean isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
 
-        return current.GetContent(depthInLayer, actualOffset, stoneType, y, isFilledAtCurrentDepth);
+        return current.GetContent(depthInLayer, actualOffset, y, stoneType, isFilledAtCurrentDepth, temperature);
     }
 
     /// <summary>

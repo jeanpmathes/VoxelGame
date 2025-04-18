@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -19,19 +20,40 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 /// </summary>
 public sealed class Cover
 {
+    /// <summary>
+    ///     What vegetation to generate as part of the cover.
+    /// </summary>
+    public enum Vegetation
+    {
+        /// <summary>
+        ///     No vegetation.
+        /// </summary>
+        None,
+
+        /// <summary>
+        ///     Normal vegetation, meaning grass and flowers.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        ///     Lichen.
+        /// </summary>
+        Lichen
+    }
+
     private const Double FlowerFactor = 0.05;
 
-    private readonly Boolean hasPlants;
+    private readonly Vegetation vegetation;
     private readonly Boolean isSnowLoose;
 
     /// <summary>
     ///     Create a new cover generator.
     /// </summary>
-    /// <param name="hasPlants">Whether the cover should generate plants.</param>
+    /// <param name="vegetation">The type of vegetation to generate.</param>
     /// <param name="isSnowLoose">Whether snow is placed as normal or loose snow.</param>
-    public Cover(Boolean hasPlants, Boolean isSnowLoose = false)
+    public Cover(Vegetation vegetation, Boolean isSnowLoose = false)
     {
-        this.hasPlants = hasPlants;
+        this.vegetation = vegetation;
         this.isSnowLoose = isSnowLoose;
     }
 
@@ -64,17 +86,30 @@ public sealed class Cover
             return new Content(snow.GetInstance(height), FluidInstance.Default);
         }
 
-        if (!hasPlants) return Content.Default;
+        switch (vegetation)
+        {
+            case Vegetation.None:
+                return Content.Default;
 
-        Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
-        Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+            case Vegetation.Normal:
+                Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+                Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
 
-        if (value >= humidity)
-            return Content.Default;
+                if (value >= humidity)
+                    return Content.Default;
 
-        if (value < humidity * FlowerFactor)
-            return new Content(Blocks.Instance.Flower);
+                if (value < humidity * FlowerFactor)
+                    return new Content(Blocks.Instance.Flower);
 
-        return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+                return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+
+            case Vegetation.Lichen:
+                return BlockUtilities.GetPositionDependentNumber(position, mod: 3) != 0
+                    ? new Content(Blocks.Instance.Lichen)
+                    : Content.Default;
+
+            default:
+                throw Exceptions.UnsupportedEnumValue(vegetation);
+        }
     }
 }

@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -17,7 +16,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// <summary>
 ///     A block that slows down entities.
 /// </summary>
-public class MudBlock : BasicBlock, IFillable
+public class MudBlock : BasicBlock
 {
     private readonly Single maxVelocity;
 
@@ -29,12 +28,6 @@ public class MudBlock : BasicBlock, IFillable
             layout)
     {
         this.maxVelocity = maxVelocity;
-    }
-
-    /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
-    {
-        return fluid.Viscosity < 200;
     }
 
     /// <inheritdoc />

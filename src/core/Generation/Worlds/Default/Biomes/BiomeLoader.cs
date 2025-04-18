@@ -73,7 +73,7 @@ public sealed class BiomeLoader : IResourceLoader
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowField")), 5),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("LooseSnow")), 2),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowyDunes")), 10),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdRidge")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("FrostyRidge")), 1),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("FrozenBasin")), 3)
             ]
         });
@@ -111,7 +111,15 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Tundra { get; } = biomes.Register(new BiomeDefinition(nameof(Tundra))
         {
             Color = ColorS.CadetBlue,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Tundra))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdShrubland")), 12),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdGrassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdRidge")), 4),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("PermafrostPatch")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ThawBasin")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("LichenField")), 2)
+            ]
         });
 
         /// <summary>
