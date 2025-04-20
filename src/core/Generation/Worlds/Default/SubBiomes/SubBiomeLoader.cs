@@ -279,7 +279,8 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
                 .. Permafrost
-            ]
+            ],
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
         });
 
         /// <summary>

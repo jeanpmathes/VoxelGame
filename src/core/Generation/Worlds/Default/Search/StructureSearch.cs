@@ -27,7 +27,8 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
     private readonly Dictionary<StructureGenerator, IReadOnlySet<SubBiome>> structureToSubBiomes = subBiomes
         .Where(subBiome => subBiome.Structure != null)
-        .ToDictionary(subBiome => subBiome.Structure!, Set.Of);
+        .GroupBy(subBiome => subBiome.Structure!)
+        .ToDictionary(group => group.Key, Set.Of<SubBiome>);
 
     /// <inheritdoc />
     protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
@@ -117,15 +118,8 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
     {
         found = default;
 
-        return FilterSectionByBiome(current, structure) && structure.CheckPlacement(current, Generator, out found);
-    }
-
-    private Boolean FilterSectionByBiome(SectionPosition section, StructureGenerator structure)
-    {
-        ICollection<SubBiome> sectionSubBiomes = Generator.GetSectionSubBiomes(section, columns: null);
-
-        if (sectionSubBiomes.Count != 1) return false;
-
-        return sectionSubBiomes.First().Structure == structure;
+        return Generator.IsStructurePlacementAllowed(current, out StructureGenerator? sectionStructure, store: null)
+               && sectionStructure == structure
+               && structure.CheckPlacement(current, Generator, out found);
     }
 }

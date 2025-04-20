@@ -26,7 +26,7 @@ public class StructureGeneratorDefinitionLoader : IResourceLoader
             new StructureGeneratorDefinition("SmallPyramid",
                 StructureGeneratorDefinition.Kind.Surface,
                 structures.GetStructure(RID.File<StaticStructure>("small_pyramid")),
-                rarity: 5.0f,
+                rarity: 2.0f,
                 (0, -6, 0)),
             new StructureGeneratorDefinition("LargeTropicalTree",
                 StructureGeneratorDefinition.Kind.Surface,
@@ -36,12 +36,12 @@ public class StructureGeneratorDefinitionLoader : IResourceLoader
             new StructureGeneratorDefinition("OldTower",
                 StructureGeneratorDefinition.Kind.Surface,
                 structures.GetStructure(RID.File<StaticStructure>("old_tower")),
-                rarity: 10.0f,
+                rarity: 2.0f,
                 (0, -2, 0)),
             new StructureGeneratorDefinition("BuriedTower",
                 StructureGeneratorDefinition.Kind.Underground,
                 structures.GetStructure(RID.File<StaticStructure>("buried_tower")),
-                rarity: 10.0f,
+                rarity: 2.0f,
                 (0, -2, 0))
         ]);
     }

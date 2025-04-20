@@ -25,7 +25,7 @@ public class SubBiomeSearch(Dictionary<String, SubBiome> subBiomes, Searcher sea
     private readonly Dictionary<SubBiome, IReadOnlySet<Biome>> subBiomesToBiomes = biomes
         .SelectMany(biome => biome.SubBiomes.Select(subBiome => (biome, subBiome)))
         .GroupBy(pair => pair.subBiome, pair => pair.biome)
-        .ToDictionary(group => group.Key, group => Set.Of(group.ToArray()));
+        .ToDictionary(group => group.Key, Set.Of<Biome>);
 
     /// <inheritdoc />
     protected override IEnumerable<Vector3i> SearchElement(SubBiome element, String? modifier, Vector3i start, UInt32 maxBlockDistance)

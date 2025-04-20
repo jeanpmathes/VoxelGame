@@ -34,7 +34,7 @@ public static class Set
     /// <param name="elements">The elements.</param>
     /// <typeparam name="T">The type of the elements.</typeparam>
     /// <returns>The set.</returns>
-    public static IReadOnlySet<T> Of<T>(params T[] elements)
+    public static IReadOnlySet<T> Of<T>(params IEnumerable<T> elements)
     {
         return new HashSet<T>(elements);
     }

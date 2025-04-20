@@ -522,16 +522,6 @@ public static class MathTools
     }
 
     /// <summary>
-    ///     Select from two values using one weight.
-    /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, Double w)
-    {
-        if (w < 0.5) return ref e0;
-
-        return ref e1;
-    }
-
-    /// <summary>
     ///     Get the square root of each vector component.
     /// </summary>
     public static Vector4 Sqrt(this Vector4 v)
@@ -648,23 +638,6 @@ public static class MathTools
     public static Single MinComponent(this Vector2 v)
     {
         return Math.Min(v.X, v.Y);
-    }
-
-    /// <summary>
-    ///     Get the corner of a box by its index.
-    /// </summary>
-    /// <param name="box">The box.</param>
-    /// <param name="index">The index of the corner, in the range [0, 7].</param>
-    /// <returns>The corner.</returns>
-    public static Vector3d GetCorner(this Box3d box, Int32 index)
-    {
-        Debug.Assert(index is >= 0 and < 8);
-
-        return new Vector3d(
-            index % 2 == 0 ? box.Min.X : box.Max.X,
-            index / 2 % 2 == 0 ? box.Min.Y : box.Max.Y,
-            index / 4 % 2 == 0 ? box.Min.Z : box.Max.Z
-        );
     }
 
     /// <summary>

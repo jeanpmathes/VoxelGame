@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -237,9 +238,9 @@ public sealed partial class Generator : IWorldGenerator
     internal IEnumerable<Content> GenerateColumn(
         Int32 x, Int32 z,
         (Int32 start, Int32 end) heightRange,
-        ColumnSampleStore columns)
+        ColumnSampleStore store)
     {
-        Map.Sample sample = columns.GetSample((x, z));
+        Map.Sample sample = store.GetSample((x, z));
 
         Context context = new()
         {
@@ -257,9 +258,9 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc cref="IDecorationContext.DecorateSection" />
-    internal void DecorateSection(Neighborhood<Section> sections, ColumnSampleStore? columns)
+    internal void DecorateSection(Neighborhood<Section> sections, ColumnSampleStore? store)
     {
-        ICollection<SubBiome> sectionSubBiomes = GetSectionSubBiomes(sections.Center.Position, columns);
+        ICollection<SubBiome> sectionSubBiomes = GetDistinctSectionSubBiomes(sections.Center.Position, store);
 
         Dictionary<Decoration, Single> decorationToRarity = new();
         Dictionary<Decoration, HashSet<SubBiome>> decorationToSubBiomes = new();
@@ -286,13 +287,19 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <inheritdoc cref="IGenerationContext.GenerateStructures" />
-    internal void GenerateStructures(Section section, ColumnSampleStore? columns)
+    internal void GenerateStructures(Section section, ColumnSampleStore? store)
     {
-        ICollection<SubBiome> sectionBiomes = GetSectionSubBiomes(section.Position, columns);
+        if (IsStructurePlacementAllowed(section.Position, out StructureGenerator? structure, store))
+            structure.AttemptPlacement(section, this);
+    }
 
-        if (sectionBiomes.Count != 1) return;
+    internal Boolean IsStructurePlacementAllowed(SectionPosition position, [NotNullWhen(returnValue: true)] out StructureGenerator? structure, ColumnSampleStore? store)
+    {
+        (SubBiome s00, SubBiome s10, SubBiome s01, SubBiome s11) = GetSectionSubBiomes(position, store);
 
-        sectionBiomes.First().Structure?.AttemptPlacement(section, this);
+        structure = s00.Structure;
+
+        return structure != null && s00.Structure == s10.Structure && s00.Structure == s01.Structure && s00.Structure == s11.Structure;
     }
 
     /// <summary>
@@ -332,23 +339,33 @@ public sealed partial class Generator : IWorldGenerator
     ///     The biomes are determined by sampling each corner of the section.
     /// </summary>
     /// <param name="position">The position of the section.</param>
-    /// <param name="columns">A column sample store to use, if available.</param>
+    /// <param name="store">A column sample store to use, if available.</param>
     /// <returns>A list of the biomes, each biome is only included once.</returns>
-    internal ICollection<SubBiome> GetSectionSubBiomes(SectionPosition position, ColumnSampleStore? columns)
+    internal ICollection<SubBiome> GetDistinctSectionSubBiomes(SectionPosition position, ColumnSampleStore? store)
     {
         List<SubBiome> sectionSubBiomes = [];
 
-        Vector2i start = position.FirstBlock.Xz;
-        const Int32 offset = Section.Size - 1;
-
-        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (0, 0), columns, Map).ActualSubBiome);
-        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (offset, 0), columns, Map).ActualSubBiome);
-        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (0, offset), columns, Map).ActualSubBiome);
-        sectionSubBiomes.Add(ColumnSampleStore.GetSample(start + (offset, offset), columns, Map).ActualSubBiome);
+        (SubBiome s00, SubBiome s10, SubBiome s01, SubBiome s11) = GetSectionSubBiomes(position, store);
+        sectionSubBiomes.Add(s00);
+        sectionSubBiomes.Add(s10);
+        sectionSubBiomes.Add(s01);
+        sectionSubBiomes.Add(s11);
 
         sectionSubBiomes = sectionSubBiomes.Distinct().ToList();
 
         return sectionSubBiomes;
+    }
+
+    internal (SubBiome s00, SubBiome s10, SubBiome s01, SubBiome s11) GetSectionSubBiomes(SectionPosition position, ColumnSampleStore? store)
+    {
+        Vector2i start = position.FirstBlock.Xz;
+        const Int32 offset = Section.Size - 1;
+
+        return (
+            ColumnSampleStore.GetSample(start + (0, 0), store, Map).ActualSubBiome,
+            ColumnSampleStore.GetSample(start + (offset, 0), store, Map).ActualSubBiome,
+            ColumnSampleStore.GetSample(start + (0, offset), store, Map).ActualSubBiome,
+            ColumnSampleStore.GetSample(start + (offset, offset), store, Map).ActualSubBiome);
     }
 
     private static Double GetOffset(Vector2i position, in Map.Sample sample)
