@@ -138,4 +138,23 @@ public abstract class Cover
                 : Content.Default;
         }
     }
+
+    /// <summary>
+    ///     Cover with moss and some lichen.
+    /// </summary>
+    public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+
+            return value switch
+            {
+                0 => new Content(Blocks.Instance.Lichen),
+                < 7 => new Content(Blocks.Instance.Moss),
+                _ => Content.Default
+            };
+        }
+    }
 }

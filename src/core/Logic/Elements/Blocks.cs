@@ -1746,6 +1746,14 @@ public sealed partial class Blocks(ContentRegistry registry)
         nameof(Lichen),
         TID.Block("lichen")));
 
+    /// <summary>
+    ///     Moss is a covering that grows flatly on the ground.
+    /// </summary>
+    public Block Moss { get; } = registry.Register(new MossBlock(
+        Language.Lichen,
+        nameof(Moss),
+        TID.Block("moss")));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

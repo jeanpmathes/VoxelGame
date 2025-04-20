@@ -102,7 +102,15 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Taiga { get; } = biomes.Register(new BiomeDefinition(nameof(Taiga))
         {
             Color = ColorS.Navy,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Taiga))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealForest")), 8),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealPineForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealSpruceForest")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealFirForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealWetland")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealShrubland")), 2)
+            ]
         });
 
         /// <summary>

@@ -216,31 +216,132 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The taiga sub-biome.
+        ///     Boreal forest sub-biome.
         /// </summary>
-        public SubBiomeDefinition Taiga { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Taiga), palette)
+        public SubBiomeDefinition BorealForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealForest), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover.Grass(),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover.Moss(),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
-                (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 3.0f)
-            }
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 8.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     Boreal pine forest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition BorealPineForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealPineForest), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 40.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     Boreal spruce forest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition BorealSpruceForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealSpruceForest), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 40.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     Boreal fir forest sub-biome.
+        /// </summary>
+        public SubBiomeDefinition BorealFirForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealFirForest), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 40.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     Boreal shrubland sub-biome.
+        /// </summary>
+        public SubBiomeDefinition BorealShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealShrubland), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A boreal wetland - a swampy area.
+        /// </summary>
+        public SubBiomeDefinition BorealWetland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealWetland), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.03f,
+            Offset = -2,
+            Cover = new Cover.Moss(),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateMud(width: 5),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                .. Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 40.0f)
+            ]
         });
 
         /// <summary>
@@ -258,10 +359,10 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
                 .. Permafrost
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations =
+            [
                 (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 500.0f)
-            },
+            ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
         });
 

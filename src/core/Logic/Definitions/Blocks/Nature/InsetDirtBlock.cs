@@ -17,7 +17,7 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Definitions.Blocks;
 
 /// <summary>
-///     A dirt-like block that is a bit lower then normal dirt.
+///     A dirt-like block that is a bit lower than normal dirt.
 ///     Data bit usage: <c>------</c>.
 /// </summary>
 public class InsetDirtBlock : Block, IVaryingHeight, IFillable, IPlantable, IPotentiallySolid, IAshCoverable

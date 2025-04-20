@@ -1599,6 +1599,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Moss.
+        /// </summary>
+        public static string Moss {
+            get {
+                return ResourceManager.GetString("Moss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mouse Sensitivity.
         /// </summary>
         public static string MouseSensitivity {
