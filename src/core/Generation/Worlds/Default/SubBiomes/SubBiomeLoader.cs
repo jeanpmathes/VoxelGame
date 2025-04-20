@@ -68,7 +68,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 2f,
             Frequency = 0.004f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
@@ -86,7 +86,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.03f,
             Offset = -3,
-            Cover = new Cover(Cover.Vegetation.None, isSnowLoose: true),
+            Cover = new Cover.NoVegetation(isSnowLoose: true),
             Stuffer = new Stuffer.Ice(),
             Layers =
             [
@@ -104,7 +104,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.01f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
@@ -121,7 +121,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 5f,
             Frequency = 0.09f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers =
             [
                 Layer.CreateStone(width: 5),
@@ -138,7 +138,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.03f,
             Offset = -3,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Ice(),
             Layers =
             [
@@ -155,7 +155,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 15f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -190,7 +190,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 15f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -222,7 +222,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -250,7 +250,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Lichen(Cover.Lichen.Density.Low),
             Layers =
             [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -272,7 +272,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 3f,
             Frequency = 0.007f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Lichen(Cover.Lichen.Density.Low),
             Layers =
             [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -290,7 +290,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 5f,
             Frequency = 0.06f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.Lichen(Cover.Lichen.Density.Low),
             Layers =
             [
                 Layer.CreateStone(width: 5),
@@ -306,7 +306,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 1f,
             Frequency = 0.007f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Permafrost, width: 8, isSolid: false),
@@ -323,7 +323,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.03f,
             Offset = -3,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Water(),
             Layers =
             [
@@ -340,7 +340,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 2f,
             Frequency = 0.007f,
-            Cover = new Cover(Cover.Vegetation.Lichen),
+            Cover = new Cover.Lichen(Cover.Lichen.Density.High),
             Layers =
             [
                 Layer.CreateStone(width: 5),
@@ -356,7 +356,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -386,7 +386,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 7f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -420,7 +420,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 7f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -451,7 +451,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -481,7 +481,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
@@ -507,7 +507,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.004f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
@@ -538,7 +538,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 5.0f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
@@ -558,7 +558,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 5.0f,
             Frequency = 0.005f,
             IceWidth = 6,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
@@ -577,7 +577,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 30f,
             Frequency = 0.005f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateStonyTop(width: 9, amplitude: 15),
@@ -596,7 +596,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
@@ -620,7 +620,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(Cover.Vegetation.Normal),
+            Cover = new Cover.Grass(),
             Layers = new List<Layer>
             {
                 Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
@@ -637,7 +637,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.008f,
-            Cover = new Cover(Cover.Vegetation.None),
+            Cover = new Cover.NoVegetation(),
             Layers = new List<Layer>
             {
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),

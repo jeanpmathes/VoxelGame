@@ -18,42 +18,16 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 /// <summary>
 ///     Cover is generated on top of the terrain. It can be used for one-block sized elements.
 /// </summary>
-public sealed class Cover
+public abstract class Cover
 {
-    /// <summary>
-    ///     What vegetation to generate as part of the cover.
-    /// </summary>
-    public enum Vegetation
-    {
-        /// <summary>
-        ///     No vegetation.
-        /// </summary>
-        None,
-
-        /// <summary>
-        ///     Normal vegetation, meaning grass and flowers.
-        /// </summary>
-        Normal,
-
-        /// <summary>
-        ///     Lichen.
-        /// </summary>
-        Lichen
-    }
-
-    private const Double FlowerFactor = 0.05;
-
-    private readonly Vegetation vegetation;
     private readonly Boolean isSnowLoose;
 
     /// <summary>
-    ///     Create a new cover generator.
+    /// Create a new cover generator.
     /// </summary>
-    /// <param name="vegetation">The type of vegetation to generate.</param>
-    /// <param name="isSnowLoose">Whether snow is placed as normal or loose snow.</param>
-    public Cover(Vegetation vegetation, Boolean isSnowLoose = false)
+    /// <param name="isSnowLoose">Whether generated snow is loose or not.</param>
+    protected Cover(Boolean isSnowLoose)
     {
-        this.vegetation = vegetation;
         this.isSnowLoose = isSnowLoose;
     }
 
@@ -62,7 +36,8 @@ public sealed class Cover
     /// </summary>
     public Content GetContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
     {
-        if (isFilled) return Content.Default;
+        if (isFilled)
+            return Content.Default;
 
         Temperature temperature = sample.EstimateTemperature(position.Y);
 
@@ -86,30 +61,81 @@ public sealed class Cover
             return new Content(snow.GetInstance(height), FluidInstance.Default);
         }
 
-        switch (vegetation)
+        return GetCover(position, sample);
+    }
+
+    /// <summary>
+    ///     Get the cover for a given position.
+    /// </summary>
+    protected abstract Content GetCover(Vector3i position, in Map.Sample sample);
+
+    /// <summary>
+    ///     Cover with no vegetation.
+    /// </summary>
+    public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
         {
-            case Vegetation.None:
+            return Content.Default;
+        }
+    }
+
+    /// <summary>
+    ///     Cover with (tall) grass and flowers.
+    /// </summary>
+    public class Grass(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+
+            if (value >= humidity)
                 return Content.Default;
 
-            case Vegetation.Normal:
-                Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
-                Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+            if (value < humidity * 0.05)
+                return new Content(Blocks.Instance.Flower);
 
-                if (value >= humidity)
-                    return Content.Default;
+            return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+        }
+    }
 
-                if (value < humidity * FlowerFactor)
-                    return new Content(Blocks.Instance.Flower);
+    /// <summary>
+    ///     Cover with lichen.
+    /// </summary>
+    public class Lichen(Lichen.Density density, Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <summary>
+        ///     How dense the lichen is.
+        /// </summary>
+        public enum Density
+        {
+            /// <summary>
+            ///     The lichen is dense.
+            /// </summary>
+            High,
 
-                return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+            /// <summary>
+            ///     The lichen is not dense.
+            /// </summary>
+            Low
+        }
 
-            case Vegetation.Lichen:
-                return BlockUtilities.GetPositionDependentNumber(position, mod: 3) != 0
-                    ? new Content(Blocks.Instance.Lichen)
-                    : Content.Default;
+        private readonly (Int32 mod, Int32 threshold) draw = density switch
+        {
+            Density.High => (3, 0), // Chance: 66%
+            Density.Low => (5, 3), // Chance: 20%
+            _ => throw Exceptions.UnsupportedEnumValue(density)
+        };
 
-            default:
-                throw Exceptions.UnsupportedEnumValue(vegetation);
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            return BlockUtilities.GetPositionDependentNumber(position, draw.mod) > draw.threshold
+                ? new Content(Blocks.Instance.Lichen)
+                : Content.Default;
         }
     }
 }
