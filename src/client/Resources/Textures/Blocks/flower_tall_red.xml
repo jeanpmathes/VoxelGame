@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="../texture.xsd">
     <Layers mode="replace">
         <Layer source="p:flower_tall_stalk:all"/>
-        <Layer source="p:flower_tall_petal:all">
+        <Layer source="p:flower_tall_petal_red:all">
             <Modifier type="no-tint"/>
         </Layer>
     </Layers>

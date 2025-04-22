@@ -84,7 +84,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass and flowers.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Grass(Boolean isSnowLoose = false, Boolean isBlooming = false) : Cover(isSnowLoose)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -95,8 +95,10 @@ public abstract class Cover
             if (value >= humidity)
                 return Content.Default;
 
-            if (value < humidity * 0.05)
-                return new Content(Blocks.Instance.Flower);
+            Double flowerFactor = isBlooming ? 0.10 : 0.05;
+
+            if (value < humidity * flowerFactor)
+                return new Content(Int32.IsOddInteger(value) ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
 
             return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
         }

@@ -52,7 +52,7 @@
         <Compile Remove="Properties\**"/>
         <EmbeddedResource Remove="Properties\**"/>
         <None Remove="Properties\**"/>
-        <None Update="Resources\Structures\tall_flower.json">
+        <None Update="Resources\Structures\tall_flower_red.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Structures\tall_grass.json">
@@ -68,6 +68,9 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Structures\buried_tower.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Structures\tall_flower_yellow.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

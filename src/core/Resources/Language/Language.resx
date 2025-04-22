@@ -192,9 +192,6 @@
     <data name="Flax" xml:space="preserve">
     <value>Flax</value>
   </data>
-    <data name="Flower" xml:space="preserve">
-    <value>Flower</value>
-  </data>
     <data name="Glass" xml:space="preserve">
     <value>Glass</value>
   </data>
@@ -308,9 +305,6 @@
   </data>
     <data name="SteelPipeStraight" xml:space="preserve">
     <value>Straight Steelpipe</value>
-  </data>
-    <data name="TallFlower" xml:space="preserve">
-    <value>Tall Flower</value>
   </data>
     <data name="TallGrass" xml:space="preserve">
     <value>Tall Grass</value>
@@ -1124,5 +1118,17 @@
     </data>
     <data name="Moss" xml:space="preserve">
         <value>Moss</value>
+    </data>
+    <data name="RedFlower" xml:space="preserve">
+        <value>Red Flower</value>
+    </data>
+    <data name="RedTallFlower" xml:space="preserve">
+        <value>Red Tall Flower</value>
+    </data>
+    <data name="YellowFlower" xml:space="preserve">
+        <value>Yellow Flower</value>
+    </data>
+    <data name="YellowTallFlower" xml:space="preserve">
+        <value>Yellow Tall Flower</value>
     </data>
 </root>

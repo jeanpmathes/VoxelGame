@@ -46,7 +46,8 @@ public class SubBiomeLoader : IResourceLoader
         IStructureGeneratorDefinitionProvider structures)
     {
         private static readonly RID tallGrass = RID.Named<Decoration>("TallGrass");
-        private static readonly RID tallFlower = RID.Named<Decoration>("TallFlower");
+        private static readonly RID tallRedFlower = RID.Named<Decoration>("TallRedFlower");
+        private static readonly RID tallYellowFlower = RID.Named<Decoration>("TallYellowFlower");
         private static readonly RID roots = RID.Named<Decoration>("Roots");
         private static readonly RID vines = RID.Named<Decoration>("Vines");
         private static readonly RID boulder = RID.Named<Decoration>("Boulder");
@@ -58,6 +59,16 @@ public class SubBiomeLoader : IResourceLoader
             Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+        ];
+
+        private static IEnumerable<Layer> Clay =>
+        [
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 6),
+            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+            Layer.CreateLoose(width: 33),
+            Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         ];
 
@@ -149,38 +160,137 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The tropical rainforest sub-biome.
+        ///     Hilly sub-biome of a rainforest.
         /// </summary>
-        public SubBiomeDefinition TropicalRainforest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforest), palette)
+        public SubBiomeDefinition TropicalRainforestHills { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestHills), palette)
         {
             Amplitude = 15f,
             Frequency = 0.005f,
             Cover = new Cover.Grass(),
-            Layers = new List<Layer>
-            {
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 6),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 33),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
+                .. Clay
+            ],
             Decorations = new List<(Decoration, Single)>
             {
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 30.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
             },
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
+        });
+
+        /// <summary>
+        ///     Flat sub-biome of a rainforest.
+        /// </summary>
+        public SubBiomeDefinition TropicalRainforestFlats { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestFlats), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
+                (decorations.GetDecoration(roots), 1000.0f),
+                (decorations.GetDecoration(vines), 1.0f)
+            },
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
+        });
+
+        /// <summary>
+        ///     A group of rubber trees.
+        /// </summary>
+        public SubBiomeDefinition TropicalRubberTreeGroup { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRubberTreeGroup), palette)
+        {
+            Amplitude = 10f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f),
+                (decorations.GetDecoration(vines), 1.0f)
+            }
+        });
+
+        /// <summary>
+        ///     A clearing filled with flowers.
+        /// </summary>
+        public SubBiomeDefinition TropicalBloomingClearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalBloomingClearing), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(isBlooming: true),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 4.0f),
+                (decorations.GetDecoration(tallRedFlower), 4.0f),
+                (decorations.GetDecoration(tallYellowFlower), 4.0f)
+            }
+        });
+
+        /// <summary>
+        ///     A pond sub-biome in a rainforest.
+        /// </summary>
+        public SubBiomeDefinition TropicalRainforestPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestPond), palette)
+        {
+            Amplitude = 10f,
+            Frequency = 0.005f,
+            Offset = -9,
+            Cover = new Cover.Grass(),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Clay, Blocks.Instance.Clay, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations = new List<(Decoration, Single)>
+            {
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f)
+            }
         });
 
         /// <summary>
@@ -206,7 +316,8 @@ public class SubBiomeLoader : IResourceLoader
             Decorations = new List<(Decoration, Single)>
             {
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
@@ -503,7 +614,8 @@ public class SubBiomeLoader : IResourceLoader
             Decorations = new List<(Decoration, Single)>
             {
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(tallFlower), 4.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 3.0f),

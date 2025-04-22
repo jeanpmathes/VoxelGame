@@ -84,7 +84,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition TropicalRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TropicalRainforest))
         {
             Color = ColorS.DarkGreen,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TropicalRainforest))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestHills")), 6),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestFlats")), 6),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRubberTreeGroup")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalBloomingClearing")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestPond")), 2)
+            ]
         });
 
         /// <summary>

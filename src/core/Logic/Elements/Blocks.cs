@@ -188,22 +188,22 @@ public sealed partial class Blocks(ContentRegistry registry)
         BoundingVolume.CrossBlock()));
 
     /// <summary>
-    ///     A simple flower.
+    ///     A simple red flower.
     /// </summary>
-    public Block Flower { get; } = registry.Register(new CrossPlantBlock(
-        Language.Flower,
-        nameof(Flower),
-        TID.Block("flower"),
+    public Block RedFlower { get; } = registry.Register(new CrossPlantBlock(
+        Language.RedFlower,
+        nameof(RedFlower),
+        TID.Block("flower_red"),
         BlockFlags.Replaceable,
         new BoundingVolume(new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))));
 
     /// <summary>
-    ///     A very tall flower.
+    ///     A very tall red flower.
     /// </summary>
-    public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
-        Language.TallFlower,
-        nameof(TallFlower),
-        TID.Block("flower_tall"),
+    public Block RedTallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
+        Language.RedTallFlower,
+        nameof(RedTallFlower),
+        TID.Block("flower_tall_red"),
         BoundingVolume.CrossBlock()));
 
     /// <summary>
@@ -1753,6 +1753,25 @@ public sealed partial class Blocks(ContentRegistry registry)
         Language.Lichen,
         nameof(Moss),
         TID.Block("moss")));
+
+    /// <summary>
+    ///     A simple yellow flower.
+    /// </summary>
+    public Block YellowFlower { get; } = registry.Register(new CrossPlantBlock(
+        Language.YellowFlower,
+        nameof(YellowFlower),
+        TID.Block("flower_yellow"),
+        BlockFlags.Replaceable,
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))));
+
+    /// <summary>
+    ///     A very tall yellow flower.
+    /// </summary>
+    public Block YellowTallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
+        Language.YellowTallFlower,
+        nameof(YellowTallFlower),
+        TID.Block("flower_tall_yellow"),
+        BoundingVolume.CrossBlock()));
 
     #endregion NEW BLOCKS
 

@@ -15,7 +15,7 @@
           0
         ]
       },
-      "Block": "TallFlower",
+      "Block": "YellowTallFlower",
       "Data": 0,
       "Fluid": "None",
       "Level": 7,
@@ -29,7 +29,7 @@
           0
         ]
       },
-      "Block": "TallFlower",
+      "Block": "YellowTallFlower",
       "Data": 1,
       "Fluid": "None",
       "Level": 7,

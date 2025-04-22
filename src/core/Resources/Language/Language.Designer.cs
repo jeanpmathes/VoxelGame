@@ -735,15 +735,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Flower.
-        /// </summary>
-        public static string Flower {
-            get {
-                return ResourceManager.GetString("Flower", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Fluid.
         /// </summary>
         public static string Fluid {
@@ -2328,11 +2319,29 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Red Flower.
+        /// </summary>
+        public static string RedFlower {
+            get {
+                return ResourceManager.GetString("RedFlower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Red Plastic.
         /// </summary>
         public static string RedPlastic {
             get {
                 return ResourceManager.GetString("RedPlastic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Red Tall Flower.
+        /// </summary>
+        public static string RedTallFlower {
+            get {
+                return ResourceManager.GetString("RedTallFlower", resourceCulture);
             }
         }
         
@@ -2778,15 +2787,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tall Flower.
-        /// </summary>
-        public static string TallFlower {
-            get {
-                return ResourceManager.GetString("TallFlower", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Tall Grass.
         /// </summary>
         public static string TallGrass {
@@ -3053,6 +3053,24 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Worlds {
             get {
                 return ResourceManager.GetString("Worlds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yellow Flower.
+        /// </summary>
+        public static string YellowFlower {
+            get {
+                return ResourceManager.GetString("YellowFlower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yellow Tall Flower.
+        /// </summary>
+        public static string YellowTallFlower {
+            get {
+                return ResourceManager.GetString("YellowTallFlower", resourceCulture);
             }
         }
         

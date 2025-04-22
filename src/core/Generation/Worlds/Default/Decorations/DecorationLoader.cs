@@ -42,7 +42,8 @@ public sealed class DecorationLoader : IResourceLoader
         return
         [
             new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
-            new StructureDecoration("TallFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower")), new PlantableDecorator()),
+            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new PlantableDecorator()),
+            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
             new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3)),
             new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
             new FlatBlockDecoration("Vines",
