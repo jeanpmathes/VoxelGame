@@ -681,6 +681,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fern.
+        /// </summary>
+        public static string Fern {
+            get {
+                return ResourceManager.GetString("Fern", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File Size.
         /// </summary>
         public static string FileSize {

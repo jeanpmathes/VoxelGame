@@ -98,7 +98,7 @@ public abstract class Cover
             Double flowerFactor = isBlooming ? 0.10 : 0.05;
 
             if (value < humidity * flowerFactor)
-                return new Content(Int32.IsOddInteger(value) ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
+                return new Content(value % 2 == 0 ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
 
             return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
         }
@@ -155,6 +155,25 @@ public abstract class Cover
             {
                 0 => new Content(Blocks.Instance.Lichen),
                 < 7 => new Content(Blocks.Instance.Moss),
+                _ => Content.Default
+            };
+        }
+    }
+
+    /// <summary>
+    ///     Cover with fern, and some moss.
+    /// </summary>
+    public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+
+            return value switch
+            {
+                < 2 => new Content(Blocks.Instance.Moss),
+                < 7 => new Content(Blocks.Instance.Fern),
                 _ => Content.Default
             };
         }

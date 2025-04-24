@@ -1131,4 +1131,7 @@
     <data name="YellowTallFlower" xml:space="preserve">
         <value>Gelbe Hohe Blume</value>
     </data>
+    <data name="Fern" xml:space="preserve">
+        <value>Farn</value>
+    </data>
 </root>

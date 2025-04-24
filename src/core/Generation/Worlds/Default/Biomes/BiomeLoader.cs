@@ -100,7 +100,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition TemperateRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TemperateRainforest))
         {
             Color = ColorS.Green,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(TemperateRainforest))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestHills")), 6),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestFlats")), 6),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("CherryPatch")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestPond")), 2),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MossyStones")), 2)
+            ]
         });
 
         /// <summary>

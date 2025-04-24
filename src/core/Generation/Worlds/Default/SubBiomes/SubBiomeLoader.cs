@@ -294,36 +294,110 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The temperate rainforest sub-biome.
+        ///     A hilly sub-biome of a temperate rainforest.
         /// </summary>
-        public SubBiomeDefinition TemperateRainforest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforest), palette)
+        public SubBiomeDefinition TemperateRainforestHills { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforestHills), palette)
         {
             Amplitude = 15f,
             Frequency = 0.005f,
-            Cover = new Cover.Grass(),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover.Fern(),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 6),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 33),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
-                (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(tallRedFlower), 8.0f),
-                (decorations.GetDecoration(tallYellowFlower), 8.0f),
+                .. Clay
+            ],
+            Decorations =
+            [
                 (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
-            }
+            ]
+        });
+
+        /// <summary>
+        ///     A flat sub-biome of a temperate rainforest.
+        /// </summary>
+        public SubBiomeDefinition TemperateRainforestFlats { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforestFlats), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.005f,
+            Cover = new Cover.Fern(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A flat sub-biome of a temperate rainforest.
+        /// </summary>
+        public SubBiomeDefinition CherryPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(CherryPatch), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.005f,
+            Cover = new Cover.Fern(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 2.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A pond in a temperate rainforest.
+        /// </summary>
+        public SubBiomeDefinition TemperateRainforestPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforestPond), palette)
+        {
+            Amplitude = 8f,
+            Frequency = 0.01f,
+            Offset = -11,
+            Cover = new Cover.Moss(),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Clay, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ]
+        });
+
+        /// <summary>
+        ///     A stony, moss-covered area.
+        /// </summary>
+        public SubBiomeDefinition MossyStones { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(MossyStones), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.09f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateStone(width: 4),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                .. Clay
+            ]
         });
 
         /// <summary>

@@ -1773,6 +1773,16 @@ public sealed partial class Blocks(ContentRegistry registry)
         TID.Block("flower_tall_yellow"),
         BoundingVolume.CrossBlock()));
 
+    /// <summary>
+    ///     A fern, a plant that grows in shady areas.
+    /// </summary>
+    public Block Fern { get; } = registry.Register(new CrossPlantBlock(
+        Language.Fern,
+        nameof(Fern),
+        TID.Block("fern"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock()));
+
     #endregion NEW BLOCKS
 
     #region LOGGING
