@@ -1397,6 +1397,9 @@
         <None Update="Resources\Textures\Blocks\fern.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Textures\Blocks\chanterelle.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

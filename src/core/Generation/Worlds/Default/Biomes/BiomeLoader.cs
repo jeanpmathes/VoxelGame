@@ -104,7 +104,7 @@ public sealed class BiomeLoader : IResourceLoader
             [
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestHills")), 6),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestFlats")), 6),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("CherryPatch")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("CherryGrove")), 1),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestPond")), 2),
                 (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MossyStones")), 2)
             ]
@@ -159,7 +159,13 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest))
         {
             Color = ColorS.Lime,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SeasonalForest))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Woodland")), 12),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BirchGrove")), 2),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Clearing")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Pond")), 1)
+            ]
         });
 
         /// <summary>

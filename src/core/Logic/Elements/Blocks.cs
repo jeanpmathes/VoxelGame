@@ -1783,6 +1783,16 @@ public sealed partial class Blocks(ContentRegistry registry)
         BlockFlags.Replaceable,
         BoundingVolume.CrossBlock()));
 
+    /// <summary>
+    ///     A chanterelle, a type of mushroom.
+    /// </summary>
+    public Block Chanterelle { get; } = registry.Register(new CrossPlantBlock(
+        Language.Chanterelle,
+        nameof(Chanterelle),
+        TID.Block("chanterelle"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock()));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

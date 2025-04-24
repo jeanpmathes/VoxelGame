@@ -1134,4 +1134,7 @@
     <data name="Fern" xml:space="preserve">
         <value>Farn</value>
     </data>
+    <data name="Chanterelle" xml:space="preserve">
+        <value>Pfifferling</value>
+    </data>
 </root>

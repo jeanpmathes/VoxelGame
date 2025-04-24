@@ -294,6 +294,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chanterelle.
+        /// </summary>
+        public static string Chanterelle {
+            get {
+                return ResourceManager.GetString("Chanterelle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Black Checkerboard Tiles.
         /// </summary>
         public static string CheckerboardTilesBlack {

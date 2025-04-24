@@ -280,8 +280,7 @@ public class SubBiomeLoader : IResourceLoader
             Stuffer = new Stuffer.Water(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Clay, Blocks.Instance.Clay, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: false),
+                Layer.CreateMud(width: 4),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
@@ -344,9 +343,9 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     A flat sub-biome of a temperate rainforest.
+        ///     A part of a temperate rainforest with cherry trees.
         /// </summary>
-        public SubBiomeDefinition CherryPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(CherryPatch), palette)
+        public SubBiomeDefinition CherryGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(CherryGrove), palette)
         {
             Amplitude = 5f,
             Frequency = 0.005f,
@@ -377,8 +376,7 @@ public class SubBiomeLoader : IResourceLoader
             Stuffer = new Stuffer.Water(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Clay, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: false),
+                Layer.CreateMud(width: 4),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ]
@@ -666,38 +664,100 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The seasonal forest sub-biome.
+        ///     A woodland sub-biome.
         /// </summary>
-        public SubBiomeDefinition SeasonalForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForest), palette)
+        public SubBiomeDefinition Woodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Woodland), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
-            Cover = new Cover.Grass(),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover.Grass(mushrooms: true),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
+                .. Clay
+            ],
+            Decorations =
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 10.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
-            }
+            ]
+        });
+
+        /// <summary>
+        ///     A birch grove sub-biome, similar to woodland but with only birch trees.
+        /// </summary>
+        public SubBiomeDefinition BirchGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BirchGrove), palette)
+        {
+            Amplitude = 7f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 1.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A clearing in a woodland.
+        /// </summary>
+        public SubBiomeDefinition Clearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Clearing), palette)
+        {
+            Amplitude = 7f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(tallRedFlower), 8.0f),
+                (decorations.GetDecoration(tallYellowFlower), 8.0f),
+                (decorations.GetDecoration(roots), 1000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A pond sub-biome in a woodland.
+        /// </summary>
+        public SubBiomeDefinition Pond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Pond), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.01f,
+            Offset = -7,
+            Stuffer = new Stuffer.Water(),
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateMud(width: 4),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                .. Clay
+            ]
         });
 
         /// <summary>
