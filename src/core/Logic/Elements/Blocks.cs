@@ -1791,7 +1791,8 @@ public sealed partial class Blocks(ContentRegistry registry)
         nameof(Chanterelle),
         TID.Block("chanterelle"),
         BlockFlags.Replaceable,
-        BoundingVolume.CrossBlock()));
+        BoundingVolume.CrossBlock(),
+        isTintNeutral: false));
 
     #endregion NEW BLOCKS
 

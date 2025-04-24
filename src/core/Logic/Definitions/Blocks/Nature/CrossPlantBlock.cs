@@ -24,6 +24,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
 {
     private readonly TID texture;
+    private readonly ColorS tint;
 
     private readonly List<BlockMesh> meshes = [];
 
@@ -35,7 +36,8 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     /// <param name="texture">The name of the texture of this block.</param>
     /// <param name="flags">The block flags.</param>
     /// <param name="boundingVolume">The bounding box of this block.</param>
-    internal CrossPlantBlock(String name, String namedID, TID texture, BlockFlags flags, BoundingVolume boundingVolume) :
+    /// <param name="isTintNeutral">Whether the block is neutral tinted.</param>
+    internal CrossPlantBlock(String name, String namedID, TID texture, BlockFlags flags, BoundingVolume boundingVolume, Boolean isTintNeutral = true) :
         base(
             name,
             namedID,
@@ -43,13 +45,15 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
             boundingVolume)
     {
         this.texture = texture;
+
+        tint = isTintNeutral ? ColorS.Neutral : ColorS.None;
     }
 
     IFoliage.MeshData IFoliage.GetMeshData(BlockMeshInfo info)
     {
         return new IFoliage.MeshData(meshes[(Int32) info.Data & 0b00_0001])
         {
-            Tint = ColorS.Neutral
+            Tint = tint
         };
     }
 
