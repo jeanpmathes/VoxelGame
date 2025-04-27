@@ -69,7 +69,7 @@ public abstract class Layer
     /// <summary>
     ///     Create a stony top layer that simulates erosion.
     /// </summary>
-    public static Layer CreateStonyTop(Int32 width, Int32 amplitude)
+    public static Layer CreateStonyTop(Int32 width, Int32 amplitude = Int32.MaxValue)
     {
         return new StonyTop(width, amplitude);
     }
@@ -128,7 +128,7 @@ public abstract class Layer
     }
 
     /// <summary>
-    ///     Create a stone layer.
+    ///     Create a solid stone layer.
     /// </summary>
     public static Layer CreateStone(Int32 width)
     {

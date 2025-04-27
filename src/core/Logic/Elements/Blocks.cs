@@ -1794,6 +1794,15 @@ public sealed partial class Blocks(ContentRegistry registry)
         BoundingVolume.CrossBlock(),
         isTintNeutral: false));
 
+    /// <summary>
+    ///     Mud, but dried out and cracked.
+    /// </summary>
+    public Block CrackedDriedMud { get; } = registry.Register(new BasicBlock(
+        Language.CrackedDriedMud,
+        nameof(CrackedDriedMud),
+        BlockFlags.Basic,
+        TextureLayout.Uniform(TID.Block("mud_cracked"))));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

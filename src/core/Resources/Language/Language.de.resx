@@ -1137,4 +1137,7 @@
     <data name="Chanterelle" xml:space="preserve">
         <value>Pfifferling</value>
     </data>
+    <data name="CrackedDriedMud" xml:space="preserve">
+        <value>Rissiger getrockneter Schlamm</value>
+    </data>
 </root>

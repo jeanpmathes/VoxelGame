@@ -174,7 +174,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest))
         {
             Color = ColorS.SeaGreen,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(DryForest))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryWoodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryShrubland")), 4),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryGrassland")), 4),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryRocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DriedPond")), 3)
+            ]
         });
 
         /// <summary>

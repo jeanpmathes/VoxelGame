@@ -456,6 +456,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cracked Dried Mud.
+        /// </summary>
+        public static string CrackedDriedMud {
+            get {
+                return ResourceManager.GetString("CrackedDriedMud", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create.
         /// </summary>
         public static string Create {

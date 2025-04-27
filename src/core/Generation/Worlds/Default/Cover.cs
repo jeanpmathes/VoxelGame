@@ -84,7 +84,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass and flowers.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose)
+    public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -109,6 +109,24 @@ public abstract class Cover
                 };
 
             return new Content(value % 2 == 0 ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
+        }
+    }
+
+    /// <summary>
+    ///     Cover with (tall) grass.
+    /// </summary>
+    public class Grass(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+
+            if (value >= humidity)
+                return Content.Default;
+
+            return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
         }
     }
 
