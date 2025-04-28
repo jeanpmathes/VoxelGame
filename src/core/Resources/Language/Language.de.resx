@@ -1140,4 +1140,7 @@
     <data name="CrackedDriedMud" xml:space="preserve">
         <value>Rissiger getrockneter Schlamm</value>
     </data>
+    <data name="TermiteMound" xml:space="preserve">
+        <value>Termitenhügel</value>
+    </data>
 </root>

@@ -33,7 +33,8 @@ public sealed class DecorationLoader : IResourceLoader
         [
             .. CreatePlants(structures),
             .. CreateTrees(context.GetAll<Wood>()),
-            new BoulderDecoration("Boulder", new SurfaceDecorator(width: 5))
+            new BoulderDecoration("Boulder", new SurfaceDecorator(width: 5)),
+            new TermiteMoundDecoration("TermiteMound", new SurfaceDecorator(width: 5))
         ]);
     }
 

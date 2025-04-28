@@ -2850,6 +2850,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Termite Mound.
+        /// </summary>
+        public static string TermiteMound {
+            get {
+                return ResourceManager.GetString("TermiteMound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tiled Glass.
         /// </summary>
         public static string TiledGlass {

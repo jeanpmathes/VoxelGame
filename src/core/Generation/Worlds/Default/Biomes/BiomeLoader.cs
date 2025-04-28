@@ -150,7 +150,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Savanna { get; } = biomes.Register(new BiomeDefinition(nameof(Savanna))
         {
             Color = ColorS.Olive,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Savanna))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaWoodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaDenseWoodland")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaShrubland")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaGrassland")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Waterhole")), 1)
+            ]
         });
 
         /// <summary>

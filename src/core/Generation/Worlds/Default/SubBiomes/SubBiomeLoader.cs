@@ -51,6 +51,7 @@ public class SubBiomeLoader : IResourceLoader
         private static readonly RID roots = RID.Named<Decoration>("Roots");
         private static readonly RID vines = RID.Named<Decoration>("Vines");
         private static readonly RID boulder = RID.Named<Decoration>("Boulder");
+        private static readonly RID termiteMound = RID.Named<Decoration>("TermiteMound");
         private static readonly RID cactus = RID.Named<Decoration>("Cactus");
         public Registry<SubBiomeDefinition> Registry => subBiomes;
 
@@ -634,33 +635,116 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The savanna sub-biome.
+        ///     A woodland sub-biome in a savanna.
         /// </summary>
-        public SubBiomeDefinition Savanna { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Savanna), palette)
+        public SubBiomeDefinition SavannaWoodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SavannaWoodland), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover.GrassAndFlowers(),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover.Grass(),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
+                ..Clay
+            ],
+            Decorations =
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Baobab)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 30.0f)
-            }
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 50.0f),
+                (decorations.GetDecoration(termiteMound), 500.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A dense woodland sub-biome in a savanna.
+        /// </summary>
+        public SubBiomeDefinition SavannaDenseWoodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SavannaDenseWoodland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Baobab)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 40.0f),
+                (decorations.GetDecoration(termiteMound), 200.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A shrubland sub-biome in a savanna.
+        /// </summary>
+        public SubBiomeDefinition SavannaShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SavannaShrubland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
+                (decorations.GetDecoration(termiteMound), 500.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A grassland sub-biome in a savanna.
+        /// </summary>
+        public SubBiomeDefinition SavannaGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SavannaGrassland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(termiteMound), 1000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A savanna waterhole.
+        /// </summary>
+        public SubBiomeDefinition Waterhole { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Waterhole), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.03f,
+            Offset = -7,
+            Stuffer = new Stuffer.Water(),
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateMud(width: 4),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                .. Clay
+            ]
         });
 
         /// <summary>

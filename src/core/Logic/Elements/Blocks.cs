@@ -1803,6 +1803,15 @@ public sealed partial class Blocks(ContentRegistry registry)
         BlockFlags.Basic,
         TextureLayout.Uniform(TID.Block("mud_cracked"))));
 
+    /// <summary>
+    ///     This block is part of a termite mound.
+    /// </summary>
+    public Block TermiteMound { get; } = registry.Register(new OrganicTintedBlock(
+        Language.TermiteMound,
+        nameof(TermiteMound),
+        TextureLayout.Uniform(TID.Block("termite_mound")),
+        isAnimated: true));
+
     #endregion NEW BLOCKS
 
     #region LOGGING
