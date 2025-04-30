@@ -105,6 +105,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Aloe Vera.
+        /// </summary>
+        public static string AloeVera {
+            get {
+                return ResourceManager.GetString("AloeVera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ash.
         /// </summary>
         public static string Ash {

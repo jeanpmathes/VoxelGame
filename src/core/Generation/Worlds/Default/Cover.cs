@@ -115,7 +115,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -125,6 +125,14 @@ public abstract class Cover
 
             if (value >= humidity)
                 return Content.Default;
+
+            if (hasSucculents)
+                return (value % 3) switch
+                {
+                    0 => new Content(Blocks.Instance.AloeVera),
+                    1 => new Content(Blocks.Instance.TallGrass),
+                    _ => new Content(Blocks.Instance.TallerGrass)
+                };
 
             return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
         }
