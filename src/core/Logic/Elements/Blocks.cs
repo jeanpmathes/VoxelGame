@@ -1812,6 +1812,17 @@ public sealed partial class Blocks(ContentRegistry registry)
         TextureLayout.Uniform(TID.Block("termite_mound")),
         isAnimated: true));
 
+    /// <summary>
+    ///     An aloe vera plant - a succulent.
+    /// </summary>
+    public Block AloeVera { get; } = registry.Register(new CrossPlantBlock(
+        Language.AloeVera,
+        nameof(AloeVera),
+        TID.Block("aloe_vera"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock(),
+        isTintNeutral: false));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

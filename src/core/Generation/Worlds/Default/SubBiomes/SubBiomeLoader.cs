@@ -175,8 +175,8 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
@@ -186,7 +186,7 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
-            },
+            ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
         });
 
@@ -205,8 +205,8 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
@@ -216,7 +216,7 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
-            },
+            ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
         });
 
@@ -235,15 +235,15 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
-            }
+            ]
         });
 
         /// <summary>
@@ -261,12 +261,12 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 4.0f),
                 (decorations.GetDecoration(tallRedFlower), 4.0f),
                 (decorations.GetDecoration(tallYellowFlower), 4.0f)
-            }
+            ]
         });
 
         /// <summary>
@@ -285,12 +285,12 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = new List<(Decoration, Single)>
-            {
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f)
-            }
+            ]
         });
 
         /// <summary>
@@ -945,33 +945,114 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The shrubland sub-biome.
+        ///     The part of the shrubland that has the shrubs.
         /// </summary>
-        public SubBiomeDefinition Shrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Shrubland), palette)
+        public SubBiomeDefinition ShrubbyShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyShrubland), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
-            Cover = new Cover.GrassAndFlowers(),
-            Layers = new List<Layer>
-            {
+            Cover = new Cover.Grass(),
+            Layers =
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
+                .. Clay
+            ],
+            Decorations =
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(boulder), 2000.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 1000.0f)
-            }
+            ]
+        });
+
+        /// <summary>
+        ///     The part of the shrubland that has many shrubs.
+        /// </summary>
+        public SubBiomeDefinition VeryShrubbyShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(VeryShrubbyShrubland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.Grass(hasSucculents: true),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 100.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     The part of the shrubland that has no shrubs.
+        /// </summary>
+        public SubBiomeDefinition ShrubbyGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyGrassland), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     The part of the shrubland that has no shrubs but many flowers.
+        /// </summary>
+        public SubBiomeDefinition ShrubbyFlowerPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyFlowerPatch), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.01f,
+            Cover = new Cover.GrassAndFlowers(isBlooming: true),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                .. Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     The part of the shrubland that has a stony cover and nearly no vegetation.
+        /// </summary>
+        public SubBiomeDefinition ShrubbyDryPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyDryPatch), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.1f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateStonyTop(width: 3, amplitude: 0),
+                Layer.CreateStone(width: 3),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                .. Clay
+            ]
         });
 
         /// <summary>
@@ -982,8 +1063,8 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
@@ -991,12 +1072,12 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
+            ],
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(cactus), 50.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 1000.0f)
-            },
+            ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
 
@@ -1008,8 +1089,8 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.004f,
             Cover = new Cover.GrassAndFlowers(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
@@ -1019,15 +1100,15 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateLoose(width: 37),
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
+            ],
+            Decorations = (List<(Decoration, Single)>)
+            [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(boulder), 2000.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 5000.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 5000.0f),
                 (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 5000.0f)
-            },
+            ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
         });
 
@@ -1039,15 +1120,15 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 5.0f,
             Frequency = 0.005f,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            }
+            ]
         });
 
         /// <summary>
@@ -1059,15 +1140,15 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.005f,
             IceWidth = 6,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            }
+            ]
         });
 
         /// <summary>
@@ -1078,15 +1159,15 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 30f,
             Frequency = 0.005f,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateStonyTop(width: 9, amplitude: 15),
                 Layer.CreateStonyDampen(maxWidth: 31),
                 Layer.CreateStone(width: 31),
                 Layer.CreateLoose(width: 9),
                 Layer.CreateGroundwater(width: 1),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
-            }
+            ]
         });
 
         /// <summary>
@@ -1097,8 +1178,8 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
@@ -1106,11 +1187,8 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<(Decoration, Single)>
-            {
-                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)
-            }
+            ],
+            Decorations = (List<(Decoration, Single)>) [(decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)]
         });
 
         /// <summary>
@@ -1121,13 +1199,13 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.GrassAndFlowers(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
                 Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)
-            }
+            ]
         });
 
         /// <summary>
@@ -1138,13 +1216,13 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = new List<Layer>
-            {
+            Layers = (List<Layer>)
+            [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),
                 Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)
-            }
+            ]
         });
 
         #pragma warning disable S3242 // Types have meaning.

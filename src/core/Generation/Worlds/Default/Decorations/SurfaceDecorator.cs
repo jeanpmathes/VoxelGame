@@ -44,6 +44,9 @@ public class SurfaceDecorator : Decorator
     /// <inheritdoc />
     public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
     {
+        if (Math.Abs(context.Depth) > 3)
+            return false;
+
         for (var y = 0; y < height; y++)
         for (Int32 x = -width / 2; x <= width / 2; x++)
         for (Int32 z = -width / 2; z <= width / 2; z++)

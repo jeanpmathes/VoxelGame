@@ -197,7 +197,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Shrubland { get; } = biomes.Register(new BiomeDefinition(nameof(Shrubland))
         {
             Color = ColorS.Salmon,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Shrubland))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyShrubland")), 20),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("VeryShrubbyShrubland")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyGrassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyFlowerPatch")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyDryPatch")), 1)
+            ]
         });
 
         /// <summary>
