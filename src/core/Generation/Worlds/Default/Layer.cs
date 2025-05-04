@@ -144,6 +144,14 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     Special top layer for the oasis sub-biome.
+    /// </summary>
+    public static Layer CreateOasisTop(Int32 width, Int32 subBiomeOffset)
+    {
+        return new OasisTop(width, subBiomeOffset);
+    }
+
+    /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
     /// <param name="depth">The depth within the layer.</param>
@@ -362,6 +370,26 @@ public abstract class Layer
         public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)
         {
             return temperature.IsFreezing ? permafrost : mud;
+        }
+    }
+
+    private sealed class OasisTop : Layer
+    {
+        private readonly Content sandstone = new(Blocks.Instance.Sandstone);
+        private readonly Content sand = new(Blocks.Instance.Sand);
+
+        private readonly Int32 subBiomeOffset;
+
+        public OasisTop(Int32 width, Int32 subBiomeOffset)
+        {
+            Width = width;
+
+            this.subBiomeOffset = subBiomeOffset;
+        }
+
+        public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)
+        {
+            return offset - subBiomeOffset > 0 ? sandstone : sand;
         }
     }
 }

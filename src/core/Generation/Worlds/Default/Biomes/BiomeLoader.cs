@@ -213,7 +213,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Desert { get; } = biomes.Register(new BiomeDefinition(nameof(Desert))
         {
             Color = ColorS.Yellow,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Desert))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertDefault")), 30),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertDunes")), 15),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertStones")), 10),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertOasis")), 3),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertSalt")), 1)
+            ]
         });
 
         /// <summary>

@@ -1056,14 +1056,14 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The desert sub-biome.
+        ///     The default desert sub-biome.
         /// </summary>
-        public SubBiomeDefinition Desert { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Desert), palette)
+        public SubBiomeDefinition DesertDefault { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DesertDefault), palette)
         {
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
@@ -1073,10 +1073,96 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
-                (decorations.GetDecoration(cactus), 50.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 1000.0f)
+                (decorations.GetDecoration(cactus), 50.0f)
+            ],
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
+        });
+
+        /// <summary>
+        ///     The desert sub-biome with dunes.
+        /// </summary>
+        public SubBiomeDefinition DesertDunes { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DesertDunes), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.01f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            ],
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
+        });
+
+        /// <summary>
+        ///     The desert sub-biome with stones.
+        /// </summary>
+        public SubBiomeDefinition DesertStones { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DesertStones), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.008f,
+            Offset = 6,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 13, isSolid: false),
+                Layer.CreateStonyDampen(maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            ]
+        });
+
+        /// <summary>
+        ///     The desert sub-biome with water.
+        /// </summary>
+        public SubBiomeDefinition DesertOasis { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DesertOasis), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.04f,
+            Offset = -4,
+            Cover = new Cover.NoVegetation(),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateOasisTop(width: 13, subBiomeOffset: 3),
+                Layer.CreateStonyDampen(maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 10.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     The desert sub-biome with salt.
+        /// </summary>
+        public SubBiomeDefinition DesertSalt { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DesertSalt), palette)
+        {
+            Amplitude = 1f,
+            Frequency = 0.008f,
+            Cover = new Cover.Salt(),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });

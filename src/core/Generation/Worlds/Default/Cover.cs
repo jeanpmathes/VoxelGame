@@ -195,6 +195,20 @@ public abstract class Cover
     }
 
     /// <summary>
+    ///     Cover with salt and no vegetation.
+    /// </summary>
+    public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+
+            return value < 6 ? new Content(Blocks.Instance.Salt) : Content.Default;
+        }
+    }
+
+    /// <summary>
     ///     Cover with fern, and some moss.
     /// </summary>
     public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose)
