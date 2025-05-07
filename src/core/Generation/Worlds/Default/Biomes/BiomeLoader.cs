@@ -229,7 +229,15 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Grassland { get; } = biomes.Register(new BiomeDefinition(nameof(Grassland))
         {
             Color = ColorS.SaddleBrown,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Grassland))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandMain")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandBlooming")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandThicket")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandHills")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandRocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandBog")), 1)
+            ]
         });
 
         /// <summary>

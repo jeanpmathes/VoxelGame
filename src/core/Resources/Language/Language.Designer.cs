@@ -2148,6 +2148,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Peat.
+        /// </summary>
+        public static string Peat {
+            get {
+                return ResourceManager.GetString("Peat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Permafrost.
         /// </summary>
         public static string Permafrost {

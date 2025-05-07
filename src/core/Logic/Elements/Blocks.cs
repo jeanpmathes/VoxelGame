@@ -1823,6 +1823,15 @@ public sealed partial class Blocks(ContentRegistry registry)
         BoundingVolume.CrossBlock(),
         isTintNeutral: false));
 
+    /// <summary>
+    ///     Peat is naturally created from organic matter and can be found in bogs.
+    /// </summary>
+    public Block Peat { get; } = registry.Register(new MudBlock(
+        Language.Peat,
+        nameof(Peat),
+        TextureLayout.Uniform(TID.Block("peat")),
+        maxVelocity: 0.1f));
+
     #endregion NEW BLOCKS
 
     #region LOGGING

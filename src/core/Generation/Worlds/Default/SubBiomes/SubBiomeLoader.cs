@@ -1168,34 +1168,131 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The grassland sub-biome.
+        ///     The main sub-biome of the grassland biome.
         /// </summary>
-        public SubBiomeDefinition Grassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Grassland), palette)
+        public SubBiomeDefinition GrasslandMain { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandMain), palette)
         {
             Amplitude = 4f,
             Frequency = 0.004f,
-            Cover = new Cover.GrassAndFlowers(),
-            Layers = (List<Layer>)
+            Cover = new Cover.Grass(),
+            Layers =
             [
                 Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
                 Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                ..Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(boulder), 2000.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 5000.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 5000.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 5000.0f)
+                (decorations.GetDecoration(boulder), 2000.0f)
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
+        });
+
+        /// <summary>
+        ///     A hilly sub-biome of the grassland biome.
+        /// </summary>
+        public SubBiomeDefinition GrasslandHills { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandHills), palette)
+        {
+            Amplitude = 10f,
+            Frequency = 0.009f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A part of a grassland biome with blooming flowers.
+        /// </summary>
+        public SubBiomeDefinition GrasslandBlooming { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandBlooming), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.004f,
+            Cover = new Cover.GrassAndFlowers(isBlooming: true),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(boulder), 2000.0f)
+            ],
+            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
+        });
+
+        /// <summary>
+        ///     A thicket of trees in the grassland biome.
+        /// </summary>
+        public SubBiomeDefinition GrasslandThicket { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandThicket), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.004f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                ..Clay
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(tallGrass), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 50.0f)
+            ]
+        });
+
+        /// <summary>
+        ///     A sub-biome of a grassland biome with exposed rocks.
+        /// </summary>
+        public SubBiomeDefinition GrasslandRocks { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandRocks), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.004f,
+            Offset = 7,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateStonyTop(width: 8),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                ..Clay
+            ]
+        });
+
+        /// <summary>
+        ///     A bog sub-biome in the grassland biome.
+        /// </summary>
+        public SubBiomeDefinition GrasslandBog { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(GrasslandBog), palette)
+        {
+            Amplitude = 5f,
+            Frequency = 0.001f,
+            Offset = -6,
+            Cover = new Cover.NoVegetation(),
+            Stuffer = new Stuffer.Water(),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Peat, width: 6, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Mud, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 7),
+                ..Clay
+            ]
         });
 
         /// <summary>
