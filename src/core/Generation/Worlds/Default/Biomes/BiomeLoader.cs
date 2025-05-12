@@ -264,7 +264,12 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Mountains { get; } = biomes.Register(new BiomeDefinition(nameof(Mountains))
         {
             Color = ColorS.Black,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Mountains))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsSmooth")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsRough")), 5),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsGreen")), 1)
+            ]
         });
 
         /// <summary>

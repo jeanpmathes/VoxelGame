@@ -1335,14 +1335,54 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The mountain sub-biome. It is a special sub-biome that depends on the height of the terrain.
+        ///     A smooth mountains sub-biome.
         /// </summary>
-        public SubBiomeDefinition Mountains { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Mountains), palette)
+        public SubBiomeDefinition MountainsSmooth { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(MountainsSmooth), palette)
         {
             Amplitude = 30f,
             Frequency = 0.005f,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
+            [
+                Layer.CreateStonyTop(width: 9, amplitude: 15),
+                Layer.CreateStonyDampen(maxWidth: 31),
+                Layer.CreateStone(width: 31),
+                Layer.CreateLoose(width: 9),
+                Layer.CreateGroundwater(width: 1),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+            ]
+        });
+
+        /// <summary>
+        ///     A green, grass-covered mountains sub-biome.
+        /// </summary>
+        public SubBiomeDefinition MountainsGreen { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(MountainsGreen), palette)
+        {
+            Amplitude = 30f,
+            Frequency = 0.005f,
+            Cover = new Cover.Grass(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateStone(width: 5),
+                Layer.CreateStonyDampen(maxWidth: 31),
+                Layer.CreateStone(width: 31),
+                Layer.CreateLoose(width: 9),
+                Layer.CreateGroundwater(width: 1),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+            ]
+        });
+
+        /// <summary>
+        ///     A rough mountains sub-biome.
+        /// </summary>
+        public SubBiomeDefinition MountainsRough { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(MountainsRough), palette)
+        {
+            Amplitude = 30f,
+            Frequency = 0.005f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
             [
                 Layer.CreateStonyTop(width: 9, amplitude: 15),
                 Layer.CreateStonyDampen(maxWidth: 31),
