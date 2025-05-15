@@ -53,6 +53,7 @@ public class SubBiomeLoader : IResourceLoader
         private static readonly RID boulder = RID.Named<Decoration>("Boulder");
         private static readonly RID termiteMound = RID.Named<Decoration>("TermiteMound");
         private static readonly RID cactus = RID.Named<Decoration>("Cactus");
+
         public Registry<SubBiomeDefinition> Registry => subBiomes;
 
         private static IEnumerable<Layer> Permafrost =>
@@ -63,6 +64,14 @@ public class SubBiomeLoader : IResourceLoader
             Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
         ];
 
+        private static IEnumerable<Layer> SingleGroundwaterStone =>
+        [
+            Layer.CreateStone(width: 27),
+            Layer.CreateLoose(width: 27),
+            Layer.CreateGroundwater(width: 8),
+            Layer.CreateStone(width: 21)
+        ];
+
         private static IEnumerable<Layer> Clay =>
         [
             Layer.CreateLoose(width: 3),
@@ -71,6 +80,16 @@ public class SubBiomeLoader : IResourceLoader
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
             Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+        ];
+
+        private static IEnumerable<Layer> DoubleGroundwaterStone =>
+        [
+            Layer.CreateLoose(width: 3),
+            Layer.CreateGroundwater(width: 6),
+            Layer.CreateStone(width: 3),
+            Layer.CreateLoose(width: 33),
+            Layer.CreateGroundwater(width: 18),
+            Layer.CreateStone(width: 21)
         ];
 
         /// <summary>
@@ -137,8 +156,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Permafrost, maxWidth: 9),
-                .. Permafrost
+                Layer.CreateStonyDampen(maxWidth: 9),
+                .. SingleGroundwaterStone
             ]
         });
 
@@ -155,8 +174,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
-                .. Permafrost
+                Layer.CreateStonyDampen(maxWidth: 9),
+                .. SingleGroundwaterStone
             ]
         });
 
@@ -175,7 +194,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
@@ -205,7 +224,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
@@ -235,7 +254,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
@@ -261,7 +280,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 4.0f),
                 (decorations.GetDecoration(tallRedFlower), 4.0f),
@@ -285,7 +304,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
                 .. Clay
             ],
-            Decorations = (List<(Decoration, Single)>)
+            Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
@@ -579,8 +598,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
-                .. Permafrost
+                Layer.CreateStonyDampen(maxWidth: 9),
+                .. SingleGroundwaterStone
             ]
         });
 
@@ -629,8 +648,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
-                .. Permafrost
+                Layer.CreateStonyDampen(maxWidth: 9),
+                .. SingleGroundwaterStone
             ]
         });
 
@@ -921,8 +940,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                .. Clay
+                Layer.CreateStonyDampen(maxWidth: 26),
+                .. DoubleGroundwaterStone
             ],
             Decorations = [(decorations.GetDecoration(tallGrass), 1.0f)]
         });
@@ -1050,8 +1069,8 @@ public class SubBiomeLoader : IResourceLoader
             [
                 Layer.CreateStonyTop(width: 3, amplitude: 0),
                 Layer.CreateStone(width: 3),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
-                .. Clay
+                Layer.CreateStonyDampen(maxWidth: 2),
+                .. DoubleGroundwaterStone
             ]
         });
 
@@ -1271,8 +1290,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 8),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                ..Clay
+                Layer.CreateStonyDampen(maxWidth: 8),
+                .. DoubleGroundwaterStone
             ]
         });
 
