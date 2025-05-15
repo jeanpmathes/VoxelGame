@@ -278,7 +278,11 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach))
         {
             Color = ColorS.Orange,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Beach))), 1)]
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BeachDefault")), 1),
+                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BeachPalms")), 1)
+            ]
         });
 
         /// <summary>

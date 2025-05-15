@@ -1394,14 +1394,34 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     The beach sub-biome. It is found at low heights next to coastlines.
+        ///     The default beach sub-biome.
         /// </summary>
-        public SubBiomeDefinition Beach { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Beach), palette)
+        public SubBiomeDefinition BeachDefault { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BeachDefault), palette)
         {
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
+                Layer.CreateLoose(width: 22),
+                Layer.CreateGroundwater(width: 18),
+                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            ]
+        });
+
+        /// <summary>
+        ///     A variant of the beach sub-biome with palm trees.
+        /// </summary>
+        public SubBiomeDefinition BeachPalms { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BeachPalms), palette)
+        {
+            Amplitude = 4f,
+            Frequency = 0.008f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
@@ -1411,7 +1431,10 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateGroundwater(width: 18),
                 Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
             ],
-            Decorations = (List<(Decoration, Single)>) [(decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)]
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)
+            ]
         });
 
         /// <summary>
