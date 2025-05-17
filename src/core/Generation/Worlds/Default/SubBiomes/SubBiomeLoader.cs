@@ -92,10 +92,66 @@ public class SubBiomeLoader : IResourceLoader
             Layer.CreateStone(width: 21)
         ];
 
+        #region Ocean
+
+        /// <summary>
+        ///     The normal ocean sub-biome.
+        /// </summary>
+        public SubBiomeDefinition Ocean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Ocean), palette)
+        {
+            Amplitude = 5.0f,
+            Frequency = 0.005f,
+            Cover = new Cover.NoVegetation(),
+            Layers = (List<Layer>)
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+            ]
+        });
+
+        #endregion
+
+        #region PolarOcean
+
+        /// <summary>
+        ///     The polar ocean sub-biome. It is covered in ice and occurs in cold regions.
+        /// </summary>
+        public SubBiomeDefinition PolarOcean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOcean), palette)
+        {
+            Amplitude = 5.0f,
+            Frequency = 0.005f,
+            IceWidth = 6,
+            Cover = new Cover.NoVegetation(),
+            Layers = (List<Layer>)
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+            ]
+        });
+
+        #endregion PolarOcean
+
+        #pragma warning disable S3242 // Types have meaning.
+        private static RID Get(Wood wood)
+        {
+            return RID.Named<Decoration>(wood.NamedID);
+        }
+        #pragma warning restore S3242
+
+        #region PolarDesert
+
         /// <summary>
         ///     A snow-filled flat field.
         /// </summary>
-        public SubBiomeDefinition SnowField { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SnowField), palette)
+        public SubBiomeDefinition PolarDesertSnowy { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertSnowy), palette)
         {
             Amplitude = 2f,
             Frequency = 0.004f,
@@ -112,7 +168,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Flat fields with loose snow, where one can sink into the snow.
         /// </summary>
-        public SubBiomeDefinition LooseSnow { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(LooseSnow), palette)
+        public SubBiomeDefinition PolarDesertLooseSnow { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertLooseSnow), palette)
         {
             Amplitude = 4f,
             Frequency = 0.03f,
@@ -131,7 +187,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Snowy dunes.
         /// </summary>
-        public SubBiomeDefinition SnowyDunes { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SnowyDunes), palette)
+        public SubBiomeDefinition PolarDesertDunes { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertDunes), palette)
         {
             Amplitude = 4f,
             Frequency = 0.01f,
@@ -148,7 +204,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A frosty, stony area.
         /// </summary>
-        public SubBiomeDefinition FrostyRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(FrostyRidge), palette)
+        public SubBiomeDefinition PolarDesertRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertRidge), palette)
         {
             Amplitude = 5f,
             Frequency = 0.09f,
@@ -164,7 +220,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Frozen water basins.
         /// </summary>
-        public SubBiomeDefinition FrozenBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(FrozenBasin), palette)
+        public SubBiomeDefinition PolarDesertBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertBasin), palette)
         {
             Amplitude = 4f,
             Frequency = 0.03f,
@@ -178,6 +234,10 @@ public class SubBiomeLoader : IResourceLoader
                 .. SingleGroundwaterStone
             ]
         });
+
+        #endregion PolarDesert
+
+        #region TropicalRainforest
 
         /// <summary>
         ///     Hilly sub-biome of a rainforest.
@@ -242,7 +302,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A group of rubber trees.
         /// </summary>
-        public SubBiomeDefinition TropicalRubberTreeGroup { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRubberTreeGroup), palette)
+        public SubBiomeDefinition TropicalRainforestRubberTrees { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestRubberTrees), palette)
         {
             Amplitude = 10f,
             Frequency = 0.005f,
@@ -268,7 +328,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A clearing filled with flowers.
         /// </summary>
-        public SubBiomeDefinition TropicalBloomingClearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalBloomingClearing), palette)
+        public SubBiomeDefinition TropicalRainforestBloomingClearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestBloomingClearing), palette)
         {
             Amplitude = 5f,
             Frequency = 0.005f,
@@ -311,6 +371,10 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallYellowFlower), 8.0f)
             ]
         });
+
+        #endregion TropicalRainforest
+
+        #region TemperateRainforest
 
         /// <summary>
         ///     A hilly sub-biome of a temperate rainforest.
@@ -365,7 +429,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A part of a temperate rainforest with cherry trees.
         /// </summary>
-        public SubBiomeDefinition CherryGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(CherryGrove), palette)
+        public SubBiomeDefinition TemperateRainforestCherryGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforestCherryGrove), palette)
         {
             Amplitude = 5f,
             Frequency = 0.005f,
@@ -405,7 +469,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A stony, moss-covered area.
         /// </summary>
-        public SubBiomeDefinition MossyStones { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(MossyStones), palette)
+        public SubBiomeDefinition TemperateRainforestMossyStones { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TemperateRainforestMossyStones), palette)
         {
             Amplitude = 5f,
             Frequency = 0.09f,
@@ -418,10 +482,14 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion TemperateRainforest
+
+        #region Taiga
+
         /// <summary>
         ///     Boreal forest sub-biome.
         /// </summary>
-        public SubBiomeDefinition BorealForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealForest), palette)
+        public SubBiomeDefinition TaigaForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaForest), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -444,7 +512,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Boreal pine forest sub-biome.
         /// </summary>
-        public SubBiomeDefinition BorealPineForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealPineForest), palette)
+        public SubBiomeDefinition TaigaPineForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaPineForest), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -465,7 +533,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Boreal spruce forest sub-biome.
         /// </summary>
-        public SubBiomeDefinition BorealSpruceForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealSpruceForest), palette)
+        public SubBiomeDefinition TaigaSpruceForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaSpruceForest), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -486,7 +554,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Boreal fir forest sub-biome.
         /// </summary>
-        public SubBiomeDefinition BorealFirForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealFirForest), palette)
+        public SubBiomeDefinition TaigaFirForest { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaFirForest), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -505,30 +573,9 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     Boreal shrubland sub-biome.
-        /// </summary>
-        public SubBiomeDefinition BorealShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealShrubland), palette)
-        {
-            Amplitude = 3f,
-            Frequency = 0.007f,
-            Cover = new Cover.Moss(),
-            Layers =
-            [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
-                ..Permafrost
-            ],
-            Decorations =
-            [
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f)
-            ]
-        });
-
-        /// <summary>
         ///     A boreal wetland - a swampy area.
         /// </summary>
-        public SubBiomeDefinition BorealWetland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BorealWetland), palette)
+        public SubBiomeDefinition TaigaWetland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaWetland), palette)
         {
             Amplitude = 2f,
             Frequency = 0.03f,
@@ -548,9 +595,34 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
+        ///     Boreal shrubland sub-biome.
+        /// </summary>
+        public SubBiomeDefinition TaigaShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TaigaShrubland), palette)
+        {
+            Amplitude = 3f,
+            Frequency = 0.007f,
+            Cover = new Cover.Moss(),
+            Layers =
+            [
+                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                ..Permafrost
+            ],
+            Decorations =
+            [
+                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f)
+            ]
+        });
+
+        #endregion Taiga
+
+        #region Tundra
+
+        /// <summary>
         ///     A very cold shrubland.
         /// </summary>
-        public SubBiomeDefinition ColdShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdShrubland), palette)
+        public SubBiomeDefinition TundraShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraShrubland), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -570,9 +642,9 @@ public class SubBiomeLoader : IResourceLoader
         });
 
         /// <summary>
-        ///     A very cold grassland.
+        ///     Very cold grassland.
         /// </summary>
-        public SubBiomeDefinition ColdGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdGrassland), palette)
+        public SubBiomeDefinition TundraGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraGrassland), palette)
         {
             Amplitude = 3f,
             Frequency = 0.007f,
@@ -590,7 +662,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A cold, stony area.
         /// </summary>
-        public SubBiomeDefinition ColdRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ColdRidge), palette)
+        public SubBiomeDefinition TundraRidge { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraRidge), palette)
         {
             Amplitude = 5f,
             Frequency = 0.06f,
@@ -606,7 +678,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A patch of permafrost directly at the surface.
         /// </summary>
-        public SubBiomeDefinition PermafrostPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PermafrostPatch), palette)
+        public SubBiomeDefinition TundraPermafrostPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraPermafrostPatch), palette)
         {
             Amplitude = 1f,
             Frequency = 0.007f,
@@ -622,7 +694,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A basin filled with thawed water - or ice, depending on the temperature.
         /// </summary>
-        public SubBiomeDefinition ThawBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ThawBasin), palette)
+        public SubBiomeDefinition TundraBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraBasin), palette)
         {
             Amplitude = 4f,
             Frequency = 0.03f,
@@ -640,7 +712,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     An area covered in lichen.
         /// </summary>
-        public SubBiomeDefinition LichenField { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(LichenField), palette)
+        public SubBiomeDefinition TundraLichen { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TundraLichen), palette)
         {
             Amplitude = 2f,
             Frequency = 0.007f,
@@ -652,6 +724,10 @@ public class SubBiomeLoader : IResourceLoader
                 .. SingleGroundwaterStone
             ]
         });
+
+        #endregion Tundra
+
+        #region Savanna
 
         /// <summary>
         ///     A woodland sub-biome in a savanna.
@@ -751,7 +827,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A savanna waterhole.
         /// </summary>
-        public SubBiomeDefinition Waterhole { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Waterhole), palette)
+        public SubBiomeDefinition SavannaWaterhole { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SavannaWaterhole), palette)
         {
             Amplitude = 5f,
             Frequency = 0.03f,
@@ -766,10 +842,14 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion Savanna
+
+        #region SeasonalForest
+
         /// <summary>
         ///     A woodland sub-biome.
         /// </summary>
-        public SubBiomeDefinition Woodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Woodland), palette)
+        public SubBiomeDefinition SeasonalForestWoodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForestWoodland), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -799,7 +879,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A birch grove sub-biome, similar to woodland but with only birch trees.
         /// </summary>
-        public SubBiomeDefinition BirchGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(BirchGrove), palette)
+        public SubBiomeDefinition SeasonalForestBirchGrove { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForestBirchGrove), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -824,7 +904,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A clearing in a woodland.
         /// </summary>
-        public SubBiomeDefinition Clearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Clearing), palette)
+        public SubBiomeDefinition SeasonalForestClearing { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForestClearing), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -848,7 +928,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A pond sub-biome in a woodland.
         /// </summary>
-        public SubBiomeDefinition Pond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Pond), palette)
+        public SubBiomeDefinition SeasonalForestPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(SeasonalForestPond), palette)
         {
             Amplitude = 5f,
             Frequency = 0.01f,
@@ -863,10 +943,14 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion SeasonalForest
+
+        #region DryForest
+
         /// <summary>
         ///     A woodland, but drier.
         /// </summary>
-        public SubBiomeDefinition DryWoodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryWoodland), palette)
+        public SubBiomeDefinition DryForestWoodland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForestWoodland), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -892,7 +976,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A dry area with shrubs.
         /// </summary>
-        public SubBiomeDefinition DryShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryShrubland), palette)
+        public SubBiomeDefinition DryForestShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForestShrubland), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -914,7 +998,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A dry area with no shrubs or trees.
         /// </summary>
-        public SubBiomeDefinition DryGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryGrassland), palette)
+        public SubBiomeDefinition DryForestGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForestGrassland), palette)
         {
             Amplitude = 7f,
             Frequency = 0.005f,
@@ -932,7 +1016,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A dry, rocky area.
         /// </summary>
-        public SubBiomeDefinition DryRocks { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryRocks), palette)
+        public SubBiomeDefinition DryForestRocks { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForestRocks), palette)
         {
             Amplitude = 10f,
             Frequency = 0.09f,
@@ -949,7 +1033,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     A dried out pond.
         /// </summary>
-        public SubBiomeDefinition DriedPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DriedPond), palette)
+        public SubBiomeDefinition DryForestDriedPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(DryForestDriedPond), palette)
         {
             Amplitude = 7f,
             Frequency = 0.01f,
@@ -963,10 +1047,14 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion DryForest
+
+        #region Shrubland
+
         /// <summary>
         ///     The part of the shrubland that has the shrubs.
         /// </summary>
-        public SubBiomeDefinition ShrubbyShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyShrubland), palette)
+        public SubBiomeDefinition ShrublandDefault { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrublandDefault), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
@@ -991,7 +1079,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     The part of the shrubland that has many shrubs.
         /// </summary>
-        public SubBiomeDefinition VeryShrubbyShrubland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(VeryShrubbyShrubland), palette)
+        public SubBiomeDefinition ShrublandDense { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrublandDense), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
@@ -1016,7 +1104,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     The part of the shrubland that has no shrubs.
         /// </summary>
-        public SubBiomeDefinition ShrubbyGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyGrassland), palette)
+        public SubBiomeDefinition ShrublandGrassland { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrublandGrassland), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
@@ -1038,7 +1126,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     The part of the shrubland that has no shrubs but many flowers.
         /// </summary>
-        public SubBiomeDefinition ShrubbyFlowerPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyFlowerPatch), palette)
+        public SubBiomeDefinition ShrublandFlowerPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrublandFlowerPatch), palette)
         {
             Amplitude = 1f,
             Frequency = 0.01f,
@@ -1060,7 +1148,7 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     The part of the shrubland that has a stony cover and nearly no vegetation.
         /// </summary>
-        public SubBiomeDefinition ShrubbyDryPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrubbyDryPatch), palette)
+        public SubBiomeDefinition ShrublandDryPatch { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ShrublandDryPatch), palette)
         {
             Amplitude = 2f,
             Frequency = 0.1f,
@@ -1073,6 +1161,10 @@ public class SubBiomeLoader : IResourceLoader
                 .. DoubleGroundwaterStone
             ]
         });
+
+        #endregion Shrubland
+
+        #region Desert
 
         /// <summary>
         ///     The default desert sub-biome.
@@ -1185,6 +1277,10 @@ public class SubBiomeLoader : IResourceLoader
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
+
+        #endregion Desert
+
+        #region Grassland
 
         /// <summary>
         ///     The main sub-biome of the grassland biome.
@@ -1314,44 +1410,9 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
-        /// <summary>
-        ///     The normal ocean sub-biome.
-        /// </summary>
-        public SubBiomeDefinition Ocean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Ocean), palette)
-        {
-            Amplitude = 5.0f,
-            Frequency = 0.005f,
-            Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
-            [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            ]
-        });
+        #endregion Grassland
 
-        /// <summary>
-        ///     The polar ocean sub-biome. It is covered in ice and occurs in cold regions.
-        /// </summary>
-        public SubBiomeDefinition PolarOcean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOcean), palette)
-        {
-            Amplitude = 5.0f,
-            Frequency = 0.005f,
-            IceWidth = 6,
-            Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
-            [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            ]
-        });
+        #region Mountains
 
         /// <summary>
         ///     A smooth mountains sub-biome.
@@ -1412,6 +1473,10 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion Mountains
+
+        #region Beach
+
         /// <summary>
         ///     The default beach sub-biome.
         /// </summary>
@@ -1456,6 +1521,10 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
+        #endregion Beach
+
+        #region Cliffs
+
         /// <summary>
         ///     The grass covered cliff sub-biome, which is found at large height differences.
         /// </summary>
@@ -1490,11 +1559,6 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
-        #pragma warning disable S3242 // Types have meaning.
-        private static RID Get(Wood wood)
-        {
-            return RID.Named<Decoration>(wood.NamedID);
-        }
-        #pragma warning restore S3242
+        #endregion Cliffs
     }
 }

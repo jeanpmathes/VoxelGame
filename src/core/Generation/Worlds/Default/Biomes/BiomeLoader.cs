@@ -14,6 +14,8 @@ using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
+#pragma warning disable S1192 // Similar strings are pure coincidences and not related to each other.
+
 /// <summary>
 ///     Loads all biomes for this world generator, as well as the biome distribution.
 /// </summary>
@@ -70,11 +72,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Gray,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowField")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("LooseSnow")), 2),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SnowyDunes")), 10),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("FrostyRidge")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("FrozenBasin")), 3)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Snowy")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "LooseSnow")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Dunes")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Ridge")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Basin")), 3)
             ]
         });
 
@@ -86,11 +88,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.DarkGreen,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestHills")), 6),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestFlats")), 6),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRubberTreeGroup")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalBloomingClearing")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TropicalRainforestPond")), 2)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Hills")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Flats")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "RubberTrees")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "BloomingClearing")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Pond")), 2)
             ]
         });
 
@@ -102,11 +104,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Green,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestHills")), 6),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestFlats")), 6),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("CherryGrove")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("TemperateRainforestPond")), 2),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MossyStones")), 2)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Hills")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Flats")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "CherryGrove")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Pond")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "MossyStones")), 2)
             ]
         });
 
@@ -118,12 +120,12 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Navy,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealForest")), 8),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealPineForest")), 4),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealSpruceForest")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealFirForest")), 4),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealWetland")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BorealShrubland")), 2)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Forest")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "PineForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "SpruceForest")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "FirForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Wetland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Shrubland")), 2)
             ]
         });
 
@@ -135,12 +137,12 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.CadetBlue,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdShrubland")), 12),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdGrassland")), 8),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ColdRidge")), 4),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("PermafrostPatch")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ThawBasin")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("LichenField")), 2)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Shrubland")), 12),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Grassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Ridge")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "PermafrostPatch")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Basin")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Lichen")), 2)
             ]
         });
 
@@ -152,11 +154,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Olive,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaWoodland")), 10),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaDenseWoodland")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaShrubland")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("SavannaGrassland")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Waterhole")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Woodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "DenseWoodland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Shrubland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Grassland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Waterhole")), 1)
             ]
         });
 
@@ -168,10 +170,10 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Lime,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Woodland")), 12),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BirchGrove")), 2),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Clearing")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("Pond")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Woodland")), 12),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "BirchGrove")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Clearing")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Pond")), 1)
             ]
         });
 
@@ -183,11 +185,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.SeaGreen,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryWoodland")), 10),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryShrubland")), 4),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryGrassland")), 4),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DryRocks")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DriedPond")), 3)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Woodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Shrubland")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Grassland")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Rocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "DriedPond")), 3)
             ]
         });
 
@@ -199,11 +201,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Salmon,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyShrubland")), 20),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("VeryShrubbyShrubland")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyGrassland")), 8),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyFlowerPatch")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("ShrubbyDryPatch")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Default")), 20),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Dense")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Grassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "FlowerPatch")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "DryPatch")), 1)
             ]
         });
 
@@ -215,11 +217,11 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Yellow,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertDefault")), 30),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertDunes")), 15),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertStones")), 10),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertOasis")), 3),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("DesertSalt")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Default")), 30),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Dunes")), 15),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Stones")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Oasis")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Salt")), 1)
             ]
         });
 
@@ -231,12 +233,12 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.SaddleBrown,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandMain")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandBlooming")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandThicket")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandHills")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandRocks")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("GrasslandBog")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Main")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Blooming")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Thicket")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Hills")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Rocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Bog")), 1)
             ]
         });
 
@@ -246,7 +248,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean))
         {
             Color = ColorS.White,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(Ocean))), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "")), 1)]
         });
 
         /// <summary>
@@ -255,7 +257,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean))
         {
             Color = ColorS.White,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(PolarOcean))), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "")), 1)]
         });
 
         /// <summary>
@@ -266,9 +268,9 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Black,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsSmooth")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsRough")), 5),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("MountainsGreen")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Smooth")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Rough")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Green")), 1)
             ]
         });
 
@@ -280,8 +282,8 @@ public sealed class BiomeLoader : IResourceLoader
             Color = ColorS.Orange,
             SubBiomes =
             [
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BeachDefault")), 1),
-                (subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>("BeachPalms")), 1)
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Beach), "Default")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Beach), "Palms")), 1)
             ]
         });
 
@@ -291,7 +293,7 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff))
         {
             Color = ColorS.LightGray,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(GrassyCliff))), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(GrassyCliff), "")), 1)]
         });
 
         /// <summary>
@@ -300,7 +302,12 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff))
         {
             Color = ColorS.SlateGray,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(RID.Named<SubBiomeDefinition>(nameof(SandyCliff))), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SandyCliff), "")), 1)]
         });
+
+        private static RID GetSubBiomeRID(String biome, String subBiome)
+        {
+            return RID.Named<SubBiomeDefinition>($"{biome}{subBiome}");
+        }
     }
 }
