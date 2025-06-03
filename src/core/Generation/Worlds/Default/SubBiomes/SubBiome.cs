@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
 
@@ -21,6 +22,7 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 public sealed class SubBiome : IDisposable
 {
     private readonly NoiseGenerator noise;
+    private readonly Int32 dampeningFactor;
 
     /// <summary>
     ///     Create a new sub-biome.
@@ -45,6 +47,8 @@ public sealed class SubBiome : IDisposable
             .WithGain(gain: 0.5f)
             .WithWeightedStrength(weightedStrength: 0.0f)
             .Build();
+
+        dampeningFactor = Definition.Dampen != null ? 1 : 0;
     }
 
     /// <summary>
@@ -74,18 +78,25 @@ public sealed class SubBiome : IDisposable
     /// <returns>The offset value.</returns>
     public Single GetOffset(Vector2i position)
     {
+        if (MathTools.NearlyZero(Definition.Amplitude))
+            return Definition.Offset;
+
         return noise.GetNoise(position) * Definition.Amplitude + Definition.Offset;
     }
 
     /// <summary>
-    ///     Calculate the dampening that is applied to a column, depending on the offset.
+    ///     Calculate the dampening which is applied to a column, depending on the offset.
     /// </summary>
     /// <param name="originalOffset">The offset of the colum.</param>
     /// <returns>The applied dampening.</returns>
     public Dampening CalculateDampening(Int32 originalOffset)
     {
-        const Int32 dampenThreshold = 2;
+        if (Definition.Dampen == null)
+            return new Dampening(originalOffset, originalOffset, Width: 0);
+
         Int32 normalWidth = Definition.MaxDampenWidth / 2;
+
+        const Int32 dampenThreshold = 2;
 
         if (Math.Abs(originalOffset) <= dampenThreshold) return new Dampening(originalOffset, originalOffset, normalWidth);
 
@@ -102,7 +113,7 @@ public sealed class SubBiome : IDisposable
     /// <returns>The total width of the sub-biome.</returns>
     public Int32 GetTotalWidth(Dampening dampening)
     {
-        return Definition.MinWidth + dampening.Width;
+        return Definition.MinWidth + dampening.Width * dampeningFactor;
     }
 
     /// <summary>
@@ -123,7 +134,7 @@ public sealed class SubBiome : IDisposable
 
         Boolean isInUpperHorizon = depthBelowSurface < Definition.DepthToDampen;
 
-        if (isInUpperHorizon)
+        if (isInUpperHorizon || Definition.Dampen == null)
         {
             (current, depthInLayer) = Definition.GetUpperHorizon(depthBelowSurface);
             actualOffset = dampening.OriginalOffset;

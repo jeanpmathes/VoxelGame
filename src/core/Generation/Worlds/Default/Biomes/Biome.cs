@@ -17,6 +17,7 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 public sealed class Biome : IDisposable
 {
     private readonly List<(SubBiome, Single)> subBiomes;
+    private readonly List<(SubBiome, Single)> oceanicSubBiomes;
 
     /// <summary>
     ///     Create a new biome.
@@ -27,7 +28,8 @@ public sealed class Biome : IDisposable
     {
         Definition = definition;
 
-        subBiomes = SetUpSubBiomes(definition, subBiomeMap);
+        subBiomes = SetUpSubBiomes(definition.SubBiomes, subBiomeMap);
+        oceanicSubBiomes = definition.IsOceanic ? SetUpSubBiomes(definition.OceanicSubBiomes, subBiomeMap) : [];
     }
 
     /// <summary>
@@ -57,11 +59,11 @@ public sealed class Biome : IDisposable
 
     #endregion DISPOSABLE
 
-    private static List<(SubBiome, Single)> SetUpSubBiomes(BiomeDefinition definition, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
+    private static List<(SubBiome, Single)> SetUpSubBiomes(IReadOnlyList<(SubBiomeDefinition, Int32)> subBiomes, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
     {
         Single tickets = 0;
 
-        foreach ((_, Int32 count) in definition.SubBiomes) tickets += count;
+        foreach ((_, Int32 count) in subBiomes) tickets += count;
 
         Debug.Assert(tickets > 0);
 
@@ -69,7 +71,7 @@ public sealed class Biome : IDisposable
 
         Single sum = 0;
 
-        foreach ((SubBiomeDefinition subBiomeDefinition, Int32 count) in definition.SubBiomes)
+        foreach ((SubBiomeDefinition subBiomeDefinition, Int32 count) in subBiomes)
         {
             SubBiome subBiome = subBiomeMap[subBiomeDefinition];
 
@@ -87,6 +89,21 @@ public sealed class Biome : IDisposable
     /// <param name="value">A value between 0 and 1.</param>
     /// <returns>The chosen sub-biome.</returns>
     public SubBiome ChooseSubBiome(Single value)
+    {
+        return ChooseSubBiome(subBiomes, value);
+    }
+
+    /// <summary>
+    ///     Choose an oceanic sub-biome based on a value.
+    /// </summary>
+    /// <param name="value">A value between 0 and 1.</param>
+    /// <returns>The chosen sub-biome.</returns>
+    public SubBiome ChooseOceanicSubBiome(Single value)
+    {
+        return ChooseSubBiome(oceanicSubBiomes, value);
+    }
+
+    private static SubBiome ChooseSubBiome(List<(SubBiome, Single)> subBiomes, Single value)
     {
         Debug.Assert(value is >= 0 and <= 1);
 

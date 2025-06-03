@@ -248,7 +248,8 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean))
         {
             Color = ColorS.White,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "")), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "Floor")), 1)],
+            OceanicSubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "Open")), 1)]
         });
 
         /// <summary>
@@ -257,7 +258,14 @@ public sealed class BiomeLoader : IResourceLoader
         public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean))
         {
             Color = ColorS.White,
-            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "")), 1)]
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Floor")), 1)],
+            OceanicSubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Open")), 25),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThinIce")), 15),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThickIce")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Icebergs")), 5)
+            ]
         });
 
         /// <summary>

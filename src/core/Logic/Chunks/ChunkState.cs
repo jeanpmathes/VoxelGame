@@ -270,11 +270,16 @@ public abstract class ChunkState
 
         return Future.Create(async () =>
             {
-                T result = await func().InAnyContext();
+                try
+                {
+                    T result = await func().InAnyContext();
 
-                await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
-
-                return result;
+                    return result;
+                }
+                finally
+                {
+                    await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+                }
             },
             CancellationToken.None);
 
@@ -296,9 +301,14 @@ public abstract class ChunkState
 
         return Future.Create(async () =>
             {
-                await action().InAnyContext();
-
-                await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+                try
+                {
+                    await action().InAnyContext();
+                }
+                finally
+                {
+                    await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+                }
             },
             CancellationToken.None);
 

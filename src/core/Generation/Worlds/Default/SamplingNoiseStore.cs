@@ -26,6 +26,7 @@ public class SamplingNoiseStore
 
     private SlotCache<Vector2> cellSamplingOffsetNoiseCache;
     private SlotCache<Single> subBiomeDeterminationNoiseCache;
+    private SlotCache<Single> oceanicSubBiomeDeterminationNoiseCache;
 
     /// <summary>
     ///     Create a new noise store for a targeted chunk-sized region of the world.
@@ -80,6 +81,22 @@ public class SamplingNoiseStore
             2 => ReadSubBiomeDeterminationNoiseCache(position, noise, ref subBiomeDeterminationNoiseCache.key2, ref subBiomeDeterminationNoiseCache.value2),
             3 => ReadSubBiomeDeterminationNoiseCache(position, noise, ref subBiomeDeterminationNoiseCache.key3, ref subBiomeDeterminationNoiseCache.value3),
             4 => ReadSubBiomeDeterminationNoiseCache(position, noise, ref subBiomeDeterminationNoiseCache.key4, ref subBiomeDeterminationNoiseCache.value4),
+            _ => throw Exceptions.UnsupportedValue(cachingHint)
+        };
+    }
+
+    /// <summary>
+    ///     Get the cached or computed oceanic sub-biome determination noise for a given position.
+    ///     This method must be used with a non-zero caching hint.
+    /// </summary>
+    public Single GetOceanicSubBiomeDeterminationNoise(Vector2i position, SamplingNoise samplingNoise, Int32 cachingHint)
+    {
+        return cachingHint switch
+        {
+            1 => ReadSubBiomeDeterminationNoiseCache(position, samplingNoise, ref oceanicSubBiomeDeterminationNoiseCache.key1, ref oceanicSubBiomeDeterminationNoiseCache.value1),
+            2 => ReadSubBiomeDeterminationNoiseCache(position, samplingNoise, ref oceanicSubBiomeDeterminationNoiseCache.key2, ref oceanicSubBiomeDeterminationNoiseCache.value2),
+            3 => ReadSubBiomeDeterminationNoiseCache(position, samplingNoise, ref oceanicSubBiomeDeterminationNoiseCache.key3, ref oceanicSubBiomeDeterminationNoiseCache.value3),
+            4 => ReadSubBiomeDeterminationNoiseCache(position, samplingNoise, ref oceanicSubBiomeDeterminationNoiseCache.key4, ref oceanicSubBiomeDeterminationNoiseCache.value4),
             _ => throw Exceptions.UnsupportedValue(cachingHint)
         };
     }

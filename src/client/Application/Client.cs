@@ -39,6 +39,8 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     private WindowBehaviour windowBehaviour = null!;
 
+    private Boolean isExitingToOS;
+
     /// <summary>
     ///     Create a new game instance.
     /// </summary>
@@ -103,7 +105,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
             {
                 LogFailedToLoadUIResources(logger);
 
-                Close();
+                ExitToOS();
 
                 return;
             }
@@ -208,7 +210,12 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     private void ExitToOS()
     {
+        if (isExitingToOS)
+            return;
+
         LogExitingToOS(logger);
+
+        isExitingToOS = true;
 
         Close();
     }

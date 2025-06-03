@@ -92,17 +92,24 @@ public class SubBiomeLoader : IResourceLoader
             Layer.CreateStone(width: 21)
         ];
 
+        #pragma warning disable S3242 // Types have meaning.
+        private static RID Get(Wood wood)
+        {
+            return RID.Named<Decoration>(wood.NamedID);
+        }
+        #pragma warning restore S3242
+
         #region Ocean
 
         /// <summary>
-        ///     The normal ocean sub-biome.
+        ///     The normal ocean floor sub-biome.
         /// </summary>
-        public SubBiomeDefinition Ocean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(Ocean), palette)
+        public SubBiomeDefinition OceanFloor { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OceanFloor), palette)
         {
             Amplitude = 5.0f,
             Frequency = 0.005f,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
@@ -111,6 +118,16 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateLoose(width: 37),
                 Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
             ]
+        });
+
+        /// <summary>
+        ///     The ocean default oceanic sub-biome.
+        /// </summary>
+        public SubBiomeDefinition OceanOpen { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OceanOpen), palette)
+        {
+            Cover = new Cover.Nothing(),
+            IsOceanic = true,
+            Layers = []
         });
 
         #endregion
@@ -118,15 +135,14 @@ public class SubBiomeLoader : IResourceLoader
         #region PolarOcean
 
         /// <summary>
-        ///     The polar ocean sub-biome. It is covered in ice and occurs in cold regions.
+        ///     The polar ocean floor sub-biome.
         /// </summary>
-        public SubBiomeDefinition PolarOcean { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOcean), palette)
+        public SubBiomeDefinition PolarOceanFloor { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOceanFloor), palette)
         {
             Amplitude = 5.0f,
             Frequency = 0.005f,
-            IceWidth = 6,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
                 Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
@@ -137,14 +153,60 @@ public class SubBiomeLoader : IResourceLoader
             ]
         });
 
-        #endregion PolarOcean
-
-        #pragma warning disable S3242 // Types have meaning.
-        private static RID Get(Wood wood)
+        /// <summary>
+        ///     The polar ocean default oceanic sub-biome.
+        /// </summary>
+        public SubBiomeDefinition PolarOceanOpen { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOceanOpen), palette)
         {
-            return RID.Named<Decoration>(wood.NamedID);
-        }
-        #pragma warning restore S3242
+            Cover = new Cover.Nothing(),
+            IsOceanic = true,
+            Layers = []
+        });
+
+        /// <summary>
+        ///     A sub-biome of the polar ocean covered by a thin layer of ice.
+        /// </summary>
+        public SubBiomeDefinition PolarOceanThinIce { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOceanThinIce), palette)
+        {
+            IgnoresBlendedOffset = true,
+            Cover = new Cover.Nothing(),
+            IsOceanic = true,
+            Layers = [Layer.CreateIce(width: 1)]
+        });
+
+        /// <summary>
+        ///     A sub-biome of the polar ocean covered by a thick layer of ice.
+        /// </summary>
+        public SubBiomeDefinition PolarOceanThickIce { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOceanThickIce), palette)
+        {
+            Amplitude = 2.0f,
+            Frequency = 0.05f,
+            Offset = 3,
+            Cover = new Cover.NoVegetation(),
+            Stuffer = new Stuffer.Ice(),
+            IsOceanic = true,
+            Layers =
+            [
+                Layer.CreateIce(width: 3),
+                Layer.CreateIceDampen(maxWidth: 5),
+                Layer.CreateIce(width: 2)
+            ]
+        });
+
+        /// <summary>
+        ///     A sub-biome of the polar ocean covered by a thin layer of ice.
+        /// </summary>
+        public SubBiomeDefinition PolarOceanIcebergs { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarOceanIcebergs), palette)
+        {
+            Amplitude = 13.0f,
+            Frequency = 0.05f,
+            Offset = 4,
+            Cover = new Cover.Nothing(),
+            IsOceanic = true,
+            Layers = [Layer.CreateIce(width: 30)]
+        });
+
+        #endregion PolarOcean
 
         #region PolarDesert
 
@@ -1533,7 +1595,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.GrassAndFlowers(),
-            Layers = (List<Layer>)
+            Layers =
             [
                 Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
                 Layer.CreateStone(width: 53),
@@ -1550,7 +1612,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 4f,
             Frequency = 0.008f,
             Cover = new Cover.NoVegetation(),
-            Layers = (List<Layer>)
+            Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),
                 Layer.CreateStone(width: 53),

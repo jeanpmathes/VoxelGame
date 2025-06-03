@@ -11,6 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
@@ -22,7 +23,7 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 /// <param name="palette">The block palette to use.</param>
 public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 {
-    private IList<Layer> layers;
+    private readonly IList<Layer> layers;
 
     private (Layer layer, Int32 depth)[] upperHorizon;
     private (Layer layer, Int32 depth)[] lowerHorizon;
@@ -31,11 +32,6 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     ///     The name of the sub-biome.
     /// </summary>
     public String Name { get; } = name;
-
-    /// <summary>
-    ///     Get the normal width of the ice layer on oceans.
-    /// </summary>
-    public Int32 IceWidth { get; init; }
 
     /// <summary>
     ///     The amplitude of the noise used to generate the sub-biome.
@@ -49,11 +45,33 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 
     /// <summary>
     ///     An overall offset to apply to the sub-biome height.
+    ///     A negative value will lower the sub-biome, a positive value will raise it.
     /// </summary>
     public Int32 Offset { get; init; }
 
     /// <summary>
+    ///     Whether this sub-biome ignores the blended offset calculated based on the neighboring sub-biomes.
+    /// </summary>
+    public Boolean IgnoresBlendedOffset { get; init; }
+
+    /// <summary>
+    ///     Whether this sub-biome is oceanic.
+    ///     If this is set, it must be set before the layers are set.
+    ///     Oceanic sub-biomes can be used at oceanic height (sea level) above the ground.
+    ///     Oceanic sub-biomes do not need a dampening layer.
+    /// </summary>
+    public Boolean IsOceanic { get; init; }
+
+    /// <summary>
+    ///     Whether this sub-biome is empty, meaning it has no layers.
+    ///     This also means that <see cref="Amplitude" />, <see cref="Frequency" /> and <see cref="Offset" /> must be zero.
+    /// </summary>
+    public Boolean IsEmpty => Layers.Count == 0;
+
+    /// <summary>
     ///     All layers that are part of the sub-biome.
+    ///     Must contain a dampening layer and a solid layer below it.
+    ///     This restriction does not apply to oceanic sub-biomes, which can even have no layers at all.
     /// </summary>
     public required IList<Layer> Layers
     {
@@ -62,7 +80,6 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
         [MemberNotNull(nameof(layers))]
         [MemberNotNull(nameof(upperHorizon))]
         [MemberNotNull(nameof(lowerHorizon))]
-        [MemberNotNull(nameof(Dampen))]
         init
         {
             layers = value;
@@ -84,7 +101,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 
     /// <summary>
     ///     Get the cover of the sub-biome.
-    ///     Cover is placed on top of the highest layer of the sub-biome.
+    ///     Cover is placed on top of the highest layer in the sub-biome.
     /// </summary>
     public Cover Cover { get; init; } = null!;
 
@@ -118,7 +135,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     /// <summary>
     ///     The dampening layer.
     /// </summary>
-    public Layer Dampen { get; private set; }
+    public Layer? Dampen { get; private set; }
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<SubBiomeDefinition>(name);
@@ -138,7 +155,6 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 
     [MemberNotNull(nameof(upperHorizon))]
     [MemberNotNull(nameof(lowerHorizon))]
-    [MemberNotNull(nameof(Dampen))]
     private void SetUpLayers()
     {
         MinWidth = 0;
@@ -155,7 +171,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
         {
             layer.SetPalette(palette);
 
-            if (!hasReachedSolid && layer.IsSolid)
+            if (!hasReachedSolid && layer.IsSolid && Dampen != null)
             {
                 hasReachedSolid = true;
                 MinDepthToSolid = MinWidth;
@@ -177,8 +193,9 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
             for (var depth = 0; depth < layer.Width; depth++) currentHorizon.Add((layer, depth));
         }
 
-        Debug.Assert(hasReachedSolid);
-        Debug.Assert(Dampen != null);
+        Debug.Assert((!IsOceanic).Implies(Dampen != null));
+        Debug.Assert((Dampen != null).Implies(hasReachedSolid));
+        Debug.Assert((Layers.Count == 0).Implies(MathTools.NearlyZero(Amplitude) && MathTools.NearlyZero(Frequency) && Offset == 0));
 
         upperHorizon = newUpperHorizon.ToArray();
         lowerHorizon = newLowerHorizon.ToArray();

@@ -175,6 +175,7 @@ public sealed partial class Map : IMap, IDisposable
         [
             new Message("Biome", sample.ActualBiome.Definition.Name),
             new Message("Sub-Biome", sample.ActualSubBiome.Definition.Name),
+            new Message("Oceanic Sub-Biome", sample.ActualOceanicSubBiome?.Definition.Name ?? "none"),
             new Measure("Height", sample.EstimateHeight())
         ]);
     }
@@ -364,17 +365,21 @@ public sealed partial class Map : IMap, IDisposable
     {
         Debug.Assert(data != null);
 
-        Biome actualBiome = DetermineColumnBiome(column, store, cacheHint: 0);
+        Biome actualBiome = DetermineColumnBiome(column, out Boolean oceanic, store, cacheHint: 0);
         (Single temperature, Single humidity, Single height) = GetColumnValues(column, store, cacheHint: 0, out Vector2i shiftedColumn);
 
         (Vector2i p1, Vector2i p2, Vector2d subBiomeBlend) = GetSubBiomeSamplingPoints(shiftedColumn);
 
-        SubBiome s00 = DetermineSubBiome((p1.X, p1.Y), store, cacheHint: 1);
-        SubBiome s10 = DetermineSubBiome((p2.X, p1.Y), store, cacheHint: 2);
-        SubBiome s01 = DetermineSubBiome((p1.X, p2.Y), store, cacheHint: 3);
-        SubBiome s11 = DetermineSubBiome((p2.X, p2.Y), store, cacheHint: 4);
+        (SubBiome s00, SubBiome? os00) = DetermineSubBiome((p1.X, p1.Y), oceanic, store, cacheHint: 1);
+        (SubBiome s10, SubBiome? os10) = DetermineSubBiome((p2.X, p1.Y), oceanic, store, cacheHint: 2);
+        (SubBiome s01, SubBiome? os01) = DetermineSubBiome((p1.X, p2.Y), oceanic, store, cacheHint: 3);
+        (SubBiome s11, SubBiome? os11) = DetermineSubBiome((p2.X, p2.Y), oceanic, store, cacheHint: 4);
 
         SubBiome actualSubBiome = MathTools.SelectByWeight(s00, s10, s01, s11, subBiomeBlend);
+
+        SubBiome? actualOceanicSubBiome = null;
+
+        if (oceanic && actualBiome.Definition.IsOceanic) actualOceanicSubBiome = MathTools.SelectByWeight(os00, os10, os01, os11, subBiomeBlend);
 
         return new Sample
         {
@@ -388,12 +393,18 @@ public sealed partial class Map : IMap, IDisposable
             SubBiome01 = s01,
             SubBiome11 = s11,
             SubBiomeBlendFactors = subBiomeBlend,
+            ActualOceanicSubBiome = actualOceanicSubBiome,
+            OceanicSubBiome00 = os00,
+            OceanicSubBiome10 = os10,
+            OceanicSubBiome01 = os01,
+            OceanicSubBiome11 = os11,
+            IsOceanic = oceanic,
             StoneData = GetColumnStoneData(column, store, cacheHint: 0) // We use column here because the method will do shifting itself.
         };
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Biome DetermineColumnBiome(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint)
+    private Biome DetermineColumnBiome(Vector2i column, out Boolean oceanic, SamplingNoiseStore? store, Int32 cacheHint)
     {
         Debug.Assert(data != null);
 
@@ -408,6 +419,8 @@ public sealed partial class Map : IMap, IDisposable
         Biome b10 = GetBiome(c10);
         Biome b01 = GetBiome(c01);
         Biome b11 = GetBiome(c11);
+
+        oceanic = b00.Definition.IsOceanic || b10.Definition.IsOceanic || b01.Definition.IsOceanic || b11.Definition.IsOceanic;
 
         return MathTools.SelectByWeight(b00, b10, b01, b11, biomeBlend);
     }
@@ -448,14 +461,24 @@ public sealed partial class Map : IMap, IDisposable
         return (c00.stoneType, c10.stoneType, c01.stoneType, c11.stoneType, t);
     }
 
-    private SubBiome DetermineSubBiome(Vector2i column, SamplingNoiseStore? store, Int32 cacheHint)
+    private (SubBiome subBiome, SubBiome? oceaninSubBiome) DetermineSubBiome(Vector2i column, Boolean oceanic, SamplingNoiseStore? store, Int32 cacheHint)
     {
-        Biome biome = DetermineColumnBiome(column, store, cacheHint);
+        Biome biome = DetermineColumnBiome(column, out _, store, cacheHint);
 
-        Single noise = SamplingNoise.GetSubBiomeDeterminationNoise(column, store, cacheHint);
-        Single value = Math.Abs(noise);
+        Single subBiomeNoise = SamplingNoise.GetSubBiomeDeterminationNoise(column, store, cacheHint);
+        Single subBiomeValue = Math.Abs(subBiomeNoise);
 
-        return biome.ChooseSubBiome(value);
+        SubBiome subBiome = biome.ChooseSubBiome(subBiomeValue);
+
+        if (!oceanic || !biome.Definition.IsOceanic)
+            return (subBiome, null);
+
+        Single oceanicSubBiomeNoise = SamplingNoise.GetOceanicSubBiomeDeterminationNoise(column, store, cacheHint);
+        Single oceanicSubBiomeValue = Math.Abs(oceanicSubBiomeNoise);
+
+        SubBiome oceanicSubBiome = biome.ChooseOceanicSubBiome(oceanicSubBiomeValue);
+
+        return (subBiome, oceanicSubBiome);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -830,8 +853,40 @@ public sealed partial class Map : IMap, IDisposable
 
         /// <summary>
         ///     Get the blending factors on the sub-biome level.
+        ///     These are also used for the oceanic sub-biome.
         /// </summary>
         public Vector2d SubBiomeBlendFactors { get; init; }
+
+        /// <summary>
+        ///     Actual oceanic sub-biome present at this sample location.
+        ///     In contrast to normal sub-biomes, the oceanic sub-biome is applied to water level instead of ground level.
+        /// </summary>
+        public SubBiome? ActualOceanicSubBiome { get; init; }
+
+        /// <summary>
+        ///     Get the oceanic sub-biome <c>00</c>.
+        /// </summary>
+        public SubBiome? OceanicSubBiome00 { get; init; }
+
+        /// <summary>
+        ///     Get the oceanic sub-biome <c>10</c>.
+        /// </summary>
+        public SubBiome? OceanicSubBiome10 { get; init; }
+
+        /// <summary>
+        ///     Get the oceanic sub-biome <c>01</c>.
+        /// </summary>
+        public SubBiome? OceanicSubBiome01 { get; init; }
+
+        /// <summary>
+        ///     Get the oceanic sub-biome <c>11</c>.
+        /// </summary>
+        public SubBiome? OceanicSubBiome11 { get; init; }
+
+        /// <summary>
+        ///     Whether there is at least one oceanic biome affecting this sample.
+        /// </summary>
+        public Boolean IsOceanic { get; init; }
 
         /// <summary>
         ///     Data regarding the stone composition.

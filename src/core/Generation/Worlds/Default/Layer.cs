@@ -152,6 +152,22 @@ public abstract class Layer
     }
 
     /// <summary>
+    ///     A layer made out of ice.
+    /// </summary>
+    public static Layer CreateIce(Int32 width)
+    {
+        return new Ice(width, isDampen: false);
+    }
+
+    /// <summary>
+    ///     Create a dampening layer made out of ice.
+    /// </summary>
+    public static Layer CreateIceDampen(Int32 maxWidth)
+    {
+        return new Ice(maxWidth, isDampen: true);
+    }
+
+    /// <summary>
     ///     Returns the data for the layer content.
     /// </summary>
     /// <param name="depth">The depth within the layer.</param>
@@ -390,6 +406,25 @@ public abstract class Layer
         public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)
         {
             return offset - subBiomeOffset > 0 ? sandstone : sand;
+        }
+    }
+
+    private sealed class Ice : Layer
+    {
+        private readonly Content ice;
+
+        public Ice(Int32 width, Boolean isDampen)
+        {
+            Width = width;
+            IsDampen = isDampen;
+            IsSolid = true;
+
+            ice = new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+        }
+
+        public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)
+        {
+            return ice;
         }
     }
 }

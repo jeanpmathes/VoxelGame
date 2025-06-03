@@ -82,7 +82,7 @@ public interface IDecorationContext : IDisposable
                     .Select(offset => (Vector3i) offset)
                     .Select(offset => (
                         corner + offset, // Localized position of the chunk.
-                        GetFlagForCorner(Vector3i.One - offset))) // Flag - inverse is necessary, e.g. chunk at 0,0,0 decorates the corner at 1,1,1 .
+                        GetFlagForCorner(Vector3i.One - offset))) // Flag - inverse is necessary, e.g., chunk at 0,0,0 decorates the corner at 1,1,1.
                     .ToArray())
             .ToArray();
 

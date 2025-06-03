@@ -45,7 +45,8 @@ public class SubBiomeDefinitionProvider : ResourceProvider<SubBiomeDefinition>, 
             Layers =
             [
                 Layer.CreateStone(width: 1),
-                Layer.CreateStonyDampen(maxWidth: 99)
+                Layer.CreateStonyDampen(maxWidth: 98),
+                Layer.CreateStone(width: 1)
             ]
         };
     }

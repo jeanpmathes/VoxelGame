@@ -23,6 +23,7 @@ public sealed class SamplingNoise : IDisposable
     private readonly NoiseGenerator stoneSamplingOffsetNoiseY;
 
     private readonly NoiseGenerator subBiomeDeterminationNoise;
+    private readonly NoiseGenerator oceanicSubBiomeDeterminationNoise;
 
     /// <summary>
     ///     Create all noise generators used for the map sampling.
@@ -37,6 +38,7 @@ public sealed class SamplingNoise : IDisposable
         stoneSamplingOffsetNoiseY = CreateStoneSamplingOffsetNoise();
 
         subBiomeDeterminationNoise = CreateSubBiomeDeterminationNoise();
+        oceanicSubBiomeDeterminationNoise = CreateSubBiomeDeterminationNoise();
 
         NoiseGenerator CreateCellSamplingOffsetNoise()
         {
@@ -85,6 +87,7 @@ public sealed class SamplingNoise : IDisposable
         stoneSamplingOffsetNoiseY.Dispose();
 
         subBiomeDeterminationNoise.Dispose();
+        oceanicSubBiomeDeterminationNoise.Dispose();
     }
 
     #endregion
@@ -149,11 +152,31 @@ public sealed class SamplingNoise : IDisposable
     }
 
     /// <summary>
+    ///     Get the oceanic sub-biome determination noise for a chosen position, in block coordinates.
+    ///     If available, the noise will be taken from the store instead of computing it.
+    ///     A caching hint must be supplied for all accesses.
+    /// </summary>
+    public Single GetOceanicSubBiomeDeterminationNoise(Vector2i position, SamplingNoiseStore? store, Int32 cachingHint)
+    {
+        return store?.GetOceanicSubBiomeDeterminationNoise(position, this, cachingHint) ??
+               ComputeOceanicSubBiomeDeterminationNoise(position);
+    }
+
+    /// <summary>
     ///     Calculate the sub-biome determination noise for a given position.
-    ///     This will always compute, therefore prefer using <see cref="GetSubBiomeDeterminationNoise" /> if possible.
+    ///     This will always compute, therefore, prefer using <see cref="GetSubBiomeDeterminationNoise" /> if possible.
     /// </summary>
     public Single ComputeSubBiomeDeterminationNoise(Vector2i position)
     {
         return subBiomeDeterminationNoise.GetNoise(position);
+    }
+
+    /// <summary>
+    ///     Calculate the oceanic sub-biome determination noise for a given position.
+    ///     This will always compute, therefore, prefer using <see cref="GetOceanicSubBiomeDeterminationNoise" /> if possible.
+    /// </summary>
+    public Single ComputeOceanicSubBiomeDeterminationNoise(Vector2i position)
+    {
+        return oceanicSubBiomeDeterminationNoise.GetNoise(position);
     }
 }

@@ -20,15 +20,35 @@ namespace VoxelGame.Core.Generation.Worlds.Default;
 /// </summary>
 public abstract class Cover
 {
-    private readonly Boolean isSnowLoose;
+    /// <summary>
+    ///     How the snow is generated.
+    /// </summary>
+    public enum Snow
+    {
+        /// <summary>
+        ///     No snow is generated.
+        /// </summary>
+        None,
+
+        /// <summary>
+        ///     Normal snow is generated.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        ///     Loose snow is generated.
+        /// </summary>
+        Loose
+    }
+
+    private readonly Snow snowMode;
 
     /// <summary>
     /// Create a new cover generator.
     /// </summary>
-    /// <param name="isSnowLoose">Whether generated snow is loose or not.</param>
-    protected Cover(Boolean isSnowLoose)
+    protected Cover(Snow snow)
     {
-        this.isSnowLoose = isSnowLoose;
+        snowMode = snow;
     }
 
     /// <summary>
@@ -41,7 +61,7 @@ public abstract class Cover
 
         Temperature temperature = sample.EstimateTemperature(position.Y);
 
-        if (temperature.IsFreezing)
+        if (temperature.IsFreezing && snowMode != Snow.None)
         {
             Int32 height = MathTools.RoundedToInt(IHeightVariable.MaximumHeight * heightFraction * 0.75);
 
@@ -54,7 +74,7 @@ public abstract class Cover
 
             height = Math.Clamp(height, min: 0, IHeightVariable.MaximumHeight);
 
-            SnowBlock snow = isSnowLoose
+            SnowBlock snow = snowMode == Snow.Loose
                 ? Blocks.Instance.Specials.LooseSnow
                 : Blocks.Instance.Specials.Snow;
 
@@ -70,9 +90,21 @@ public abstract class Cover
     protected abstract Content GetCover(Vector3i position, in Map.Sample sample);
 
     /// <summary>
+    ///     Cover with no vegetation and no snow.
+    /// </summary>
+    public class Nothing() : Cover(Snow.None)
+    {
+        /// <inheritdoc />
+        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        {
+            return Content.Default;
+        }
+    }
+
+    /// <summary>
     ///     Cover with no vegetation.
     /// </summary>
-    public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -84,7 +116,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass and flowers.
     /// </summary>
-    public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose)
+    public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -115,7 +147,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose)
+    public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -141,7 +173,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with lichen.
     /// </summary>
-    public class Lichen(Lichen.Density density, Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Lichen(Lichen.Density density, Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <summary>
         ///     How dense the lichen is.
@@ -178,7 +210,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with moss and some lichen.
     /// </summary>
-    public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -197,7 +229,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with salt and no vegetation.
     /// </summary>
-    public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)
@@ -211,7 +243,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with fern, and some moss.
     /// </summary>
-    public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose)
+    public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.Sample sample)

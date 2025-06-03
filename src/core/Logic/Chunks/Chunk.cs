@@ -183,7 +183,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Get the decoration flags of this chunk.
     /// </summary>
-    internal DecorationLevels Decoration => decoration;
+    public DecorationLevels Decoration => decoration;
 
     /// <summary>
     ///     Whether this chunk is generated.
