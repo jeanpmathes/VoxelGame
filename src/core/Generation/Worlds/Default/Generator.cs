@@ -246,23 +246,31 @@ public sealed partial class Generator : IWorldGenerator
         {
             Map = Map,
             Sample = sample,
-            GroundHeight = GetWorldHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
-            GroundHeightFraction = heightFraction,
-            EffectiveGroundOffset = effectiveOffset,
-            GroundDampening = CreateFilledDampening(effectiveOffset,
-                (sample.SubBiome00, sample.SubBiome10, sample.SubBiome01, sample.SubBiome11),
-                sample.ActualSubBiome,
-                sample.SubBiomeBlendFactors),
-            OceanicHeight = sample.IsOceanic ? GetOceanicHeight((x, z), sample, out heightFraction, out effectiveOffset) : 0,
-            OceanicHeightFraction = heightFraction,
-            EffectiveOceanicOffset = effectiveOffset,
-            OceanicDampening = sample.IsOceanic
-                ? CreateFilledDampening(
-                    effectiveOffset,
-                    (sample.OceanicSubBiome00, sample.OceanicSubBiome10, sample.OceanicSubBiome01, sample.OceanicSubBiome11),
-                    sample.ActualOceanicSubBiome,
-                    sample.SubBiomeBlendFactors)
-                : default
+            Ground = new Surface
+            {
+                Height = GetWorldHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
+                HeightFraction = heightFraction,
+                EffectiveOffset = effectiveOffset,
+                Dampening = CreateFilledDampening(effectiveOffset,
+                    (sample.SubBiome00, sample.SubBiome10, sample.SubBiome01, sample.SubBiome11),
+                    sample.ActualSubBiome,
+                    sample.SubBiomeBlendFactors),
+                SubBiome = sample.ActualSubBiome
+            },
+            Oceanic = sample.ActualOceanicSubBiome != null
+                ? new Surface
+                {
+                    Height = GetOceanicHeight((x, z), sample, out heightFraction, out effectiveOffset),
+                    HeightFraction = heightFraction,
+                    EffectiveOffset = effectiveOffset,
+                    Dampening = CreateFilledDampening(
+                        effectiveOffset,
+                        (sample.OceanicSubBiome00, sample.OceanicSubBiome10, sample.OceanicSubBiome01, sample.OceanicSubBiome11),
+                        sample.ActualOceanicSubBiome,
+                        sample.SubBiomeBlendFactors),
+                    SubBiome = sample.ActualOceanicSubBiome
+                }
+                : null
         };
 
         for (Int32 y = heightRange.start; y < heightRange.end; y++)
@@ -332,7 +340,7 @@ public sealed partial class Generator : IWorldGenerator
         var modifiedHeight = (Int32) (height + offset);
 
         heightFraction = MathTools.Fraction(height + offset);
-        effectiveOffset = rawHeight - modifiedHeight;
+        effectiveOffset = modifiedHeight - rawHeight;
 
         return modifiedHeight;
     }
@@ -465,69 +473,56 @@ public sealed partial class Generator : IWorldGenerator
     {
         if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core);
 
-        Int32 groundDepth = context.GroundHeight - position.Y;
+        Int32 groundDepth = context.Ground.Height - position.Y;
         Boolean isFilled = position.Y <= SeaLevel;
 
         if (groundDepth < 0) // A negative depths means that the block is above the ground height.
         {
-            if (context.OceanicSubBiome != null)
-            {
-                Int32 oceanicDepth = context.OceanicHeight - position.Y;
+            if (context.Oceanic is not {} oceanic)
+                return GetAboveSurfaceContent(position, groundDepth, isFilled, context.Ground, context);
 
-                if (oceanicDepth < 0) // A negative depth means that the block is above the oceanic height.
-                {
-                    Int32 localHeightDifferenceToAverageHeight = context.EffectiveOceanicOffset - context.OceanicSubBiome.Definition.Offset;
+            Int32 oceanicDepth = oceanic.Height - position.Y;
 
-                    Boolean isOceanicStuffed = context.OceanicSubBiome.Definition.Stuffer != null
-                                               && localHeightDifferenceToAverageHeight <= 0
-                                               && localHeightDifferenceToAverageHeight <= oceanicDepth;
+            if (oceanicDepth < 0) // A negative depth means that the block is above the oceanic height.
+                return GetAboveSurfaceContent(position, oceanicDepth, isFilled, oceanic, context);
 
-                    var oceanicContent = Content.Default;
+            if (position.Y <= oceanic.Height
+                && position.Y > oceanic.Height - oceanic.SubBiome.GetTotalWidth(oceanic.Dampening))
+                return GetSurfaceContent(oceanicDepth, position.Y, isFilled, context.GetStoneType(position), oceanic, context);
 
-                    if (isOceanicStuffed) oceanicContent = context.OceanicSubBiome.Definition.Stuffer!.GetContent(context.Sample.EstimateTemperature(position.Y));
-                    else if (oceanicDepth == -1) oceanicContent = context.OceanicSubBiome.GetCoverContent(position, isFilled, context.OceanicHeightFraction, context.Sample);
-
-                    if (isFilled) oceanicContent = FillContent(oceanicContent);
-
-                    return oceanicContent;
-                }
-
-                if (position.Y <= context.OceanicHeight
-                    && position.Y > context.OceanicHeight - context.OceanicSubBiome.GetTotalWidth(context.OceanicDampening)) return GetOceanicSubBiomeContent(oceanicDepth, position.Y, isFilled, context.GetStoneType(position), context);
-            }
-
-            Boolean isGroundStuffed = context is {SubBiome.Definition.Stuffer: not null, EffectiveGroundOffset: > 0}
-                                      && context.EffectiveGroundOffset + context.SubBiome.Definition.Offset >= -groundDepth;
-
-            var content = Content.Default;
-
-            if (isGroundStuffed) content = context.SubBiome.Definition.Stuffer!.GetContent(context.Sample.EstimateTemperature(position.Y));
-            else if (groundDepth == -1) content = context.SubBiome.GetCoverContent(position, isFilled, context.GroundHeightFraction, context.Sample);
-
-            if (isFilled) content = FillContent(content);
-
-            return content;
+            return GetAboveSurfaceContent(position, groundDepth, isFilled, context.Ground, context);
         }
 
         Map.StoneType stoneType = context.GetStoneType(position);
 
-        return groundDepth >= context.SubBiome.GetTotalWidth(context.GroundDampening)
+        return groundDepth >= context.Ground.SubBiome.GetTotalWidth(context.Ground.Dampening)
             ? palette.GetStone(stoneType)
-            : GetSubBiomeContent(groundDepth, position.Y, isFilled, stoneType, context);
+            : GetSurfaceContent(groundDepth, position.Y, isFilled, stoneType, context.Ground, context);
     }
 
-    private static Content GetSubBiomeContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Context context)
+    private static Content GetSurfaceContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Surface surface, in Context context)
     {
-        Content content = context.SubBiome.GetContent(depth, y, isFilled, context.GroundDampening, stoneType, context.Sample.EstimateTemperature(y));
+        Content content = surface.SubBiome.GetContent(depth, y, isFilled, surface.Dampening, stoneType, context.Sample.EstimateTemperature(y));
 
         if (isFilled) content = FillContent(content);
 
         return content;
     }
 
-    private static Content GetOceanicSubBiomeContent(Int32 depth, Int32 y, Boolean isFilled, Map.StoneType stoneType, in Context context)
+    private static Content GetAboveSurfaceContent(Vector3i position, Int32 depth, Boolean isFilled, in Surface surface, in Context context)
     {
-        Content content = context.OceanicSubBiome!.GetContent(depth, y, isFilled, context.OceanicDampening, stoneType, context.Sample.EstimateTemperature(y));
+        Int32 localHeightDifferenceToAverageHeight = surface.EffectiveOffset - surface.SubBiome.Definition.Offset;
+
+        Boolean isStuffed = surface.SubBiome.Definition.Stuffer != null
+                            && localHeightDifferenceToAverageHeight <= 0
+                            && localHeightDifferenceToAverageHeight <= depth;
+
+        var content = Content.Default;
+
+        Map.PositionClimate climate = context.Sample.GetClimate(position.Y);
+
+        if (isStuffed) content = surface.SubBiome.Definition.Stuffer!.GetContent(climate.Temperature);
+        else if (depth == -1) content = surface.SubBiome.GetCoverContent(position, isFilled, surface.HeightFraction, climate);
 
         if (isFilled) content = FillContent(content);
 
@@ -542,26 +537,45 @@ public sealed partial class Generator : IWorldGenerator
         return content with {Fluid = Fluids.Instance.SeaWater.AsInstance()};
     }
 
+    /// <summary>
+    ///     A surface is on what sub-biomes are generated and determines their vertical shape.
+    /// </summary>
+    private readonly record struct Surface
+    {
+        /// <summary>
+        ///     The absolute height of the surface, in blocks.
+        ///     The height is determined by the world height given by the map sample and the local sub-biome offset.
+        /// </summary>
+        public Int32 Height { get; init; }
+
+        /// <summary>
+        ///     The fraction of the height, calculated using the floating point height.
+        /// </summary>
+        public Double HeightFraction { get; init; }
+
+        /// <summary>
+        ///     The effective offset of the surface to the sample height, created by the noise offset and absolute offset of the
+        ///     sub-biome.
+        /// </summary>
+        public Int32 EffectiveOffset { get; init; }
+
+        /// <summary>
+        ///     The dampening applied to the column, which is used to get the first solid layers of the sub-biome at the same
+        ///     height.
+        /// </summary>
+        public SubBiome.Dampening Dampening { get; init; }
+
+        /// <summary>
+        ///     The sub-biome that is used for the surface.
+        /// </summary>
+        public SubBiome SubBiome { get; init; }
+    }
+
     private readonly record struct Context
     {
-        public Int32 GroundHeight { get; init; }
+        public Surface Ground { get; init; }
 
-        public Double GroundHeightFraction { get; init; }
-
-        public Int32 EffectiveGroundOffset { get; init; }
-
-        public SubBiome.Dampening GroundDampening { get; init; }
-
-        public Int32 OceanicHeight { get; init; }
-
-        public Int32 EffectiveOceanicOffset { get; init; }
-
-        public Double OceanicHeightFraction { get; init; }
-
-        public SubBiome.Dampening OceanicDampening { get; init; }
-
-        public SubBiome SubBiome => Sample.ActualSubBiome;
-        public SubBiome? OceanicSubBiome => Sample.ActualOceanicSubBiome;
+        public Surface? Oceanic { get; init; }
 
         public Map.Sample Sample { get; init; }
 

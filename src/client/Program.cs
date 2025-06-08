@@ -1,4 +1,4 @@
-﻿// <copyright file="World.cs" company="VoxelGame">
+﻿// <copyright file="Program.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

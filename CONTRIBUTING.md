@@ -4,7 +4,7 @@ First off, thank you for considering contributing to VoxelGame.
 
 When contributing to this repository, please first discuss the change you wish to make via issue or any other method with the owners of this repository before making a change.
 
-Contributiosn are welcomed, whether it's:
+Contributions are welcomed, whether it's:
 - Reporting a bug
 - Correcting spelling and grammar
 - Discussing the current state of the code

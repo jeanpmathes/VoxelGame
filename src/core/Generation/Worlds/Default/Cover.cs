@@ -10,7 +10,6 @@ using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
@@ -54,14 +53,12 @@ public abstract class Cover
     /// <summary>
     ///     Get the cover for a given block.
     /// </summary>
-    public Content GetContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
+    public Content GetContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.PositionClimate climate)
     {
         if (isFilled)
             return Content.Default;
 
-        Temperature temperature = sample.EstimateTemperature(position.Y);
-
-        if (temperature.IsFreezing && snowMode != Snow.None)
+        if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
             Int32 height = MathTools.RoundedToInt(IHeightVariable.MaximumHeight * heightFraction * 0.75);
 
@@ -81,13 +78,13 @@ public abstract class Cover
             return new Content(snow.GetInstance(height), FluidInstance.Default);
         }
 
-        return GetCover(position, sample);
+        return GetCover(position, climate);
     }
 
     /// <summary>
     ///     Get the cover for a given position.
     /// </summary>
-    protected abstract Content GetCover(Vector3i position, in Map.Sample sample);
+    protected abstract Content GetCover(Vector3i position, in Map.PositionClimate climate);
 
     /// <summary>
     ///     Cover with no vegetation and no snow.
@@ -95,7 +92,7 @@ public abstract class Cover
     public class Nothing() : Cover(Snow.None)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             return Content.Default;
         }
@@ -107,7 +104,7 @@ public abstract class Cover
     public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             return Content.Default;
         }
@@ -119,10 +116,10 @@ public abstract class Cover
     public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;
@@ -150,10 +147,10 @@ public abstract class Cover
     public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(sample.Humidity * 100);
+            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;
@@ -199,7 +196,7 @@ public abstract class Cover
         };
 
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             return BlockUtilities.GetPositionDependentNumber(position, draw.mod) > draw.threshold
                 ? new Content(Blocks.Instance.Lichen)
@@ -213,7 +210,7 @@ public abstract class Cover
     public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
 
@@ -232,7 +229,7 @@ public abstract class Cover
     public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
 
@@ -246,7 +243,7 @@ public abstract class Cover
     public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
     {
         /// <inheritdoc />
-        protected override Content GetCover(Vector3i position, in Map.Sample sample)
+        protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
 

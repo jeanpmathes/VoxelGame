@@ -68,7 +68,11 @@ public static class BitHelper
     /// </summary>
     public static UInt32 GetMask(Int32 size)
     {
-        return (UInt32) (1 << size) - 1;
+        Debug.Assert(size >= 0);
+
+        if (size >= 32) return UInt32.MaxValue;
+
+        return (1u << size) - 1u;
     }
 
     /// <summary>

@@ -234,9 +234,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.03f,
-            Offset = -3,
             Cover = new Cover.NoVegetation(isSnowLoose: true),
-            Stuffer = new Stuffer.Ice(),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: true),
@@ -284,9 +282,9 @@ public class SubBiomeLoader : IResourceLoader
         /// </summary>
         public SubBiomeDefinition PolarDesertBasin { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertBasin), palette)
         {
-            Amplitude = 4f,
+            Amplitude = 5f,
             Frequency = 0.03f,
-            Offset = -3,
+            Offset = -6,
             Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Ice(),
             Layers =
@@ -416,21 +414,16 @@ public class SubBiomeLoader : IResourceLoader
         public SubBiomeDefinition TropicalRainforestPond { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(TropicalRainforestPond), palette)
         {
             Amplitude = 10f,
+            Direction = NoiseDirection.Down,
             Frequency = 0.005f,
-            Offset = -9,
-            Cover = new Cover.GrassAndFlowers(),
+            Offset = -12,
+            Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Water(),
             Layers =
             [
-                Layer.CreateMud(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateMud(width: 6),
+                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 24),
                 .. Clay
-            ],
-            Decorations =
-            [
-                (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(tallRedFlower), 8.0f),
-                (decorations.GetDecoration(tallYellowFlower), 8.0f)
             ]
         });
 
@@ -641,7 +634,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 2f,
             Frequency = 0.03f,
-            Offset = -2,
+            Offset = -3,
             Cover = new Cover.Moss(),
             Stuffer = new Stuffer.Water(),
             Layers =
@@ -760,7 +753,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.03f,
-            Offset = -3,
+            Offset = -5,
             Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Water(),
             Layers =
@@ -1301,7 +1294,7 @@ public class SubBiomeLoader : IResourceLoader
         {
             Amplitude = 4f,
             Frequency = 0.04f,
-            Offset = -4,
+            Offset = -5,
             Cover = new Cover.NoVegetation(),
             Stuffer = new Stuffer.Water(),
             Layers =

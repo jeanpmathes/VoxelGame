@@ -39,6 +39,11 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     public Single Amplitude { get; init; }
 
     /// <summary>
+    ///     The direction of the noise used to generate the sub-biome.
+    /// </summary>
+    public NoiseDirection Direction { get; init; } = NoiseDirection.Both;
+
+    /// <summary>
     ///     The frequency of the noise used to generate the sub-biome.
     /// </summary>
     public Single Frequency { get; init; }

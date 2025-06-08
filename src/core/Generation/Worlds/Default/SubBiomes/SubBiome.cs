@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
@@ -81,7 +82,17 @@ public sealed class SubBiome : IDisposable
         if (MathTools.NearlyZero(Definition.Amplitude))
             return Definition.Offset;
 
-        return noise.GetNoise(position) * Definition.Amplitude + Definition.Offset;
+        Single noiseOffset = noise.GetNoise(position) * Definition.Amplitude;
+
+        noiseOffset = Definition.Direction switch
+        {
+            NoiseDirection.Both => noiseOffset,
+            NoiseDirection.Up => Math.Abs(noiseOffset),
+            NoiseDirection.Down => -Math.Abs(noiseOffset),
+            _ => throw Exceptions.UnsupportedEnumValue(Definition.Direction)
+        };
+
+        return noiseOffset + Definition.Offset;
     }
 
     /// <summary>
@@ -160,11 +171,11 @@ public sealed class SubBiome : IDisposable
     /// <param name="position">The position of the block.</param>
     /// <param name="isFilled">Whether the block is filled with water because it is below sea level.</param>
     /// <param name="heightFraction">The fraction of the height, above the integer terrain height.</param>
-    /// <param name="sample">The current map sample.</param>
+    /// <param name="climate">The climate of the position.</param>
     /// <returns>The cover content.</returns>
-    public Content GetCoverContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.Sample sample)
+    public Content GetCoverContent(Vector3i position, Boolean isFilled, Double heightFraction, in Map.PositionClimate climate)
     {
-        return Definition.Cover.GetContent(position, isFilled, heightFraction, sample);
+        return Definition.Cover.GetContent(position, isFilled, heightFraction, climate);
     }
 
     /// <summary>

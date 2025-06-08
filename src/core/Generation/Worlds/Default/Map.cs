@@ -801,6 +801,23 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
+    ///     Describes the climate of a block position.
+    /// </summary>
+    public readonly record struct PositionClimate
+    {
+        /// <see cref="Sample.Temperature" />
+        public Single SampledTemperature { get; init; }
+
+        /// <see cref="Sample.Humidity" />
+        public Single SampledHumidity { get; init; }
+
+        /// <summary>
+        ///     The temperature of the position.
+        /// </summary>
+        public Temperature Temperature { get; init; }
+    }
+
+    /// <summary>
     ///     A sample of the map, providing information to generate a column.
     /// </summary>
     public readonly record struct Sample
@@ -901,11 +918,26 @@ public sealed partial class Map : IMap, IDisposable
         public Temperature EstimateTemperature(Double y)
         {
             // The ground height follows the actual height of the sample, but mountains and oceans are ignored.
-            // This is necessary to have more realistic lower temperature on mountains.
+            // This is necessary to have a more realistic lower temperature on mountains.
 
             Double groundHeight = Math.Clamp(Height * MaxHeight, min: 0.0, MaxHeight * 0.3);
 
             return GetTemperatureAtHeight(ConvertTemperatureToCelsius(Temperature), Humidity, y - groundHeight);
+        }
+
+        /// <summary>
+        ///     Get the climate at a given position.
+        /// </summary>
+        /// <param name="y">The Y coordinate of the position, in blocks. The sample determines the rest of the position.</param>
+        /// <returns>The climate at the position.</returns>
+        public PositionClimate GetClimate(Int32 y)
+        {
+            return new PositionClimate
+            {
+                SampledHumidity = Humidity,
+                SampledTemperature = Temperature,
+                Temperature = EstimateTemperature(y)
+            };
         }
 
         /// <summary>
