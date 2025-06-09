@@ -208,6 +208,103 @@ public class SubBiomeLoader : IResourceLoader
 
         #endregion PolarOcean
 
+        #region OceanicIceSheet
+
+        /// <summary>
+        ///     A sub-biome of the oceanic ice sheet covered in snow.
+        /// </summary>
+        public SubBiomeDefinition OceanicIceSheetSnowy { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OceanicIceSheetSnowy), palette)
+        {
+            Amplitude = 2.0f,
+            Frequency = 0.05f,
+            Offset = 7,
+            Cover = new Cover.NoVegetation(),
+            IsOceanic = true,
+            Layers =
+            [
+                Layer.CreateSnow(width: 2, loose: false),
+                Layer.CreateIce(width: 5),
+                Layer.CreateIceDampen(maxWidth: 7),
+                Layer.CreateIce(width: 40)
+            ]
+        });
+
+        /// <summary>
+        ///     A sub-biome of the oceanic ice sheet with just ice.
+        /// </summary>
+        public SubBiomeDefinition OceanicIceSheetBare { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OceanicIceSheetBare), palette)
+        {
+            Amplitude = 2.0f,
+            Frequency = 0.05f,
+            Offset = 7,
+            Cover = new Cover.NoVegetation(),
+            IsOceanic = true,
+            Layers =
+            [
+                Layer.CreateIce(width: 7),
+                Layer.CreateIceDampen(maxWidth: 7),
+                Layer.CreateIce(width: 40)
+            ]
+        });
+
+        /// <summary>
+        ///     The oceanic ice sheet floor sub-biome.
+        /// </summary>
+        public SubBiomeDefinition OceanicIceSheetFloor { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(OceanicIceSheetFloor), palette)
+        {
+            Amplitude = 5.0f,
+            Frequency = 0.005f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateLoose(width: 37),
+                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+            ]
+        });
+
+        #endregion OceanicIceSheet
+
+        #region ContinentalIceSheet
+
+        /// <summary>
+        ///     A snow-filled flat ice field.
+        /// </summary>
+        public SubBiomeDefinition ContinentalIceSheetSnowy { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ContinentalIceSheetSnowy), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.004f,
+            Cover = new Cover.NoVegetation(),
+            Layers =
+            [
+                Layer.CreateSnow(width: 2, loose: false),
+                Layer.CreateIce(width: 5),
+                Layer.CreateIceDampen(maxWidth: 7),
+                Layer.CreateIce(width: 80)
+            ]
+        });
+
+        /// <summary>
+        ///     A flat ice field.
+        /// </summary>
+        public SubBiomeDefinition ContinentalIceSheetBare { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(ContinentalIceSheetBare), palette)
+        {
+            Amplitude = 2f,
+            Frequency = 0.004f,
+            Cover = new Cover.Nothing(),
+            Layers =
+            [
+                Layer.CreateIce(width: 7),
+                Layer.CreateIceDampen(maxWidth: 7),
+                Layer.CreateIce(width: 80)
+            ]
+        });
+
+        #endregion ContinentalIceSheet
+
         #region PolarDesert
 
         /// <summary>

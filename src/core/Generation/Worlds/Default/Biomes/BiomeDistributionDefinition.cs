@@ -20,7 +20,7 @@ public sealed class BiomeDistributionDefinition : IResource
     /// <summary>
     ///     The resolution of the biome distribution map.
     /// </summary>
-    public const Int32 Resolution = 10;
+    public const Int32 Resolution = 20;
 
     private readonly Array2D<BiomeDefinition?> distribution;
 
@@ -74,6 +74,16 @@ public sealed class BiomeDistributionDefinition : IResource
     ///     The polar ocean biome.
     /// </summary>
     public required BiomeDefinition PolarOcean { get; init; }
+
+    /// <summary>
+    ///     The continental ice sheet biome.
+    /// </summary>
+    public required BiomeDefinition ContinentalIceSheet { get; init; }
+
+    /// <summary>
+    ///     The oceanic ice sheet biome.
+    /// </summary>
+    public required BiomeDefinition OceanicIceSheet { get; init; }
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<BiomeDistributionDefinition>("Default");

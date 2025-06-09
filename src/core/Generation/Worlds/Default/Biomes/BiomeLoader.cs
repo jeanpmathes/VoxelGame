@@ -35,17 +35,29 @@ public sealed class BiomeLoader : IResourceLoader
             // On the x-axis, going right, the temperature increases.
             // On the y-axis, going down, the humidity increases.
 
+            #pragma warning disable S103 // Long lines required for representing the distribution.
+
             BiomeDistributionDefinition distribution = new(new Array2D<BiomeDefinition?>([
-                [biomes.PolarDesert, biomes.Tundra, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
-                [null, biomes.Tundra, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Desert, biomes.Desert],
-                [null, null, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna],
-                [null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
-                [null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
-                [null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
-                [null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest],
-                [null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
-                [null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest],
-                [null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest]
+                [biomes.ContinentalIceSheet, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, null, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, null, null, biomes.Taiga, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna],
+                [null, null, null, null, null, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna],
+                [null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest]
             ]))
             {
                 Beach = biomes.Beach,
@@ -55,8 +67,12 @@ public sealed class BiomeLoader : IResourceLoader
                 SandyCliff = biomes.SandyCliff,
                 Ocean = biomes.Ocean,
                 PolarDesert = biomes.PolarDesert,
-                PolarOcean = biomes.PolarOcean
+                PolarOcean = biomes.PolarOcean,
+                OceanicIceSheet = biomes.OceanicIceSheet,
+                ContinentalIceSheet = biomes.ContinentalIceSheet
             };
+
+            #pragma warning restore S103
 
             return [..registry.Values, distribution];
         });
@@ -64,6 +80,19 @@ public sealed class BiomeLoader : IResourceLoader
 
     private sealed class Biomes(Registry<BiomeDefinition> biomes, ISubBiomeDefinitionProvider subBiomes)
     {
+        /// <summary>
+        ///     A thick layer of ice that covers the land below.
+        /// </summary>
+        public BiomeDefinition ContinentalIceSheet { get; } = biomes.Register(new BiomeDefinition(nameof(ContinentalIceSheet))
+        {
+            Color = ColorS.LightGray,
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(ContinentalIceSheet), "Snowy")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(ContinentalIceSheet), "Bare")), 3)
+            ]
+        });
+
         /// <summary>
         ///     The polar desert biome.
         /// </summary>
@@ -265,6 +294,20 @@ public sealed class BiomeLoader : IResourceLoader
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThinIce")), 15),
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThickIce")), 1),
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Icebergs")), 5)
+            ]
+        });
+
+        /// <summary>
+        ///     The oceanic ice sheet biome. It covers an oceanic area with a thick layer of ice.
+        /// </summary>
+        public BiomeDefinition OceanicIceSheet { get; } = biomes.Register(new BiomeDefinition(nameof(OceanicIceSheet))
+        {
+            Color = ColorS.LightGray,
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Floor")), 1)],
+            OceanicSubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Snowy")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Bare")), 3)
             ]
         });
 

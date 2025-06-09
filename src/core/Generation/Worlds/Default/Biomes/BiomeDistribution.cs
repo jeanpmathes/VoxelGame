@@ -26,6 +26,8 @@ public class BiomeDistribution
     private readonly Biome grassyCliff;
     private readonly Biome polarDesert;
     private readonly Biome polarOcean;
+    private readonly Biome continentalIceSheet;
+    private readonly Biome oceanicIceSheet;
     private readonly Biome ocean;
     private readonly Biome mountain;
 
@@ -46,6 +48,8 @@ public class BiomeDistribution
         grassyCliff = biomeMap[definition.GrassyCliff];
         polarDesert = biomeMap[definition.PolarDesert];
         polarOcean = biomeMap[definition.PolarOcean];
+        continentalIceSheet = biomeMap[definition.ContinentalIceSheet];
+        oceanicIceSheet = biomeMap[definition.OceanicIceSheet];
         ocean = biomeMap[definition.Ocean];
         mountain = biomeMap[definition.Mountain];
     }
@@ -54,8 +58,8 @@ public class BiomeDistribution
     /// Determine the biome for a location based on the given conditions.
     /// </summary>
     /// <param name="conditions">The special cell conditions in effect.</param>
-    /// <param name="temperature">The temperature, must be in the range [0, 1].</param>
-    /// <param name="humidity">The humidity, must be in the range [0, 1].</param>
+    /// <param name="temperature">The temperature, which must be in the range [0, 1].</param>
+    /// <param name="humidity">The humidity, which must be in the range [0, 1].</param>
     /// <param name="isLand">Whether the location is land or water.</param>
     /// <returns>The appropriate biome.</returns>
     public Biome DetermineBiome(Map.CellConditions conditions, Single temperature, Single humidity, Boolean isLand)
@@ -106,6 +110,12 @@ public class BiomeDistribution
     {
         Biome biome = DetermineBiome(temperature, humidity);
 
-        return biome == polarDesert ? polarOcean : ocean;
+        if (biome == polarDesert)
+            return polarOcean;
+
+        if (biome == continentalIceSheet)
+            return oceanicIceSheet;
+
+        return ocean;
     }
 }
