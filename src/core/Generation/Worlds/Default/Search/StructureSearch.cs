@@ -70,7 +70,7 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
 
                 if (!World.IsInLimits(current)) continue;
 
-                current = SectionPosition.From(current.FirstBlock with {Y = Generator.GetWorldHeight(current.FirstBlock)});
+                current = SectionPosition.From(current.FirstBlock with {Y = Generator.GetGroundHeight(current.FirstBlock)});
 
                 if (SearchInSection(structure, current, out Vector3i found))
                     yield return found;

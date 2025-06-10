@@ -913,7 +913,7 @@ public sealed partial class Map : IMap, IDisposable
         /// <summary>
         ///     Get the height of the ground at the sample column.
         /// </summary>
-        public Int32 GroundHeight => Generator.GetWorldHeight(Column, this, out _, out _);
+        public Int32 GroundHeight => Generator.GetGroundHeight(Column, this, out _, out _);
 
         /// <summary>
         ///     Get the height of the oceanic surface at the sample column.

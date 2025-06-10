@@ -248,7 +248,7 @@ public sealed partial class Generator : IWorldGenerator
             Sample = sample,
             Ground = new Surface
             {
-                Height = GetWorldHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
+                Height = GetGroundHeight((x, z), sample, out Double heightFraction, out Int32 effectiveOffset),
                 HeightFraction = heightFraction,
                 EffectiveOffset = effectiveOffset,
                 Dampening = CreateFilledDampening(effectiveOffset,
@@ -323,15 +323,15 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <summary>
-    ///     Get the world height for the given column.
-    ///     The world height is the height of solid ground.
+    ///     Get the ground height for the given column.
+    ///     The ground height is the height of solid ground.
     /// </summary>
     /// <param name="column">The column to get the height for.</param>
     /// <param name="sample">A map sample for the column.</param>
     /// <param name="heightFraction">The fraction of the height above the integer part.</param>
     /// <param name="effectiveOffset">The effective offset of the column.</param>
-    /// <returns>The world height, in blocks.</returns>
-    public static Int32 GetWorldHeight(Vector2i column, in Map.Sample sample, out Double heightFraction, out Int32 effectiveOffset)
+    /// <returns>The ground height, in blocks.</returns>
+    public static Int32 GetGroundHeight(Vector2i column, in Map.Sample sample, out Double heightFraction, out Int32 effectiveOffset)
     {
         Double offset = GetOffset(column, sample);
         Double height = sample.Height * Map.MaxHeight;
@@ -346,13 +346,13 @@ public sealed partial class Generator : IWorldGenerator
     }
 
     /// <summary>
-    ///     Get the world height for the given column.
+    ///     Get the ground height for the given column.
     /// </summary>
     /// <param name="position">The position to get the height for. The Y component is ignored.</param>
-    /// <returns>The world height.</returns>
-    public Int32 GetWorldHeight(Vector3i position)
+    /// <returns>The ground height.</returns>
+    public Int32 GetGroundHeight(Vector3i position)
     {
-        return GetWorldHeight(position.Xz, Map.GetSample(position), out _, out _);
+        return GetGroundHeight(position.Xz, Map.GetSample(position), out _, out _);
     }
 
     /// <summary>
@@ -544,7 +544,7 @@ public sealed partial class Generator : IWorldGenerator
     {
         /// <summary>
         ///     The absolute height of the surface, in blocks.
-        ///     The height is determined by the world height given by the map sample and the local sub-biome offset.
+        ///     The height is determined by the ground height given by the map sample and the local sub-biome offset.
         /// </summary>
         public Int32 Height { get; init; }
 

@@ -116,7 +116,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
     private Boolean SearchCellCenter(IReadOnlySet<Biome> biomes, Vector2i currentCell, out Vector3i found)
     {
         found = Map.GetCellCenter(currentCell, y: 0);
-        found.Y = Generator.GetWorldHeight(found);
+        found.Y = Generator.GetGroundHeight(found);
 
         Map.Sample sample = Generator.Map.GetSample(found);
 
@@ -174,7 +174,7 @@ public class BiomeSearch(Dictionary<String, Biome> biomes, Searcher searcher) : 
 
         Biome GetBiome(Vector3i position)
         {
-            Int32 y = Generator.GetWorldHeight(position);
+            Int32 y = Generator.GetGroundHeight(position);
 
             return Generator.Map.GetSample(position with {Y = y}).ActualBiome;
         }

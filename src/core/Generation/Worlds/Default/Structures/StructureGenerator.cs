@@ -98,8 +98,8 @@ public sealed class StructureGenerator : IDisposable
 
     private static Boolean FilterSurfaceSection(SectionPosition position, Generator generator)
     {
-        Int32 firstHeight = generator.GetWorldHeight(position.FirstBlock);
-        Int32 lastHeight = generator.GetWorldHeight(position.LastBlock);
+        Int32 firstHeight = generator.GetGroundHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetGroundHeight(position.LastBlock);
 
         return position.Contains(position.FirstBlock with {Y = firstHeight}) &&
                position.Contains(position.LastBlock with {Y = lastHeight});
@@ -107,8 +107,8 @@ public sealed class StructureGenerator : IDisposable
 
     private static Boolean FilterUndergroundSection(SectionPosition position, Generator generator)
     {
-        Int32 firstHeight = generator.GetWorldHeight(position.FirstBlock);
-        Int32 lastHeight = generator.GetWorldHeight(position.LastBlock);
+        Int32 firstHeight = generator.GetGroundHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetGroundHeight(position.LastBlock);
 
         Int32 sectionBlockHeight = position.LastBlock.Y;
 
@@ -165,7 +165,7 @@ public sealed class StructureGenerator : IDisposable
     {
         Vector3i position = section.FirstBlock + (column.x, 0, column.z);
 
-        return generator.GetWorldHeight(position) - section.FirstBlock.Y;
+        return generator.GetGroundHeight(position) - section.FirstBlock.Y;
     }
 
     private static Int32 DetermineUndergroundPlacement(Random randomizer)

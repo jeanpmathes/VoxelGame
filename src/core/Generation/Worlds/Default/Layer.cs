@@ -171,7 +171,7 @@ public abstract class Layer
     ///     Returns the data for the layer content.
     /// </summary>
     /// <param name="depth">The depth within the layer.</param>
-    /// <param name="offset">The random offset from normal world height.</param>
+    /// <param name="offset">The random offset from normal ground height.</param>
     /// <param name="y">The y coordinate of the current position.</param>
     /// <param name="stoneType">The stone type of the column.</param>
     /// <param name="isFilled">Whether the column is filled with fluid or not.</param>
