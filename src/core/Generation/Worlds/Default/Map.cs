@@ -398,7 +398,7 @@ public sealed partial class Map : IMap, IDisposable
             OceanicSubBiome10 = os10,
             OceanicSubBiome01 = os01,
             OceanicSubBiome11 = os11,
-            IsOceanic = oceanic,
+            Column = column,
             StoneData = GetColumnStoneData(column, store, cacheHint: 0) // We use column here because the method will do shifting itself.
         };
     }
@@ -901,14 +901,25 @@ public sealed partial class Map : IMap, IDisposable
         public SubBiome? OceanicSubBiome11 { get; init; }
 
         /// <summary>
-        ///     Whether there is at least one oceanic biome affecting this sample.
-        /// </summary>
-        public Boolean IsOceanic { get; init; }
-
-        /// <summary>
         ///     Data regarding the stone composition.
         /// </summary>
         public (StoneType stone00, StoneType stone10, StoneType stone01, StoneType stone11, Vector2d t) StoneData { get; init; }
+
+        /// <summary>
+        ///     The column where the sample was taken from.
+        /// </summary>
+        public Vector2i Column { get; init; }
+
+        /// <summary>
+        ///     Get the height of the ground at the sample column.
+        /// </summary>
+        public Int32 GroundHeight => Generator.GetWorldHeight(Column, this, out _, out _);
+
+        /// <summary>
+        ///     Get the height of the oceanic surface at the sample column.
+        ///     This is either the water level or the height of the oceanic sub-biome, whichever is higher.
+        /// </summary>
+        public Int32 OceanicHeight => Generator.GetOceanicHeight(Column, this, out _, out _);
 
         /// <summary>
         ///     Get the temperature at a given height.
@@ -941,8 +952,8 @@ public sealed partial class Map : IMap, IDisposable
         }
 
         /// <summary>
-        ///     Get the height of the sample.
-        ///     Note that this does not consider biome-dependent height offsets.
+        ///     Get the (ground) height of the sample.
+        ///     Note that this does not consider sub-biome-dependent height offsets.
         /// </summary>
         /// <returns>The height.</returns>
         public Length EstimateHeight()

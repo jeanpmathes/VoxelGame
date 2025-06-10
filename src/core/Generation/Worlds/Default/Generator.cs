@@ -360,7 +360,7 @@ public sealed partial class Generator : IWorldGenerator
     ///     Note that this is not the height of the ocean floor (which would be the ground height) but the height of the biome
     ///     above or at sea level.
     /// </summary>
-    private static Int32 GetOceanicHeight(Vector2i column, in Map.Sample sample, out Double heightFraction, out Int32 effectiveOffset)
+    public static Int32 GetOceanicHeight(Vector2i column, in Map.Sample sample, out Double heightFraction, out Int32 effectiveOffset)
     {
         if (sample.ActualOceanicSubBiome?.Definition.IsEmpty == true)
         {

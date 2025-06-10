@@ -49,6 +49,18 @@ public sealed class Biome : IDisposable
         }
     }
 
+    /// <summary>
+    ///     Get all oceanic sub-biomes used by this biome.
+    /// </summary>
+    public IEnumerable<SubBiome> OceanicSubBiomes
+    {
+        get
+        {
+            foreach ((SubBiome subBiome, _) in oceanicSubBiomes)
+                yield return subBiome;
+        }
+    }
+
     #region DISPOSABLE
 
     /// <inheritdoc />

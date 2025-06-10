@@ -23,7 +23,8 @@ public class SubBiomeSearch(Dictionary<String, SubBiome> subBiomes, Searcher sea
     private const Int32 InCellSearchDistanceInGridCells = Map.CellSize / Map.SubBiomeGridSize + 1;
 
     private readonly Dictionary<SubBiome, IReadOnlySet<Biome>> subBiomesToBiomes = biomes
-        .SelectMany(biome => biome.SubBiomes.Select(subBiome => (biome, subBiome)))
+        .SelectMany(biome => biome.SubBiomes.Select(subBiome => (biome, subBiome))
+            .Concat(biome.OceanicSubBiomes.Select(subBiome => (biome, subBiome))))
         .GroupBy(pair => pair.subBiome, pair => pair.biome)
         .ToDictionary(group => group.Key, Set.Of<Biome>);
 
@@ -92,10 +93,22 @@ public class SubBiomeSearch(Dictionary<String, SubBiome> subBiomes, Searcher sea
     private Boolean SearchInSubBiomeGridCell(IReadOnlySet<SubBiome> subBiomes, Vector2i current, out Vector3i found)
     {
         found = Map.GetSubBiomeGridCellCenter(current, y: 0);
-        found.Y = Generator.GetWorldHeight(found);
-
         Map.Sample sample = Generator.Map.GetSample(found);
 
-        return subBiomes.Contains(sample.ActualSubBiome);
+        if (subBiomes.Contains(sample.ActualSubBiome))
+        {
+            found.Y = sample.GroundHeight;
+
+            return true;
+        }
+
+        if (sample.ActualOceanicSubBiome != null && subBiomes.Contains(sample.ActualOceanicSubBiome))
+        {
+            found.Y = sample.OceanicHeight;
+
+            return true;
+        }
+
+        return false;
     }
 }
