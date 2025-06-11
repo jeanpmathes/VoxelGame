@@ -183,7 +183,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.05f,
             Offset = 3,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Ice(),
+            Stuffer = new IStuffer.Ice(),
             IsOceanic = true,
             Layers =
             [
@@ -383,7 +383,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.03f,
             Offset = -6,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Ice(),
+            Stuffer = new IStuffer.Ice(),
             Layers =
             [
                 Layer.CreateStonyTop(width: 5),
@@ -515,7 +515,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.005f,
             Offset = -12,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateMud(width: 6),
@@ -609,7 +609,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.01f,
             Offset = -11,
             Cover = new Cover.Moss(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateMud(width: 4),
@@ -733,7 +733,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.03f,
             Offset = -3,
             Cover = new Cover.Moss(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateMud(width: 5),
@@ -852,7 +852,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.03f,
             Offset = -5,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateMud(width: 5),
@@ -984,7 +984,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 5f,
             Frequency = 0.03f,
             Offset = -7,
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Cover = new Cover.NoVegetation(),
             Layers =
             [
@@ -1085,7 +1085,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 5f,
             Frequency = 0.01f,
             Offset = -7,
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Cover = new Cover.NoVegetation(),
             Layers =
             [
@@ -1393,7 +1393,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.04f,
             Offset = -5,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateOasisTop(width: 13, subBiomeOffset: 3),
@@ -1552,7 +1552,7 @@ public class SubBiomeLoader : IResourceLoader
             Frequency = 0.001f,
             Offset = -6,
             Cover = new Cover.NoVegetation(),
-            Stuffer = new Stuffer.Water(),
+            Stuffer = new IStuffer.Water(),
             Layers =
             [
                 Layer.CreateSimple(Blocks.Instance.Peat, width: 6, isSolid: false),

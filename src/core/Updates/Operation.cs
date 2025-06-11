@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Updates;
 
@@ -280,7 +281,7 @@ public abstract class Operation<T> : Operation
     /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
     /// <param name="success">The action to run if the operation was successful.</param>
     /// <param name="fail">The action to run if the operation failed.</param>
-    /// <param name="token">A cancellation token. If cancelled, the actions will not run.</param>
+    /// <param name="token">A cancellation token. If canceled, the actions will not run.</param>
     public void OnCompletionSync(Action<Status> initial, Action<T> success, Action<Exception> fail, CancellationToken token = default)
     {
         Completion += (_, _) =>
@@ -292,6 +293,32 @@ public abstract class Operation<T> : Operation
 
             Result?.Switch(success, fail);
         };
+    }
+
+    /// <summary>
+    ///     Perform a group of actions when the operation is completed.
+    ///     All actions will run on the main thread.
+    ///     Will throw an exception if the operation was not successful.
+    /// </summary>
+    /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
+    /// <param name="success">The action to run if the operation was successful.</param>
+    /// <param name="token">A cancellation token. If canceled, the actions will not run.</param>
+    public void OnCompletionSync(Action<Status> initial, Action<T> success, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            initial(Status);
+
+            Result?.Switch(success, Fail);
+        };
+
+        static void Fail(Exception e)
+        {
+            throw Exceptions.Annotated("Operation failed", e);
+        }
     }
 
     /// <summary>

@@ -16,15 +16,15 @@ public class Streams
     private readonly RecyclableMemoryStreamManager manager = new();
 
     /// <summary>
-    ///     Get the shared instance of the streams utility.
+    ///     Get the shared instance of the stream utility.
     /// </summary>
     public static Streams Shared { get; } = new();
 
     /// <summary>
-    ///     Get a pooled memory stream.
+    ///     Create a pooled memory stream.
     /// </summary>
     /// <returns>The pooled memory stream. Must be disposed.</returns>
-    public MemoryStream GetPooledMemoryStream()
+    public MemoryStream CreatePooledMemoryStream()
     {
         return manager.GetStream();
     }

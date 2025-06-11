@@ -82,7 +82,7 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
     ///     Create the actual settings for the properties of this class.
     /// </summary>
     /// <param name="client">The client which is using these settings.</param>
-    internal void CreateSettings(Client client)
+    internal void CreateSettings(Graphics.Core.Client client)
     {
         AddSetting(nameof(FoliageQuality),
             Setting.CreateQualitySetting(

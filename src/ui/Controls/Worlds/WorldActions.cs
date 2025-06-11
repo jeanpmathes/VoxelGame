@@ -155,7 +155,6 @@ public class WorldActions : ControlBase
                 PropertyBasedListControl properties = new(layout, result, context);
                 Control.Used(properties);
             },
-            _ => {},
             infoCancellation.Token);
 
         worldInfoWindow.Closed += (_, _) =>

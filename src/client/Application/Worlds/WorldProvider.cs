@@ -84,7 +84,7 @@ public partial class WorldProvider : IWorldProvider
 
         worlds.Clear();
 
-        Operation<List<WorldData>> refresh = Operations.Launch(async token =>
+        Operation<Result<List<WorldData>>> refresh = Operations.Launch(async token =>
         {
             Result<WorldDirectoryMetadata> loaded = await WorldDirectoryMetadata.LoadAsync(metadataFile, token);
 
@@ -102,7 +102,7 @@ public partial class WorldProvider : IWorldProvider
             {
                 LogWorldRefreshError(logger, searchException);
 
-                throw Exceptions.Annotated("Failed to refresh worlds.", searchException);
+                return Result.Error<List<WorldData>>(searchException);
             }
 
             List<String> obsoleteKeys = metadata.Entries.Keys.Except(found.Select(GetMetadataKey)).ToList();
@@ -110,7 +110,7 @@ public partial class WorldProvider : IWorldProvider
             foreach (String key in obsoleteKeys)
                 metadata.Entries.Remove(key);
 
-            return found;
+            return Result.Ok(found);
         });
 
         refresh.OnCompletionSync(status =>
@@ -119,9 +119,10 @@ public partial class WorldProvider : IWorldProvider
             },
             result =>
             {
-                worlds.AddRange(result.Select(data => new WorldInfo(data, this)));
-            },
-            _ => {});
+                result.Switch(
+                    found => worlds.AddRange(found.Select(data => new WorldInfo(data, this))),
+                    _ => {});
+            });
 
         return refresh;
     }

@@ -87,7 +87,7 @@ public static class Serialize
     {
         try
         {
-            using MemoryStream memoryStream = Streams.Shared.GetPooledMemoryStream();
+            using MemoryStream memoryStream = Streams.Shared.CreatePooledMemoryStream();
 
             await using (DeflateStream compressionStream = new(memoryStream, CompressionMode.Compress, leaveOpen: true))
             await using (BufferedStream bufferedStream = new(compressionStream))
@@ -123,7 +123,7 @@ public static class Serialize
     {
         try
         {
-            using MemoryStream memoryStream = Streams.Shared.GetPooledMemoryStream();
+            using MemoryStream memoryStream = Streams.Shared.CreatePooledMemoryStream();
 
             await using (Stream fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
             {

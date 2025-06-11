@@ -115,7 +115,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     ///     It can be used to stuff the space between the global height and the local height.
     ///     Only applied if the <see cref="Offset" /> is reached.
     /// </summary>
-    public Stuffer? Stuffer { get; init; }
+    public IStuffer? Stuffer { get; init; }
 
     /// <summary>
     ///     The width of the dampening layer.
