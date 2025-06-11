@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <ApplicationFilesPath>../src/client/bin/$(Platform)/$(Configuration)/net8.0-windows/$(RuntimeIdentifier)</ApplicationFilesPath>
+        <ApplicationFilesPath>../src/client/bin/$(Platform)/$(Configuration)/net9.0-windows/$(RuntimeIdentifier)</ApplicationFilesPath>
         <DefineConstants>$(DefineConstants);ApplicationFilesPath=$(ApplicationFilesPath);</DefineConstants>
     </PropertyGroup>
     <Target Name="ValidateApplicationFilesPath" BeforeTargets="CoreCompile">
