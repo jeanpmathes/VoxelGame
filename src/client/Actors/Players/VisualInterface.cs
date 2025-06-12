@@ -13,6 +13,7 @@ using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;

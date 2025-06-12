@@ -7,10 +7,12 @@
 using System;
 using System.Diagnostics;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
-using VoxelGame.Core.Logic.Definitions.Blocks;
+using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities.Units;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

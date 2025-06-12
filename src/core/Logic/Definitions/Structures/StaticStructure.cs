@@ -13,12 +13,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -166,7 +168,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     public static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Elements.Blocks.Instance.Error);
+        fallback[0, 0, 0] = new Content(Blocks.Instance.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }
@@ -183,14 +185,14 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
 
         var content = Content.Default;
 
-        Block? block = Elements.Blocks.Instance.TranslateNamedID(placement.Block);
+        Block? block = Blocks.Instance.TranslateNamedID(placement.Block);
 
         if (block == null)
         {
             if (context != null) context.ReportWarning(this, $"Unknown block '{placement.Block}' in structure '{name}'");
             else LogUnknownBlockInStructure(logger, placement.Block, name);
 
-            block = Elements.Blocks.Instance.Air;
+            block = Blocks.Instance.Air;
         }
 
         content.Block = new BlockInstance(block, (((UInt32) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);

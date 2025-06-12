@@ -7,12 +7,13 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
+using VoxelGame.Core.Logic.Definitions.Legacy.Blocks.Conventions;
 using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 

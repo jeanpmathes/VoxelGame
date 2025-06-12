@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Water;
 
@@ -32,7 +33,7 @@ public sealed class Generator : IWorldGenerator
     ///     Create a new water generator.
     /// </summary>
     /// <param name="waterLevel">The water level (inclusive) below which the world is filled with water.</param>
-    public Generator(Int32 waterLevel = 0)
+    private Generator(Int32 waterLevel = 0)
     {
         this.waterLevel = waterLevel;
     }

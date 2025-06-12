@@ -6,11 +6,12 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Blocks;
+using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

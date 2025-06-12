@@ -1415,6 +1415,9 @@
         <None Update="Resources\Textures\Blocks\peat.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Textures\Blocks\dev.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -6,6 +6,7 @@
 
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities.Units;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

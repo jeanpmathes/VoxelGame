@@ -10,9 +10,11 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Sections;
 

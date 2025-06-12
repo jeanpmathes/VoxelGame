@@ -12,6 +12,7 @@ using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Tests.Logic.Chunks;

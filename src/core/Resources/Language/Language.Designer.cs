@@ -582,6 +582,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Developer Block.
+        /// </summary>
+        public static string DevBlock {
+            get {
+                return ResourceManager.GetString("DevBlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dirt.
         /// </summary>
         public static string Dirt {

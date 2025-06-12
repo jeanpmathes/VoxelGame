@@ -8,7 +8,9 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 

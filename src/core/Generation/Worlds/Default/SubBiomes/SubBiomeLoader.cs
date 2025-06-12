@@ -10,10 +10,10 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Definitions.Legacy.Blocks.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 

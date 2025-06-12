@@ -109,7 +109,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public Int32 ChildCount => children.Length;
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Block" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Legacy.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));

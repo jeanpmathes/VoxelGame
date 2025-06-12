@@ -9,9 +9,11 @@ using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
 
@@ -100,7 +102,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
-        Block block = world.GetBlock(position)?.Block ?? Elements.Blocks.Instance.Air;
+        Block block = world.GetBlock(position)?.Block ?? Blocks.Instance.Air;
 
         if (block is IFillable fillable) ValidLocationFlow(world, position, instance.Level, fillable);
         else InvalidLocationFlow(world, position, instance.Level);
@@ -292,11 +294,10 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         var levelHorizontal = FluidLevel.Eight;
 
         if (Orientations.ShuffledStart(position)
-            .Any(
-                orientation => CheckNeighbor(
-                    currentFillable.IsOutflowAllowed(world, position, orientation.ToSide()),
-                    orientation.Offset(position),
-                    orientation.Opposite().ToSide()))) return true;
+            .Any(orientation => CheckNeighbor(
+                currentFillable.IsOutflowAllowed(world, position, orientation.ToSide()),
+                orientation.Offset(position),
+                orientation.Opposite().ToSide()))) return true;
 
         if (horizontalPosition == position) return false;
 

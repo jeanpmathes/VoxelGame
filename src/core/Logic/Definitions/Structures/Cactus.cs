@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -27,6 +28,6 @@ public class Cactus : DynamicStructure
     /// <inheritdoc />
     protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
     {
-        return (new Content(Elements.Blocks.Instance.Cactus), true);
+        return (new Content(Blocks.Instance.Cactus), true);
     }
 }

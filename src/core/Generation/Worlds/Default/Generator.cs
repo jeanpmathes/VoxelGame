@@ -32,6 +32,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Noise;
 using VoxelGame.Toolkit.Utilities;
+using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 

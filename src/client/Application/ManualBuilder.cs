@@ -11,6 +11,7 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
@@ -36,7 +37,7 @@ public static partial class ManualBuilder
     [Conditional("MANUAL")]
     private static void GenerateManual(Client client)
     {
-        const String path = "./../../../../../../SetUp/Resources/Manual";
+        const String path = "./../../../../../../stp/Resources/Manual";
         DirectoryInfo directory = FileSystem.GetFullPath(path);
 
         LogGeneratingManual(logger);

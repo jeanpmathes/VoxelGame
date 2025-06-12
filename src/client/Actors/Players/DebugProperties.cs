@@ -32,10 +32,10 @@ public class DebugProperties : Group
         new Message("Target Block", FormatBlockTarget(targeting.Block ?? BlockInstance.Default)),
         new Message("Target Fluid", FormatFluidTarget(targeting.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Position)),
-        player.World.Map.GetPositionDebugData(player.Position),
         new Group("World",
         [
-            new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}")
+            new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}"),
+            player.World.Map.GetPositionDebugData(player.Position)
         ]),
         Profile.Instance?.GenerateReport() ?? new Group(nameof(Profile),
         [

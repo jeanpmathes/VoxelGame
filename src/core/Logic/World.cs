@@ -22,7 +22,7 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
+using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator;
 
 namespace VoxelGame.Core.Logic;
 
