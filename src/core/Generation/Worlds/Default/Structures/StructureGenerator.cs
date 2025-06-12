@@ -5,12 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Generation.Worlds.Default.Biomes;
-using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
@@ -46,7 +42,7 @@ public sealed class StructureGenerator : IDisposable
     /// </summary>
     public StructureGeneratorDefinition Definition { get; }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -54,7 +50,7 @@ public sealed class StructureGenerator : IDisposable
         noise.Dispose();
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Attempt to place the structure for a given section, if the structure is present in the section.
@@ -72,8 +68,8 @@ public sealed class StructureGenerator : IDisposable
         {
             SectionPosition current = section.Position.Offset(dx, dy, dz);
 
-            if (!FilterSection(current, generator)) continue;
-            if (!CheckSection(current, out Single random)) continue;
+            if (!IsSectionSupportingPlacement(current, generator)) continue;
+            if (!IsSectionContainingStructure(current, out Single random)) continue;
 
             PlaceIn(section, current, random, generator);
 
@@ -81,13 +77,29 @@ public sealed class StructureGenerator : IDisposable
         }
     }
 
+    /// <summary>
+    ///     Check if the structure would be placed in a specific section.
+    /// </summary>
+    /// <param name="section">The position of the section to check.</param>
+    /// <param name="generator">The world generator.</param>
+    /// <param name="position">The position of the structure if it would be placed.</param>
+    /// <returns>True if the structure would be placed, false otherwise.</returns>
+    public Boolean CheckPlacement(SectionPosition section, Generator generator, out Vector3i position)
+    {
+        position = default;
+
+        if (!IsSectionSupportingPlacement(section, generator)) return false;
+        if (!IsSectionContainingStructure(section, out Single random)) return false;
+
+        position = section.FirstBlock + DeterminePlacement(section, random, generator).position + Definition.Offset;
+
+        return true;
+    }
+
     private static Boolean FilterSurfaceSection(SectionPosition position, Generator generator)
     {
-        Vector2i firstColumn = position.FirstBlock.Xz;
-        Vector2i lastColumn = position.LastBlock.Xz;
-
-        Int32 firstHeight = generator.GetWorldHeight(firstColumn);
-        Int32 lastHeight = generator.GetWorldHeight(lastColumn);
+        Int32 firstHeight = generator.GetGroundHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetGroundHeight(position.LastBlock);
 
         return position.Contains(position.FirstBlock with {Y = firstHeight}) &&
                position.Contains(position.LastBlock with {Y = lastHeight});
@@ -95,18 +107,15 @@ public sealed class StructureGenerator : IDisposable
 
     private static Boolean FilterUndergroundSection(SectionPosition position, Generator generator)
     {
-        Vector2i firstColumn = position.FirstBlock.Xz;
-        Vector2i lastColumn = position.LastBlock.Xz;
-
-        Int32 firstHeight = generator.GetWorldHeight(firstColumn);
-        Int32 lastHeight = generator.GetWorldHeight(lastColumn);
+        Int32 firstHeight = generator.GetGroundHeight(position.FirstBlock);
+        Int32 lastHeight = generator.GetGroundHeight(position.LastBlock);
 
         Int32 sectionBlockHeight = position.LastBlock.Y;
 
         return sectionBlockHeight < firstHeight && sectionBlockHeight < lastHeight;
     }
 
-    private Boolean FilterSection(SectionPosition position, Generator generator)
+    private Boolean IsSectionSupportingPlacement(SectionPosition position, Generator generator)
     {
         return Definition.Placement switch
         {
@@ -116,7 +125,7 @@ public sealed class StructureGenerator : IDisposable
         };
     }
 
-    private Boolean CheckSection(SectionPosition position, out Single random)
+    private Boolean IsSectionContainingStructure(SectionPosition position, out Single random)
     {
         // Check if there is a local maxima in the noise at the given position.
 
@@ -152,11 +161,11 @@ public sealed class StructureGenerator : IDisposable
         Definition.Structure.PlacePartial(random.GetHashCode(), new SectionGrid(section), position, sectionPosition.FirstBlock, sectionPosition.LastBlock, orientation);
     }
 
-    private static Int32 DetermineSurfacePlacement(SectionPosition section, (Int32 x, Int32 z) position, Generator generator)
+    private static Int32 DetermineSurfacePlacement(SectionPosition section, (Int32 x, Int32 z) column, Generator generator)
     {
-        Vector2i column = (section.FirstBlock + (position.x, 0, position.z)).Xz;
+        Vector3i position = section.FirstBlock + (column.x, 0, column.z);
 
-        return Generator.GetWorldHeight(column, generator.Map.GetSample(column), out _) - section.FirstBlock.Y;
+        return generator.GetGroundHeight(position) - section.FirstBlock.Y;
     }
 
     private static Int32 DetermineUndergroundPlacement(Random randomizer)
@@ -182,117 +191,5 @@ public sealed class StructureGenerator : IDisposable
         Orientation orientation = randomizer.NextOrientation();
 
         return (position, orientation);
-    }
-
-    /// <summary>
-    ///     Search for the structure, starting from a position.
-    /// </summary>
-    public IEnumerable<Vector3i> Search(Vector3i start, UInt32 maxDistance, Generator generator)
-    {
-        var maxSectionDistance = (Int32) Math.Clamp(maxDistance / Section.Size + 1, min: 0, 2 * World.SectionLimit);
-
-        for (var d = 0; d < maxSectionDistance; d++)
-            foreach (Vector3i position in SearchAtDistance(start, d, generator))
-                yield return position;
-    }
-
-    private IEnumerable<Vector3i> SearchAtSurfaceDistance(Vector3i anchor, Int32 distance, Generator generator)
-    {
-        SectionPosition center = SectionPosition.From(anchor);
-
-        for (Int32 dx = -distance; dx <= distance; dx++)
-        {
-            Int32 dz = -distance;
-
-            while (dz <= distance)
-            {
-                SectionPosition current = center.Offset(dx, y: 0, dz);
-
-                if (!World.IsInLimits(current)) continue;
-
-                current = SectionPosition.From(current.FirstBlock with {Y = generator.GetWorldHeight(current.FirstBlock.Xz)});
-                Int32 dy = current.Y - center.Y;
-
-                if (Math.Abs(dx) != distance && Math.Abs(dz) != distance)
-                {
-                    dz = distance;
-
-                    continue;
-                }
-
-                if (SearchInSection(generator, dx, dy, dz, center, out Vector3i found))
-                    yield return found;
-
-                dz++;
-            }
-        }
-    }
-
-    private IEnumerable<Vector3i> SearchAtUndergroundDistance(Vector3i anchor, Int32 distance, Generator generator)
-    {
-        IEnumerable<Vector3i> SearchRow(SectionPosition sectionPosition, Int32 dx, Int32 dy)
-        {
-            Int32 dz = -distance;
-
-            while (dz <= distance)
-            {
-                SectionPosition current = sectionPosition.Offset(dx, dy, dz);
-
-                if (!World.IsInLimits(current)) continue;
-
-                if (Math.Abs(dx) != distance && Math.Abs(dy) != distance && Math.Abs(dz) != distance)
-                {
-                    dz = distance;
-
-                    continue;
-                }
-
-                if (SearchInSection(generator, dx, dy, dz, sectionPosition, out Vector3i found))
-                    yield return found;
-
-                dz++;
-            }
-        }
-
-        SectionPosition center = SectionPosition.From(anchor);
-
-        for (Int32 dx = -distance; dx <= distance; dx++)
-        for (Int32 dy = -distance; dy <= distance; dy++)
-            foreach (Vector3i position in SearchRow(center, dx, dy))
-                yield return position;
-    }
-
-    private IEnumerable<Vector3i> SearchAtDistance(Vector3i anchor, Int32 distance, Generator generator)
-    {
-        return Definition.Placement switch
-        {
-            StructureGeneratorDefinition.Kind.Surface => SearchAtSurfaceDistance(anchor, distance, generator),
-            StructureGeneratorDefinition.Kind.Underground => SearchAtUndergroundDistance(anchor, distance, generator),
-            _ => throw Exceptions.UnsupportedEnumValue(Definition.Placement)
-        };
-    }
-
-    private Boolean FilterSectionByBiome(SectionPosition section, Generator generator)
-    {
-        ICollection<Biome> biomes = generator.GetSectionBiomes(section, columns: null);
-
-        if (biomes.Count != 1) return false;
-
-        return biomes.First().Structure == this;
-    }
-
-    private Boolean SearchInSection(Generator generator, Int32 dx, Int32 dy, Int32 dz, SectionPosition position, out Vector3i found)
-    {
-        found = default;
-
-        SectionPosition current = position.Offset(dx, dy, dz);
-
-        if (!FilterSectionByBiome(current, generator)) return false;
-        if (!FilterSection(current, generator)) return false;
-        if (!CheckSection(current, out Single random)) return false;
-
-        found = current.FirstBlock + DeterminePlacement(current, random, generator).position + Definition.Offset;
-
-        return true;
     }
 }

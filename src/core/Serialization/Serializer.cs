@@ -254,12 +254,12 @@ public abstract class Serializer
     public void SerializeEntity<T>(T entity)
         where T : IEntity
     {
-        UInt32 version = T.Version;
+        UInt32 version = T.CurrentVersion;
 
         Serialize(ref version);
 
-        if (version > T.Version)
-            Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.Version}.");
+        if (version > T.CurrentVersion)
+            Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.CurrentVersion}.");
 
         entity.Serialize(this, new IEntity.Header(version));
     }

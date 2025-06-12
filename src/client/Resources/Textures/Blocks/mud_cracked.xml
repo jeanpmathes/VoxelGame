@@ -1,0 +1,8 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="mud:all"/>
+        <Layer source="p:cracked_pattern:all"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

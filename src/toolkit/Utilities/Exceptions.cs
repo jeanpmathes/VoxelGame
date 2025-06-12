@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace VoxelGame.Toolkit.Utilities;
@@ -82,10 +83,10 @@ public static class Exceptions
     /// <param name="value">The value that is not supported.</param>
     /// <typeparam name="T">The type of the enum.</typeparam>
     /// <returns>The exception.</returns>
-    public static InvalidOperationException UnsupportedEnumValue<T>(T value)
+    public static InvalidEnumArgumentException UnsupportedEnumValue<T>(T value)
         where T : Enum
     {
-        return new InvalidOperationException($"The enum value {value} of the enum {typeof(T).Name} is not supported here.");
+        return new InvalidEnumArgumentException($"The enum value {value} of the enum {typeof(T).Name} is not supported here.");
     }
 
     /// <summary>

@@ -30,6 +30,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // t: top
 public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : IPipeConnectable
 {
+    private readonly TID? texture;
     private readonly RID centerModel;
     private readonly RID connectorModel;
     private readonly RID surfaceModel;
@@ -39,7 +40,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal PipeBlock(String name, String namedID, Single diameter,
+    internal PipeBlock(String name, String namedID, Single diameter, TID? texture,
         RID centerModel, RID connectorModel, RID surfaceModel) :
         base(
             name,
@@ -49,6 +50,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         this.diameter = diameter;
 
+        this.texture = texture;
         this.centerModel = centerModel;
         this.connectorModel = connectorModel;
         this.surfaceModel = surfaceModel;
@@ -84,6 +86,13 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
         BlockModel frontConnector = modelProvider.GetModel(connectorModel);
         BlockModel frontSurface = modelProvider.GetModel(surfaceModel);
 
+        if (texture is {} newTexture)
+        {
+            center.OverwriteTexture(newTexture, index: 0);
+            frontConnector.OverwriteTexture(newTexture, index: 0);
+            frontSurface.OverwriteTexture(newTexture, index: 0);
+        }
+
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             connectors = frontConnector.CreateAllSides();
 
@@ -100,12 +109,12 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
             BlockMesh mesh = BlockModel.GetCombinedMesh(textureIndexProvider,
                 center,
-                Side.Front.IsSet(sides) ? connectors.front : surfaces.front,
-                Side.Back.IsSet(sides) ? connectors.back : surfaces.back,
-                Side.Left.IsSet(sides) ? connectors.left : surfaces.left,
-                Side.Right.IsSet(sides) ? connectors.right : surfaces.right,
-                Side.Bottom.IsSet(sides) ? connectors.bottom : surfaces.bottom,
-                Side.Top.IsSet(sides) ? connectors.top : surfaces.top);
+                sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
+                sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,
+                sides.HasFlag(Sides.Left) ? connectors.left : surfaces.left,
+                sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
+                sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
+                sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top);
 
             meshes.Add(mesh);
 
@@ -121,7 +130,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
         foreach (Side side in Side.All.Sides())
         {
-            if (!side.IsSet((Sides) data)) continue;
+            if (!((Sides) data).HasFlag(side.ToFlag())) continue;
 
             var direction = (Vector3d) side.Direction();
 
@@ -193,6 +202,6 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     {
         BlockInstance block = world.GetBlock(position) ?? BlockInstance.Default;
 
-        return side.IsSet((Sides) block.Data);
+        return ((Sides) block.Data).HasFlag(side.ToFlag());
     }
 }

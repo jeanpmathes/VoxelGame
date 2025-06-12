@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GroundedModifiableHeightBlock : ModifiableHeightBlock
 {
-    internal GroundedModifiableHeightBlock(String name, String namedID, TextureLayout layout) : base(name, namedID, layout) {}
+    internal GroundedModifiableHeightBlock(String name, String namedID, TextureLayout layout, Boolean isSolid = true, Boolean isTrigger = false) : base(name, namedID, layout, isSolid, isTrigger) {}
 
     /// <inheritdoc />
     public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)

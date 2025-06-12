@@ -21,7 +21,7 @@ public class BoulderDecoration : Decoration
     /// <summary>
     ///     Creates a new instance of the <see cref="BoulderDecoration" /> class.
     /// </summary>
-    public BoulderDecoration(String name, Single rarity, Decorator decorator) : base(name, rarity, decorator)
+    public BoulderDecoration(String name, Decorator decorator) : base(name, decorator)
     {
         const Int32 diameter = 5;
 

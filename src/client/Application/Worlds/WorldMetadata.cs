@@ -7,9 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application.Worlds;
@@ -49,42 +53,40 @@ public partial class WorldDirectoryMetadata
     ///     Save the metadata to a file.
     /// </summary>
     /// <param name="file">The file to save to.</param>
-    public void Save(FileInfo file)
+    /// <param name="token">The cancellation token.</param>
+    public async Task SaveAsync(FileInfo file, CancellationToken token = default)
     {
-        Exception? exception = Serialize.SaveJSON(this, file);
+        Result result = await Serialize.SaveJsonAsync(this, file, token).InAnyContext();
 
-        if (exception == null)
-            LogSaveMetadataSuccess(logger, file);
-        else
-            LogSaveMetadataFailure(logger, exception, file);
+        result.Switch(
+            () => LogSaveMetadataSuccess(logger, file),
+            exception => LogSaveMetadataFailure(logger, exception, file));
     }
 
     /// <summary>
     ///     Load the metadata from a file.
     ///     If the file does not exist, empty metadata is returned and this is not considered a failure.
+    ///     Other errors are considered failures.
     /// </summary>
     /// <param name="file">The file to load from.</param>
-    /// <param name="exception">The exception that occurred during loading, if any. </param>
-    /// <returns>The metadata.</returns>
-    public static WorldDirectoryMetadata Load(FileInfo file, out Exception? exception)
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The metadata result.</returns>
+    public static async Task<Result<WorldDirectoryMetadata>> LoadAsync(FileInfo file, CancellationToken token = default)
     {
-        exception = Serialize.LoadJSON(file, out WorldDirectoryMetadata metadata);
-
         if (!file.Exists)
         {
             LogMetadataFileDoesNotExist(logger, file);
-            exception = null;
-        }
-        else if (exception == null)
-        {
-            LogLoadMetadataSuccess(logger, file);
-        }
-        else
-        {
-            LogLoadMetadataFailure(logger, exception, file);
+
+            return Result.Ok(new WorldDirectoryMetadata());
         }
 
-        return metadata;
+        Result<WorldDirectoryMetadata> result = await Serialize.LoadJsonAsync<WorldDirectoryMetadata>(file, token).InAnyContext();
+
+        result.Switch(
+            _ => LogLoadMetadataSuccess(logger, file),
+            exception => LogLoadMetadataFailure(logger, exception, file));
+
+        return result;
     }
 
     #region LOGGING

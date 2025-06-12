@@ -295,9 +295,29 @@ public static class MathTools
     /// </summary>
     /// <param name="vector">The vector to floor.</param>
     /// <returns>The component-wise floored vector.</returns>
+    public static Vector2i Floor(this Vector2d vector)
+    {
+        return new Vector2i((Int32) Math.Floor(vector.X), (Int32) Math.Floor(vector.Y));
+    }
+
+    /// <summary>
+    ///     Returns a floored vector of a given vector.
+    /// </summary>
+    /// <param name="vector">The vector to floor.</param>
+    /// <returns>The component-wise floored vector.</returns>
     public static Vector3i Floor(this Vector3d vector)
     {
         return new Vector3i((Int32) Math.Floor(vector.X), (Int32) Math.Floor(vector.Y), (Int32) Math.Floor(vector.Z));
+    }
+
+    /// <summary>
+    ///     Returns a ceil-ed vector of a given vector.
+    /// </summary>
+    /// <param name="vector">The vector to ceil.</param>
+    /// <returns>The component-wise ceil-ed vector.</returns>
+    public static Vector3i Ceiling(this Vector3d vector)
+    {
+        return new Vector3i((Int32) Math.Ceiling(vector.X), (Int32) Math.Ceiling(vector.Y), (Int32) Math.Ceiling(vector.Z));
     }
 
     /// <summary>
@@ -408,11 +428,27 @@ public static class MathTools
     }
 
     /// <summary>
+    ///     Perform a component-wise linear interpolation between two values.
+    /// </summary>
+    public static Vector2d Lerp(Vector2d a, Vector2d b, Vector2d t)
+    {
+        return new Vector2d(MathHelper.Lerp(a.X, b.X, t.X), MathHelper.Lerp(a.Y, b.Y, t.Y));
+    }
+
+    /// <summary>
     ///     Given two points and a value, calculate the lerp factor to produce the value.
     /// </summary>
     public static Double InverseLerp(Double a, Double b, Double value)
     {
         return (value - a) / (b - a);
+    }
+
+    /// <summary>
+    ///     Perform a component-wise inverse lerp operation on two vectors.
+    /// </summary>
+    public static Vector2d InverseLerp(Vector2d a, Vector2d b, Vector2d value)
+    {
+        return new Vector2d(InverseLerp(a.X, b.X, value.X), InverseLerp(a.Y, b.Y, value.Y));
     }
 
     /// <summary>
@@ -424,24 +460,11 @@ public static class MathTools
     }
 
     /// <summary>
-    ///     Get the gradient of the bilinear interpolation function. The factors must be in the range [0, 1].
+    ///     Perform a bilinear interpolation between four values, using two factors. The factors must be in the range [0, 1].
     /// </summary>
-    public static Vector2d GradBiLerp(Double f00, Double f10, Double f01, Double f11, Double tx, Double ty)
+    public static Double BiLerp(Double f00, Double f10, Double f01, Double f11, Vector2d t)
     {
-        // bilerp: f(tx, ty) = (1 - tx) * (1 - ty) * f00 + tx * (1 - ty) * f10 + (1 - tx) * ty * f01 + tx * ty * f11
-
-        Double fx = (1 - ty) * (f10 - f00) + ty * (f11 - f01);
-        Double fy = (1 - tx) * (f01 - f00) + tx * (f11 - f10);
-
-        return new Vector2d(fx, fy);
-    }
-
-    /// <summary>
-    ///     Perform a bilinear interpolation between four values and then lerp between the result and a fifth value.
-    /// </summary>
-    public static Double MixingBilinearInterpolation(Double f00, Double f10, Double f01, Double f11, Double fZ, Vector3d t)
-    {
-        return MathHelper.Lerp(BiLerp(f00, f10, f01, f11, t.X, t.Y), fZ, t.Z);
+        return BiLerp(f00, f10, f01, f11, t.X, t.Y);
     }
 
     /// <summary>
@@ -499,25 +522,6 @@ public static class MathTools
     }
 
     /// <summary>
-    ///     Select from two values using one weight.
-    /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T e0, in T e1, Double w)
-    {
-        if (w < 0.5) return ref e0;
-
-        return ref e1;
-    }
-
-
-    /// <summary>
-    ///     Select from five values using three weights.
-    /// </summary>
-    public static ref readonly T SelectByWeight<T>(in T e00, in T e10, in T e01, in T e11, in T eZ, Vector3d weights)
-    {
-        return ref SelectByWeight(SelectByWeight(e00, e10, e01, e11, weights.Xy), eZ, weights.Z);
-    }
-
-    /// <summary>
     ///     Get the square root of each vector component.
     /// </summary>
     public static Vector4 Sqrt(this Vector4 v)
@@ -531,6 +535,15 @@ public static class MathTools
     public static Double CalculateAngle(Vector2d a, Vector2d b)
     {
         return Math.Acos(Vector2d.Dot(a, b) / (a.Length * b.Length));
+    }
+
+    /// <summary>
+    ///     Perform a component-wise min-max operation on two vectors, returning all minimal components in the first vector and
+    ///     all maximal components in the second vector.
+    /// </summary>
+    public static (Vector2i min, Vector2i max) MinMax(Vector2i a, Vector2i b)
+    {
+        return (new Vector2i(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y)), new Vector2i(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y)));
     }
 
     /// <summary>
@@ -628,23 +641,6 @@ public static class MathTools
     }
 
     /// <summary>
-    ///     Get the corner of a box by its index.
-    /// </summary>
-    /// <param name="box">The box.</param>
-    /// <param name="index">The index of the corner, in the range [0, 7].</param>
-    /// <returns>The corner.</returns>
-    public static Vector3d GetCorner(this Box3d box, Int32 index)
-    {
-        Debug.Assert(index is >= 0 and < 8);
-
-        return new Vector3d(
-            index % 2 == 0 ? box.Min.X : box.Max.X,
-            index / 2 % 2 == 0 ? box.Min.Y : box.Max.Y,
-            index / 4 % 2 == 0 ? box.Min.Z : box.Max.Z
-        );
-    }
-
-    /// <summary>
     ///     Simply gets the square of a number.
     /// </summary>
     public static Int32 Square(Int32 x)
@@ -661,10 +657,28 @@ public static class MathTools
     }
 
     /// <summary>
+    /// Simply gets the cube of a number.
+    /// </summary>
+    public static Single Cube(Single x)
+    {
+        return x * x * x;
+    }
+
+    /// <summary>
     ///     Get the modulo of a value. The result will always be positive.
     /// </summary>
     public static Int32 Mod(Int32 value, Int32 m)
     {
         return (value % m + m) % m;
+    }
+
+    /// <summary>
+    ///     Get the fractional part of a double.
+    /// </summary>
+    /// <param name="value">The value to get the fractional part of.</param>
+    /// <returns>The fractional part of the value.</returns>
+    public static Double Fraction(Double value)
+    {
+        return value - Math.Floor(value);
     }
 }

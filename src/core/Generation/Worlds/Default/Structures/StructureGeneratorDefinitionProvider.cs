@@ -24,14 +24,15 @@ public class StructureGeneratorDefinitionProvider : ResourceProvider<StructureGe
             Single.PositiveInfinity,
             Vector3i.Zero);
 
-    /// <summary>
-    ///     Create a new structure generator definition provider.
-    /// </summary>
-    public StructureGeneratorDefinitionProvider() : base(() => fallback, structure => structure) {}
-
     /// <inheritdoc />
     public StructureGeneratorDefinition GetStructure(RID identifier)
     {
         return GetResource(identifier);
+    }
+
+    /// <inheritdoc />
+    protected override StructureGeneratorDefinition CreateFallback()
+    {
+        return fallback;
     }
 }

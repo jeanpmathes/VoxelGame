@@ -31,7 +31,8 @@ public class FluidAnimation() : Modifier("fluid-animation", [invertedParameter])
     {
         Boolean inverted = parameters.Get(invertedParameter);
 
-        if (context.Position == Vector2i.Zero && context.Size.Y != 4) context.ReportWarning($"Modifier {Type} expects a Nx4 sized sheet, but got {context.Size.X}x{context.Size.Y}");
+        if (context.Position == Vector2i.Zero && context.Size.Y != 4)
+            context.ReportWarning($"Modifier {Type} expects a Nx4 sized sheet, but got {context.Size.X}x{context.Size.Y}");
 
         return context.Position.Y switch
         {

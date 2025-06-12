@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input;
@@ -37,8 +38,9 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
     /// <summary>
     ///     Creates a new instance of the <see cref="KeybindManager" /> class.
     /// </summary>
+    /// <param name="settings">The general settings.</param>
     /// <param name="input">The input system.</param>
-    internal KeybindManager(Input input)
+    internal KeybindManager(GeneralSettings settings, Input input)
     {
         Input = input;
 
@@ -48,8 +50,8 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
         InitializeUsages();
         InitializeSettings();
 
-        LookBind = new LookInput(Input.Mouse, Application.Client.Instance.Settings.MouseSensitivity);
-        binding = Application.Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
+        LookBind = new LookInput(Input.Mouse, settings.MouseSensitivity);
+        binding = settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
     }
 
     /// <summary>

@@ -60,7 +60,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         this.scene = scene;
         this.visualInterface = visualInterface;
 
-        input = new Input();
+        input = new Input(scene.Client.Keybinds);
         targeting = new Targeting();
         selector = new PlacementSelection(input, () => targeting.Block?.Block);
         interaction = new Interaction(this, input, targeting, selector);
@@ -229,7 +229,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     {
         // The pitch is clamped in the camera class.
 
-        (Double yaw, Double pitch) = Application.Client.Instance.Keybinds.LookBind.Value;
+        (Double yaw, Double pitch) = scene.Client.Keybinds.LookBind.Value;
         camera.Yaw += yaw;
         camera.Pitch += pitch;
 

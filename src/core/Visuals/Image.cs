@@ -12,7 +12,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit;
 
@@ -178,25 +181,30 @@ public class Image
     }
 
     /// <summary>
-    ///     Saves the image to a file.
+    /// Save the image to a file asynchronously.
     /// </summary>
     /// <param name="file">The file to save to.</param>
-    /// <returns>An exception if saving failed, otherwise null.</returns>
-    #pragma warning disable S3242 // Type carries semantic information.
-    public Exception? Save(FileInfo file)
-    #pragma warning restore S3242
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The result of the operation.</returns>
+    public async Task<Result> SaveAsync(FileInfo file, CancellationToken token = default)
     {
         try
         {
             using Bitmap bitmap = CreateBitmap();
+            using MemoryStream memoryStream = new();
 
-            bitmap.Save(file.FullName);
+            bitmap.Save(memoryStream, ImageFormat.Png);
 
-            return null;
+            memoryStream.Seek(offset: 0, SeekOrigin.Begin);
+
+            await using FileStream fileStream = file.Create();
+            await memoryStream.CopyToAsync(fileStream, token).InAnyContext();
+
+            return Result.Ok();
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or ExternalException)
         {
-            return e;
+            return Result.Error(e);
         }
     }
 

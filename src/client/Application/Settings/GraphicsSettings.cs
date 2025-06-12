@@ -32,12 +32,6 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.Save();
             });
 
-        AddSetting(nameof(FoliageQuality),
-            Setting.CreateQualitySetting(
-                this,
-                Language.GraphicsFoliageQuality,
-                FoliageQuality.Accessors));
-
         WindowSize = new Bindable<Vector2i>(
             () => new Vector2i(clientSettings.WindowSize.Width, clientSettings.WindowSize.Height),
             size =>
@@ -46,13 +40,6 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.Save();
             });
 
-        AddSetting(nameof(WindowSize),
-            Setting.CreateSizeSetting(
-                this,
-                Language.GraphicsWindowSize,
-                WindowSize.Accessors,
-                () => Client.Instance.Size));
-
         RenderResolutionScale = new Bindable<Single>(
             () => (Single) clientSettings.RenderResolutionScale,
             scale =>
@@ -60,16 +47,6 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.RenderResolutionScale = scale;
                 clientSettings.Save();
             });
-
-        AddSetting(nameof(RenderResolutionScale),
-            Setting.CreateFloatRangeSetting(
-                this,
-                Language.GraphicsRenderResolutionScale,
-                RenderResolutionScale.Accessors,
-                min: 0.1f,
-                max: 5f,
-                percentage: true,
-                step: 0.1f));
     }
 
     /// <summary>
@@ -100,6 +77,36 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
 
     /// <inheritdoc />
     static String ISettingsProvider.Description => Language.GraphicsSettingsDescription;
+
+    /// <summary>
+    ///     Create the actual settings for the properties of this class.
+    /// </summary>
+    /// <param name="client">The client which is using these settings.</param>
+    internal void CreateSettings(Graphics.Core.Client client)
+    {
+        AddSetting(nameof(FoliageQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsFoliageQuality,
+                FoliageQuality.Accessors));
+
+        AddSetting(nameof(WindowSize),
+            Setting.CreateSizeSetting(
+                this,
+                Language.GraphicsWindowSize,
+                WindowSize.Accessors,
+                () => client.Size));
+
+        AddSetting(nameof(RenderResolutionScale),
+            Setting.CreateFloatRangeSetting(
+                this,
+                Language.GraphicsRenderResolutionScale,
+                RenderResolutionScale.Accessors,
+                min: 0.1f,
+                max: 5f,
+                percentage: true,
+                step: 0.1f));
+    }
 
     #region LOGGING
 

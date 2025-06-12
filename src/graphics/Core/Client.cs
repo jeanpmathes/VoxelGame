@@ -385,13 +385,14 @@ public partial class Client : IDisposable
 
                 FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
-                Operations.Launch(() =>
+                Operations.Launch(async token =>
                 {
                     Image screenshot = new(copy, Image.Format.BGRA, (Int32) width, (Int32) height);
-                    Exception? exception = screenshot.Save(path);
+                    Result result = await screenshot.SaveAsync(path, token).InAnyContext();
 
-                    if (exception == null) LogSavedScreenshot(logger, path.FullName);
-                    else LogFailedToSaveScreenshot(logger, exception, path.FullName);
+                    result.Switch(
+                        () => LogSavedScreenshot(logger, path.FullName),
+                        exception => LogFailedToSaveScreenshot(logger, exception, path.FullName));
                 });
             });
     }

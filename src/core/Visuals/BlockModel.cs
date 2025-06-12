@@ -11,10 +11,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals.Meshables;
@@ -77,7 +80,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <inheritdoc />
     [JsonIgnore] public ResourceType Type => ResourceTypes.Model;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -85,7 +88,7 @@ public sealed partial class BlockModel : IResource, ILocated
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Create a block mesh from this model.
@@ -163,22 +166,27 @@ public sealed partial class BlockModel : IResource, ILocated
     }
 
     /// <summary>
-    ///     Overwrites the textures of the model, replacing them with a single texture.
+    ///     Overwrites the texture of the model, replacing them with a single texture.
+    ///     This is only valid for models that have a single texture.
     /// </summary>
     /// <param name="newTexture">The replacement texture.</param>
     public void OverwriteTexture(TID newTexture)
     {
-        TextureNames = [newTexture.Key];
+        Debug.Assert(TextureNames.Length == 1);
 
-        for (var i = 0; i < Quads.Length; i++)
-        {
-            Quad old = Quads[i];
+        OverwriteTexture(newTexture, index: 0);
+    }
 
-            Quads[i] = old with
-            {
-                TextureId = 0
-            };
-        }
+    /// <summary>
+    ///     Overwrite the texture with the given local index.
+    /// </summary>
+    /// <param name="newTexture">The new texture.</param>
+    /// <param name="index">The index of the texture to replace.</param>
+    public void OverwriteTexture(TID newTexture, Int32 index)
+    {
+        Debug.Assert(index >= 0 && index < TextureNames.Length);
+
+        TextureNames[index] = newTexture.Key;
     }
 
     /// <summary>
@@ -379,15 +387,17 @@ public sealed partial class BlockModel : IResource, ILocated
     /// </summary>
     /// <param name="directory">The directory to save the file to.</param>
     /// <param name="name">The name of the file.</param>
-    public void Save(DirectoryInfo directory, String name)
+    /// <param name="token">The cancellation token.</param>
+    public async Task SaveAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
         if (lockedQuads != null)
             throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
 
-        Exception? exception = Serialize.SaveJSON(this, directory.GetFile(FileSystem.GetResourceFileName<BlockModel>(name)));
+        Result result = await Serialize.SaveJsonAsync(this, directory.GetFile(FileSystem.GetResourceFileName<BlockModel>(name)), token).InAnyContext();
 
-        if (exception != null)
-            LogFailedToSaveBlockModel(logger, exception);
+        result.Switch(
+            () => {},
+            exception => LogFailedToSaveBlockModel(logger, exception));
     }
 
     /// <summary>
@@ -405,15 +415,18 @@ public sealed partial class BlockModel : IResource, ILocated
     ///     Load a block model from a file.
     /// </summary>
     /// <param name="file">The file to load the model from.</param>
-    /// <param name="model">The loaded model, or a fallback model if loading failed.</param>
-    /// <returns>The exception that occurred, if any.</returns>
-    public static Exception? Load(FileInfo file, out BlockModel model)
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The result of the operation.</returns>
+    public static async Task<Result<BlockModel>> LoadAsync(FileInfo file, CancellationToken token = default)
     {
-        Exception? exception = Serialize.LoadJSON(file, out model, BlockModels.CreateFallback);
+        Result<BlockModel> result = await Serialize.LoadJsonAsync<BlockModel>(file, token).InAnyContext();
 
-        model.Identifier = RID.Path(file);
+        return result.Map(model =>
+        {
+            model.Identifier = RID.Path(file);
 
-        return exception;
+            return model;
+        });
     }
 
     /// <summary>

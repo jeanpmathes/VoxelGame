@@ -6,11 +6,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
 using Activity = VoxelGame.Core.Updates.Activity;
 
@@ -79,7 +79,7 @@ public abstract partial class WorldState
             if (!world.Chunks.IsEveryChunkToSimulateActive())
                 return null;
 
-            Duration readyTime = timer?.Elapsed ?? default;
+            var readyTime = (timer?.Elapsed ?? default).ToString(CultureInfo.InvariantCulture);
             LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
 
             timer?.Dispose();
@@ -151,7 +151,7 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully terminated.</param>
     public class Terminating(Action onComplete) : WorldState
     {
-        private Future? saving;
+        private Operation? saving;
         private Boolean completed;
 
         /// <inheritdoc />
@@ -165,14 +165,19 @@ public abstract partial class WorldState
             if (saving == null)
             {
                 world.Data.Information.Version = ApplicationInformation.Instance.Version;
-                saving = Future.Create(world.Data.Save);
+
+                saving = Operations.Launch(async token =>
+                {
+                    await world.Data.SaveAsync(token).InAnyContext();
+                });
             }
 
-            if (!saving.IsCompleted || !world.Chunks.IsEmpty)
+            if (saving.IsRunning || !world.Chunks.IsEmpty)
                 return null;
 
-            if (saving.Exception is {} exception)
-                LogFailedToSaveWorldMetaInformation(logger, exception);
+            saving.Result?.Switch(
+                () => {},
+                exception => LogFailedToSaveWorldMetaInformation(logger, exception));
 
             LogUnloadedWorld(logger);
 
@@ -195,7 +200,7 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully saving.</param>
     public class Saving(Action onComplete) : WorldState
     {
-        private Future? saving;
+        private Operation? saving;
 
         private Int32 progress;
         private Int32 total;
@@ -208,7 +213,11 @@ public abstract partial class WorldState
                 LogSavingWorld(logger);
 
                 world.Data.Information.Version = ApplicationInformation.Instance.Version;
-                saving = Future.Create(world.Data.Save);
+
+                saving = Operations.Launch(async token =>
+                {
+                    await world.Data.SaveAsync(token).InAnyContext();
+                });
 
                 foreach (Chunk chunk in world.Chunks.All)
                 {
@@ -220,11 +229,12 @@ public abstract partial class WorldState
                 }
             }
 
-            if (!saving.IsCompleted || progress < total)
+            if (saving.IsRunning || progress < total)
                 return null;
 
-            if (saving.Exception is {} exception)
-                LogFailedToSaveWorldMetaInformation(logger, exception);
+            saving.Result?.Switch(
+                () => {},
+                exception => LogFailedToSaveWorldMetaInformation(logger, exception));
 
             LogSavedWorld(logger);
 
@@ -257,7 +267,7 @@ public abstract partial class WorldState
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldState>();
 
     [LoggerMessage(EventId = LogID.WorldState + 0, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
-    private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
+    private static partial void LogWorldReady(ILogger logger, String readyTime, Int64 worldUpdates, Int64 chunkUpdates);
 
     [LoggerMessage(EventId = LogID.WorldState + 1, Level = LogLevel.Information, Message = "Unloaded world")]
     private static partial void LogUnloadedWorld(ILogger logger);

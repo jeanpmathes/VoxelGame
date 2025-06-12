@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
 
 /// <summary>
-///     Search and find any named generated object in the world.
+///     Search and find any named generated entity in the world.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class FindNamed : Command
@@ -27,7 +27,7 @@ public class FindNamed : Command
     public override String Name => "find-named";
 
     /// <inheritdoc />
-    public override String HelpText => "Search and find any named generated object in the world.";
+    public override String HelpText => "Search and find any named generated entity in the world.";
 
     /// <exclude />
     public void Invoke(String name)
@@ -47,7 +47,7 @@ public class FindNamed : Command
         Search(name, count, maxDistance);
     }
 
-    private void Search(String name, Int32 count = 1, UInt32 maxDistance = Chunk.BlockSize * 100)
+    private void Search(String name, Int32 count = 1, UInt32 maxDistance = World.BlockLimit * 2)
     {
         if (count < 1)
         {
@@ -55,8 +55,6 @@ public class FindNamed : Command
 
             return;
         }
-
-        Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
 
         IEnumerable<Vector3i>? positions = Context.Player.World
             .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance);
@@ -68,13 +66,16 @@ public class FindNamed : Command
             return;
         }
 
-        Operations.Launch(() =>
+        Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
+
+        Operations.Launch(async token =>
         {
             foreach (Vector3i position in positions.Take(count))
-                Context.Console.EnqueueResponse($"Found {name} at {position}.",
-                    new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position)));
+                await Context.Console.WriteResponseAsync($"Found {name} at {position}.",
+                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position))],
+                    token).InAnyContext();
 
-            Context.Console.EnqueueResponse($"Search for {name} finished.");
+            await Context.Console.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
         });
     }
 }

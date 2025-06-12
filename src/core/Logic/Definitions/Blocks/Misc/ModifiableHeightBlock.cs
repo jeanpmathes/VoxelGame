@@ -19,11 +19,11 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class ModifiableHeightBlock : VaryingHeightBlock
 {
-    internal ModifiableHeightBlock(String name, String namedID, TextureLayout layout) :
+    internal ModifiableHeightBlock(String name, String namedID, TextureLayout layout, Boolean isSolid = true, Boolean isTrigger = false) :
         base(
             name,
             namedID,
-            BlockFlags.Functional with {IsOpaque = true},
+            BlockFlags.Functional with {IsOpaque = true, IsSolid = isSolid, ReceiveCollisions = isTrigger, IsTrigger = isTrigger},
             layout) {}
 
     /// <inheritdoc />

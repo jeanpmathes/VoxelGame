@@ -31,7 +31,7 @@ public class RotatedBlock : BasicBlock, ICombustible
             layout) {}
 
     /// <summary>
-    ///     Get a instance of this block rotated to the given axis.
+    ///     Get an instance of this block rotated to the given axis.
     /// </summary>
     /// <param name="axis">The axis to rotate to.</param>
     /// <returns>The rotated block.</returns>

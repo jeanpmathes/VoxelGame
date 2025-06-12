@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
@@ -31,14 +31,10 @@ public abstract class Decoration : IResource
     ///     Creates a new decoration.
     /// </summary>
     /// <param name="name">The name of the decoration. Must be unique.</param>
-    /// <param name="rarity">
-    ///     The rarity of the decoration. A higher value indicates a lower chance of placement.
-    /// </param>
     /// <param name="decorator">The decorator that will be used to place the decoration.</param>
-    protected Decoration(String name, Single rarity, Decorator decorator)
+    protected Decoration(String name, Decorator decorator)
     {
         Name = name;
-        Rarity = rarity;
         Identifier = RID.Named<Decoration>(name);
 
         this.decorator = decorator;
@@ -48,11 +44,6 @@ public abstract class Decoration : IResource
     ///     Get the size of the decoration. Must be less or equal than <see cref="Section.Size" />.
     /// </summary>
     public abstract Int32 Size { get; }
-
-    /// <summary>
-    ///     The rarity of the decoration. A higher value indicates a lower chance of placement.
-    /// </summary>
-    private Single Rarity { get; }
 
     /// <summary>
     ///     Get the name of the decoration.
@@ -82,11 +73,11 @@ public abstract class Decoration : IResource
     {
         Vector3i position = context.Position.FirstBlock + (column.x, 0, column.z);
 
-        Map.Sample sample = context.Generator.Map.GetSample(position.Xz);
+        Map.Sample sample = context.Generator.Map.GetSample(position);
 
-        if (!context.Biomes.Contains(sample.ActualBiome)) return;
+        if (!context.SubBiomes.Contains(sample.ActualSubBiome)) return;
 
-        Int32 surfaceHeight = Generator.GetWorldHeight(column, sample, out _);
+        Int32 surfaceHeight = Generator.GetGroundHeight(column, sample, out _, out _);
 
         PlacementContext placementContext = new(Random: 0.0f, Depth: 0, context.Generator.Map.GetStoneType((column.x, 0, column.z), sample), context.Palette);
 
@@ -94,7 +85,7 @@ public abstract class Decoration : IResource
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 
-            if (!noise.CheckCandidate(position, Rarity, out Single random)) continue;
+            if (!noise.CheckCandidate(position, context.Rarity, out Single random)) continue;
 
             placementContext = placementContext with {Random = random, Depth = surfaceHeight - position.Y};
 
@@ -120,12 +111,21 @@ public abstract class Decoration : IResource
     /// </summary>
     /// <param name="Position">The position of the section.</param>
     /// <param name="Sections">The section and its neighbors.</param>
-    /// <param name="Biomes">The biomes in which the decoration may be placed.</param>
-    /// <param name="Noise">The noise used for decoration placement.</param>
+    /// <param name="SubBiomes">The sub-biomes in which the decoration may be placed.</param>
+    /// <param name="NoiseArray">The noise used for decoration placement.</param>
+    /// <param name="Rarity">The rarity of the decoration. A higher value indicates a lower chance of placement.</param>
     /// <param name="Index">The current index of the decoration.</param>
     /// <param name="Palette">The palette of the generation.</param>
     /// <param name="Generator">The generator that is placing the decoration.</param>
-    public record Context(SectionPosition Position, Array3D<Section> Sections, ISet<Biome> Biomes, Array3D<Single> Noise, Int32 Index, Palette Palette, Generator Generator) : IGrid
+    public record Context(
+        SectionPosition Position,
+        Array3D<Section> Sections,
+        ISet<SubBiome> SubBiomes,
+        Array3D<Single> NoiseArray,
+        Single Rarity,
+        Int32 Index,
+        Palette Palette,
+        Generator Generator) : IGrid
     {
         /// <summary>
         ///     Get the content of a position in the neighborhood of the section.
@@ -167,7 +167,7 @@ public abstract class Decoration : IResource
 
     private sealed class Noise(in Context context)
     {
-        private readonly Array3D<Single> noise = context.Noise;
+        private readonly Array3D<Single> noise = context.NoiseArray;
         private readonly Random randomNumberGenerator = new(HashCode.Combine(context.Position, context.Index));
 
         public Boolean CheckCandidate(Vector3i position, Single rarity, out Single random)
@@ -188,7 +188,7 @@ public abstract class Decoration : IResource
     /// <param name="Palette">The palette of the world generation.</param>
     public record struct PlacementContext(Single Random, Int32 Depth, Map.StoneType StoneType, Palette Palette);
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -227,5 +227,5 @@ public abstract class Decoration : IResource
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

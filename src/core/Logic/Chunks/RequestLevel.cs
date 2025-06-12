@@ -87,11 +87,6 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     /// </summary>
     public Boolean IsSimulated => level >= SimulatedLevel;
 
-    /// <summary>
-    ///     The integer value of the level.
-    /// </summary>
-    public Int32 Value => level;
-
     #region EQUALITY
 
     /// <summary>

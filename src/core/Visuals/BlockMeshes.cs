@@ -91,8 +91,8 @@ public static class BlockMeshes
     {
         side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 
-        var n = side.Direction().ToVector3();
-        Vector3 vOffset = n * offset * -1;
+        var normal = side.Direction().ToVector3();
+        Vector3 vOffset = normal * offset * -1;
 
         Vector3 v1 = (a[0], a[1], a[2]) + vOffset;
         Vector3 v2 = (b[0], b[1], b[2]) + vOffset;

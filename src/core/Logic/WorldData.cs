@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
@@ -156,7 +158,7 @@ public partial class WorldData
 
     private static UInt32 ClampSize(UInt32 size)
     {
-        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
+        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize * (1 + RequestLevel.Range));
     }
 
     private static SpawnInformation ClampSpawn(WorldInformation information)
@@ -185,17 +187,22 @@ public partial class WorldData
     ///     Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
     /// <returns>The entity, or null if an error occurred.</returns>
-    public T? ReadBlob<T>(String name) where T : class, IEntity, new()
+    public async Task<T?> ReadBlobAsync<T>(String name, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
+        Result<T> result = await Serialize.LoadBinaryAsync<T>(BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
-        if (exception is FileFormatException) LogFailedToReadBlob(logger, exception, name);
-        else if (exception != null) LogFailedToReadBlobDebug(logger, exception, name);
-        else return entity;
+        return result.Switch(
+            T? (blob) => blob,
+            exception =>
+            {
+                if (exception is FileFormatException) LogFailedToReadBlob(logger, exception, name);
+                else LogFailedToReadBlobDebug(logger, exception, name);
 
-        return null;
+                return null;
+            });
     }
 
     /// <summary>
@@ -203,13 +210,15 @@ public partial class WorldData
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
-    public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
+    public async Task WriteBlobAsync<T>(String name, T entity, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Exception? exception = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
+        Result result = await Serialize.SaveBinaryAsync(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
-        if (exception != null)
-            LogFailedToWriteBlob(logger, exception, name);
+        result.Switch(
+            () => {},
+            exception => LogFailedToWriteBlob(logger, exception, name));
     }
 
     private FileInfo GetScriptPath(String name)
@@ -264,19 +273,20 @@ public partial class WorldData
     ///     Save all information directly handled by this class.
     ///     This will not save any chunks or open blobs.
     /// </summary>
-    public void Save()
+    public async Task SaveAsync(CancellationToken token = default)
     {
-        Information.Save(informationFile);
+        await Information.SaveAsync(informationFile, token).InAnyContext();
     }
 
     /// <summary>
     ///     Load a world information structure and create the world data class.
     /// </summary>
     /// <param name="directory">The directory of the world.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <returns>The world information structure.</returns>
-    public static WorldData LoadInformation(DirectoryInfo directory)
+    public static async Task<WorldData> LoadInformationAsync(DirectoryInfo directory, CancellationToken token = default)
     {
-        WorldInformation information = WorldInformation.Load(directory.GetFile(InfoFileName));
+        WorldInformation information = await WorldInformation.LoadAsync(directory.GetFile(InfoFileName), token).InAnyContext();
 
         MakeWorldInformationValid(information);
 
@@ -296,9 +306,10 @@ public partial class WorldData
     /// <summary>
     ///     Determine the properties of the world.
     /// </summary>
-    public Property DetermineProperties()
+    /// <param name="token">A token to cancel the operation.</param>
+    public async Task<Property> DeterminePropertiesAsync(CancellationToken token = default)
     {
-        return new WorldProperties(Information, WorldDirectory);
+        return await WorldProperties.CreateAsync(Information, WorldDirectory, token).InAnyContext();
     }
 
     /// <summary>
@@ -319,7 +330,7 @@ public partial class WorldData
             // Ignore, because the next step will it try again and log the error.
         }
 
-        return Operations.Launch(() =>
+        return Operations.Launch(_ =>
         {
             try
             {
@@ -333,6 +344,8 @@ public partial class WorldData
 
                 throw;
             }
+
+            return Task.CompletedTask;
         });
     }
 
@@ -343,15 +356,15 @@ public partial class WorldData
     /// <returns>The operation that will copy the world.</returns>
     public Operation<WorldData> CopyTo(DirectoryInfo targetDirectory)
     {
-        return Operations.Launch(() =>
+        return Operations.Launch(async token =>
         {
             try
             {
-                WorldDirectory.CopyTo(targetDirectory);
+                await WorldDirectory.CopyToAsync(targetDirectory, token).InAnyContext();
 
                 LogCopiedWorld(logger, Information.Name, targetDirectory.FullName);
 
-                return LoadInformation(targetDirectory);
+                return await LoadInformationAsync(targetDirectory, token).InAnyContext();
             }
             catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
             {
@@ -366,13 +379,14 @@ public partial class WorldData
     ///     Rename the world.
     /// </summary>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
-    public void Rename(String newName)
+    /// <param name="token">A token to cancel the operation.</param>
+    public async Task RenameAsync(String newName, CancellationToken token = default)
     {
         LogRenamingWorld(logger, Information.Name, newName);
 
         Information.Name = newName;
 
-        Save();
+        await SaveAsync(token).InAnyContext();
     }
 
     #region LOGGING

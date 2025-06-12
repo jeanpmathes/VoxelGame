@@ -84,6 +84,11 @@ public static class ResourceTypes
     public static ResourceType Biome { get; } = new(ResourceType.Category.Object, "worldgen", "biome");
 
     /// <summary>
+    ///     The sub-biome resource type.
+    /// </summary>
+    public static ResourceType SubBiome { get; } = new(ResourceType.Category.Object, "worldgen", "sub-biome");
+
+    /// <summary>
     ///     The biome distribution resource type.
     /// </summary>
     public static ResourceType BiomeDistribution { get; } = new(ResourceType.Category.Object, "worldgen_biome_distribution");
@@ -112,6 +117,11 @@ public static class ResourceTypes
     ///     The object type corresponding to fluids.
     /// </summary>
     public static ResourceType Fluid { get; } = new(ResourceType.Category.Object, "fluid");
+
+    /// <summary>
+    ///     The object type corresponding to content conventions.
+    /// </summary>
+    public static ResourceType Convention { get; } = new(ResourceType.Category.Object, "convention");
 
     /// <summary>
     ///     The object type corresponding to command invokers.

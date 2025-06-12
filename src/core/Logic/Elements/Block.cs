@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Logic.Elements;
 /// <summary>
 ///     The basic block class. Blocks are used to construct the world.
 /// </summary>
-public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>, IResource
+public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiable<String>
 {
     private const UInt32 InvalidID = UInt32.MaxValue;
 
@@ -140,15 +140,15 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         return true;
     }
 
-    String IIdentifiable<String>.ID => NamedID;
-
-    UInt32 IIdentifiable<UInt32>.ID => ID;
-
     /// <inheritdoc />
     public RID Identifier { get; }
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Block;
+
+    String IIdentifiable<String>.ID => NamedID;
+
+    UInt32 IIdentifiable<UInt32>.ID => ID;
 
     /// <summary>
     ///     Set up the block.
@@ -331,7 +331,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         return NamedID;
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -370,5 +370,5 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

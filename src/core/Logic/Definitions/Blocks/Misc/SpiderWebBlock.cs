@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class SpiderWebBlock : CrossBlock, ICombustible
 {
-    private readonly Single maxVelocity;
+    private readonly Double maxVelocity;
 
     /// <summary>
     ///     Creates a SpiderWeb block, a block that slows down entities that collide with it.
@@ -30,7 +30,7 @@ public class SpiderWebBlock : CrossBlock, ICombustible
     /// <param name="namedID">The unique and unlocalized name of this block.</param>
     /// <param name="texture">The texture of this block.</param>
     /// <param name="maxVelocity">The maximum velocity of entities colliding with this block.</param>
-    internal SpiderWebBlock(String name, String namedID, TID texture, Single maxVelocity) :
+    internal SpiderWebBlock(String name, String namedID, TID texture, Double maxVelocity) :
         base(
             name,
             namedID,

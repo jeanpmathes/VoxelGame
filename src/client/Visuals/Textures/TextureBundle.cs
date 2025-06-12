@@ -47,7 +47,7 @@ public sealed class TextureBundle : IResource
     /// <inheritdoc />
     public ResourceType Type { get; }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -55,7 +55,7 @@ public sealed class TextureBundle : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Try getting the texture index of a texture by its name.

@@ -10,11 +10,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Logic.Definitions.Blocks;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -28,24 +29,29 @@ namespace VoxelGame.Core.Logic.Elements;
 /// <summary>
 ///     Contains all block definitions of the core game.
 /// </summary>
-public sealed partial class Blocks(Registry<Block> registry)
+public sealed partial class Blocks(ContentRegistry registry)
 {
     private SpecialBlocks? special;
 
     /// <summary>
+    ///     The registry containing all content defined in this class.
+    /// </summary>
+    public ContentRegistry Registry => registry;
+
+    /// <summary>
     ///     Get all blocks in this class.
     /// </summary>
-    public IEnumerable<Block> Content => registry.Values;
+    public IEnumerable<Block> Content => registry.Blocks.Values;
 
     /// <summary>
     ///     Get the blocks instance.
     /// </summary>
-    public static Blocks Instance { get; } = new(new Registry<Block>(block => block.NamedID));
+    public static Blocks Instance { get; } = new(ContentRegistry.Create());
 
     /// <summary>
     ///     Gets the count of registered blocks.
     /// </summary>
-    public Int32 Count => registry.Count;
+    public Int32 Count => registry.Blocks.Count;
 
     /// <summary>
     ///     Get special blocks as their actual block type.
@@ -60,7 +66,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Block TranslateID(UInt32 id)
     {
-        if (registry.Count > id) return registry[(Int32) id];
+        if (registry.Blocks.Count > id) return registry.Blocks[(Int32) id];
 
         LogUnknownID(logger, id, Air.NamedID);
 
@@ -74,7 +80,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     /// <returns>The block, or null if no block with the ID exists.</returns>
     public Block? TranslateNamedID(String namedID)
     {
-        return registry[namedID];
+        return registry.Blocks[namedID];
     }
 
     /// <summary>
@@ -84,7 +90,7 @@ public sealed partial class Blocks(Registry<Block> registry)
     /// <returns>The block with the ID or air if the ID is not valid.</returns>
     public Block SafelyTranslateNamedID(String namedID)
     {
-        Block? block = registry[namedID];
+        Block? block = registry.Blocks[namedID];
 
         if (block != null)
             return block;
@@ -99,8 +105,8 @@ public sealed partial class Blocks(Registry<Block> registry)
     {
         public ConcreteBlock Concrete { get; } = (ConcreteBlock) blocks.Concrete;
         public SnowBlock Snow { get; } = (SnowBlock) blocks.Snow;
+        public LooseSnowBlock LooseSnow { get; } = (LooseSnowBlock) blocks.LooseSnow;
         public ModifiableHeightBlock Ice { get; } = (ModifiableHeightBlock) blocks.Ice;
-        public RotatedBlock Log { get; } = (RotatedBlock) blocks.Log;
         public FlatBlock Vines { get; } = (FlatBlock) blocks.Vines;
         public SaltBlock Salt { get; } = (SaltBlock) blocks.Salt;
     }
@@ -182,22 +188,22 @@ public sealed partial class Blocks(Registry<Block> registry)
         BoundingVolume.CrossBlock()));
 
     /// <summary>
-    ///     A simple flower.
+    ///     A simple red flower.
     /// </summary>
-    public Block Flower { get; } = registry.Register(new CrossPlantBlock(
-        Language.Flower,
-        nameof(Flower),
-        TID.Block("flower"),
+    public Block RedFlower { get; } = registry.Register(new CrossPlantBlock(
+        Language.RedFlower,
+        nameof(RedFlower),
+        TID.Block("flower_red"),
         BlockFlags.Replaceable,
         new BoundingVolume(new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))));
 
     /// <summary>
-    ///     A very tall flower.
+    ///     A very tall red flower.
     /// </summary>
-    public Block TallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
-        Language.TallFlower,
-        nameof(TallFlower),
-        TID.Block("flower_tall"),
+    public Block RedTallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
+        Language.RedTallFlower,
+        nameof(RedTallFlower),
+        TID.Block("flower_tall_red"),
         BoundingVolume.CrossBlock()));
 
     /// <summary>
@@ -234,37 +240,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.Snow,
         nameof(Snow),
         TextureLayout.Uniform(TID.Block("snow"))));
-
-    /// <summary>
-    ///     Leaves are transparent parts of the tree. They are flammable.
-    /// </summary>
-    public Block Leaves { get; } = registry.Register(new NaturalBlock(
-        Language.Leaves,
-        nameof(Leaves),
-        hasNeutralTint: true,
-        new BlockFlags
-        {
-            IsSolid = true,
-            RenderFaceAtNonOpaques = true
-        },
-        TextureLayout.Uniform(TID.Block("leaves"))));
-
-    /// <summary>
-    ///     Log is the unprocessed, wooden part of a tree. As it is made of wood, it is flammable.
-    /// </summary>
-    public Block Log { get; } = registry.Register(new RotatedBlock(
-        Language.Log,
-        nameof(Log),
-        BlockFlags.Basic,
-        TextureLayout.Column(TID.Block("log", x: 0), TID.Block("log", x: 1))));
-
-    /// <summary>
-    ///     Processed wood that can be used as construction material. It is flammable.
-    /// </summary>
-    public Block Wood { get; } = registry.Register(new OrganicConstructionBlock(
-        Language.Wood,
-        nameof(Wood),
-        TextureLayout.Uniform(TID.Block("wood"))));
 
     /// <summary>
     ///     Sand naturally forms and allows water to flow through it.
@@ -330,7 +305,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SpiderWeb,
         nameof(Spiderweb),
         TID.Block("spider_web"),
-        maxVelocity: 0.01f));
+        maxVelocity: 0.01));
 
     /// <summary>
     ///     Vines grow downwards, and can hang freely. It is possible to climb them.
@@ -514,12 +489,6 @@ public sealed partial class Blocks(Registry<Block> registry)
         new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f))));
 
     /// <summary>
-    ///     The bed can be placed to set a different spawn point.
-    ///     It is possible to change to color of a bed.
-    /// </summary>
-    public Block Bed { get; } = registry.Register(new BedBlock(Language.Bed, nameof(Bed), RID.File<BlockModel>("bed")));
-
-    /// <summary>
     ///     Wool is a flammable material, that allows its color to be changed.
     /// </summary>
     public Block Wool { get; } = registry.Register(new OrganicTintedBlock(
@@ -583,17 +552,6 @@ public sealed partial class Blocks(Registry<Block> registry)
     #region ACCESS BLOCKS
 
     /// <summary>
-    ///     The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
-    ///     As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
-    /// </summary>
-    public Block FenceWood { get; } = registry.Register(new FenceBlock(
-        Language.WoodenFence,
-        nameof(FenceWood),
-        TID.Block("wood"),
-        RID.File<BlockModel>("fence_post"),
-        RID.File<BlockModel>("fence_extension")));
-
-    /// <summary>
     ///     A wall constructed using clay bricks.
     ///     The wall does not prevent jumping over it, and can connect to other blocks.
     /// </summary>
@@ -611,27 +569,9 @@ public sealed partial class Blocks(Registry<Block> registry)
     public Block DoorSteel { get; } = registry.Register(new DoorBlock(
         Language.SteelDoor,
         nameof(DoorSteel),
+        texture: null,
         RID.File<BlockModel>("door_steel_closed"),
         RID.File<BlockModel>("door_steel_open")));
-
-    /// <summary>
-    ///     The wooden door allows closing of a room. It can be opened and closed.
-    ///     As this door is made out of wood, it is flammable.
-    /// </summary>
-    public Block DoorWood { get; } = registry.Register(new OrganicDoorBlock(
-        Language.WoodenDoor,
-        nameof(DoorWood),
-        RID.File<BlockModel>("door_wood_closed"),
-        RID.File<BlockModel>("door_wood_open")));
-
-    /// <summary>
-    ///     Fence gates are meant as a passage trough fences and walls.
-    /// </summary>
-    public Block GateWood { get; } = registry.Register(new GateBlock(
-        Language.WoodenGate,
-        nameof(GateWood),
-        RID.File<BlockModel>("gate_wood_closed"),
-        RID.File<BlockModel>("gate_wood_open")));
 
     #endregion ACCESS BLOCKS
 
@@ -655,21 +595,10 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.SteelPipe,
         nameof(SteelPipe),
         diameter: 0.375f,
+        texture: null,
         RID.File<BlockModel>("steel_pipe_center"),
         RID.File<BlockModel>("steel_pipe_connector"),
         RID.File<BlockModel>("steel_pipe_surface")));
-
-    /// <summary>
-    ///     The wooden pipe offers a primitive way of controlling fluid flow.
-    ///     It connects to other pipes.
-    /// </summary>
-    public Block WoodenPipe { get; } = registry.Register(new PipeBlock<IPrimitivePipeConnectable>(
-        Language.WoodenPipe,
-        nameof(WoodenPipe),
-        diameter: 0.3125f,
-        RID.File<BlockModel>("wood_pipe_center"),
-        RID.File<BlockModel>("wood_pipe_connector"),
-        RID.File<BlockModel>("wood_pipe_surface")));
 
     /// <summary>
     ///     This pipe is a special steel pipe that can only form straight connections.
@@ -1364,7 +1293,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMagnetite,
         nameof(Magnetite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_iron_magnetite"))));
+        TextureLayout.Uniform(TID.Block("iron_ore_magnetite"))));
 
     /// <summary>
     ///     Hematite is a type of iron ore.
@@ -1373,7 +1302,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreHematite,
         nameof(Hematite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_iron_hematite"))));
+        TextureLayout.Uniform(TID.Block("iron_ore_hematite"))));
 
     /// <summary>
     ///     Native gold is gold ore, containing mostly gold with some impurities.
@@ -1382,7 +1311,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeGold,
         nameof(NativeGold),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_gold_native"))));
+        TextureLayout.Uniform(TID.Block("gold_ore_native"))));
 
     /// <summary>
     ///     Native silver is silver ore, containing mostly silver with some impurities.
@@ -1391,7 +1320,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeSilver,
         nameof(NativeSilver),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_silver_native"))));
+        TextureLayout.Uniform(TID.Block("silver_ore_native"))));
 
     /// <summary>
     ///     Native platinum is platinum ore, containing mostly platinum with some impurities.
@@ -1400,7 +1329,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativePlatinum,
         nameof(NativePlatinum),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_platinum_native"))));
+        TextureLayout.Uniform(TID.Block("platinum_ore_native"))));
 
     /// <summary>
     ///     Native copper is copper ore, containing mostly copper with some impurities.
@@ -1409,7 +1338,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreNativeCopper,
         nameof(NativeCopper),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_native"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_native"))));
 
     /// <summary>
     ///     Chalcopyrite is a copper ore.
@@ -1419,7 +1348,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreChalcopyrite,
         nameof(Chalcopyrite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_chalcopyrite"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_chalcopyrite"))));
 
     /// <summary>
     ///     Malachite is a copper ore.
@@ -1429,7 +1358,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMalachite,
         nameof(Malachite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_copper_malachite"))));
+        TextureLayout.Uniform(TID.Block("copper_ore_malachite"))));
 
     /// <summary>
     ///     Electrum is a naturally occurring alloy of gold and silver.
@@ -1438,7 +1367,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreElectrum,
         nameof(Electrum),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_electrum_native"))));
+        TextureLayout.Uniform(TID.Block("electrum_ore_native"))));
 
     /// <summary>
     ///     Bauxite is an aluminum ore.
@@ -1447,7 +1376,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBauxite,
         nameof(Bauxite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_aluminium_bauxite"))));
+        TextureLayout.Uniform(TID.Block("aluminium_ore_bauxite"))));
 
     /// <summary>
     ///     Galena is a lead ore that is rich in lead and silver.
@@ -1456,7 +1385,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreGalena,
         nameof(Galena),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_lead_galena"))));
+        TextureLayout.Uniform(TID.Block("lead_ore_galena"))));
 
     /// <summary>
     ///     Cassiterite is a tin ore.
@@ -1465,7 +1394,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCassiterite,
         nameof(Cassiterite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_tin_cassiterite"))));
+        TextureLayout.Uniform(TID.Block("tin_ore_cassiterite"))));
 
     /// <summary>
     ///     Cinnabar is a mercury ore.
@@ -1474,7 +1403,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCinnabar,
         nameof(Cinnabar),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_mercury_cinnabar"))));
+        TextureLayout.Uniform(TID.Block("mercury_ore_cinnabar"))));
 
     /// <summary>
     ///     Sphalerite is a zinc ore.
@@ -1483,7 +1412,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreSphalerite,
         nameof(Sphalerite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_zinc_sphalerite"))));
+        TextureLayout.Uniform(TID.Block("zinc_ore_sphalerite"))));
 
     /// <summary>
     ///     Chromite is a chromium ore.
@@ -1492,7 +1421,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreChromite,
         nameof(Chromite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_chromium_chromite"))));
+        TextureLayout.Uniform(TID.Block("chromium_ore_chromite"))));
 
     /// <summary>
     ///     Pyrolusite is a manganese ore.
@@ -1501,7 +1430,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OrePyrolusite,
         nameof(Pyrolusite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_manganese_pyrolusite"))));
+        TextureLayout.Uniform(TID.Block("manganese_ore_pyrolusite"))));
 
     /// <summary>
     ///     Rutile is a titanium ore.
@@ -1510,7 +1439,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreRutile,
         nameof(Rutile),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_titanium_rutile"))));
+        TextureLayout.Uniform(TID.Block("titanium_ore_rutile"))));
 
     /// <summary>
     ///     Pentlandite is a nickel ore which is also rich in iron.
@@ -1519,7 +1448,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OrePentlandite,
         nameof(Pentlandite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_nickel_pentlandite"))));
+        TextureLayout.Uniform(TID.Block("nickel_ore_pentlandite"))));
 
     /// <summary>
     ///     Zircon is a zirconium ore.
@@ -1528,7 +1457,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreZircon,
         nameof(Zircon),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_zirconium_zircon"))));
+        TextureLayout.Uniform(TID.Block("zirconium_ore_zircon"))));
 
     /// <summary>
     ///     Dolomite is a carbonate rock, rich in magnesium.
@@ -1537,7 +1466,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreDolomite,
         nameof(Dolomite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_magnesium_dolomite"))));
+        TextureLayout.Uniform(TID.Block("magnesium_ore_dolomite"))));
 
     /// <summary>
     ///     Celestine is a strontium ore.
@@ -1546,7 +1475,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCelestine,
         nameof(Celestine),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_strontium_celestine"))));
+        TextureLayout.Uniform(TID.Block("strontium_ore_celestine"))));
 
     /// <summary>
     ///     Uraninite is a uranium ore.
@@ -1555,7 +1484,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreUraninite,
         nameof(Uraninite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_uranium_uraninite"))));
+        TextureLayout.Uniform(TID.Block("uranium_ore_uraninite"))));
 
     /// <summary>
     ///     Bismuthinite is a bismuth ore.
@@ -1564,7 +1493,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBismuthinite,
         nameof(Bismuthinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_bismuth_bismuthinite"))));
+        TextureLayout.Uniform(TID.Block("bismuth_ore_bismuthinite"))));
 
     /// <summary>
     ///     Beryl is a beryllium ore.
@@ -1574,7 +1503,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreBeryl,
         nameof(Beryl),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_beryllium_beryl"))));
+        TextureLayout.Uniform(TID.Block("beryllium_ore_beryl"))));
 
     /// <summary>
     ///     Molybdenite is a molybdenum ore.
@@ -1583,7 +1512,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreMolybdenite,
         nameof(Molybdenite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_molybdenum_molybdenite"))));
+        TextureLayout.Uniform(TID.Block("molybdenum_ore_molybdenite"))));
 
     /// <summary>
     ///     Cobaltite is a cobalt ore.
@@ -1592,7 +1521,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreCobaltite,
         nameof(Cobaltite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_cobalt_cobaltite"))));
+        TextureLayout.Uniform(TID.Block("cobalt_ore_cobaltite"))));
 
     /// <summary>
     ///     Spodumene is a lithium ore.
@@ -1601,7 +1530,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreSpodumene,
         nameof(Spodumene),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_lithium_spodumene"))));
+        TextureLayout.Uniform(TID.Block("lithium_ore_spodumene"))));
 
     /// <summary>
     ///     Vanadinite is a vanadium ore.
@@ -1610,7 +1539,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreVanadinite,
         nameof(Vanadinite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_vanadium_vanadinite"))));
+        TextureLayout.Uniform(TID.Block("vanadium_ore_vanadinite"))));
 
     /// <summary>
     ///     Scheelite is a tungsten ore.
@@ -1619,7 +1548,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreScheelite,
         nameof(Scheelite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_tungsten_scheelite"))));
+        TextureLayout.Uniform(TID.Block("tungsten_ore_scheelite"))));
 
     /// <summary>
     ///     Greenockite is a cadmium ore.
@@ -1628,7 +1557,7 @@ public sealed partial class Blocks(Registry<Block> registry)
         Language.OreGreenockite,
         nameof(Greenockite),
         BlockFlags.Basic,
-        TextureLayout.Uniform(TID.Block("ore_cadmium_greenockite"))));
+        TextureLayout.Uniform(TID.Block("cadmium_ore_greenockite"))));
 
     /// <summary>
     ///     When iron is exposed to oxygen and moisture, it rusts.
@@ -1639,6 +1568,269 @@ public sealed partial class Blocks(Registry<Block> registry)
         nameof(Rust),
         BlockFlags.Basic,
         TextureLayout.Uniform(TID.Block("rust"))));
+
+    /// <summary>
+    ///     Oak wood.
+    /// </summary>
+    public Wood Oak { get; } = registry.RegisterWood(
+        new Wood.Language(Language.OakLeaves, Language.OakLog, Language.OakWood),
+        nameof(Oak),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
+
+    /// <summary>
+    ///     Maple wood.
+    /// </summary>
+    public Wood Maple { get; } = registry.RegisterWood(
+        new Wood.Language(Language.MapleLeaves, Language.MapleLog, Language.MapleWood),
+        nameof(Maple),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
+
+    /// <summary>
+    ///     Birch wood.
+    /// </summary>
+    public Wood Birch { get; } = registry.RegisterWood(
+        new Wood.Language(Language.BirchLeaves, Language.BirchLog, Language.BirchWood),
+        nameof(Birch),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Maple wood.
+    /// </summary>
+    public Wood Walnut { get; } = registry.RegisterWood(
+        new Wood.Language(Language.WalnutLeaves, Language.WalnutLog, Language.WalnutWood),
+        nameof(Walnut),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
+
+    /// <summary>
+    ///     Cherry wood.
+    /// </summary>
+    public Wood Cherry { get; } = registry.RegisterWood(
+        new Wood.Language(Language.CherryLeaves, Language.CherryLog, Language.CherryWood),
+        nameof(Cherry),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
+
+    /// <summary>
+    ///     Ash tree wood.
+    /// </summary>
+    public Wood AshTree { get; } = registry.RegisterWood(
+        new Wood.Language(Language.AshTreeLeaves, Language.AshTreeLog, Language.AshTreeWood),
+        nameof(AshTree),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
+
+    /// <summary>
+    ///     Rubber tree wood.
+    /// </summary>
+    public Wood RubberTree { get; } = registry.RegisterWood(
+        new Wood.Language(Language.RubberTreeLeaves, Language.RubberTreeLog, Language.RubberTreeWood),
+        nameof(RubberTree),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Pine wood.
+    /// </summary>
+    public Wood Pine { get; } = registry.RegisterWood(
+        new Wood.Language(Language.PineLeaves, Language.PineLog, Language.PineWood),
+        nameof(Pine),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Normal, Needles: true));
+
+    /// <summary>
+    ///     Spruce wood.
+    /// </summary>
+    public Wood Spruce { get; } = registry.RegisterWood(
+        new Wood.Language(Language.SpruceLeaves, Language.SpruceLog, Language.SpruceWood),
+        nameof(Spruce),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
+
+    /// <summary>
+    ///     Fir wood.
+    /// </summary>
+    public Wood Fir { get; } = registry.RegisterWood(
+        new Wood.Language(Language.FirLeaves, Language.FirLog, Language.FirWood),
+        nameof(Fir),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
+
+    /// <summary>
+    ///     Mahogany wood.
+    /// </summary>
+    public Wood Mahogany { get; } = registry.RegisterWood(
+        new Wood.Language(Language.MahoganyLeaves, Language.MahoganyLog, Language.MahoganyWood),
+        nameof(Mahogany),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Dense));
+
+    /// <summary>
+    ///     Teak wood.
+    /// </summary>
+    public Wood Teak { get; } = registry.RegisterWood(
+        new Wood.Language(Language.TeakLeaves, Language.TeakLog, Language.TeakWood),
+        nameof(Teak),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Ebony wood.
+    /// </summary>
+    public Wood Ebony { get; } = registry.RegisterWood(
+        new Wood.Language(Language.EbonyLeaves, Language.EbonyLog, Language.EbonyWood),
+        nameof(Ebony),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Dense));
+
+    /// <summary>
+    ///     Coconut palm wood.
+    /// </summary>
+    public Wood CoconutPalm { get; } = registry.RegisterWood(
+        new Wood.Language(Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
+        nameof(CoconutPalm),
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Soil: Wood.Tree.SoilType.Sand));
+
+    /// <summary>
+    ///     Date palm wood.
+    /// </summary>
+    public Wood DatePalm { get; } = registry.RegisterWood(
+        new Wood.Language(Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
+        nameof(DatePalm),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Soil: Wood.Tree.SoilType.Sand));
+
+    /// <summary>
+    ///     Acacia wood.
+    /// </summary>
+    public Wood Acacia { get; } = registry.RegisterWood(
+        new Wood.Language(Language.AcaciaLeaves, Language.AcaciaLog, Language.AcaciaWood),
+        nameof(Acacia),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Baobab wood.
+    /// </summary>
+    public Wood Baobab { get; } = registry.RegisterWood(
+        new Wood.Language(Language.BaobabLeaves, Language.BaobabLog, Language.BaobabWood),
+        nameof(Baobab),
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Shepherd's tree wood.
+    /// </summary>
+    public Wood ShepherdsTree { get; } = registry.RegisterWood(
+        new Wood.Language(Language.ShepherdsTreeLeaves, Language.ShepherdsTreeLog, Language.ShepherdsTreeWood),
+        nameof(ShepherdsTree),
+        new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
+
+    /// <summary>
+    ///     Juniper wood.
+    /// </summary>
+    public Wood Juniper { get; } = registry.RegisterWood(
+        new Wood.Language(Language.JuniperLeaves, Language.JuniperLog, Language.JuniperWood),
+        nameof(Juniper),
+        new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Mesquite wood.
+    /// </summary>
+    public Wood Mesquite { get; } = registry.RegisterWood(
+        new Wood.Language(Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
+        nameof(Mesquite),
+        new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
+
+    /// <summary>
+    ///     Loose snow allows entities to sink into it.
+    /// </summary>
+    public Block LooseSnow { get; } = registry.Register(new LooseSnowBlock(
+        Language.LooseSnow,
+        nameof(LooseSnow),
+        TextureLayout.Uniform(TID.Block("snow_loose")),
+        maxVelocity: 0.01));
+
+    /// <summary>
+    ///     Lichen is a plant that grows on rocks and trees.
+    /// </summary>
+    public Block Lichen { get; } = registry.Register(new LichenBlock(
+        Language.Lichen,
+        nameof(Lichen),
+        TID.Block("lichen")));
+
+    /// <summary>
+    ///     Moss is a covering that grows flatly on the ground.
+    /// </summary>
+    public Block Moss { get; } = registry.Register(new MossBlock(
+        Language.Lichen,
+        nameof(Moss),
+        TID.Block("moss")));
+
+    /// <summary>
+    ///     A simple yellow flower.
+    /// </summary>
+    public Block YellowFlower { get; } = registry.Register(new CrossPlantBlock(
+        Language.YellowFlower,
+        nameof(YellowFlower),
+        TID.Block("flower_yellow"),
+        BlockFlags.Replaceable,
+        new BoundingVolume(new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f), new Vector3d(x: 0.175f, y: 0.25f, z: 0.175f))));
+
+    /// <summary>
+    ///     A very tall yellow flower.
+    /// </summary>
+    public Block YellowTallFlower { get; } = registry.Register(new DoubleCrossPlantBlock(
+        Language.YellowTallFlower,
+        nameof(YellowTallFlower),
+        TID.Block("flower_tall_yellow"),
+        BoundingVolume.CrossBlock()));
+
+    /// <summary>
+    ///     A fern, a plant that grows in shady areas.
+    /// </summary>
+    public Block Fern { get; } = registry.Register(new CrossPlantBlock(
+        Language.Fern,
+        nameof(Fern),
+        TID.Block("fern"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock()));
+
+    /// <summary>
+    ///     A chanterelle, a type of mushroom.
+    /// </summary>
+    public Block Chanterelle { get; } = registry.Register(new CrossPlantBlock(
+        Language.Chanterelle,
+        nameof(Chanterelle),
+        TID.Block("chanterelle"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock(),
+        isTintNeutral: false));
+
+    /// <summary>
+    ///     Mud, but dried out and cracked.
+    /// </summary>
+    public Block CrackedDriedMud { get; } = registry.Register(new BasicBlock(
+        Language.CrackedDriedMud,
+        nameof(CrackedDriedMud),
+        BlockFlags.Basic,
+        TextureLayout.Uniform(TID.Block("mud_cracked"))));
+
+    /// <summary>
+    ///     This block is part of a termite mound.
+    /// </summary>
+    public Block TermiteMound { get; } = registry.Register(new OrganicTintedBlock(
+        Language.TermiteMound,
+        nameof(TermiteMound),
+        TextureLayout.Uniform(TID.Block("termite_mound")),
+        isAnimated: true));
+
+    /// <summary>
+    ///     An aloe vera plant - a succulent.
+    /// </summary>
+    public Block AloeVera { get; } = registry.Register(new CrossPlantBlock(
+        Language.AloeVera,
+        nameof(AloeVera),
+        TID.Block("aloe_vera"),
+        BlockFlags.Replaceable,
+        BoundingVolume.CrossBlock(),
+        isTintNeutral: false));
+
+    /// <summary>
+    ///     Peat is naturally created from organic matter and can be found in bogs.
+    /// </summary>
+    public Block Peat { get; } = registry.Register(new MudBlock(
+        Language.Peat,
+        nameof(Peat),
+        TextureLayout.Uniform(TID.Block("peat")),
+        maxVelocity: 0.1f));
 
     #endregion NEW BLOCKS
 

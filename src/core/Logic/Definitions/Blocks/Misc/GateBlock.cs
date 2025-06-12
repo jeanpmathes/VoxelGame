@@ -24,6 +24,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// </summary>
 public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComplex
 {
+    private readonly TID texture;
     private readonly RID closedModel;
     private readonly RID openModel;
 
@@ -31,13 +32,14 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal GateBlock(String name, String namedID, RID closedModel, RID openModel) :
+    internal GateBlock(String name, String namedID, TID texture, RID closedModel, RID openModel) :
         base(
             name,
             namedID,
             BlockFlags.Functional,
             BoundingVolume.Block)
     {
+        this.texture = texture;
         this.closedModel = closedModel;
         this.openModel = openModel;
     }
@@ -71,6 +73,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     {
         BlockModel closed = modelProvider.GetModel(closedModel);
         BlockModel open = modelProvider.GetModel(openModel);
+
+        closed.OverwriteTexture(texture);
+        open.OverwriteTexture(texture);
 
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) closedModels =
             closed.CreateAllOrientations(rotateTopAndBottomTexture: false);

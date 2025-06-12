@@ -192,9 +192,6 @@
     <data name="Flax" xml:space="preserve">
     <value>Flachs</value>
   </data>
-    <data name="Flower" xml:space="preserve">
-    <value>Blume</value>
-  </data>
     <data name="Glass" xml:space="preserve">
     <value>Glas</value>
   </data>
@@ -308,9 +305,6 @@
   </data>
     <data name="SteelPipeStraight" xml:space="preserve">
     <value>Gerades Stahlrohr</value>
-  </data>
-    <data name="TallFlower" xml:space="preserve">
-    <value>Hohe Blume</value>
   </data>
     <data name="TallGrass" xml:space="preserve">
     <value>Hohes Gras</value>
@@ -920,5 +914,239 @@
     </data>
     <data name="TallestGrass" xml:space="preserve">
         <value>Höchstes Gras</value>
+    </data>
+    <data name="OakLog" xml:space="preserve">
+        <value>Eichenstamm</value>
+    </data>
+    <data name="OakLeaves" xml:space="preserve">
+        <value>Eichenblätter</value>
+    </data>
+    <data name="OakWood" xml:space="preserve">
+        <value>Eichenholz</value>
+    </data>
+    <data name="MapleLeaves" xml:space="preserve">
+        <value>Ahornblätter</value>
+    </data>
+    <data name="MapleLog" xml:space="preserve">
+        <value>Ahornstamm</value>
+    </data>
+    <data name="MapleWood" xml:space="preserve">
+        <value>Ahornholz</value>
+    </data>
+    <data name="BirchLeaves" xml:space="preserve">
+        <value>Birkenblätter</value>
+    </data>
+    <data name="BirchLog" xml:space="preserve">
+        <value>Birkenstamm</value>
+    </data>
+    <data name="BirchWood" xml:space="preserve">
+        <value>Birkenholz</value>
+    </data>
+    <data name="WalnutLeaves" xml:space="preserve">
+        <value>Walnussblätter</value>
+    </data>
+    <data name="WalnutLog" xml:space="preserve">
+        <value>Walnussstamm</value>
+    </data>
+    <data name="WalnutWood" xml:space="preserve">
+        <value>Walnussholz</value>
+    </data>
+    <data name="CherryLeaves" xml:space="preserve">
+        <value>Kirschenblätter</value>
+    </data>
+    <data name="CherryLog" xml:space="preserve">
+        <value>Kirschenstamm</value>
+    </data>
+    <data name="CherryWood" xml:space="preserve">
+        <value>Kirschenholz</value>
+    </data>
+    <data name="AshTreeLeaves" xml:space="preserve">
+        <value>Eschenblätter</value>
+    </data>
+    <data name="AshTreeLog" xml:space="preserve">
+        <value>Eschenstamm</value>
+    </data>
+    <data name="AshTreeWood" xml:space="preserve">
+        <value>Eschenholz</value>
+    </data>
+    <data name="RubberTreeLeaves" xml:space="preserve">
+        <value>Kautschukbaumblätter</value>
+    </data>
+    <data name="RubberTreeLog" xml:space="preserve">
+        <value>Kautschukbaumstamm</value>
+    </data>
+    <data name="RubberTreeWood" xml:space="preserve">
+        <value>Kautschukbaumholz</value>
+    </data>
+    <data name="PineWood" xml:space="preserve">
+        <value>Kiefernholz</value>
+    </data>
+    <data name="PineLog" xml:space="preserve">
+        <value>Kiefernstamm</value>
+    </data>
+    <data name="PineLeaves" xml:space="preserve">
+        <value>Kiefernnadeln</value>
+    </data>
+    <data name="SpruceLog" xml:space="preserve">
+        <value>Fichtenstamm</value>
+    </data>
+    <data name="SpruceWood" xml:space="preserve">
+        <value>Fichtenholz</value>
+    </data>
+    <data name="SpruceLeaves" xml:space="preserve">
+        <value>Fichtennadeln</value>
+    </data>
+    <data name="FirLeaves" xml:space="preserve">
+        <value>Tannennadeln</value>
+    </data>
+    <data name="FirLog" xml:space="preserve">
+        <value>Tannenstamm</value>
+    </data>
+    <data name="FirWood" xml:space="preserve">
+        <value>Tannenholz</value>
+    </data>
+    <data name="MahoganyLeaves" xml:space="preserve">
+        <value>Mahagoniblätter</value>
+    </data>
+    <data name="MahoganyLog" xml:space="preserve">
+        <value>Mahagonistamm</value>
+    </data>
+    <data name="MahoganyWood" xml:space="preserve">
+        <value>Mahagoniholz</value>
+    </data>
+    <data name="TeakLeaves" xml:space="preserve">
+        <value>Teakbaumblätter</value>
+    </data>
+    <data name="TeakLog" xml:space="preserve">
+        <value>Teakbaumstamm</value>
+    </data>
+    <data name="TeakWood" xml:space="preserve">
+        <value>Teakbaumholz</value>
+    </data>
+    <data name="EbonyLeaves" xml:space="preserve">
+        <value>Ebenholzbaumblätter</value>
+    </data>
+    <data name="EbonyLog" xml:space="preserve">
+        <value>Ebenholzbaumstamm</value>
+    </data>
+    <data name="EbonyWood" xml:space="preserve">
+        <value>Ebenholzbaumholz</value>
+    </data>
+    <data name="CoconutPalmLeaves" xml:space="preserve">
+        <value>Kokospalmenblätter</value>
+    </data>
+    <data name="CoconutPalmLog" xml:space="preserve">
+        <value>Kokospalmenstamm</value>
+    </data>
+    <data name="CoconutPalmWood" xml:space="preserve">
+        <value>Kokospalmenholz</value>
+    </data>
+    <data name="DatePalmLeaves" xml:space="preserve">
+        <value>Dattelpalmenblätter</value>
+    </data>
+    <data name="DatePalmLog" xml:space="preserve">
+        <value>Dattelpalmenstamm</value>
+    </data>
+    <data name="DatePalmWood" xml:space="preserve">
+        <value>Dattelpalmenholz</value>
+    </data>
+    <data name="AcaciaLeaves" xml:space="preserve">
+        <value>Akazienblätter</value>
+    </data>
+    <data name="AcaciaLog" xml:space="preserve">
+        <value>Akazienstamm</value>
+    </data>
+    <data name="AcaciaWood" xml:space="preserve">
+        <value>Akazienholz</value>
+    </data>
+    <data name="BaobabLeaves" xml:space="preserve">
+        <value>Affenbrotbaumblätter</value>
+    </data>
+    <data name="BaobabLog" xml:space="preserve">
+        <value>Affenbrotbaumstamm</value>
+    </data>
+    <data name="BaobabWood" xml:space="preserve">
+        <value>Affenbrotbaumholz</value>
+    </data>
+    <data name="ShepherdsTreeLeaves" xml:space="preserve">
+        <value>Weißrindenbaumblätter</value>
+    </data>
+    <data name="ShepherdsTreeLog" xml:space="preserve">
+        <value>Weißrindenbaumstamm</value>
+    </data>
+    <data name="ShepherdsTreeWood" xml:space="preserve">
+        <value>Weißrindenbaumholz</value>
+    </data>
+    <data name="JuniperLeaves" xml:space="preserve">
+        <value>Wacholderblätter</value>
+    </data>
+    <data name="JuniperLog" xml:space="preserve">
+        <value>Wocholderstamm</value>
+    </data>
+    <data name="JuniperWood" xml:space="preserve">
+        <value>Wacholderholz</value>
+    </data>
+    <data name="MesquiteLeaves" xml:space="preserve">
+        <value>Süßhülsenbaumblätter</value>
+    </data>
+    <data name="MesquiteLog" xml:space="preserve">
+        <value>Süßhülsenbaumstamm</value>
+    </data>
+    <data name="MesquiteWood" xml:space="preserve">
+        <value>Süßhülsenbaumholz</value>
+    </data>
+    <data name="Planks" xml:space="preserve">
+        <value>Bretter</value>
+    </data>
+    <data name="Fence" xml:space="preserve">
+        <value>Zaun</value>
+    </data>
+    <data name="Gate" xml:space="preserve">
+        <value>Zaun</value>
+    </data>
+    <data name="Door" xml:space="preserve">
+        <value>Tür</value>
+    </data>
+    <data name="Pipe" xml:space="preserve">
+        <value>Rohr</value>
+    </data>
+    <data name="LooseSnow" xml:space="preserve">
+        <value>Loser Schnee</value>
+    </data>
+    <data name="Lichen" xml:space="preserve">
+        <value>Flechten</value>
+    </data>
+    <data name="Moss" xml:space="preserve">
+        <value>Moos</value>
+    </data>
+    <data name="RedFlower" xml:space="preserve">
+        <value>Rote Blume</value>
+    </data>
+    <data name="RedTallFlower" xml:space="preserve">
+        <value>Rote Hohe Blume</value>
+    </data>
+    <data name="YellowFlower" xml:space="preserve">
+        <value>Gelbe Blume</value>
+    </data>
+    <data name="YellowTallFlower" xml:space="preserve">
+        <value>Gelbe Hohe Blume</value>
+    </data>
+    <data name="Fern" xml:space="preserve">
+        <value>Farn</value>
+    </data>
+    <data name="Chanterelle" xml:space="preserve">
+        <value>Pfifferling</value>
+    </data>
+    <data name="CrackedDriedMud" xml:space="preserve">
+        <value>Rissiger getrockneter Schlamm</value>
+    </data>
+    <data name="TermiteMound" xml:space="preserve">
+        <value>Termitenhügel</value>
+    </data>
+    <data name="AloeVera" xml:space="preserve">
+        <value>Aloe Vera</value>
+    </data>
+    <data name="Peat" xml:space="preserve">
+        <value>Torf</value>
     </data>
 </root>

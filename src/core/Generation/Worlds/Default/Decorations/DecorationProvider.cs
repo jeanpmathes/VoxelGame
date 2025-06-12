@@ -18,18 +18,19 @@ public class DecorationProvider : ResourceProvider<Decoration>, IDecorationProvi
 {
     private static readonly Decoration fallback = new EmptyDecoration();
 
-    /// <summary>
-    ///     Create a new decoration provider.
-    /// </summary>
-    public DecorationProvider() : base(() => fallback, decoration => decoration) {}
-
     /// <inheritdoc />
     public Decoration GetDecoration(RID identifier)
     {
         return GetResource(identifier);
     }
 
-    private sealed class EmptyDecoration() : Decoration("Fallback", Single.PositiveInfinity, new NeverDecorator())
+    /// <inheritdoc />
+    protected override Decoration CreateFallback()
+    {
+        return fallback;
+    }
+
+    private sealed class EmptyDecoration() : Decoration("Fallback", new NeverDecorator())
     {
         public override Int32 Size => 0;
 

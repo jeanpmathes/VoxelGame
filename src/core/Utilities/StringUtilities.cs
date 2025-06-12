@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -29,5 +31,35 @@ public static class StringUtilities
         return text.Length <= maxLength
             ? text
             : String.Concat(text.AsSpan(start: 0, maxLength - ellipsis.Length), ellipsis);
+    }
+
+    /// <summary>
+    ///     Convert a pascal case string to a snake case string.
+    /// </summary>
+    /// <param name="text">The pascal case string to convert.</param>
+    /// <returns>The resulting snake case string.</returns>
+    public static String PascalCaseToSnakeCase(this String text)
+    {
+        StringBuilder builder = new(text.Length);
+
+        for (var index = 0; index < text.Length; index++)
+        {
+            Char c = text[index];
+
+            if (Char.IsUpper(c))
+            {
+                if (index > 0) builder.Append(value: '_');
+
+                #pragma warning disable S4040 // This is not string normalization.
+                builder.Append(Char.ToLower(c, CultureInfo.InvariantCulture));
+                #pragma warning restore S4040
+            }
+            else
+            {
+                builder.Append(c);
+            }
+        }
+
+        return builder.ToString();
     }
 }

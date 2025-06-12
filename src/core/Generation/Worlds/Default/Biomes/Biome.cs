@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Toolkit.Noise;
+using System.Diagnostics;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 
@@ -18,37 +16,20 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 /// </summary>
 public sealed class Biome : IDisposable
 {
-    private readonly NoiseGenerator noise;
-    private readonly NoiseGenerator coverNoise;
+    private readonly List<(SubBiome, Single)> subBiomes;
+    private readonly List<(SubBiome, Single)> oceanicSubBiomes;
 
     /// <summary>
     ///     Create a new biome.
     /// </summary>
-    /// <param name="factory">The noise factory to use.</param>
     /// <param name="definition">The definition of the biome.</param>
-    /// <param name="structureMap">Mapping from structure generator definitions to structure generators.</param>
-    public Biome(
-        NoiseFactory factory, BiomeDefinition definition,
-        IReadOnlyDictionary<StructureGeneratorDefinition, StructureGenerator> structureMap)
+    /// <param name="subBiomeMap">Mapping from sub-biome definitions to sub-biomes generators.</param>
+    public Biome(BiomeDefinition definition, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
     {
         Definition = definition;
 
-        Structure = definition.Structure != null ? structureMap[definition.Structure] : null;
-
-        noise = factory.CreateNext()
-            .WithType(NoiseType.GradientNoise)
-            .WithFrequency(definition.Frequency)
-            .WithFractals()
-            .WithOctaves(octaves: 3)
-            .WithLacunarity(lacunarity: 2.0f)
-            .WithGain(gain: 0.5f)
-            .WithWeightedStrength(weightedStrength: 0.0f)
-            .Build();
-
-        coverNoise = factory.CreateNext()
-            .WithType(NoiseType.GradientNoise)
-            .WithFrequency(frequency: 0.5f)
-            .Build();
+        subBiomes = SetUpSubBiomes(definition.SubBiomes, subBiomeMap);
+        oceanicSubBiomes = definition.IsOceanic ? SetUpSubBiomes(definition.OceanicSubBiomes, subBiomeMap) : [];
     }
 
     /// <summary>
@@ -57,123 +38,93 @@ public sealed class Biome : IDisposable
     public BiomeDefinition Definition { get; }
 
     /// <summary>
-    ///     The structure generator of the biome, if any.
+    /// Get all sub-biomes used by this biome.
     /// </summary>
-    public StructureGenerator? Structure { get; }
+    public IEnumerable<SubBiome> SubBiomes
+    {
+        get
+        {
+            foreach ((SubBiome subBiome, _) in subBiomes)
+                yield return subBiome;
+        }
+    }
 
-    #region DISPOSING
+    /// <summary>
+    ///     Get all oceanic sub-biomes used by this biome.
+    /// </summary>
+    public IEnumerable<SubBiome> OceanicSubBiomes
+    {
+        get
+        {
+            foreach ((SubBiome subBiome, _) in oceanicSubBiomes)
+                yield return subBiome;
+        }
+    }
+
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
     {
-        noise.Dispose();
-        coverNoise.Dispose();
+        // Sub-biomes are disposed by the map class.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
-    /// <summary>
-    ///     Get an offset value for the given column, which can be applied to the height.
-    /// </summary>
-    /// <param name="position">The position of the column.</param>
-    /// <returns>The offset value.</returns>
-    public Single GetOffset(Vector2i position)
+    private static List<(SubBiome, Single)> SetUpSubBiomes(IReadOnlyList<(SubBiomeDefinition, Int32)> subBiomes, IReadOnlyDictionary<SubBiomeDefinition, SubBiome> subBiomeMap)
     {
-        return noise.GetNoise(position) * Definition.Amplitude;
-    }
+        Single tickets = 0;
 
-    /// <summary>
-    ///     Calculate the dampening that is applied to a column, depending on the offset.
-    /// </summary>
-    /// <param name="originalOffset">The offset of the colum.</param>
-    /// <returns>The applied dampening.</returns>
-    public Dampening CalculateDampening(Int32 originalOffset)
-    {
-        const Int32 dampenThreshold = 2;
-        Int32 normalWidth = Definition.MaxDampenWidth / 2;
+        foreach ((_, Int32 count) in subBiomes) tickets += count;
 
-        if (Math.Abs(originalOffset) <= dampenThreshold) return new Dampening(originalOffset, originalOffset, normalWidth);
+        Debug.Assert(tickets > 0);
 
-        Int32 maxDampening = Definition.MaxDampenWidth / 2;
-        Int32 dampenedOffset = Math.Clamp(Math.Abs(originalOffset) - dampenThreshold, min: 0, maxDampening) * Math.Sign(originalOffset);
+        List<(SubBiome, Single)> result = [];
 
-        return new Dampening(dampenedOffset, originalOffset, normalWidth + dampenedOffset);
-    }
+        Single sum = 0;
 
-    /// <summary>
-    ///     Get the total width of the biome, depending on the dampening.
-    /// </summary>
-    /// <param name="dampening">The dampening.</param>
-    /// <returns>The total width of the biome.</returns>
-    public Int32 GetTotalWidth(Dampening dampening)
-    {
-        return Definition.MinWidth + dampening.Width;
-    }
-
-    /// <summary>
-    ///     Get the biome content for a given depth beneath the surface level.
-    /// </summary>
-    /// <param name="depthBelowSurface">The depth beneath the terrain surface level.</param>
-    /// <param name="dampening">The dampening to apply to the column.</param>
-    /// <param name="stoneType">The stone type of the column.</param>
-    /// <param name="isFilled">Whether this column is filled with water.</param>
-    /// <returns>The biome content.</returns>
-    public Content GetContent(Int32 depthBelowSurface, Dampening dampening, Map.StoneType stoneType, Boolean isFilled)
-    {
-        Layer current;
-        Int32 depthInLayer;
-        Int32 actualOffset;
-
-        Boolean isInUpperHorizon = depthBelowSurface < Definition.DepthToDampen;
-
-        if (isInUpperHorizon)
+        foreach ((SubBiomeDefinition subBiomeDefinition, Int32 count) in subBiomes)
         {
-            (current, depthInLayer) = Definition.GetUpperHorizon(depthBelowSurface);
-            actualOffset = dampening.OriginalOffset;
-        }
-        else
-        {
-            (actualOffset, _, Int32 usedWidth) = dampening;
-            Int32 depthToLowerHorizon = Definition.DepthToDampen + usedWidth;
+            SubBiome subBiome = subBiomeMap[subBiomeDefinition];
 
-            if (depthBelowSurface < depthToLowerHorizon) (current, depthInLayer) = (Definition.Dampen, depthBelowSurface - Definition.DepthToDampen);
-            else (current, depthInLayer) = Definition.GetLowerHorizon(depthBelowSurface - depthToLowerHorizon);
+            sum += count / tickets;
+
+            result.Add((subBiome, sum));
         }
 
-        Int32 actualDepthToSolid = Definition.MinDepthToSolid + dampening.Width;
-        Boolean isFilledAtCurrentDepth = depthBelowSurface < actualDepthToSolid && isFilled;
-
-        return current.GetContent(depthInLayer, actualOffset, stoneType, isFilledAtCurrentDepth);
+        return result;
     }
 
     /// <summary>
-    ///     Get the cover content for a given position.
+    ///     Choose a sub-biome based on a value.
     /// </summary>
-    /// <param name="position">The position of the block.</param>
-    /// <param name="isFilled">Whether the block is filled with water because it is below sea level.</param>
-    /// <param name="sample">The current map sample.</param>
-    /// <returns>The cover content.</returns>
-    public Content GetCoverContent(Vector3i position, Boolean isFilled, in Map.Sample sample)
+    /// <param name="value">A value between 0 and 1.</param>
+    /// <returns>The chosen sub-biome.</returns>
+    public SubBiome ChooseSubBiome(Single value)
     {
-        return Definition.Cover.GetContent(coverNoise, position, isFilled, sample);
+        return ChooseSubBiome(subBiomes, value);
     }
 
     /// <summary>
-    ///     Get the depth to the first solid layer, depending on the dampening.
+    ///     Choose an oceanic sub-biome based on a value.
     /// </summary>
-    public Int32 GetDepthToSolid(Dampening dampening)
+    /// <param name="value">A value between 0 and 1.</param>
+    /// <returns>The chosen sub-biome.</returns>
+    public SubBiome ChooseOceanicSubBiome(Single value)
     {
-        return Definition.MinDepthToSolid + dampening.Width;
+        return ChooseSubBiome(oceanicSubBiomes, value);
     }
 
-    /// <inheritdoc />
-    public override String ToString()
+    private static SubBiome ChooseSubBiome(List<(SubBiome, Single)> subBiomes, Single value)
     {
-        return Definition.Name;
-    }
+        Debug.Assert(value is >= 0 and <= 1);
 
-    /// <summary>
-    ///     The dampening applied to a column.
-    /// </summary>
-    public record struct Dampening(Int32 DampenedOffset, Int32 OriginalOffset, Int32 Width);
+        foreach ((SubBiome subBiome, Single threshold) in subBiomes)
+            if (value < threshold)
+                return subBiome;
+
+        (SubBiome last, _) = subBiomes[^1];
+
+        return last;
+    }
 }

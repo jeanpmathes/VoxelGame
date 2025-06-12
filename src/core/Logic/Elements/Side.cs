@@ -417,14 +417,6 @@ public static class SideExtensions
     }
 
     /// <summary>
-    ///     Check if this side is contained in the given side flags.
-    /// </summary>
-    public static Boolean IsSet(this Side side, Sides flags)
-    {
-        return flags.HasFlag(side.ToFlag());
-    }
-
-    /// <summary>
     ///     Get the corners of this side of a block.
     ///     Every of the four corners is represented by an integer array with three elements.
     /// </summary>

@@ -28,6 +28,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 // o: orientation
 public class DoorBlock : Block, IFillable, IComplex
 {
+    private readonly TID? texture;
     private readonly RID closedModel;
     private readonly RID openModel;
 
@@ -43,13 +44,14 @@ public class DoorBlock : Block, IFillable, IComplex
 
     private readonly List<BoundingVolume> volumes = [];
 
-    internal DoorBlock(String name, String namedID, RID closedModel, RID openModel) :
+    internal DoorBlock(String name, String namedID, TID? texture, RID closedModel, RID openModel) :
         base(
             name,
             namedID,
             BlockFlags.Functional with {IsOpaque = true},
             new BoundingVolume(new Vector3d(x: 0.5f, y: 1f, z: 0.5f), new Vector3d(x: 0.5f, y: 1f, z: 0.5f)))
     {
+        this.texture = texture;
         this.closedModel = closedModel;
         this.openModel = openModel;
     }
@@ -98,6 +100,12 @@ public class DoorBlock : Block, IFillable, IComplex
             out BlockModel topOpen);
 
         topOpen.Move(-Vector3d.UnitY);
+
+        if (texture is {} newTexture)
+        {
+            topOpen.OverwriteTexture(newTexture);
+            topClosed.OverwriteTexture(newTexture);
+        }
 
         CreateMeshes(baseClosed, baseClosedMeshes);
         CreateMeshes(baseOpen, baseOpenMeshes);

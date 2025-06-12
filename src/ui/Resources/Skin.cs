@@ -25,7 +25,7 @@ public sealed class Skin(RID identifier, SkinBase skin) : IResource
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Skin;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -33,5 +33,5 @@ public sealed class Skin(RID identifier, SkinBase skin) : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

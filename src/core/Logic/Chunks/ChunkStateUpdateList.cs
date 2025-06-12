@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Threading;
 using System.Threading.Channels;
+using System.Threading.Tasks;
 using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Logic.Chunks;
@@ -104,8 +106,9 @@ public class ChunkStateUpdateList
     /// </summary>
     /// <param name="chunk">The chunk to add.</param>
     /// <param name="onAdd">The action to perform when the chunk is added. Will be called on the main thread.</param>
-    public void AddOnUpdate(Chunk chunk, Action<Chunk> onAdd)
+    /// <param name="token">The cancellation token.</param>
+    public async Task AddToUpdateAsync(Chunk chunk, Action<Chunk> onAdd, CancellationToken token = default)
     {
-        completions.Writer.TryWrite((chunk, onAdd));
+        await completions.Writer.WriteAsync((chunk, onAdd), token);
     }
 }

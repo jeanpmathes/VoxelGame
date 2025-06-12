@@ -7,9 +7,12 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 
@@ -28,19 +31,183 @@ public sealed class DecorationLoader : IResourceLoader
     {
         return context.Require<IStructureProvider>(structures =>
         [
-            new StructureDecoration("TallGrass", rarity: 1.0f, structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
-            new StructureDecoration("TallFlower", rarity: 4.0f, structures.GetStructure(RID.File<StaticStructure>("tall_flower")), new PlantableDecorator()),
-            new StructureDecoration("NormalTree", rarity: 3.0f, new Tree(Tree.Kind.Normal), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new StructureDecoration("NormalTree2", rarity: 3.0f, new Tree(Tree.Kind.Normal2), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new StructureDecoration("TropicalTree", rarity: 3.0f, new Tree(Tree.Kind.Tropical), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new StructureDecoration("NeedleTree", rarity: 3.0f, new Tree(Tree.Kind.Needle), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new StructureDecoration("PalmTree", rarity: 25.0f, new Tree(Tree.Kind.Palm), new CoverDecorator(Blocks.Instance.Sand, Vector3i.UnitY, width: 3)),
-            new StructureDecoration("SavannaTree", rarity: 30.0f, new Tree(Tree.Kind.Savanna), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new StructureDecoration("Cactus", rarity: 50.0f, new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3)),
-            new BoulderDecoration("Boulder", rarity: 2000.0f, new SurfaceDecorator(width: 5)),
-            new StructureDecoration("Shrub", rarity: 100.0f, new Tree(Tree.Kind.Shrub), new PlantableDecorator(Vector3i.UnitY, width: 3)),
-            new RootDecoration("Roots", rarity: 1000.0f, new DepthDecorator(minDepth: 5, maxDepth: 15)),
-            new FlatBlockDecoration("Vines", rarity: 1.0f, Blocks.Instance.Specials.Vines, new HashSet<Block> {Blocks.Instance.Log, Blocks.Instance.Leaves})
+            .. CreatePlants(structures),
+            .. CreateTrees(context.GetAll<Wood>()),
+            new BoulderDecoration("Boulder", new SurfaceDecorator(width: 5)),
+            new TermiteMoundDecoration("TermiteMound", new SurfaceDecorator(width: 5))
         ]);
+    }
+
+    private static IEnumerable<Decoration> CreatePlants(IStructureProvider structures)
+    {
+        return
+        [
+            new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
+            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new PlantableDecorator()),
+            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
+            new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3)),
+            new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
+            new FlatBlockDecoration("Vines",
+                Blocks.Instance.Specials.Vines,
+                new HashSet<Block>
+                {
+                    Blocks.Instance.Mahogany.Log, Blocks.Instance.Mahogany.Leaves, Blocks.Instance.Teak.Log, Blocks.Instance.Teak.Leaves
+                })
+        ];
+    }
+
+    private static IEnumerable<Decoration> CreateTrees(IEnumerable<Wood> woods)
+    {
+        foreach (Wood wood in woods)
+        {
+            Wood.Tree treeDefinition = wood.Trees;
+
+            var name = $"{wood.NamedID}";
+
+            Int32 height = GetTrunkHeight(treeDefinition.Height);
+            Shape3D crownShape = GetCrownShape(treeDefinition.Shape, height);
+            Double crownRandomization = GetCrownRandomization(treeDefinition.Density);
+
+            Tree treeStructure = new(height, crownRandomization, crownShape, wood.Log, wood.Leaves);
+
+            Decorator decorator = treeDefinition.Soil switch
+            {
+                Wood.Tree.SoilType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
+                Wood.Tree.SoilType.Sand => new CoverDecorator(Blocks.Instance.Sand, Vector3i.UnitY, width: 3),
+                _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Soil)
+            };
+
+            yield return new StructureDecoration(name, treeStructure, decorator);
+        }
+    }
+
+    private static Int32 GetTrunkHeight(Wood.Tree.Growth growth)
+    {
+        return growth switch
+        {
+            Wood.Tree.Growth.Shrub => 4,
+            Wood.Tree.Growth.Short => 8,
+            Wood.Tree.Growth.Medium => 11,
+            Wood.Tree.Growth.Tall => 14,
+            _ => throw Exceptions.UnsupportedEnumValue(growth)
+        };
+    }
+
+    private static Shape3D GetCrownShape(Wood.Tree.CrownShape shape, Int32 heightWithRoots)
+    {
+        Int32 totalHeight = heightWithRoots + 1;
+
+        return shape switch
+        {
+            Wood.Tree.CrownShape.Sphere => GetSphereCrown(totalHeight),
+            Wood.Tree.CrownShape.LongSpheroid => GetLongSpheroidCrown(totalHeight),
+            Wood.Tree.CrownShape.FlatSpheroid => GetFlatSpheroidCrown(totalHeight),
+            Wood.Tree.CrownShape.Cone => GetConeCrown(totalHeight),
+            Wood.Tree.CrownShape.Palm => GetPalmCrown(totalHeight),
+            _ => throw Exceptions.UnsupportedEnumValue(shape)
+        };
+    }
+
+    private static Shape3D GetSphereCrown(Int32 totalHeight)
+    {
+        const Double heightRatio = 2.0 / 3.0;
+
+        Double diameter = totalHeight * heightRatio;
+        Double radius = diameter / 2;
+
+        Double start = totalHeight - diameter;
+        Double offset = start + radius;
+
+        return new Sphere
+        {
+            Position = new Vector3d(x: 0, Math.Floor(offset), z: 0),
+            Radius = radius
+        };
+    }
+
+    private static Shape3D GetLongSpheroidCrown(Int32 totalHeight)
+    {
+        const Double heightRatio = 3.0 / 4.0;
+        const Double inverseLongFactor = 3.0 / 5.0;
+
+        Double diameter = totalHeight * heightRatio;
+        Double radius = diameter / 2.0;
+
+        Double start = totalHeight - diameter;
+        Double offset = start + radius;
+
+        return new Spheroid
+        {
+            Position = new Vector3d(x: 0, Math.Floor(offset), z: 0),
+            Radius = new Vector3d(radius * inverseLongFactor, radius, radius * inverseLongFactor)
+        };
+    }
+
+    private static Shape3D GetFlatSpheroidCrown(Int32 totalHeight)
+    {
+        const Double heightRatio = 3.0 / 4.0;
+        const Double flatFactor = 1.0 / 5.0;
+
+        Double diameter = totalHeight * heightRatio;
+        Double radius = diameter / 2.0;
+
+        Double start = totalHeight - diameter * flatFactor;
+        Double offset = start + radius * flatFactor;
+
+        return new Spheroid
+        {
+            Position = new Vector3d(x: 0, Math.Floor(offset), z: 0),
+            Radius = new Vector3d(radius, radius * flatFactor, radius)
+        };
+    }
+
+    private static Shape3D GetConeCrown(Int32 totalHeight)
+    {
+        const Double heightRatio = 3.0 / 4.0;
+
+        const Double bottomRadiusRatio = 3.0 / 10.0;
+        const Double topRadiusRatio = 1.0 / 10.0;
+
+        Double height = totalHeight * heightRatio;
+        Double bottomRadius = totalHeight * bottomRadiusRatio;
+        Double topRadius = totalHeight * topRadiusRatio;
+
+        Double offset = totalHeight - height;
+
+        return new Cone
+        {
+            Position = new Vector3d(x: 0, Math.Floor(offset), z: 0),
+            BottomRadius = bottomRadius,
+            TopRadius = topRadius,
+            Height = height
+        };
+    }
+
+    private static Shape3D GetPalmCrown(Int32 totalHeight)
+    {
+        const Double heightRatio = 2.0 / 5.0;
+
+        Double diameter = totalHeight * heightRatio;
+        Double radius = diameter / 2.0;
+
+        Double start = totalHeight - diameter;
+        Double offset = start + radius;
+
+        return new Sphere
+        {
+            Position = new Vector3d(x: 0, Math.Floor(offset), z: 0),
+            Radius = radius
+        };
+    }
+
+    private static Double GetCrownRandomization(Wood.Tree.CrownDensity density)
+    {
+        return density switch
+        {
+            Wood.Tree.CrownDensity.Dense => 0.3,
+            Wood.Tree.CrownDensity.Normal => 0.5,
+            Wood.Tree.CrownDensity.Sparse => 0.7,
+            _ => throw Exceptions.UnsupportedEnumValue(density)
+        };
     }
 }

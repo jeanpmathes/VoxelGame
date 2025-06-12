@@ -58,7 +58,7 @@ public sealed class Attribution : IResource, ILocated
     /// <inheritdoc />
     public ResourceType Type => ResourceType;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()

@@ -36,6 +36,15 @@ public class OperationUpdateDispatch
     public static OperationUpdateDispatch? Instance { get; private set; }
 
     /// <summary>
+    /// Set up a mock instance for testing.
+    /// It will override the singleton instance.
+    /// </summary>
+    public static void SetUpMockInstance()
+    {
+        Instance = new OperationUpdateDispatch();
+    }
+
+    /// <summary>
     ///     Perform an update.
     /// </summary>
     public void LogicUpdate()
@@ -46,6 +55,33 @@ public class OperationUpdateDispatch
 
             return operation.IsRunning;
         });
+    }
+
+    /// <summary>
+    ///     Try cancelling all currently running operations.
+    ///     Note that operations can be un-cancelable and may thus ignore this.
+    /// </summary>
+    public void CancelAll()
+    {
+        operations.Apply(operation =>
+        {
+            operation.Cancel();
+
+            return operation.IsRunning;
+        });
+    }
+
+    /// <summary>
+    ///     Wait for all operations to complete.
+    ///     Must be called from the main thread.
+    ///     This will block the current thread.
+    /// </summary>
+    public void CompleteAll()
+    {
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
+
+        while (operations.Count > 0)
+            LogicUpdate();
     }
 
     /// <summary>

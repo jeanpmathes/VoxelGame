@@ -134,7 +134,7 @@ public static class Reflections
             }
             catch (Exception e) when (e is MethodAccessException or MemberAccessException or MissingMemberException)
             {
-                // Commands that have no public constructor are ignored but can be added manually.
+                // Ignore if no public parameterless constructor is available.
             }
         }
 

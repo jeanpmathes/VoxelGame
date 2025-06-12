@@ -10,6 +10,7 @@ using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Tests.Generation;
@@ -43,7 +44,7 @@ public sealed class MockWorldGenerator : IWorldGenerator
         throw new NotSupportedException();
     }
 
-    public void EmitViews(DirectoryInfo path)
+    public Operation EmitWorldInfo(DirectoryInfo path)
     {
         throw new NotSupportedException();
     }

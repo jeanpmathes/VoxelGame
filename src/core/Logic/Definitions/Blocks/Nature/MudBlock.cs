@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Logic.Definitions.Blocks;
 /// <summary>
 ///     A block that slows down entities.
 /// </summary>
-public class MudBlock : BasicBlock, IFillable
+public class MudBlock : BasicBlock, IPlantable
 {
     private readonly Single maxVelocity;
 
@@ -32,9 +32,19 @@ public class MudBlock : BasicBlock, IFillable
     }
 
     /// <inheritdoc />
-    public Boolean IsInflowAllowed(World world, Vector3i position, Side side, Fluid fluid)
+    public Boolean TryGrow(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        return fluid.Viscosity < 200;
+        if (fluid != Elements.Fluids.Instance.FreshWater)
+            return false;
+
+        FluidLevel remaining = FluidLevel.Eight - (Int32) level;
+
+        world.SetContent(remaining >= FluidLevel.One
+                ? new Content(Elements.Blocks.Instance.Dirt.AsInstance(), Elements.Fluids.Instance.FreshWater.AsInstance(remaining))
+                : new Content(Elements.Blocks.Instance.Dirt),
+            position);
+
+        return true;
     }
 
     /// <inheritdoc />

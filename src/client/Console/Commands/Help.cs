@@ -70,11 +70,11 @@ public class Help : Command
 
         foreach (String command in commandInvoker.CommandNames)
         {
-            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
+            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", [])];
 
             description.AddRange(commandInvoker
                 .GetCommandSignatures(command)
-                .Select(signature => new Entry(signature, Array.Empty<FollowUp>())));
+                .Select(signature => new Entry(signature, [])));
 
             commandDescriptions.Add(command, description);
         }
@@ -98,8 +98,10 @@ public class Help : Command
         else
         {
             Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:",
+            [
                 new FollowUp("Show next page", () => { Invoke(page + 1); }),
-                new FollowUp("Show previous page", () => { Invoke(page - 1); }));
+                new FollowUp("Show previous page", () => { Invoke(page - 1); })
+            ]);
 
             commandPages[page - 1].ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
         }

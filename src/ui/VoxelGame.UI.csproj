@@ -37,9 +37,6 @@
         <Compile Remove="lib\**"/>
         <EmbeddedResource Remove="lib\**"/>
         <None Remove="lib\**"/>
-        <None Update="Resources\Attribution\wikimedia-textures.txt">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\Attribution\material-icons.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

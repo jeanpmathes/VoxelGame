@@ -44,8 +44,6 @@ public class World : Core.Logic.World
     /// </summary>
     private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
 
-    private readonly Space space;
-
     private readonly List<Core.Logic.Chunks.Chunk> chunksWithActors = [];
 
     private Player? player;
@@ -53,9 +51,9 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public World(DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
+    internal World(Application.Client client, DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
     {
-        space = Application.Client.Instance.Space;
+        Space = client.Space;
 
         SetUp();
     }
@@ -63,16 +61,21 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public World(WorldData data) : base(data)
+    internal World(Application.Client client, WorldData data) : base(data)
     {
-        space = Application.Client.Instance.Space;
+        Space = client.Space;
 
         SetUp();
     }
 
+    /// <summary>
+    ///     Get the space in which all objects of this world are placed in.
+    /// </summary>
+    public Space Space { get; }
+
     private void SetUp()
     {
-        space.Light.Direction = sunLightDirection;
+        Space.Light.Direction = sunLightDirection;
 
         State.Activated += OnActivation;
         State.Deactivated += OnDeactivation;

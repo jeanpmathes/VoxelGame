@@ -35,9 +35,11 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     private readonly SceneFactory sceneFactory;
     private readonly SceneManager sceneManager;
 
-    private readonly OperationUpdateDispatch operations = new(singleton: true);
+    private readonly OperationUpdateDispatch sceneOperations = new(singleton: true);
 
     private WindowBehaviour windowBehaviour = null!;
+
+    private Boolean isExitingToOS;
 
     /// <summary>
     ///     Create a new game instance.
@@ -47,24 +49,20 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     /// <param name="parameters">The parameters, passed from the command line.</param>
     internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters) : base(windowSettings)
     {
-        Instance = this;
         this.parameters = parameters;
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
 
-        sceneManager = new SceneManager();
+        Graphics.CreateSettings(this);
+
+        sceneManager = new SceneManager(sceneOperations);
         sceneFactory = new SceneFactory(this);
 
-        Keybinds = new KeybindManager(Input);
+        Keybinds = new KeybindManager(Settings, Input);
 
         SizeChanged += OnSizeChanged;
     }
-
-    /// <summary>
-    ///     Get the game client instance.
-    /// </summary>
-    internal static Client Instance { get; private set; } = null!;
 
     /// <summary>
     ///     Get the keybinds bound for the game.
@@ -77,9 +75,15 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     private Double FPS => windowBehaviour.FPS;
     private Double UPS => windowBehaviour.UPS;
 
-    internal IResourceContext? UIResources { get; private set; }
+    private IResourceContext? UIResources { get; set; }
+    private IResourceContext? MainResources { get; set; }
 
-    internal IResourceContext? MainResources { get; private set; }
+    /// <summary>
+    ///     Get an update dispatch which does not cancel and complete operations on scene change.
+    ///     Using this dispatch is necessary when operations should continue even when the scene changes.
+    ///     Otherwise, using the default dispatch is recommended.
+    /// </summary>
+    internal OperationUpdateDispatch ClientUpdateDispatch { get; } = new();
 
     Double IPerformanceProvider.FPS => FPS;
     Double IPerformanceProvider.UPS => UPS;
@@ -101,7 +105,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
             {
                 LogFailedToLoadUIResources(logger);
 
-                Close();
+                ExitToOS();
 
                 return;
             }
@@ -130,7 +134,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         }
 
         // Optional generation of manual.
-        ManualBuilder.EmitManual();
+        ManualBuilder.EmitManual(this);
     }
 
     protected override void OnRenderUpdate(Double delta)
@@ -154,7 +158,8 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
         using (logger.BeginTimedSubScoped("Client Operations", timer))
         {
-            operations.LogicUpdate();
+            sceneOperations.LogicUpdate();
+            ClientUpdateDispatch.LogicUpdate();
         }
 
         sceneManager.LogicUpdate(delta, timer);
@@ -205,7 +210,12 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
     private void ExitToOS()
     {
+        if (isExitingToOS)
+            return;
+
         LogExitingToOS(logger);
+
+        isExitingToOS = true;
 
         Close();
     }
@@ -248,7 +258,11 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         if (disposed) return;
 
         if (disposing)
+        {
             SizeChanged -= OnSizeChanged;
+
+            ClientUpdateDispatch.CompleteAll();
+        }
 
         base.Dispose(disposing);
 

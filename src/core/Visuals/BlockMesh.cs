@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -127,6 +128,18 @@ public class BlockMesh
 
         Meshing.SetUVs(ref mesh.quads[first].data, uv.a, uv.b, midTopUV, midBottomUV);
         Meshing.SetUVs(ref mesh.quads[second].data, midBottomUV, midTopUV, uv.c, uv.d);
+    }
+
+    /// <summary>
+    ///     Combine multiple meshes into one.
+    /// </summary>
+    public static BlockMesh Combine(params IEnumerable<BlockMesh> meshes)
+    {
+        List<Quad> quads = [];
+
+        foreach (BlockMesh mesh in meshes) quads.AddRange(mesh.quads);
+
+        return new BlockMesh(quads.ToArray());
     }
 
     /// <summary>

@@ -7,6 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Updates;
 
@@ -17,27 +20,13 @@ namespace VoxelGame.Core.Updates;
 /// </summary>
 public abstract class Operation
 {
-    private const Int32 Working = (Int32) Status.Running;
-
-    private Int32 workStatus = Working;
-    private Exception? workException;
-
-    private Boolean started;
-
     /// <summary>
     ///     Get the current status of the operation.
     /// </summary>
-    public Status Status { get; private set; } = Status.Running;
+    protected Status Status { get; private set; } = Status.Created;
 
     /// <summary>
-    ///     Whether the work-status is OK.
-    ///     The work-status is an internal status that becomes the external status after an update.
-    ///     If this returns true, the operation is considered successful and will complete on the next update.
-    /// </summary>
-    protected Boolean IsWorkStatusOk => (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0) == Status.Ok;
-
-    /// <summary>
-    ///     Whether the operation is completed.
+    ///     Whether the operation is ended and no longer running.
     /// </summary>
     private Boolean IsCompleted => Status != Status.Running;
 
@@ -47,14 +36,19 @@ public abstract class Operation
     public Boolean IsRunning => Status == Status.Running;
 
     /// <summary>
-    ///     Gets the error that occurred during the operation, if any.
-    /// </summary>
-    public Exception? Error { get; private set; }
-
-    /// <summary>
     ///     Whether the operation was successful.
     /// </summary>
     public Boolean IsOk => Status == Status.Ok;
+
+    /// <summary>
+    ///     Whether the operation failed or was cancelled.
+    /// </summary>
+    public Boolean IsFailedOrCancelled => Status == Status.ErrorOrCancel;
+
+    /// <summary>
+    ///     Get the result of the operation, or <c>null</c> if the operation is still running.
+    /// </summary>
+    public Result? Result { get; private set; }
 
     /// <summary>
     ///     Invoked when the operation has completed.
@@ -63,12 +57,11 @@ public abstract class Operation
 
     internal void Start()
     {
-        Debug.Assert(Status == Status.Running);
-        Debug.Assert(!started);
-
         ApplicationInformation.ThrowIfNotOnMainThread(this);
 
-        started = true;
+        Debug.Assert(Status == Status.Created);
+
+        Status = Status.Running;
 
         Run();
     }
@@ -79,22 +72,6 @@ public abstract class Operation
     protected abstract void Run();
 
     /// <summary>
-    ///     Complete the operation, either successfully or with an error.
-    /// </summary>
-    protected void Complete(Exception? exception = null)
-    {
-        Status status = exception == null ? Status.Ok : Status.Error;
-
-        Complete((Int32) status, exception);
-    }
-
-    private void Complete(Int32 status, Exception? exception)
-    {
-        Interlocked.Exchange(ref workStatus, status);
-        Interlocked.Exchange(ref workException, exception);
-    }
-
-    /// <summary>
     ///     Is called by <see cref="OperationUpdateDispatch" /> to update the operation.
     /// </summary>
     internal void Update()
@@ -102,52 +79,142 @@ public abstract class Operation
         if (IsCompleted)
             return;
 
-        var next = (Status) Interlocked.CompareExchange(ref workStatus, value: 0, comparand: 0);
+        Result = CheckCompletion();
 
-        if (next == Status.Running)
+        if (Result == null)
             return;
 
-        Status = next;
-        Error = Interlocked.CompareExchange(ref workException, value: null, comparand: null);
+        Complete(Result);
+    }
+
+    private void Complete(Result result)
+    {
+        Status = result.Switch(() => Status.Ok, _ => Status.ErrorOrCancel);
+
+        OnCompletion();
 
         Completion?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
-    ///     Perform an action directly after the operation has successfully completed.
-    ///     Might run on a background thread.
+    ///     Check if the operation is completed.
+    ///     Is called on the main thread.
     /// </summary>
-    /// <param name="action">The action to perform. Will only run if the operation was successful.</param>
-    /// <returns>The operation that runs the action.</returns>
-    public abstract Operation Then(Action action);
+    /// <returns>The result of the operation, or <c>null</c> if the operation is still running.</returns>
+    protected abstract Result? CheckCompletion();
+
+    /// <summary>
+    ///     Called before the <see cref="Completion" /> event is invoked.
+    /// </summary>
+    protected virtual void OnCompletion() {}
+
+    /// <summary>
+    ///     Attempt to cancel the operation.
+    ///     Can lead to the operation being cancelled, but does not guarantee it.
+    ///     A cancelled operation will be marked as failed.
+    ///     Note that this propagates along continuation operations.
+    /// </summary>
+    public abstract void Cancel();
 
     /// <summary>
     ///     Wait for the operation to complete.
     ///     Blocks and runs the main thread until the operation has completed.
     /// </summary>
-    /// <returns>The exception that occurred during the operation, if any.</returns>
-    public Exception? WaitForCompletion()
+    /// <returns>The result of the operation.</returns>
+    public Result Wait()
     {
-        while (!IsCompleted)
-            Update();
+        Result = DoWait();
 
-        return Error;
+        Complete(Result);
+
+        return Result;
     }
 
+    /// <inheritdoc cref="Wait" />
+    protected abstract Result DoWait();
+
     /// <summary>
-    ///     Perform an action when the operation is completed.
-    ///     The action will run on the main thread.
+    ///     Perform an action directly after the operation has successfully completed.
+    ///     Cancelling the returned operation will also cancel the previous operation.
+    ///     Might run on a background thread.
     /// </summary>
-    /// <param name="action">The action to chain.</param>
+    /// <param name="action">The action to perform. Will only run if the operation was successful.</param>
+    /// <returns>The operation that runs the action.</returns>
+    public abstract Operation Then(Func<CancellationToken, Task> action);
+
+    /// <summary>
+    /// Run an action when the operation is completed.
+    /// Note that the action will run both when the operation is successful and when it fails or is cancelled.
+    /// The action will run on the main thread.
+    /// </summary>
+    /// <param name="action">The action to run.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
-    public void OnCompletion(Action<Operation> action, CancellationToken token = default)
+    public void OnCompletionSync(Action<Status> action, CancellationToken token = default)
     {
         Completion += (_, _) =>
         {
             if (token.IsCancellationRequested)
                 return;
 
-            action(this);
+            action(Status);
+        };
+    }
+
+    /// <summary>
+    ///     Perform a group of actions when the operation is completed.
+    ///     Note that an action is considered completed even if it failed or was cancelled.
+    ///     The actions will run on the main thread.
+    /// </summary>
+    /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
+    /// <param name="success">The action to run if the operation was successful.</param>
+    /// <param name="fail">The action to run if the operation failed.</param>
+    /// <param name="token">A cancellation token. If cancelled, the actions will not run.</param>
+    public void OnCompletionSync(Action<Status> initial, Action success, Action<Exception> fail, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            initial(Status);
+
+            Result?.Switch(success, fail);
+        };
+    }
+
+    /// <summary>
+    /// Perform an action when the operation is completed and successful.
+    /// The action will run on the main thread.
+    /// </summary>
+    /// <param name="action">The action to run.</param>
+    /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
+    /// <returns>This for chaining.</returns>
+    public Operation OnSuccessfulSync(Action action, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            Result?.Switch(action, _ => {});
+        };
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Perform an action when the operation is completed by error or cancellation.
+    /// </summary>
+    /// <param name="action">The action to run.</param>
+    /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
+    public void OnFailedOrCancelledSync(Action<Exception> action, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested || IsOk)
+                return;
+
+            Result?.Switch(() => {}, action);
         };
     }
 }
@@ -158,70 +225,116 @@ public abstract class Operation
 /// <typeparam name="T">The type of the result.</typeparam>
 public abstract class Operation<T> : Operation
 {
-    private Object? workResult;
+    /// <summary>
+    ///     Get the result of the operation, or <c>null</c> if the operation is still running.
+    /// </summary>
+    public new Result<T>? Result { get; private set; }
 
     /// <inheritdoc />
-    protected Operation()
+    protected sealed override Result? CheckCompletion()
     {
-        Completion += (_, _) =>
-        {
-            T? result = WorkResult;
-
-            if (!Equals(result, default(T)))
-                Result = result;
-        };
-    }
-
-    /// <summary>
-    ///     Get the work-result, which is the result of the operation before it is set as the final result.
-    ///     Only use this from the thread that runs the operation, or when sure that the operation has completed.
-    /// </summary>
-    protected T? WorkResult => (T?) Interlocked.CompareExchange(ref workResult, value: null, comparand: null);
-
-    /// <summary>
-    ///     The result of the operation.
-    /// </summary>
-    public T? Result { get; private set; }
-
-    /// <summary>
-    ///     Complete the operation with a result.
-    /// </summary>
-    /// <param name="result">The result of the operation.</param>
-    protected void Complete(T result)
-    {
-        Interlocked.Exchange(ref workResult, result);
-
-        Complete();
-    }
-
-    /// <summary>
-    ///     Perform an action directly after the operation has successfully completed.
-    ///     Might run on a background thread.
-    /// </summary>
-    /// <param name="function">The action to perform. Will only run if the operation was successful.</param>
-    /// <typeparam name="TNext">The type of the result of the action.</typeparam>
-    /// <returns>The operation that runs the action.</returns>
-    public abstract Operation<TNext> Then<TNext>(Func<T, TNext> function);
-
-    /// <summary>
-    ///     Wait for the operation to complete.
-    ///     Blocks and runs the main thread until the operation has completed.
-    /// </summary>
-    /// <returns>The result of the operation.</returns>
-    public new T? WaitForCompletion()
-    {
-        base.WaitForCompletion();
+        Result = CheckCompletionT();
 
         return Result;
     }
 
     /// <summary>
-    ///     Perform an action on the main thread when the operation is completed.
+    ///     Wait for the operation to complete.
     /// </summary>
-    /// <param name="action">The action to perform.</param>
-    /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
-    public void OnCompletion(Action<Operation<T>> action, CancellationToken token = default)
+    /// <returns>The result of the operation.</returns>
+    public new Result<T> Wait()
     {
-        base.OnCompletion(_ => action(this), token);
+        base.Wait();
+
+        return Result!;
+    }
+
+    /// <summary>
+    /// Check if the operation is completed.
+    /// </summary>
+    /// <returns>The result of the operation, or <c>null</c> if the operation is still running.</returns>
+    protected abstract Result<T>? CheckCompletionT();
+
+    /// <inheritdoc />
+    protected override Result DoWait()
+    {
+        return Result = DoWaitT();
+    }
+
+    /// <inheritdoc cref="DoWait" />
+    protected abstract Result<T> DoWaitT();
+
+    /// <summary>
+    ///     Perform an action directly after the operation has successfully completed.
+    ///     Cancelling the returned operation will also cancel the previous operation.
+    ///     Might run on a background thread.
+    /// </summary>
+    /// <param name="function">The action to perform. Will only run if the operation was successful.</param>
+    /// <typeparam name="TNext">The type of the result of the action.</typeparam>
+    /// <returns>The operation that runs the action.</returns>
+    public abstract Operation<TNext> Then<TNext>(Func<T, CancellationToken, Task<TNext>> function);
+
+    /// <summary>
+    /// Perform a group of actions when the operation is completed.
+    /// All actions will run on the main thread.
+    /// </summary>
+    /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
+    /// <param name="success">The action to run if the operation was successful.</param>
+    /// <param name="fail">The action to run if the operation failed.</param>
+    /// <param name="token">A cancellation token. If canceled, the actions will not run.</param>
+    public void OnCompletionSync(Action<Status> initial, Action<T> success, Action<Exception> fail, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            initial(Status);
+
+            Result?.Switch(success, fail);
+        };
+    }
+
+    /// <summary>
+    ///     Perform a group of actions when the operation is completed.
+    ///     All actions will run on the main thread.
+    ///     Will throw an exception if the operation was not successful.
+    /// </summary>
+    /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
+    /// <param name="success">The action to run if the operation was successful.</param>
+    /// <param name="token">A cancellation token. If canceled, the actions will not run.</param>
+    public void OnCompletionSync(Action<Status> initial, Action<T> success, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            initial(Status);
+
+            Result?.Switch(success, Fail);
+        };
+
+        static void Fail(Exception e)
+        {
+            throw Exceptions.Annotated("Operation failed", e);
+        }
+    }
+
+    /// <summary>
+    /// Perform an action when the operation is completed and successful.
+    /// The action will run on the main thread.
+    /// </summary>
+    /// <param name="action">The action to run.</param>
+    /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
+    public void OnSuccessfulSync(Action<T> action, CancellationToken token = default)
+    {
+        Completion += (_, _) =>
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            Result?.Switch(action, _ => {});
+        };
     }
 }

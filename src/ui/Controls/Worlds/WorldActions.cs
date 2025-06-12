@@ -66,7 +66,7 @@ public class WorldActions : ControlBase
                 {
                     Operation op = worldProvider.DuplicateWorld(world, duplicateName);
 
-                    op.OnCompletion(_ =>
+                    op.OnCompletionSync(_ =>
                     {
                         menu.UpdateList();
                     });
@@ -90,10 +90,7 @@ public class WorldActions : ControlBase
                 {
                     remove();
 
-                    worldProvider.DeleteWorld(world).OnCompletion(op =>
-                    {
-                        close(op.Status);
-                    });
+                    worldProvider.DeleteWorld(world).OnCompletionSync(close);
                 }),
             context);
     }
@@ -130,9 +127,9 @@ public class WorldActions : ControlBase
         cause.Disable();
         cause.Redraw();
 
-        Label status = new(layout)
+        Label statusLabel = new(layout)
         {
-            Text = Texts.FormatOperation(Language.Load, Status.Running),
+            Text = Texts.FormatWithStatus(Language.Load, Status.Running),
             TextColor = Colors.Secondary,
             HorizontalAlignment = HorizontalAlignment.Center
         };
@@ -141,30 +138,30 @@ public class WorldActions : ControlBase
 
         infoCancellation = new CancellationTokenSource();
 
-        worldProvider.GetWorldProperties(world).OnCompletion(op =>
+        worldProvider.GetWorldProperties(world).OnCompletionSync(status =>
             {
-                status.Text = Texts.FormatOperation(Language.Load, op.Status);
-                status.TextColor = op.IsOk ? Colors.Secondary : Colors.Error;
+                statusLabel.Text = Texts.FormatWithStatus(Language.Load, status);
+                statusLabel.TextColor = Texts.GetStatusColor(status);
 
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 infoCancellation?.Dispose();
                 infoCancellation = null;
 #pragma warning disable S2952
+            },
+            result =>
+            {
+                layout.RemoveChild(statusLabel, dispose: true);
 
-                if (op.Result == null)
-                    return;
-
-                layout.RemoveChild(status, dispose: true);
-
-                PropertyBasedListControl properties = new(layout, op.Result, context);
+                PropertyBasedListControl properties = new(layout, result, context);
                 Control.Used(properties);
             },
             infoCancellation.Token);
 
         worldInfoWindow.Closed += (_, _) =>
         {
-#pragma warning disable S2952 // Must be disposed because it is overwritten.
             infoCancellation?.Cancel();
+
+#pragma warning disable S2952 // Must be disposed because it is overwritten.
             infoCancellation?.Dispose();
             infoCancellation = null;
 #pragma warning disable S2952

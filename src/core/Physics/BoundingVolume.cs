@@ -5,8 +5,12 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
@@ -42,14 +46,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Create a bounding box.
     /// </summary>
-    public BoundingVolume(Vector3d extents) : this(new Box3d(-extents, extents), Array.Empty<BoundingVolume>()) {}
+    public BoundingVolume(Vector3d extents) : this(new Box3d(-extents, extents), []) {}
 
     /// <summary>
     ///     Create a bounding box with a given offset.
     /// </summary>
     public BoundingVolume(Vector3d offset, Vector3d extents) : this(
         MathTools.CreateBox3(offset, extents),
-        Array.Empty<BoundingVolume>()) {}
+        []) {}
 
     /// <summary>
     ///     Create a bounding box with children.
@@ -118,6 +122,74 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return new BoundingVolume(
             new Vector3d(x: 0.5, height / 2.0, z: 0.5),
             new Vector3d(x: 0.355, height / 2.0, z: 0.355));
+    }
+
+    /// <summary>
+    ///     Creates a flat block bounding volume with the given width and depth.
+    /// </summary>
+    /// <param name="orientation">The orientation of the bounding volume.</param>
+    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation.</param>
+    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
+    /// <returns>The bounding volume with the given width and depth.</returns>
+    public static BoundingVolume FlatBlock(Orientation orientation, Double width, Double depth)
+    {
+        Double halfWidth = width / 2.0;
+        Double halfDepth = depth / 2.0;
+
+        return orientation switch
+        {
+            Orientation.North => new BoundingVolume(
+                new Vector3d(x: 0.5, y: 0.5, 1.0 - halfDepth),
+                new Vector3d(halfWidth, y: 0.5, halfDepth)),
+            Orientation.South => new BoundingVolume(
+                new Vector3d(x: 0.5, y: 0.5, halfDepth),
+                new Vector3d(halfWidth, y: 0.5, halfDepth)),
+            Orientation.West => new BoundingVolume(
+                new Vector3d(1.0 - halfDepth, y: 0.5, z: 0.5),
+                new Vector3d(halfDepth, y: 0.5, halfWidth)),
+            Orientation.East => new BoundingVolume(
+                new Vector3d(halfDepth, y: 0.5, z: 0.5),
+                new Vector3d(halfDepth, y: 0.5, halfWidth)),
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
+        };
+    }
+
+    /// <summary>
+    ///     Creates a flat block bounding volume with the given depth.
+    /// </summary>
+    /// <param name="side">The side the bounding volume is on.</param>
+    /// <param name="depth">The depth of the bounding volume.</param>
+    /// <returns>A bounding volume with the given depth.</returns>
+    public static BoundingVolume FlatBlock(Side side, Double depth)
+    {
+        Double halfDepth = depth / 2.0;
+
+        Vector3d offset = side.Direction();
+        offset *= 0.5 - halfDepth;
+        offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
+
+        Vector3d extents = side.Direction().Abs();
+        extents *= halfDepth - 0.5;
+        extents += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
+
+        return new BoundingVolume(offset, extents);
+    }
+
+    /// <summary>
+    ///     Combine a sequence of bounding volumes into a single bounding volume.
+    /// </summary>
+    /// <param name="boundingVolumes">Bounding volumes to combine, should not be empty.</param>
+    /// <returns>The combined bounding volume.</returns>
+    public static BoundingVolume Combine(params IEnumerable<BoundingVolume> boundingVolumes)
+    {
+        List<BoundingVolume> boundingVolumesList = boundingVolumes.ToList();
+
+        return boundingVolumesList.Count switch
+        {
+            0 => Block,
+            1 => boundingVolumesList[index: 0],
+            _ => new BoundingVolume(boundingVolumesList[index: 0].Box, boundingVolumesList[1 ..].ToArray())
+        };
     }
 
     /// <summary>

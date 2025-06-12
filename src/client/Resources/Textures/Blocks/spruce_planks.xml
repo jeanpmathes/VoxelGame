@@ -1,0 +1,8 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="p:spruce:0,0"/>
+        <Layer source="p:planks_pattern:0,0"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

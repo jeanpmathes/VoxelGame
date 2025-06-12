@@ -51,7 +51,7 @@ public class RunScript : Command
         if (script == null)
         {
             if (!ignoreErrors)
-                context.Console.WriteError($"Script '{name}' does not exist.", followUp);
+                context.Console.WriteError($"Script '{name}' does not exist.", [followUp]);
 
             return false;
         }
@@ -69,7 +69,7 @@ public class RunScript : Command
             loc++;
         }
 
-        context.Console.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", followUp);
+        context.Console.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", [followUp]);
 
         return true;
     }

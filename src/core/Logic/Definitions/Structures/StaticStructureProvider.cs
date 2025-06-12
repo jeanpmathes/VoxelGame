@@ -11,11 +11,17 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// <summary>
 ///     Provides all loaded static structures.
 /// </summary>
-public class StaticStructureProvider() : ResourceProvider<StaticStructure>(StaticStructure.CreateFallback, structure => structure), IStructureProvider
+public class StaticStructureProvider : ResourceProvider<StaticStructure>, IStructureProvider
 {
     /// <inheritdoc />
     public Structure GetStructure(RID identifier)
     {
         return GetResource(identifier);
+    }
+
+    /// <inheritdoc />
+    protected override StaticStructure CreateFallback()
+    {
+        return StaticStructure.CreateFallback();
     }
 }

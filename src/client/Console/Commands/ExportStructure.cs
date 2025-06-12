@@ -5,9 +5,12 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
@@ -43,13 +46,29 @@ public class ExportStructure : Command
     {
         StaticStructure? structure = StaticStructure.Read(Context.Player.World, position, extents);
 
+        Operations.Launch(async token =>
+        {
+            await ExportAsync(structure, name, token).InAnyContext();
+        });
+    }
+
+    private async Task ExportAsync(StaticStructure? structure, String name, CancellationToken token = default)
+    {
         var success = false;
 
-        if (structure != null) success = structure.Store(Program.StructureDirectory, name);
+        if (structure != null)
+        {
+            Result result = await structure.SaveAsync(Program.StructureDirectory, name, token).InAnyContext();
+
+            success = result.Switch(
+                () => true,
+                _ => false);
+        }
 
         if (success)
-            Context.Console.WriteResponse($"Structure exported to: {Program.StructureDirectory}",
-                new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); }));
-        else Context.Console.WriteError("Failed to export structure.");
+            await Context.Console.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
+                [new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); })],
+                token).InAnyContext();
+        else await Context.Console.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
     }
 }

@@ -6,16 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Generation.Worlds.Default.Decorations;
-using VoxelGame.Core.Generation.Worlds.Default.Palettes;
-using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
+
+#pragma warning disable S1192 // Similar strings are pure coincidences and not related to each other.
 
 /// <summary>
 ///     Loads all biomes for this world generator, as well as the biome distribution.
@@ -27,489 +26,339 @@ public sealed class BiomeLoader : IResourceLoader
     /// <inheritdoc />
     public IEnumerable<IResource> Load(IResourceContext context)
     {
-        return context.Require<Palette>(palette =>
-            context.Require<IDecorationProvider>(decorations =>
-                context.Require<IStructureGeneratorDefinitionProvider>(structures =>
-                {
-                    Registry<BiomeDefinition> registry = new(biome => biome.Name);
-                    Biomes biomes = new(registry, palette, decorations, structures);
+        return context.Require<ISubBiomeDefinitionProvider>(subBiomes =>
+        {
+            Registry<BiomeDefinition> registry = new(biome => biome.Name);
+            Biomes biomes = new(registry, subBiomes);
 
-                    // The distribution here is like a diagram:
-                    // On the x-axis, going right, the temperature increases.
-                    // On the y-axis, going down, the humidity increases.
+            // The distribution here is like a diagram:
+            // On the x-axis, going right, the temperature increases.
+            // On the y-axis, going down, the humidity increases.
 
-                    BiomeDistributionDefinition distribution = new(new Array2D<BiomeDefinition?>([
-                        [biomes.PolarDesert, biomes.Tundra, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
-                        [null, biomes.Tundra, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Desert, biomes.Desert],
-                        [null, null, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna],
-                        [null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
-                        [null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
-                        [null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
-                        [null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest],
-                        [null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
-                        [null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest],
-                        [null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest]
-                    ]))
-                    {
-                        Beach = biomes.Beach,
-                        Mountain = biomes.Mountains,
-                        Desert = biomes.Desert,
-                        GrassyCliff = biomes.GrassyCliff,
-                        SandyCliff = biomes.SandyCliff,
-                        Ocean = biomes.Ocean,
-                        PolarDesert = biomes.PolarDesert,
-                        PolarOcean = biomes.PolarOcean
-                    };
+            #pragma warning disable S103 // Long lines required for representing the distribution.
 
-                    return [..registry.Values, distribution];
-                })));
+            BiomeDistributionDefinition distribution = new(new Array2D<BiomeDefinition?>([
+                [biomes.ContinentalIceSheet, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, null, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [null, null, null, null, biomes.Taiga, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna],
+                [null, null, null, null, null, biomes.Taiga, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna, biomes.Savanna],
+                [null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.SeasonalForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TemperateRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.DryForest, biomes.DryForest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest, biomes.TropicalRainforest],
+                [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, biomes.TropicalRainforest]
+            ]))
+            {
+                Beach = biomes.Beach,
+                Mountain = biomes.Mountains,
+                Desert = biomes.Desert,
+                GrassyCliff = biomes.GrassyCliff,
+                SandyCliff = biomes.SandyCliff,
+                Ocean = biomes.Ocean,
+                PolarDesert = biomes.PolarDesert,
+                PolarOcean = biomes.PolarOcean,
+                OceanicIceSheet = biomes.OceanicIceSheet,
+                ContinentalIceSheet = biomes.ContinentalIceSheet
+            };
+
+            #pragma warning restore S103
+
+            return [..registry.Values, distribution];
+        });
     }
 
-    private sealed class Biomes(
-        Registry<BiomeDefinition> biomes,
-        Palette palette,
-        IDecorationProvider decorations,
-        IStructureGeneratorDefinitionProvider structures)
+    private sealed class Biomes(Registry<BiomeDefinition> biomes, ISubBiomeDefinitionProvider subBiomes)
     {
-        private static readonly RID tallGrass = RID.Named<Decoration>("TallGrass");
-        private static readonly RID tallFlower = RID.Named<Decoration>("TallFlower");
-        private static readonly RID normalTree = RID.Named<Decoration>("NormalTree");
-        private static readonly RID normalTree2 = RID.Named<Decoration>("NormalTree2");
-        private static readonly RID tropicalTree = RID.Named<Decoration>("TropicalTree");
-        private static readonly RID roots = RID.Named<Decoration>("Roots");
-        private static readonly RID vines = RID.Named<Decoration>("Vines");
-        private static readonly RID needleTree = RID.Named<Decoration>("NeedleTree");
-        private static readonly RID savannaTree = RID.Named<Decoration>("SavannaTree");
-        private static readonly RID shrub = RID.Named<Decoration>("Shrub");
-        private static readonly RID boulder = RID.Named<Decoration>("Boulder");
-        private static readonly RID cactus = RID.Named<Decoration>("Cactus");
-        private static readonly RID palmTree = RID.Named<Decoration>("PalmTree");
+        /// <summary>
+        ///     A thick layer of ice that covers the land below.
+        /// </summary>
+        public BiomeDefinition ContinentalIceSheet { get; } = biomes.Register(new BiomeDefinition(nameof(ContinentalIceSheet))
+        {
+            Color = ColorS.LightGray,
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(ContinentalIceSheet), "Snowy")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(ContinentalIceSheet), "Bare")), 3)
+            ]
+        });
 
         /// <summary>
         ///     The polar desert biome.
         /// </summary>
-        public BiomeDefinition PolarDesert { get; } = biomes.Register(new BiomeDefinition(nameof(PolarDesert), palette)
+        public BiomeDefinition PolarDesert { get; } = biomes.Register(new BiomeDefinition(nameof(PolarDesert))
         {
             Color = ColorS.Gray,
-            Amplitude = 2f,
-            Frequency = 0.007f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSnow(width: 3),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 4),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Snowy")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "LooseSnow")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Dunes")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Ridge")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Basin")), 3)
+            ]
         });
 
         /// <summary>
         ///     The tropical rainforest biome.
         /// </summary>
-        public BiomeDefinition TropicalRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TropicalRainforest), palette)
+        public BiomeDefinition TropicalRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TropicalRainforest))
         {
             Color = ColorS.DarkGreen,
-            Amplitude = 15f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 6),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 33),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(tropicalTree),
-                decorations.GetDecoration(roots),
-                decorations.GetDecoration(vines)
-            },
-            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("LargeTropicalTree"))
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Hills")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Flats")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "RubberTrees")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "BloomingClearing")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TropicalRainforest), "Pond")), 2)
+            ]
         });
 
         /// <summary>
         ///     The temperate rainforest biome.
         /// </summary>
-        public BiomeDefinition TemperateRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TemperateRainforest), palette)
+        public BiomeDefinition TemperateRainforest { get; } = biomes.Register(new BiomeDefinition(nameof(TemperateRainforest))
         {
             Color = ColorS.Green,
-            Amplitude = 15f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 6),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 33),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(roots)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Hills")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Flats")), 6),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "CherryGrove")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "Pond")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(TemperateRainforest), "MossyStones")), 2)
+            ]
         });
 
         /// <summary>
         ///     The taiga biome.
         /// </summary>
-        public BiomeDefinition Taiga { get; } = biomes.Register(new BiomeDefinition(nameof(Taiga), palette)
+        public BiomeDefinition Taiga { get; } = biomes.Register(new BiomeDefinition(nameof(Taiga))
         {
             Color = ColorS.Navy,
-            Amplitude = 3f,
-            Frequency = 0.007f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(needleTree)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Forest")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "PineForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "SpruceForest")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "FirForest")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Wetland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Taiga), "Shrubland")), 2)
+            ]
         });
 
         /// <summary>
         ///     The tundra biome.
         /// </summary>
-        public BiomeDefinition Tundra { get; } = biomes.Register(new BiomeDefinition(nameof(Tundra), palette)
+        public BiomeDefinition Tundra { get; } = biomes.Register(new BiomeDefinition(nameof(Tundra))
         {
             Color = ColorS.CadetBlue,
-            Amplitude = 3f,
-            Frequency = 0.007f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 6),
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 28, isSolid: true),
-                Layer.CreateLoose(width: 27),
-                Layer.CreateGroundwater(width: 8),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Shrubland")), 12),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Grassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Ridge")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "PermafrostPatch")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Basin")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Tundra), "Lichen")), 2)
+            ]
         });
 
         /// <summary>
         ///     The savanna biome.
         /// </summary>
-        public BiomeDefinition Savanna { get; } = biomes.Register(new BiomeDefinition(nameof(Savanna), palette)
+        public BiomeDefinition Savanna { get; } = biomes.Register(new BiomeDefinition(nameof(Savanna))
         {
             Color = ColorS.Olive,
-            Amplitude = 1f,
-            Frequency = 0.01f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(savannaTree)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Woodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "DenseWoodland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Shrubland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Grassland")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Savanna), "Waterhole")), 1)
+            ]
         });
 
         /// <summary>
         ///     The seasonal forest biome.
         /// </summary>
-        public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest), palette)
+        public BiomeDefinition SeasonalForest { get; } = biomes.Register(new BiomeDefinition(nameof(SeasonalForest))
         {
             Color = ColorS.Lime,
-            Amplitude = 10f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 20),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(tallFlower),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(normalTree2),
-                decorations.GetDecoration(roots)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Woodland")), 12),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "BirchGrove")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Clearing")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SeasonalForest), "Pond")), 1)
+            ]
         });
 
         /// <summary>
         ///     The dry forest biome.
         /// </summary>
-        public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest), palette)
+        public BiomeDefinition DryForest { get; } = biomes.Register(new BiomeDefinition(nameof(DryForest))
         {
             Color = ColorS.SeaGreen,
-            Amplitude = 15f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 26),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 6),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 33),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(normalTree),
-                decorations.GetDecoration(shrub),
-                decorations.GetDecoration(roots)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Woodland")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Shrubland")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Grassland")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "Rocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(DryForest), "DriedPond")), 3)
+            ]
         });
 
         /// <summary>
         ///     The shrubland biome.
         /// </summary>
-        public BiomeDefinition Shrubland { get; } = biomes.Register(new BiomeDefinition(nameof(Shrubland), palette)
+        public BiomeDefinition Shrubland { get; } = biomes.Register(new BiomeDefinition(nameof(Shrubland))
         {
             Color = ColorS.Salmon,
-            Amplitude = 1f,
-            Frequency = 0.01f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 2),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(boulder),
-                decorations.GetDecoration(shrub)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Default")), 20),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Dense")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "Grassland")), 8),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "FlowerPatch")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Shrubland), "DryPatch")), 1)
+            ]
         });
 
         /// <summary>
         ///     The desert biome.
         /// </summary>
-        public BiomeDefinition Desert { get; } = biomes.Register(new BiomeDefinition(nameof(Desert), palette)
+        public BiomeDefinition Desert { get; } = biomes.Register(new BiomeDefinition(nameof(Desert))
         {
             Color = ColorS.Yellow,
-            Amplitude = 4f,
-            Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
-                Layer.CreateLoose(width: 22),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(cactus)
-            },
-            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Default")), 30),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Dunes")), 15),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Stones")), 10),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Oasis")), 3),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Desert), "Salt")), 1)
+            ]
         });
 
         /// <summary>
         ///     The grassland biome.
         /// </summary>
-        public BiomeDefinition Grassland { get; } = biomes.Register(new BiomeDefinition(nameof(Grassland), palette)
+        public BiomeDefinition Grassland { get; } = biomes.Register(new BiomeDefinition(nameof(Grassland))
         {
             Color = ColorS.SaddleBrown,
-            Amplitude = 4f,
-            Frequency = 0.004f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateLoose(width: 3),
-                Layer.CreateGroundwater(width: 2),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(tallGrass),
-                decorations.GetDecoration(boulder)
-            },
-            Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("OldTower"))
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Main")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Blooming")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Thicket")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Hills")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Rocks")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Grassland), "Bog")), 1)
+            ]
         });
 
         /// <summary>
         ///     The normal ocean biome.
         /// </summary>
-        public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean), palette)
+        public BiomeDefinition Ocean { get; } = biomes.Register(new BiomeDefinition(nameof(Ocean))
         {
             Color = ColorS.White,
-            Amplitude = 5.0f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            }
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "Floor")), 1)],
+            OceanicSubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Ocean), "Open")), 1)]
         });
 
         /// <summary>
         ///     The polar ocean biome. It is covered in ice and occurs in cold regions.
         /// </summary>
-        public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean), palette)
+        public BiomeDefinition PolarOcean { get; } = biomes.Register(new BiomeDefinition(nameof(PolarOcean))
         {
             Color = ColorS.White,
-            Amplitude = 5.0f,
-            Frequency = 0.005f,
-            IceWidth = 6,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
-                Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
-            }
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Floor")), 1)],
+            OceanicSubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Open")), 25),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThinIce")), 15),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "ThickIce")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarOcean), "Icebergs")), 5)
+            ]
+        });
+
+        /// <summary>
+        ///     The oceanic ice sheet biome. It covers an oceanic area with a thick layer of ice.
+        /// </summary>
+        public BiomeDefinition OceanicIceSheet { get; } = biomes.Register(new BiomeDefinition(nameof(OceanicIceSheet))
+        {
+            Color = ColorS.LightGray,
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Floor")), 1)],
+            OceanicSubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Snowy")), 4),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(OceanicIceSheet), "Bare")), 3)
+            ]
         });
 
         /// <summary>
         ///     The mountain biome. It is a special biome that depends on the height of the terrain.
         /// </summary>
-        public BiomeDefinition Mountains { get; } = biomes.Register(new BiomeDefinition(nameof(Mountains), palette)
+        public BiomeDefinition Mountains { get; } = biomes.Register(new BiomeDefinition(nameof(Mountains))
         {
             Color = ColorS.Black,
-            Amplitude = 30f,
-            Frequency = 0.005f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateStonyTop(width: 9, amplitude: 15),
-                Layer.CreateStonyDampen(maxWidth: 31),
-                Layer.CreateStone(width: 31),
-                Layer.CreateLoose(width: 9),
-                Layer.CreateGroundwater(width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
-            }
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Smooth")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Rough")), 5),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Mountains), "Green")), 1)
+            ]
         });
 
         /// <summary>
         ///     The beach biome. It is found at low heights next to coastlines.
         /// </summary>
-        public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach), palette)
+        public BiomeDefinition Beach { get; } = biomes.Register(new BiomeDefinition(nameof(Beach))
         {
-            Color = ColorS.Black,
-            Amplitude = 4f,
-            Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreatePermeableDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
-                Layer.CreateLoose(width: 22),
-                Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
-            },
-            Decorations = new List<Decoration>
-            {
-                decorations.GetDecoration(palmTree)
-            }
+            Color = ColorS.Orange,
+            SubBiomes =
+            [
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Beach), "Default")), 1),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(Beach), "Palms")), 1)
+            ]
         });
 
         /// <summary>
-        ///     The grass covered cliff biome, which is found at coastlines with large height differences.
+        ///     The grass covered cliff biome, which is found at large height differences.
         /// </summary>
-        public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff), palette)
+        public BiomeDefinition GrassyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(GrassyCliff))
         {
-            Color = ColorS.Black,
-            Amplitude = 4f,
-            Frequency = 0.008f,
-            Cover = new Cover(hasPlants: true),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
-                Layer.CreateStonyDampen(maxWidth: 28),
-                Layer.CreateStone(width: 39)
-            }
+            Color = ColorS.LightGray,
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(GrassyCliff), "")), 1)]
         });
 
         /// <summary>
-        ///     The sand covered cliff biome, which is found at coastlines with large height differences.
+        ///     The sand covered cliff biome, which is found at large height differences.
         /// </summary>
-        public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff), palette)
+        public BiomeDefinition SandyCliff { get; } = biomes.Register(new BiomeDefinition(nameof(SandyCliff))
         {
-            Color = ColorS.Black,
-            Amplitude = 4f,
-            Frequency = 0.008f,
-            Cover = new Cover(hasPlants: false),
-            Layers = new List<Layer>
-            {
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 53, isSolid: true),
-                Layer.CreateStonyDampen(maxWidth: 28),
-                Layer.CreateStone(width: 39)
-            }
+            Color = ColorS.SlateGray,
+            SubBiomes = [(subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(SandyCliff), "")), 1)]
         });
+
+        private static RID GetSubBiomeRID(String biome, String subBiome)
+        {
+            return RID.Named<SubBiomeDefinition>($"{biome}{subBiome}");
+        }
     }
 }

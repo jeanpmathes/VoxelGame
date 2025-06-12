@@ -20,7 +20,7 @@ public sealed class BiomeDistributionDefinition : IResource
     /// <summary>
     ///     The resolution of the biome distribution map.
     /// </summary>
-    public const Int32 Resolution = 10;
+    public const Int32 Resolution = 20;
 
     private readonly Array2D<BiomeDefinition?> distribution;
 
@@ -75,13 +75,23 @@ public sealed class BiomeDistributionDefinition : IResource
     /// </summary>
     public required BiomeDefinition PolarOcean { get; init; }
 
+    /// <summary>
+    ///     The continental ice sheet biome.
+    /// </summary>
+    public required BiomeDefinition ContinentalIceSheet { get; init; }
+
+    /// <summary>
+    ///     The oceanic ice sheet biome.
+    /// </summary>
+    public required BiomeDefinition OceanicIceSheet { get; init; }
+
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<BiomeDistributionDefinition>("Default");
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.BiomeDistribution;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -89,7 +99,7 @@ public sealed class BiomeDistributionDefinition : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Get the biome distribution.

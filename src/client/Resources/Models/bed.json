@@ -1,9 +1,9 @@
 {
   "TextureNames": [
-    "bed:0,1",
-    "wood_no_tint:0,0",
-    "bed:1,0",
-    "bed:1,1"
+    "missing_texture:0,0",
+    "missing_texture:0,0",
+    "missing_texture:0,0",
+    "missing_texture:0,0"
   ],
   "Quads": [
     {

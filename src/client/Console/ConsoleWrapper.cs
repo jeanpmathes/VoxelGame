@@ -5,7 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using VoxelGame.Core;
 using VoxelGame.UI.UserInterfaces;
 
@@ -16,8 +18,9 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 public class ConsoleWrapper
 {
+    private readonly Channel<(String message, Boolean error, FollowUp[] followUp)> responses = Channel.CreateUnbounded<(String message, Boolean error, FollowUp[] followUp)>();
+
     private readonly ConsoleInterface consoleInterface;
-    private readonly ConcurrentQueue<(String message, FollowUp[] followUp)> responses = new();
 
     /// <summary>
     ///     Create a new console wrapper.
@@ -34,10 +37,11 @@ public class ConsoleWrapper
     /// </summary>
     /// <param name="response">The response to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
-    public void WriteResponse(String response, params FollowUp[] followUp)
+    public void WriteResponse(String response, FollowUp[]? followUp = null)
     {
         ApplicationInformation.ThrowIfNotOnMainThread(this);
-        consoleInterface.WriteResponse(response, followUp);
+
+        consoleInterface.WriteResponse(response, followUp ?? []);
     }
 
     /// <summary>
@@ -46,9 +50,35 @@ public class ConsoleWrapper
     /// </summary>
     /// <param name="response">The response to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
-    public void EnqueueResponse(String response, params FollowUp[] followUp)
+    /// <param name="token">A token to cancel the operation.</param>
+    public async ValueTask WriteResponseAsync(String response, FollowUp[]? followUp = null, CancellationToken token = default)
     {
-        responses.Enqueue((response, followUp));
+        await responses.Writer.WriteAsync((response, error: false, followUp ?? []), token);
+    }
+
+    /// <summary>
+    ///     Write an error to the console.
+    ///     This method must be called from the main thread.
+    /// </summary>
+    /// <param name="error">The error to write.</param>
+    /// <param name="followUp">A group of follow-up actions.</param>
+    public void WriteError(String error, FollowUp[]? followUp = null)
+    {
+        ApplicationInformation.ThrowIfNotOnMainThread(this);
+
+        consoleInterface.WriteError(error, followUp ?? []);
+    }
+
+    /// <summary>
+    ///     Queue an error to be written to the console.
+    ///     This method can be called from any thread.
+    /// </summary>
+    /// <param name="error">The error to write.</param>
+    /// <param name="followUp">A group of follow-up actions.</param>
+    /// <param name="token">A token to cancel the operation.</param>
+    public async Task WriteErrorAsync(String error, FollowUp[]? followUp = null, CancellationToken token = default)
+    {
+        await responses.Writer.WriteAsync((error, error: true, followUp ?? []), token);
     }
 
     /// <summary>
@@ -58,21 +88,11 @@ public class ConsoleWrapper
     {
         ApplicationInformation.ThrowIfNotOnMainThread(this);
 
-        while (responses.TryDequeue(out (String message, FollowUp[] followUp) response))
-            WriteResponse(response.message, response.followUp);
-    }
-
-    /// <summary>
-    ///     Write an error to the console.
-    ///     This method must be called from the main thread.
-    /// </summary>
-    /// <param name="error">The error to write.</param>
-    /// <param name="followUp">A group of follow-up actions.</param>
-    public void WriteError(String error, params FollowUp[] followUp)
-    {
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
-
-        consoleInterface.WriteError(error, followUp);
+        while (responses.Reader.TryRead(out (String message, Boolean error, FollowUp[] followUp) response))
+            if (response.error)
+                consoleInterface.WriteError(response.message, response.followUp);
+            else
+                consoleInterface.WriteResponse(response.message, response.followUp);
     }
 
     /// <summary>

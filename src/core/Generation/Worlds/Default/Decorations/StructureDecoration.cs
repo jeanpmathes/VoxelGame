@@ -25,10 +25,9 @@ public class StructureDecoration : Decoration
     ///     Create a new structure decoration.
     /// </summary>
     /// <param name="name">The name of the decoration.</param>
-    /// <param name="rarity">The rarity of the decoration.</param>
     /// <param name="structure">The structure to place.</param>
     /// <param name="decorator">The decorator to use.</param>
-    public StructureDecoration(String name, Single rarity, Structure structure, Decorator decorator) : base(name, rarity, decorator)
+    public StructureDecoration(String name, Structure structure, Decorator decorator) : base(name, decorator)
     {
         this.structure = structure;
 

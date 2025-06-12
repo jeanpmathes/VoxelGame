@@ -13,7 +13,7 @@ using Xunit;
 namespace VoxelGame.Core.Tests;
 
 [UsedImplicitly]
-public sealed class ResourceFixture : LoggerFixture
+public sealed class ResourceFixture : DispatcherFixture
 {
     private readonly IResourceContext resources;
 

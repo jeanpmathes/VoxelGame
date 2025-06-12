@@ -12,6 +12,11 @@ namespace VoxelGame.Core.Updates;
 public enum Status
 {
     /// <summary>
+    ///     The operation was created but not started yet.
+    /// </summary>
+    Created,
+
+    /// <summary>
     ///     The operation is still working.
     /// </summary>
     Running,
@@ -22,7 +27,7 @@ public enum Status
     Ok,
 
     /// <summary>
-    ///     The operation is done and failed.
+    ///     The operation is done and failed or cancelled.
     /// </summary>
-    Error
+    ErrorOrCancel
 }

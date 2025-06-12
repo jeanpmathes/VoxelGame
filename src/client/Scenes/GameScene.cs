@@ -82,7 +82,10 @@ public sealed partial class GameScene : IScene
     /// </summary>
     public Game Game { get; private set; }
 
-    private Application.Client Client { get; }
+    /// <summary>
+    ///     Get the client that this scene is part of.
+    /// </summary>
+    internal Application.Client Client { get; }
 
     /// <inheritdoc />
     public void Load()
@@ -211,7 +214,7 @@ public sealed partial class GameScene : IScene
             mass: 70f,
             camera,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            new VisualInterface(ui, engine),
+            new VisualInterface(Client.Keybinds, ui, engine),
             this);
 
         world.AddPlayer(player);

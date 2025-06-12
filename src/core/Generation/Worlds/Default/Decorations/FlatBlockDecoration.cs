@@ -26,10 +26,9 @@ public class FlatBlockDecoration : Decoration
     ///     Creates a new instance of the <see cref="FlatBlockDecoration" /> class.
     /// </summary>
     /// <param name="name">The name of the decoration. </param>
-    /// <param name="rarity">The rarity of the decoration. </param>
     /// <param name="block">The block to place.</param>
     /// <param name="filter">The blocks to place on.</param>
-    public FlatBlockDecoration(String name, Single rarity, FlatBlock block, ISet<Block> filter) : base(name, rarity, new WallDecorator())
+    public FlatBlockDecoration(String name, FlatBlock block, ISet<Block> filter) : base(name, new WallDecorator())
     {
         this.block = block;
         this.filter = filter;

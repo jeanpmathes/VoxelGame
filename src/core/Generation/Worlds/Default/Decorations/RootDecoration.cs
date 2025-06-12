@@ -22,7 +22,7 @@ public class RootDecoration : Decoration
     /// <summary>
     ///     Creates a new instance of the <see cref="RootDecoration" /> class.
     /// </summary>
-    public RootDecoration(String name, Single rarity, Decorator decorator) : base(name, rarity, decorator)
+    public RootDecoration(String name, Decorator decorator) : base(name, decorator)
     {
         const Int32 diameter = 3;
 

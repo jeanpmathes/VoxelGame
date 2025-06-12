@@ -26,9 +26,9 @@ public interface IWorldGeneratorContext
     /// </summary>
     public Timer? Timer { get; }
 
-    /// <inheritdoc cref="WorldData.ReadBlob{T}" />
+    /// <inheritdoc cref="WorldData.ReadBlobAsync{T}" />
     public T? ReadBlob<T>(String name) where T : class, IEntity, new();
 
-    /// <inheritdoc cref="WorldData.WriteBlob{T}" />
+    /// <inheritdoc cref="WorldData.WriteBlobAsync{T}" />
     public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new();
 }

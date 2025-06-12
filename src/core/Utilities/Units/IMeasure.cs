@@ -32,12 +32,13 @@ public interface IMeasure
     ///     Get the string representation of the measure.
     /// </summary>
     /// <param name="measure">The measure to convert to string.</param>
+    /// <param name="format">The format provider to use.</param>
     /// <typeparam name="T">The type of the measure.</typeparam>
     /// <returns>The string representation of the measure.</returns>
-    public static String ToString<T>(T measure) where T : IMeasure
+    public static String ToString<T>(T measure, IFormatProvider? format) where T : IMeasure
     {
         Prefix prefix = Prefix.FindBest(measure.Value, T.Prefixes);
 
-        return $"{measure.Value / prefix.Factor:F2} {prefix.Symbol}{T.Unit.Symbol}";
+        return String.Create(format, $"{measure.Value / prefix.Factor:F2} {prefix.Symbol}{T.Unit.Symbol}");
     }
 }

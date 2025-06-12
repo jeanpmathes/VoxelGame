@@ -7,9 +7,9 @@
 using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Definitions.Blocks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -18,174 +18,57 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// </summary>
 public class Tree : DynamicStructure
 {
-    /// <summary>
-    ///     The kind of tree.
-    /// </summary>
-    public enum Kind
-    {
-        /// <summary>
-        ///     A 'normal' tree, growing in temperate climates.
-        /// </summary>
-        Normal,
+    private readonly Content trunk;
+    private readonly Content leaf;
+    private readonly Content roots;
 
-        /// <summary>
-        ///     A second 'normal' tree, growing in temperate climates.
-        /// </summary>
-        Normal2,
+    private readonly Int32 trunkHeight;
 
-        /// <summary>
-        ///     A tropical tree, growing in warm climates.
-        /// </summary>
-        Tropical,
+    private readonly Shape3D crownShape;
+    private readonly Double crownRandomization;
 
-        /// <summary>
-        ///     A tree with needles, growing in cold climates.
-        /// </summary>
-        Needle,
-
-        /// <summary>
-        ///     A palm tree, growing on beaches.
-        /// </summary>
-        Palm,
-
-        /// <summary>
-        ///     A savanna tree, growing in savannas.
-        /// </summary>
-        Savanna,
-
-        /// <summary>
-        ///     A small shrub, growing in a dry climate.
-        /// </summary>
-        Shrub
-    }
-
-    private readonly Kind kind;
-
-    private readonly (Int32 height, Single factor) needleConfig = (height: 8, factor: 0.35f);
-
-    private readonly Shape3D needleCrown = new Cone
-    {
-        Position = new Vector3(x: 2, y: 3, z: 2),
-        BottomRadius = 2.5f,
-        TopRadius = 0.0f,
-        Height = 9.0f
-    };
-
-    private readonly Vector3i needleExtents = new(x: 5, y: 11, z: 5);
-
-    private readonly (Int32 height, Single factor) normal2Config = (height: 7, factor: 0.25f);
-
-    private readonly Shape3D normal2Crown = new Spheroid
-    {
-        Position = new Vector3(x: 2, y: 5.5f, z: 2),
-        Radius = new Vector3(x: 2.5f, y: 4.0f, z: 2.5f)
-    };
-
-    private readonly Vector3i normal2Extents = new(x: 5, y: 9, z: 5);
-
-    private readonly (Int32 height, Single factor) normalConfig = (height: 7, factor: 0.25f);
-
-    private readonly Shape3D normalCrown = new Sphere
-    {
-        Position = new Vector3(x: 2, y: 6, z: 2),
-        Radius = 2.5f
-    };
-
-    private readonly Vector3i normalExtents = new(x: 5, y: 9, z: 5);
-
-    private readonly (Int32 height, Single factor) palmConfig = (height: 9, factor: 0.25f);
-
-    private readonly Shape3D palmCrown = new Sphere
-    {
-        Position = new Vector3(x: 2, y: 9, z: 2),
-        Radius = 1.5f
-    };
-
-    private readonly Vector3i palmExtents = new(x: 5, y: 11, z: 5);
-
-    private readonly (Int32 height, Single factor) savannaConfig = (height: 7, factor: 0.25f);
-
-    private readonly Shape3D savannaCrown = new Cone
-    {
-        Position = new Vector3(x: 2, y: 7, z: 2),
-        BottomRadius = 2.5f,
-        TopRadius = 2.5f,
-        Height = 1.0f
-    };
-
-    private readonly Vector3i savannaExtents = new(x: 5, y: 8, z: 5);
-
-    private readonly (Int32 height, Single factor) shrubConfig = (height: 3, factor: 0.25f);
-
-    private readonly Shape3D shrubCrown = new Sphere
-    {
-        Position = new Vector3(x: 2, y: 2, z: 2),
-        Radius = 1.5f
-    };
-
-    private readonly Vector3i shrubExtents = new(x: 5, y: 4, z: 5);
-
-    private readonly (Int32 height, Single factor) tropicalConfig = (height: 14, factor: 0.25f);
-
-    private readonly Shape3D tropicalCrown = new Spheroid
-    {
-        Position = new Vector3(x: 4, y: 14, z: 4),
-        Radius = new Vector3(x: 4.5f, y: 1.5f, z: 4.5f)
-    };
-
-    private readonly Vector3i tropicalExtents = new(x: 9, y: 16, z: 9);
+    private readonly Vector3d crownOffset;
 
     /// <summary>
-    ///     Creates a new tree structure.
+    /// Creates a new tree.
     /// </summary>
-    /// <param name="kind">The kind of tree.</param>
-    public Tree(Kind kind)
+    /// <param name="trunkHeight">The height of the trunk.</param>
+    /// <param name="crownRandomization">The randomization factor of the crown, a smaller factor causes a more dense crown.</param>
+    /// <param name="crownShape">The shape of the crown, will be centered on the X-Z-plane.</param>
+    /// <param name="log">The log block.</param>
+    /// <param name="leaves">The leaves block.</param>
+    public Tree(Int32 trunkHeight, Double crownRandomization, Shape3D crownShape, Block log, Block leaves)
     {
-        this.kind = kind;
+        this.trunkHeight = trunkHeight;
+        this.crownRandomization = crownRandomization;
+        this.crownShape = crownShape;
+
+        trunk = new Content(log);
+        leaf = new Content(leaves);
+        roots = new Content(Elements.Blocks.Instance.Roots);
+
+        if (log is RotatedBlock rotatedBlock) trunk = new Content(rotatedBlock.GetInstance(Axis.Y), FluidInstance.Default);
+
+        Box3d box = crownShape.BoundingBox;
+        Vector3i min = box.Min.Floor();
+        Vector3i max = box.Max.Ceiling();
+        Vector3i size = (max - min).Abs();
+
+        Extents = new Vector3i(
+            Math.Max(size.X, val2: 1),
+            Math.Max(size.Y, trunkHeight) + 1,
+            Math.Max(size.Z, val2: 1)
+        );
+
+        crownOffset = new Vector3d(
+            Math.Floor(size.X / 2.0),
+            y: 0.0,
+            Math.Floor(size.Z / 2.0)
+        );
     }
 
     /// <inheritdoc />
-    public override Vector3i Extents => kind switch
-    {
-        Kind.Normal => normalExtents,
-        Kind.Normal2 => normal2Extents,
-        Kind.Tropical => tropicalExtents,
-        Kind.Needle => needleExtents,
-        Kind.Palm => palmExtents,
-        Kind.Savanna => savannaExtents,
-        Kind.Shrub => shrubExtents,
-        _ => throw Exceptions.UnsupportedEnumValue(kind)
-    };
-
-    private Shape3D GetCrownShape()
-    {
-        return kind switch
-        {
-            Kind.Normal => normalCrown,
-            Kind.Normal2 => normal2Crown,
-            Kind.Tropical => tropicalCrown,
-            Kind.Needle => needleCrown,
-            Kind.Palm => palmCrown,
-            Kind.Savanna => savannaCrown,
-            Kind.Shrub => shrubCrown,
-            _ => throw Exceptions.UnsupportedEnumValue(kind)
-        };
-    }
-
-    private (Int32 height, Single factor) GetConfig()
-    {
-        return kind switch
-        {
-            Kind.Normal => normalConfig,
-            Kind.Normal2 => normal2Config,
-            Kind.Tropical => tropicalConfig,
-            Kind.Needle => needleConfig,
-            Kind.Palm => palmConfig,
-            Kind.Savanna => savannaConfig,
-            Kind.Shrub => shrubConfig,
-            _ => throw Exceptions.UnsupportedEnumValue(kind)
-        };
-    }
+    public override Vector3i Extents { get; }
 
     /// <inheritdoc />
     protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
@@ -193,17 +76,21 @@ public class Tree : DynamicStructure
         Int32 center = Extents.X / 2;
         Debug.Assert(Extents.X == Extents.Z);
 
-        (Int32 height, Single factor) = GetConfig();
+        if (offset.X == center && offset.Z == center)
+        {
+            if (offset.Y == 0)
+                return (roots, overwrite: true);
 
-        if (offset.X == center && offset.Y == 0 && offset.Z == center)
-            return (new Content(Elements.Blocks.Instance.Roots), overwrite: true);
+            if (offset.Y < trunkHeight)
+                return (trunk, overwrite: true);
 
-        if (offset.X == center && offset.Z == center && offset.Y < height)
-            return (new Content(Elements.Blocks.Instance.Specials.Log.GetInstance(Axis.Y), FluidInstance.Default), overwrite: true);
+            if (offset.Y == trunkHeight)
+                return (leaf, overwrite: true);
+        }
 
-        if (!GetCrownShape().Contains(offset, out Single closeness)) return null;
-        if (closeness < factor * random) return null;
+        if (!crownShape.Contains(offset - crownOffset, out Double closeness)) return null;
+        if (closeness < crownRandomization * random) return null;
 
-        return (new Content(Elements.Blocks.Instance.Leaves), overwrite: false);
+        return (leaf, overwrite: false);
     }
 }

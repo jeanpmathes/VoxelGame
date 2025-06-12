@@ -626,7 +626,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         return NamedID;
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -665,5 +665,5 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

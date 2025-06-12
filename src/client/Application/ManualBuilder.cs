@@ -28,13 +28,13 @@ public static partial class ManualBuilder
     /// <summary>
     ///     Emit a manual, if the required build flags are set.
     /// </summary>
-    public static void EmitManual()
+    internal static void EmitManual(Client client)
     {
-        GenerateManual();
+        GenerateManual(client);
     }
 
     [Conditional("MANUAL")]
-    private static void GenerateManual()
+    private static void GenerateManual(Client client)
     {
         const String path = "./../../../../../../SetUp/Resources/Manual";
         DirectoryInfo directory = FileSystem.GetFullPath(path);
@@ -46,7 +46,7 @@ public static partial class ManualBuilder
         Includable controls = new("controls", directory);
 
         controls.CreateSections(
-            Client.Instance.Keybinds.Binds,
+            client.Keybinds.Binds,
             keybind => Section.Create(keybind.Name, section => section.Text("The key is bound to").Key(keybind.Default).Text("per default.")));
 
         controls.Generate();

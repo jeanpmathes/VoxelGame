@@ -6,11 +6,15 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -61,27 +65,39 @@ public partial class WorldInformation
     ///     Save this world information to a file.
     /// </summary>
     /// <param name="path">The save path.</param>
-    public void Save(FileInfo path)
+    /// <param name="token">The cancellation token.</param>
+    public async Task SaveAsync(FileInfo path, CancellationToken token = default)
     {
-        Exception? exception = Serialize.SaveJSON(this, path);
+        Result result = await Serialize.SaveJsonAsync(this, path, token).InAnyContext();
 
-        if (exception != null) LogInfoSavingError(logger, exception, path.FullName);
-        else LogInfoSaved(logger, Name, path.FullName);
+        result.Switch(
+            () => LogInfoSaved(logger, Name, path.FullName),
+            exception => LogInfoSavingError(logger, exception, path.FullName));
     }
 
     /// <summary>
-    ///     Load a world information from a file. If loading fails, a default world information is returned.
+    ///     Load the world information from a file. If loading fails, default world information is returned.
     /// </summary>
     /// <param name="path">The path to load from.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <returns>The loaded world information.</returns>
-    public static WorldInformation Load(FileInfo path)
+    public static async Task<WorldInformation> LoadAsync(FileInfo path, CancellationToken token = default)
     {
-        Exception? exception = Serialize.LoadJSON(path, out WorldInformation information);
+        Result<WorldInformation> result = await Serialize.LoadJsonAsync<WorldInformation>(path, token).InAnyContext();
 
-        if (exception != null) LogInfoLoadingError(logger, exception, path.FullName);
-        else LogInfoLoaded(logger, information.Name, path.FullName);
+        return result.Switch(
+            information =>
+            {
+                LogInfoLoaded(logger, information.Name, path.FullName);
 
-        return information;
+                return information;
+            },
+            exception =>
+            {
+                LogInfoLoadingError(logger, exception, path.FullName);
+
+                return new WorldInformation();
+            });
     }
 
     #region LOGGING

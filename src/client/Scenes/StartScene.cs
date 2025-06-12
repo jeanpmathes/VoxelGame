@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
@@ -42,13 +43,13 @@ public sealed partial class StartScene : IScene
         this.resourceLoadingIssueReport = resourceLoadingIssueReport;
         this.loadWorldDirectly = loadWorldDirectly;
 
-        worldProvider = new WorldProvider(Program.WorldsDirectory);
+        worldProvider = new WorldProvider(client, Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, world) => client.StartGame(world);
 
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(client.Settings),
-            SettingsProvider.Wrap(Application.Client.Instance.Keybinds),
+            SettingsProvider.Wrap(client.Keybinds),
             SettingsProvider.Wrap(client.Graphics)
         ];
 
@@ -132,27 +133,27 @@ public sealed partial class StartScene : IScene
     {
         if (loadWorldDirectly is not {} index) return;
 
-        Exception? exception = worldProvider.Refresh().WaitForCompletion();
+        Result result = worldProvider.Refresh().Wait();
 
-        if (exception != null)
-        {
-            LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
+        result.Switch(() =>
+            {
+                IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
 
-            return;
-        }
+                if (info != null)
+                {
+                    LogLoadingWorldDirectly(logger, index);
 
-        IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
-
-        if (info != null)
-        {
-            LogLoadingWorldDirectly(logger, index);
-
-            worldProvider.LoadAndActivateWorld(info);
-        }
-        else
-        {
-            LogCouldNotDirectlyLoadWorld(logger, index);
-        }
+                    worldProvider.LoadAndActivateWorld(info);
+                }
+                else
+                {
+                    LogCouldNotDirectlyLoadWorld(logger, index);
+                }
+            },
+            exception =>
+            {
+                LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
+            });
     }
 
     #region LOGGING

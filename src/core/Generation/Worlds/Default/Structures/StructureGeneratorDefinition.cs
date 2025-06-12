@@ -107,5 +107,5 @@ public sealed class StructureGeneratorDefinition : IResource
         // Nothing to dispose.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

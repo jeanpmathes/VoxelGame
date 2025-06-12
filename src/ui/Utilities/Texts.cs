@@ -6,6 +6,7 @@
 
 using System;
 using System.Globalization;
+using Gwen.Net;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Toolkit.Utilities;
@@ -70,7 +71,7 @@ public static class Texts
         {
             Status.Ok => Language.OperationStatusOk,
             Status.Running => Language.OperationStatusRunning,
-            Status.Error => Language.OperationStatusError,
+            Status.ErrorOrCancel => Language.OperationStatusError,
             _ => throw Exceptions.UnsupportedEnumValue(status)
         };
     }
@@ -78,8 +79,22 @@ public static class Texts
     /// <summary>
     ///     Format an operation and its status.
     /// </summary>
-    public static String FormatOperation(String operation, Status status)
+    public static String FormatWithStatus(String operation, Status status)
     {
         return $"{operation}: {FormatStatus(status)}";
+    }
+
+    /// <summary>
+    ///     Get the color for a status.
+    /// </summary>
+    public static Color GetStatusColor(Status status)
+    {
+        return status switch
+        {
+            Status.Ok => Colors.Secondary,
+            Status.Running => Colors.Secondary,
+            Status.ErrorOrCancel => Colors.Error,
+            _ => throw Exceptions.UnsupportedEnumValue(status)
+        };
     }
 }

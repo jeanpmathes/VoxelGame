@@ -45,8 +45,8 @@ public class NameBox : Window
 
         TextBox name = new(windowLayout);
 
-        Label status = new(windowLayout);
-        status.Hide();
+        Label statusLabel = new(windowLayout);
+        statusLabel.Hide();
 
         Empty space = new(windowLayout)
         {
@@ -104,15 +104,15 @@ public class NameBox : Window
                 cancel.Disable();
                 cancel.Redraw();
 
-                status.Text = Texts.FormatOperation(parameters.Title, Status.Running);
-                status.TextColor = Colors.Secondary;
+                statusLabel.Text = Texts.FormatWithStatus(parameters.Title, Status.Running);
+                statusLabel.TextColor = Colors.Secondary;
 
-                status.Show();
+                statusLabel.Show();
 
-                op.OnCompletion(_ =>
+                op.OnCompletionSync(status =>
                 {
-                    status.Text = Texts.FormatOperation(parameters.Title, op.Status);
-                    status.TextColor = op.IsOk ? Colors.Secondary : Colors.Error;
+                    statusLabel.Text = Texts.FormatWithStatus(parameters.Title, status);
+                    statusLabel.TextColor = Texts.GetStatusColor(status);
 
                     ok.Enable();
                     ok.Redraw();

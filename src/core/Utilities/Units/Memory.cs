@@ -66,6 +66,6 @@ public readonly struct Memory : IMeasure, IEquatable<Memory>
     /// <inheritdoc />
     public override String ToString()
     {
-        return IMeasure.ToString(this);
+        return IMeasure.ToString(this, format: null);
     }
 }

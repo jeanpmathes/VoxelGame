@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
@@ -73,7 +74,7 @@ public partial class Chunk
             {
                 Debug.Assert(context != null);
 
-                meshing = WaitForCompletion(() => Chunk.CreateMeshData(context));
+                meshing = WaitForCompletion(() => Task.FromResult(Chunk.CreateMeshData(context)));
             }
             else if (meshing.IsCompleted)
             {
@@ -82,21 +83,23 @@ public partial class Chunk
                 context.Dispose();
                 context = null;
 
-                if (meshing.Exception != null)
-                {
-                    Exception e = meshing.Exception.GetBaseException();
+                meshing.Result?.Switch(
+                    data =>
+                    {
+                        meshData = data;
+                        Chunk.SetMeshData(meshData);
 
-                    LogChunkMeshingError(logger, e, Chunk.Position);
+                        Cleanup();
 
-                    throw e;
-                }
+                        TryActivation();
+                    },
+                    e =>
+                    {
+                        LogChunkMeshingError(logger, e, Chunk.Position);
 
-                meshData = meshing.Value!;
-                Chunk.SetMeshData(meshData);
-
-                Cleanup();
-
-                TryActivation();
+                        throw e;
+                    }
+                );
             }
         }
 

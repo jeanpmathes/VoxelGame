@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
@@ -49,25 +50,24 @@ public partial class Chunk
             if (loading == null)
             {
                 FileInfo path = Chunk.World.Data.ChunkDirectory.GetFile(GetChunkFileName(Chunk.Position));
-                loading = WaitForCompletion(() => Load(path, Chunk));
+                loading = WaitForCompletion(async () => await LoadAsync(path, Chunk).InAnyContext());
             }
             else if (loading.IsCompleted)
             {
-                if (loading.Exception != null) HandleFaultedFuture(loading);
-                else HandleSuccessfulFuture(loading);
+                loading.Result?.Switch(HandleSuccessful, HandleFaulted);
             }
         }
 
-        private void HandleFaultedFuture(Future future)
+        private void HandleFaulted(Exception exception)
         {
-            LogChunkLoadingError(logger, future.Exception!.GetBaseException(), Chunk.Position);
+            LogChunkLoadingError(logger, exception, Chunk.Position);
 
             SetNextState<Generating>();
         }
 
-        private void HandleSuccessfulFuture(Future<LoadingResult> future)
+        private void HandleSuccessful(LoadingResult result)
         {
-            switch (future.Value!)
+            switch (result)
             {
                 case LoadingResult.Success:
                     TryActivation();
@@ -93,7 +93,7 @@ public partial class Chunk
                 }
 
                 default:
-                    throw Exceptions.UnsupportedEnumValue(future.Value);
+                    throw Exceptions.UnsupportedEnumValue(result);
             }
         }
     }
@@ -118,20 +118,27 @@ public partial class Chunk
             {
                 generationContext = Context.Generator.CreateGenerationContext(Chunk.Position);
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position);
-                generating = WaitForCompletion(() => Chunk.Generate(generationContext, decorationContext));
+
+                generating = WaitForCompletion(() =>
+                {
+                    Chunk.Generate(generationContext, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (generating.IsCompleted)
             {
                 Cleanup();
 
-                if (generating.Exception is {} exception)
-                {
-                    LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
+                generating.Result?.Switch(
+                    TryActivation,
+                    exception =>
+                    {
+                        LogChunkGenerationError(logger, exception, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
-
-                TryActivation();
+                        throw exception;
+                    }
+                );
             }
         }
 
@@ -189,20 +196,27 @@ public partial class Chunk
             if (decorating == null)
             {
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position, extents: 1);
-                decorating = WaitForCompletion(() => Chunk.Decorate(chunks, decorationContext));
+
+                decorating = WaitForCompletion(() =>
+                {
+                    Chunk.Decorate(chunks, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (decorating.IsCompleted)
             {
                 Cleanup();
 
-                if (decorating.Exception is {} exception)
-                {
-                    LogChunkDecorationError(logger, exception.GetBaseException(), Chunk.Position);
+                decorating.Result?.Switch(
+                    TryActivation,
+                    exception =>
+                    {
+                        LogChunkDecorationError(logger, exception, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
-
-                TryActivation();
+                        throw exception;
+                    }
+                );
             }
         }
 
@@ -235,14 +249,17 @@ public partial class Chunk
         {
             if (saving == null)
             {
-                saving = WaitForCompletion(() => Chunk.Save(Chunk.World.Data.ChunkDirectory));
+                saving = WaitForCompletion(async () => await Chunk.SaveAsync(Chunk.World.Data.ChunkDirectory).InAnyContext());
             }
             else if (saving.IsCompleted)
             {
-                if (saving.Exception is {} exception)
-                    LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
-
-                TryActivation();
+                saving.Result?.Switch(
+                    () => TryActivation(),
+                    exception =>
+                    {
+                        LogChunkSavingError(logger, exception, Chunk.Position);
+                    }
+                );
             }
         }
     }

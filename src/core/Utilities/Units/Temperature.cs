@@ -70,6 +70,6 @@ public readonly struct Temperature : IMeasure, IEquatable<Temperature>
     /// <inheritdoc />
     public override String ToString()
     {
-        return IMeasure.ToString(this);
+        return IMeasure.ToString(this, format: null);
     }
 }

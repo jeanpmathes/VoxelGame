@@ -16,12 +16,9 @@ namespace VoxelGame.Core.Utilities.Resources;
 ///     Collects all loaded resources of a specific type and provides them in an easily accessible way.
 /// </summary>
 /// <typeparam name="T">The type of the resources to group.</typeparam>
-public partial class ResourceProvider<T> : IResourceProvider where T : class, IResource
+public abstract partial class ResourceProvider<T> : IResourceProvider where T : class, IResource
 {
     private readonly String name;
-
-    private readonly Func<T> createFallback;
-    private readonly Func<T, T> copy;
 
     private Dictionary<RID, T> models = [];
 
@@ -29,14 +26,9 @@ public partial class ResourceProvider<T> : IResourceProvider where T : class, IR
     /// <summary>
     ///     Creates a new group provider.
     /// </summary>
-    /// <param name="createFallback">Function to create a fallback resource.</param>
-    /// <param name="copy">Function to copy a retrieved resource, may also return the resource itself.</param>
-    public ResourceProvider(Func<T> createFallback, Func<T, T> copy)
+    protected ResourceProvider()
     {
         name = typeof(T).Name;
-
-        this.createFallback = createFallback;
-        this.copy = copy;
     }
 
     /// <inheritdoc />
@@ -46,6 +38,33 @@ public partial class ResourceProvider<T> : IResourceProvider where T : class, IR
     public void SetUp()
     {
         models = Context?.GetAll<T>().ToDictionary(resource => resource.Identifier, resource => resource) ?? [];
+
+        if (Context != null)
+            OnSetUp(Context);
+    }
+
+    /// <summary>
+    ///     Override to get requirements from the resource context.
+    /// </summary>
+    /// <param name="context">The resource context to get requirements from.</param>
+    protected virtual void OnSetUp(IResourceContext context) {}
+
+    /// <summary>
+    ///     Override to implement fallback resource creation.
+    ///     Will be called for each fallback creation and not cached.
+    /// </summary>
+    /// <returns>The fallback resource.</returns>
+    protected abstract T CreateFallback();
+
+    /// <summary>
+    ///     Override to implement optional resource copying.
+    ///     Will be called with each successful resource retrieval.
+    /// </summary>
+    /// <param name="resource">The retrieved resource.</param>
+    /// <returns>A copy, or the resource itself if no copying is required.</returns>
+    protected virtual T Copy(T resource)
+    {
+        return resource;
     }
 
     /// <summary>
@@ -59,15 +78,15 @@ public partial class ResourceProvider<T> : IResourceProvider where T : class, IR
         {
             LogLoadingDisabled(logger);
 
-            return createFallback();
+            return CreateFallback();
         }
 
         if (models.TryGetValue(identifier, out T? resource))
-            return copy(resource);
+            return Copy(resource);
 
         Context.ReportWarning(this, $"{name} resource '{identifier}' not found, using fallback instead");
 
-        return createFallback();
+        return CreateFallback();
     }
 
     #region LOGGING
