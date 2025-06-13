@@ -118,7 +118,6 @@
         </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Behaviors\"/>
         <Folder Include="Logic\Definitions\Legacy\"/>
     </ItemGroup>
     <Target Name="FixAL1703Warning" BeforeTargets="GenerateSatelliteAssemblies" Condition="'$(PlatformTarget)' == 'x64'">
