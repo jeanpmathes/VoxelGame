@@ -38,7 +38,7 @@ public record struct State(StateSet Owner, UInt64 Index)
     /// <returns>The value of the attribute for this state.</returns>
     public TValue Get<TValue>(IAttribute<TValue> attribute)
     {
-        return attribute.Get(this);
+        return attribute.Get(Index);
     }
 
     /// <summary>

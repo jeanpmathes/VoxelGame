@@ -30,7 +30,7 @@ public interface IAttribute : IScoped
     {
         Debug.Assert(Divisor == 0);
 
-        return RetrieveRepresentation(GetValueIndex(state));
+        return RetrieveRepresentation(GetValueIndex(state.Index));
     }
 
     /// <summary>
@@ -43,11 +43,11 @@ public interface IAttribute : IScoped
     /// <summary>
     /// Get the value index of this attribute in the given state.
     /// </summary>
-    /// <param name="state">The state to get the value index for.</param>
+    /// <param name="index">The state index to get the value index for.</param>
     /// <returns>The attribute value index for the given state, which will be in the range [0, <see cref="Multiplicity"/>).</returns>
-    internal Int32 GetValueIndex(State state)
+    internal Int32 GetValueIndex(UInt64 index)
     {
-        return (Int32) (state.Index / Divisor % Multiplicity);
+        return (Int32) (index / Divisor % Multiplicity);
     }
 
     /// <summary>
@@ -78,11 +78,11 @@ public interface IAttribute<TValue> : IAttribute
     /// <summary>
     /// Get the value of the attribute for a given <see cref="State"/>.
     /// </summary>
-    /// <param name="state">The state to get the value for.</param>
+    /// <param name="index">The state index of the state to get the value for.</param>
     /// <returns>The value of the attribute for the given state.</returns>
-    internal TValue Get(State state)
+    internal TValue Get(UInt64 index)
     {
-        return Divisor == 0 ? default! : Retrieve(GetValueIndex(state));
+        return Divisor == 0 ? default! : Retrieve(GetValueIndex(index));
     }
 
     /// <summary>
