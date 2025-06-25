@@ -5,19 +5,26 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class BooleanAttribute(String name) : IAttribute<Boolean>
+internal class BooleanAttribute : Attribute<Boolean>
 {
-    public String Name { get; } = name;
-    
-    public Int32 Index { get; init; }
-    
-    public UInt64 Multiplicity => 2;
+    public override UInt64 Multiplicity => 2;
 
-    public Boolean Retrieve(Int32 index)
+    public override Boolean Retrieve(Int32 index)
     {
         return index == 1;
+    }
+
+    public override Int32 Provide(Boolean value)
+    {
+        return value ? 1 : 0;
+    }
+
+    public override Property RetrieveRepresentation(Int32 index)
+    {
+        return new Message(Name, index == 0 ? "false" : "true"); // todo: boolean property
     }
 }

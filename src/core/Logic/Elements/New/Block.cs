@@ -6,8 +6,10 @@
 
 using System;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.Core.Logic.Elements.New; // todo: move up in namespace
+namespace VoxelGame.Core.Logic.Elements.New;
+// todo: move up in namespace
 
 /// <summary>
 /// The basic unit of the game world - a block.
@@ -25,15 +27,17 @@ public class Block
     /// Initialize the block with its states.
     /// </summary>
     /// <param name="offset">The number of already existing block states.</param>
-    /// <returns>The number of states of this block.</returns>
-    public UInt64 Initialize(UInt64 offset)
+    /// <param name="context">The context in which the block is initialized.</param>
+    /// <returns>The number of states this block has.</returns>
+    public UInt64 Initialize(UInt64 offset, IResourceContext context)
     {
-        StateBuilder builder = new();
-        
-        // todo: call all behaviors, do scoping
-        
-        States = builder.Build(offset);
-        
+        StateBuilder builder = new(context);
+
+        foreach (String behavior in new[] {"x", "y"}) // todo: call all behaviors
+            builder.Enclose(behavior, _ => {});
+
+        States = builder.Build(this, offset);
+
         return States.Count;
     }
 }

@@ -41,6 +41,19 @@ public static class BitHelper
     }
 
     /// <summary>
+    ///     Get the zero-based index of the most significant set bit.
+    ///     Invalid if <paramref name="n" /> is zero.
+    /// </summary>
+    /// <param name="n">The unsigned long integer in which to find the most significant bit.</param>
+    /// <returns>The index of the most significant bit.</returns>
+    public static Int32 MostSignificantBit(UInt64 n)
+    {
+        Debug.Assert(n != 0);
+
+        return 64 - 1 - BitOperations.LeadingZeroCount(n);
+    }
+
+    /// <summary>
     ///     Get the zero-based index of the least significant set bit.
     ///     Invalid if <paramref name="n" /> is zero.
     /// </summary>

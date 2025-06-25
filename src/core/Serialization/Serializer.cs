@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Memory;
 
@@ -169,35 +169,11 @@ public abstract class Serializer
     public void Serialize<T>(ref T value)
         where T : unmanaged, Enum
     {
-        Int64 data = default;
-
-        if (Unsafe.SizeOf<T>() == sizeof(Int32)) data = Unsafe.As<T, Int32>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Byte)) data = Unsafe.As<T, Byte>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Int16)) data = Unsafe.As<T, Int16>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Int64)) data = Unsafe.As<T, Int64>(ref value);
-        else Fail($"Unsupported enum size: {Unsafe.SizeOf<T>()}");
+        UInt64 data = EnumTools.GetUnsignedValue(value);
 
         SerializeSmall(ref data);
 
-        if (Unsafe.SizeOf<T>() == sizeof(Int32))
-        {
-            var small = (Int32) data;
-            value = Unsafe.As<Int32, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Byte))
-        {
-            var small = (Byte) data;
-            value = Unsafe.As<Byte, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Int16))
-        {
-            var small = (Int16) data;
-            value = Unsafe.As<Int16, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Int64))
-        {
-            value = Unsafe.As<Int64, T>(ref data);
-        }
+        value = EnumTools.GetEnumValue<T>(data);
     }
 
     /// <summary>
@@ -211,7 +187,7 @@ public abstract class Serializer
 
     /// <summary>
     ///     Serialize a list of values. This is equivalent to serializing each value individually.
-    ///     The passed list will be modified, e.g. resized and some entries might be cleared.
+    ///     The passed list will be modified, e.g., resized, and some entries might be cleared.
     /// </summary>
     public void SerializeValues<T>(IList<T> values)
         where T : IValue, new()
