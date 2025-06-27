@@ -52,31 +52,28 @@ public static class LoggingHelper
 
         LogLevel level = logDebug ? LogLevel.Debug : LogLevel.Information;
 
-        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
-            builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("VoxelGame", level)
-                    .AddSimpleConsole(options => options.IncludeScopes = true)
-                    .AddFile(
-                        Path.Combine(appDataDirectory.FullName, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
-                        level);
-            });
+        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddFilter("VoxelGame", level)
+                .AddSimpleConsole(options => options.IncludeScopes = true)
+                .AddFile(
+                    Path.Combine(appDataDirectory.FullName, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
+                    level);
+        });
 
         return LoggerFactory.CreateLogger(category);
     }
 
     /// <summary>
-    ///     Set up a mock logger. All loggers creating with this helper will be null loggers.
+    ///     Set up a mock logger. All loggers created with this helper will be null loggers.
     /// </summary>
     /// <returns>A mock logger.</returns>
     public static ILogger SetUpMockLogging()
     {
-        Debug.Assert(LoggerFactory == null);
-
-        LoggerFactory = new NullLoggerFactory();
+        LoggerFactory ??= new NullLoggerFactory();
 
         return LoggerFactory.CreateLogger("Mock");
     }
