@@ -50,6 +50,10 @@ public record struct State(StateSet Owner, UInt64 Index)
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
     public void Set<TValue>(IAttribute<TValue> attribute, TValue value)
     {
-        Index = attribute.Set(value);
+        UInt64 oldIndex = attribute.GetStateIndex(attribute.GetValueIndex(Index));
+        Index -= oldIndex;
+
+        UInt64 newIndex = attribute.Set(value);
+        Index += newIndex;
     }
 }

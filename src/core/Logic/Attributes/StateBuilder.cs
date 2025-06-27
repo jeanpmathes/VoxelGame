@@ -103,7 +103,7 @@ public partial class StateBuilder(IResourceContext context)
         return new AttributeDefinition(name, this);
     }
 
-    private void AddAttribute<TValue>(Attribute<TValue> attribute, String name, String? description, TValue? generationDefault)
+    private void AddAttribute<TValue>(Attribute<TValue> attribute, String name, String? description, TValue generationDefault)
     {
         if (stateCount * attribute.Multiplicity > Int32.MaxValue)
         {
@@ -123,11 +123,8 @@ public partial class StateBuilder(IResourceContext context)
         UpdateGenerationDefaultState(attribute, generationDefault);
     }
 
-    private void UpdateGenerationDefaultState<TValue>(IAttribute<TValue> attribute, TValue? generationDefault)
+    private void UpdateGenerationDefaultState<TValue>(IAttribute<TValue> attribute, TValue generationDefault)
     {
-        if (generationDefault is null)
-            return;
-
         Int32 index = attribute.Provide(generationDefault);
         generationDefaultState += attribute.GetStateIndex(index);
     }
@@ -176,6 +173,7 @@ public partial class StateBuilder(IResourceContext context)
 
         /// <summary>
         ///     Define the attribute as an integer attribute with the given minimum and maximum values.
+        ///     The lower bound is inclusive, the upper bound is exclusive.
         /// </summary>
         /// <param name="min">The minimum value.</param>
         /// <param name="max">The maximum value, which must be greater than the minimum value.</param>
@@ -192,7 +190,7 @@ public partial class StateBuilder(IResourceContext context)
         /// </summary>
         /// <param name="elements">The valid elements for this attribute.</param>
         /// <typeparam name="TElement">The element type of the list.</typeparam>
-        public AttributeDefinition<TElement> List<TElement>(IEnumerable<TElement> elements) where TElement : notnull
+        public AttributeDefinition<TElement> List<TElement>(IEnumerable<TElement> elements) where TElement : struct
         {
             List<TElement> list = elements.ToList();
 
@@ -229,16 +227,16 @@ public partial class StateBuilder(IResourceContext context)
     /// <summary>
     ///     Last step of the builder to define an attribute.
     /// </summary>
-    public sealed class AttributeDefinition<TValue>(Attribute<TValue> attribute, String name, String? description, StateBuilder builder) where TValue : notnull
+    public sealed class AttributeDefinition<TValue>(Attribute<TValue> attribute, String name, String? description, StateBuilder builder) where TValue : struct
     {
         /// <summary>
         ///     Complete the definition of the attribute.
         /// </summary>
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The attribute that was defined.</returns>
-        public IAttribute<TValue> Attribute(TValue? generationDefault = default)
+        public IAttribute<TValue> Attribute(TValue? generationDefault = null)
         {
-            builder.AddAttribute(attribute, name, description, generationDefault);
+            builder.AddAttribute(attribute, name, description, generationDefault ?? attribute.Retrieve(index: 0));
 
             return attribute;
         }
@@ -248,7 +246,7 @@ public partial class StateBuilder(IResourceContext context)
         /// </summary>
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The nullable attribute that was defined.</returns>
-        public IAttribute<TValue?> NullableAttribute(TValue? generationDefault = default)
+        public IAttribute<TValue?> NullableAttribute(TValue? generationDefault = null)
         {
             Attribute<TValue?> nullableAttribute = new NullableAttribute<TValue>(attribute);
 

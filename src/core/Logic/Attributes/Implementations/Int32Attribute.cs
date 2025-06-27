@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
@@ -20,6 +21,8 @@ internal class Int32Attribute(Int32 min, Int32 max) : Attribute<Int32>
 
     public override Int32 Provide(Int32 value)
     {
+        Debug.Assert(value >= min && value < max);
+
         return value - min;
     }
 

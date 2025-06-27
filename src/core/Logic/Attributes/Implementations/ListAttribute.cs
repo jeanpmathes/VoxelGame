@@ -10,7 +10,7 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribute<TElement>
+internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribute<TElement> where TElement : struct
 {
     private readonly TElement[] elements = [..elements];
 
